@@ -107,6 +107,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const httpServer = createServer(app);
 
+  // CRITICAL: Server-side redirect for super admins - bypasses all frontend caching
+  app.get('/dashboard', (req, res, next) => {
+    // Check if user is authenticated and has super_admin role
+    const user = (req as any).session?.user;
+    const userEmail = user?.email;
+    const userRole = user?.role;
+    
+    console.log('🔍 Dashboard intercept - User:', userEmail, 'Role:', userRole);
+    
+    // Redirect super admins to admin dashboard server-side
+    if (userRole === 'super_admin' || 
+        userEmail === 'william.cowell01@gmail.com' || 
+        userEmail === 'admin@myseniorvalet.com') {
+      console.log('🚀 SERVER-SIDE REDIRECT: Super admin detected, redirecting to /admin-mega-dashboard');
+      return res.redirect(307, '/admin-mega-dashboard');
+    }
+    
+    // Continue to serve the regular dashboard
+    next();
+  });
+
   // Register all route modules - ORDER MATTERS!
   registerAuthRoutes(app);
   // DISABLED: Quick auth bypass removed for production
