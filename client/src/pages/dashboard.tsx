@@ -83,42 +83,48 @@ interface TourRequest {
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [location, setLocation] = useLocation();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
   
-  // Redirect super admins to the admin mega dashboard
+  // Immediate redirect for super admins - no waiting
+  const userRole = (user as any)?.role;
+  const userEmail = (user as any)?.email;
+  const isSuperAdmin = userRole === 'super_admin' || 
+                       userEmail === 'william.cowell01@gmail.com' || 
+                       userEmail === 'admin@myseniorvalet.com';
+  
+  // Log for debugging
+  console.log('Dashboard immediate check:', {
+    userEmail,
+    userRole,
+    isSuperAdmin,
+    authLoading,
+    hasUser: !!user
+  });
+  
+  // Redirect immediately if super admin
+  if (isSuperAdmin && !authLoading) {
+    console.log('🚀 IMMEDIATE REDIRECT: Super admin detected, redirecting to admin dashboard');
+    // Use window.location for guaranteed redirect
+    window.location.href = '/admin-mega-dashboard';
+    return null; // Stop rendering immediately
+  }
+  
+  // Also keep the useEffect as backup
   useEffect(() => {
-    if (!user) {
-      console.log('Dashboard: No user yet');
+    if (!user || authLoading) {
       return;
     }
     
-    const userRole = (user as any)?.role;
-    const userEmail = (user as any)?.email;
-    
-    console.log('Dashboard user check:', {
-      fullUser: user,
-      email: userEmail,
-      role: userRole,
-      hasRole: !!userRole
-    });
-    
-    // Check both role and email for super admin access
-    const isSuperAdmin = userRole === 'super_admin' || 
-                         userEmail === 'william.cowell01@gmail.com' || 
-                         userEmail === 'admin@myseniorvalet.com';
-    
-    console.log('Is super admin?', isSuperAdmin);
-    
     if (isSuperAdmin) {
-      console.log('🚀 Redirecting super admin to admin dashboard:', userEmail, userRole);
+      console.log('🚀 useEffect redirect: Super admin to admin dashboard');
       setLocation('/admin-mega-dashboard');
     }
-  }, [user, setLocation]);
+  }, [user, isSuperAdmin, authLoading, setLocation]);
   const [showCommunitySearch, setShowCommunitySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
