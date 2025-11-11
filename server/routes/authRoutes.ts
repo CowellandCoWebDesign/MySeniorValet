@@ -10,7 +10,6 @@ import { authLimiter, createRateLimitMiddleware } from "../infrastructure/rateLi
 import { internalNotifications } from "../services/internal-notifications";
 import { EmailService } from "../services/email";
 import { passwordResetEmail } from "../templates/emailTemplates";
-import { handleAdminSetupStatus, handleCreateFirstAdmin } from "../setup-admin";
 
 export function registerAuthRoutes(app: Express) {
   // Auth limiter is already imported from infrastructure/rateLimiter
@@ -253,13 +252,13 @@ export function registerAuthRoutes(app: Express) {
       const sessionId = req.cookies?.sessionId;
       
       if (!sessionId) {
-        return res.json({ isAuthenticated: false, authenticated: false, user: null });
+        return res.json({ authenticated: false, user: null });
       }
 
       const userId = await authService.validateSession(sessionId);
       
       if (!userId) {
-        return res.json({ isAuthenticated: false, authenticated: false, user: null });
+        return res.json({ authenticated: false, user: null });
       }
 
       const [user] = await db
@@ -269,7 +268,7 @@ export function registerAuthRoutes(app: Express) {
         .limit(1);
 
       if (!user) {
-        return res.json({ isAuthenticated: false, authenticated: false, user: null });
+        return res.json({ authenticated: false, user: null });
       }
 
       // Check if user is super admin by email
@@ -281,8 +280,7 @@ export function registerAuthRoutes(app: Express) {
       const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
       
       res.json({
-        isAuthenticated: true,
-        authenticated: true, // Keep for backward compatibility
+        authenticated: true,
         user: {
           id: user.id,
           email: user.email,
@@ -294,7 +292,7 @@ export function registerAuthRoutes(app: Express) {
       });
     } catch (error) {
       console.error("Auth status error:", error);
-      res.json({ isAuthenticated: false, authenticated: false, user: null });
+      res.json({ authenticated: false, user: null });
     }
   });
 

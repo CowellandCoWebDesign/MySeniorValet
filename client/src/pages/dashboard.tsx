@@ -83,48 +83,12 @@ interface TourRequest {
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { user, isLoading: authLoading } = useAuth();
-  const [location, setLocation] = useLocation();
+  const { user } = useAuth();
+  const [location] = useLocation();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
-  
-  // Immediate redirect for super admins - no waiting
-  const userRole = (user as any)?.role;
-  const userEmail = (user as any)?.email;
-  const isSuperAdmin = userRole === 'super_admin' || 
-                       userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com';
-  
-  // Log for debugging
-  console.log('Dashboard immediate check:', {
-    userEmail,
-    userRole,
-    isSuperAdmin,
-    authLoading,
-    hasUser: !!user
-  });
-  
-  // Redirect immediately if super admin
-  if (isSuperAdmin && !authLoading) {
-    console.log('🚀 IMMEDIATE REDIRECT: Super admin detected, redirecting to admin dashboard');
-    // Use window.location for guaranteed redirect
-    window.location.href = '/admin-mega-dashboard';
-    return null; // Stop rendering immediately
-  }
-  
-  // Also keep the useEffect as backup
-  useEffect(() => {
-    if (!user || authLoading) {
-      return;
-    }
-    
-    if (isSuperAdmin) {
-      console.log('🚀 useEffect redirect: Super admin to admin dashboard');
-      setLocation('/admin-mega-dashboard');
-    }
-  }, [user, isSuperAdmin, authLoading, setLocation]);
   const [showCommunitySearch, setShowCommunitySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);

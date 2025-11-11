@@ -30,7 +30,6 @@ import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
-import AdminSetup from "@/pages/AdminSetup";
 import Dashboard from "@/pages/dashboard";
 import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import PersonalizedDashboard from "@/pages/personalized-dashboard";
@@ -320,7 +319,6 @@ function Router() {
       <Route path="/signup" component={Signup} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
-      <Route path="/admin/setup" component={AdminSetup} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />

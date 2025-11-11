@@ -115,18 +115,7 @@ app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 // Add cookie parser middleware early in the chain
 app.use(cookieParser());
 
-// Cache optimization: Force fresh JavaScript for development
-// Add aggressive cache-busting headers for JavaScript files
-app.use((req, res, next) => {
-  // Apply no-cache headers to JavaScript and HTML files
-  if (req.path.endsWith('.js') || req.path.endsWith('.html') || req.path === '/dashboard' || req.path === '/') {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    console.log('🚫 Cache disabled for:', req.path);
-  }
-  next();
-});
+// Cache optimization: production mode, no cache busting
 
 // Input security middleware
 app.use(sanitizeInput);

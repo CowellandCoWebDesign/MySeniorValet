@@ -34,15 +34,6 @@ import serviceIntelligenceRoutes from './routes/service-intelligence';
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
 
-  // Register admin setup routes FIRST (before any auth middleware)
-  // These routes handle first-time admin account creation after deployment
-  const { registerSetupRoutes } = await import('./routes/setupRoutes');
-  registerSetupRoutes(app);
-
-  // Emergency admin reset routes (always available for recovery)
-  const { registerEmergencyRoutes } = await import('./routes/emergencyAdminReset');
-  registerEmergencyRoutes(app);
-
   // Initialize custom authentication (no Replit account required)
   const { setupCustomAuth } = await import('./custom-auth');
   setupCustomAuth(app);

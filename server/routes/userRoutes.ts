@@ -25,26 +25,6 @@ function requireSessionAuth(req: any, res: any, next: any) {
 
 const requireAuth = requireSessionAuth;
 
-// Helper function to format price range object to string
-function formatPriceRange(priceRange: any): string {
-  if (!priceRange) return 'Contact for pricing';
-  
-  // If it's already a string, return it
-  if (typeof priceRange === 'string') return priceRange;
-  
-  // If it's an object with min, max, currency
-  if (typeof priceRange === 'object' && priceRange !== null) {
-    const { min, max, currency = '$' } = priceRange;
-    if (min !== undefined && max !== undefined) {
-      // Format as currency range
-      const currencySymbol = currency === 'USD' || currency === '$' ? '$' : currency;
-      return `${currencySymbol}${min.toLocaleString()}-${currencySymbol}${max.toLocaleString()}`;
-    }
-  }
-  
-  return 'Contact for pricing';
-}
-
 export function registerUserRoutes(app: Express) {
   // User favorites
   app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
@@ -648,7 +628,7 @@ export function registerUserRoutes(app: Express) {
           address: `${f.community.city}, ${f.community.state}`,
           city: f.community.city,
           state: f.community.state,
-          priceRange: formatPriceRange(f.community.priceRange),
+          priceRange: f.community.priceRange || 'Contact for pricing',
           careType: Array.isArray(f.community.careTypes) ? f.community.careTypes[0] : 'Senior Living',
           rating: f.community.rating || 4.0,
           availability: f.community.availability || 'Available',
@@ -677,7 +657,7 @@ export function registerUserRoutes(app: Express) {
           name: r.name,
           city: r.city,
           state: r.state,
-          priceRange: formatPriceRange(r.priceRange),
+          priceRange: r.priceRange || 'Contact for pricing',
           rating: r.rating || 4.0,
           careTypes: r.careTypes,
           photos: r.photos

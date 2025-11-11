@@ -117,7 +117,6 @@ export interface IStorage {
   // Admin methods
   getAdminAnalytics(): Promise<any>;
   getRecentActivity(limit: number): Promise<UserActivity[]>;
-  getSuperAdminCount(): Promise<number>;
 
   // CRM methods
   createLead(lead: InsertLead): Promise<Lead>;
@@ -2569,31 +2568,6 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return updated || undefined;
-  }
-
-  async getSuperAdminCount(): Promise<number> {
-    // Use cached count for performance, but with short TTL for setup flow
-    const cacheKey = 'super_admin_count';
-    const cachedCount = cache.get(cacheKey);
-    
-    if (cachedCount !== undefined && cachedCount > 0) {
-      // If we already have super admins, trust the cache
-      return cachedCount;
-    }
-    
-    // Query database for fresh count
-    const result = await db
-      .select({ count: sql<number>`count(*)::int` })
-      .from(users)
-      .where(eq(users.role, 'super_admin'));
-    
-    const count = result[0]?.count || 0;
-    
-    // Cache for 30 seconds if no super admins, longer if they exist
-    const ttl = count === 0 ? 30 : 300; // 30s for setup, 5min after
-    cache.set(cacheKey, count, ttl);
-    
-    return count;
   }
 }
 

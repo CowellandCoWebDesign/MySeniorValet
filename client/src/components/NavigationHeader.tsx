@@ -344,9 +344,9 @@ export function NavigationHeader({
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href={user?.role === 'super_admin' ? '/admin-mega-dashboard' : '/dashboard'}>
+                    <Link href="/dashboard">
                       <User className="mr-2 h-4 w-4" />
-                      <span>{user?.role === 'super_admin' ? 'Admin Dashboard' : 'Dashboard'}</span>
+                      <span>Dashboard</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>

@@ -16,14 +16,14 @@ export function useAuth() {
       }
     },
     retry: false,
-    staleTime: 0, // NO CACHE - always fetch fresh
-    gcTime: 0, // NO CACHE - don't keep stale data
-    refetchOnMount: true, // Always refetch on mount
-    refetchOnReconnect: true, // Always refetch on reconnect
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   
-  // ALWAYS fetch full user data including role when authenticated
-  const { data: fullUser, isLoading: userLoading } = useQuery({
+  // Also check Replit OAuth for backward compatibility
+  const { data: replitUser, isLoading: replitLoading } = useQuery({
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       try {
@@ -31,25 +31,22 @@ export function useAuth() {
           credentials: "include", // Include cookies with request
         });
         if (!response.ok) return null;
-        const userData = await response.json();
-        console.log('useAuth: Full user data fetched:', userData.email, 'Role:', userData.role);
-        return userData;
+        return await response.json();
       } catch {
         return null;
       }
     },
     retry: false,
-    enabled: authStatus?.isAuthenticated === true, // CHANGED: Fetch when authenticated to get role
-    staleTime: 0, // NO CACHE - always fetch fresh
-    gcTime: 0, // NO CACHE - don't keep stale data
-    refetchOnMount: true, // Always refetch on mount
-    refetchOnReconnect: true, // Always refetch on reconnect
+    enabled: !authStatus?.isAuthenticated, // Only check if bypass auth failed
+    staleTime: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
   
-  // Use fullUser when available as it has the complete data including role
-  const user = fullUser || authStatus?.user;
-  const isLoading = statusLoading || (userLoading && authStatus?.isAuthenticated);
-  const isAuthenticated = !!(authStatus?.isAuthenticated || fullUser);
+  const user = authStatus?.user || replitUser;
+  const isLoading = statusLoading || (replitLoading && !authStatus?.isAuthenticated);
+  const isAuthenticated = !!(authStatus?.isAuthenticated || replitUser);
   
   return {
     user,
