@@ -1155,7 +1155,14 @@ export default function Dashboard() {
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Price Range Interest</p>
                         <div className="flex flex-wrap gap-2">
-                          {Array.from(new Set(savedCommunities.map(c => c.priceRange))).map((range, idx) => (
+                          {Array.from(new Set(savedCommunities.map(c => {
+                            // Handle both string and object formats for priceRange
+                            if (typeof c.priceRange === 'object' && c.priceRange !== null) {
+                              const { min, max, currency = '$' } = c.priceRange as any;
+                              return `${currency}${min?.toLocaleString() || 0} - ${currency}${max?.toLocaleString() || 0}`;
+                            }
+                            return String(c.priceRange);
+                          }))).map((range, idx) => (
                             <Badge key={idx} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full">
                               {range}
                             </Badge>
