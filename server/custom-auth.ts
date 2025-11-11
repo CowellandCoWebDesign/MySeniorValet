@@ -250,20 +250,78 @@ export function setupCustomAuth(app: Express) {
   });
   
   // Get current user
-  router.get('/api/auth/user', (req, res) => {
+  router.get('/api/auth/user', async (req, res) => {
     const sessionData = req.session as any;
     if (!sessionData.user) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
-    res.json(sessionData.user);
+    
+    // If the user has an ID, fetch their full data including role from database
+    if (sessionData.user.id) {
+      try {
+        const [dbUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, String(sessionData.user.id)))
+          .limit(1);
+        
+        if (dbUser) {
+          // Merge database data with session data to include role
+          const userWithRole = {
+            ...sessionData.user,
+            role: dbUser.role || 'user',
+            email: dbUser.email || sessionData.user.email
+          };
+          console.log('Auth user with role:', userWithRole.email, userWithRole.role);
+          res.json(userWithRole);
+        } else {
+          res.json(sessionData.user);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+        res.json(sessionData.user);
+      }
+    } else {
+      res.json(sessionData.user);
+    }
   });
   
   // Check auth status
-  router.get('/api/auth/status', (req, res) => {
+  router.get('/api/auth/status', async (req, res) => {
     const sessionData = req.session as any;
+    if (!sessionData.user) {
+      return res.json({
+        isAuthenticated: false,
+        user: null,
+      });
+    }
+    
+    // Fetch user role from database if user is authenticated
+    let userWithRole = sessionData.user;
+    if (sessionData.user.id) {
+      try {
+        const [dbUser] = await db
+          .select()
+          .from(users)
+          .where(eq(users.id, String(sessionData.user.id)))
+          .limit(1);
+        
+        if (dbUser) {
+          userWithRole = {
+            ...sessionData.user,
+            role: dbUser.role || 'user',
+            email: dbUser.email || sessionData.user.email
+          };
+          console.log('Auth status with role:', userWithRole.email, userWithRole.role);
+        }
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    }
+    
     res.json({
-      isAuthenticated: !!sessionData.user,
-      user: sessionData.user || null,
+      isAuthenticated: true,
+      user: userWithRole,
     });
   });
   
