@@ -400,10 +400,24 @@ export function registerAuthRoutes(app: Express) {
         return res.status(400).json({ message: "Token and new password are required" });
       }
 
-      const success = await authService.resetPassword(token, newPassword);
+      const result = await authService.resetPassword(token, newPassword);
       
-      if (!success) {
+      if (!result.success) {
         return res.status(400).json({ message: "Invalid or expired reset token" });
+      }
+
+      // Log password reset AFTER successful database update with correct user
+      const { PasswordChangeLogger } = await import('../middleware/password-change-logger');
+      
+      if (result.user) {
+        await PasswordChangeLogger.logPasswordChange(
+          result.user.id,
+          result.user.email,
+          'password_reset',
+          'reset_token',
+          req.ip,
+          req.get('user-agent')
+        );
       }
 
       res.json({ message: "Password reset successfully" });

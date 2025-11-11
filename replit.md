@@ -1,3 +1,19 @@
+## Security Incident Report & Recovery (November 11, 2025)
+**Incident**: On August 25, 2025, a batch operation affected multiple user passwords, including the super admin accounts. Investigation revealed 17 users were created and 14 were updated at the exact same timestamp (16:39:01.546463). The root cause was not identified in current codebase, suggesting a one-time script or migration that was subsequently removed.
+
+**Resolution**:
+- Passwords for william.cowell01@gmail.com and admin@myseniorvalet.com have been reset to "TempPassword123!" (November 11, 2025)
+- Login functionality confirmed working for both super admin accounts
+- Password audit system implemented to track all future password changes
+- Security logging middleware added to detect bulk password operations
+- Database audit table created to maintain historical record
+
+**Security Measures Implemented**:
+- `PasswordChangeLogger` middleware now tracks all password operations with IP, user agent, and timestamp
+- Automatic alerts trigger if >3 passwords change within 60 seconds
+- All password changes logged to `password_audit_log` table for forensic analysis
+- Integration with custom-auth.ts ensures all authentication flows are monitored
+
 ## Overview
 MySeniorValet is an AI-powered "Google of Senior Care" platform designed to bring transparency to senior living. It features a "Learn Mode" and a unified AI search engine. The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. The business model provides free platform access to families, with revenue generated from B2B clients.
 

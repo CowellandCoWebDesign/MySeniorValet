@@ -101,16 +101,6 @@ export function setupCustomAuth(app: Express) {
       const hashedPassword = await bcrypt.hash(password, 10);
       const username = email.split('@')[0].toLowerCase();
       
-      // Log password creation for security audit
-      await PasswordChangeLogger.logPasswordChange(
-        username,
-        email.toLowerCase(),
-        'password_created',
-        'registration',
-        req.ip,
-        req.get('user-agent')
-      );
-      
       // Create user with proper account type
       const [newUser] = await db
         .insert(users)
@@ -127,6 +117,16 @@ export function setupCustomAuth(app: Express) {
           updatedAt: new Date(),
         })
         .returning();
+      
+      // Log password creation AFTER successful database write
+      await PasswordChangeLogger.logPasswordChange(
+        newUser.id,
+        newUser.email,
+        'password_created',
+        'registration',
+        req.ip,
+        req.get('user-agent')
+      );
       
       // Send notification to admin about new registration
       await notifySuperAdmin(
@@ -397,16 +397,6 @@ export function setupCustomAuth(app: Express) {
       // Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
       
-      // Log password change for security audit
-      await PasswordChangeLogger.logPasswordChange(
-        user.id,
-        user.email,
-        'password_changed',
-        'user_change_password',
-        req.ip,
-        req.get('user-agent')
-      );
-      
       // Update password
       await db
         .update(users)
@@ -417,6 +407,16 @@ export function setupCustomAuth(app: Express) {
           updatedAt: new Date()
         })
         .where(eq(users.id, user.id));
+      
+      // Log password change AFTER successful database update
+      await PasswordChangeLogger.logPasswordChange(
+        user.id,
+        user.email,
+        'password_changed',
+        'user_change_password',
+        req.ip,
+        req.get('user-agent')
+      );
       
       res.json({
         success: true,

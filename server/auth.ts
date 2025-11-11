@@ -171,7 +171,7 @@ export class AuthService {
     return token;
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<boolean> {
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; user?: { id: number; email: string } }> {
     const { users } = await import('@shared/schema');
     
     const [user] = await db
@@ -180,7 +180,7 @@ export class AuthService {
       .where(eq(users.passwordResetToken, token));
 
     if (!user || !user.passwordResetExpires || user.passwordResetExpires < new Date()) {
-      return false;
+      return { success: false };
     }
 
     const hashedPassword = await this.hashPassword(newPassword);
@@ -201,7 +201,8 @@ export class AuthService {
       .delete(userSessions)
       .where(eq(userSessions.userId, user.id));
 
-    return true;
+    // Return user info for logging
+    return { success: true, user: { id: user.id, email: user.email } };
   }
 
   async generateEmailVerificationToken(userId: number): Promise<string> {
