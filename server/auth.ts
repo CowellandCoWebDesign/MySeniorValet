@@ -107,20 +107,27 @@ export class AuthService {
   }
 
   async login(data: LoginForm): Promise<{ user: User; sessionId: string }> {
+    console.log('Auth service: Attempting login for:', data.email);
+    
     // Find user by email (treating it as username in our simplified schema)
     const user = await storage.getUserByEmail(data.email);
     if (!user) {
+      console.error('Auth service: User not found for email:', data.email);
       throw new Error('Invalid email or password');
     }
+    console.log('Auth service: User found:', user.email, 'with ID:', user.id);
 
     // Verify password
     const isValidPassword = await this.verifyPassword(data.password, user.password);
     if (!isValidPassword) {
+      console.error('Auth service: Password verification failed for user:', data.email);
       throw new Error('Invalid email or password');
     }
+    console.log('Auth service: Password verified successfully');
 
     // Create session
     const sessionId = await this.createSession(user.id);
+    console.log('Auth service: Session created with ID:', sessionId);
 
     return { user, sessionId };
   }

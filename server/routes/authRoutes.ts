@@ -75,14 +75,17 @@ export function registerAuthRoutes(app: Express) {
   // User login
   app.post("/api/auth/login", createRateLimitMiddleware(authLimiter), async (req: any, res) => {
     try {
+      console.log("Login attempt for:", req.body.email);
       const validatedData = loginSchema.parse(req.body);
       
       const result = await authService.login(validatedData);
       if (!result) {
+        console.error("Login failed: authService.login returned null");
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
       const { user, sessionId } = result;
+      console.log("Login successful for user:", user.email, "with role:", user.role);
       
       // Set session data for req.session
       req.session.userId = user.id;
