@@ -1,18 +1,35 @@
-## Security Incident Report & Recovery (November 11, 2025)
+## Security & Admin Account Management (November 11, 2025)
+
+### Automatic Admin Account Initialization
+The system now automatically initializes super admin accounts on server startup:
+- **Primary Admin**: william.cowell01@gmail.com
+- **Backup Admin**: admin@myseniorvalet.com
+
+**Configuration**:
+- Set `ADMIN_PASSWORD` environment variable for production (required for security)
+- In development, uses default password if ADMIN_PASSWORD not set
+- Accounts are created automatically if they don't exist
+- Existing accounts are upgraded to super_admin role if needed
+- No manual scripts needed - fully automated on server start
+
+### Security Incident Report & Recovery
 **Incident**: On August 25, 2025, a batch operation affected multiple user passwords, including the super admin accounts. Investigation revealed 17 users were created and 14 were updated at the exact same timestamp (16:39:01.546463). The root cause was not identified in current codebase, suggesting a one-time script or migration that was subsequently removed.
 
 **Resolution**:
-- Passwords for william.cowell01@gmail.com and admin@myseniorvalet.com have been reset to "TempPassword123!" (November 11, 2025)
-- Login functionality confirmed working for both super admin accounts
+- Automatic admin initialization ensures accounts are always available
 - Password audit system implemented to track all future password changes
-- Security logging middleware added to detect bulk password operations
-- Database audit table created to maintain historical record
+- Multi-dimensional anomaly detection prevents bulk password attacks
+- Database audit table maintains forensic trail of all password operations
 
 **Security Measures Implemented**:
-- `PasswordChangeLogger` middleware now tracks all password operations with IP, user agent, and timestamp
-- Automatic alerts trigger if >3 passwords change within 60 seconds
-- All password changes logged to `password_audit_log` table for forensic analysis
-- Integration with custom-auth.ts ensures all authentication flows are monitored
+- `PasswordChangeLogger` middleware tracks all password operations with full metadata
+- Multi-dimensional anomaly detection with differentiated thresholds:
+  - Password resets: 3/minute per channel, 5/minute per IP
+  - Password changes: 5/minute per channel, 7/minute per IP  
+  - Account creation: 10/minute globally
+- All password changes logged AFTER successful database writes (no false positives)
+- Deduplication prevents alert spam while maintaining security visibility
+- Integration with all authentication endpoints (custom-auth, standard auth, reset flows)
 
 ## Overview
 MySeniorValet is an AI-powered "Google of Senior Care" platform designed to bring transparency to senior living. It features a "Learn Mode" and a unified AI search engine. The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. The business model provides free platform access to families, with revenue generated from B2B clients.
