@@ -75,6 +75,7 @@ import { communities, reviews, perplexityCache } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { generateCommunitySlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
+import { communityEnrichmentService } from './services/community-enrichment-service';
 
 // Cache for rendered HTML pages (performance optimization)
 // LRU eviction ensures memory doesn't grow unbounded
@@ -121,54 +122,72 @@ function isSearchEngineCrawler(userAgent: string): boolean {
 }
 
 /**
- * Merge enrichment data from perplexity_cache and communities table
+ * Merge enrichment data from communities.enrichedContent and CommunityEnrichmentService
  * 
  * Data Priority (Waterfall):
- * 1. FRESH: perplexity_cache.rawPerplexityContent (if not expired, 7-day TTL)
- * 2. STALE: communities.description (fallback if cache expired)
- * 3. ERROR: communities.description (fallback on database errors)
+ * 1. FRESH: communities.enrichedContent (if not expired, 7-day TTL)
+ * 2. SERVICE: CommunityEnrichmentService (fetches and caches if stale)
+ * 3. STALE: communities.description (fallback if enrichment fails)
+ * 4. ERROR: communities.description (fallback on database errors)
  * 
  * Why This Matters for SEO:
  * - Fresh Perplexity content (4,000+ chars) = better search rankings
- * - Photos from enrichment = rich snippets in Google
+ * - Structured metadata = better schema.org markup
+ * - SEO data = optimized meta descriptions and keywords
  * - Fallback ensures pages always have content (never empty)
  * 
  * @param communityId - The numeric community ID
  * @param community - The community record from database
- * @returns Enriched data object with description, photos, and metadata
+ * @returns Enriched data object with description, photos, SEO data, and metadata
  */
 async function getEnrichedCommunityData(communityId: number, community: any) {
   try {
-    // STEP 1: Check perplexity_cache for fresh enrichment data (7-day TTL)
-    // Cache key format: "community_75335"
-    const cacheKey = `community_${communityId}`;
-    const cachedData = await db
-      .select()
-      .from(perplexityCache)
-      .where(eq(perplexityCache.communityId, cacheKey))
-      .limit(1);
-    
-    if (cachedData.length > 0) {
-      const cache = cachedData[0];
-      const now = new Date();
+    // STEP 1: Check if community already has enriched content
+    if (community.enrichedContent) {
+      // Check if content is fresh (less than 7 days old)
+      const sevenDaysAgo = new Date();
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
       
-      // STEP 2: Use cached data if not expired (cache.expiresAt > now)
-      if (cache.expiresAt > now) {
+      if (community.enrichedAt && community.enrichedAt > sevenDaysAgo) {
+        // Content is fresh, use it directly
+        const enrichment = community.enrichedContent;
         return {
-          description: cache.rawPerplexityContent || community.description,
-          photos: cache.photos && cache.photos.length > 0 ? cache.photos : community.photos,
+          description: enrichment.content || community.description,
+          photos: community.photos || [],
           hasEnrichment: true,
-          enrichmentSource: 'cache' // ✅ Best: Fresh Perplexity content
+          enrichmentSource: 'fresh',
+          seoData: enrichment.seoData || {},
+          metadata: enrichment.metadata || {},
+          wordCount: enrichment.metadata?.wordCount || 0
         };
       }
     }
     
-    // STEP 3: Fall back to database fields if cache expired or missing
+    // STEP 2: Use CommunityEnrichmentService to get enriched content
+    // This will check cache, database, or enqueue background job as needed
+    const enrichmentResult = await communityEnrichmentService.getEnrichedContent(communityId);
+    
+    if (enrichmentResult) {
+      return {
+        description: enrichmentResult.content,
+        photos: community.photos || [],
+        hasEnrichment: true,
+        enrichmentSource: 'service',
+        seoData: enrichmentResult.seoData,
+        metadata: enrichmentResult.metadata,
+        wordCount: enrichmentResult.metadata.wordCount
+      };
+    }
+    
+    // STEP 3: Fall back to database fields if enrichment unavailable
     return {
       description: community.description,
-      photos: community.photos,
+      photos: community.photos || [],
       hasEnrichment: !!community.description,
-      enrichmentSource: 'database' // ⚠️ Stale: Using old community description
+      enrichmentSource: 'database',
+      seoData: {},
+      metadata: {},
+      wordCount: community.description?.split(/\s+/).length || 0
     };
   } catch (error) {
     console.error('Error fetching enrichment data:', error);
@@ -176,9 +195,12 @@ async function getEnrichedCommunityData(communityId: number, community: any) {
     // STEP 4: Error fallback - always return something (never fail silently)
     return {
       description: community.description,
-      photos: community.photos,
+      photos: community.photos || [],
       hasEnrichment: false,
-      enrichmentSource: 'fallback' // 🚨 Error: Database query failed
+      enrichmentSource: 'fallback',
+      seoData: {},
+      metadata: {},
+      wordCount: 0
     };
   }
 }
