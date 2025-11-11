@@ -3,7 +3,7 @@ import { NotificationMonitor } from '../services/notification-monitor';
 import { ProductionEmailTester } from '../services/production-email-tester';
 import { RateLimitManager } from '../services/rate-limit-manager';
 import { NotificationPreferencesService } from '../services/notification-preferences';
-import { requireAuth } from '../custom-auth';
+import { requireAuth } from '../auth-middleware';
 
 const router = Router();
 

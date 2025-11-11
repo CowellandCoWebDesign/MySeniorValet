@@ -26,10 +26,6 @@ import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
 import Accessibility from "@/pages/accessibility";
-import Login from "@/pages/login";
-import Signup from "@/pages/signup";
-import ForgotPassword from "@/pages/forgot-password";
-import ResetPassword from "@/pages/reset-password";
 import Dashboard from "@/pages/dashboard";
 import EnterpriseDashboard from "@/pages/enterprise-dashboard";
 import PersonalizedDashboard from "@/pages/personalized-dashboard";
@@ -315,10 +311,6 @@ function Router() {
       <Route path="/family-connect" component={FamilyConnect} />
       <Route path="/emergency-contacts" component={EmergencyContacts} />
       <Route path="/security-settings" component={SecuritySettingsPage} />
-      <Route path="/login" component={Login} />
-      <Route path="/signup" component={Signup} />
-      <Route path="/forgot-password" component={ForgotPassword} />
-      <Route path="/reset-password" component={ResetPassword} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />
       <Route path="/privacy" component={Privacy} />

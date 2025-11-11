@@ -1,32 +1,78 @@
 /**
- * Custom Authentication Middleware
- * Replaces Replit Auth with our custom email/password system
+ * Authentication Middleware Compatibility Layer
+ * Bridges Replit Auth with existing route handlers that expect session-based auth
  */
 
 import { RequestHandler } from 'express';
+import { isAuthenticated as replitIsAuthenticated } from './replitAuth';
+import { storage } from './storage';
 
-// Check if user is authenticated
+// Middleware to hydrate full user data from database after Replit Auth
+export const attachDbUser: RequestHandler = async (req, res, next) => {
+  // If Replit Auth has set req.user (from passport), hydrate full user data
+  if ((req as any).user?.id) {
+    try {
+      const userId = (req as any).user.id;
+      const fullUser = await storage.getUserById(userId);
+      
+      if (fullUser) {
+        // Update req.user with full database user object
+        (req as any).user = {
+          id: fullUser.id,
+          email: fullUser.email,
+          firstName: fullUser.firstName,
+          lastName: fullUser.lastName,
+          role: fullUser.role,
+          authId: fullUser.authId,
+          // Keep any additional fields from database
+          ...fullUser
+        };
+        
+        // Also set on session for backward compatibility
+        if ((req as any).session) {
+          (req as any).session.userId = fullUser.id;
+          (req as any).session.user = (req as any).user;
+        }
+      }
+    } catch (error) {
+      console.error('Error hydrating user data:', error);
+      // Continue without full user data - let route handlers decide what to do
+    }
+  }
+  next();
+};
+
+// Check if user is authenticated (compatible with both Replit Auth and session)
 export const isAuthenticated: RequestHandler = (req, res, next) => {
-  // Check if user has a valid session
-  if ((req.session as any)?.userId) {
+  // First try Replit Auth
+  if ((req as any).user?.id) {
     return next();
   }
+  
+  // Fallback to session (for transition period)
+  if ((req as any).session?.userId) {
+    return next();
+  }
+  
   return res.status(401).json({ message: "Unauthorized" });
 };
 
 // Check if user is admin
 export const isAdmin: RequestHandler = (req, res, next) => {
-  const user = (req.session as any)?.user;
+  const user = (req as any).user || (req as any).session?.user;
+  
   if (user && (user.role === 'admin' || user.role === 'super_admin')) {
     return next();
   }
+  
   return res.status(403).json({ message: "Admin access required" });
 };
 
 // Check for specific role
 export const checkRole = (requiredRole: string): RequestHandler => {
   return (req, res, next) => {
-    const user = (req.session as any)?.user;
+    const user = (req as any).user || (req as any).session?.user;
+    
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -45,29 +91,30 @@ export const checkRole = (requiredRole: string): RequestHandler => {
   };
 };
 
-// Create authenticated session (for payment flows)
+// Create authenticated session (for payment flows and special cases)
 export const createAuthenticatedSession = async (req: any, userId: number) => {
-  const { db } = await import('./db');
-  const { users } = await import('../shared/schema');
-  const { eq } = await import('drizzle-orm');
+  const fullUser = await storage.getUserById(userId);
   
-  const [user] = await db
-    .select()
-    .from(users)
-    .where(eq(users.id, userId))
-    .limit(1);
-    
-  if (user) {
-    req.session.userId = user.id;
-    req.session.user = {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      role: user.role,
+  if (fullUser) {
+    req.user = {
+      id: fullUser.id,
+      email: fullUser.email,
+      firstName: fullUser.firstName,
+      lastName: fullUser.lastName,
+      role: fullUser.role,
+      authId: fullUser.authId,
+      ...fullUser
     };
+    
+    if (req.session) {
+      req.session.userId = fullUser.id;
+      req.session.user = req.user;
+    }
   }
 };
 
-// Alias for backwards compatibility
+// Alias for backwards compatibility with existing routes
 export const requireAuth = isAuthenticated;
+
+// Re-export Replit Auth's isAuthenticated for direct use if needed
+export { replitIsAuthenticated };
