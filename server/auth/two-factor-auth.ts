@@ -133,16 +133,18 @@ export async function verifyBackupCode(code: string, hashedCodes: string[]): Pro
 
 /**
  * Check if user requires 2FA (admin accounts)
- * Admin accounts MUST have 2FA enabled
+ * TEMPORARILY DISABLED: Admin 2FA requirement disabled on 2025-11-11
+ * TODO: Implement proper 2FA enrollment flow before re-enabling
  */
 export function requires2FA(email: string): boolean {
-  const adminEmails = [
-    'william.cowell01@gmail.com',
-    'admin@myseniorvalet.com',
-    'super_admin@myseniorvalet.com'
-  ];
+  // TEMPORARILY DISABLED to restore admin access
+  // Admin emails that will require 2FA once properly configured:
+  // - william.cowell01@gmail.com
+  // - admin@myseniorvalet.com
+  // - super_admin@myseniorvalet.com
   
-  return adminEmails.includes(email.toLowerCase());
+  // Return false to disable forced 2FA until proper enrollment flow is implemented
+  return false;
 }
 
 /**
