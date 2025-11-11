@@ -104,6 +104,7 @@ export function registerAuthRoutes(app: Express) {
 
       res.json({
         success: true,
+        requires2FA: false, // Critical: Frontend checks this flag, not twoFactorEnabled
         user: {
           id: user.id,
           email: user.email,
