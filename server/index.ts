@@ -308,8 +308,16 @@ app.use((req, res, next) => {
   server.listen({
     port,
     host: "0.0.0.0",
-  }, () => {
+  }, async () => {
     log(`serving on port ${port}`);
+    
+    // Initialize admin accounts automatically
+    try {
+      const { initializeAdminAccounts } = await import('./services/admin-account-initializer');
+      await initializeAdminAccounts();
+    } catch (error) {
+      console.error('Failed to initialize admin accounts:', error);
+    }
     
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);
