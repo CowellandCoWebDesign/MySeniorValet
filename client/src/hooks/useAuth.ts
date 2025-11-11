@@ -16,10 +16,10 @@ export function useAuth() {
       }
     },
     retry: false,
-    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
-    gcTime: 1000 * 60 * 10, // Keep in cache for 10 minutes
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    staleTime: 0, // NO CACHE - always fetch fresh
+    gcTime: 0, // NO CACHE - don't keep stale data
+    refetchOnMount: true, // Always refetch on mount
+    refetchOnReconnect: true, // Always refetch on reconnect
   });
   
   // ALWAYS fetch full user data including role when authenticated
@@ -40,10 +40,10 @@ export function useAuth() {
     },
     retry: false,
     enabled: authStatus?.isAuthenticated === true, // CHANGED: Fetch when authenticated to get role
-    staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    staleTime: 0, // NO CACHE - always fetch fresh
+    gcTime: 0, // NO CACHE - don't keep stale data
+    refetchOnMount: true, // Always refetch on mount
+    refetchOnReconnect: true, // Always refetch on reconnect
   });
   
   // Use fullUser when available as it has the complete data including role
