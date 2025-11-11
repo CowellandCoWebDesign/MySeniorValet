@@ -10,6 +10,7 @@ import { authLimiter, createRateLimitMiddleware } from "../infrastructure/rateLi
 import { internalNotifications } from "../services/internal-notifications";
 import { EmailService } from "../services/email";
 import { passwordResetEmail } from "../templates/emailTemplates";
+import { handleAdminSetupStatus, handleCreateFirstAdmin } from "../setup-admin";
 
 export function registerAuthRoutes(app: Express) {
   // Auth limiter is already imported from infrastructure/rateLimiter
