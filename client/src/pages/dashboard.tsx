@@ -92,7 +92,16 @@ export default function Dashboard() {
   
   // Redirect super admins to the admin mega dashboard
   useEffect(() => {
-    if (user?.role === 'super_admin') {
+    const userRole = (user as any)?.role;
+    const userEmail = (user as any)?.email;
+    
+    // Check both role and email for super admin access
+    const isSuperAdmin = userRole === 'super_admin' || 
+                         userEmail === 'william.cowell01@gmail.com' || 
+                         userEmail === 'admin@myseniorvalet.com';
+    
+    if (user && isSuperAdmin) {
+      console.log('Redirecting super admin to admin dashboard:', userEmail, userRole);
       setLocation('/admin-mega-dashboard');
     }
   }, [user, setLocation]);
