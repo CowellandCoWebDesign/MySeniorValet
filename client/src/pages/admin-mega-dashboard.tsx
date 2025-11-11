@@ -200,7 +200,8 @@ interface SubscriptionPlan {
 // Color palette for charts
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
 
-export default function AdminMegaDashboard() {
+// Inner component with all hooks
+function AdminMegaDashboardContent() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
@@ -523,30 +524,6 @@ export default function AdminMegaDashboard() {
       return () => clearInterval(interval);
     }
   }, [activeTab]);
-  
-  // Block non-super admin users (except in development)
-  if (!user || !isSuperAdmin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <Card className="max-w-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="h-6 w-6 text-red-600" />
-              Access Denied
-            </CardTitle>
-            <CardDescription>
-              This comprehensive dashboard is restricted to super administrators only.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => setLocation("/")}>
-              Return to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   // ========== DATA QUERIES ==========
   
@@ -3427,4 +3404,42 @@ Communities Created: ${details.stats.communitiesCreated}`;
       </div>
     </div>
   );
+}
+
+// Wrapper component that checks auth before rendering
+export default function AdminMegaDashboard() {
+  const { user } = useAuth();
+  const [, setLocation] = useLocation();
+  
+  // Check if user is super admin (in development or production)
+  const isDevelopment = window.location.hostname.includes('localhost') || 
+                        window.location.hostname.includes('replit.dev');
+  const isSuperAdmin = user?.role === 'super_admin' || (isDevelopment && user?.role === 'admin');
+  
+  // Check auth before rendering any hooks
+  if (!user || !isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <Card className="max-w-2xl">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-6 w-6 text-red-600" />
+              Access Denied
+            </CardTitle>
+            <CardDescription>
+              This comprehensive dashboard is restricted to super administrators only.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => setLocation("/")}>
+              Return to Home
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  // User is authorized, render the dashboard content with all hooks
+  return <AdminMegaDashboardContent />;
 }

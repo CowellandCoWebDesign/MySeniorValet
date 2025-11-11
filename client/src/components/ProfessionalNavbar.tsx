@@ -416,7 +416,10 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center space-x-2 w-full cursor-pointer">
+                    <Link 
+                      href={user?.role === 'super_admin' ? '/admin-mega-dashboard' : '/dashboard'} 
+                      className="flex items-center space-x-2 w-full cursor-pointer"
+                    >
                       <User className="h-4 w-4" />
                       <span>Dashboard</span>
                     </Link>
