@@ -39,6 +39,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const { registerSetupRoutes } = await import('./routes/setupRoutes');
   registerSetupRoutes(app);
 
+  // Emergency admin reset routes (always available for recovery)
+  const { registerEmergencyRoutes } = await import('./routes/emergencyAdminReset');
+  registerEmergencyRoutes(app);
+
   // Initialize custom authentication (no Replit account required)
   const { setupCustomAuth } = await import('./custom-auth');
   setupCustomAuth(app);
