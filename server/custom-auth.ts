@@ -23,6 +23,7 @@ import {
   requires2FA,
   useBackupCode
 } from './auth/two-factor-auth';
+import { PasswordChangeLogger } from './middleware/password-change-logger';
 
 // Session configuration for production
 export function setupCustomAuth(app: Express) {
@@ -99,6 +100,16 @@ export function setupCustomAuth(app: Express) {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
       const username = email.split('@')[0].toLowerCase();
+      
+      // Log password creation for security audit
+      await PasswordChangeLogger.logPasswordChange(
+        username,
+        email.toLowerCase(),
+        'password_created',
+        'registration',
+        req.ip,
+        req.get('user-agent')
+      );
       
       // Create user with proper account type
       const [newUser] = await db
@@ -385,6 +396,16 @@ export function setupCustomAuth(app: Express) {
       
       // Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
+      
+      // Log password change for security audit
+      await PasswordChangeLogger.logPasswordChange(
+        user.id,
+        user.email,
+        'password_changed',
+        'user_change_password',
+        req.ip,
+        req.get('user-agent')
+      );
       
       // Update password
       await db
