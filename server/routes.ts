@@ -34,21 +34,28 @@ import serviceIntelligenceRoutes from './routes/service-intelligence';
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
 
-  // Initialize custom authentication (no Replit account required)
-  const { setupCustomAuth } = await import('./custom-auth');
-  setupCustomAuth(app);
-
-  // Initialize social authentication (Google & Facebook OAuth)
-  const { setupSocialAuth } = await import('./social-auth');
-  setupSocialAuth(app);
-
-  // Redirect old Replit Auth endpoint to login page
-  app.get('/api/login', (req, res) => {
-    // Preserve any query parameters from the original request
-    const queryString = req.originalUrl.includes('?') ? req.originalUrl.split('?')[1] : '';
-    const redirectUrl = queryString ? `/login?${queryString}` : '/login';
-    res.redirect(redirectUrl);
-  });
+  // Initialize Replit Auth with dual-identifier support
+  try {
+    await setupAuth(app);
+    console.log('✅ Replit Auth initialized with dual-identifier support');
+    
+    // Run migration to link existing users (non-blocking)
+    import('./services/replit-auth-migration').then(({ default: MigrationService }) => {
+      MigrationService.linkAdminAccounts()
+        .then(() => console.log('✅ Admin accounts prepared for Replit Auth'))
+        .catch(error => console.error('⚠️ Admin account linking failed:', error));
+    });
+  } catch (error) {
+    console.error('⚠️ Replit Auth setup failed, falling back to custom auth:', error);
+    
+    // Fall back to custom authentication if Replit Auth fails
+    const { setupCustomAuth } = await import('./custom-auth');
+    setupCustomAuth(app);
+    
+    // Initialize social authentication (Google & Facebook OAuth) as backup
+    const { setupSocialAuth } = await import('./social-auth');
+    setupSocialAuth(app);
+  }
 
   // Auth bypass for development only - NEVER enable in production
   if (process.env.NODE_ENV === 'development' && process.env.ENABLE_AUTH_BYPASS === 'true') {

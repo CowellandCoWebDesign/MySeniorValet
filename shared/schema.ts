@@ -128,14 +128,15 @@ export const sessions = pgTable(
 );
 
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(), // Using integer to match actual database
+  id: serial("id").primaryKey(), // Preserving existing integer ID for all relationships
+  authId: varchar("auth_id").unique(), // New: Replit Auth OIDC sub claim (nullable initially for migration)
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   // Legacy fields for existing functionality
   username: text("username").unique(),
-  password: text("password"),
+  password: text("password"), // Will be null for Replit Auth users
   phone: text("phone"),
   relationshipToCare: text("relationship_to_care", {
     enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
@@ -214,9 +215,28 @@ export const users = pgTable("users", {
   role: text("role", { enum: ["user", "admin", "community_owner", "vendor", "financial_admin", "support_agent", "analytics_viewer", "super_admin"] }).default("user"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("users_auth_id_idx").on(table.authId),
+  index("users_email_idx").on(table.email),
+]);
 
-// Type definitions for Replit Auth (removing duplicate User type)
+// Replit Auth linked accounts audit table (for tracking migration)
+export const replitLinkedAccounts = pgTable("replit_linked_accounts", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  authId: varchar("auth_id").notNull(),
+  email: varchar("email").notNull(),
+  linkMethod: text("link_method", { enum: ["email_match", "manual_link", "auto_generated"] }).notNull(),
+  linkedAt: timestamp("linked_at").defaultNow(),
+  linkedBy: integer("linked_by").references(() => users.id),
+  notes: text("notes"),
+}, (table) => [
+  index("replit_linked_accounts_user_id_idx").on(table.userId),
+  index("replit_linked_accounts_auth_id_idx").on(table.authId),
+]);
+
+// Type definitions for Replit Auth
+export type User = typeof users.$inferSelect;
 export type UpsertUser = typeof users.$inferInsert;
 
 // Messaging type exports (removed duplicates - defined later in file)

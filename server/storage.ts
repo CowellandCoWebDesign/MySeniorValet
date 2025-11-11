@@ -32,12 +32,16 @@ import { cache } from "./cache";
 import { HudDataExtractor } from "./hud-data-extractor";
 
 export interface IStorage {
-  // User methods - Updated for Replit Auth
+  // User methods - Updated for Replit Auth with dual-identifier
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
+  getUserByAuthId(authId: string): Promise<User | undefined>; // New: Get by Replit Auth ID
   createUser(user: InsertUser): Promise<User>;
+  createReplitUser(user: Partial<InsertUser> & { authId: string }): Promise<User>; // New: Create with Replit Auth
   updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
+  updateUserFromReplit(id: number, updates: Partial<InsertUser>): Promise<User | undefined>; // New: Update from Replit
+  linkUserToReplitAuth(userId: number, authId: string, email: string): Promise<void>; // New: Link existing to Replit
   upsertUser(user: UpsertUser): Promise<User>; // Required for Replit Auth
 
   // Authentication methods
@@ -829,6 +833,73 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error getting super admin count:", error);
       return 0;
+    }
+  }
+
+  // New methods for Replit Auth dual-identifier approach
+  async getUserByAuthId(authId: string): Promise<User | undefined> {
+    try {
+      const result = await db.execute(
+        sql`SELECT * FROM users WHERE auth_id = ${authId} LIMIT 1`
+      );
+      return result.rows[0] as User | undefined;
+    } catch (error) {
+      console.error("Error getting user by auth ID:", error);
+      return undefined;
+    }
+  }
+
+  async createReplitUser(userData: Partial<InsertUser> & { authId: string }): Promise<User> {
+    try {
+      const result = await db.execute(
+        sql`INSERT INTO users (auth_id, email, first_name, last_name, profile_image_url, username, password, role) 
+            VALUES (${userData.authId}, ${userData.email}, ${userData.firstName || null}, 
+                    ${userData.lastName || null}, ${userData.profileImageUrl || null},
+                    ${userData.email}, 'replit_auth', ${userData.role || 'user'})
+            RETURNING *`
+      );
+      return result.rows[0] as User;
+    } catch (error) {
+      console.error("Error creating Replit user:", error);
+      throw error;
+    }
+  }
+
+  async updateUserFromReplit(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
+    try {
+      const result = await db.execute(
+        sql`UPDATE users 
+            SET first_name = COALESCE(${updates.firstName}, first_name),
+                last_name = COALESCE(${updates.lastName}, last_name),
+                profile_image_url = COALESCE(${updates.profileImageUrl}, profile_image_url),
+                updated_at = NOW()
+            WHERE id = ${id}
+            RETURNING *`
+      );
+      return result.rows[0] as User | undefined;
+    } catch (error) {
+      console.error("Error updating user from Replit:", error);
+      return undefined;
+    }
+  }
+
+  async linkUserToReplitAuth(userId: number, authId: string, email: string): Promise<void> {
+    try {
+      // Update user with auth_id
+      await db.execute(
+        sql`UPDATE users SET auth_id = ${authId} WHERE id = ${userId}`
+      );
+      
+      // Record the linking in audit table
+      await db.execute(
+        sql`INSERT INTO replit_linked_accounts (user_id, auth_id, email, link_method)
+            VALUES (${userId}, ${authId}, ${email}, 'email_match')`
+      );
+      
+      console.log(`✅ Linked existing user ${email} (ID: ${userId}) to Replit Auth ID: ${authId}`);
+    } catch (error) {
+      console.error("Error linking user to Replit Auth:", error);
+      throw error;
     }
   }
 

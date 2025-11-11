@@ -86,49 +86,70 @@ function updateUserSession(
 async function upsertUser(
   claims: any,
 ) {
-  // Handle ID mapping between Replit Auth (string) and database (varchar)
+  // Use dual-identifier approach: preserve integer IDs, add auth_id for Replit
   const userEmail = claims["email"];
-  const replitUserId = claims["sub"];
+  const replitAuthId = claims["sub"]; // This is the Replit OIDC sub claim
   
   try {
-    // Check if user exists by email first
-    let user = await storage.getUserByEmail(userEmail);
+    // First check if user exists by auth_id
+    let user = await storage.getUserByAuthId(replitAuthId);
     
-    if (!user) {
-      // Check if this is William Cowell (guaranteed super admin)
-      let userRole = 'user';
-      const superAdminEmails = ['William.cowell01@gmail.com', 'admin@myseniorvalet.com'];
-      
-      if (superAdminEmails.includes(userEmail)) {
-        userRole = 'super_admin';
-        console.log(`🔑 Super admin access granted to ${userEmail}`);
-      } else {
-        // Check if this is the first user (no super_admin exists)
-        const superAdminCount = await storage.getSuperAdminCount();
-        userRole = superAdminCount === 0 ? 'super_admin' : 'user';
-      }
-      
-      // Create new user - use Replit user ID as primary key
-      user = await storage.createUser({
-        id: replitUserId,
-        username: userEmail,
-        email: userEmail,
+    if (user) {
+      // User already linked to Replit - just update profile
+      user = await storage.updateUserFromReplit(user.id as unknown as number, {
         firstName: claims["first_name"] || null,
         lastName: claims["last_name"] || null,
-        password: 'replit_auth',
-        role: userRole
-      });
-      
-      if (userRole === 'super_admin') {
-        console.log(`First user ${userEmail} created as super_admin`);
-      }
-    } else {
-      // Update existing user
-      user = await storage.updateUser(String(user.id), {
-        email: userEmail,
-        firstName: claims["first_name"] || null,
-        lastName: claims["last_name"] || null
+        profileImageUrl: claims["profile_image_url"] || null
       }) || user;
+      console.log(`Updated existing Replit user: ${userEmail}`);
+    } else {
+      // Check if user exists by email (migration case)
+      user = await storage.getUserByEmail(userEmail);
+      
+      if (user && !user.authId) {
+        // Existing user without Replit Auth - link them
+        await storage.linkUserToReplitAuth(
+          user.id as unknown as number,
+          replitAuthId,
+          userEmail
+        );
+        // Update profile from Replit
+        user = await storage.updateUserFromReplit(user.id as unknown as number, {
+          firstName: claims["first_name"] || null,
+          lastName: claims["last_name"] || null,
+          profileImageUrl: claims["profile_image_url"] || null
+        }) || user;
+        console.log(`🔗 Linked existing user ${userEmail} to Replit Auth`);
+      } else if (!user) {
+        // New user - determine role
+        let userRole = 'user';
+        const superAdminEmails = ['william.cowell01@gmail.com', 'admin@myseniorvalet.com'];
+        
+        if (superAdminEmails.includes(userEmail.toLowerCase())) {
+          userRole = 'super_admin';
+          console.log(`🔑 Super admin access granted to ${userEmail}`);
+        } else {
+          // Check if this is the first user (no super_admin exists)
+          const superAdminCount = await storage.getSuperAdminCount();
+          userRole = superAdminCount === 0 ? 'super_admin' : 'user';
+        }
+        
+        // Create new user with Replit Auth
+        user = await storage.createReplitUser({
+          authId: replitAuthId,
+          email: userEmail,
+          firstName: claims["first_name"] || null,
+          lastName: claims["last_name"] || null,
+          profileImageUrl: claims["profile_image_url"] || null,
+          role: userRole
+        });
+        
+        if (userRole === 'super_admin') {
+          console.log(`✅ First user ${userEmail} created as super_admin`);
+        } else {
+          console.log(`✅ New user ${userEmail} created with Replit Auth`);
+        }
+      }
     }
     
     return user;
