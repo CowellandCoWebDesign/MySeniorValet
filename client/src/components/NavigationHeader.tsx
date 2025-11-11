@@ -368,7 +368,7 @@ export function NavigationHeader({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/login">
+              <a href="/api/auth/login">
                 <Button 
                   variant="ghost" 
                   size="sm"
@@ -377,7 +377,7 @@ export function NavigationHeader({
                   <LogIn className="w-4 h-4 mr-2" />
                   Sign In
                 </Button>
-              </Link>
+              </a>
             )}
             
             <ThemeToggle />
