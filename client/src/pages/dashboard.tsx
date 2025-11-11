@@ -84,11 +84,18 @@ interface TourRequest {
 export default function Dashboard() {
   const { toast } = useToast();
   const { user } = useAuth();
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Redirect super admins to the admin mega dashboard
+  useEffect(() => {
+    if (user?.role === 'super_admin') {
+      setLocation('/admin-mega-dashboard');
+    }
+  }, [user, setLocation]);
   const [showCommunitySearch, setShowCommunitySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
