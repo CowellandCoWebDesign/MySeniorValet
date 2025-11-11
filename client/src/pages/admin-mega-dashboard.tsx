@@ -202,6 +202,60 @@ const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'
 
 export default function AdminMegaDashboard() {
   const { user } = useAuth();
+  
+  // Check super admin access BEFORE any other hooks - production-ready security
+  const userRole = (user as any)?.role || '';
+  const userEmail = (user as any)?.email || '';
+  // In production, only allow explicitly authorized users
+  const isSuperAdmin = userRole === 'super_admin' || 
+                       userEmail === 'william.cowell01@gmail.com' || 
+                       userEmail === 'admin@myseniorvalet.com';
+  
+  // Must check permissions BEFORE calling any other hooks to avoid React hooks error
+  if (!user || !isSuperAdmin) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
+        <Card className="max-w-2xl">
+          <CardHeader className="text-center">
+            <div className="flex justify-center mb-4">
+              <Shield className="h-16 w-16 text-red-500" />
+            </div>
+            <CardTitle className="text-2xl font-bold text-gray-900 dark:text-white">
+              Admin Access Required
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-gray-600 dark:text-gray-400 text-center">
+              This dashboard is restricted to MySeniorValet administrators only.
+            </p>
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <div className="flex items-start">
+                <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-500 mt-0.5 mr-2 flex-shrink-0" />
+                <div className="text-sm text-yellow-800 dark:text-yellow-300">
+                  <p className="font-semibold mb-1">Authorized Access Only</p>
+                  <p className="text-xs">
+                    All access attempts are logged and monitored. Unauthorized access attempts will be reported.
+                  </p>
+                </div>
+              </div>
+            </div>
+            {user && (
+              <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                Logged in as: {userEmail} (Role: {userRole})
+              </div>
+            )}
+            <div className="flex justify-center">
+              <Button onClick={() => window.location.href = '/'}>
+                Return to Home
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+  
+  // Now call all hooks AFTER the permission check
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const [timeRange, setTimeRange] = useState("7d");
@@ -311,14 +365,8 @@ export default function AdminMegaDashboard() {
     enabled: false,
   });
   
-  // Check super admin access - production-ready security
-  const userRole = (user as any)?.role || '';
-  const userEmail = (user as any)?.email || '';
-  // In production, only allow explicitly authorized users
-  const isSuperAdmin = userRole === 'super_admin' || 
-                       userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com';
   // Server-side API routes will enforce actual authentication
+  // (Permission check already done at top of component before hooks)
                        
   // Platform Health Verification Functions
   const runPlatformHealthVerification = async () => {
@@ -523,32 +571,9 @@ export default function AdminMegaDashboard() {
       return () => clearInterval(interval);
     }
   }, [activeTab]);
-  
-  // Block non-super admin users (except in development)
-  if (!user || !isSuperAdmin) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center">
-        <Card className="max-w-2xl">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Lock className="h-6 w-6 text-red-600" />
-              Access Denied
-            </CardTitle>
-            <CardDescription>
-              This comprehensive dashboard is restricted to super administrators only.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => setLocation("/")}>
-              Return to Home
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   // ========== DATA QUERIES ==========
+  // (Permission check already handled at top of component before hooks)
   
   // Platform statistics
   const { data: platformStats, isLoading: statsLoading } = useQuery({
