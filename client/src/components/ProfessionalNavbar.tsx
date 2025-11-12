@@ -438,9 +438,8 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
-                    onClick={async () => {
-                      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
-                      window.location.href = '/';
+                    onClick={() => {
+                      window.location.href = '/api/logout';
                     }}
                     className="flex items-center space-x-2 w-full text-red-600 cursor-pointer"
                   >
