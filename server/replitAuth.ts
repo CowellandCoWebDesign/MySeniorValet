@@ -196,6 +196,11 @@ export async function setupAuth(app: Express) {
   // Get domains from environment variable
   const replitDomains = process.env.REPLIT_DOMAINS?.split(",") || [];
   
+  // Add localhost for development environment
+  if (process.env.NODE_ENV === 'development' && !replitDomains.includes('localhost')) {
+    replitDomains.push('localhost');
+  }
+  
   // Add production deployment domain if not included (case-sensitive!)
   const productionDomain = 'MySeniorValet.replit.app';
   if (!replitDomains.includes(productionDomain)) {
