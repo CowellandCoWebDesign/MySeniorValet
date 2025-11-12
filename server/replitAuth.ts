@@ -294,7 +294,7 @@ export async function setupAuth(app: Express) {
       
       if (err || !user) {
         console.error("❌ Authentication failed:", err || info);
-        return res.redirect("/login?error=auth_failed");
+        return res.redirect("/?error=auth_failed");
       }
       
       console.log('✅ User authenticated, logging in...', {
@@ -305,7 +305,7 @@ export async function setupAuth(app: Express) {
       req.logIn(user, (loginErr) => {
         if (loginErr) {
           console.error("❌ Session login failed:", loginErr);
-          return res.redirect("/login?error=login_failed");
+          return res.redirect("/?error=login_failed");
         }
         
         console.log('✅ User logged in, saving session...');
@@ -314,7 +314,7 @@ export async function setupAuth(app: Express) {
         req.session.save((saveErr) => {
           if (saveErr) {
             console.error("❌ Session save failed:", saveErr);
-            return res.redirect("/login?error=session_failed");
+            return res.redirect("/?error=session_failed");
           }
           
           const returnTo = (req.session as any).returnTo || "/";

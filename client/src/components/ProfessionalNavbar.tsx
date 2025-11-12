@@ -451,14 +451,14 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
-                <a href="/api/auth/login">
+                <a href="/api/login">
                   <Button 
                     variant="ghost"
                     size="sm" 
                     className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium px-3 py-2 rounded-lg transition-all duration-200 text-sm"
                   >
                     <LogIn className="h-4 w-4 mr-1.5" />
-                    Sign In with Replit
+                    Sign In
                   </Button>
                 </a>
               </div>

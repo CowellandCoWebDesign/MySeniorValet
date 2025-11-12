@@ -368,7 +368,7 @@ export function NavigationHeader({
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <a href="/api/auth/login">
+              <a href="/api/login">
                 <Button 
                   variant="ghost" 
                   size="sm"

@@ -22,7 +22,8 @@ import provincialRoutes from "./routes/provincial-communities";
 import { db } from "./db";
 import { eq, or, like, desc, and, sql } from "drizzle-orm";
 import cookieParser from "cookie-parser";
-import { isAuthenticated } from "./replitAuth";
+// Import auth middleware from the compatibility layer
+import { isAuthenticated as requireAuth, attachDbUser, isAdmin } from "./auth-middleware";
 import { storage } from "./storage";
 import { vendors, users, services } from "../shared/schema";
 import * as schema from "../shared/schema";
@@ -1169,7 +1170,6 @@ Provide complete business data with ALL actual image URLs found.`;
   });
 
   // Circuit breaker reset endpoint - admin only for security
-  const { isAuthenticated: requireAuth, isAdmin } = await import('./auth-middleware');
   app.post('/api/circuit-breaker/reset/:service', requireAuth, isAdmin, (req, res) => {
     const { service } = req.params;
     apiCircuitBreaker.resetCircuit(service);
@@ -1433,7 +1433,7 @@ Provide complete business data with ALL actual image URLs found.`;
   });
 
   // Admin endpoints for managing featured communities
-  app.post('/api/admin/featured-communities', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+  app.post('/api/admin/featured-communities', requireAuth, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {
       const featuredData = req.body;
       featuredData.createdBy = req.user?.id;
@@ -1445,7 +1445,7 @@ Provide complete business data with ALL actual image URLs found.`;
     }
   });
 
-  app.put('/api/admin/featured-communities/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.put('/api/admin/featured-communities/:id', requireAuth, isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const updates = req.body;
@@ -1460,7 +1460,7 @@ Provide complete business data with ALL actual image URLs found.`;
     }
   });
 
-  app.delete('/api/admin/featured-communities/:id', isAuthenticated, isAdmin, async (req, res) => {
+  app.delete('/api/admin/featured-communities/:id', requireAuth, isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const deactivated = await storage.deactivateFeaturedCommunity(Number(id));
@@ -1753,7 +1753,7 @@ Disallow: /`;
   app.use('/api', adminHeatmapRoutes.default);
 
   // Vendor dashboard API routes
-  app.get("/api/vendors/:vendorId/dashboard", isAuthenticated, async (req, res) => {
+  app.get("/api/vendors/:vendorId/dashboard", requireAuth, attachDbUser, async (req, res) => {
     try {
       const vendorId = parseInt(req.params.vendorId);
       const userId = (req.user as any)?.claims?.sub;
@@ -2859,26 +2859,22 @@ Disallow: /`;
     });
   });
 
-  // Production Replit Auth endpoint - DISABLED: Using custom auth instead
-  // Commenting out to avoid conflict with custom auth endpoint in custom-auth.ts
-  // app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-  //   try {
-  //     const userId = req.user.claims.sub;
-  //     console.log("✅ Replit Auth - Fetching user with ID:", userId);
-
-  //     const user = await storage.getUser(userId);
-  //     if (!user) {
-  //       console.log("❌ User not found in database for ID:", userId);
-  //       return res.status(404).json({ message: "User not found" });
-  //     }
-
-  //     console.log("✅ Replit Auth - User found:", user.id, user.email, user.role);
-  //     res.json(user);
-  //   } catch (error) {
-  //     console.error("❌ Error fetching authenticated user:", error);
-  //     res.status(500).json({ message: "Failed to fetch user" });
-  //   }
-  // });
+  // Replit Auth user endpoint - returns the authenticated user data
+  app.get('/api/auth/user', requireAuth, attachDbUser, async (req: any, res) => {
+    try {
+      // The attachDbUser middleware has already hydrated req.user with DB data
+      if (!req.user) {
+        return res.status(401).json({ message: "Not authenticated" });
+      }
+      
+      // Return sanitized user data (exclude sensitive fields like password)
+      const { password, ...sanitizedUser } = req.user;
+      res.json(sanitizedUser);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
 
   // Get user role endpoint - required for admin access control
   app.get('/api/auth/user/role', (req: any, res) => {
