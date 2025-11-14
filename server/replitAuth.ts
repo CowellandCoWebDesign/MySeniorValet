@@ -176,6 +176,13 @@ export async function setupAuth(app: Express) {
     verified: passport.AuthenticateCallback
   ) => {
     try {
+      console.log('🔐 Verify function called with claims:', {
+        email: tokens.claims()?.email,
+        sub: tokens.claims()?.sub,
+        has_access_token: !!tokens.access_token,
+        has_refresh_token: !!tokens.refresh_token
+      });
+      
       const user: any = {};
       updateUserSession(user, tokens);
       const dbUser = await upsertUser(tokens.claims());
@@ -184,11 +191,23 @@ export async function setupAuth(app: Express) {
       if (dbUser) {
         user.dbUserId = dbUser.id;
         user.email = dbUser.email;
+        console.log('✅ User verified and upserted:', {
+          id: dbUser.id,
+          email: dbUser.email,
+          role: dbUser.role
+        });
+      } else {
+        console.error('❌ Failed to upsert user to database');
+        throw new Error('Failed to create or update user in database');
       }
       
       verified(null, user);
     } catch (error) {
-      console.error("Verify function error:", error);
+      console.error("❌ Verify function error:", {
+        message: (error as any).message,
+        stack: (error as any).stack,
+        error: error
+      });
       verified(error as Error, null);
     }
   };
@@ -264,13 +283,34 @@ export async function setupAuth(app: Express) {
     (req.session as any).returnTo = returnTo;
     
     const strategyName = `replitauth:${req.hostname}`;
-    console.log(`Login attempt for hostname: ${req.hostname}`);
+    console.log(`🔐 Login attempt:`, {
+      hostname: req.hostname,
+      strategyName: strategyName,
+      sessionID: req.sessionID,
+      hasCookie: !!req.headers.cookie,
+      referer: req.headers.referer
+    });
+    
+    // Check if strategy exists
+    const strategy = passport._strategies[strategyName];
+    if (!strategy) {
+      console.error(`❌ No authentication strategy found for: ${strategyName}`);
+      console.log('Available strategies:', Object.keys(passport._strategies));
+      return res.status(500).json({ error: `Authentication not configured for domain: ${req.hostname}` });
+    }
     
     // Use standard passport authenticate without custom callback for login
     // CRITICAL: Don't use "consent" in prompt - it forces consent screen every time!
     passport.authenticate(strategyName, {
       prompt: "login", // Only prompt for login, not consent
       scope: ["openid", "email", "profile", "offline_access"],
+    }, (err: any, user: any, info: any) => {
+      if (err) {
+        console.error(`❌ Login authentication error:`, err);
+        return res.status(500).json({ error: 'Authentication error', details: err.message });
+      }
+      // This callback is only called on error during initial redirect
+      // Success path continues with OAuth redirect
     })(req, res, next);
   });
 
@@ -295,17 +335,32 @@ export async function setupAuth(app: Express) {
       }
     });
     
+    // Check if strategy exists
+    const strategy = passport._strategies[strategyName];
+    if (!strategy) {
+      console.error(`❌ No callback strategy found for: ${strategyName}`);
+      console.log('Available strategies:', Object.keys(passport._strategies));
+      return res.redirect(`/?error=no_strategy&hostname=${req.hostname}`);
+    }
+    
     passport.authenticate(strategyName, (err: any, user: any, info: any) => {
       console.log(`🔍 Passport authenticate result:`, {
         hasError: !!err,
         hasUser: !!user,
         info: info,
-        error: err?.message || err
+        error: err?.message || err,
+        errorStack: err?.stack
       });
       
       if (err || !user) {
-        console.error("❌ Authentication failed:", err || info);
-        return res.redirect("/?error=auth_failed");
+        console.error("❌ Authentication failed:", {
+          error: err,
+          info: info,
+          message: err?.message,
+          stack: err?.stack
+        });
+        const errorMsg = err?.message || info?.message || 'auth_failed';
+        return res.redirect(`/?error=${encodeURIComponent(errorMsg)}`);
       }
       
       console.log('✅ User authenticated, logging in...', {
