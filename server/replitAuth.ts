@@ -213,6 +213,12 @@ export async function setupAuth(app: Express) {
     replitDomains.push(customDomain);
   }
   
+  // CRITICAL: Add non-www domain for production
+  const nonWwwDomain = 'myseniorvalet.com';
+  if (!replitDomains.includes(nonWwwDomain)) {
+    replitDomains.push(nonWwwDomain);
+  }
+  
   // Also add lowercase version just in case
   const productionDomainLower = 'myseniorvalet.replit.app';
   if (!replitDomains.includes(productionDomainLower)) {
