@@ -63,10 +63,11 @@ export function getSession() {
     store: sessionStore, // CRITICAL: Use database store for session persistence
     resave: false,
     saveUninitialized: false,
+    proxy: true, // CRITICAL: Required for Replit's reverse proxy
     cookie: {
       httpOnly: true,
       secure: isReplit || isProduction, // CRITICAL: Replit always needs secure cookies
-      sameSite: 'lax',
+      sameSite: (isReplit || isProduction) ? 'none' : 'lax', // CRITICAL: 'none' required for cross-site OAuth in production
       maxAge: sessionTtl,
       // Don't set domain - let browser handle it automatically
     },
