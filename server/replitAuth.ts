@@ -406,7 +406,20 @@ export async function setupAuth(app: Express) {
           message: err?.message,
           stack: err?.stack
         });
-        const errorMsg = err?.message || info?.message || 'auth_failed';
+        
+        // Handle specific error cases
+        let errorMsg = 'auth_failed';
+        if (err?.message?.includes('duplicate key')) {
+          errorMsg = 'account_migration_required';
+          console.log('🔧 Account migration required for existing user');
+        } else if (err?.message?.includes('Account conflict')) {
+          errorMsg = 'account_conflict';
+        } else if (err?.message) {
+          errorMsg = err.message;
+        } else if (info?.message) {
+          errorMsg = info.message;
+        }
+        
         return res.redirect(`/?error=${encodeURIComponent(errorMsg)}`);
       }
       
