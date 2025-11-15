@@ -107,21 +107,29 @@ async function upsertUser(
       // Check if user exists by email (migration case)
       user = await storage.getUserByEmail(userEmail);
       
-      if (user && !user.authId) {
-        // Existing user without Replit Auth - link them
-        await storage.linkUserToReplitAuth(
-          user.id as unknown as number,
-          replitAuthId,
-          userEmail
-        );
-        // Update profile from Replit
-        user = await storage.updateUserFromReplit(user.id as unknown as number, {
-          firstName: claims["first_name"] || null,
-          lastName: claims["last_name"] || null,
-          profileImageUrl: claims["profile_image_url"] || null
-        }) || user;
-        console.log(`🔗 Linked existing user ${userEmail} to Replit Auth`);
-      } else if (!user) {
+      if (user) {
+        // User exists with this email
+        if (!user.authId) {
+          // Existing user without Replit Auth - link them
+          await storage.linkUserToReplitAuth(
+            user.id as unknown as number,
+            replitAuthId,
+            userEmail
+          );
+          // Update profile from Replit
+          user = await storage.updateUserFromReplit(user.id as unknown as number, {
+            firstName: claims["first_name"] || null,
+            lastName: claims["last_name"] || null,
+            profileImageUrl: claims["profile_image_url"] || null,
+            authId: replitAuthId // Also update the authId field directly
+          }) || user;
+          console.log(`🔗 Linked existing user ${userEmail} to Replit Auth`);
+        } else if (user.authId !== replitAuthId) {
+          // User exists but with different authId - this is an error scenario
+          console.error(`⚠️ User ${userEmail} already exists with different auth ID`);
+          throw new Error(`Account conflict: This email is already associated with a different account`);
+        }
+      } else {
         // New user - determine role
         let userRole = 'user';
         const superAdminEmails = ['william.cowell01@gmail.com', 'admin@myseniorvalet.com'];
@@ -135,20 +143,45 @@ async function upsertUser(
           userRole = superAdminCount === 0 ? 'super_admin' : 'user';
         }
         
-        // Create new user with Replit Auth
-        user = await storage.createReplitUser({
-          authId: replitAuthId,
-          email: userEmail,
-          firstName: claims["first_name"] || null,
-          lastName: claims["last_name"] || null,
-          profileImageUrl: claims["profile_image_url"] || null,
-          role: userRole
-        });
-        
-        if (userRole === 'super_admin') {
-          console.log(`✅ First user ${userEmail} created as super_admin`);
-        } else {
-          console.log(`✅ New user ${userEmail} created with Replit Auth`);
+        try {
+          // Create new user with Replit Auth
+          user = await storage.createReplitUser({
+            authId: replitAuthId,
+            email: userEmail,
+            firstName: claims["first_name"] || null,
+            lastName: claims["last_name"] || null,
+            profileImageUrl: claims["profile_image_url"] || null,
+            role: userRole
+          });
+          
+          if (userRole === 'super_admin') {
+            console.log(`✅ First user ${userEmail} created as super_admin`);
+          } else {
+            console.log(`✅ New user ${userEmail} created with Replit Auth`);
+          }
+        } catch (createError: any) {
+          // Handle duplicate key error - user might have been created between our checks
+          if (createError.message?.includes('duplicate key') || createError.code === '23505') {
+            console.log(`Race condition detected - retrying user fetch for ${userEmail}`);
+            user = await storage.getUserByEmail(userEmail);
+            if (user && !user.authId) {
+              // Try to link again
+              await storage.linkUserToReplitAuth(
+                user.id as unknown as number,
+                replitAuthId,
+                userEmail
+              );
+              user = await storage.updateUserFromReplit(user.id as unknown as number, {
+                firstName: claims["first_name"] || null,
+                lastName: claims["last_name"] || null,
+                profileImageUrl: claims["profile_image_url"] || null,
+                authId: replitAuthId
+              }) || user;
+              console.log(`🔗 Linked existing user ${userEmail} to Replit Auth (after retry)`);
+            }
+          } else {
+            throw createError;
+          }
         }
       }
     }
