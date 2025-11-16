@@ -228,30 +228,20 @@ export async function setupAuth(app: Express) {
   
   console.log('Configuring auth for domains:', replitDomains);
 
-  // Map janeway/dev domains to canonical domains for OAuth callbacks
-  const getCanonicalDomain = (hostname: string): string => {
-    // If it's a Replit dev domain (janeway), use the canonical Replit app domain
-    if (hostname.includes('janeway.replit.dev') || hostname.includes('-00-')) {
-      return 'MySeniorValet.replit.app';
-    }
-    // Otherwise use the hostname as-is
-    return hostname;
-  };
-  
+  // CRITICAL FIX: Use actual domain for callback URLs, not canonical
+  // The OAuth provider needs to redirect back to the EXACT domain the user is on
   for (const domain of replitDomains) {
-    // Use canonical domain for callback URL to ensure it's whitelisted
-    const canonicalDomain = getCanonicalDomain(domain);
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
         config,
         scope: "openid email profile offline_access",
-        callbackURL: `https://${canonicalDomain}/api/callback`,
+        callbackURL: `https://${domain}/api/callback`, // MUST use actual domain for callback
       },
       verify,
     );
     passport.use(strategy);
-    console.log(`📌 Strategy registered: ${domain} → callback: https://${canonicalDomain}/api/callback`);
+    console.log(`📌 Strategy registered: ${domain} → callback: https://${domain}/api/callback`);
   }
 
   passport.serializeUser((user: Express.User, cb) => {
