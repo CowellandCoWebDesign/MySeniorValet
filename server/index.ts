@@ -311,13 +311,9 @@ app.use((req, res, next) => {
   }, async () => {
     log(`serving on port ${port}`);
     
-    // Initialize admin accounts automatically
-    try {
-      const { initializeAdminAccounts } = await import('./services/admin-account-initializer');
-      await initializeAdminAccounts();
-    } catch (error) {
-      console.error('Failed to initialize admin accounts:', error);
-    }
+    // Admin accounts now created automatically via Replit Auth on first login
+    // No need for password-based admin initialization
+    console.log('✅ Admin accounts will be created via Replit Auth on first login');
     
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);
