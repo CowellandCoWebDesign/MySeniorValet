@@ -62,12 +62,12 @@ export function getSession() {
     secret: sessionSecret || 'development-secret-key-' + Date.now(), // Make it obvious when using fallback
     store: sessionStore, // CRITICAL: Use database store for session persistence
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true, // CRITICAL: Must be true for OAuth to work - creates session before redirect
     proxy: true, // CRITICAL: Required for Replit's reverse proxy
     cookie: {
       httpOnly: true,
-      secure: isReplit || isProduction, // CRITICAL: Replit always needs secure cookies
-      sameSite: (isReplit || isProduction) ? 'none' : 'lax', // CRITICAL: 'none' required for cross-site OAuth in production
+      secure: true, // CRITICAL: Always true on Replit (HTTPS only)
+      sameSite: 'lax', // CRITICAL: 'lax' allows cookies to be sent with top-level navigations (OAuth flow)
       maxAge: sessionTtl,
       // Don't set domain - let browser handle it automatically
     },
