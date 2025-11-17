@@ -27,49 +27,22 @@ const getOidcConfig = memoize(
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
-  
-  // Replit ALWAYS uses HTTPS, even in development
-  const isReplit = !!process.env.REPL_ID;
-  const isProduction = process.env.NODE_ENV === 'production';
-  
-  console.log('🔐 Session configuration:', {
-    environment: process.env.NODE_ENV,
-    isReplit,
-    secureCookies: isReplit || isProduction,
-    domain: process.env.REPLIT_DOMAINS?.split(',')[0],
-    hasDatabase: !!process.env.DATABASE_URL
-  });
-  
-  // Critical: Ensure SESSION_SECRET is available
-  const sessionSecret = process.env.SESSION_SECRET;
-  if (!sessionSecret) {
-    console.error('⚠️ WARNING: SESSION_SECRET not found! Sessions will not persist across restarts!');
-    console.log('Available env vars:', Object.keys(process.env).filter(k => k.includes('SESSION')));
-  }
-  
-  // CRITICAL: Use PostgreSQL session store for persistence
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
-    createTableIfMissing: true, // Automatically create sessions table if missing
+    createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",
   });
-  
-  console.log('✅ Using PostgreSQL session store for persistent authentication');
-  
   return session({
-    secret: sessionSecret || 'development-secret-key-' + Date.now(), // Make it obvious when using fallback
-    store: sessionStore, // CRITICAL: Use database store for session persistence
+    secret: process.env.SESSION_SECRET!,
+    store: sessionStore,
     resave: false,
-    saveUninitialized: true, // CRITICAL: Must be true for OAuth to work - creates session before redirect
-    proxy: true, // CRITICAL: Required for Replit's reverse proxy
+    saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: true, // CRITICAL: Always true on Replit (HTTPS only)
-      sameSite: 'lax', // CRITICAL: 'lax' allows cookies to be sent with top-level navigations (OAuth flow)
+      secure: true,
       maxAge: sessionTtl,
-      // Don't set domain - let browser handle it automatically
     },
   });
 }
@@ -194,200 +167,43 @@ export async function setupAuth(app: Express) {
     }
   };
 
-  // Get domains from environment variable
-  const replitDomains = process.env.REPLIT_DOMAINS?.split(",") || [];
-  
-  // Add localhost for development environment
-  if (process.env.NODE_ENV === 'development' && !replitDomains.includes('localhost')) {
-    replitDomains.push('localhost');
-  }
-  
-  // Add production deployment domain if not included (case-sensitive!)
-  const productionDomain = 'MySeniorValet.replit.app';
-  if (!replitDomains.includes(productionDomain)) {
-    replitDomains.push(productionDomain);
-  }
-  
-  // Also handle custom domain when it's configured
-  const customDomain = 'www.myseniorvalet.com';
-  if (!replitDomains.includes(customDomain)) {
-    replitDomains.push(customDomain);
-  }
-  
-  // CRITICAL: Add non-www domain for production
-  const nonWwwDomain = 'myseniorvalet.com';
-  if (!replitDomains.includes(nonWwwDomain)) {
-    replitDomains.push(nonWwwDomain);
-  }
-  
-  // Also add lowercase version just in case
-  const productionDomainLower = 'myseniorvalet.replit.app';
-  if (!replitDomains.includes(productionDomainLower)) {
-    replitDomains.push(productionDomainLower);
-  }
-  
-  console.log('Configuring auth for domains:', replitDomains);
+  // Keep track of registered strategies
+  const registeredStrategies = new Set<string>();
 
-  // CRITICAL FIX: Use actual domain for callback URLs, not canonical
-  // The OAuth provider needs to redirect back to the EXACT domain the user is on
-  for (const domain of replitDomains) {
-    const strategy = new Strategy(
-      {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`, // MUST use actual domain for callback
-      },
-      verify,
-    );
-    passport.use(strategy);
-    console.log(`📌 Strategy registered: ${domain} → callback: https://${domain}/api/callback`);
-  }
+  // Helper function to ensure strategy exists for a domain
+  const ensureStrategy = (domain: string) => {
+    const strategyName = `replitauth:${domain}`;
+    if (!registeredStrategies.has(strategyName)) {
+      const strategy = new Strategy(
+        {
+          name: strategyName,
+          config,
+          scope: "openid email profile offline_access",
+          callbackURL: `https://${domain}/api/callback`,
+        },
+        verify,
+      );
+      passport.use(strategy);
+      registeredStrategies.add(strategyName);
+    }
+  };
 
-  passport.serializeUser((user: Express.User, cb) => {
-    try {
-      cb(null, user);
-    } catch (error) {
-      console.error('Error serializing user:', error);
-      cb(error, null);
-    }
-  });
-  
-  passport.deserializeUser((user: Express.User, cb) => {
-    try {
-      cb(null, user);
-    } catch (error) {
-      console.error('Error deserializing user:', error);
-      cb(null, null); // Don't crash on deserialize error
-    }
-  });
+  passport.serializeUser((user: Express.User, cb) => cb(null, user));
+  passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
   app.get("/api/login", (req, res, next) => {
-    // Store the referrer URL to redirect back after login
-    const returnTo = req.headers.referer || '/';
-    (req.session as any).returnTo = returnTo;
-    
-    const strategyName = `replitauth:${req.hostname}`;
-    console.log(`🔐 Login attempt:`, {
-      hostname: req.hostname,
-      strategyName: strategyName,
-      sessionID: req.sessionID,
-      hasCookie: !!req.headers.cookie,
-      referer: req.headers.referer
-    });
-    
-    // Check if strategy exists
-    const strategy = passport._strategies[strategyName];
-    if (!strategy) {
-      console.error(`❌ No authentication strategy found for: ${strategyName}`);
-      console.log('Available strategies:', Object.keys(passport._strategies));
-      return res.status(500).json({ error: `Authentication not configured for domain: ${req.hostname}` });
-    }
-    
-    // CRITICAL: Force save session BEFORE OAuth redirect
-    // This ensures the OAuth state is persisted to database before redirecting to Replit Auth
-    req.session.save((err) => {
-      if (err) {
-        console.error(`❌ Session save error before OAuth:`, err);
-        return res.status(500).json({ error: 'Session error', details: err.message });
-      }
-      
-      console.log(`✅ Session saved before OAuth redirect:`, req.sessionID);
-      
-      // Use standard passport authenticate without custom callback for login
-      // CRITICAL: Don't use "consent" in prompt - it forces consent screen every time!
-      passport.authenticate(strategyName, {
-        prompt: "login", // Only prompt for login, not consent
-        scope: ["openid", "email", "profile", "offline_access"],
-      }, (err: any, user: any, info: any) => {
-        if (err) {
-          console.error(`❌ Login authentication error:`, err);
-          return res.status(500).json({ error: 'Authentication error', details: err.message });
-        }
-        // This callback is only called on error during initial redirect
-        // Success path continues with OAuth redirect
-      })(req, res, next);
-    });
+    ensureStrategy(req.hostname);
+    passport.authenticate(`replitauth:${req.hostname}`, {
+      prompt: "login consent",
+      scope: ["openid", "email", "profile", "offline_access"],
+    })(req, res, next);
   });
 
   app.get("/api/callback", (req, res, next) => {
-    console.log('🚨 CALLBACK HIT! Full details:', {
-      url: req.url,
-      hostname: req.hostname,
-      query: req.query,
-      sessionID: req.sessionID,
-      hasCookies: !!req.headers.cookie
-    });
-    
-    const strategyName = `replitauth:${req.hostname}`;
-    console.log(`🔍 OAuth Callback Debug:`, {
-      hostname: req.hostname,
-      query: req.query,
-      hasSession: !!req.session,
-      sessionID: req.sessionID,
-      headers: {
-        referer: req.headers.referer,
-        cookie: req.headers.cookie ? 'exists' : 'missing'
-      }
-    });
-    
-    // Check if strategy exists
-    const strategy = passport._strategies[strategyName];
-    if (!strategy) {
-      console.error(`❌ No callback strategy found for: ${strategyName}`);
-      console.log('Available strategies:', Object.keys(passport._strategies));
-      return res.redirect(`/?error=no_strategy&hostname=${req.hostname}`);
-    }
-    
-    passport.authenticate(strategyName, (err: any, user: any, info: any) => {
-      console.log(`🔍 Passport authenticate result:`, {
-        hasError: !!err,
-        hasUser: !!user,
-        info: info,
-        error: err?.message || err,
-        errorStack: err?.stack
-      });
-      
-      if (err || !user) {
-        console.error("❌ Authentication failed:", {
-          error: err,
-          info: info,
-          message: err?.message,
-          stack: err?.stack
-        });
-        
-        // Simple error handling for clean Replit Auth
-        const errorMsg = err?.message || info?.message || 'auth_failed';
-        return res.redirect(`/?error=${encodeURIComponent(errorMsg)}`);
-      }
-      
-      console.log('✅ User authenticated, logging in...', {
-        userEmail: user.claims?.email,
-        userId: user.claims?.sub
-      });
-      
-      req.logIn(user, (loginErr) => {
-        if (loginErr) {
-          console.error("❌ Session login failed:", loginErr);
-          return res.redirect("/?error=login_failed");
-        }
-        
-        console.log('✅ User logged in, saving session...');
-        
-        // Save session and redirect
-        req.session.save((saveErr) => {
-          if (saveErr) {
-            console.error("❌ Session save failed:", saveErr);
-            return res.redirect("/?error=session_failed");
-          }
-          
-          const returnTo = (req.session as any).returnTo || "/";
-          delete (req.session as any).returnTo;
-          
-          console.log('✅ Session saved, redirecting to:', returnTo);
-          res.redirect(returnTo);
-        });
-      });
+    ensureStrategy(req.hostname);
+    passport.authenticate(`replitauth:${req.hostname}`, {
+      successReturnToOrRedirect: "/",
+      failureRedirect: "/api/login",
     })(req, res, next);
   });
 
