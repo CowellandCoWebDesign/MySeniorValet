@@ -284,19 +284,30 @@ export async function setupAuth(app: Express) {
       return res.status(500).json({ error: `Authentication not configured for domain: ${req.hostname}` });
     }
     
-    // Use standard passport authenticate without custom callback for login
-    // CRITICAL: Don't use "consent" in prompt - it forces consent screen every time!
-    passport.authenticate(strategyName, {
-      prompt: "login", // Only prompt for login, not consent
-      scope: ["openid", "email", "profile", "offline_access"],
-    }, (err: any, user: any, info: any) => {
+    // CRITICAL: Force save session BEFORE OAuth redirect
+    // This ensures the OAuth state is persisted to database before redirecting to Replit Auth
+    req.session.save((err) => {
       if (err) {
-        console.error(`❌ Login authentication error:`, err);
-        return res.status(500).json({ error: 'Authentication error', details: err.message });
+        console.error(`❌ Session save error before OAuth:`, err);
+        return res.status(500).json({ error: 'Session error', details: err.message });
       }
-      // This callback is only called on error during initial redirect
-      // Success path continues with OAuth redirect
-    })(req, res, next);
+      
+      console.log(`✅ Session saved before OAuth redirect:`, req.sessionID);
+      
+      // Use standard passport authenticate without custom callback for login
+      // CRITICAL: Don't use "consent" in prompt - it forces consent screen every time!
+      passport.authenticate(strategyName, {
+        prompt: "login", // Only prompt for login, not consent
+        scope: ["openid", "email", "profile", "offline_access"],
+      }, (err: any, user: any, info: any) => {
+        if (err) {
+          console.error(`❌ Login authentication error:`, err);
+          return res.status(500).json({ error: 'Authentication error', details: err.message });
+        }
+        // This callback is only called on error during initial redirect
+        // Success path continues with OAuth redirect
+      })(req, res, next);
+    });
   });
 
   app.get("/api/callback", (req, res, next) => {
