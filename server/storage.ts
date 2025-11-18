@@ -780,18 +780,24 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    // Since our current database only has username, we'll treat email as username
-    // Use raw SQL query to avoid schema mismatch issues
+    // Case-insensitive email comparison to handle different casing between environments
     const result = await db.execute(
-      sql`SELECT id, username, password, role FROM users WHERE username = ${email}`
+      sql`SELECT id, username, email, password, role, first_name, last_name, auth_id 
+          FROM users 
+          WHERE LOWER(email) = LOWER(${email}) 
+          OR LOWER(username) = LOWER(${email})`
     );
     const userRow = result.rows[0];
     if (userRow) {
       return {
         id: userRow.id as number,
+        authId: userRow.auth_id as string,
+        email: userRow.email as string,
         username: userRow.username as string,
         password: userRow.password as string,
-        role: userRow.role as string
+        role: userRow.role as string,
+        firstName: userRow.first_name as string,
+        lastName: userRow.last_name as string
       } as User;
     }
     return undefined;
@@ -851,11 +857,14 @@ export class DatabaseStorage implements IStorage {
 
   async createReplitUser(userData: Partial<InsertUser> & { authId: string }): Promise<User> {
     try {
+      // Normalize email to lowercase for consistency
+      const normalizedEmail = userData.email?.toLowerCase();
+      
       const result = await db.execute(
         sql`INSERT INTO users (auth_id, email, first_name, last_name, profile_image_url, username, password, role) 
-            VALUES (${userData.authId}, ${userData.email}, ${userData.firstName || null}, 
+            VALUES (${userData.authId}, ${normalizedEmail}, ${userData.firstName || null}, 
                     ${userData.lastName || null}, ${userData.profileImageUrl || null},
-                    ${userData.email}, 'replit_auth', ${userData.role || 'user'})
+                    ${normalizedEmail}, 'replit_auth', ${userData.role || 'user'})
             RETURNING *`
       );
       return result.rows[0] as User;
@@ -885,6 +894,9 @@ export class DatabaseStorage implements IStorage {
 
   async linkUserToReplitAuth(userId: number, authId: string, email: string): Promise<void> {
     try {
+      // Normalize email to lowercase
+      const normalizedEmail = email?.toLowerCase();
+      
       // Update user with auth_id
       await db.execute(
         sql`UPDATE users SET auth_id = ${authId} WHERE id = ${userId}`
@@ -893,10 +905,10 @@ export class DatabaseStorage implements IStorage {
       // Record the linking in audit table
       await db.execute(
         sql`INSERT INTO replit_linked_accounts (user_id, auth_id, email, link_method)
-            VALUES (${userId}, ${authId}, ${email}, 'email_match')`
+            VALUES (${userId}, ${authId}, ${normalizedEmail}, 'email_match')`
       );
       
-      console.log(`✅ Linked existing user ${email} (ID: ${userId}) to Replit Auth ID: ${authId}`);
+      console.log(`✅ Linked existing user ${normalizedEmail} (ID: ${userId}) to Replit Auth ID: ${authId}`);
     } catch (error) {
       console.error("Error linking user to Replit Auth:", error);
       throw error;

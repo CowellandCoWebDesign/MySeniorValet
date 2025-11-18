@@ -58,7 +58,8 @@ function updateUserSession(
 }
 
 async function upsertUser(claims: any) {
-  const userEmail = claims["email"];
+  // Normalize email to lowercase for consistent database operations
+  const userEmail = claims["email"]?.toLowerCase();
   const replitAuthId = claims["sub"]; // This is the Replit OIDC sub claim
   
   // First, try to find user by auth_id
