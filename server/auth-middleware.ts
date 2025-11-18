@@ -9,30 +9,32 @@ import { storage } from './storage';
 
 // Middleware to hydrate full user data from database after Replit Auth
 export const attachDbUser: RequestHandler = async (req, res, next) => {
-  // If Replit Auth has set req.user (from passport), hydrate full user data
-  if ((req as any).user?.id) {
+  // Replit Auth sets req.user with claims containing the user ID
+  if ((req as any).user?.claims?.sub) {
     try {
-      const userId = (req as any).user.id;
-      const fullUser = await storage.getUserById(userId);
+      const replitUserId = (req as any).user.claims.sub; // This is the Replit sub claim
+      
+      // First try to get user by authId (for users already linked to Replit)
+      const fullUser = await storage.getUserByAuthId(replitUserId.toString());
       
       if (fullUser) {
         // Update req.user with full database user object
         (req as any).user = {
-          id: fullUser.id,
-          email: fullUser.email,
-          firstName: fullUser.firstName,
-          lastName: fullUser.lastName,
-          role: fullUser.role,
-          authId: fullUser.authId,
-          // Keep any additional fields from database
-          ...fullUser
+          ...fullUser,
+          claims: (req as any).user.claims, // Keep the original claims
+          access_token: (req as any).user.access_token,
+          refresh_token: (req as any).user.refresh_token,
+          expires_at: (req as any).user.expires_at
         };
         
         // Also set on session for backward compatibility
         if ((req as any).session) {
           (req as any).session.userId = fullUser.id;
-          (req as any).session.user = (req as any).user;
+          (req as any).session.user = fullUser;
         }
+      } else {
+        // User not found in database - this shouldn't happen if upsertUser worked
+        console.warn(`User with Replit ID ${replitUserId} not found in database`);
       }
     } catch (error) {
       console.error('Error hydrating user data:', error);
@@ -44,8 +46,13 @@ export const attachDbUser: RequestHandler = async (req, res, next) => {
 
 // Check if user is authenticated (compatible with both Replit Auth and session)
 export const isAuthenticated: RequestHandler = (req, res, next) => {
-  // First try Replit Auth
-  if ((req as any).user?.id) {
+  // First try Replit Auth - check for claims.sub which contains the user ID
+  if ((req as any).user?.claims?.sub || (req as any).user?.expires_at) {
+    return next();
+  }
+  
+  // Check if user has been hydrated from database
+  if ((req as any).user?.id && (req as any).user?.authId) {
     return next();
   }
   
