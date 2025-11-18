@@ -248,23 +248,31 @@ export class MemStorage implements IStorage {
     );
   }
 
+  async getUserByAuthId(authId: string): Promise<User | undefined> {
+    // In MemStorage, the user.id is the authId (Replit sub claim)
+    return this.users.get(authId);
+  }
+
   async upsertUser(userData: Partial<InsertUser> & { id: string }): Promise<User> {
     // For MemStorage, use the Replit sub claim as the ID directly
-    const existingUser = this.users.get(userData.id);
+    const authId = userData.id;
+    const existingUser = this.users.get(authId);
     
     if (existingUser) {
       // Update existing user
       const updatedUser: User = {
         ...existingUser,
         ...userData,
+        authId: authId, // Store the Replit authId
         updatedAt: new Date()
       };
-      this.users.set(userData.id, updatedUser);
+      this.users.set(authId, updatedUser);
       return updatedUser;
     } else {
       // Create new user
       const newUser: User = {
-        id: userData.id,
+        id: authId, // In MemStorage, use authId as the primary key
+        authId: authId, // Also store it as authId for consistency
         email: userData.email || null,
         firstName: userData.firstName || null,
         lastName: userData.lastName || null,
@@ -309,7 +317,7 @@ export class MemStorage implements IStorage {
         createdAt: new Date(),
         updatedAt: new Date()
       };
-      this.users.set(userData.id, newUser);
+      this.users.set(authId, newUser);
       return newUser;
     }
   }
