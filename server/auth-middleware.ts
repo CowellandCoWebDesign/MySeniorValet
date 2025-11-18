@@ -1,85 +1,32 @@
 /**
- * Authentication Middleware Compatibility Layer
- * Bridges Replit Auth with existing route handlers that expect session-based auth
+ * Custom Authentication Middleware
+ * Replaces Replit Auth with our custom email/password system
  */
 
 import { RequestHandler } from 'express';
-import { isAuthenticated as replitIsAuthenticated } from './replitAuth';
-import { storage } from './storage';
 
-// Middleware to hydrate full user data from database after Replit Auth
-export const attachDbUser: RequestHandler = async (req, res, next) => {
-  // Replit Auth sets req.user with claims containing the user ID
-  if ((req as any).user?.claims?.sub) {
-    try {
-      const replitUserId = (req as any).user.claims.sub; // This is the Replit sub claim
-      
-      // First try to get user by authId (for users already linked to Replit)
-      const fullUser = await storage.getUserByAuthId(replitUserId.toString());
-      
-      if (fullUser) {
-        // Update req.user with full database user object
-        (req as any).user = {
-          ...fullUser,
-          claims: (req as any).user.claims, // Keep the original claims
-          access_token: (req as any).user.access_token,
-          refresh_token: (req as any).user.refresh_token,
-          expires_at: (req as any).user.expires_at
-        };
-        
-        // Also set on session for backward compatibility
-        if ((req as any).session) {
-          (req as any).session.userId = fullUser.id;
-          (req as any).session.user = fullUser;
-        }
-      } else {
-        // User not found in database - this shouldn't happen if upsertUser worked
-        console.warn(`User with Replit ID ${replitUserId} not found in database`);
-      }
-    } catch (error) {
-      console.error('Error hydrating user data:', error);
-      // Continue without full user data - let route handlers decide what to do
-    }
-  }
-  next();
-};
-
-// Check if user is authenticated (compatible with both Replit Auth and session)
+// Check if user is authenticated
 export const isAuthenticated: RequestHandler = (req, res, next) => {
-  // First try Replit Auth - check for claims.sub which contains the user ID
-  if ((req as any).user?.claims?.sub || (req as any).user?.expires_at) {
+  // Check if user has a valid session
+  if ((req.session as any)?.userId) {
     return next();
   }
-  
-  // Check if user has been hydrated from database
-  if ((req as any).user?.id && (req as any).user?.authId) {
-    return next();
-  }
-  
-  // Fallback to session (for transition period)
-  if ((req as any).session?.userId) {
-    return next();
-  }
-  
   return res.status(401).json({ message: "Unauthorized" });
 };
 
 // Check if user is admin
 export const isAdmin: RequestHandler = (req, res, next) => {
-  const user = (req as any).user || (req as any).session?.user;
-  
+  const user = (req.session as any)?.user;
   if (user && (user.role === 'admin' || user.role === 'super_admin')) {
     return next();
   }
-  
   return res.status(403).json({ message: "Admin access required" });
 };
 
 // Check for specific role
 export const checkRole = (requiredRole: string): RequestHandler => {
   return (req, res, next) => {
-    const user = (req as any).user || (req as any).session?.user;
-    
+    const user = (req.session as any)?.user;
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
@@ -98,30 +45,29 @@ export const checkRole = (requiredRole: string): RequestHandler => {
   };
 };
 
-// Create authenticated session (for payment flows and special cases)
+// Create authenticated session (for payment flows)
 export const createAuthenticatedSession = async (req: any, userId: number) => {
-  const fullUser = await storage.getUserById(userId);
+  const { db } = await import('./db');
+  const { users } = await import('../shared/schema');
+  const { eq } = await import('drizzle-orm');
   
-  if (fullUser) {
-    req.user = {
-      id: fullUser.id,
-      email: fullUser.email,
-      firstName: fullUser.firstName,
-      lastName: fullUser.lastName,
-      role: fullUser.role,
-      authId: fullUser.authId,
-      ...fullUser
-    };
+  const [user] = await db
+    .select()
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
     
-    if (req.session) {
-      req.session.userId = fullUser.id;
-      req.session.user = req.user;
-    }
+  if (user) {
+    req.session.userId = user.id;
+    req.session.user = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      role: user.role,
+    };
   }
 };
 
-// Alias for backwards compatibility with existing routes
+// Alias for backwards compatibility
 export const requireAuth = isAuthenticated;
-
-// Re-export Replit Auth's isAuthenticated for direct use if needed
-export { replitIsAuthenticated };

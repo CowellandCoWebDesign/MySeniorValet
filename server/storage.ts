@@ -32,16 +32,12 @@ import { cache } from "./cache";
 import { HudDataExtractor } from "./hud-data-extractor";
 
 export interface IStorage {
-  // User methods - Updated for Replit Auth with dual-identifier
+  // User methods - Updated for Replit Auth
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
-  getUserByAuthId(authId: string): Promise<User | undefined>; // New: Get by Replit Auth ID
   createUser(user: InsertUser): Promise<User>;
-  createReplitUser(user: Partial<InsertUser> & { authId: string }): Promise<User>; // New: Create with Replit Auth
   updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
-  updateUserFromReplit(id: number, updates: Partial<InsertUser>): Promise<User | undefined>; // New: Update from Replit
-  linkUserToReplitAuth(userId: number, authId: string, email: string): Promise<void>; // New: Link existing to Replit
   upsertUser(user: UpsertUser): Promise<User>; // Required for Replit Auth
 
   // Authentication methods
@@ -121,6 +117,7 @@ export interface IStorage {
   // Admin methods
   getAdminAnalytics(): Promise<any>;
   getRecentActivity(limit: number): Promise<UserActivity[]>;
+  getSuperAdminCount(): Promise<number>;
 
   // CRM methods
   createLead(lead: InsertLead): Promise<Lead>;
@@ -241,85 +238,9 @@ export class MemStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    // Case-insensitive email comparison
-    const normalizedEmail = email?.toLowerCase();
     return Array.from(this.users.values()).find(
-      (user) => user.email?.toLowerCase() === normalizedEmail,
+      (user) => user.email === email,
     );
-  }
-
-  async getUserByAuthId(authId: string): Promise<User | undefined> {
-    // In MemStorage, the user.id is the authId (Replit sub claim)
-    return this.users.get(authId);
-  }
-
-  async upsertUser(userData: Partial<InsertUser> & { id: string }): Promise<User> {
-    // For MemStorage, use the Replit sub claim as the ID directly
-    const authId = userData.id;
-    const existingUser = this.users.get(authId);
-    
-    if (existingUser) {
-      // Update existing user
-      const updatedUser: User = {
-        ...existingUser,
-        ...userData,
-        authId: authId, // Store the Replit authId
-        updatedAt: new Date()
-      };
-      this.users.set(authId, updatedUser);
-      return updatedUser;
-    } else {
-      // Create new user
-      const newUser: User = {
-        id: authId, // In MemStorage, use authId as the primary key
-        authId: authId, // Also store it as authId for consistency
-        email: userData.email || null,
-        firstName: userData.firstName || null,
-        lastName: userData.lastName || null,
-        profileImageUrl: userData.profileImageUrl || null,
-        username: userData.username || userData.email || null,
-        password: 'replit_auth',
-        phone: null,
-        dateOfBirth: null,
-        relationshipToCare: null,
-        careNeeds: [],
-        searchPreferences: {},
-        stripeCustomerId: null,
-        stripeSubscriptionId: null,
-        notifications: {
-          emailNotifications: true,
-          smsNotifications: false,
-          newListings: false,
-          priceAlerts: false,
-          messageAlerts: true,
-          reviewReminders: false,
-        },
-        dashboardPreferences: {
-          layoutType: 'detailed',
-          fontSize: 'medium',
-          highContrast: false,
-          reducedMotion: false,
-          cardSize: 'comfortable',
-          showHelpTips: true,
-          quickActions: ['search', 'favorites', 'schedule-tour', 'family-share'],
-          dashboardSections: {
-            favorites: { visible: true, order: 1 },
-            recentSearches: { visible: true, order: 2 },
-            recommendations: { visible: true, order: 3 },
-            savedCommunities: { visible: true, order: 4 },
-            tourSchedule: { visible: true, order: 5 },
-            familyNotes: { visible: true, order: 6 }
-          }
-        },
-        role: userData.role || 'user',
-        emailVerified: false,
-        isActive: true,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      this.users.set(authId, newUser);
-      return newUser;
-    }
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
@@ -856,24 +777,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    // Case-insensitive email comparison to handle different casing between environments
+    // Since our current database only has username, we'll treat email as username
+    // Use raw SQL query to avoid schema mismatch issues
     const result = await db.execute(
-      sql`SELECT id, username, email, password, role, first_name, last_name, auth_id 
-          FROM users 
-          WHERE LOWER(email) = LOWER(${email}) 
-          OR LOWER(username) = LOWER(${email})`
+      sql`SELECT id, username, password, role FROM users WHERE username = ${email}`
     );
     const userRow = result.rows[0];
     if (userRow) {
       return {
         id: userRow.id as number,
-        authId: userRow.auth_id as string,
-        email: userRow.email as string,
         username: userRow.username as string,
         password: userRow.password as string,
-        role: userRow.role as string,
-        firstName: userRow.first_name as string,
-        lastName: userRow.last_name as string
+        role: userRow.role as string
       } as User;
     }
     return undefined;
@@ -915,79 +830,6 @@ export class DatabaseStorage implements IStorage {
     } catch (error) {
       console.error("Error getting super admin count:", error);
       return 0;
-    }
-  }
-
-  // New methods for Replit Auth dual-identifier approach
-  async getUserByAuthId(authId: string): Promise<User | undefined> {
-    try {
-      const result = await db.execute(
-        sql`SELECT * FROM users WHERE auth_id = ${authId} LIMIT 1`
-      );
-      return result.rows[0] as User | undefined;
-    } catch (error) {
-      console.error("Error getting user by auth ID:", error);
-      return undefined;
-    }
-  }
-
-  async createReplitUser(userData: Partial<InsertUser> & { authId: string }): Promise<User> {
-    try {
-      // Normalize email to lowercase for consistency
-      const normalizedEmail = userData.email?.toLowerCase();
-      
-      const result = await db.execute(
-        sql`INSERT INTO users (auth_id, email, first_name, last_name, profile_image_url, username, password, role) 
-            VALUES (${userData.authId}, ${normalizedEmail}, ${userData.firstName || null}, 
-                    ${userData.lastName || null}, ${userData.profileImageUrl || null},
-                    ${normalizedEmail}, 'replit_auth', ${userData.role || 'user'})
-            RETURNING *`
-      );
-      return result.rows[0] as User;
-    } catch (error) {
-      console.error("Error creating Replit user:", error);
-      throw error;
-    }
-  }
-
-  async updateUserFromReplit(id: number, updates: Partial<InsertUser>): Promise<User | undefined> {
-    try {
-      const result = await db.execute(
-        sql`UPDATE users 
-            SET first_name = COALESCE(${updates.firstName}, first_name),
-                last_name = COALESCE(${updates.lastName}, last_name),
-                profile_image_url = COALESCE(${updates.profileImageUrl}, profile_image_url),
-                updated_at = NOW()
-            WHERE id = ${id}
-            RETURNING *`
-      );
-      return result.rows[0] as User | undefined;
-    } catch (error) {
-      console.error("Error updating user from Replit:", error);
-      return undefined;
-    }
-  }
-
-  async linkUserToReplitAuth(userId: number, authId: string, email: string): Promise<void> {
-    try {
-      // Normalize email to lowercase
-      const normalizedEmail = email?.toLowerCase();
-      
-      // Update user with auth_id
-      await db.execute(
-        sql`UPDATE users SET auth_id = ${authId} WHERE id = ${userId}`
-      );
-      
-      // Record the linking in audit table
-      await db.execute(
-        sql`INSERT INTO replit_linked_accounts (user_id, auth_id, email, link_method)
-            VALUES (${userId}, ${authId}, ${normalizedEmail}, 'email_match')`
-      );
-      
-      console.log(`✅ Linked existing user ${normalizedEmail} (ID: ${userId}) to Replit Auth ID: ${authId}`);
-    } catch (error) {
-      console.error("Error linking user to Replit Auth:", error);
-      throw error;
     }
   }
 
@@ -1061,78 +903,22 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async upsertUser(userData: Partial<InsertUser> & { id: string }): Promise<User> {
-    // userData.id is the Replit sub claim (string)
-    // We need to handle our integer ID database schema
-    const replitAuthId = userData.id;
-    const normalizedEmail = userData.email?.toLowerCase();
-    
-    try {
-      // First check if user exists with this authId
-      const existingByAuthId = await db.execute(
-        sql`SELECT * FROM users WHERE auth_id = ${replitAuthId} LIMIT 1`
-      );
-      
-      if (existingByAuthId.rows[0]) {
-        // Update existing user
-        const result = await db.execute(
-          sql`UPDATE users 
-              SET email = COALESCE(${normalizedEmail}, email),
-                  first_name = COALESCE(${userData.firstName}, first_name),
-                  last_name = COALESCE(${userData.lastName}, last_name),
-                  profile_image_url = COALESCE(${userData.profileImageUrl}, profile_image_url),
-                  updated_at = NOW()
-              WHERE auth_id = ${replitAuthId}
-              RETURNING *`
-        );
-        return result.rows[0] as User;
-      }
-      
-      // Check if user exists with this email (case-insensitive)
-      if (normalizedEmail) {
-        const existingByEmail = await db.execute(
-          sql`SELECT * FROM users WHERE LOWER(email) = LOWER(${normalizedEmail}) LIMIT 1`
-        );
-        
-        if (existingByEmail.rows[0]) {
-          // Link existing user to Replit Auth
-          const result = await db.execute(
-            sql`UPDATE users 
-                SET auth_id = ${replitAuthId},
-                    first_name = COALESCE(${userData.firstName}, first_name),
-                    last_name = COALESCE(${userData.lastName}, last_name),
-                    profile_image_url = COALESCE(${userData.profileImageUrl}, profile_image_url),
-                    updated_at = NOW()
-                WHERE LOWER(email) = LOWER(${normalizedEmail})
-                RETURNING *`
-          );
-          
-          // Log the linking for audit purposes
-          console.log(`✅ Linked existing user ${normalizedEmail} to Replit Auth ID: ${replitAuthId}`);
-          return result.rows[0] as User;
-        }
-      }
-      
-      // Create new user with auto-generated integer ID
-      // Determine role based on email
-      const adminEmails = ['william.cowell01@gmail.com', 'admin@myseniorvalet.com'];
-      const userRole = adminEmails.includes(normalizedEmail) ? 'super_admin' : 'user';
-      
-      const result = await db.execute(
-        sql`INSERT INTO users (auth_id, email, first_name, last_name, profile_image_url, username, password, role) 
-            VALUES (${replitAuthId}, ${normalizedEmail}, ${userData.firstName}, 
-                    ${userData.lastName}, ${userData.profileImageUrl},
-                    ${normalizedEmail}, 'replit_auth', ${userRole})
-            RETURNING *`
-      );
-      
-      console.log(`✅ Created new Replit Auth user ${normalizedEmail} with role ${userRole}`);
-      return result.rows[0] as User;
-      
-    } catch (error) {
-      console.error("Error in upsertUser:", error);
-      throw error;
-    }
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...userData,
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
   }
 
   async getCommunity(id: number): Promise<Community | undefined> {
@@ -2783,6 +2569,31 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return updated || undefined;
+  }
+
+  async getSuperAdminCount(): Promise<number> {
+    // Use cached count for performance, but with short TTL for setup flow
+    const cacheKey = 'super_admin_count';
+    const cachedCount = cache.get(cacheKey);
+    
+    if (cachedCount !== undefined && cachedCount > 0) {
+      // If we already have super admins, trust the cache
+      return cachedCount;
+    }
+    
+    // Query database for fresh count
+    const result = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(users)
+      .where(eq(users.role, 'super_admin'));
+    
+    const count = result[0]?.count || 0;
+    
+    // Cache for 30 seconds if no super admins, longer if they exist
+    const ttl = count === 0 ? 30 : 300; // 30s for setup, 5min after
+    cache.set(cacheKey, count, ttl);
+    
+    return count;
   }
 }
 

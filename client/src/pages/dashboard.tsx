@@ -83,12 +83,48 @@ interface TourRequest {
 
 export default function Dashboard() {
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [location] = useLocation();
+  const { user, isLoading: authLoading } = useAuth();
+  const [location, setLocation] = useLocation();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const [tourRequests, setTourRequests] = useState<TourRequest[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Immediate redirect for super admins - no waiting
+  const userRole = (user as any)?.role;
+  const userEmail = (user as any)?.email;
+  const isSuperAdmin = userRole === 'super_admin' || 
+                       userEmail === 'william.cowell01@gmail.com' || 
+                       userEmail === 'admin@myseniorvalet.com';
+  
+  // Log for debugging
+  console.log('Dashboard immediate check:', {
+    userEmail,
+    userRole,
+    isSuperAdmin,
+    authLoading,
+    hasUser: !!user
+  });
+  
+  // Redirect immediately if super admin
+  if (isSuperAdmin && !authLoading) {
+    console.log('🚀 IMMEDIATE REDIRECT: Super admin detected, redirecting to admin dashboard');
+    // Use window.location for guaranteed redirect
+    window.location.href = '/admin-mega-dashboard';
+    return null; // Stop rendering immediately
+  }
+  
+  // Also keep the useEffect as backup
+  useEffect(() => {
+    if (!user || authLoading) {
+      return;
+    }
+    
+    if (isSuperAdmin) {
+      console.log('🚀 useEffect redirect: Super admin to admin dashboard');
+      setLocation('/admin-mega-dashboard');
+    }
+  }, [user, isSuperAdmin, authLoading, setLocation]);
   const [showCommunitySearch, setShowCommunitySearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCommunity, setSelectedCommunity] = useState<any>(null);
@@ -1155,14 +1191,7 @@ export default function Dashboard() {
                       <div>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Price Range Interest</p>
                         <div className="flex flex-wrap gap-2">
-                          {Array.from(new Set(savedCommunities.map(c => {
-                            // Handle both string and object formats for priceRange
-                            if (typeof c.priceRange === 'object' && c.priceRange !== null) {
-                              const { min, max, currency = '$' } = c.priceRange as any;
-                              return `${currency}${min?.toLocaleString() || 0} - ${currency}${max?.toLocaleString() || 0}`;
-                            }
-                            return String(c.priceRange);
-                          }))).map((range, idx) => (
+                          {Array.from(new Set(savedCommunities.map(c => c.priceRange))).map((range, idx) => (
                             <Badge key={idx} className="bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full">
                               {range}
                             </Badge>

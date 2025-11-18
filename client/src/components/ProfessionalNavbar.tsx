@@ -416,10 +416,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link 
-                      href={user?.role === 'super_admin' ? '/admin-mega-dashboard' : '/dashboard'} 
-                      className="flex items-center space-x-2 w-full cursor-pointer"
-                    >
+                    <Link href="/dashboard" className="flex items-center space-x-2 w-full cursor-pointer">
                       <User className="h-4 w-4" />
                       <span>Dashboard</span>
                     </Link>
@@ -438,8 +435,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem 
-                    onClick={() => {
-                      window.location.href = '/api/logout';
+                    onClick={async () => {
+                      await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+                      window.location.href = '/';
                     }}
                     className="flex items-center space-x-2 w-full text-red-600 cursor-pointer"
                   >
@@ -450,7 +448,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               </DropdownMenu>
             ) : (
               <div className="flex items-center gap-2">
-                <a href="/api/login">
+                <Link href="/login">
                   <Button 
                     variant="ghost"
                     size="sm" 
@@ -459,7 +457,16 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     <LogIn className="h-4 w-4 mr-1.5" />
                     Sign In
                   </Button>
-                </a>
+                </Link>
+                <Link href="/signup">
+                  <Button 
+                    size="sm" 
+                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-md hover:shadow-lg px-3 py-2 rounded-lg transition-all duration-200 text-sm"
+                  >
+                    <UserPlus className="h-4 w-4 mr-1.5" />
+                    Get Started
+                  </Button>
+                </Link>
               </div>
             )}
 

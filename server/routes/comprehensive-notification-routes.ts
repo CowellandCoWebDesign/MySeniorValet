@@ -1,6 +1,6 @@
 import { Express } from 'express';
 import ComprehensiveNotificationService from '../services/comprehensive-notifications';
-import { requireAuth } from '../auth-middleware';
+import { requireAuth } from '../custom-auth';
 
 export function registerComprehensiveNotificationRoutes(app: Express) {
   

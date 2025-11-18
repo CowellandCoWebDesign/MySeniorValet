@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, customType, unique, time } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, json, jsonb, date, varchar, real, numeric, index, uniqueIndex, customType, unique, time } from "drizzle-orm/pg-core";
 import { relations, sql } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -11,9 +11,11 @@ const geographyPoint = customType<{ data: { lat: number; lng: number } }>({
 });
 
 // Perplexity Cache table for persisting API responses
+// Extended with new columns to support CommunityEnrichmentService while preserving legacy data
 export const perplexityCache = pgTable("perplexity_cache", {
   id: serial("id").primaryKey(),
-  communityId: text("community_id").notNull().unique(), // e.g., "community_12345"
+  // Legacy fields (kept for backward compatibility)
+  communityId: text("community_id").notNull(), // Removed unique constraint for new composite unique
   communityName: text("community_name").notNull(),
   location: text("location").notNull(),
   marketData: jsonb("market_data").$type<Record<string, any>>().default({}),
@@ -24,11 +26,21 @@ export const perplexityCache = pgTable("perplexity_cache", {
   rawPerplexityContent: text("raw_perplexity_content"),
   isFeatured: boolean("is_featured").default(false),
   expiresAt: timestamp("expires_at").notNull(),
+  
+  // New fields for CommunityEnrichmentService (nullable for migration)
+  communityIdRef: integer("community_id_ref").references(() => communities.id), // Integer reference to communities
+  query: text("query").default("default"), // Query type (e.g., "enrichment", "pricing", etc.)
+  response: text("response"), // Raw response text from Perplexity
+  sourcesJson: jsonb("sources_json").$type<Array<{ url: string; title: string }>>(), // Structured sources
+  
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow()
 }, (table) => [
   index("idx_perplexity_cache_community_id").on(table.communityId),
-  index("idx_perplexity_cache_expires").on(table.expiresAt)
+  index("idx_perplexity_cache_expires").on(table.expiresAt),
+  index("idx_perplexity_cache_community_id_ref").on(table.communityIdRef),
+  // Composite unique constraint for new enrichment service pattern
+  uniqueIndex("idx_perplexity_cache_community_query").on(table.communityIdRef, table.query)
 ]);
 
 export const insertPerplexityCacheSchema = createInsertSchema(perplexityCache)
@@ -128,15 +140,14 @@ export const sessions = pgTable(
 );
 
 export const users = pgTable("users", {
-  id: serial("id").primaryKey(), // Preserving existing integer ID for all relationships
-  authId: varchar("auth_id").unique(), // New: Replit Auth OIDC sub claim (nullable initially for migration)
+  id: serial("id").primaryKey(), // Using integer to match actual database
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   // Legacy fields for existing functionality
   username: text("username").unique(),
-  password: text("password"), // Will be null for Replit Auth users
+  password: text("password"),
   phone: text("phone"),
   relationshipToCare: text("relationship_to_care", {
     enum: ["Seeking for Self", "Seeking for Parent", "Seeking for Spouse", "Seeking for Other Family", "Healthcare Professional"]
@@ -215,28 +226,9 @@ export const users = pgTable("users", {
   role: text("role", { enum: ["user", "admin", "community_owner", "vendor", "financial_admin", "support_agent", "analytics_viewer", "super_admin"] }).default("user"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-}, (table) => [
-  index("users_auth_id_idx").on(table.authId),
-  index("users_email_idx").on(table.email),
-]);
+});
 
-// Replit Auth linked accounts audit table (for tracking migration)
-export const replitLinkedAccounts = pgTable("replit_linked_accounts", {
-  id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  authId: varchar("auth_id").notNull(),
-  email: varchar("email").notNull(),
-  linkMethod: text("link_method", { enum: ["email_match", "manual_link", "auto_generated"] }).notNull(),
-  linkedAt: timestamp("linked_at").defaultNow(),
-  linkedBy: integer("linked_by").references(() => users.id),
-  notes: text("notes"),
-}, (table) => [
-  index("replit_linked_accounts_user_id_idx").on(table.userId),
-  index("replit_linked_accounts_auth_id_idx").on(table.authId),
-]);
-
-// Type definitions for Replit Auth
-export type User = typeof users.$inferSelect;
+// Type definitions for Replit Auth (removing duplicate User type)
 export type UpsertUser = typeof users.$inferInsert;
 
 // Messaging type exports (removed duplicates - defined later in file)
@@ -1524,6 +1516,23 @@ export const communities = pgTable("communities", {
   lastViewedAt: timestamp("last_viewed_at"),
   popularityScore: decimal("popularity_score", { precision: 10, scale: 2 }).default("0"),
   enrichmentPriority: integer("enrichment_priority").default(0), // Higher = more urgent to enrich
+  
+  // SEO-Optimized Enriched Content Storage
+  enrichedContent: jsonb("enriched_content").$type<{
+    content: string;
+    metadata: {
+      sources: Array<{ url: string; title: string }>;
+      lastUpdated: string;
+      wordCount: number;
+      topics: string[];
+    };
+    seoData: {
+      metaDescription: string;
+      keywords: string[];
+      faqItems?: Array<{ question: string; answer: string }>;
+    };
+  }>(), // Nullable to support gradual migration
+  enrichedAt: timestamp("enriched_at"), // When content was last enriched from Perplexity
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),

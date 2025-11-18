@@ -34,22 +34,12 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     const text = params.text || params.html?.replace(/<[^>]*>/g, '') || 'MySeniorValet Notification';
     const html = params.html || params.text || '<p>MySeniorValet Notification</p>';
     
-    const msg: any = {
+    const msg = {
       to: params.to,
       from: params.from,
       subject: params.subject,
       text: text,
-      html: html,
-      // CRITICAL: Disable click tracking to prevent HSTS errors
-      trackingSettings: {
-        clickTracking: {
-          enable: false,
-          enableText: false
-        },
-        openTracking: {
-          enable: true
-        }
-      }
+      html: html
     };
 
     const [response] = await sgMail.send(msg);
@@ -64,88 +54,6 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     }
     return false;
   }
-}
-
-// Password reset email function (CRITICAL: Click tracking disabled to prevent HSTS errors)
-export async function sendPasswordResetEmail(email: string, resetToken: string): Promise<boolean> {
-  const resetUrl = process.env.NODE_ENV === 'production' 
-    ? `https://myseniorvalet.com/reset-password?token=${resetToken}`
-    : `http://localhost:5000/reset-password?token=${resetToken}`;
-  
-  return await sendEmail({
-    to: email,
-    from: 'hello@myseniorvalet.com',
-    subject: 'Reset Your MySeniorValet Password',
-    html: `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      </head>
-      <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background-color: #f5f5f5;">
-        <div style="max-width: 600px; margin: 40px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-          <!-- Header -->
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 30px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 28px; font-weight: 600;">MySeniorValet</h1>
-            <p style="color: rgba(255,255,255,0.9); margin: 10px 0 0 0; font-size: 14px;">Your Trusted Senior Living Guide</p>
-          </div>
-          
-          <!-- Content -->
-          <div style="padding: 40px 30px;">
-            <h2 style="color: #333; margin: 0 0 10px 0; font-size: 22px;">Password Reset Request</h2>
-            <p style="color: #666; font-size: 16px; line-height: 1.6; margin: 20px 0;">
-              We received a request to reset your password. Click the button below to create a new password:
-            </p>
-            
-            <!-- Button -->
-            <div style="text-align: center; margin: 35px 0;">
-              <a href="${resetUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 16px;">
-                Reset My Password
-              </a>
-            </div>
-            
-            <!-- Alternative link -->
-            <p style="color: #999; font-size: 14px; margin: 25px 0;">
-              Or copy and paste this link into your browser:
-            </p>
-            <div style="background: #f8f8f8; padding: 12px; border-radius: 6px; word-break: break-all;">
-              <code style="font-size: 13px; color: #666;">${resetUrl}</code>
-            </div>
-            
-            <!-- Security notice -->
-            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 25px 0; border-radius: 4px;">
-              <p style="color: #856404; font-size: 14px; margin: 0; line-height: 1.5;">
-                <strong>Security Notice:</strong> This link will expire in 1 hour for your protection. If you didn't request this reset, please ignore this email or contact support.
-              </p>
-            </div>
-          </div>
-          
-          <!-- Footer -->
-          <div style="background: #f8f9fa; padding: 20px 30px; text-align: center; border-top: 1px solid #e9ecef;">
-            <p style="color: #999; font-size: 12px; margin: 0;">
-              © 2025 MySeniorValet. All rights reserved.<br>
-              <a href="https://myseniorvalet.com" style="color: #667eea; text-decoration: none;">myseniorvalet.com</a>
-            </p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `,
-    text: `
-MySeniorValet Password Reset
-
-We received a request to reset your password. Visit the following link to create a new password:
-
-${resetUrl}
-
-This link will expire in 1 hour for your protection.
-
-If you didn't request this reset, please ignore this email or contact support.
-
-© 2025 MySeniorValet. All rights reserved.
-    `
-  });
 }
 
 // Super admin notification specifically

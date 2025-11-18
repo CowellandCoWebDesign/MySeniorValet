@@ -21,6 +21,7 @@ import { registerSemanticSearchRoutes } from "./semanticSearchRoutes";
 import autocompleteRoutes from "./autocompleteRoutes";
 
 import { registerAdminRoutes } from "./adminRoutes";
+import { adminDashboardRoutes } from "./admin-dashboard-routes";
 import { registerVendorRoutes } from "./vendorRoutes";
 import { registerSearchRoutes } from "./searchRoutes";
 import { registerUnifiedSearchRoutes } from "./unifiedSearchRoutes";
@@ -106,6 +107,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create HTTP server
   const httpServer = createServer(app);
 
+  // CRITICAL: Server-side redirect for super admins - bypasses all frontend caching
+  app.get('/dashboard', (req, res, next) => {
+    // Check if user is authenticated and has super_admin role
+    const user = (req as any).session?.user;
+    const userEmail = user?.email;
+    const userRole = user?.role;
+    
+    console.log('🔍 Dashboard intercept - User:', userEmail, 'Role:', userRole);
+    
+    // Redirect super admins to admin dashboard server-side
+    if (userRole === 'super_admin' || 
+        userEmail === 'william.cowell01@gmail.com' || 
+        userEmail === 'admin@myseniorvalet.com') {
+      console.log('🚀 SERVER-SIDE REDIRECT: Super admin detected, redirecting to /admin-mega-dashboard');
+      return res.redirect(307, '/admin-mega-dashboard');
+    }
+    
+    // Continue to serve the regular dashboard
+    next();
+  });
+
   // Register all route modules - ORDER MATTERS!
   registerAuthRoutes(app);
   // DISABLED: Quick auth bypass removed for production
@@ -146,6 +168,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.use('/api', autocompleteRoutes); // Register autocomplete routes
 
   registerAdminRoutes(app);
+  app.use(adminDashboardRoutes); // Register the new admin dashboard API routes
   registerDuplicateManagementRoutes(app); // Register duplicate management admin routes
   registerVendorRoutes(app);
   // Tour routes are registered directly in server/routes.ts
