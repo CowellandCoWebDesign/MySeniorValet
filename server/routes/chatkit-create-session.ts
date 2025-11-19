@@ -50,8 +50,8 @@ router.post('/create-session', async (req: Request, res: Response) => {
       }
     }
     
-    // Use provided user ID or session user ID - convert to string for ChatKit API
-    const resolvedUserId = body.user || (userId ? String(userId) : userId);
+    // Use provided user ID or session user ID - ensure it's always a string for ChatKit API
+    const resolvedUserId = body.user ? String(body.user) : (userId ? String(userId) : undefined);
     
     // Check if we have a ChatKit workflow ID configured
     // Note: Workflows must be created in OpenAI's Agent Builder platform
@@ -144,7 +144,7 @@ router.post('/create-session', async (req: Request, res: Response) => {
       },
       body: JSON.stringify({
         workflow: { id: workflowId },
-        user: resolvedUserId ? String(resolvedUserId) : undefined,
+        ...(resolvedUserId && { user: String(resolvedUserId) }),
         // Include thread ID if provided for conversation continuity
         ...(body.threadId && { thread: { id: body.threadId } })
       }),
@@ -332,7 +332,7 @@ router.post('/refresh-session', async (req: Request, res: Response) => {
       },
       body: JSON.stringify({
         workflow: { id: workflowId },
-        user: user_id ? String(user_id) : ((req.session as any)?.userId ? String((req.session as any).userId) : undefined),
+        ...(user_id && { user: String(user_id) }),
         thread: { id: thread_id }
       }),
     });
