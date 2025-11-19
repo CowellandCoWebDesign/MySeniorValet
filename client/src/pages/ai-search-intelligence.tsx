@@ -1320,7 +1320,7 @@ export default function AISearchIntelligence() {
                       <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">{locationContent.subheadline}</p>
                       
                       <div className="space-y-2">
-                        {locationContent.highlights.map((highlight, index) => (
+                        {locationContent.highlights && locationContent.highlights.map((highlight, index) => (
                           <div key={index} className="flex items-start gap-2">
                             <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
                             <span className="text-sm text-gray-700 dark:text-gray-300">{highlight}</span>

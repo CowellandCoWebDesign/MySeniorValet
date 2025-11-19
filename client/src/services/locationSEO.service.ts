@@ -83,8 +83,32 @@ export class LocationSEOService {
       .slice(0, limit);
   }
   
-  // Generate location-specific content
+  // Generate location-specific content for UI display
   static generateLocationContent(location: LocationInfo): {
+    headline: string;
+    subheadline: string;
+    highlights: string[];
+  } {
+    const cityName = location.city.split('-').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+    const stateUpper = location.state.toUpperCase();
+    
+    return {
+      headline: `Senior Living in ${cityName}, ${stateUpper}`,
+      subheadline: `Find the perfect senior care community in ${cityName} with transparent pricing and verified information`,
+      highlights: [
+        `${location.count || '50+'} senior living communities in ${cityName}`,
+        'Transparent pricing without hidden fees',
+        'Verified ratings and reviews',
+        'Free consultation with local experts',
+        'Compare communities side-by-side'
+      ]
+    };
+  }
+  
+  // Generate full SEO content (for SSR and metadata)
+  static generateSEOContent(location: LocationInfo): {
     title: string;
     description: string;
     keywords: string[];
