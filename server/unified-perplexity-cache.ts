@@ -234,6 +234,76 @@ class UnifiedPerplexityCache {
     return fullData;
   }
 
+  /**
+   * Assess the quality of cached data to determine if auto-fetch is needed
+   */
+  private assessCacheQuality(data: CachedCommunityData): {
+    isHighQuality: boolean;
+    qualityScore: number;
+    issues: string[];
+  } {
+    let qualityScore = 0;
+    const issues: string[] = [];
+    
+    // Check for photos (weight: 35%)
+    if (data.photos && data.photos.length > 0) {
+      if (data.photos.length >= 5) {
+        qualityScore += 35;
+      } else {
+        qualityScore += (data.photos.length / 5) * 35;
+        issues.push(`Only ${data.photos.length} photos found`);
+      }
+    } else {
+      issues.push('No photos available');
+    }
+    
+    // Check for comprehensive description (weight: 30%)
+    const contentLength = data.rawPerplexityContent?.length || 0;
+    if (contentLength > 1000) {
+      qualityScore += 30;
+    } else if (contentLength > 500) {
+      qualityScore += 15;
+      issues.push('Limited description content');
+    } else {
+      issues.push('No comprehensive description');
+    }
+    
+    // Check for pricing information (weight: 20%)
+    if (data.marketData?.pricing && 
+        (typeof data.marketData.pricing === 'object' && Object.keys(data.marketData.pricing).length > 0)) {
+      qualityScore += 20;
+    } else {
+      issues.push('No pricing information');
+    }
+    
+    // Check for reviews (weight: 10%)
+    if (data.reviews?.averageRating && data.reviews.averageRating > 0) {
+      qualityScore += 10;
+    } else {
+      issues.push('No review data');
+    }
+    
+    // Check content is not generic/error (weight: 5%)
+    const content = (data.rawPerplexityContent || '').toLowerCase();
+    if (!content.includes('not found') && 
+        !content.includes('no direct search results') &&
+        !content.includes('error') &&
+        content.length > 100) {
+      qualityScore += 5;
+    } else {
+      issues.push('Content appears to be an error or placeholder');
+    }
+    
+    // High quality threshold: 60% or better
+    const isHighQuality = qualityScore >= 60;
+    
+    return {
+      isHighQuality,
+      qualityScore,
+      issues
+    };
+  }
+
   async getComprehensiveCommunityData(
     communityId: string,
     communityName: string,
@@ -257,18 +327,15 @@ class UnifiedPerplexityCache {
     const memoryCached = this.memoryCache.get(cacheKey);
     if (memoryCached && !forceRefresh) {
       const now = Date.now();
-      // Check if data has quality content
-      const hasQualityData = memoryCached.data?.rawPerplexityContent && 
-        memoryCached.data.rawPerplexityContent.length > 500 &&
-        !memoryCached.data.rawPerplexityContent.toLowerCase().includes('not found') &&
-        !memoryCached.data.rawPerplexityContent.toLowerCase().includes('no direct search results');
+      const qualityAssessment = this.assessCacheQuality(memoryCached.data);
       
-      if (memoryCached.expiresAt > now && hasQualityData) {
-        console.log(`⚡ Returning memory-cached data for ${communityName} (expires in ${Math.round((memoryCached.expiresAt - now) / (1000 * 60 * 60))} hours)`);
+      if (memoryCached.expiresAt > now && qualityAssessment.isHighQuality) {
+        console.log(`⚡ Returning HIGH QUALITY memory-cached data for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
         return { ...memoryCached.data, source: 'memory-cache' };
       } else {
         // Memory cache expired or low quality, remove it
-        const reason = memoryCached.expiresAt <= now ? 'expired' : 'low quality data';
+        const reason = memoryCached.expiresAt <= now ? 'expired' : 
+                       `low quality (Score: ${qualityAssessment.qualityScore}%, Issues: ${qualityAssessment.issues.join(', ')})`;
         console.log(`🧹 Memory cache ${reason} for ${communityName}, removing from memory`);
         this.memoryCache.delete(cacheKey);
       }
@@ -283,15 +350,7 @@ class UnifiedPerplexityCache {
           .where(eq(perplexityCache.communityId, cacheKey))
           .limit(1);
         
-        // Check if cache exists, is not expired, AND contains quality enriched data
-        // Reject old cache entries that don't have comprehensive data
-        const hasQualityData = dbCached?.rawPerplexityContent && 
-          dbCached.rawPerplexityContent.length > 500 &&
-          !dbCached.rawPerplexityContent.toLowerCase().includes('not found') &&
-          !dbCached.rawPerplexityContent.toLowerCase().includes('no direct search results');
-        
-        if (dbCached && new Date(dbCached.expiresAt) > new Date() && hasQualityData) {
-          console.log(`📦 Returning database-cached data for ${communityName} (${dbCached.rawPerplexityContent?.length || 0} chars)`);
+        if (dbCached && new Date(dbCached.expiresAt) > new Date()) {
           const cachedData: CachedCommunityData = {
             marketData: dbCached.marketData as any || {},
             reviews: dbCached.reviews as any || {},
@@ -306,21 +365,32 @@ class UnifiedPerplexityCache {
             source: 'database-cache'
           };
           
-          // Store in memory cache for faster subsequent access with proper expiration
-          this.memoryCache.set(cacheKey, {
-            data: cachedData,
-            timestamp: Date.now(),
-            expiresAt: new Date(dbCached.expiresAt).getTime()
-          });
+          // Assess cache quality
+          const qualityAssessment = this.assessCacheQuality(cachedData);
           
-          return cachedData;
+          if (qualityAssessment.isHighQuality) {
+            console.log(`📦 Returning HIGH QUALITY database-cached data for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
+            
+            // Store in memory cache for faster subsequent access with proper expiration
+            this.memoryCache.set(cacheKey, {
+              data: cachedData,
+              timestamp: Date.now(),
+              expiresAt: new Date(dbCached.expiresAt).getTime()
+            });
+            
+            return cachedData;
+          } else {
+            console.log(`⚠️ Database cache has LOW QUALITY data for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
+            console.log(`   Issues: ${qualityAssessment.issues.join(', ')}`);
+            // Continue to check communities table or auto-fetch
+          }
         }
       } catch (error) {
         console.error(`Failed to read from database cache for ${communityName}:`, error);
       }
       
-      // CRITICAL FIX: Check the communities table for existing photos and description before returning empty
-      // This preserves already enriched data even if not in perplexity_cache
+      // Check the communities table for existing data
+      let existingData: CachedCommunityData | null = null;
       try {
         const [community] = await db
           .select({
@@ -333,14 +403,13 @@ class UnifiedPerplexityCache {
           .where(eq(communities.id, parseInt(communityId)))
           .limit(1);
 
-        if (community && ((community.photos && community.photos.length > 0) || community.description)) {
-          console.log(`📸 Found ${community.photos?.length || 0} photos and ${community.description?.length || 0} chars of content in communities table for ${communityName}`);
-          return {
+        if (community) {
+          existingData = {
             marketData: {
               pricing: typeof community.priceRange === 'object' ? community.priceRange : {}
             },
             reviews: {
-              averageRating: community.rating || 0
+              averageRating: typeof community.rating === 'number' ? community.rating : 0
             },
             inspections: {},
             photos: community.photos || [],
@@ -352,30 +421,40 @@ class UnifiedPerplexityCache {
             rawPerplexityContent: community.description || '',
             source: 'database-content' as const
           };
+          
+          // Assess the quality of existing community data
+          const qualityAssessment = this.assessCacheQuality(existingData);
+          
+          if (qualityAssessment.isHighQuality) {
+            console.log(`✅ Found HIGH QUALITY existing data in communities table for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
+            return existingData;
+          } else {
+            console.log(`📊 Communities table has LOW QUALITY data for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
+            console.log(`   Issues: ${qualityAssessment.issues.join(', ')}`);
+            console.log(`   🚀 AUTO-FETCHING comprehensive data to improve quality...`);
+            
+            // AUTO-FETCH: Trigger automatic enrichment for poor quality data
+            // Don't return existing low quality data - fetch fresh comprehensive data
+            // Continue to fetching logic below by not returning here
+          }
         }
       } catch (error) {
         console.error(`Failed to check communities table for ${communityName}:`, error);
       }
       
-      // No cached data and no database photos - return empty
-      console.log(`⚠️ No cached data or photos for ${communityName} - manual fetch required`);
-      return {
-        marketData: {},
-        reviews: {},
-        inspections: {},
-        photos: [],
-        sources: [],
-        timestamp: Date.now(),
-        communityId,
-        communityName,
-        location,
-        rawPerplexityContent: '',
-        source: 'empty' as const
-      };
+      // No data at all
+      console.log(`⚠️ No data found for ${communityName} - triggering auto-fetch for first-time visitor`);
+      
+      // AUTO-FETCH for completely empty data - continue to fetching logic below
     }
 
-    // Only reaches here if forceRefresh is true (manual user action)
-    console.log(`👤 User-initiated refresh for ${communityName} in ${location}`);
+    // Reaching here means we need to fetch fresh data
+    // Either because of forceRefresh=true (manual) or poor quality data (auto)
+    const fetchReason = forceRefresh 
+      ? `👤 User-initiated refresh for ${communityName}` 
+      : `🤖 Auto-fetching comprehensive data due to poor quality for ${communityName}`;
+    console.log(fetchReason);
+    
     if (websiteUrl) {
       console.log(`📌 Using website URL for enhanced search: ${websiteUrl}`);
     }
