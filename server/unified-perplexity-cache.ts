@@ -325,22 +325,22 @@ class UnifiedPerplexityCache {
         const [community] = await db
           .select({
             photos: communities.photos,
-            pricing_info: communities.pricing_info,
-            average_rating: communities.average_rating,
+            priceRange: communities.priceRange,
+            rating: communities.rating,
             description: communities.description
           })
           .from(communities)
           .where(eq(communities.id, parseInt(communityId)))
           .limit(1);
 
-        if (community && (community.photos?.length > 0 || community.description)) {
+        if (community && ((community.photos && community.photos.length > 0) || community.description)) {
           console.log(`📸 Found ${community.photos?.length || 0} photos and ${community.description?.length || 0} chars of content in communities table for ${communityName}`);
           return {
             marketData: {
-              pricing: typeof community.pricing_info === 'object' ? community.pricing_info : {}
+              pricing: typeof community.priceRange === 'object' ? community.priceRange : {}
             },
             reviews: {
-              average_rating: community.average_rating || 0
+              averageRating: community.rating || 0
             },
             inspections: {},
             photos: community.photos || [],
@@ -925,7 +925,7 @@ Format all information clearly with section headers.
       const photoExtractionResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
         communityName,
         response.summary,
-        cleanedUrlForExtractor, // Pass the cleaned website URL from discovery
+        cleanedUrlForExtractor || undefined, // Convert null to undefined
         response.sources
       );
       
@@ -1187,10 +1187,9 @@ Note: If location is uncertain, search broadly and include any businesses with t
       };
 
       // Cache the result in memory only (ServiceEnrichmentCache doesn't persist to database)
-      this.memoryCache.set(cacheKey, {
+      this.cache.set(cacheKey, {
         data: serviceData,
-        timestamp: Date.now(),
-        expiresAt: Date.now() + this.CACHE_DURATION
+        timestamp: Date.now()
       });
       console.log(`✅ Cached enrichment data for ${serviceName} (7 days)`);
 
