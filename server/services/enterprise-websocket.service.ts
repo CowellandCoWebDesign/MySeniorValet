@@ -291,24 +291,24 @@ export class EnterpriseWebSocketService extends EventEmitter {
   }
 
   private startRealtimeMonitoring() {
-    // Monitor for new events every 5 seconds
+    // Monitor for new events every 10 seconds (reduced frequency for production stability)
     this.eventInterval = setInterval(async () => {
       await this.checkForNewEvents();
-    }, 5000);
+    }, 10000);
 
-    // Update metrics every 30 seconds
+    // Update metrics every 60 seconds (reduced frequency for production)
     this.metricsInterval = setInterval(async () => {
       await this.broadcastMetricsUpdate();
-    }, 30000);
+    }, 60000);
   }
 
   private async checkForNewEvents() {
     try {
       const fiveSecondsAgo = new Date(Date.now() - 5000);
 
-      // Create timeout promise (2 seconds max for event checking)
+      // Create timeout promise (5 seconds max for event checking - increased for production)
       const timeoutPromise = new Promise<any[]>((_, reject) => {
-        setTimeout(() => reject(new Error('Event query timeout')), 2000);
+        setTimeout(() => reject(new Error('Event query timeout')), 5000);
       });
 
       // Check for new analytics events with timeout protection
@@ -318,12 +318,15 @@ export class EnterpriseWebSocketService extends EventEmitter {
           db.select()
             .from(analyticsEvents)
             .where(gte(analyticsEvents.timestamp, fiveSecondsAgo))
+            .orderBy(desc(analyticsEvents.timestamp))  // Add ordering for index usage
             .limit(10),
           timeoutPromise
         ]);
       } catch (error: any) {
         // Log but don't crash - this is a background check
-        console.error('Error checking for new events:', error.message);
+        if (error.message !== 'Event query timeout') {
+          console.error('Error checking for new events:', error.message);
+        }
         return;
       }
 
@@ -337,18 +340,26 @@ export class EnterpriseWebSocketService extends EventEmitter {
       }
 
       // Check for new financial transactions with timeout protection
+      // Create a new timeout promise for the second query
+      const financialTimeoutPromise = new Promise<any[]>((_, reject) => {
+        setTimeout(() => reject(new Error('Event query timeout')), 5000);
+      });
+      
       let newTransactions: any[] = [];
       try {
         newTransactions = await Promise.race([
           db.select()
             .from(financialTransactions)
             .where(gte(financialTransactions.createdAt, fiveSecondsAgo))
+            .orderBy(desc(financialTransactions.createdAt))  // Add ordering for index usage
             .limit(10),
-          timeoutPromise
+          financialTimeoutPromise
         ]);
       } catch (error: any) {
         // Log but don't crash - this is a background check
-        console.error('Error checking for financial transactions:', error.message);
+        if (error.message !== 'Event query timeout') {
+          console.error('Error checking for financial transactions:', error.message);
+        }
         return;
       }
 
