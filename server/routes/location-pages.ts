@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { MAJOR_LOCATIONS } from '../../client/src/services/locationSEO.service';
+import { MAJOR_LOCATIONS } from '@shared/location-seo';
 
 const router = Router();
 
