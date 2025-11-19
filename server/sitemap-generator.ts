@@ -263,13 +263,8 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
       if (state && count >= 5) { // Lowered from 10 to 5 to include more states/provinces globally
         const priority = internationalPriorities[state] || 0.8;
         
-        // Add ONLY the canonical SEO location page URL (removed duplicate /directory/ URLs)
-        xml += '  <url>\n';
-        xml += '    <loc>' + BASE_URL + '/senior-living/' + state.toLowerCase() + '</loc>\n';
-        xml += '    <lastmod>' + today + '</lastmod>\n';
-        xml += '    <changefreq>weekly</changefreq>\n';
-        xml += '    <priority>' + priority + '</priority>\n';
-        xml += '  </url>\n';
+        // Skip state-level URLs as we focus on specific city locations
+        // State pages are less specific and don't match search intent as well
       }
     }
     
@@ -299,10 +294,11 @@ export async function generateLocationsSitemap(req: Request, res: Response) {
         
         const citySlug = city.toLowerCase().replace(/ /g, '-').replace(/[^a-z0-9-]/g, '');
         const stateSlug = state.toLowerCase();
+        const locationSlug = `${citySlug}-${stateSlug}`;
         
-        // Add ONLY the canonical SEO location page URL (removed duplicate /directory/ URLs)
+        // Add location page URL with query-string format for better SEO
         xml += '  <url>\n';
-        xml += '    <loc>' + BASE_URL + '/senior-living/' + stateSlug + '/' + citySlug + '</loc>\n';
+        xml += '    <loc>' + BASE_URL + '/ai-search-intelligence?location=' + locationSlug + '&amp;tab=simplified</loc>\n';
         xml += '    <lastmod>' + today + '</lastmod>\n';
         xml += '    <changefreq>weekly</changefreq>\n';
         xml += '    <priority>' + priority + '</priority>\n';
