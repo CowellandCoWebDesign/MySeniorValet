@@ -27,6 +27,7 @@ export const MAJOR_LOCATIONS: LocationInfo[] = [
   { city: 'San Diego', state: 'California', stateAbbr: 'CA', slug: 'san-diego-ca', country: 'US', priority: 0.85 },
   { city: 'Sacramento', state: 'California', stateAbbr: 'CA', slug: 'sacramento-ca', country: 'US', priority: 0.8 },
   { city: 'San Jose', state: 'California', stateAbbr: 'CA', slug: 'san-jose-ca', country: 'US', priority: 0.85 },
+  { city: 'Redding', state: 'California', stateAbbr: 'CA', slug: 'redding-ca', country: 'US', priority: 0.7 },
   
   // Canada
   { city: 'Toronto', state: 'Ontario', stateAbbr: 'ON', slug: 'toronto-on', country: 'CA', priority: 0.95 },
@@ -41,6 +42,7 @@ export const MAJOR_LOCATIONS: LocationInfo[] = [
   { city: 'Orlando', state: 'Florida', stateAbbr: 'FL', slug: 'orlando-fl', country: 'US', priority: 0.85 },
   { city: 'Tampa', state: 'Florida', stateAbbr: 'FL', slug: 'tampa-fl', country: 'US', priority: 0.85 },
   { city: 'Jacksonville', state: 'Florida', stateAbbr: 'FL', slug: 'jacksonville-fl', country: 'US', priority: 0.8 },
+  { city: 'Panama City Beach', state: 'Florida', stateAbbr: 'FL', slug: 'panama-city-beach-fl', country: 'US', priority: 0.75 },
   
   // New York
   { city: 'New York', state: 'New York', stateAbbr: 'NY', slug: 'new-york-ny', country: 'US', priority: 0.95 },
