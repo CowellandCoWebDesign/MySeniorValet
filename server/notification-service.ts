@@ -257,11 +257,31 @@ export class NotificationService {
       
       for (const email of pendingEmails) {
         try {
+          // Validate required fields before sending
+          if (!email.emailTo || !email.emailSubject || !email.emailBody) {
+            console.error('Missing required email fields:', {
+              id: email.id,
+              emailTo: email.emailTo,
+              emailSubject: email.emailSubject,
+              hasBody: !!email.emailBody
+            });
+            
+            // Mark as failed to prevent retrying invalid emails
+            await db
+              .update(notificationQueue)
+              .set({
+                status: 'failed',
+                error: 'Missing required email fields'
+              })
+              .where(eq(notificationQueue.id, email.id));
+            continue;
+          }
+          
           await sgMail.send({
-            to: email.emailTo!,
+            to: email.emailTo,
             from: 'admin@myseniorvalet.com',
-            subject: email.emailSubject!,
-            html: email.emailBody!
+            subject: email.emailSubject,
+            html: email.emailBody
           });
           
           await db
