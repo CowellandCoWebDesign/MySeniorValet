@@ -18,6 +18,9 @@ import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard'
 import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
+import { useLocationSEO } from '@/hooks/useLocationSEO';
+import { LocationSEOHead } from '@/components/LocationSEOHead';
+import { LocationInfo, LocationSEOService } from '@/services/locationSEO.service';
 import { 
   Brain, 
   MapPin, 
@@ -177,6 +180,9 @@ const getCityCoordinates = (city: string, state: string): [number, number] | nul
 };
 
 export default function AISearchIntelligence() {
+  // Location SEO hook
+  const { location, isLocationPage, locationContent } = useLocationSEO();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [selectedCommunities, setSelectedCommunities] = useState<any[]>([]);
@@ -185,13 +191,16 @@ export default function AISearchIntelligence() {
   const [mapZoom, setMapZoom] = useState(10);
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
-  const [activeTab, setActiveTab] = useState('search');
+  const [activeTab, setActiveTab] = useState(() => {
+    // Default to 'simplified' tab if coming from a location search
+    return isLocationPage ? 'simplified' : 'search';
+  });
   const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
   const [useSemanticSearch, setUseSemanticSearch] = useState(true); // Enable semantic search by default
 
-  // Simplified Search Filters State
+  // Simplified Search Filters State - pre-populate with location if available
   const [simplifiedFilters, setSimplifiedFilters] = useState({
-    location: '',
+    location: location ? `${location.city}, ${location.stateAbbr}` : '',
     typeOfLiving: [] as string[],
     amenities: [] as string[],
     unitType: [] as string[],
@@ -733,14 +742,41 @@ export default function AISearchIntelligence() {
     error: aiSearchMutation.error
   };
 
+  // Update map center and filters when location changes
+  useEffect(() => {
+    if (location) {
+      const coords = getCityCoordinates(location.city, location.state);
+      if (coords) {
+        setMapCenter(coords);
+        setMapZoom(12);
+      }
+      
+      // Update simplified filters with location
+      setSimplifiedFilters(prev => ({
+        ...prev,
+        location: `${location.city}, ${location.stateAbbr}`
+      }));
+      
+      // Auto-trigger search if on simplified tab
+      if (activeTab === 'simplified') {
+        handleSimplifiedSearch();
+      }
+    }
+  }, [location]);
+
   return (
     <div className="min-h-screen relative">
-      <SEOMetaTags
-        title="AI-Powered Senior Living Search - Find Assisted Living & Memory Care"
-        description="Search assisted living, memory care, nursing homes & independent living with AI intelligence. Get personalized recommendations, pricing insights, and availability across 33,000+ communities."
-        url="/ai-search-intelligence"
-        type="website"
-      />
+      {/* Dynamic SEO based on location or default */}
+      {isLocationPage && location ? (
+        <LocationSEOHead location={location} pageType="search" />
+      ) : (
+        <SEOMetaTags
+          title="AI-Powered Senior Living Search - Find Assisted Living & Memory Care"
+          description="Search assisted living, memory care, nursing homes & independent living with AI intelligence. Get personalized recommendations, pricing insights, and availability across 33,000+ communities."
+          url="/ai-search-intelligence"
+          type="website"
+        />
+      )}
       
       {/* Cosmic background image - same as hero page */}
       <div 
@@ -1273,45 +1309,78 @@ export default function AISearchIntelligence() {
 
           {/* Simplified Search Tab - New Layout Matching Screenshot */}
           <TabsContent value="simplified" className="space-y-4 -mx-4">
-            {/* Header Section with Badges */}
+            {/* Header Section with Badges or Location-Specific Content */}
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
-              <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <h2 className="text-2xl font-bold">Senior Living Research</h2>
-                  <span className="text-2xl font-bold text-blue-600">Simplified</span>
+              {isLocationPage && locationContent ? (
+                // Location-specific content when coming from a location search
+                <div className="space-y-4">
+                  <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
+                    <div className="flex-1">
+                      <h1 className="text-3xl font-bold mb-2">{locationContent.headline}</h1>
+                      <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">{locationContent.subheadline}</p>
+                      
+                      <div className="space-y-2">
+                        {locationContent.highlights.map((highlight, index) => (
+                          <div key={index} className="flex items-start gap-2">
+                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+                            <span className="text-sm text-gray-700 dark:text-gray-300">{highlight}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-3">
+                      <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                        <Users className="w-4 h-4 mr-2" />
+                        Create A Profile
+                      </Button>
+                      <Button variant="outline">
+                        <MapPin className="w-4 h-4 mr-2" />
+                        View Map
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                
-                <div className="flex flex-wrap items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <Shield className="w-5 h-5 text-gray-600" />
-                    <div className="text-sm">
-                      <div className="font-semibold">Privacy</div>
-                      <div className="text-xs text-gray-500">We Don't Sell Your Personal Information To Facilities</div>
-                    </div>
+              ) : (
+                // Default generic content when no location is specified
+                <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold">Senior Living Research</h2>
+                    <span className="text-2xl font-bold text-blue-600">Simplified</span>
                   </div>
                   
-                  <div className="flex items-center gap-1">
-                    <Eye className="w-5 h-5 text-gray-600" />
-                    <div className="text-sm">
-                      <div className="font-semibold">Transparency</div>
-                      <div className="text-xs text-gray-500">Each Listing Has A Starting Price, Average Price, And Current Availability</div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-1">
+                      <Shield className="w-5 h-5 text-gray-600" />
+                      <div className="text-sm">
+                        <div className="font-semibold">Privacy</div>
+                        <div className="text-xs text-gray-500">We Don't Sell Your Personal Information To Facilities</div>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-1">
-                    <CheckCircle className="w-5 h-5 text-gray-600" />
-                    <div className="text-sm">
-                      <div className="font-semibold">Convenience</div>
-                      <div className="text-xs text-gray-500">Have Questions? Direct Message The Facility Right From Their Listing</div>
+                    
+                    <div className="flex items-center gap-1">
+                      <Eye className="w-5 h-5 text-gray-600" />
+                      <div className="text-sm">
+                        <div className="font-semibold">Transparency</div>
+                        <div className="text-xs text-gray-500">Each Listing Has A Starting Price, Average Price, And Current Availability</div>
+                      </div>
                     </div>
+                    
+                    <div className="flex items-center gap-1">
+                      <CheckCircle className="w-5 h-5 text-gray-600" />
+                      <div className="text-sm">
+                        <div className="font-semibold">Convenience</div>
+                        <div className="text-xs text-gray-500">Have Questions? Direct Message The Facility Right From Their Listing</div>
+                      </div>
+                    </div>
+                    
+                    <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                      <Users className="w-4 h-4 mr-2" />
+                      Create A Profile
+                    </Button>
                   </div>
-                  
-                  <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                    <Users className="w-4 h-4 mr-2" />
-                    Create A Profile
-                  </Button>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Search Bar with Predictive Text */}
