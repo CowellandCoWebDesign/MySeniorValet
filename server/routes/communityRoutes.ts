@@ -927,12 +927,12 @@ export function registerCommunityRoutes(app: Express) {
         }
       }
       
-      // CRITICAL FIX: Use unified cache instead of separate enrichment service
-      // This prevents the $0.07 cost spike
+      // Use unified cache with improved auto-fetch logic
+      // The cache layer now automatically fetches when data quality is poor
       const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
       
-      // First attempt: Try to get from cache with forceRefresh as requested
-      let comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
+      // Get comprehensive data - cache layer handles quality assessment and auto-fetch
+      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
         communityId.toString(),
         community.name,
         `${community.city}, ${community.state}`,
@@ -941,31 +941,19 @@ export function registerCommunityRoutes(app: Express) {
         communityWebsite  // Pass website URL for better photo discovery
       );
       
-      // AUTO-FETCH FIX: If cache is completely empty and this is an auto-fetch (forceRefresh=false),
-      // automatically trigger a full Perplexity fetch for first-time visitors
-      if (!forceRefresh && comprehensiveData.source === 'empty' && !comprehensiveData.rawPerplexityContent) {
-        console.log(`🚀🚀🚀 AUTO-FETCH TRIGGERED for first-time visitor to ${community.name}`);
-        console.log(`  Cache status: source=${comprehensiveData.source}, content=${comprehensiveData.rawPerplexityContent?.length || 0} chars`);
-        console.log(`  Automatically fetching full Perplexity intelligence report...`);
-        // Retry with forceRefresh=true to get full data
-        comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
-          communityId.toString(),
-          community.name,
-          `${community.city}, ${community.state}`,
-          isFeatured,
-          true,  // Force refresh to get full Perplexity data
-          communityWebsite
-        );
-        console.log(`  ✅ Auto-fetch complete: ${comprehensiveData.rawPerplexityContent?.length || 0} chars of content retrieved`);
-      } else {
-        console.log(`📝 Verify endpoint for ${community.name}: {`);
-        console.log(`  forceRefresh: ${forceRefresh},`);
-        console.log(`  cacheSource: '${comprehensiveData.source}',`);
-        console.log(`  hasRawContent: ${!!comprehensiveData.rawPerplexityContent},`);
-        console.log(`  rawContentLength: ${comprehensiveData.rawPerplexityContent?.length || 0},`);
-        console.log(`  photosCount: ${comprehensiveData.photos?.length || 0}`);
-        console.log(`}`);
-      }
+      // Log the result for debugging
+      console.log(`📝 Verify endpoint for ${community.name}: {`);
+      console.log(`  forceRefresh: ${forceRefresh},`);
+      console.log(`  cacheSource: '${comprehensiveData.source}',`);
+      console.log(`  hasRawContent: ${!!comprehensiveData.rawPerplexityContent},`);
+      console.log(`  rawContentLength: ${comprehensiveData.rawPerplexityContent?.length || 0},`);
+      console.log(`  photosCount: ${comprehensiveData.photos?.length || 0}`);
+      console.log(`}`);
+      
+      // Note: The cache layer now automatically:
+      // 1. Fetches when data is completely missing
+      // 2. Fetches when data quality score is below 60% (missing photos, pricing, description)
+      // 3. Respects forceRefresh for manual updates
       
       // No need for additional save - getComprehensiveCommunityData already saves to both cache and communities table
       // The saveCacheToDatabase function in unified-perplexity-cache.ts handles all persistence
