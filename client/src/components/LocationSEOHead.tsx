@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { LocationInfo, LocationSEOService } from '@/services/locationSEO.service';
 
@@ -12,8 +13,13 @@ export function LocationSEOHead({ location, pageType = 'search' }: LocationSEOHe
   const keywords = LocationSEOService.generateKeywords(location).join(', ');
   const canonicalUrl = LocationSEOService.generateCanonicalUrl(location);
   
+  // Update document title for client-side navigation
+  useEffect(() => {
+    document.title = title;
+  }, [title]);
+  
   return (
-    <Helmet>
+    <Helmet prioritizeSeoTags>
       <title>{title}</title>
       <meta name="title" content={title} />
       <meta name="description" content={description} />
