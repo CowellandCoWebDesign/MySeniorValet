@@ -5,6 +5,8 @@ import { MultiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
 // websiteScraperService replaced by MultiAIPhotoExtractor for consolidated photo extraction
 import { discoveredCommunityService } from '../services/discovered-community-service';
 import { apiCircuitBreaker } from '../infrastructure/api-circuit-breaker';
+// DB imports - These would typically be from your ORM or database client library
+// import { db, communities, eq } from '../db'; // Example using drizzle-orm
 
 const router = Router();
 
@@ -24,7 +26,7 @@ function extractMediaAssets(content: string) {
     /view photos/gi,
     /image gallery/gi
   ];
-  
+
   // Look for floor plan mentions
   const floorPlanPatterns = [
     /floor plans?/gi,
@@ -32,7 +34,7 @@ function extractMediaAssets(content: string) {
     /room layouts?/gi,
     /unit plans?/gi
   ];
-  
+
   // Look for virtual/3D tour mentions
   const virtualTourPatterns = [
     /virtual tour/gi,
@@ -41,7 +43,7 @@ function extractMediaAssets(content: string) {
     /interactive tour/gi,
     /matterport/gi
   ];
-  
+
   // Look for video tour mentions
   const videoTourPatterns = [
     /video tour/gi,
@@ -110,7 +112,7 @@ function extractMediaAssets(content: string) {
 // URL validation helper to prevent SSRF attacks
 const isValidWebsiteUrl = (url: string): boolean => {
   if (!url) return true; // Optional parameter
-  
+
   try {
     const parsed = new URL(url);
     // Only allow http/https
@@ -138,13 +140,13 @@ const isValidWebsiteUrl = (url: string): boolean => {
 router.post('/api/web-intelligence/quick-photos', async (req, res) => {
   try {
     const { communityName, content, website } = req.body;
-    
+
     if (!communityName) {
       return res.status(400).json({ 
         error: 'Community name is required' 
       });
     }
-    
+
     // Validate website URL to prevent SSRF
     if (website && !isValidWebsiteUrl(website)) {
       return res.status(400).json({ 
@@ -153,7 +155,7 @@ router.post('/api/web-intelligence/quick-photos', async (req, res) => {
     }
 
     console.log(`⚡ Quick photo extraction for: ${communityName}`);
-    
+
     // Get quick photos (from cache or fast extraction)
     const quickPhotos = await MultiAIPhotoExtractor.findQuickPhotos(
       communityName,
@@ -182,13 +184,13 @@ router.post('/api/web-intelligence/quick-photos', async (req, res) => {
 router.post('/api/web-intelligence/quality-photos', async (req, res) => {
   try {
     const { communityName, content, website, citations } = req.body;
-    
+
     if (!communityName) {
       return res.status(400).json({ 
         error: 'Community name is required' 
       });
     }
-    
+
     // Validate website URL to prevent SSRF
     if (website && !isValidWebsiteUrl(website)) {
       return res.status(400).json({ 
@@ -197,7 +199,7 @@ router.post('/api/web-intelligence/quality-photos', async (req, res) => {
     }
 
     console.log(`🔍 High-quality photo extraction for: ${communityName}`);
-    
+
     // Get high-quality photos with browser automation
     const qualityPhotos = await MultiAIPhotoExtractor.findHighQualityPhotos(
       communityName,
@@ -226,7 +228,7 @@ router.post('/api/web-intelligence/quality-photos', async (req, res) => {
 router.post('/api/web-intelligence/search', async (req, res) => {
   try {
     const { communityName, city, state, address, website } = req.body;
-    
+
     if (!communityName || !city || !state) {
       return res.status(400).json({ 
         error: 'Community name, city, and state are required' 
@@ -234,11 +236,11 @@ router.post('/api/web-intelligence/search', async (req, res) => {
     }
 
     console.log(`🔍 Web intelligence search for: ${communityName} at ${address || 'unspecified'} in ${city}, ${state}`);
-    
+
     let scrapedData = null;
     let officialWebsite = website;
     let perplexityResponse: any = null;
-    
+
     // If we have a website URL, scrape it directly for rich data
     if (website && website.includes('http')) {
       try {
@@ -252,7 +254,7 @@ router.post('/api/web-intelligence/search', async (req, res) => {
           website,
           []
         );
-        
+
         scrapedData = {
           photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
           floorPlans: [], // Not currently extracted
@@ -268,11 +270,11 @@ router.post('/api/web-intelligence/search', async (req, res) => {
         console.error(`Failed to scrape website ${website}:`, scrapeError);
       }
     }
-    
+
     // If we don't have scraped data, search for the community and try to find its website
     if (!scrapedData) {
       const searchQuery = `"${communityName}" ${city} ${state} senior living official website contact information pricing`;
-      
+
       // Build detailed context for Perplexity to ensure structured response
       const communityContext = `Community Name: ${communityName}
 Location: ${city}, ${state}
@@ -280,12 +282,12 @@ ${address ? `Address: ${address}` : ''}
 ${website ? `Known Website: ${website}` : ''}
 
 Search for this EXACT community at this SPECIFIC location.`;
-      
+
       perplexityResponse = await perplexityService.searchRealTime(
         searchQuery,
         communityContext
       );
-      
+
       // Try to extract website from response
       const websiteMatches = (perplexityResponse.summary || '').match(/https?:\/\/[^\s<>"']+/gi) || [];
       const directorySites = [
@@ -293,11 +295,11 @@ Search for this EXACT community at this SPECIFIC location.`;
         'senioradvisor', 'seniorhousing.net', 'medicare.gov', 'google.com',
         'facebook.com', 'yelp.com', 'apartments.com'
       ];
-      
+
       const potentialWebsite = websiteMatches.find(url => 
         !directorySites.some(site => url.toLowerCase().includes(site))
       );
-      
+
       if (potentialWebsite) {
         officialWebsite = potentialWebsite;
         try {
@@ -311,7 +313,7 @@ Search for this EXACT community at this SPECIFIC location.`;
             potentialWebsite,
             []
           );
-          
+
           scrapedData = {
             photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
             floorPlans: [], // Not currently extracted
@@ -328,10 +330,10 @@ Search for this EXACT community at this SPECIFIC location.`;
         }
       }
     }
-    
+
     // Build photo collection with priority order: scraped > perplexity > MultiAI (if needed)  
     let allPhotos = [...(scrapedData?.photos || [])];
-    
+
     // Add Perplexity images as reliable fallback (from the existing response above)
     if (perplexityResponse?.images) {
       const perplexityPhotos = perplexityResponse.images.map((url: string) => 
@@ -340,7 +342,7 @@ Search for this EXACT community at this SPECIFIC location.`;
       allPhotos.push(...perplexityPhotos);
       console.log(`📷 Added ${perplexityPhotos.length} photos from Perplexity response`);
     }
-    
+
     // Only use expensive MultiAIPhotoExtractor if we still have very few photos
     if (allPhotos.length < 2) {
       try {
@@ -351,7 +353,7 @@ Search for this EXACT community at this SPECIFIC location.`;
           officialWebsite || undefined,
           officialWebsite ? [officialWebsite] : []
         );
-        
+
         if (photoExtractionResult?.authenticPhotos) {
           const enhancedPhotos = photoExtractionResult.authenticPhotos
             .filter((photo: any) => photo.url && photo.isAuthentic)
@@ -363,10 +365,10 @@ Search for this EXACT community at this SPECIFIC location.`;
         console.log(`⚠️ MultiAIPhotoExtractor failed for ${communityName}:`, photoError instanceof Error ? photoError.message : 'Unknown error');
       }
     }
-    
+
     // Remove duplicates and limit to reasonable number
     const uniquePhotos = Array.from(new Set(allPhotos)).slice(0, 50);
-    
+
     // Build response with enhanced photo data
     const responseData = {
       communityName,
@@ -396,9 +398,9 @@ Search for this EXACT community at this SPECIFIC location.`;
       scrapedAt: scrapedData ? new Date().toISOString() : null,
       lastUpdated: new Date().toISOString()
     };
-    
+
     console.log(`✅ Web intelligence complete. Found ${uniquePhotos.length} photos (${scrapedData?.photos?.length || 0} scraped${uniquePhotos.length > (scrapedData?.photos?.length || 0) ? ` + ${uniquePhotos.length - (scrapedData?.photos?.length || 0)} AI-enhanced` : ''}), ${responseData.mediaAssets.floorPlans.length} floor plans`);
-    
+
     // AUTO-SAVE: Save every discovered community with full contact info
     try {
       await discoveredCommunityService.saveDiscoveredCommunity({
@@ -419,7 +421,7 @@ Search for this EXACT community at this SPECIFIC location.`;
     } catch (saveError) {
       console.error(`Failed to auto-save community ${communityName}:`, saveError);
     }
-    
+
     res.json(responseData);
   } catch (error) {
     console.error('Web intelligence search error:', error);
@@ -434,7 +436,7 @@ Search for this EXACT community at this SPECIFIC location.`;
 router.post('/api/communities/web-intelligence', async (req, res) => {
   try {
     const { communityName, city, state, query, address, zipCode, website, marketAnalysisData } = req.body;
-    
+
     if (!communityName || !city || !state) {
       return res.status(400).json({ 
         error: 'Community name, city, and state are required' 
@@ -443,15 +445,15 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
 
     console.log(`🔍 Fetching web intelligence for: ${communityName} at ${address || 'unspecified address'} in ${city}, ${state}`);
     console.log(`📊 Market analysis data provided: ${marketAnalysisData ? 'Yes' : 'No'}`);
-    
+
     // CONSOLIDATED: Make ONE comprehensive API call to get everything we need
     const comprehensiveQuery = `"${communityName}" ${address ? `"${address}"` : ''} ${city} ${state} senior living`;
     console.log(`🎯 Making ONE consolidated API call for all community information`);
-    
+
     const consolidatedResponse = await perplexityService.searchRealTime(
       comprehensiveQuery,
       `Find ALL of the following information about ${communityName} at ${address || 'this location'} in ${city}, ${state} in a SINGLE comprehensive search:
-      
+
       1. **OFFICIAL WEBSITE**: Find the official website URL for this specific community
       2. **PRICING**: Current monthly rates for all care levels (Independent, Assisted Living, Memory Care)
       3. **PHOTOS**: Direct URLs to actual photos of the facility (exterior, interior, rooms, amenities)
@@ -462,23 +464,23 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       8. **VIRTUAL TOURS**: Any virtual tour, video tour, or 3D tour links
       9. **FLOOR PLANS**: Available room types and floor plan options
       10. **CERTIFICATIONS**: Medicare/Medicaid acceptance, licenses, accreditations
-      
+
       Include information from:
       - The official community website
       - Google Business listing
       - Senior living directories (A Place for Mom, Caring.com, SeniorAdvisor)
       - Review platforms (Yelp, Google Reviews)
       - Social media pages
-      
+
       Provide comprehensive data from ALL available sources in this single response.`
     );
-    
+
     let officialWebsite = website;
     const websiteSearchResponse = consolidatedResponse;
-    
+
     // Extract official website from search response if we didn't already have it
     const foundWebsites: string[] = [];
-    
+
     if (!officialWebsite && websiteSearchResponse) {
       // Directory sites to exclude (these are NOT the official community websites)
       const directorySites = [
@@ -487,12 +489,12 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         'tripadvisor', 'zillow.com', 'apartments.com', 'yellowpages.com', 'indeed.com',
         'mapquest.com', 'zoominfo.com', 'seniors.fyi', 'walkersands.com'
       ];
-      
+
       // Check if URL likely belongs to the community
       const communityNameWords = communityName.toLowerCase()
         .split(' ')
         .filter((w: string) => w.length > 3 && !['senior', 'living', 'care', 'assisted', 'memory'].includes(w.toLowerCase()));
-      
+
       // Check sources array for official websites
       if (websiteSearchResponse.sources && websiteSearchResponse.sources.length > 0) {
         for (const source of websiteSearchResponse.sources) {
@@ -501,7 +503,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
             const domainLower = sourceDomain.toLowerCase();
             // Check if this domain contains meaningful parts of the community name
             const isLikelyOfficialSite = communityNameWords.some((word: string) => domainLower.includes(word.toLowerCase()));
-            
+
             if (isLikelyOfficialSite) {
               officialWebsite = source.startsWith('http') ? source : `https://${sourceDomain}`;
               console.log(`✅ Found official website: ${officialWebsite}`);
@@ -511,24 +513,24 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           }
         }
       }
-      
+
       // If still no official website, use the first non-directory site found
       if (!officialWebsite && foundWebsites.length > 0) {
         officialWebsite = `https://${foundWebsites[0]}`;
         console.log(`⚠️ Using first non-directory website found: ${officialWebsite}`);
       }
     }
-    
+
     // CONSOLIDATED: No need for additional API calls - we got everything in one call
     let officialWebsiteData = consolidatedResponse;
     let thirdPartySources = [];
     let thirdPartyResponse = { summary: '', sources: [], images: [] };
-    
+
     // Extract third-party sources from the consolidated response
     if (consolidatedResponse.sources) {
       thirdPartySources = consolidatedResponse.sources;
     }
-    
+
     // Separate official sources from third-party references
     let thirdPartySourcesList: string[] = [];
     if (thirdPartyResponse.sources) {
@@ -542,10 +544,10 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       });
     }
     thirdPartySources = thirdPartySourcesList;
-    
+
     // CONSOLIDATED: Use the single response we got from our one API call
     let finalContent = consolidatedResponse.summary || '';
-    
+
     const response = {
       summary: finalContent,
       sources: [
@@ -557,7 +559,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         ...(thirdPartyResponse.images || [])
       ]
     };
-    
+
     // IMPROVED: Smart verification with reasonable thresholds
     let verificationScore = 0;
     let isVerified = false;
@@ -565,13 +567,13 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     let isNameMatch = false;
     let chatgptVerification = null;
     let verificationError = null;
-    
+
     // First, do a quick check if the data likely matches
     const contentLower = (response?.summary || '').toLowerCase();
     const nameLower = communityName.toLowerCase();
     const cityLower = city.toLowerCase();
     const stateLower = state.toLowerCase();
-    
+
     // Basic matching heuristics
     if (contentLower.includes(nameLower) || contentLower.includes(nameLower.split(' ')[0])) {
       verificationScore += 40; // Name match
@@ -585,12 +587,12 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     if (contentLower.includes('senior living') || contentLower.includes('assisted living') || contentLower.includes('memory care')) {
       verificationScore += 15; // Care type match
     }
-    
+
     // If we have reasonable confidence, try ChatGPT verification but don't block on it
     if (verificationScore >= 50) {
       try {
         const verificationService = new MultiAIVerificationService();
-        
+
         const communityContext = {
           city,
           state,
@@ -607,9 +609,9 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           certifications: [] as string[],
           hudPropertyId: ''
         };
-        
+
         console.log(`🔍 Running multi-AI verification for ${communityName} (pre-score: ${verificationScore})...`);
-        
+
         // Use full multi-AI orchestration: Perplexity → Claude → ChatGPT
         const verificationPromise = verificationService.verifyRealTimeData(
           0, // communityId placeholder
@@ -617,19 +619,19 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
           response, 
           communityContext
         );
-        
+
         const fullVerification = await Promise.race([
           verificationPromise,
           new Promise((resolve) => setTimeout(() => resolve(null), 5000)) // 5 second timeout for full orchestration
         ]);
-        
+
         if (fullVerification && typeof fullVerification === 'object') {
           // Extract verification results from the full orchestration
           const verificationObj = fullVerification as any;
           const claudeVerif = verificationObj.verificationResults?.claudeVerification;
           const chatgptVerif = verificationObj.verificationResults?.chatgptVerification;
           const consensus = verificationObj.consensus;
-          
+
           // Log AI orchestration status
           console.log(`🎭 AI Orchestration Status:`, {
             perplexity: verificationObj.aiOrchestra?.perplexity?.status,
@@ -637,10 +639,10 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
             chatgpt: verificationObj.aiOrchestra?.chatgpt?.status,
             consensus: consensus?.agreementLevel
           });
-          
+
           // Use Claude verification if available (primary), otherwise ChatGPT (fallback)
           chatgptVerification = claudeVerif || chatgptVerif;
-          
+
           if (chatgptVerification) {
             isIdentityVerified = chatgptVerification?.identityVerified === true;
             isNameMatch = chatgptVerification?.nameMatch === 'exact' || chatgptVerification?.nameMatch === 'partial';
@@ -676,18 +678,18 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       console.log(`⚠️ Low confidence score (${verificationScore}) for ${communityName}`);
       isVerified = false;
     }
-    
+
     // IMPROVED: Show actual data with appropriate disclaimers instead of generic alerts
     if (!isVerified && verificationScore < 30) {
       // Only do retry attempts if confidence is very low
       console.warn(`⚠️ Very low confidence (${verificationScore}) for ${communityName} - attempting one targeted search`);
-      
+
       // Try ONE more specific search
       const targetedQuery = `"${communityName}" "${city}" "${state}" senior living community contact information`;
-      
+
       try {
         const retryResponse = await perplexityService.searchRealTime(targetedQuery);
-        
+
         // Quick check if this improved things
         const retryContent = (retryResponse?.summary || '').toLowerCase();
         if (retryContent.includes(nameLower) && retryContent.includes(cityLower)) {
@@ -701,19 +703,19 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         console.error(`❌ Targeted search failed:`, error);
       }
     }
-    
+
     // Extract media assets from the response
     const mediaAssets = extractMediaAssets(response.summary || '');
-    
+
     // ALWAYS return actual data, just with appropriate confidence indicators
     if (!isVerified && verificationScore < 50) {
       // Low confidence - show data with a disclaimer
       console.warn(`⚠️ Showing data with disclaimer for ${communityName} (confidence: ${verificationScore})`);
-      
+
       const disclaimerContent = response.summary ? 
         `**Note:** The following information may include details about senior living communities in ${city}, ${state}. Please verify specific details about "${communityName}" directly with the community.\n\n${response.summary}` :
         `We found limited information about senior living communities in ${city}, ${state}. Please contact "${communityName}" directly for specific details about their services and pricing.`;
-      
+
       return res.json({
         content: disclaimerContent,
         citations: response.sources || [],
@@ -735,10 +737,10 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
         timestamp: new Date().toISOString()
       });
     }
-    
+
     // Extract pricing from the response content
     const extractedPricing = extractPricingFromContent(response.summary || '');
-    
+
     // Data is verified - return the intelligence
     const structuredResponse = {
       content: response.summary || '',
@@ -760,9 +762,9 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       pricing: extractedPricing,
       timestamp: new Date().toISOString()
     };
-    
+
     console.log(`✅ Web intelligence retrieved and verified for ${communityName} with ${structuredResponse.citations.length} sources`);
-    
+
     // AUTO-SAVE: Save every discovered community to ensure we never lose data
     try {
       await discoveredCommunityService.saveDiscoveredCommunity({
@@ -792,7 +794,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       console.error(`Failed to auto-save community ${communityName}:`, saveError);
       // Don't fail the request if save fails
     }
-    
+
     res.json(structuredResponse);
   } catch (error) {
     console.error('Error fetching web intelligence:', error);
@@ -807,7 +809,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
 router.post('/api/communities/comparative-intelligence', async (req, res) => {
   try {
     const { location, careType } = req.body;
-    
+
     if (!location) {
       return res.status(400).json({ 
         error: 'Location is required' 
@@ -816,11 +818,11 @@ router.post('/api/communities/comparative-intelligence', async (req, res) => {
 
     // Build comparative search query
     const searchQuery = `senior living communities in ${location} ${careType ? careType : ''} pricing comparison features amenities reviews`;
-    
+
     console.log(`📊 Fetching comparative intelligence for: ${location}`);
-    
+
     const response = await perplexityService.searchRealTime(searchQuery);
-    
+
     res.json({
       content: response.summary || '',
       citations: response.sources || [],
@@ -842,7 +844,7 @@ router.post('/api/communities/comparative-intelligence', async (req, res) => {
 router.post('/api/communities/verify-information', async (req, res) => {
   try {
     const { communityId, communityName, address, phone, website } = req.body;
-    
+
     if (!communityName) {
       return res.status(400).json({ 
         error: 'Community name is required for verification' 
@@ -851,11 +853,11 @@ router.post('/api/communities/verify-information', async (req, res) => {
 
     // Build verification query
     const verificationQuery = `"${communityName}" ${address ? `"${address}"` : ''} ${phone ? `phone ${phone}` : ''} ${website ? `website ${website}` : ''} verify contact information`;
-    
+
     console.log(`🔍 Verifying information for: ${communityName}`);
-    
+
     const response = await perplexityService.searchRealTime(verificationQuery);
-    
+
     // Extract verification results
     const content = response.summary || '';
     const verificationResults = {
@@ -869,9 +871,9 @@ router.post('/api/communities/verify-information', async (req, res) => {
       images: response.images || [],  // Include found images
       timestamp: new Date().toISOString()
     };
-    
+
     console.log(`✅ Verification complete for ${communityName}`);
-    
+
     res.json(verificationResults);
   } catch (error) {
     console.error('Error verifying community information:', error);
@@ -885,12 +887,12 @@ router.post('/api/communities/verify-information', async (req, res) => {
 // Helper function to extract pricing from content
 function extractPricingFromContent(content: string): any {
   const pricing: any = {};
-  
+
   // First, extract pricing from markdown tables (Perplexity often returns data in table format)
   const tableRowPattern = /\|[^|]*\|[^|]*\|\s*([^|]*(?:Living|Care|Memory|Nursing|Skilled|Studio|bedroom|Apartment)?[^|]*)\s*\|\s*([^|]*\$[^|]*)\s*\|/gi;
   const tablePrices: string[] = [];
   let tableMatch;
-  
+
   while ((tableMatch = tableRowPattern.exec(content)) !== null) {
     const priceCell = tableMatch[2];
     if (priceCell && priceCell.includes('$')) {
@@ -899,7 +901,7 @@ function extractPricingFromContent(content: string): any {
       console.log(`💰 Found table pricing: ${cleanPrice}`);
     }
   }
-  
+
   // Additional pricing patterns for non-table content
   const pricingPatterns = [
     // Price ranges with various dash types
@@ -913,7 +915,7 @@ function extractPricingFromContent(content: string): any {
     // Call for price variations
     /(?:call\s+for\s+(?:pricing|price|rates?))|(?:contact\s+(?:for|us\s+for)\s+pricing)/gi
   ];
-  
+
   const foundPrices: string[] = [...tablePrices];
   pricingPatterns.forEach(pattern => {
     const matches = content.match(pattern);
@@ -926,10 +928,10 @@ function extractPricingFromContent(content: string): any {
       });
     }
   });
-  
+
   if (foundPrices.length > 0) {
     pricing.raw = foundPrices;
-    
+
     // Extract numeric values for min/max
     const numbers: number[] = [];
     foundPrices.forEach(price => {
@@ -943,7 +945,7 @@ function extractPricingFromContent(content: string): any {
         });
       }
     });
-    
+
     if (numbers.length > 0) {
       pricing.min = Math.min(...numbers);
       pricing.max = Math.max(...numbers);
@@ -952,48 +954,48 @@ function extractPricingFromContent(content: string): any {
         `$${pricing.min.toLocaleString()} - $${pricing.max.toLocaleString()}/month`;
       console.log(`💰 Extracted pricing range: ${pricing.formatted}`);
     }
-    
+
     // Check for "call for price" patterns
     const callForPricePattern = /(?:call\s+for\s+(?:pricing|price|rates?))|(?:contact\s+(?:for|us\s+for)\s+pricing)/gi;
     if (callForPricePattern.test(content) && !pricing.min) {
       pricing.note = 'Contact community for pricing';
     }
   }
-  
+
   return pricing;
 }
 
 // Helper function to extract additional information
 function extractAdditionalInfo(content: string) {
   const info: any = {};
-  
+
   // Extract email if found
   const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
   const emails = content.match(emailPattern);
   if (emails) {
     info.emails = [...new Set(emails)];
   }
-  
+
   // Extract social media
   if (content.includes('facebook.com')) info.hasFacebook = true;
   if (content.includes('twitter.com') || content.includes('x.com')) info.hasTwitter = true;
   if (content.includes('instagram.com')) info.hasInstagram = true;
   if (content.includes('linkedin.com')) info.hasLinkedIn = true;
-  
+
   // Extract business hours if mentioned
   const hoursPattern = /\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)\s*-\s*\d{1,2}(?::\d{2})?\s*(?:am|pm|AM|PM)/g;
   const hours = content.match(hoursPattern);
   if (hours) {
     info.businessHours = hours[0];
   }
-  
+
   // Check for certifications/awards
   const certifications = [];
   if (content.includes('Medicare')) certifications.push('Medicare Certified');
   if (content.includes('Medicaid')) certifications.push('Medicaid Certified');
   if (content.includes('award') || content.includes('Award')) info.hasAwards = true;
   if (certifications.length > 0) info.certifications = certifications;
-  
+
   return info;
 }
 
@@ -1002,21 +1004,21 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
   try {
     const { id } = req.params;
     const { name, city, state, type, website } = req.query;
-    
+
     if (!name || !city) {
       return res.status(400).json({ 
         error: 'Service name and city are required' 
       });
     }
-    
+
     console.log(`🔍 Web intelligence for service: ${name} in ${city}, ${state || ''}`);
-    
+
     // Initialize response structure
     let photos: string[] = [];
     let photoSources: any = {};
     let summary = '';
     let sources: string[] = [];
-    
+
     // Step 1: If we have a website, try to extract photos from it directly
     if (website && typeof website === 'string') {
       try {
@@ -1030,7 +1032,7 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
           website,
           []
         );
-        
+
         if (photoResult?.authenticPhotos && photoResult.authenticPhotos.length > 0) {
           photos = photoResult.authenticPhotos.map((p: any) => 
             p.url || p
@@ -1043,16 +1045,16 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
         console.error(`Failed to extract photos from website:`, websiteError);
       }
     }
-    
+
     // Step 2: If no photos from website, use Perplexity as fallback
     if (photos.length < 3) {
       try {
         console.log(`🔍 Using Perplexity fallback to search for service photos...`);
-        
+
         // Use Perplexity to search for the service and extract photo URLs
         const perplexityQuery = `"${name}" ${city} ${state || ''} photos images gallery`;
         const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
-        
+
         if (perplexityApiKey) {
           const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
             method: 'POST',
@@ -1074,22 +1076,22 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
               max_tokens: 1000
             })
           });
-          
+
           if (perplexityResponse.ok) {
             const perplexityData = await perplexityResponse.json();
             const content = perplexityData.choices?.[0]?.message?.content || '';
-            
+
             // Extract image URLs from the Perplexity response
             const imageUrlPattern = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi;
             const foundUrls = content.match(imageUrlPattern) || [];
-            
+
             // Also check for images in citations
             const citations = perplexityData.citations || [];
-            
+
             // Filter and add unique photos
             const perplexityPhotos = foundUrls.filter((url: string) => !photos.includes(url));
             photos.push(...perplexityPhotos.slice(0, 10)); // Limit to 10 photos from Perplexity
-            
+
             if (perplexityPhotos.length > 0) {
               photoSources['perplexity_search'] = perplexityPhotos.length;
               sources.push('Perplexity Search');
@@ -1101,14 +1103,14 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
         console.error(`Perplexity fallback failed:`, perplexityError);
       }
     }
-    
+
     // Step 3: Try to scrape from review sites if we still need photos
     if (photos.length < 3) {
       try {
         // Build search query for review sites
         const searchQuery = `"${name}" ${city} ${state || ''} yelp tripadvisor opentable photos reviews`;
         console.log(`🔍 Attempting MultiAIPhotoExtractor for additional photos...`);
-        
+
         // Try to find photos from review sites using MultiAIPhotoExtractor
         const reviewSitePhotos = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
           name as string,
@@ -1119,14 +1121,14 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
           undefined, // No specific website
           ['tripadvisor.com', 'yelp.com', 'opentable.com', 'google.com'] // Potential sources
         );
-        
+
         if (reviewSitePhotos?.authenticPhotos) {
           const newPhotos = reviewSitePhotos.authenticPhotos
             .map((p: any) => p.url || p)
             .filter((url: string) => !photos.includes(url));
-          
+
           photos.push(...newPhotos);
-          
+
           // Track photo sources
           reviewSitePhotos.sources?.forEach((source: string) => {
             if (!photoSources[source]) {
@@ -1137,14 +1139,14 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
               sources.push(source);
             }
           });
-          
+
           console.log(`✅ Found ${newPhotos.length} additional photos from review sites`);
         }
       } catch (searchError) {
         console.error(`Failed to search for service photos:`, searchError);
       }
     }
-    
+
     // Step 4: If still no photos, try a broader search
     if (photos.length === 0) {
       try {
@@ -1154,7 +1156,7 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
           `${name} ${type || 'business'} in ${city}, ${state || ''}`,
           undefined
         );
-        
+
         if (broaderSearch?.authenticPhotos) {
           photos = broaderSearch.authenticPhotos.map((p: any) => 
             p.url || p
@@ -1166,7 +1168,7 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
         console.error(`Broader search failed:`, broaderError);
       }
     }
-    
+
     // Build response with whatever we found
     const response = {
       photos: photos.slice(0, 20), // Limit to 20 photos
@@ -1176,9 +1178,9 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
       timestamp: new Date().toISOString(),
       cached: false
     };
-    
+
     console.log(`✅ Service web intelligence complete: ${photos.length} photos from ${sources.length} sources`);
-    
+
     res.json(response);
   } catch (error) {
     console.error('Service web intelligence error:', error);
