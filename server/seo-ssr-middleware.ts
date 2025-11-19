@@ -76,6 +76,13 @@ import { eq, and, sql } from 'drizzle-orm';
 import { generateCommunitySlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
 import { communityEnrichmentService } from './services/community-enrichment-service';
+import { 
+  findLocationBySlug, 
+  generateLocationTitle, 
+  generateLocationDescription,
+  generateLocationKeywords,
+  generateLocationCanonicalUrl 
+} from '@shared/location-seo';
 
 // Cache for rendered HTML pages (performance optimization)
 // LRU eviction ensures memory doesn't grow unbounded
@@ -487,6 +494,205 @@ export async function generateCommunityHTMLBySlug(
   }
 }
 
+// Generate server-side rendered HTML for location landing pages
+async function generateLocationHTML(
+  locationSlug: string,
+  baseUrl: string
+): Promise<string | null> {
+  try {
+    const location = findLocationBySlug(locationSlug);
+    if (!location) return null;
+    
+    // Generate SEO content
+    const title = generateLocationTitle(location);
+    const description = generateLocationDescription(location);
+    const keywords = generateLocationKeywords(location);
+    const canonicalUrl = generateLocationCanonicalUrl(location);
+    
+    // Get community count for this location (rough estimate for now)
+    const communityCount = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(communities)
+      .where(
+        and(
+          eq(communities.city, location.city),
+          eq(communities.state, location.state)
+        )
+      )
+      .then(result => result[0]?.count || 0);
+    
+    // Generate structured data for local SEO
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": title,
+      "description": description,
+      "url": canonicalUrl,
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": baseUrl
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "AI Search",
+            "item": `${baseUrl}/ai-search-intelligence`
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": `${location.city}, ${location.stateAbbr}`,
+            "item": canonicalUrl
+          }
+        ]
+      },
+      "about": {
+        "@type": "Thing",
+        "name": `Senior Living in ${location.city}`,
+        "description": `Senior care services and communities in ${location.city}, ${location.state}`
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "name": `Senior Living Communities in ${location.city}`,
+        "numberOfItems": communityCount,
+        "itemListElement": []
+      }
+    };
+    
+    // Generate HTML with location-specific content
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <meta name="description" content="${description}">
+  <meta name="keywords" content="${keywords.join(', ')}">
+  
+  <!-- Open Graph tags -->
+  <meta property="og:title" content="${title}">
+  <meta property="og:description" content="${description}">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="${canonicalUrl}">
+  <meta property="og:site_name" content="MySeniorValet">
+  <meta property="og:locale" content="en_US">
+  
+  <!-- Twitter Card tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${title}">
+  <meta name="twitter:description" content="${description}">
+  
+  <!-- Canonical URL -->
+  <link rel="canonical" href="${canonicalUrl}">
+  
+  <!-- Geo tags -->
+  <meta name="geo.region" content="${location.country || 'US'}-${location.stateAbbr}">
+  <meta name="geo.placename" content="${location.city}">
+  
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+    ${JSON.stringify(structuredData, null, 2)}
+  </script>
+  
+  <!-- Preload React app -->
+  <link rel="preload" href="/src/main.tsx" as="script" crossorigin>
+  
+  <style>
+    body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
+    .location-page { max-width: 1200px; margin: 0 auto; }
+    h1 { color: #1a1a1a; font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .subtitle { color: #666; font-size: 1.2rem; margin-bottom: 2rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
+    .stat-card { background: #f8f8f8; padding: 20px; border-radius: 8px; }
+    .stat-number { font-size: 2rem; font-weight: bold; color: #2563eb; }
+    .stat-label { color: #666; margin-top: 5px; }
+    .content-section { margin: 30px 0; }
+    .care-types { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
+    .care-type { background: #e3f2fd; color: #1976d2; padding: 8px 16px; border-radius: 20px; }
+  </style>
+</head>
+<body>
+  <div id="root">
+    <div class="location-page">
+      <h1>${title.replace(' | MySeniorValet', '')}</h1>
+      <p class="subtitle">Find trusted senior care with transparent pricing and real availability</p>
+      
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-number">${communityCount.toLocaleString()}</div>
+          <div class="stat-label">Communities Available</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">100%</div>
+          <div class="stat-label">Transparent Pricing</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number">0</div>
+          <div class="stat-label">Hidden Fees</div>
+        </div>
+      </div>
+      
+      <section class="content-section">
+        <h2>Senior Living Options in ${location.city}</h2>
+        <div class="care-types">
+          <span class="care-type">Assisted Living</span>
+          <span class="care-type">Memory Care</span>
+          <span class="care-type">Nursing Homes</span>
+          <span class="care-type">Independent Living</span>
+          <span class="care-type">HUD Housing</span>
+        </div>
+        <p>${description}</p>
+      </section>
+      
+      <section class="content-section">
+        <h2>Why Choose MySeniorValet for ${location.city} Senior Care?</h2>
+        <ul>
+          <li><strong>Complete Transparency:</strong> Real pricing, no hidden fees or referral markups</li>
+          <li><strong>Verified Information:</strong> HUD-verified rates and community-reported data</li>
+          <li><strong>Comprehensive Coverage:</strong> ${communityCount} communities across ${location.city}</li>
+          <li><strong>Family-First Platform:</strong> Built for families, not profits</li>
+          <li><strong>Real-Time Updates:</strong> Current availability and pricing information</li>
+        </ul>
+      </section>
+      
+      <section class="content-section">
+        <h2>Popular Searches in ${location.city}</h2>
+        <ul>
+          <li>Assisted Living ${location.city} ${location.stateAbbr}</li>
+          <li>Memory Care facilities near ${location.city}</li>
+          <li>Nursing Homes in ${location.city}</li>
+          <li>${location.city} Senior Living costs</li>
+          <li>Best retirement communities ${location.city}</li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  
+  <!-- Preload location data for React hydration -->
+  <script>
+    window.__PRELOADED_LOCATION__ = ${JSON.stringify({
+      location,
+      communityCount
+    }).replace(/</g, '\\u003c')};
+  </script>
+  
+  <!-- React will hydrate this content -->
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>`;
+    
+    return html;
+  } catch (error) {
+    console.error('Error generating location HTML:', error);
+    return null;
+  }
+}
+
 // Middleware to serve SSR pages for crawlers
 export function seoSSRMiddleware() {
   return async (req: Request, res: Response, next: NextFunction) => {
@@ -498,6 +704,41 @@ export function seoSSRMiddleware() {
     
     if (!isCrawler && !forceSSR) {
       return next(); // Let React handle regular users
+    }
+    
+    // Check for AI Search Intelligence with location parameter
+    if (req.path === '/ai-search-intelligence' && req.query.location) {
+      const locationSlug = req.query.location as string;
+      const cacheKey = `location-${locationSlug}`;
+      
+      // Check cache
+      const cached = htmlCache.get(cacheKey);
+      if (cached && !forceSSR) {
+        console.log(`✅ Serving cached HTML for location ${locationSlug} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
+        res.set('Content-Type', 'text/html');
+        res.set('X-Robots-Tag', 'index, follow');
+        res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+        return res.send(cached.html);
+      }
+      
+      // Generate fresh HTML
+      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      const html = await generateLocationHTML(locationSlug, baseUrl);
+      
+      if (html) {
+        // Cache the result
+        htmlCache.set(cacheKey, { 
+          html, 
+          timestamp: Date.now(),
+          communityUpdatedAt: new Date()
+        });
+        console.log(`✅ Generated and cached HTML for location ${locationSlug} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
+        
+        res.set('Content-Type', 'text/html');
+        res.set('X-Robots-Tag', 'index, follow');
+        res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+        return res.send(html);
+      }
     }
     
     // Check for /community/:id pattern
