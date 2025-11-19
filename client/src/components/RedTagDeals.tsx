@@ -190,28 +190,6 @@ export function RedTagDeals() {
         <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4">
           Outstanding senior living communities showcasing excellence across five countries
         </p>
-        
-        {/* Launch Transparency Notice - Compact */}
-        <div className="mt-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-950/30 dark:to-blue-950/30 border border-green-400 dark:border-green-700 rounded-lg max-w-4xl mx-auto">
-          <div className="flex items-start gap-2">
-            <Star className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0 animate-pulse" />
-            <div className="text-left">
-              <p className="text-sm text-green-800 dark:text-green-200 font-bold mb-1">
-                🎉 Early Adopter Opportunity - First 8 PAID Communities Get FREE Featured Placement!
-              </p>
-              <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                Community partners: Be among the first 8 paying subscribers to MySeniorValet and receive FREE premium featured placement 
-                in this high-visibility home page section! As an early adopter who commits with a paid subscription, your community will be 
-                showcased to thousands of families actively searching for senior care. Contact us today to become a paid member and claim 
-                your free featured spot - only 3 positions remaining!
-              </p>
-              <p className="text-xs text-blue-700 dark:text-blue-300 mt-2">
-                The 5 communities currently showcased are hand-selected promotional listings representing excellence in senior living across 
-                specialized care types including memory care, coastal luxury, international retirement, European excellence, and affordable NYC housing options.
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* Featured Communities Alert - Compact */}
