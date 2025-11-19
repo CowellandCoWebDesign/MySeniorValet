@@ -26,6 +26,14 @@ MySeniorValet is an AI-powered "Google of Senior Care" platform designed to brin
 ## System Architecture
 The platform is built with a modern web stack, emphasizing transparency and user engagement. It features Fortune 500-level executive intelligence through a competitive analysis page and executive summary dashboard, showcasing market position, data confidence, AI insights, and strategic recommendations. Perplexity AI is treated as an intelligent business analyst, with its responses displayed unfiltered and with source attribution. Web enrichment data from Perplexity API is cached for 7 days.
 
+**SEO Implementation (November 19, 2025)**:
+- Server-side rendering for location-specific pages ensures search engines receive properly rendered HTML with location-specific titles
+- Location pages use query-string URLs: `/ai-search-intelligence?location={city}-{state}&tab=simplified`
+- Dynamic titles follow SEO best practices: "Senior Living in {City}, {State} | MySeniorValet" (all under 60 characters)
+- Shared location SEO module (`shared/location-seo.ts`) provides consistent SEO metadata for both client and server
+- SSR middleware detects search engine crawlers and serves pre-rendered HTML while maintaining SPA experience for regular users
+- Sitemap generation includes thousands of city-specific URLs for comprehensive search coverage
+
 **Technical Implementations**:
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components, using Vite.
 - **Backend**: Express.js with TypeScript, using esbuild.
