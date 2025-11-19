@@ -1,3 +1,42 @@
+
+// GET comprehensive enrichment data from database (cache check)
+router.get('/api/community/:id/comprehensive-data', async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    
+    const [community] = await db
+      .select()
+      .from(communities)
+      .where(eq(communities.id, communityId))
+      .limit(1);
+    
+    if (!community) {
+      return res.status(404).json({ error: 'Community not found' });
+    }
+    
+    // Return cached enrichment data from database
+    res.json({
+      id: community.id,
+      name: community.name,
+      address: community.address,
+      city: community.city,
+      state: community.state,
+      photos: community.photos || [],
+      lastUpdated: community.enrichedAt || community.updatedAt,
+      marketData: {
+        description: community.description,
+        phone: community.phone,
+        website: community.website,
+        pricing: community.livePricing || community.rentPerMonth,
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching comprehensive data:', error);
+    res.status(500).json({ error: 'Failed to fetch data' });
+  }
+});
+
+
 import { type Express } from "express";
 import { db } from "../db";
 import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities } from "@shared/schema";

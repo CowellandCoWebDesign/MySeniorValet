@@ -76,14 +76,14 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
   const [isExpanded, setIsExpanded] = useState(true); // Always expanded by default
   const [dataIsFresh, setDataIsFresh] = useState(false);
   const [showRefreshButton, setShowRefreshButton] = useState(false);
-  
+
   const fetchAnalysis = async (forceRefresh: boolean = false) => {
     if (!community?.city || !community?.state) return;
     if (isLoading) return; // Prevent duplicate fetches
-    
+
     setIsLoading(true);
     setDataIsFresh(false);
-    
+
     try {
       // Use the enrichment cache to prevent duplicate API calls
       const data = await enrichmentCache.getOrFetch(
@@ -92,7 +92,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
           // Allow proper time for comprehensive Perplexity analysis
           const controller = new AbortController();
           const timeoutId = setTimeout(() => controller.abort(), 60000); // 60 second timeout for complete results
-          
+
           try {
             const response = await fetch('/api/competitive-analysis', {
               method: 'POST',
@@ -108,13 +108,13 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
               }),
               signal: controller.signal
             });
-            
+
             clearTimeout(timeoutId);
-            
+
             if (!response.ok) {
               throw new Error(`Failed to fetch analysis: ${response.status}`);
             }
-            
+
             const responseData = await response.json();
             return responseData;
           } catch (error: any) {
@@ -127,24 +127,24 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       setAnalysis(data);
       setIsExpanded(true);
       setShowRefreshButton(true); // Show refresh button after successful fetch
-      
+
       // Extract website and photos for the current community if found
       if (data.extractedCommunities && data.extractedCommunities.length > 0) {
         const currentCommunityData = data.extractedCommunities.find((c: any) => 
           c.name.toLowerCase().includes(community.name.toLowerCase()) ||
           community.name.toLowerCase().includes(c.name.toLowerCase())
         );
-        
+
         if (currentCommunityData) {
           if (currentCommunityData.website) {
             console.log(`Found website for ${community.name}: ${currentCommunityData.website}`);
           }
-          
+
           // Extract photos from scraped data and update verification report
           if (currentCommunityData.photos && currentCommunityData.photos.length > 0) {
             console.log(`🎯 Found ${currentCommunityData.photos.length} photos from web scraping for ${community.name}`);
             console.log('📸 Photos found:', currentCommunityData.photos);
-            
+
             // Update the verification report with scraped photos - format them properly
             if (onVerificationReport) {
               console.log('🔄 Updating verification report with scraped photos...');
@@ -153,7 +153,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
                   url: photoUrl,
                   source: 'web'
                 }));
-                
+
                 const updated = {
                   ...prev,
                   verificationResults: {
@@ -174,14 +174,14 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
           }
         }
       }
-      
+
       // Pass the analysis data back to parent component
       if (onAnalysisUpdate) {
         onAnalysisUpdate(data);
       }
     } catch (error: any) {
       console.error('Failed to fetch competitive analysis:', error);
-      
+
       // Don't show anything if analysis fails - just hide the component
       setAnalysis(null);
       setShowRefreshButton(true); // Still show refresh button on error
@@ -189,7 +189,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       setIsLoading(false);
     }
   };
-  
+
   // Auto-enrich on community detail page load - check database first, then enrich if needed
   useEffect(() => {
     // Reset state when community changes
@@ -197,30 +197,30 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
     setIsExpanded(true);
     setDataIsFresh(false);
     setShowRefreshButton(false);
-    
+
     const loadData = async () => {
       if (!community?.id) return;
-      
+
       try {
         // STEP 1: Always check database first via comprehensive-data endpoint
         console.log(`📊 Checking database for enriched data for community ${community.id}`);
         const response = await fetch(`/api/community/${community.id}/comprehensive-data`);
-        
+
         if (response.ok) {
           const dbData = await response.json();
           const lastEnriched = dbData.lastUpdated ? new Date(dbData.lastUpdated) : null;
           const hasPhotos = dbData.photos && dbData.photos.length > 0;
           const hasDescription = dbData.marketData?.description && dbData.marketData.description.length > 100;
           const hasValidEnrichment = hasPhotos || hasDescription;
-          
+
           // STEP 2: Check if enrichment is fresh (less than 7 days old)
           const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
           const isFresh = lastEnriched && lastEnriched > sevenDaysAgo;
-          
+
           if (hasValidEnrichment && isFresh) {
             // Database has fresh enrichment - display it instantly, no API call needed
             console.log(`✅ Database has fresh enrichment from ${lastEnriched?.toLocaleDateString()} - loading instantly`);
-            
+
             // Transform database data into analysis format and display it
             const analysisData = {
               extractedCommunities: [{
@@ -238,16 +238,16 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
               analysis: dbData.analysis,
               dataSource: 'Database - Fresh Cache'
             };
-            
+
             setAnalysis(analysisData);
             setIsExpanded(true);
             setShowRefreshButton(true);
-            
+
             // Pass to parent components
             if (onAnalysisUpdate) {
               onAnalysisUpdate(analysisData);
             }
-            
+
             return; // Don't auto-fetch, data is fresh and displayed
           } else {
             // Database enrichment is stale or missing - DON'T use competitive analysis
@@ -274,10 +274,10 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
         setShowRefreshButton(true);
       }
     };
-    
+
     loadData();
   }, [community?.id, community?.name, community?.city, community?.state]);
-  
+
   // Don't render anything if there's no analysis and not loading
   // Always show refresh button if autoLoad is disabled or showRefreshButton is set
   if (!isLoading && !analysis && !showRefreshButton) {
@@ -380,7 +380,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
                 </div>
               ))}
             </div>
-            
+
             {/* Sources */}
             {analysis.sources && analysis.sources.length > 0 && (
               <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -394,7 +394,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
       </Card>
     );
   }
-  
+
   // If there's still a loading state or no data, return the button
   return (
     <Card className="mb-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
@@ -424,7 +424,7 @@ const CommunityCompetitiveAnalysis = ({ community, onAnalysisUpdate, onVerificat
 const IntelligentPricingPrediction = ({ community, verificationReport }: { community: any, verificationReport?: any }) => {
   // Get pricing prediction from verification report instead of making separate API call
   const prediction = verificationReport?.pricingPrediction || null;
-  
+
   // GOLDEN DATA RULE: Validate pricing data
   const isValidPricing = (min: number, max: number) => {
     // Suspicious pricing checks:
@@ -438,7 +438,7 @@ const IntelligentPricingPrediction = ({ community, verificationReport }: { commu
     }
     return true;
   };
-  
+
   // Don't show if we have verified pricing, no prediction data, or invalid pricing
   if (!prediction?.prediction || 
       community?.livePricing || 
@@ -446,7 +446,7 @@ const IntelligentPricingPrediction = ({ community, verificationReport }: { commu
       !isValidPricing(prediction.prediction.min, prediction.prediction.max)) {
     return null;
   }
-  
+
   return (
     <Card className="mb-8 border-2 border-purple-200 dark:border-purple-800">
       <CardHeader className="bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
@@ -481,13 +481,13 @@ const IntelligentPricingPrediction = ({ community, verificationReport }: { commu
                 Per month (market estimate, not verified)
               </p>
             </div>
-            
+
             {/* Methodology */}
             <div className="text-sm text-gray-700 dark:text-gray-300">
               <p className="font-medium mb-1">Analysis Method:</p>
               <p className="text-xs">{prediction.methodology}</p>
             </div>
-            
+
             {/* Sources */}
             {prediction.sources?.length > 0 && (
               <div className="text-sm">
@@ -504,7 +504,7 @@ const IntelligentPricingPrediction = ({ community, verificationReport }: { commu
                 </ul>
               </div>
             )}
-            
+
             {/* Disclaimer */}
             <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
               <div className="flex items-start">
@@ -532,16 +532,16 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
   // Track if we've already started verification to prevent duplicates
   const [hasStartedVerification, setHasStartedVerification] = useState(false);
   const [hasCachedData, setHasCachedData] = useState(false);
-  
+
   // First, try to load from cache immediately on mount
   useEffect(() => {
     if (community?.id && !localVerificationReport && !hasCachedData) {
       console.log(`🔍 Checking cache for verification data for community ${community.id}`);
-      
+
       // Check if we have cached data from previous visit - DO NOT store null
       // This is a cache CHECK, not a fetch. Actual fetching happens below
       const cachedData = enrichmentCache.get(community.id);
-      
+
       if (cachedData && cachedData.communityId) {
         console.log(`✨ Loaded verification report from cache for community ${community.id}`);
         setLocalVerificationReport(cachedData);
@@ -559,14 +559,14 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       }
     }
   }, [community?.id]);
-  
+
   // AUTO-VERIFICATION: Automatically verify community data on first visit
   const handleAutoVerification = async () => {
     if (!community?.id || isVerifying) return;
-    
+
     console.log('🤖 Auto-fetching verification data for first-time visitor:', community.name);
     setIsVerifying(true);
-    
+
     try {
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
@@ -576,27 +576,27 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
           websiteUrl: community.website
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Verification failed: ${response.status}`);
       }
-      
+
       const report = await response.json();
-      
+
       // Cache the verification report using community ID
       enrichmentCache.getOrFetch(community.id, async () => report, false);
-      
+
       // Update state with verification results
       setLocalVerificationReport(report);
       setHasCachedData(true);
-      
+
       // Update photos if found
       if (report.verificationResults?.webIntelligence?.images) {
         if (onPhotosUpdate) {
           onPhotosUpdate(report.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
         }
       }
-      
+
       console.log('✅ Auto-verification completed successfully');
     } catch (error) {
       console.error('❌ Auto-verification failed:', error);
@@ -605,7 +605,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       setIsVerifying(false);
     }
   };
-  
+
   // REMOVED: Duplicate verification call - RealTimeInsights now uses parent verification data only
   // The parent component handles all verification calls to prevent API duplication
 
@@ -655,7 +655,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       <CardContent className="pt-6">
         {/* Live Web Intelligence moved to avoid duplicate photo display */}
         {/* Content moved to tabs section to prevent competing carousels */}
-        
+
         {/* Show sections even without real-time data - will populate when loaded */}
         {(
         <div className="space-y-6 mt-6">
@@ -666,7 +666,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
               // Extract numeric values from pricing text
               const numbers = pricingText.match(/\$?[\d,]+(?:\.\d{2})?/g);
               if (!numbers) return true; // If no numbers, might be descriptive text - allow it
-              
+
               const values = numbers.map(n => parseInt(n.replace(/[$,]/g, '')));
               // Check if any value is suspiciously low (< $500 for senior living)
               const hasSuspiciousPrice = values.some(v => v > 0 && v < 500);
@@ -676,7 +676,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
               }
               return true;
             };
-            
+
             let validPricing = realTimeData?.currentPricing;
             if (validPricing) {
               try {
@@ -691,7 +691,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 validPricing = null; // Filter out suspicious pricing
               }
             }
-            
+
             return (
             <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg">
               <h4 className="font-semibold text-lg mb-3 flex items-center">
@@ -856,7 +856,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                   } catch (e) {
                     displayName = `Source ${idx + 1}`;
                   }
-                  
+
                   return (
                     <a 
                       key={idx}
@@ -892,7 +892,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                   Live Web Search
                 </Badge>
               </div>
-              
+
               {/* Community Website & Management */}
               <div className="space-y-3">
                 {/* Check for management company */}
@@ -915,11 +915,11 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     'belmont': 'Belmont Village',
                     'benchmark': 'Benchmark Senior Living'
                   };
-                  
+
                   const foundBrand = Object.entries(majorBrands).find(([key, value]) => 
                     communityName.includes(key)
                   );
-                  
+
                   if (foundBrand) {
                     return (
                       <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
@@ -939,7 +939,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                   }
                   return null;
                 })()}
-                
+
                 {/* Community-specific insights from web search */}
                 {(() => {
                   // Check all possible data paths for Perplexity content
@@ -951,17 +951,17 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     localVerificationReport?.perplexityData?.searchContent ||
                     localVerificationReport?.searchContent ||
                     localVerificationReport?.content;
-                  
+
                   const perplexitySources = 
                     localVerificationReport?.verificationResults?.perplexityData?.sources ||
                     localVerificationReport?.perplexityData?.sources ||
                     localVerificationReport?.sources;
-                  
+
                   const webIntelligenceDescription = localVerificationReport?.verificationResults?.webIntelligence?.description;
                   const verifiedFacts = localVerificationReport?.consensus?.verifiedFacts;
-                  
+
                   const hasAnyData = verifiedFacts?.length > 0 || perplexityContent || webIntelligenceDescription;
-                  
+
                   // If actively searching, show loading state only
                   if (isVerifying) {
                     return (
@@ -971,13 +971,13 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       </div>
                     );
                   }
-                  
+
                   return hasAnyData ? (
                     <>
                       <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                         Information found about this specific community:
                       </p>
-                      
+
                       {/* ALWAYS show full Perplexity search content if available - this is the primary source */}
                       {perplexityContent && (
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
@@ -985,7 +985,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                           <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
                             {perplexityContent}
                           </div>
-                          
+
                           {/* Show sources if available */}
                           {perplexitySources?.length > 0 && (
                             <div className="border-t pt-3">
@@ -1026,18 +1026,18 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     </div>
                   );
                 })()}
-                
+
                 {/* Show verified facts if available */}
                 {localVerificationReport?.consensus?.verifiedFacts?.length > 0 ? (
                   localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
                       let factText = fact;
                       let isAddressCorrection = false;
                       let addressDetails = null;
-                      
+
                       try {
                         if (typeof fact === 'string' && fact.includes('{') && fact.includes('}')) {
                           const parsed = JSON.parse(fact);
-                          
+
                           // Handle address mismatch specifically
                           if (parsed.concerns && parsed.concerns.includes('ADDRESS MISMATCH')) {
                             isAddressCorrection = true;
@@ -1081,19 +1081,19 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       } catch (e) {
                         // If it's not valid JSON, use as-is
                       }
-                      
+
                       // Skip empty facts or pure JSON strings
                       if (!factText || factText.includes('"') && factText.includes('{')) {
                         return null;
                       }
-                      
+
                       // Only filter out completely generic information not about this community
                       if (factText.toLowerCase().includes('senior living in general') || 
                           factText.toLowerCase().includes('most communities') ||
                           factText.toLowerCase().includes('industry standard')) {
                         return null;
                       }
-                      
+
                       // Special formatting for address corrections
                       if (isAddressCorrection) {
                         return (
@@ -1123,7 +1123,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                           </div>
                         );
                       }
-                      
+
                       // Categorize other facts
                       let icon = <Info className="w-4 h-4 mr-2 mt-0.5 text-indigo-600 flex-shrink-0" />;
                       if (factText.toLowerCase().includes('website') || factText.toLowerCase().includes('.com') || factText.toLowerCase().includes('online')) {
@@ -1133,7 +1133,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       } else if (factText.toLowerCase().includes('certif') || factText.toLowerCase().includes('accredit') || factText.toLowerCase().includes('award')) {
                         icon = <Award className="w-4 h-4 mr-2 mt-0.5 text-green-600 flex-shrink-0" />;
                       }
-                      
+
                       return (
                         <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-lg">
                           <div className="flex items-start">
@@ -1154,32 +1154,32 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                             {(() => {
                               // Generate meaningful insights based on community data
                               const insights = [];
-                              
+
                               // Location-based insight
                               insights.push(`${community?.name} is located in ${community?.city}, ${community?.state}, offering senior living services to the local community.`);
-                              
+
                               // Care types insight
                               const careTypes = [];
                               if (community?.assistedLiving) careTypes.push('Assisted Living');
                               if (community?.memoryCare) careTypes.push('Memory Care');
                               if (community?.independentLiving) careTypes.push('Independent Living');
                               if (community?.skilledNursing) careTypes.push('Skilled Nursing');
-                              
+
                               if (careTypes.length > 0) {
                                 insights.push(`This community specializes in ${careTypes.join(', ')}, providing comprehensive care services tailored to residents' needs.`);
                               }
-                              
+
                               // Size insight
                               if (community?.totalUnits) {
                                 insights.push(`With ${community.totalUnits} units, this ${community.totalUnits > 100 ? 'large' : community.totalUnits > 50 ? 'mid-size' : 'intimate'} community offers ${community.totalUnits > 100 ? 'extensive amenities and diverse social opportunities' : 'personalized attention and a close-knit environment'}.`);
                               }
-                              
+
                               // Year built insight
                               if (community?.yearBuilt) {
                                 const age = new Date().getFullYear() - community.yearBuilt;
                                 insights.push(`${age < 10 ? 'This modern facility was built in' : age < 20 ? 'Established in' : 'Operating since'} ${community.yearBuilt}, ${age < 10 ? 'featuring contemporary design and amenities' : age < 20 ? 'combining experience with updated facilities' : 'bringing decades of experience in senior care'}.`);
                               }
-                              
+
                               return insights.join(' ');
                             })()}
                           </p>
@@ -1204,7 +1204,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     </p>
                   </div>
                 )}
-                
+
                 {/* Data Source Note */}
                 {realTimeData?.sources?.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-indigo-200 dark:border-indigo-700">
@@ -1214,7 +1214,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                   </div>
                 )}
               </div>
-              
+
             </div>
           )}
 
@@ -1259,7 +1259,7 @@ const getSubscriptionTierBadge = (tier?: string) => {
 // Format care type for display
 const formatCareType = (careTypes?: string[]): string => {
   if (!careTypes || careTypes.length === 0) return 'Senior Living';
-  
+
   // Map care type codes to display names
   const careTypeMap: { [key: string]: string } = {
     'independent_living': 'Independent Living',
@@ -1273,7 +1273,7 @@ const formatCareType = (careTypes?: string[]): string => {
     'adult_day_care': 'Adult Day Care',
     'home_care': 'Home Care'
   };
-  
+
   // Get the primary care type and format it
   const primaryCareType = careTypes[0];
   return careTypeMap[primaryCareType] || primaryCareType.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()) || 'Senior Living';
@@ -1294,7 +1294,7 @@ const getPricingBadgeInfo = (community: Community, verificationReport?: any): { 
       bgColor: 'bg-green-600/90'
     };
   }
-  
+
   // Government verified with actual pricing (HUD properties)
   if ((community.hudPropertyId && (community as any).rentPerMonth) ||
       ((community as any).governmentSourced && community.priceRange?.min)) {
@@ -1305,7 +1305,7 @@ const getPricingBadgeInfo = (community: Community, verificationReport?: any): { 
       bgColor: 'bg-blue-600/90'
     };
   }
-  
+
   // Vendor verified with recent confirmation (within 30 days)
   if (community.claimedBy && 
       (community as any).pricing_type === 'live' && 
@@ -1318,7 +1318,7 @@ const getPricingBadgeInfo = (community: Community, verificationReport?: any): { 
       bgColor: 'bg-purple-600/90'
     };
   }
-  
+
   // Community has verified market research pricing
   if (community.priceRange && community.priceRange.min > 0) {
     return {
@@ -1328,7 +1328,7 @@ const getPricingBadgeInfo = (community: Community, verificationReport?: any): { 
       bgColor: 'bg-orange-600/90'
     };
   }
-  
+
   return { show: false, icon: null, text: '', bgColor: '' };
 };
 
@@ -1385,7 +1385,8 @@ export default function CommunityDetail() {
   const [liveIntelligenceLoading, setLiveIntelligenceLoading] = useState(true);
   const [liveIntelligenceReady, setLiveIntelligenceReady] = useState(false);
   const [hasAutoScrolled, setHasAutoScrolled] = useState(false);
-  
+  const [hasLoadedInitialData, setHasLoadedInitialData] = useState(false); // State to track initial data load
+
   // Debug helper to track when verification report updates
   React.useEffect(() => {
     if (verificationReport) {
@@ -1394,7 +1395,7 @@ export default function CommunityDetail() {
       if (verificationReport.verificationResults || verificationReport.webIntelligence) {
         setLiveIntelligenceLoading(false);
         setLiveIntelligenceReady(true);
-        
+
         // Auto-scroll to the market data tab if not already done
         if (!hasAutoScrolled) {
           setTimeout(() => {
@@ -1414,17 +1415,17 @@ export default function CommunityDetail() {
       }
     }
   }, [verificationReport, hasAutoScrolled]);
-  
+
   // Advanced reservation flow state
   const [showAdvancedReservation, setShowAdvancedReservation] = useState(false);
   const [selectedReservationUnit, setSelectedReservationUnit] = useState<{ type: string; id: string } | null>(null);
-  
+
   // Subscription upgrade modal state
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [upgradeFeature, setUpgradeFeature] = useState('');
-  
+
   const { toast } = useToast();
-  
+
   // Move useResponsive and searchQuery state here to ensure they're called before any conditional returns
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const [searchQuery, setSearchQuery] = useState("");
@@ -1472,13 +1473,14 @@ export default function CommunityDetail() {
       setUpgradeFeature('');
       setHasStartedVerification(false);
       setIsVerifying(false);
+      setHasLoadedInitialData(false); // Reset initial load flag
     }
   }, [id]);
-  
+
   // AUTO-LOAD MARKET DATA: Automatically fetch on page load (debugged and working)
   useEffect(() => {
-    if (!community?.id || hasStartedVerification || isVerifying) return;
-    
+    if (!community?.id || hasLoadedInitialData || isVerifying) return;
+
     // Force clear stale cached data for community 76372
     if (community.id === 76372) {
       // Clear both the enrichment cache and localStorage
@@ -1503,10 +1505,10 @@ export default function CommunityDetail() {
       handleInitialLoad();
       return;
     }
-    
+
     // Check if we have cached data using the community ID
     const cachedData = enrichmentCache.get(community.id);
-    
+
     if (cachedData && cachedData.communityId) {
       // Check if cached data is the truncated version
       const searchContent = cachedData?.verificationResults?.perplexityData?.searchContent || '';
@@ -1516,82 +1518,105 @@ export default function CommunityDetail() {
         handleInitialLoad();
         return;
       }
-      
+
       console.log('✨ Using cached market data for:', community.name);
       setVerificationReport(cachedData);
       setHasStartedVerification(true);
+      setHasLoadedInitialData(true); // Mark as loaded since we used cache
       return;
     }
-    
+
     // Auto-trigger verification on first load - check backend cache first
     console.log('🚀 Auto-loading market data for:', community.name);
     handleInitialLoad();
-  }, [community?.id, community?.name]);
+  }, [community?.id, community?.name, hasLoadedInitialData, isVerifying]);
 
   // INITIAL LOAD: Check backend cache first, don't force refresh
   const handleInitialLoad = async () => {
-    if (!community?.id || isVerifying) return;
-    
-    console.log('🔍 Checking for cached Market Data:', community.name);
+    if (!community?.id || hasLoadedInitialData || isVerifying) return;
+
+    console.log('🔍 Loading enrichment data for:', community.name);
     console.log('📌 Community website:', community.website || 'none');
     setHasStartedVerification(true);
     setIsVerifying(true);
-    
+
     try {
+      // STEP 1: Check database first via comprehensive-data endpoint
+      const dbResponse = await fetch(`/api/community/${community.id}/comprehensive-data`);
+
+      if (dbResponse.ok) {
+        const dbData = await dbResponse.json();
+        const lastEnriched = dbData.lastUpdated ? new Date(dbData.lastUpdated) : null;
+        const hasPhotos = dbData.photos && dbData.photos.length > 0;
+        const hasDescription = dbData.marketData?.description && dbData.marketData.description.length > 100;
+
+        // STEP 2: Check if data is fresh (less than 7 days old)
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const isFresh = lastEnriched && lastEnriched > sevenDaysAgo;
+
+        if ((hasPhotos || hasDescription) && isFresh) {
+          // Database has fresh data - use it immediately
+          console.log(`✅ Using fresh database data from ${lastEnriched?.toLocaleDateString()}`);
+
+          const report = {
+            communityId: community.id,
+            communityName: community.name,
+            verificationResults: {
+              webIntelligence: {
+                images: dbData.photos?.map((url: string) => ({ url, source: 'database' })) || [],
+                pricing: dbData.marketData?.pricing,
+                description: dbData.marketData?.description
+              }
+            },
+            timestamp: dbData.lastUpdated
+          };
+
+          setVerificationReport(report);
+
+          if (dbData.photos?.length > 0 && onPhotosUpdate) {
+            onPhotosUpdate(dbData.photos);
+          }
+
+          setIsVerifying(false);
+          setHasLoadedInitialData(true); // Mark as loaded
+          return; // Done - data is fresh
+        }
+      }
+
+      // STEP 3: Data is stale or missing - fetch fresh via verify endpoint
+      console.log('🔄 Fetching fresh enrichment data...');
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          forceRefresh: false,  // FALSE = use backend cache if available
-          websiteUrl: community.website  // Pass the website URL from database
+          forceRefresh: false, // Check cache first
+          websiteUrl: community.website
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Verification failed: ${response.status}`);
       }
-      
+
       const report = await response.json();
-      const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
-      
-      // CRITICAL FIX: The backend sends content as searchResults.summary, not perplexityData.searchContent
-      const searchContent = report?.verificationResults?.searchResults?.summary || 
-                           report?.verificationResults?.perplexityData?.searchContent || 
-                           '';
-      
-      console.log('✅ Cache check complete:', {
-        photosFound: foundPhotos,
-        contentLength: searchContent ? searchContent.length : 0,
-        hasContent: !!searchContent,
-        contentPreview: searchContent ? searchContent.substring(0, 100) : 'NO CONTENT',
-        fullReport: report?.verificationResults // Log the full structure to debug
-      });
-      
-      // Check if we got real data or just empty cache
-      const hasPerplexityContent = searchContent && searchContent.length > 100;
-      
-      if (hasPerplexityContent || foundPhotos > 0) {
-        console.log('✨ Found cached data from backend');
-        setVerificationReport(report);
-        
-        // Use getOrFetch to cache the report properly
-        enrichmentCache.getOrFetch(community.id, async () => report, false);
-      } else {
-        console.log('⚠️ No backend cache found, will show empty state');
-        setVerificationReport(report);
+
+      // Cache the fresh result
+      enrichmentCache.getOrFetch(community.id, async () => report, false);
+
+      setVerificationReport(report);
+
+      // Update photos if found
+      if (report.verificationResults?.webIntelligence?.images) {
+        const photoUrls = report.verificationResults.webIntelligence.images.map((img: any) => img.url || img.image_url || img);
+        if (photoUrls.length > 0 && onPhotosUpdate) {
+          onPhotosUpdate(photoUrls);
+        }
       }
-      
-      // Photos will be displayed from the verification report
-      if (foundPhotos > 0) {
-        // Trigger a refresh to update the UI
-        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
-      }
+
+      console.log('✅ Fresh enrichment completed');
+      setHasLoadedInitialData(true); // Mark as loaded
     } catch (error) {
-      console.error('❌ Verification error details:', {
-        error,
-        message: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      });
+      console.error('❌ Enrichment failed:', error);
       setHasStartedVerification(false); // Allow retry on error
     } finally {
       setIsVerifying(false);
@@ -1601,12 +1626,12 @@ export default function CommunityDetail() {
   // MANUAL VERIFICATION: User-triggered search with force refresh
   const handleManualVerification = async () => {
     if (!community?.id || isVerifying) return;
-    
+
     console.log('🔍 Force refreshing Market Data for:', community.name);
     console.log('📌 Community website:', community.website || 'none');
     setHasStartedVerification(true);
     setIsVerifying(true);
-    
+
     try {
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
@@ -1616,19 +1641,19 @@ export default function CommunityDetail() {
           websiteUrl: community.website  // Pass the website URL from database
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Verification failed: ${response.status}`);
       }
-      
+
       const report = await response.json();
       const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
       console.log('✅ Fresh data fetched, photos found:', foundPhotos);
       setVerificationReport(report);
-      
+
       // Use getOrFetch to cache the report properly
       enrichmentCache.getOrFetch(community.id, async () => report, false);
-      
+
       // Photos will be displayed from the verification report
       if (foundPhotos > 0) {
         // Trigger a refresh to update the UI
@@ -1649,7 +1674,7 @@ export default function CommunityDetail() {
   // Combine photos from community and verification report
   const allPhotos = React.useMemo(() => {
     const photos = [];
-    
+
     // Add verification photos first (they're usually better quality)
     if (verificationReport?.verificationResults?.webIntelligence?.images) {
       const verifiedPhotos = verificationReport.verificationResults.webIntelligence.images
@@ -1657,12 +1682,12 @@ export default function CommunityDetail() {
         .filter(Boolean);
       photos.push(...verifiedPhotos);
     }
-    
+
     // Add community photos if no verification photos
     if (photos.length === 0 && community?.photos && community.photos.length > 0) {
       photos.push(...community.photos);
     }
-    
+
     // Remove duplicates
     return [...new Set(photos)];
   }, [community?.photos, verificationReport]);
@@ -1684,11 +1709,11 @@ export default function CommunityDetail() {
   // Crawlers were indexing the loading screen instead of actual content
   // Now render content immediately, even if still loading enrichment in background
   if (error) return <div className="text-red-500">Error loading community</div>;
-  
+
   // Only show "not found" if we've finished loading and there's truly no community
   // Don't show it during initial load (prevents flash of "not found" message)
   if (!isLoading && !community) return <div>Community not found</div>;
-  
+
   // CRITICAL SEO FIX: If still loading, render minimal skeleton with SEO metadata
   // This prevents TypeErrors while still allowing crawlers to index basic content
   if (!community) {
@@ -1711,7 +1736,7 @@ export default function CommunityDetail() {
 
   // At this point, community is guaranteed to be defined
   // All helper functions can safely access community properties
-  
+
   // GOLDEN RULE ENFORCEMENT: Only show "Live Pricing" for government-verified or vendor-confirmed pricing
   const hasLiveData = !!(
     // Government verified sources with actual pricing data
@@ -1945,7 +1970,7 @@ export default function CommunityDetail() {
       // Determine availability source based on community data
       let availabilitySource = 'Awaiting Community Update';
       let availabilityVerification = '⏳ Waiting for community to claim listing & update real-time availability';
-      
+
       if (community.claimedBy && community.availabilityLastUpdated && 
           new Date(community.availabilityLastUpdated) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)) {
         // Community verified within last 7 days
@@ -1986,12 +2011,12 @@ export default function CommunityDetail() {
   // Combine database photos with live web intelligence photos
   const getCombinedPhotos = () => {
     const photos = [];
-    
+
     // Add database photos first
     if (community.photos && community.photos.length > 0) {
       photos.push(...community.photos);
     }
-    
+
     // Check for cached comprehensive data photos FIRST (most reliable source)
     if (comprehensiveData?.photos && comprehensiveData.photos.length > 0) {
       console.log('[getCombinedPhotos] Found cached comprehensive photos:', comprehensiveData.photos.length);
@@ -2009,7 +2034,7 @@ export default function CommunityDetail() {
       });
       photos.push(...cachedPhotos);
     }
-    
+
     // Add live web intelligence photos - check all possible paths
     let webImages = null;
     if (verificationReport?.webIntelligence?.images) {
@@ -2019,7 +2044,7 @@ export default function CommunityDetail() {
       // From multi-AI verification
       webImages = verificationReport.verificationResults.webIntelligence.images;
     }
-    
+
     if (webImages && webImages.length > 0) {
       console.log('[getCombinedPhotos] Found web intelligence images:', webImages.length);
       const webPhotos = webImages.map((img: any) => {
@@ -2036,16 +2061,16 @@ export default function CommunityDetail() {
       });
       photos.push(...webPhotos);
     }
-    
+
     // Deduplicate photos by URL and return only real photos - no defaults/placeholders
     const uniquePhotos = Array.from(new Map(photos.map(p => 
       [typeof p === 'string' ? p : (p.image_url || p.url || p), p]
     )).values());
-    
+
     return uniquePhotos;
   };
-  
-  
+
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* SEO Meta Tags - Include full Perplexity content for search engine indexing */}
@@ -2061,14 +2086,14 @@ export default function CommunityDetail() {
               verificationReport?.verificationResults?.perplexityData?.searchContent ||
               verificationReport?.searchContent ||
               community.description;
-            
+
             // Ensure we have substantial content for SEO (at least 150 chars)
             if (perplexityContent && perplexityContent.length > 150) {
               // Use full content for meta description - search engines will truncate as needed
               // This ensures the full intelligence report is indexed
               return perplexityContent;
             }
-            
+
             // Fallback to constructed description
             return `${community.name} - Senior Living in ${community.city}, ${community.state}. ${
               community.description || 'Find verified pricing, amenities, photos, and care information.'
@@ -2096,13 +2121,13 @@ export default function CommunityDetail() {
           ]}
         />
       )}
-      
+
       {/* Structured Data for Rich Snippets - Include full Perplexity content */}
       {community && (
         <StructuredData 
           data={(() => {
             const baseSchema = createCommunitySchema(community);
-            
+
             // Enhance with full Perplexity content
             // CRITICAL FIX: Backend returns content in searchResults.summary
             const perplexityContent = 
@@ -2111,24 +2136,24 @@ export default function CommunityDetail() {
               verificationReport?.verificationResults?.perplexityData?.searchContent ||
               verificationReport?.searchContent ||
               community.description;
-              
+
             if (perplexityContent && perplexityContent.length > 150) {
               // Use full content in structured data for maximum SEO value
               baseSchema.description = perplexityContent;
               baseSchema.disambiguatingDescription = perplexityContent;
             }
-            
+
             // Add additional SEO-rich properties
             if (verificationReport?.pricing) {
               baseSchema.priceRange = verificationReport.pricing;
             }
-            
+
             if (getCombinedPhotos().length > 0) {
               baseSchema.image = getCombinedPhotos().map(p => 
                 typeof p === 'string' ? p : p.image_url || p.url
               );
             }
-            
+
             // Add review/rating data if available
             if (community.rating) {
               baseSchema.aggregateRating = {
@@ -2139,7 +2164,7 @@ export default function CommunityDetail() {
                 reviewCount: community.reviewCount || 1
               };
             }
-            
+
             // Add amenity features
             if (community.amenities && community.amenities.length > 0) {
               baseSchema.amenityFeature = community.amenities.map((a: string) => ({
@@ -2148,18 +2173,18 @@ export default function CommunityDetail() {
                 value: true
               }));
             }
-            
+
             return baseSchema;
           })()}
         />
       )}
-      
+
       {/* Navigation Header - Fixed at top */}
       <NavigationHeader 
         title={community?.name || "Community Details"} 
         subtitle={`${community?.city || ""}, ${community?.state || ""}`}
       />
-      
+
       {/* Add padding-top to account for fixed navbar */}
       <div className="bg-gray-50 dark:bg-gray-900 pt-20">      
       {/* Search Bar - Consistent with home page */}
@@ -2179,7 +2204,7 @@ export default function CommunityDetail() {
           </div>
         </div>
       </div>
-      
+
       {/* Breadcrumb Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="container-responsive">
@@ -2239,8 +2264,8 @@ export default function CommunityDetail() {
               }}
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
-            
-            
+
+
             {/* Loading state for verification */}
             {isVerifying && (
               <div className="flex justify-center mt-4">
@@ -2255,9 +2280,9 @@ export default function CommunityDetail() {
             {(() => {
               const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
               const hasMedia = webIntel?.videoTour || webIntel?.virtualTour || webIntel?.floorPlans?.length > 0 || webIntel?.socialMedia;
-              
+
               if (!hasMedia) return null;
-              
+
               return (
                 <Card className="mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20">
                   <CardContent className="p-4">
@@ -2459,7 +2484,7 @@ export default function CommunityDetail() {
                           }}
                         />
                       </div>
-                      
+
                       {/* Virtual Tour Options */}
                       <div className="space-y-3">
                         {(() => {
@@ -2469,7 +2494,7 @@ export default function CommunityDetail() {
                           // Add our enhanced virtual tour detection results
                           const hasDetectedTour = virtualTour?.found && virtualTour?.tourUrl;
                           const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour || virtualTourFromPerplexity || hasDetectedTour;
-                          
+
                           // Show loading state while detecting tours
                           if (isDetectingTour) {
                             return (
@@ -2482,12 +2507,12 @@ export default function CommunityDetail() {
                               </>
                             );
                           }
-                          
+
                           if (hasVirtualOptions) {
                             return (
                               <>
                                 <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
-                                
+
                                 {/* 3D Tour from enhanced detection (highest priority) */}
                                 {hasDetectedTour && virtualTour?.tourUrl && (
                                   <div className="space-y-3">
@@ -2508,7 +2533,7 @@ export default function CommunityDetail() {
                                     )}
                                   </div>
                                 )}
-                                
+
                                 {/* 3D Tour from Perplexity (fallback if no detected tour) */}
                                 {!hasDetectedTour && virtualTourFromPerplexity && (
                                   <div className="space-y-3">
@@ -2524,7 +2549,7 @@ export default function CommunityDetail() {
                                     />
                                   </div>
                                 )}
-                                
+
                                 {/* Video Tour from Web Intelligence */}
                                 {webIntel?.videoTour && !virtualTourFromPerplexity && (
                                   <ExternalLinkWarning
@@ -2535,7 +2560,7 @@ export default function CommunityDetail() {
                                     <span>Watch Video Tour</span>
                                   </ExternalLinkWarning>
                                 )}
-                                
+
                                 {/* Virtual Tour from Web Intelligence (as fallback) */}
                                 {webIntel?.virtualTour && !virtualTourFromPerplexity && (
                                   <ExternalLinkWarning
@@ -2549,7 +2574,7 @@ export default function CommunityDetail() {
                               </>
                             );
                           }
-                          
+
                           return (
                             <div className="text-sm text-gray-600 dark:text-gray-400">
                               <p>Virtual tours not yet available for this community.</p>
@@ -2559,7 +2584,7 @@ export default function CommunityDetail() {
                         })()}
                       </div>
                     </div>
-                    
+
                     {/* Tour Tips */}
                     <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
                       <h4 className="font-semibold text-sm mb-2 flex items-center">
@@ -2654,7 +2679,7 @@ export default function CommunityDetail() {
                         <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
                           Grade every aspect of your visit with our 360° evaluation system
                         </p>
-                        
+
                         {/* Main Evaluation Categories - Mobile Responsive */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-4">
                           {/* Units & Living Spaces */}
@@ -2776,7 +2801,7 @@ export default function CommunityDetail() {
                           <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
                           Schedule Tour
                         </Button>
-                        
+
                         <Button 
                           data-testid="button-call-now"
                           variant="outline" 
@@ -2797,7 +2822,7 @@ export default function CommunityDetail() {
                         </Button>
                       </div>
 
-                      {/* Move-In Coordination Section */}
+                      {/* Moving Coordination Section */}
                       <Card className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between">
@@ -2968,7 +2993,7 @@ export default function CommunityDetail() {
                       const enrichedDescription = verificationReport?.description || 
                                                   verificationReport?.verificationResults?.description;
                       const displayDescription = enrichedDescription || community.description;
-                      
+
                       if (displayDescription) {
                         return (
                           <div className="mb-6">
@@ -2985,7 +3010,7 @@ export default function CommunityDetail() {
                       const enrichedAmenities = verificationReport?.amenities?.extracted || 
                                                verificationReport?.verificationResults?.amenities?.extracted;
                       const displayAmenities = enrichedAmenities || community.amenities;
-                      
+
                       if (displayAmenities && displayAmenities.length > 0) {
                         return (
                           <div className="mb-6">
@@ -3165,7 +3190,7 @@ export default function CommunityDetail() {
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
                         Claim this profile to update amenities, pricing, availability, and photos. Verified profiles get 3x more qualified inquiries.
                       </p>
-                      
+
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                         <div className="flex items-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                           <Camera className="w-4 h-4 text-blue-600 mr-2" />
@@ -3180,7 +3205,7 @@ export default function CommunityDetail() {
                           <span className="text-sm text-green-800 dark:text-green-200 font-medium">Live Availability</span>
                         </div>
                       </div>
-                      
+
                       <div className="flex flex-col sm:flex-row gap-3">
                         <Button 
                           className="bg-green-600 hover:bg-green-700 text-white flex-1"
@@ -3198,7 +3223,7 @@ export default function CommunityDetail() {
                           Contact Support
                         </Button>
                       </div>
-                      
+
                       {/* DMCA Copyright Notice Link */}
                       <div className="mt-3 text-center">
                         <a 
@@ -3209,7 +3234,7 @@ export default function CommunityDetail() {
                         </a>
                       </div>
                     </div>
-                    
+
                     <div className="text-center pt-2">
                       <p className="text-xs text-green-600 dark:text-green-400">
                         Verified communities get priority placement and increased visibility to families searching for care.
@@ -3227,7 +3252,7 @@ export default function CommunityDetail() {
 
               {/* Availability Tab */}
               <TabsContent value="availability" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-                
+
                 {/* Available Units & Pricing */}
                 <Card>
                   <CardHeader>
@@ -3370,7 +3395,7 @@ export default function CommunityDetail() {
                                     </div>
                                   </div>
                                 )}
-                                
+
                                 <div className="p-4">
                                   <div className="mb-3">
                                     <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
@@ -3380,7 +3405,7 @@ export default function CommunityDetail() {
                                       {unit.features}
                                     </p>
                                   </div>
-                                  
+
                                   {/* Amenities */}
                                   <div className="mb-3">
                                     <p className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Includes:</p>
@@ -3392,7 +3417,7 @@ export default function CommunityDetail() {
                                       ))}
                                     </div>
                                   </div>
-                                  
+
                                   {/* Pricing with clear "Estimated" label */}
                                   <div className="mb-4">
                                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">
@@ -3418,7 +3443,7 @@ export default function CommunityDetail() {
                                         'Contact community for current pricing'}
                                     </p>
                                   </div>
-                                  
+
                                   <Button 
                                     className="w-full bg-green-600 hover:bg-green-700 text-white"
                                     onClick={() => setShowReservationDialog(true)}
@@ -3474,7 +3499,7 @@ export default function CommunityDetail() {
                           <p className="text-sm text-gray-600 dark:text-gray-400">Select from available units above</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
                           2
@@ -3484,7 +3509,7 @@ export default function CommunityDetail() {
                           <p className="text-sm text-gray-600 dark:text-gray-400">Create your free account to access reservation features</p>
                         </div>
                       </div>
-                      
+
                       <div className="flex items-start gap-3">
                         <div className="w-8 h-8 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center text-green-600 dark:text-green-400 font-semibold">
                           3
@@ -3494,7 +3519,7 @@ export default function CommunityDetail() {
                           <p className="text-sm text-gray-600 dark:text-gray-400">Pay your deposit upon arrival at the community</p>
                         </div>
                       </div>
-                      
+
                       <div className="mt-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
                         <div className="flex items-center gap-2 mb-2">
                           <DollarSign className="w-5 h-5 text-green-600 dark:text-green-400" />
@@ -3532,7 +3557,7 @@ export default function CommunityDetail() {
                         Live Market Data Available
                       </Badge>
                     )}
-                    
+
                     {/* Refresh Market Data Button */}
                     <div className="mt-4">
                       <Button
@@ -3590,7 +3615,7 @@ export default function CommunityDetail() {
                 />
 
               </TabsContent>
-              
+
               {/* Reviews Tab Content - Uses shared comprehensive data */}
               <TabsContent value="reviews" className="space-y-6 mt-6 overflow-visible">
                 <CommunityReviews 
@@ -3599,8 +3624,8 @@ export default function CommunityDetail() {
                   comprehensiveData={comprehensiveData}
                 />
               </TabsContent>
-                  
-                  
+
+
                   {/* Explained Attributes Section */}
                   <TabsContent value="attributes" className="space-y-6">
                     <div>
@@ -3608,7 +3633,7 @@ export default function CommunityDetail() {
                       <p className="text-base text-gray-700 dark:text-gray-300 mb-6">
                         Understanding the key features and characteristics that define {community.name}
                       </p>
-                      
+
                       {/* Community Type Explanation */}
                       <Card className="mb-6">
                         <CardHeader>
@@ -3628,7 +3653,7 @@ export default function CommunityDetail() {
                           </p>
                         </CardContent>
                       </Card>
-                      
+
                       {/* Ownership Status */}
                       <Card className="mb-6">
                         <CardHeader>
@@ -3648,7 +3673,7 @@ export default function CommunityDetail() {
                           </p>
                         </CardContent>
                       </Card>
-                      
+
                       {/* HUD Provider Status */}
                       {(community as any).isHudProvider && (
                         <Card className="mb-6 border-2 border-blue-200 dark:border-blue-800">
@@ -3667,7 +3692,7 @@ export default function CommunityDetail() {
                       )}
                     </div>
                   </TabsContent>
-                  
+
                   <TabsContent value="amenities" className="space-y-6">
                     <div>
                       {/* Amenity Grading Header */}
@@ -3724,7 +3749,7 @@ export default function CommunityDetail() {
                                 {community.amenities.length} Features
                               </Badge>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               {community.amenities.map((amenity, index) => (
                                 <div key={index} className="group hover:scale-105 transition-transform duration-200">
@@ -3772,7 +3797,7 @@ export default function CommunityDetail() {
                             (community as any).socialServices?.length > 0) && (
                             <div className="space-y-4">
                               <h4 className="font-semibold text-gray-900 dark:text-gray-100">Specialized Services</h4>
-                              
+
                               {(community as any).healthcareServices?.length > 0 && (
                                 <div className="bg-gradient-to-br from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 p-6 rounded-xl border border-red-200 dark:border-red-700 shadow-md">
                                   <div className="flex items-center justify-between mb-4">
@@ -3969,7 +3994,7 @@ export default function CommunityDetail() {
                               )}
                             </div>
                           )}
-                          
+
                           {/* Comprehensive Amenity Report Card */}
                           <div className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 p-8 rounded-2xl shadow-2xl">
                             <div className="flex items-center justify-between mb-6">
@@ -3999,7 +4024,7 @@ export default function CommunityDetail() {
                                 <p className="text-sm text-gray-700 dark:text-gray-300">Final Grade</p>
                               </div>
                             </div>
-                            
+
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                               <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
@@ -4010,7 +4035,7 @@ export default function CommunityDetail() {
                                   <div className="bg-blue-600 dark:bg-blue-400 h-2 rounded-full" style={{ width: '85%' }}></div>
                                 </div>
                               </div>
-                              
+
                               <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-gray-700 dark:text-gray-300">Healthcare</span>
@@ -4020,7 +4045,7 @@ export default function CommunityDetail() {
                                   <div className="bg-red-600 dark:bg-red-400 h-2 rounded-full" style={{ width: '95%' }}></div>
                                 </div>
                               </div>
-                              
+
                               <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-gray-700 dark:text-gray-300">Wellness</span>
@@ -4030,7 +4055,7 @@ export default function CommunityDetail() {
                                   <div className="bg-purple-600 dark:bg-purple-400 h-2 rounded-full" style={{ width: '88%' }}></div>
                                 </div>
                               </div>
-                              
+
                               <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-gray-700 dark:text-gray-300">Dining</span>
@@ -4040,7 +4065,7 @@ export default function CommunityDetail() {
                                   <div className="bg-orange-600 dark:bg-orange-400 h-2 rounded-full" style={{ width: '92%' }}></div>
                                 </div>
                               </div>
-                              
+
                               <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-gray-700 dark:text-gray-300">Transportation</span>
@@ -4050,7 +4075,7 @@ export default function CommunityDetail() {
                                   <div className="bg-teal-600 dark:bg-teal-400 h-2 rounded-full" style={{ width: '85%' }}></div>
                                 </div>
                               </div>
-                              
+
                               <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                                 <div className="flex items-center justify-between mb-2">
                                   <span className="text-gray-700 dark:text-gray-300">Social Life</span>
@@ -4061,7 +4086,7 @@ export default function CommunityDetail() {
                                 </div>
                               </div>
                             </div>
-                            
+
                             <div className="bg-white dark:bg-gray-800/50 p-4 rounded-lg border border-gray-300 dark:border-gray-700">
                               <p className="text-gray-700 dark:text-gray-300 mb-2">
                                 <strong className="text-gray-900 dark:text-gray-100">Overall Assessment:</strong> This community offers an exceptional range of amenities and services, 
@@ -4081,7 +4106,7 @@ export default function CommunityDetail() {
                           </div>
                         </div>
                       ) : (
-                        /* Enhanced Fallback Display when no database amenities available */
+                        /* Fallback when no database amenities available */
                         <div className="space-y-6">
                           {/* Amenity Information Request Card */}
                           <div className="bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 p-8 rounded-xl border-2 border-yellow-300 dark:border-yellow-700 shadow-lg">
@@ -4138,7 +4163,7 @@ export default function CommunityDetail() {
                                   </li>
                                 </ul>
                               </div>
-                              
+
                               <div>
                                 <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                   <Activity className="w-5 h-5 mr-2 text-purple-500" />
@@ -4163,7 +4188,7 @@ export default function CommunityDetail() {
                                   </li>
                                 </ul>
                               </div>
-                              
+
                               <div>
                                 <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                   <UtensilsCrossed className="w-5 h-5 mr-2 text-orange-500" />
@@ -4188,7 +4213,7 @@ export default function CommunityDetail() {
                                   </li>
                                 </ul>
                               </div>
-                              
+
                               <div>
                                 <h5 className="font-semibold text-gray-800 dark:text-gray-200 mb-3 flex items-center">
                                   <Home className="w-5 h-5 mr-2 text-blue-500" />
@@ -4221,7 +4246,7 @@ export default function CommunityDetail() {
                   </TabsContent>
                   <TabsContent value="care" className="space-y-4">
                     <div>
-                      <h3 className="text-lg font-semibold mb-3">Care Services</h3>
+                      <h3 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100">Care Services</h3>
 
                       {/* Real Database Care Services Display */}
                       {(community.careServices && community.careServices.length > 0) ? (
@@ -4284,7 +4309,7 @@ export default function CommunityDetail() {
                       </div>
                     </div>
                   </TabsContent>
-                  
+
             </Tabs>
           </div>
         </div>
@@ -4308,7 +4333,7 @@ export default function CommunityDetail() {
         </div>
       </div>
       )}
-    
+
       {/* Subscription Upgrade Modal */}
       <SubscriptionUpgradeModal
       isOpen={showUpgradeModal}
@@ -4318,7 +4343,7 @@ export default function CommunityDetail() {
       communityId={community?.id || 0}
       communityName={community?.name || ''}
       />
-      
+
       {/* Reservation Dialog */}
       {community && (
         <ReservationDialog 
@@ -4327,7 +4352,7 @@ export default function CommunityDetail() {
           community={community}
         />
       )}
-      
+
       {/* Request Info Dialog */}
       {community && (
         <RequestInfoDialog 
@@ -4336,7 +4361,7 @@ export default function CommunityDetail() {
           community={community}
         />
       )}
-      
+
       {/* Tour Scheduler Dialog - Controlled Externally */}
       {community && (
         <TourScheduler
