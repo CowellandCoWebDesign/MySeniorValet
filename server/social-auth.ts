@@ -22,34 +22,26 @@ const googleClient = new OAuth2Client(
 export function setupSocialAuth(app: any) {
   // Google OAuth Login Endpoint
   router.get('/api/auth/google', (req, res) => {
-    // SECURITY: Validate host against whitelist with EXACT matching to prevent bypasses
     const requestHost = req.get('host');
     const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
 
-    // Whitelist of allowed domains (development and production) - EXACT MATCH ONLY
-    const ALLOWED_HOSTS = [
-      'localhost:5000',
-      '7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev', // Development
-      'workspace-williamcowell01.replit.app', // Production
-      'myseniorvalet.com', // Custom domain
-      'www.myseniorvalet.com' // Custom domain with www
-    ];
-
-    // SECURITY: Use exact host matching (not substring) to prevent bypass attacks
-    const isValidHost = ALLOWED_HOSTS.includes(requestHost || '');
-
-    // SECURITY: Only allow https protocol (reject javascript:, data:, etc.)
-    const isSafeProtocol = requestProtocol === 'https' || requestProtocol === 'http';
-
-    if (!isValidHost || !isSafeProtocol) {
-      console.error(`🚨 SECURITY: Invalid host/protocol in Google OAuth - Host: ${requestHost}, Protocol: ${requestProtocol}`);
+    // Determine the correct redirect URI based on the request host
+    let redirectUri;
+    
+    if (requestHost?.includes('localhost')) {
+      redirectUri = 'http://localhost:5000/api/auth/google/callback';
+    } else if (requestHost?.includes('workspace-williamcowell01.replit.app') || requestHost?.includes('replit.dev')) {
+      redirectUri = 'https://workspace-williamcowell01.replit.app/api/auth/google/callback';
+    } else if (requestHost?.includes('www.myseniorvalet.com')) {
+      redirectUri = 'https://www.myseniorvalet.com/api/auth/google/callback';
+    } else if (requestHost?.includes('myseniorvalet.com')) {
+      redirectUri = 'https://myseniorvalet.com/api/auth/google/callback';
+    } else {
+      console.error(`🚨 SECURITY: Unknown host in Google OAuth - Host: ${requestHost}`);
       return res.status(400).json({ error: 'Invalid request origin' });
     }
 
-    // Use validated host and protocol for redirect URI
-    const redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
-
-    console.log('Google OAuth redirect URI (validated):', redirectUri);
+    console.log('Google OAuth redirect URI:', redirectUri, 'for host:', requestHost);
 
     const authUrl = googleClient.generateAuthUrl({
       access_type: 'offline',
