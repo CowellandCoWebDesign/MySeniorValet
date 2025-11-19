@@ -25,7 +25,7 @@ export function setupSocialAuth(app: any) {
     // SECURITY: Validate host against whitelist with EXACT matching to prevent bypasses
     const requestHost = req.get('host');
     const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
-    
+
     // Whitelist of allowed domains (development and production) - EXACT MATCH ONLY
     const ALLOWED_HOSTS = [
       'localhost:5000',
@@ -34,23 +34,23 @@ export function setupSocialAuth(app: any) {
       'myseniorvalet.com', // Custom domain
       'www.myseniorvalet.com' // Custom domain with www
     ];
-    
+
     // SECURITY: Use exact host matching (not substring) to prevent bypass attacks
     const isValidHost = ALLOWED_HOSTS.includes(requestHost || '');
-    
+
     // SECURITY: Only allow https protocol (reject javascript:, data:, etc.)
     const isSafeProtocol = requestProtocol === 'https' || requestProtocol === 'http';
-    
+
     if (!isValidHost || !isSafeProtocol) {
       console.error(`🚨 SECURITY: Invalid host/protocol in Google OAuth - Host: ${requestHost}, Protocol: ${requestProtocol}`);
       return res.status(400).json({ error: 'Invalid request origin' });
     }
-    
+
     // Use validated host and protocol for redirect URI
     const redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
-    
+
     console.log('Google OAuth redirect URI (validated):', redirectUri);
-    
+
     const authUrl = googleClient.generateAuthUrl({
       access_type: 'offline',
       scope: ['email', 'profile'],
@@ -63,39 +63,25 @@ export function setupSocialAuth(app: any) {
   router.get('/api/auth/google/callback', async (req, res) => {
     try {
       const { code } = req.query;
-      
+
       if (!code) {
         return res.redirect('/login?error=no_code');
       }
 
-      // SECURITY: Validate host against whitelist with EXACT matching
-      const requestHost = req.get('host');
-      const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
-      
-      // Whitelist of allowed domains (development and production) - EXACT MATCH ONLY
-      const ALLOWED_HOSTS = [
-        'localhost:5000',
-        '7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev', // Development
-        'workspace-williamcowell01.replit.app', // Production
-        'myseniorvalet.com', // Custom domain
-        'www.myseniorvalet.com' // Custom domain with www
-      ];
-      
-      // SECURITY: Use exact host matching (not substring) to prevent bypass attacks
-      const isValidHost = ALLOWED_HOSTS.includes(requestHost || '');
-      
-      // SECURITY: Only allow https protocol
-      const isSafeProtocol = requestProtocol === 'https' || requestProtocol === 'http';
-      
-      if (!isValidHost || !isSafeProtocol) {
-        console.error(`🚨 SECURITY: Invalid host/protocol in OAuth callback - Host: ${requestHost}, Protocol: ${requestProtocol}`);
-        return res.redirect('/login?error=invalid_origin');
+      // SECURITY: Use same consistent redirect URI as the initial auth request
+      const isProduction = process.env.NODE_ENV === 'production';
+      const isLocalhost = req.get('host')?.includes('localhost');
+
+      let redirectUri;
+      if (isLocalhost) {
+        redirectUri = 'http://localhost:5000/api/auth/google/callback';
+      } else if (isProduction) {
+        redirectUri = 'https://myseniorvalet.com/api/auth/google/callback';
+      } else {
+        redirectUri = 'https://workspace-williamcowell01.replit.app/api/auth/google/callback';
       }
-      
-      // Use validated host and protocol for redirect URI
-      const redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
-      
-      console.log('Google OAuth callback redirect URI (validated):', redirectUri);
+
+      console.log('🔐 Google OAuth callback processing with redirect URI:', redirectUri);
 
       // Exchange code for tokens
       const { tokens } = await googleClient.getToken({
@@ -168,11 +154,11 @@ export function setupSocialAuth(app: any) {
           return res.redirect('/login?error=session_error');
         }
         console.log('Google OAuth successful for user:', user.email);
-        
+
         // Check if user was trying to make a payment
         const redirectTo = (req.session as any).redirectAfterLogin || '/dashboard';
         delete (req.session as any).redirectAfterLogin;
-        
+
         res.redirect(redirectTo);
       });
     } catch (error) {
@@ -185,20 +171,20 @@ export function setupSocialAuth(app: any) {
   router.get('/api/auth/facebook', (req, res) => {
     // Determine the correct redirect URI based on environment
     let redirectUri: string;
-    
+
     // Always use the current host for the redirect URI
     const host = req.get('host');
     const protocol = req.get('x-forwarded-proto') || req.protocol;
-    
+
     // Use the actual host the request came from
     redirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
-    
+
     const fbAuthUrl = `https://www.facebook.com/v18.0/dialog/oauth?` +
       `client_id=${process.env.FACEBOOK_APP_ID}` +
       `&redirect_uri=${encodeURIComponent(redirectUri)}` +
       `&scope=email,public_profile` +
       `&response_type=code`;
-    
+
     res.redirect(fbAuthUrl);
   });
 
@@ -206,7 +192,7 @@ export function setupSocialAuth(app: any) {
   router.get('/api/auth/facebook/callback', async (req, res) => {
     try {
       const { code } = req.query;
-      
+
       if (!code) {
         return res.redirect('/login?error=no_code');
       }
@@ -214,7 +200,7 @@ export function setupSocialAuth(app: any) {
       // Determine the correct redirect URI based on environment
       const host = req.get('host');
       const protocol = req.get('x-forwarded-proto') || req.protocol;
-      
+
       // Use the actual host the request came from
       let redirectUri: string;
       redirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
@@ -292,11 +278,11 @@ export function setupSocialAuth(app: any) {
           return res.redirect('/login?error=session_error');
         }
         console.log('Facebook OAuth successful for user:', user.email);
-        
+
         // Check if user was trying to make a payment
         const redirectTo = (req.session as any).redirectAfterLogin || '/dashboard';
         delete (req.session as any).redirectAfterLogin;
-        
+
         res.redirect(redirectTo);
       });
     } catch (error) {
@@ -321,7 +307,7 @@ export function setupSocialAuth(app: any) {
     const protocol = req.get('x-forwarded-proto') || req.protocol;
     const googleRedirectUri = `${protocol}://${host}/api/auth/google/callback`;
     const facebookRedirectUri = `${protocol}://${host}/api/auth/facebook/callback`;
-    
+
     res.json({
       message: 'Add these exact URLs to your OAuth providers',
       google: {
@@ -359,7 +345,7 @@ export function setupSocialAuth(app: any) {
   });
 
   app.use(router);
-  
+
   console.log('✅ Social authentication initialized (Google & Facebook OAuth)');
 }
 
