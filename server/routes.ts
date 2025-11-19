@@ -30,6 +30,7 @@ import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
 import imageProxyRoutes from './routes/imageProxy';
 import serviceIntelligenceRoutes from './routes/service-intelligence';
+import locationPagesRoutes from './routes/location-pages';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
@@ -1564,6 +1565,9 @@ Disallow: /`;
   // Register image proxy for CORS handling
   app.use(imageProxyRoutes);
   app.use(serviceIntelligenceRoutes);
+  
+  // Register location pages for SEO
+  app.use(locationPagesRoutes);
   
   // Virtual Tour Detection Routes
   const { default: virtualTourRoutes } = await import('./routes/virtualTourRoutes');
