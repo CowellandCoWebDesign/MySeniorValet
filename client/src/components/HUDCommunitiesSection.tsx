@@ -16,7 +16,7 @@ export function HUDCommunitiesSection() {
 
   // Fetch HUD properties for showcase
   const { data: hudProperties } = useQuery({
-    queryKey: ['/api/communities/hud-properties', 10]
+    queryKey: ['/api/communities/hud-properties?limit=10']
   });
 
   // Scroll navigation function
@@ -79,6 +79,7 @@ export function HUDCommunitiesSection() {
           <Button
             variant="ghost"
             size="icon"
+            data-testid="button-scroll-left-hud"
             className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
             onClick={() => scrollSlider('left')}
           >
@@ -87,6 +88,7 @@ export function HUDCommunitiesSection() {
           <Button
             variant="ghost"
             size="icon"
+            data-testid="button-scroll-right-hud"
             className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-700 rounded-full"
             onClick={() => scrollSlider('right')}
           >
@@ -126,7 +128,7 @@ export function HUDCommunitiesSection() {
                 ))}
                 
                 {/* View More Card */}
-                <Link to="/search?certified=hud">
+                <Link to="/search?certified=hud" data-testid="link-view-all-hud">
                   <div className="flex-shrink-0 w-80 h-[520px] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl overflow-hidden">
                     <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900 dark:to-emerald-900 flex items-center justify-center">
                       <div className="text-center p-6">
@@ -141,7 +143,7 @@ export function HUDCommunitiesSection() {
                       <p className="text-gray-600 dark:text-gray-400 text-sm">
                         Discover affordable senior housing options with government-verified pricing across the nation.
                       </p>
-                      <Button className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">
+                      <Button data-testid="button-browse-hud" className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">
                         Browse All HUD Communities →
                       </Button>
                     </div>

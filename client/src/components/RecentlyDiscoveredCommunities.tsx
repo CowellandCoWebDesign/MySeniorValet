@@ -42,13 +42,7 @@ export function RecentlyDiscoveredCommunities() {
 
   // Fetch recently discovered communities
   const { data: recentCommunities = [], isLoading } = useQuery({
-    queryKey: ['/api/communities/recently-discovered'],
-    queryFn: async () => {
-      const response = await fetch('/api/communities/recently-discovered?limit=100');
-      if (!response.ok) throw new Error('Failed to fetch recent communities');
-      const data = await response.json();
-      return Array.isArray(data) ? data : [];
-    },
+    queryKey: ['/api/communities/recently-discovered?limit=100'],
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
   });
@@ -77,6 +71,7 @@ export function RecentlyDiscoveredCommunities() {
         {canScrollLeft && (
           <button
             onClick={scrollLeft}
+            data-testid="button-scroll-left-recently-discovered"
             className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
             aria-label="Scroll left"
           >
@@ -135,6 +130,7 @@ export function RecentlyDiscoveredCommunities() {
         {canScrollRight && (
           <button
             onClick={scrollRight}
+            data-testid="button-scroll-right-recently-discovered"
             className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
             aria-label="Scroll right"
           >
