@@ -765,7 +765,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Content Container - Search First, Then Value Props */}
-        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-4' : 'pt-4'} px-2 sm:px-4`}>
+        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-3 md:pt-6' : 'pt-3 md:pt-6'} pb-4 px-2 sm:px-4`}>
         
         {/* Search Mode Toggle Button */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-2">
