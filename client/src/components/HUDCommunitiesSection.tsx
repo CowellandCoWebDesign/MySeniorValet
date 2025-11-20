@@ -79,7 +79,7 @@ export function HUDCommunitiesSection() {
         {/* HUD Communities Carousel */}
         <div 
           ref={hudSliderRef} 
-          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2" 
+          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2" 
           style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {(!hudProperties || (hudProperties as any[]).length === 0) ? (
