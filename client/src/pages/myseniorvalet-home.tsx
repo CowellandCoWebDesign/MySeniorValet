@@ -2065,87 +2065,9 @@ export default function MySeniorValetHome() {
                     <span className="text-sm text-gray-600 dark:text-gray-400">Senior Living Communities</span>
                   </div>
 
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - AI Features */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-purple-500 flex-shrink-0 animate-pulse" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">AI On-Demand Enrichment</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <RefreshCw className="h-4 w-4 text-blue-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Self-Healing Database</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Shield className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">100% Transparency</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Globe className="h-4 w-4 text-indigo-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Web Scraping</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-emerald-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Duplicate Auto-Removal</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Eye className="h-4 w-4 text-amber-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">No Hidden Fees Ever</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Global Coverage Areas Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-blue-700 dark:text-blue-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🌍</span> Worldwide Access
-                      </p>
-                      <div className="h-44 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-blue-300 dark:scrollbar-thumb-blue-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌎</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">North America</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌍</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Europe</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌏</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Asia Pacific</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌍</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Middle East & Africa</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌎</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">South America</p>
-                        </div>
-                        <div className="p-1.5 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded flex flex-col gap-1 p-2">
-                          <p className="text-[10px] text-purple-700 dark:text-purple-300 font-bold">Discovery Mode Active</p>
-                          <p className="text-[9px] text-gray-600 dark:text-gray-400">Find senior living facilities worldwide</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-blue-600 dark:text-blue-400 mt-2 font-medium">
-                        Senior Living • All Countries • Real-Time Discovery
-                      </p>
-                    </div>
-                  </div>
-
-
-                  {/* AI Intelligence Box */}
-                  <div className="mb-4 p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
-                    <div className="flex items-start gap-3">
-                      <Brain className="h-6 w-6 text-purple-600 flex-shrink-0 animate-pulse" />
-                      <div className="flex-1">
-                        <h4 className="font-bold text-sm text-purple-900 dark:text-purple-100 mb-1">AI-Powered Intelligence</h4>
-                        <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed">
-                          Our specialized senior living search enriches data on-demand, ensuring information is always current. 
-                          Features automatic verification of care levels, pricing transparency, real-time availability updates, and comprehensive amenity details. 
-                          Every senior community gets smarter with each search!
-                        </p>
-                      </div>
-                    </div>
+                  {/* Featured Excellence Communities - Moved from below */}
+                  <div className="mb-6">
+                    <RedTagDeals />
                   </div>
 
                   {/* 3D Care Spectrum Mini Carousel */}
@@ -2210,11 +2132,6 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
                 </div>
-              </div>
-              
-              {/* Featured Excellence Communities Section */}
-              <div className="mb-12">
-                <RedTagDeals />
               </div>
               
               {/* Remaining Directory Cards Grid - Seamlessly Connected */}
