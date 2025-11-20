@@ -705,7 +705,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'min-h-[60vh] pb-8' : 'h-auto'} mt-16`}
+      <section className={`relative ${isSearchActive ? 'min-h-[50vh] md:min-h-[70vh] pb-8' : 'h-auto min-h-[50vh] md:min-h-[60vh]'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
@@ -880,7 +880,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Category Tabs - Moved to hero section below search */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 py-2">
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 py-3 relative z-50">
           <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
