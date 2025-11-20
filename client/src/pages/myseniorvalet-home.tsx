@@ -877,41 +877,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </AnimatePresence>
         </div>
         
-        {/* Quick Action Buttons - Moved from Community Directory Section */}
-        {!isSearchActive && (
-        <div className="w-full max-w-full sm:max-w-2xl md:max-w-xl lg:max-w-xl mx-auto px-2 sm:px-0 mt-4">
-          <div className="grid grid-cols-2 gap-2">
-            {/* Traditional Browse */}
-            <Button 
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = '/map-search';
-              }}
-              className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-              <div className="flex flex-col items-center">
-                <span className="text-xl mb-1">🔍</span>
-                <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
-                <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
-              </div>
-            </Button>
-
-            {/* Side-by-Side Search */}
-            <Button 
-              onClick={(e) => {
-                e.stopPropagation();
-                window.location.href = '/ai-search-intelligence?mode=simplified';
-              }}
-              className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-              <div className="flex flex-col items-center">
-                <span className="text-xl mb-1">⚖️</span>
-                <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
-                <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
-              </div>
-            </Button>
-
-          </div>
-        </div>
-        )}
         
         </div>
           
@@ -2111,6 +2076,37 @@ export default function MySeniorValetHome() {
                     <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center mt-2 italic">
                       ← Swipe to explore all housing options →
                     </p>
+                  </div>
+
+                  {/* Traditional Browse and Side-by-Side Buttons */}
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    {/* Traditional Browse */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/map-search';
+                      }}
+                      className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+                      <div className="flex flex-col items-center">
+                        <span className="text-xl mb-1">🔍</span>
+                        <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                        <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+                      </div>
+                    </Button>
+
+                    {/* Side-by-Side Search */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/ai-search-intelligence?mode=simplified';
+                      }}
+                      className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <span className="text-xl mb-1">⚖️</span>
+                        <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
+                        <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
+                      </div>
+                    </Button>
                   </div>
 
                   <Button 
