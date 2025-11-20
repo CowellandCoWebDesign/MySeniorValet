@@ -883,8 +883,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
       </section>
       
-      {/* Category Tabs - Positioned between hero and content */}
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 -mt-8 relative z-50">
+      {/* Category Tabs - Sticky positioning to keep visible */}
+      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 sticky top-0 z-50 bg-gradient-to-b from-black/60 to-black/20 backdrop-blur-md py-3">
         <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
@@ -930,7 +930,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           
       {/* Search Results - Premium Glass Design */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
-            <div className="w-full max-w-2xl mx-auto mt-4 mb-8">
+            <div className="w-full max-w-2xl mx-auto mt-12 md:mt-16 mb-8">
               {/* Show AI Response directly in results area for Research mode */}
               {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse ? (
                 <div className="animate-fade-in">
