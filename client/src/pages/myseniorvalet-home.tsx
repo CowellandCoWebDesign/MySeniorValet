@@ -33,6 +33,8 @@ import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RedTagDeals } from "@/components/RedTagDeals";
+import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
+import { HUDCommunitiesSection } from "@/components/HUDCommunitiesSection";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
