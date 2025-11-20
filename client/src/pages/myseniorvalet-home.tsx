@@ -2029,6 +2029,16 @@ export default function MySeniorValetHome() {
                     <RedTagDeals />
                   </div>
 
+                  {/* Recently Discovered Communities Section */}
+                  <div className="mb-6">
+                    <RecentlyDiscoveredCommunities />
+                  </div>
+
+                  {/* HUD Communities & Government Verified Section */}
+                  <div className="mb-6">
+                    <HUDCommunitiesSection />
+                  </div>
+
                   {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
                     <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 20+ COMPREHENSIVE HOUSING OPTIONS</p>
