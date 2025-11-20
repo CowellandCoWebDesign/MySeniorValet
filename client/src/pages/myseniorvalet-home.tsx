@@ -882,8 +882,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Category Tabs - Inside hero section, right after search */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 py-4 relative z-40">
-          <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0">
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 py-6 relative z-40 bg-black/30 backdrop-blur-sm rounded-lg border border-white/10">
+          <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0 flex-wrap">
             <TabsTrigger
               value="communities"
               className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-300/50 dark:border-gray-600/50 shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-400 data-[state=active]:shadow-blue-500/50 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300"
