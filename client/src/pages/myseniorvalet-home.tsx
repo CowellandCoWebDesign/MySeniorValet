@@ -2052,10 +2052,6 @@ export default function MySeniorValetHome() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Discover and compare 20+ types of senior housing worldwide. Our AI-powered system finds HUD/Section 8/202/811 housing, senior apartments, disability centers, 55+ communities, mobile/RV parks, co-op housing, shared housing, adult day centers, foster care, personal care homes, assisted living, memory care, skilled nursing, hospice, CCRCs, and VA facilities. Access transparent pricing and authentic reviews for ALL senior housing options anywhere.
-                  </p>
-
                   {/* Community count matching other cards */}
                   <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
                     <TrendingUp className="h-5 w-5 text-green-500" />
