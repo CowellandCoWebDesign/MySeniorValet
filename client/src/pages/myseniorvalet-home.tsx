@@ -2019,10 +2019,7 @@ export default function MySeniorValetHome() {
                   </div>
                 </div>
                 <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Living Directory</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Self-Healing Database with On-Demand Intelligence
-                  </CardDescription>
+                  <CardTitle className="text-3xl md:text-4xl font-bold mb-2">AI-Powered Senior Living Directory</CardTitle>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   {/* Featured Excellence Communities - Moved from below */}

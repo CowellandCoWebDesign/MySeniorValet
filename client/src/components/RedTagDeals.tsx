@@ -182,15 +182,9 @@ export function RedTagDeals() {
   
   return (
     <div className="space-y-4">
-      <div className="text-center mb-4">
-        <div className="flex items-center justify-center gap-3 mb-3">
-          <Star className="w-7 h-7 text-orange-600" />
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Featured Excellence Communities</h2>
-        </div>
-        <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4">
-          Outstanding senior living communities showcasing excellence across five countries
-        </p>
-      </div>
+      <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4 text-center">
+        Outstanding senior living communities showcasing excellence across five countries
+      </p>
 
       {/* Featured Communities Alert - Compact */}
       <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
