@@ -41,7 +41,7 @@ export function RecentlyDiscoveredCommunities() {
   }, []);
 
   // Fetch recently discovered communities
-  const { data: recentCommunities = [], isLoading } = useQuery({
+  const { data: recentCommunities = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/communities/recently-discovered?limit=100'],
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
@@ -82,7 +82,7 @@ export function RecentlyDiscoveredCommunities() {
         {/* Carousel Container */}
         <div 
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2"
           onScroll={checkScrollPosition}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
