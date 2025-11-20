@@ -1967,20 +1967,20 @@ export default function MySeniorValetHome() {
       {/* Unified Tab System for Hero and Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Transforming Hero Section with Search - Mobile optimized */}
-        <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
+        <div className="relative">
+          <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
+          
+          {/* Tab Content - Overlapping with bottom third of hero */}
+          <div className="relative -mt-48 z-20">
+            {/* Personalized Banner */}
+            <div className="px-4 py-6 bg-gradient-to-r from-blue-50/95 to-gray-50/95 dark:from-gray-900/95 dark:to-gray-800/95 backdrop-blur-sm rounded-t-3xl shadow-2xl">
+              <div className="max-w-6xl mx-auto">
+                <PersonalizedBanner />
+              </div>
+            </div>
 
-
-
-      {/* Personalized Banner */}
-      <div className="px-4 py-6 bg-gradient-to-r from-blue-50 to-gray-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-6xl mx-auto">
-          <PersonalizedBanner />
-        </div>
-      </div>
-
-
-      {/* 5-Tab Directory Content */}
-      <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            {/* 5-Tab Directory Content */}
+            <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-7xl mx-auto">
 
             {/* Communities Tab */}
@@ -3781,9 +3781,11 @@ export default function MySeniorValetHome() {
           </div>
         </div>
       </TabsContent>
+            </div>
+          </section>
+          </div>
         </div>
-      </section>
-    </Tabs>
+      </Tabs>
 
 {/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
