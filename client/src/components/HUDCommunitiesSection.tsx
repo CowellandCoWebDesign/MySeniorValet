@@ -37,7 +37,7 @@ export function HUDCommunitiesSection() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Section Title */}
       <div className="text-center">
         <div className="flex items-center justify-center gap-3 mb-2">
@@ -143,7 +143,7 @@ export function HUDCommunitiesSection() {
       </div>
       
       {/* Quick Stats Bar */}
-      <div className="flex flex-wrap justify-center gap-3">
+      <div className="flex flex-wrap justify-center gap-3 -mt-2">
         <Badge className="bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30 px-4 py-2">
           <span className="font-medium">Government-verified pricing from $57/month</span>
         </Badge>
