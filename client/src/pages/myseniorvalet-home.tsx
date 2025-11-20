@@ -705,7 +705,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'min-h-screen pb-20' : 'min-h-screen'} mt-16`}
+      <section className={`relative ${isSearchActive ? 'min-h-[60vh] pb-8' : 'h-auto'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
@@ -744,19 +744,19 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
         </div>
         
-        <div className="relative z-10 flex flex-col h-full min-h-screen">
+        <div className="relative z-10 flex flex-col h-full">
         
         {/* Hero Title - Keep Original */}
-        <div className="w-full text-center pt-4 sm:pt-8 md:pt-12 lg:pt-16 px-2 sm:px-4">
+        <div className="w-full text-center pt-2 sm:pt-3 md:pt-4 lg:pt-6 px-2 sm:px-4">
           <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
             {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-3 sm:mb-4 whitespace-nowrap">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-1 sm:mb-2 whitespace-nowrap">
               <span className="inline-block animate-slide-in-left bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)]">One Platform.</span>
               <span className="inline-block animate-slide-in-left text-white ml-2 drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">Every Step of the Journey.</span>
             </h1>
             
             {/* Updated Subtitle */}
-            <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-2 sm:py-3 max-w-4xl mx-auto animate-fade-in-delayed">
+            <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-1 sm:py-2 max-w-4xl mx-auto animate-fade-in-delayed">
               <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white font-medium leading-relaxed">
                 Your comprehensive guide to senior living, services, healthcare, resources, and products
               </p>
@@ -765,10 +765,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Content Container - Search First, Then Value Props */}
-        <div className={`flex-grow flex flex-col ${isSearchActive ? 'justify-start pt-8' : 'justify-center'} px-2 sm:px-4`}>
+        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-4' : 'pt-4'} px-2 sm:px-4`}>
         
         {/* Search Mode Toggle Button */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-3">
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-2">
           <div className="flex justify-center">
             <button
               onClick={() => setSearchMode(searchMode === 'ai' ? 'classic' : 'ai')}
@@ -801,7 +801,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Conditional Rendering: AI Assistant or Classic Search */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-6">
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-3">
           <AnimatePresence mode="wait">
             {searchMode === 'ai' ? (
               <motion.div
@@ -880,7 +880,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Category Tabs - Moved to hero section below search */}
-        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 py-6">
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 py-2">
           <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
