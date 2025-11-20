@@ -2044,6 +2044,14 @@ export default function MySeniorValetHome() {
                   <Badge className="absolute top-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
                     PRIMARY DATABASE
                   </Badge>
+                  {/* Community count overlay in bottom-right */}
+                  <div className="absolute bottom-4 right-4 flex items-center gap-2 p-3 bg-black/70 backdrop-blur-sm rounded-lg shadow-lg border border-green-500/30">
+                    <TrendingUp className="h-5 w-5 text-green-500" />
+                    <span className="text-2xl font-bold text-white">
+                      {communityStats?.communities || '33,863'}
+                    </span>
+                    <span className="text-sm text-gray-200">Senior Living Communities</span>
+                  </div>
                 </div>
                 <CardHeader className="relative z-10">
                   <CardTitle className="text-2xl mb-2">AI-Powered Senior Living Directory</CardTitle>
@@ -2052,15 +2060,6 @@ export default function MySeniorValetHome() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="relative z-10">
-                  {/* Community count matching other cards */}
-                  <div className="inline-flex items-center gap-2 mb-6 p-3 bg-white/50 dark:bg-gray-800/50 rounded-lg">
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                      {communityStats?.communities || '33,000+'}
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">Senior Living Communities</span>
-                  </div>
-
                   {/* Featured Excellence Communities - Moved from below */}
                   <div className="mb-6">
                     <RedTagDeals />
