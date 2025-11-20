@@ -880,12 +880,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         </div>
-        </div>
-      </section>
-      
-      {/* Category Tabs - Sticky positioning to keep visible */}
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 sticky top-0 z-50 bg-gradient-to-b from-black/60 to-black/20 backdrop-blur-md py-3">
-        <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0">
+        
+        {/* Category Tabs - Inside hero section, right after search */}
+        <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 py-4 relative z-40">
+          <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
               className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-300/50 dark:border-gray-600/50 shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-400 data-[state=active]:shadow-blue-500/50 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300"
@@ -926,7 +924,9 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Vendors</span>
             </TabsTrigger>
           </TabsList>
-      </div>
+        </div>
+        </div>
+      </section>
           
       {/* Search Results - Premium Glass Design */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
