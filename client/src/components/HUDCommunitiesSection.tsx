@@ -102,14 +102,12 @@ export function HUDCommunitiesSection() {
               {/* Display first 10 HUD properties */}
               {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
                 <div key={`hud-${community.id}-${index}`} className="flex-shrink-0">
-                  <Link href={`/community/${community.id}`}>
-                    <FeaturedExcellenceCard 
-                      community={community} 
-                      index={index} 
-                      disableAutoPhotoLoad={true} 
-                      compact 
-                    />
-                  </Link>
+                  <FeaturedExcellenceCard 
+                    community={community} 
+                    index={index} 
+                    disableAutoPhotoLoad={true} 
+                    compact 
+                  />
                 </div>
               ))}
               
