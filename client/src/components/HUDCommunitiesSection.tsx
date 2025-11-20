@@ -116,7 +116,7 @@ export function HUDCommunitiesSection() {
               {/* View More Card */}
               <div className="flex-shrink-0">
                 <Link to="/search?certified=hud" data-testid="link-view-all-hud">
-                  <div className="w-[400px] h-[520px] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl overflow-hidden">
+                  <div className="w-[400px] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl overflow-hidden">
                     <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
                       <div className="text-center p-6">
                         <div className="text-5xl mb-3">🏠</div>
