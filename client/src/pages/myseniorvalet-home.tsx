@@ -1984,7 +1984,7 @@ export default function MySeniorValetHome() {
         <div className="max-w-7xl mx-auto">
 
             {/* Communities Tab */}
-            <TabsContent value="communities" className="mt-6">
+            <TabsContent value="communities" className="mt-0">
               {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">
                 <div className="grid grid-cols-1">
@@ -2146,7 +2146,7 @@ export default function MySeniorValetHome() {
             </TabsContent>
 
       {/* Services Tab */}
-      <TabsContent value="services" className="mt-6">
+      <TabsContent value="services" className="mt-0">
         <div className="grid grid-cols-1 gap-8">
           {/* Senior Marketplace */}
           <Link to="/senior-marketplace">
@@ -2381,7 +2381,7 @@ export default function MySeniorValetHome() {
       </TabsContent>
 
       {/* Resources Tab */}
-      <TabsContent value="resources" className="mt-6">
+      <TabsContent value="resources" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {/* Resident Portal - Comprehensive Dashboard */}
             <Link to="/resident-dashboard">
@@ -2947,7 +2947,7 @@ export default function MySeniorValetHome() {
       </TabsContent>
 
       {/* Healthcare Tab */}
-      <TabsContent value="healthcare" className="mt-6">
+      <TabsContent value="healthcare" className="mt-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {/* Global Healthcare Discovery Platform */}
           <Link to="/senior-healthcare-directory">
@@ -3151,7 +3151,7 @@ export default function MySeniorValetHome() {
       </TabsContent>
 
       {/* Vendors Tab - Consumer Products */}
-      <TabsContent value="vendors" className="mt-6">
+      <TabsContent value="vendors" className="mt-0">
         <div className="space-y-8">
           {/* Portal Section - Community and Vendor Portals */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
