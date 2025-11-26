@@ -43,19 +43,22 @@ function getSetupSecret(): string {
     return process.env.ADMIN_SETUP_SECRET;
   }
   
-  // Generate and log a one-time setup secret
+  // Generate a one-time setup secret (stored in memory only)
   const generatedSecret = crypto.randomBytes(32).toString('hex');
+  
+  // SECURITY: Never log the actual secret - only notify that setup is needed
   console.log('\n' + '='.repeat(70));
-  console.log('🔐 ADMIN SETUP SECRET (Save this - Required for setup!)');
+  console.log('🔐 ADMIN SETUP REQUIRED');
   console.log('='.repeat(70));
-  console.log(`Setup Secret: ${generatedSecret}`);
-  console.log('\nTo create your admin account after deployment:');
-  console.log('1. Visit: /admin/setup');
-  console.log('2. Copy and paste the setup secret when prompted');
-  console.log('\nIMPORTANT: Never put this secret in URLs or query parameters!');
+  console.log('A temporary setup secret has been generated for this session.');
+  console.log('\nTo create your admin account:');
+  console.log('1. Check the Replit Secrets tab for ADMIN_SETUP_SECRET');
+  console.log('2. Or view it securely via: GET /api/setup/secret-hint (dev only)');
+  console.log('3. Visit: /admin/setup and enter the secret when prompted');
+  console.log('\nFor production: Set ADMIN_SETUP_SECRET in your environment variables.');
   console.log('='.repeat(70) + '\n');
   
-  // Store for this session
+  // Store for this session only (not logged)
   process.env.ADMIN_SETUP_SECRET = generatedSecret;
   return generatedSecret;
 }
@@ -197,7 +200,7 @@ export function registerSetupRoutes(app: Express) {
         
         if (existingUser) {
           // Update existing user to super admin
-          await storage.updateUser(existingUser.id, {
+          await storage.updateUser(String(existingUser.id), {
             role: 'super_admin',
             password: hashedPassword,
             firstName,
