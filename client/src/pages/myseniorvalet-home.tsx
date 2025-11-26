@@ -1304,6 +1304,13 @@ export default function MySeniorValetHome() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('communities');
   
+  // Tab change handler that resets scroll position to prevent content pop glitch
+  const handleTabChange = useCallback((newTab: string) => {
+    // Scroll to top instantly when changing tabs to prevent content jumping
+    window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
+    setActiveTab(newTab);
+  }, []);
+  
   // Parse URL search parameters for dynamic SEO
   const [urlSearchParams, setUrlSearchParams] = useState<URLSearchParams | null>(null);
   const [searchMetadata, setSearchMetadata] = useState<any>({});
@@ -1948,10 +1955,10 @@ export default function MySeniorValetHome() {
       
       {/* Old header removed - using ProfessionalNavbar */}
       {/* Unified Tab System for Hero and Content */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Transforming Hero Section with Search - Mobile optimized */}
         <div className="relative">
-          <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
+          <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
           {/* Tab Content - Direct connection to hero, no extra backgrounds */}
           <div className="relative -mt-1 z-20">
