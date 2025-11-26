@@ -1953,21 +1953,18 @@ export default function MySeniorValetHome() {
         <div className="relative">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
           
-          {/* Tab Content - Tight spacing below hero */}
+          {/* Tab Content - Direct connection to hero, no extra backgrounds */}
           <div className="relative mt-0 z-20">
-            {/* Personalized Banner */}
-            <div className="px-4 py-6 bg-gradient-to-r from-blue-50/95 to-gray-50/95 dark:from-gray-900/95 dark:to-gray-800/95 backdrop-blur-sm rounded-t-2xl sm:rounded-t-3xl shadow-2xl">
-              <div className="max-w-6xl mx-auto">
+            {/* Single unified content container */}
+            <section className="px-4 pt-4 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+              {/* Personalized Banner - Compact */}
+              <div className="max-w-6xl mx-auto mb-4">
                 <PersonalizedBanner />
               </div>
-            </div>
-
-            {/* 5-Tab Directory Content */}
-            <section className="px-4 py-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-
-            {/* Communities Tab */}
-            <TabsContent value="communities" className="mt-8">
+              
+              <div className="max-w-7xl mx-auto">
+                {/* Communities Tab */}
+                <TabsContent value="communities" className="mt-4">
               {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">
                 <div className="grid grid-cols-1">
