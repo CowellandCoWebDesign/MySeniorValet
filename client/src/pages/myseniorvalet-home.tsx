@@ -1970,8 +1970,8 @@ export default function MySeniorValetHome() {
         <div className="relative">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
           
-          {/* Tab Content - Overlapping with bottom third of hero */}
-          <div className="relative -mt-24 sm:-mt-32 md:-mt-40 lg:-mt-48 xl:-mt-56 z-[60]">
+          {/* Tab Content - Overlapping with bottom third of hero, pt-* reserves space for sticky tabs */}
+          <div className="relative -mt-24 sm:-mt-32 md:-mt-40 lg:-mt-48 xl:-mt-56 z-20 pt-20 md:pt-24">
             {/* Personalized Banner */}
             <div className="px-4 py-6 bg-gradient-to-r from-blue-50/95 to-gray-50/95 dark:from-gray-900/95 dark:to-gray-800/95 backdrop-blur-sm rounded-t-2xl sm:rounded-t-3xl shadow-2xl">
               <div className="max-w-6xl mx-auto">
