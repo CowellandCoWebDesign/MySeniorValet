@@ -2695,6 +2695,34 @@ Disallow: /`;
     }
   });
 
+  // Messages unread count endpoint (for navbar notification badge)
+  app.get('/api/messages/unread-count', async (req: any, res) => {
+    try {
+      const userId = req.session?.user?.id || req.session?.userId || req.user?.id;
+      
+      // Return 0 for unauthenticated users (don't fail with 400)
+      if (!userId) {
+        return res.json({ count: 0 });
+      }
+      
+      // Get unread count from family messages
+      const result = await db.select({ count: sql<number>`count(*)` })
+        .from(schema.familyMessages)
+        .where(
+          and(
+            eq(schema.familyMessages.recipientId, parseInt(String(userId))),
+            eq(schema.familyMessages.status, 'sent')
+          )
+        );
+      
+      res.json({ count: Number(result[0]?.count || 0) });
+    } catch (error) {
+      console.error('Error fetching messages unread count:', error);
+      // Return 0 instead of error to prevent UI disruption
+      res.json({ count: 0 });
+    }
+  });
+
   // Family Collaboration Center endpoints
   // These endpoints support the Family Collaboration features
   app.get('/api/family/messages', (req: any, res) => {
