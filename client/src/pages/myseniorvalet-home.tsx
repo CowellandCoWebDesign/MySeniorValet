@@ -2368,8 +2368,15 @@ export default function MySeniorValetHome() {
             {/* Resident Portal - Comprehensive Dashboard */}
             <Link to="/resident-dashboard">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Cosmic Image at top of card */}
-                <div className="relative h-64 w-full">
+                {/* Title ABOVE the image */}
+                <CardHeader className="relative z-10 pb-2">
+                  <CardTitle className="text-xl sm:text-2xl">Resident Portal & Dashboard</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Your Complete Community Living Experience
+                  </CardDescription>
+                </CardHeader>
+                {/* Full-size Cosmic Image */}
+                <div className="relative h-48 sm:h-56 md:h-64 w-full">
                   <img 
                     src={RetroFamilyLivingRoom}
                     alt="Home Sweet Home - Your warm welcome" 
@@ -2384,12 +2391,6 @@ export default function MySeniorValetHome() {
                     RESIDENT ACCESS
                   </Badge>
                 </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Resident Portal & Dashboard</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Your Complete Community Living Experience
-                  </CardDescription>
-                </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
                     Access all resident services in one place - billing, dining, transportation, maintenance, activities & more
@@ -2558,8 +2559,15 @@ export default function MySeniorValetHome() {
             {/* Senior Resources and Support Center */}
             <Link to="/senior-resources-center">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Library Sign Image at top of card */}
-                <div className="relative h-64 w-full">
+                {/* Title ABOVE the image */}
+                <CardHeader className="relative z-10 pb-2">
+                  <CardTitle className="text-xl sm:text-2xl">📚 Senior Resources & Support Center</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Your Guide to Benefits, Legal, Financial & Community Resources
+                  </CardDescription>
+                </CardHeader>
+                {/* Full-size Retro Library Sign Image */}
+                <div className="relative h-48 sm:h-56 md:h-64 w-full">
                   <img 
                     src={RetroLibrarySign} 
                     alt="Retro library resource center sign" 
@@ -2574,12 +2582,6 @@ export default function MySeniorValetHome() {
                     RESOURCES
                   </Badge>
                 </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">AI-Powered Senior Resources and Support Directory</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Educational Content & Support
-                  </CardDescription>
-                </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
                     Comprehensive guides, government programs, support groups, and educational resources
@@ -2934,8 +2936,15 @@ export default function MySeniorValetHome() {
           {/* Global Healthcare Discovery Platform */}
           <Link to="/senior-healthcare-directory">
             <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-teal-400 relative overflow-hidden group transform hover:scale-105">
-              {/* Full-size Retro Medical Sign Image at top of card */}
-              <div className="relative h-64 w-full">
+              {/* Title ABOVE the image */}
+              <CardHeader className="relative z-10 pb-2">
+                <CardTitle className="text-xl sm:text-2xl">🏥 Global Healthcare Discovery Platform</CardTitle>
+                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Research Healthcare Providers Worldwide
+                </CardDescription>
+              </CardHeader>
+              {/* Full-size Retro Medical Sign Image */}
+              <div className="relative h-48 sm:h-56 md:h-64 w-full">
                 <img 
                   src={RetroMedicalSign} 
                   alt="Retro medical clinic neon sign" 
@@ -2950,12 +2959,6 @@ export default function MySeniorValetHome() {
                   HEALTHCARE
                 </Badge>
               </div>
-              <CardHeader className="relative z-10">
-                <CardTitle className="text-2xl mb-2">🏥 Global Healthcare Discovery Platform</CardTitle>
-                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Research Healthcare Providers Worldwide
-                </CardDescription>
-              </CardHeader>
               <CardContent className="relative z-10">
                 <p className="text-gray-600 dark:text-gray-400 mb-6">
                   🌍 Research hospitals, clinics, specialists, and healthcare services globally. From CMS-certified facilities in the US to international medical centers, therapy services, and specialized care providers anywhere in the world.
