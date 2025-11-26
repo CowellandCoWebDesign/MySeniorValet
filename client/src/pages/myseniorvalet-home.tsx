@@ -1978,7 +1978,7 @@ export default function MySeniorValetHome() {
             }}>
                 {/* Title ABOVE the image */}
                 <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">AI-Powered Senior Living Directory</CardTitle>
+                  <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">Global Senior Living Directory</CardTitle>
                 </CardHeader>
                 {/* Full-size Vacancy Sign Image */}
                 <div className="relative h-48 sm:h-56 md:h-64 w-full">
@@ -2134,7 +2134,7 @@ export default function MySeniorValetHome() {
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
                 {/* Title ABOVE the image */}
                 <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="text-xl sm:text-2xl">🔬 Research Platform: Business & Services Discovery</CardTitle>
+                  <CardTitle className="text-xl sm:text-2xl">🌍 Global Business & Services Directory</CardTitle>
                   <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                     Market Transparency Through Public Data Citations
                   </CardDescription>
