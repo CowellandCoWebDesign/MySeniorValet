@@ -747,7 +747,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         <div className="relative z-10 flex flex-col h-full">
         
         {/* Category Tabs at Top - Original styling preserved, centered */}
-        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 py-2 flex justify-center overflow-x-auto scrollbar-hide">
+        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-1 sm:pt-2 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
@@ -792,10 +792,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Content Container - Search First, Then Value Props */}
-        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-3 md:pt-6' : 'pt-3 md:pt-6'} pb-4 px-2 sm:px-4`}>
+        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-2 sm:pb-4 px-2 sm:px-4`}>
         
         {/* Search Mode Toggle Button */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-2">
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-1 sm:mb-2">
           <div className="flex justify-center">
             <button
               onClick={() => setSearchMode(searchMode === 'ai' ? 'classic' : 'ai')}
@@ -828,7 +828,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Conditional Rendering: AI Assistant or Classic Search */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-3">
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-1 sm:mb-2">
           <AnimatePresence mode="wait">
             {searchMode === 'ai' ? (
               <motion.div
