@@ -305,15 +305,31 @@ export class NotificationService {
         } catch (error) {
           console.error(`Error sending email ${email.id}:`, error);
           
-          await db
-            .update(notificationQueue)
-            .set({
-              status: 'failed',
-              attempts: (email.attempts || 0) + 1,
-              lastAttemptAt: new Date(),
-              error: String(error)
-            })
-            .where(eq(notificationQueue.id, email.id));
+          try {
+            await db
+              .update(notificationQueue)
+              .set({
+                status: 'failed',
+                attempts: (email.attempts || 0) + 1,
+                lastAttemptAt: new Date(),
+                error: String(error)
+              })
+              .where(eq(notificationQueue.id, email.id));
+          } catch (updateError) {
+            // Fallback if attempts column doesn't exist in production
+            console.warn('Email queue update with attempts failed, using fallback:', updateError);
+            try {
+              await db
+                .update(notificationQueue)
+                .set({
+                  status: 'failed',
+                  error: String(error)
+                })
+                .where(eq(notificationQueue.id, email.id));
+            } catch (fallbackError) {
+              console.error('Failed to update email queue status:', fallbackError);
+            }
+          }
         }
       }
     } catch (error) {
