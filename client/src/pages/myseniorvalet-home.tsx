@@ -1953,8 +1953,8 @@ export default function MySeniorValetHome() {
         <div className="relative">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
           
-          {/* Tab Content - Overlapping with bottom of hero, reduced overlap to not cover search */}
-          <div className="relative -mt-8 sm:-mt-10 md:-mt-12 lg:-mt-16 xl:-mt-20 z-20">
+          {/* Tab Content - Tight spacing below hero */}
+          <div className="relative mt-0 z-20">
             {/* Personalized Banner */}
             <div className="px-4 py-6 bg-gradient-to-r from-blue-50/95 to-gray-50/95 dark:from-gray-900/95 dark:to-gray-800/95 backdrop-blur-sm rounded-t-2xl sm:rounded-t-3xl shadow-2xl">
               <div className="max-w-6xl mx-auto">
