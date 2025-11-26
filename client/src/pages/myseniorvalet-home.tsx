@@ -747,7 +747,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         <div className="relative z-10 flex flex-col h-full">
         
         {/* Category Tabs at Top - Original styling preserved, centered */}
-        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-1 sm:pt-2 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
+        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
@@ -791,8 +791,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </TabsList>
         </div>
         
-        {/* Content Container - Search First, Then Value Props */}
-        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-2 sm:pb-4 px-2 sm:px-4`}>
+        {/* Content Container - Search First, Then Value Props - Minimal bottom padding */}
+        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-1 px-2 sm:px-4`}>
         
         {/* Search Mode Toggle Button */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-1 sm:mb-2">
@@ -1954,9 +1954,9 @@ export default function MySeniorValetHome() {
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
           
           {/* Tab Content - Direct connection to hero, no extra backgrounds */}
-          <div className="relative mt-0 z-20">
+          <div className="relative -mt-1 z-20">
             {/* Single unified content container */}
-            <section className="px-4 pt-4 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
               <div className="max-w-6xl mx-auto mb-4">
                 <PersonalizedBanner />
@@ -1964,7 +1964,7 @@ export default function MySeniorValetHome() {
               
               <div className="max-w-7xl mx-auto">
                 {/* Communities Tab */}
-                <TabsContent value="communities" className="mt-4">
+                <TabsContent value="communities" className="mt-1">
               {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">
                 <div className="grid grid-cols-1">
@@ -1976,8 +1976,12 @@ export default function MySeniorValetHome() {
                 window.location.href = '/community-directory';
               }
             }}>
-                {/* Full-size Vacancy Sign Image at top of card */}
-                <div className="relative h-64 w-full">
+                {/* Title ABOVE the image */}
+                <CardHeader className="relative z-10 pb-2">
+                  <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">AI-Powered Senior Living Directory</CardTitle>
+                </CardHeader>
+                {/* Full-size Vacancy Sign Image */}
+                <div className="relative h-48 sm:h-56 md:h-64 w-full">
                   <img 
                     src={MotelVacancySign} 
                     alt="Retro motel vacancy sign" 
@@ -2000,9 +2004,6 @@ export default function MySeniorValetHome() {
                     <span className="text-sm text-gray-200">Senior Living Communities</span>
                   </div>
                 </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-3xl md:text-4xl font-bold mb-2">AI-Powered Senior Living Directory</CardTitle>
-                </CardHeader>
                 <CardContent className="relative z-10">
                   {/* Featured Excellence Communities - Moved from below */}
                   <div className="mb-6">
@@ -2126,13 +2127,20 @@ export default function MySeniorValetHome() {
             </TabsContent>
 
       {/* Services Tab */}
-      <TabsContent value="services" className="mt-8">
+      <TabsContent value="services" className="mt-1">
         <div className="grid grid-cols-1 gap-8">
           {/* Senior Marketplace */}
           <Link to="/senior-marketplace">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Shopping Sign Image at top of card */}
-                <div className="relative h-64 w-full">
+                {/* Title ABOVE the image */}
+                <CardHeader className="relative z-10 pb-2">
+                  <CardTitle className="text-xl sm:text-2xl">🔬 Research Platform: Business & Services Discovery</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Market Transparency Through Public Data Citations
+                  </CardDescription>
+                </CardHeader>
+                {/* Full-size Retro Shopping Sign Image */}
+                <div className="relative h-48 sm:h-56 md:h-64 w-full">
                   <img 
                     src={RetroShoppingSign} 
                     alt="Retro shopping center neon sign" 
@@ -2147,12 +2155,6 @@ export default function MySeniorValetHome() {
                     COMMERCIAL
                   </Badge>
                 </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">🔬 Research Platform: Business & Services Discovery</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Market Transparency Through Public Data Citations
-                  </CardDescription>
-                </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
                     🌍 Research global businesses & services - All information cited from public sources for transparency
@@ -2361,7 +2363,7 @@ export default function MySeniorValetHome() {
       </TabsContent>
 
       {/* Resources Tab */}
-      <TabsContent value="resources" className="mt-8">
+      <TabsContent value="resources" className="mt-1">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
             {/* Resident Portal - Comprehensive Dashboard */}
             <Link to="/resident-dashboard">
@@ -2927,7 +2929,7 @@ export default function MySeniorValetHome() {
       </TabsContent>
 
       {/* Healthcare Tab */}
-      <TabsContent value="healthcare" className="mt-8">
+      <TabsContent value="healthcare" className="mt-1">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
           {/* Global Healthcare Discovery Platform */}
           <Link to="/senior-healthcare-directory">
@@ -3131,7 +3133,7 @@ export default function MySeniorValetHome() {
       </TabsContent>
 
       {/* Vendors Tab - Consumer Products */}
-      <TabsContent value="vendors" className="mt-8">
+      <TabsContent value="vendors" className="mt-1">
         <div className="space-y-8">
           {/* Portal Section - Community and Vendor Portals */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
