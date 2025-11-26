@@ -746,21 +746,50 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         <div className="relative z-10 flex flex-col h-full">
         
-        {/* Hero Title - Keep Original */}
+        {/* Uber-style Category Tabs at Top */}
         <div className="w-full text-center pt-2 sm:pt-3 md:pt-4 lg:pt-6 px-2 sm:px-4">
-          <div className="inline-block bg-black/20 backdrop-blur-sm rounded-2xl px-3 sm:px-6 py-2 sm:py-4 max-w-[95vw] lg:max-w-[90vw] sm:max-w-none animate-fade-in">
-            {/* Main Tagline - Responsive Text Sizing with Gradient Effect */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight mb-1 sm:mb-2 whitespace-nowrap">
-              <span className="inline-block animate-slide-in-left bg-gradient-to-r from-blue-300 via-purple-300 to-pink-300 bg-clip-text text-transparent drop-shadow-[0_2px_4px_rgba(255,255,255,0.3)]">One Platform.</span>
-              <span className="inline-block animate-slide-in-left text-white ml-2 drop-shadow-[0_4px_8px_rgba(0,0,0,1)]">Every Step of the Journey.</span>
-            </h1>
-            
-            {/* Updated Subtitle */}
-            <div className="bg-black/40 backdrop-blur-sm rounded-xl px-4 py-1 sm:py-2 max-w-4xl mx-auto animate-fade-in-delayed">
-              <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-white font-medium leading-relaxed">
-                Your comprehensive guide to senior living, services, healthcare, resources, and products
-              </p>
-            </div>
+          <div className="inline-block bg-black/30 backdrop-blur-md rounded-full px-2 sm:px-4 py-1.5 sm:py-2 animate-fade-in">
+            <TabsList className="flex items-center gap-0 bg-transparent h-auto p-0">
+              <TabsTrigger
+                value="communities"
+                className="flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-white/70 font-medium transition-all duration-300 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10"
+              >
+                <span className="text-base sm:text-lg">🏘️</span>
+                <span className="text-sm sm:text-base font-semibold">Communities</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="services"
+                className="flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-white/70 font-medium transition-all duration-300 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10"
+              >
+                <span className="text-base sm:text-lg">👥</span>
+                <span className="text-sm sm:text-base font-semibold">Services</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="healthcare"
+                className="flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-white/70 font-medium transition-all duration-300 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10"
+              >
+                <span className="text-base sm:text-lg">🩺</span>
+                <span className="text-sm sm:text-base font-semibold">Healthcare</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="resources"
+                className="flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-white/70 font-medium transition-all duration-300 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10"
+              >
+                <span className="text-base sm:text-lg">📚</span>
+                <span className="text-sm sm:text-base font-semibold">Resources</span>
+              </TabsTrigger>
+              
+              <TabsTrigger
+                value="vendors"
+                className="flex items-center gap-1.5 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full text-white/70 font-medium transition-all duration-300 data-[state=active]:bg-white/20 data-[state=active]:text-white data-[state=active]:shadow-lg hover:text-white hover:bg-white/10"
+              >
+                <span className="text-base sm:text-lg">🛍️</span>
+                <span className="text-sm sm:text-base font-semibold">Vendors</span>
+              </TabsTrigger>
+            </TabsList>
           </div>
         </div>
         
@@ -883,50 +912,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
       </section>
       
-      {/* Category Tabs - Sticky positioning to keep visible */}
-      <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 sticky top-0 z-50 bg-gradient-to-b from-black/60 to-black/20 backdrop-blur-md py-3">
-        <TabsList className="flex justify-center items-center gap-2 sm:gap-3 md:gap-4 bg-transparent h-auto p-0">
-            <TabsTrigger
-              value="communities"
-              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-300/50 dark:border-gray-600/50 shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-400 data-[state=active]:shadow-blue-500/50 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300"
-            >
-              <span className="text-xl sm:text-2xl">🏘️</span>
-              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Communities</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="services"
-              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-300/50 dark:border-gray-600/50 shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-400 data-[state=active]:shadow-purple-500/50 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300"
-            >
-              <span className="text-xl sm:text-2xl">👥</span>
-              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Services</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="healthcare"
-              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-300/50 dark:border-gray-600/50 shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:border-green-400 data-[state=active]:shadow-green-500/50 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300"
-            >
-              <span className="text-xl sm:text-2xl">🩺</span>
-              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Healthcare</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="resources"
-              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-300/50 dark:border-gray-600/50 shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:border-orange-400 data-[state=active]:shadow-orange-500/50 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300"
-            >
-              <span className="text-xl sm:text-2xl">📚</span>
-              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Resources</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="vendors"
-              className="flex flex-col items-center gap-1 px-3 sm:px-4 md:px-5 py-2.5 rounded-xl bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border border-gray-300/50 dark:border-gray-600/50 shadow-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:border-indigo-400 data-[state=active]:shadow-indigo-500/50 hover:bg-white dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300"
-            >
-              <span className="text-xl sm:text-2xl">🛍️</span>
-              <span className="text-xs sm:text-sm font-semibold whitespace-nowrap">Vendors</span>
-            </TabsTrigger>
-          </TabsList>
-      </div>
           
       {/* Search Results - Premium Glass Design */}
           {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
@@ -1970,8 +1955,8 @@ export default function MySeniorValetHome() {
         <div className="relative">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={setActiveTab} />
           
-          {/* Tab Content - Overlapping with bottom third of hero, pt-* reserves space for sticky tabs */}
-          <div className="relative -mt-24 sm:-mt-32 md:-mt-40 lg:-mt-48 xl:-mt-56 z-20 pt-4 md:pt-6">
+          {/* Tab Content - Overlapping with bottom third of hero */}
+          <div className="relative -mt-16 sm:-mt-20 md:-mt-24 lg:-mt-28 xl:-mt-32 z-20">
             {/* Personalized Banner */}
             <div className="px-4 py-6 bg-gradient-to-r from-blue-50/95 to-gray-50/95 dark:from-gray-900/95 dark:to-gray-800/95 backdrop-blur-sm rounded-t-2xl sm:rounded-t-3xl shadow-2xl">
               <div className="max-w-6xl mx-auto">
