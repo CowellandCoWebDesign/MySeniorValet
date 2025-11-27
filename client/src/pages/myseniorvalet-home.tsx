@@ -751,7 +751,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
-              className="tab-communities flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:via-blue-600 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-blue-300 data-[state=active]:shadow-xl data-[state=active]:shadow-blue-500/50 data-[state=active]:scale-110 data-[state=active]:ring-2 data-[state=active]:ring-blue-400/60"
+              className="tab-communities flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
             >
               <span className="text-lg sm:text-xl">🏘️</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Senior Living</span>
@@ -759,7 +759,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="services"
-              className="tab-services flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:via-purple-600 data-[state=active]:to-fuchsia-600 data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-purple-300 data-[state=active]:shadow-xl data-[state=active]:shadow-purple-500/50 data-[state=active]:scale-110 data-[state=active]:ring-2 data-[state=active]:ring-purple-400/60"
+              className="tab-services flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
             >
               <span className="text-lg sm:text-xl">👥</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Services</span>
@@ -767,7 +767,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="healthcare"
-              className="tab-healthcare flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-br data-[state=active]:from-emerald-500 data-[state=active]:via-green-600 data-[state=active]:to-teal-600 data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-green-300 data-[state=active]:shadow-xl data-[state=active]:shadow-green-500/50 data-[state=active]:scale-110 data-[state=active]:ring-2 data-[state=active]:ring-green-400/60"
+              className="tab-healthcare flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
             >
               <span className="text-lg sm:text-xl">🩺</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Healthcare</span>
@@ -775,7 +775,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="resources"
-              className="tab-resources flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-br data-[state=active]:from-orange-500 data-[state=active]:via-amber-600 data-[state=active]:to-yellow-600 data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-orange-300 data-[state=active]:shadow-xl data-[state=active]:shadow-orange-500/50 data-[state=active]:scale-110 data-[state=active]:ring-2 data-[state=active]:ring-orange-400/60"
+              className="tab-resources flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
             >
               <span className="text-lg sm:text-xl">📚</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
@@ -783,7 +783,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="vendors"
-              className="tab-vendors flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 data-[state=active]:bg-gradient-to-br data-[state=active]:from-indigo-500 data-[state=active]:via-violet-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:border-2 data-[state=active]:border-indigo-300 data-[state=active]:shadow-xl data-[state=active]:shadow-indigo-500/50 data-[state=active]:scale-110 data-[state=active]:ring-2 data-[state=active]:ring-indigo-400/60"
+              className="tab-vendors flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
             >
               <span className="text-lg sm:text-xl">🛍️</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Vendors</span>
