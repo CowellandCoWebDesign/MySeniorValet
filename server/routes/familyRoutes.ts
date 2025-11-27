@@ -1003,9 +1003,9 @@ router.get("/visit-history", async (req: Request, res: Response) => {
     // Get completed tours for the user
     const completedTours = await db.select({
       id: tours.id,
-      date: tours.date,
+      date: tours.preferredDate,
       status: tours.status,
-      notes: tours.notes,
+      notes: tours.tourFeedback,
       communityId: tours.communityId,
       communityName: communities.name,
       communityAddress: communities.address,
@@ -1015,10 +1015,10 @@ router.get("/visit-history", async (req: Request, res: Response) => {
       .from(tours)
       .leftJoin(communities, eq(tours.communityId, communities.id))
       .where(and(
-        eq(tours.userId, userId),
+        eq(tours.userId, String(userId)),
         eq(tours.status, 'completed')
       ))
-      .orderBy(desc(tours.date))
+      .orderBy(desc(tours.preferredDate))
       .limit(20);
     
     res.json(completedTours);
@@ -1072,13 +1072,12 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
       communityId: favorites.communityId,
       notes: favorites.notes,
       tags: favorites.tags,
-      rating: favorites.rating,
+      priority: favorites.priority,
       name: communities.name,
       address: communities.address,
       city: communities.city,
       state: communities.state,
-      priceMin: communities.priceMin,
-      priceMax: communities.priceMax,
+      monthlyFee: communities.monthlyFee,
       careTypes: communities.careTypes
     })
       .from(favorites)

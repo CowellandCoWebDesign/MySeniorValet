@@ -156,7 +156,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
       { label: "Tour Scheduler", icon: Calendar, href: "/tours", emoji: "📅" },
       { label: "Cost Calculator", icon: BarChart3, href: "/costs", emoji: "🧮" },
       { label: "AI Assistant", icon: Brain, href: "/ai-support", emoji: "🤖" },
-      { label: "Family Hub", icon: Heart, href: "/family-collaboration", emoji: "👨‍👩‍👧‍👦" },
+      { label: "Family Hub", icon: Heart, href: "/family-collaboration-center", emoji: "👨‍👩‍👧‍👦" },
     ],
     support: [
       { label: "Help Center", icon: HelpCircle, href: "/help", emoji: "❓" },
