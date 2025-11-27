@@ -2630,8 +2630,8 @@ body {
   filter: brightness(1.1);
 }
 
-/* Active tab premium styling */
-[role="tab"][data-state="active"] {
+/* Active tab premium styling - exclude category tabs which have their own gradients */
+[role="tab"][data-state="active"]:not(.tab-communities):not(.tab-services):not(.tab-healthcare):not(.tab-resources):not(.tab-vendors) {
   background: linear-gradient(135deg, 
     hsl(var(--background)), 
     hsl(var(--background) / 0.98)
