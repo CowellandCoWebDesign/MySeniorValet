@@ -705,7 +705,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'min-h-[50vh] md:min-h-[70vh] pb-8' : 'h-auto min-h-[50vh] md:min-h-[60vh]'} mt-16`}
+      <section className={`relative ${isSearchActive ? 'min-h-[280px] sm:min-h-[300px] md:min-h-[50vh] pb-2 md:pb-4' : 'h-auto min-h-[260px] sm:min-h-[280px] md:min-h-[45vh]'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
         }}
@@ -1957,11 +1957,11 @@ export default function MySeniorValetHome() {
       {/* Unified Tab System for Hero and Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Transforming Hero Section with Search - Mobile optimized */}
-        <div className="relative">
+        <div className="relative z-30">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
           {/* Tab Content - Direct connection to hero, no extra backgrounds */}
-          <div className="relative -mt-1 z-20">
+          <div className="relative -mt-12 sm:-mt-16 md:-mt-12 z-20">
             {/* Single unified content container */}
             <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
