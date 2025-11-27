@@ -2728,13 +2728,40 @@ body {
   transform: scale(1.1);
 }
 
-/* Dark mode category tabs - same vibrant gradients */
-.dark .tab-communities[data-state="active"],
-.dark .tab-services[data-state="active"],
-.dark .tab-healthcare[data-state="active"],
-.dark .tab-resources[data-state="active"],
+/* Dark mode category tabs - explicit gradient overrides */
+.dark .tab-communities[data-state="active"] {
+  background: linear-gradient(to bottom right, #3b82f6, #4f46e5, #6366f1) !important;
+  color: white !important;
+  border: 2px solid #93c5fd !important;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.6) !important;
+}
+
+.dark .tab-services[data-state="active"] {
+  background: linear-gradient(to bottom right, #a855f7, #9333ea, #d946ef) !important;
+  color: white !important;
+  border: 2px solid #d8b4fe !important;
+  box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.6) !important;
+}
+
+.dark .tab-healthcare[data-state="active"] {
+  background: linear-gradient(to bottom right, #10b981, #059669, #14b8a6) !important;
+  color: white !important;
+  border: 2px solid #6ee7b7 !important;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.6) !important;
+}
+
+.dark .tab-resources[data-state="active"] {
+  background: linear-gradient(to bottom right, #f97316, #d97706, #eab308) !important;
+  color: white !important;
+  border: 2px solid #fdba74 !important;
+  box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.6) !important;
+}
+
 .dark .tab-vendors[data-state="active"] {
-  border-width: 2px;
+  background: linear-gradient(to bottom right, #6366f1, #7c3aed, #a855f7) !important;
+  color: white !important;
+  border: 2px solid #a5b4fc !important;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.6) !important;
 }
 
 /* Mobile tab scrolling with enhanced visibility */
