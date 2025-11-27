@@ -751,7 +751,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-md border-2 border-gray-200 dark:border-gray-600 shadow-md text-gray-700 dark:text-gray-200 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:border-blue-400 data-[state=active]:shadow-lg data-[state=active]:shadow-blue-500/40 data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-blue-300 dark:data-[state=active]:ring-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300"
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+                activeTab === 'communities' 
+                  ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white border-2 border-blue-300 shadow-xl shadow-blue-500/50 scale-110 ring-2 ring-blue-400/60' 
+                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
             >
               <span className="text-lg sm:text-xl">🏘️</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Senior Living</span>
@@ -759,7 +763,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="services"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-md border-2 border-gray-200 dark:border-gray-600 shadow-md text-gray-700 dark:text-gray-200 data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:border-purple-400 data-[state=active]:shadow-lg data-[state=active]:shadow-purple-500/40 data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-purple-300 dark:data-[state=active]:ring-purple-400 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300"
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+                activeTab === 'services' 
+                  ? 'bg-gradient-to-br from-purple-500 via-purple-600 to-fuchsia-600 text-white border-2 border-purple-300 shadow-xl shadow-purple-500/50 scale-110 ring-2 ring-purple-400/60' 
+                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
             >
               <span className="text-lg sm:text-xl">👥</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Services</span>
@@ -767,7 +775,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="healthcare"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-md border-2 border-gray-200 dark:border-gray-600 shadow-md text-gray-700 dark:text-gray-200 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white data-[state=active]:border-green-400 data-[state=active]:shadow-lg data-[state=active]:shadow-green-500/40 data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-green-300 dark:data-[state=active]:ring-green-400 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300"
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+                activeTab === 'healthcare' 
+                  ? 'bg-gradient-to-br from-emerald-500 via-green-600 to-teal-600 text-white border-2 border-green-300 shadow-xl shadow-green-500/50 scale-110 ring-2 ring-green-400/60' 
+                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
             >
               <span className="text-lg sm:text-xl">🩺</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Healthcare</span>
@@ -775,7 +787,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="resources"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-md border-2 border-gray-200 dark:border-gray-600 shadow-md text-gray-700 dark:text-gray-200 data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white data-[state=active]:border-orange-400 data-[state=active]:shadow-lg data-[state=active]:shadow-orange-500/40 data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-orange-300 dark:data-[state=active]:ring-orange-400 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300"
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+                activeTab === 'resources' 
+                  ? 'bg-gradient-to-br from-orange-500 via-amber-600 to-yellow-600 text-white border-2 border-orange-300 shadow-xl shadow-orange-500/50 scale-110 ring-2 ring-orange-400/60' 
+                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
             >
               <span className="text-lg sm:text-xl">📚</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
@@ -783,7 +799,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="vendors"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-white/80 dark:bg-gray-700/80 backdrop-blur-md border-2 border-gray-200 dark:border-gray-600 shadow-md text-gray-700 dark:text-gray-200 data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:border-indigo-400 data-[state=active]:shadow-lg data-[state=active]:shadow-indigo-500/40 data-[state=active]:scale-105 data-[state=active]:ring-2 data-[state=active]:ring-indigo-300 dark:data-[state=active]:ring-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-gray-300 dark:hover:border-gray-500 transition-all duration-300"
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+                activeTab === 'vendors' 
+                  ? 'bg-gradient-to-br from-indigo-500 via-violet-600 to-purple-600 text-white border-2 border-indigo-300 shadow-xl shadow-indigo-500/50 scale-110 ring-2 ring-indigo-400/60' 
+                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+              }`}
             >
               <span className="text-lg sm:text-xl">🛍️</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Vendors</span>
