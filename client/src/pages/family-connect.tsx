@@ -468,14 +468,14 @@ export default function FamilyConnect() {
                                           task.status === 'in_progress' ? 'secondary' :
                                           'outline'
                                         }>
-                                          {task.status.replace('_', ' ')}
+                                          {(task.status || 'pending').replace('_', ' ')}
                                         </Badge>
                                         <Badge variant={
                                           task.priority === 'high' ? 'destructive' :
                                           task.priority === 'medium' ? 'secondary' :
                                           'outline'
                                         }>
-                                          {task.priority} priority
+                                          {task.priority || 'normal'} priority
                                         </Badge>
                                         {task.dueDate && (
                                           <span className="text-sm text-gray-500 flex items-center">
