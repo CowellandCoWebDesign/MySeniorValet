@@ -751,10 +751,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
-              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 !rounded-lg sm:!rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
                 activeTab === 'communities' 
-                  ? 'bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white border-2 border-blue-300 shadow-xl shadow-blue-500/50 scale-110 ring-2 ring-blue-400/60' 
-                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? '!bg-gradient-to-br !from-blue-500 !via-blue-600 !to-indigo-600 !text-white !border-2 !border-blue-300 !shadow-xl !shadow-blue-500/50 scale-110 !ring-2 !ring-blue-400/60' 
+                  : '!bg-white/90 dark:!bg-gray-800/90 !text-gray-700 dark:!text-gray-300 !border !border-gray-300 dark:!border-gray-600 hover:!bg-gray-100 dark:hover:!bg-gray-700'
               }`}
             >
               <span className="text-lg sm:text-xl">🏘️</span>
@@ -763,10 +763,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="services"
-              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 !rounded-lg sm:!rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
                 activeTab === 'services' 
-                  ? 'bg-gradient-to-br from-purple-500 via-purple-600 to-fuchsia-600 text-white border-2 border-purple-300 shadow-xl shadow-purple-500/50 scale-110 ring-2 ring-purple-400/60' 
-                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? '!bg-gradient-to-br !from-purple-500 !via-purple-600 !to-fuchsia-600 !text-white !border-2 !border-purple-300 !shadow-xl !shadow-purple-500/50 scale-110 !ring-2 !ring-purple-400/60' 
+                  : '!bg-white/90 dark:!bg-gray-800/90 !text-gray-700 dark:!text-gray-300 !border !border-gray-300 dark:!border-gray-600 hover:!bg-gray-100 dark:hover:!bg-gray-700'
               }`}
             >
               <span className="text-lg sm:text-xl">👥</span>
@@ -775,10 +775,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="healthcare"
-              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 !rounded-lg sm:!rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
                 activeTab === 'healthcare' 
-                  ? 'bg-gradient-to-br from-emerald-500 via-green-600 to-teal-600 text-white border-2 border-green-300 shadow-xl shadow-green-500/50 scale-110 ring-2 ring-green-400/60' 
-                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? '!bg-gradient-to-br !from-emerald-500 !via-green-600 !to-teal-600 !text-white !border-2 !border-green-300 !shadow-xl !shadow-green-500/50 scale-110 !ring-2 !ring-green-400/60' 
+                  : '!bg-white/90 dark:!bg-gray-800/90 !text-gray-700 dark:!text-gray-300 !border !border-gray-300 dark:!border-gray-600 hover:!bg-gray-100 dark:hover:!bg-gray-700'
               }`}
             >
               <span className="text-lg sm:text-xl">🩺</span>
@@ -787,10 +787,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="resources"
-              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 !rounded-lg sm:!rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
                 activeTab === 'resources' 
-                  ? 'bg-gradient-to-br from-orange-500 via-amber-600 to-yellow-600 text-white border-2 border-orange-300 shadow-xl shadow-orange-500/50 scale-110 ring-2 ring-orange-400/60' 
-                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? '!bg-gradient-to-br !from-orange-500 !via-amber-600 !to-yellow-600 !text-white !border-2 !border-orange-300 !shadow-xl !shadow-orange-500/50 scale-110 !ring-2 !ring-orange-400/60' 
+                  : '!bg-white/90 dark:!bg-gray-800/90 !text-gray-700 dark:!text-gray-300 !border !border-gray-300 dark:!border-gray-600 hover:!bg-gray-100 dark:hover:!bg-gray-700'
               }`}
             >
               <span className="text-lg sm:text-xl">📚</span>
@@ -799,10 +799,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="vendors"
-              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
+              className={`flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 !rounded-lg sm:!rounded-xl backdrop-blur-md shadow-md transition-all duration-300 ${
                 activeTab === 'vendors' 
-                  ? 'bg-gradient-to-br from-indigo-500 via-violet-600 to-purple-600 text-white border-2 border-indigo-300 shadow-xl shadow-indigo-500/50 scale-110 ring-2 ring-indigo-400/60' 
-                  : 'bg-white/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  ? '!bg-gradient-to-br !from-indigo-500 !via-violet-600 !to-purple-600 !text-white !border-2 !border-indigo-300 !shadow-xl !shadow-indigo-500/50 scale-110 !ring-2 !ring-indigo-400/60' 
+                  : '!bg-white/90 dark:!bg-gray-800/90 !text-gray-700 dark:!text-gray-300 !border !border-gray-300 dark:!border-gray-600 hover:!bg-gray-100 dark:hover:!bg-gray-700'
               }`}
             >
               <span className="text-lg sm:text-xl">🛍️</span>
