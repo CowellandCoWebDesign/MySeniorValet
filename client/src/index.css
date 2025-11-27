@@ -2686,15 +2686,55 @@ body {
     inset 0 1px 2px rgba(255, 255, 255, 0.05);
 }
 
-.dark [role="tab"][data-state="active"] {
-  background: linear-gradient(135deg, 
-    hsl(var(--background)), 
-    hsl(var(--background) / 0.95)
-  );
-  box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 10px 10px -5px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+/* Category Tab Active State Gradients - Light & Dark Mode */
+.tab-communities[data-state="active"] {
+  background: linear-gradient(to bottom right, #3b82f6, #4f46e5, #6366f1) !important;
+  color: white !important;
+  border-color: #93c5fd !important;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.5) !important;
+  transform: scale(1.1);
+  ring: 2px solid rgba(96, 165, 250, 0.6);
+}
+
+.tab-services[data-state="active"] {
+  background: linear-gradient(to bottom right, #a855f7, #9333ea, #d946ef) !important;
+  color: white !important;
+  border-color: #d8b4fe !important;
+  box-shadow: 0 10px 25px -5px rgba(168, 85, 247, 0.5) !important;
+  transform: scale(1.1);
+}
+
+.tab-healthcare[data-state="active"] {
+  background: linear-gradient(to bottom right, #10b981, #059669, #14b8a6) !important;
+  color: white !important;
+  border-color: #6ee7b7 !important;
+  box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.5) !important;
+  transform: scale(1.1);
+}
+
+.tab-resources[data-state="active"] {
+  background: linear-gradient(to bottom right, #f97316, #d97706, #eab308) !important;
+  color: white !important;
+  border-color: #fdba74 !important;
+  box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.5) !important;
+  transform: scale(1.1);
+}
+
+.tab-vendors[data-state="active"] {
+  background: linear-gradient(to bottom right, #6366f1, #7c3aed, #a855f7) !important;
+  color: white !important;
+  border-color: #a5b4fc !important;
+  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5) !important;
+  transform: scale(1.1);
+}
+
+/* Dark mode category tabs - same vibrant gradients */
+.dark .tab-communities[data-state="active"],
+.dark .tab-services[data-state="active"],
+.dark .tab-healthcare[data-state="active"],
+.dark .tab-resources[data-state="active"],
+.dark .tab-vendors[data-state="active"] {
+  border-width: 2px;
 }
 
 /* Mobile tab scrolling with enhanced visibility */
