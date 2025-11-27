@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
@@ -207,13 +208,67 @@ const SEARCH_PLACEHOLDERS = {
   }
 };
 
+// Tab gradient configurations for each category
+const TAB_GRADIENTS = {
+  communities: {
+    gradient: 'linear-gradient(to bottom right, #3b82f6, #4f46e5, #6366f1)',
+    borderColor: '#93c5fd',
+    shadowColor: 'rgba(59, 130, 246, 0.5)',
+  },
+  services: {
+    gradient: 'linear-gradient(to bottom right, #a855f7, #9333ea, #d946ef)',
+    borderColor: '#d8b4fe',
+    shadowColor: 'rgba(168, 85, 247, 0.5)',
+  },
+  healthcare: {
+    gradient: 'linear-gradient(to bottom right, #10b981, #059669, #14b8a6)',
+    borderColor: '#6ee7b7',
+    shadowColor: 'rgba(16, 185, 129, 0.5)',
+  },
+  resources: {
+    gradient: 'linear-gradient(to bottom right, #f97316, #d97706, #eab308)',
+    borderColor: '#fdba74',
+    shadowColor: 'rgba(249, 115, 22, 0.5)',
+  },
+  vendors: {
+    gradient: 'linear-gradient(to bottom right, #6366f1, #7c3aed, #a855f7)',
+    borderColor: '#a5b4fc',
+    shadowColor: 'rgba(99, 102, 241, 0.5)',
+  },
+};
+
 // Simplified Hero Section with Fixed Search Bar
 function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
+  const { theme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [classicSearchValue, setClassicSearchValue] = useState(''); // Separate state for classic search input
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Helper function to get tab styles based on active state
+  const getTabStyle = useCallback((tabName: string): React.CSSProperties => {
+    const isActive = activeTab === tabName;
+    const config = TAB_GRADIENTS[tabName as keyof typeof TAB_GRADIENTS];
+    
+    if (isActive && config) {
+      return {
+        background: config.gradient,
+        color: 'white',
+        border: `2px solid ${config.borderColor}`,
+        boxShadow: `0 10px 25px -5px ${config.shadowColor}`,
+        transform: 'scale(1.1)',
+      };
+    }
+    
+    // Inactive state
+    const isDark = theme === 'dark';
+    return {
+      background: isDark ? 'rgba(31, 41, 55, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+      color: isDark ? '#d1d5db' : '#374151',
+      border: isDark ? '1px solid #4b5563' : '1px solid #d1d5db',
+    };
+  }, [activeTab, theme]);
   const [viewMode, setViewMode] = useState<'list' | 'map' | 'discover'>('list');
   const [showGlobalDiscoveryModal, setShowGlobalDiscoveryModal] = useState(false);
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
@@ -751,7 +806,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
-              className="tab-communities flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              style={getTabStyle('communities')}
             >
               <span className="text-lg sm:text-xl">🏘️</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Senior Living</span>
@@ -759,7 +815,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="services"
-              className="tab-services flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              style={getTabStyle('services')}
             >
               <span className="text-lg sm:text-xl">👥</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Services</span>
@@ -767,7 +824,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="healthcare"
-              className="tab-healthcare flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              style={getTabStyle('healthcare')}
             >
               <span className="text-lg sm:text-xl">🩺</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Healthcare</span>
@@ -775,7 +833,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="resources"
-              className="tab-resources flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              style={getTabStyle('resources')}
             >
               <span className="text-lg sm:text-xl">📚</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
@@ -783,7 +842,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             
             <TabsTrigger
               value="vendors"
-              className="tab-vendors flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+              style={getTabStyle('vendors')}
             >
               <span className="text-lg sm:text-xl">🛍️</span>
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Vendors</span>
