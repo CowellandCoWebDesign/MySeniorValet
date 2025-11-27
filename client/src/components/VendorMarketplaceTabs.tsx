@@ -310,14 +310,14 @@ export function VendorMarketplaceTabs() {
           </Card>
         </Link>
         
-        <Link href="/family-connect">
+        <Link href="/family-collaboration-center">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 relative overflow-hidden h-full">
             <CardContent className="p-2 sm:p-3 text-center">
               <div className="absolute top-1 right-1">
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
               </div>
               <Users className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-500 mx-auto mb-1.5" />
-              <h4 className="font-semibold text-xs sm:text-sm text-indigo-700 dark:text-indigo-300 line-clamp-2">Family Connect</h4>
+              <h4 className="font-semibold text-xs sm:text-sm text-indigo-700 dark:text-indigo-300 line-clamp-2">Family Collaboration</h4>
               <p className="text-[10px] sm:text-xs text-indigo-600 dark:text-indigo-400 mt-0.5 line-clamp-2">Coordinate care together</p>
               <div className="flex flex-col gap-0.5 mt-1">
                 <Badge className="bg-green-500 text-white text-[10px] px-1.5 py-0.5">✓ NEW</Badge>

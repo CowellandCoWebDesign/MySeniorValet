@@ -876,7 +876,7 @@ export default function Dashboard() {
                       Secure & Private
                     </Badge>
                   </div>
-                  <Link to="/family-connect">
+                  <Link to="/family-collaboration-center">
                     <Button className="w-full bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 group-hover:scale-105">
                       <MessageSquare className="h-4 w-4 mr-2 group-hover:animate-pulse" />
                       Start Discussion

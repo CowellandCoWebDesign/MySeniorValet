@@ -312,8 +312,8 @@ function Router() {
       <Route path="/affordable-housing" component={AffordableHousing} />
       <Route path="/family-collaboration" component={FamilyCollaborationCenter} />
       <Route path="/family-collaboration-center" component={FamilyCollaborationCenter} />
-      <Route path="/family-dashboard" component={FamilyDashboard} />
-      <Route path="/family-connect" component={FamilyConnect} />
+      <Route path="/family-dashboard" component={FamilyCollaborationCenter} />
+      <Route path="/family-connect" component={FamilyCollaborationCenter} />
       <Route path="/emergency-contacts" component={EmergencyContacts} />
       <Route path="/security-settings" component={SecuritySettingsPage} />
       <Route path="/login" component={Login} />
