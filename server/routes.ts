@@ -2724,128 +2724,179 @@ Disallow: /`;
   });
 
   // Family Collaboration Center endpoints
-  // These endpoints support the Family Collaboration features
+  // These endpoints support the Family Collaboration features using database storage
   
-  // In-memory storage for family messages (keyed by groupId or 'default' for ungrouped)
-  interface FamilyMessage {
-    id: string;
-    senderId: string;
-    senderName: string;
-    content: string;
-    createdAt: string;
-    messageType?: string;
-    metadata?: any;
-  }
-  const familyMessagesStore: Map<string, FamilyMessage[]> = new Map();
-  
-  app.get('/api/family/messages', (req: any, res) => {
-    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
-    const isAuthenticated = !!userId;
-    const groupId = req.query.groupId || 'default';
-    
-    // Show demo data for unauthenticated users
-    if (!isAuthenticated) {
-      const demoMessages = [
-        {
-          id: '1',
-          senderId: 'demo-user-1',
-          senderName: 'John',
-          content: 'I visited Sunrise Senior Living yesterday. The memory care unit was really impressive!',
-          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '2',
-          senderId: 'demo-user-2',
-          senderName: 'Sarah',
-          content: 'That sounds great! Did you get a chance to see the dining facilities?',
-          createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
-        },
-        {
-          id: '3',
-          senderId: 'demo-user-1',
-          senderName: 'John',
-          content: 'Yes! They have multiple dining options and the food looked really good. They even have a chef on staff.',
-          createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
+  app.get('/api/family/messages', async (req: any, res) => {
+    try {
+      const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
+      const isAuthenticated = !!userId;
+      const groupId = req.query.groupId ? parseInt(req.query.groupId) : null;
+      
+      // Show demo data for unauthenticated users
+      if (!isAuthenticated) {
+        const demoMessages = [
+          {
+            id: '1',
+            senderId: 'demo-user-1',
+            senderName: 'John',
+            content: 'I visited Sunrise Senior Living yesterday. The memory care unit was really impressive!',
+            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+          },
+          {
+            id: '2',
+            senderId: 'demo-user-2',
+            senderName: 'Sarah',
+            content: 'That sounds great! Did you get a chance to see the dining facilities?',
+            createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
+          },
+          {
+            id: '3',
+            senderId: 'demo-user-1',
+            senderName: 'John',
+            content: 'Yes! They have multiple dining options and the food looked really good. They even have a chef on staff.',
+            createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
+          }
+        ];
+        return res.json({
+          messages: demoMessages,
+          currentUserId: 'demo',
+          groupName: 'Sample Family Group'
+        });
+      }
+      
+      // Get messages from database for authenticated users
+      const userIdInt = parseInt(String(userId));
+      
+      // Build query - get messages where user is sender or recipient
+      let messagesQuery = db.select({
+        id: schema.familyMessages.id,
+        senderId: schema.familyMessages.senderId,
+        content: schema.familyMessages.content,
+        createdAt: schema.familyMessages.createdAt,
+        messageType: schema.familyMessages.messageType,
+        recipientGroupId: schema.familyMessages.recipientGroupId
+      })
+      .from(schema.familyMessages)
+      .orderBy(asc(schema.familyMessages.createdAt))
+      .limit(100);
+      
+      const dbMessages = await messagesQuery;
+      
+      // Get sender names from users table
+      const formattedMessages = await Promise.all(dbMessages.map(async (msg) => {
+        let senderName = 'Unknown';
+        if (msg.senderId) {
+          const sender = await db.select({ name: schema.users.name, email: schema.users.email })
+            .from(schema.users)
+            .where(eq(schema.users.id, String(msg.senderId)))
+            .limit(1);
+          if (sender[0]) {
+            senderName = sender[0].name || sender[0].email?.split('@')[0] || 'User';
+          }
         }
-      ];
-      return res.json({
-        messages: demoMessages,
-        currentUserId: 'demo',
-        groupName: 'Sample Family Group'
+        return {
+          id: String(msg.id),
+          senderId: String(msg.senderId),
+          senderName,
+          content: msg.content || '',
+          createdAt: msg.createdAt?.toISOString() || new Date().toISOString(),
+          messageType: msg.messageType || 'text'
+        };
+      }));
+      
+      res.json({
+        messages: formattedMessages,
+        currentUserId: String(userId),
+        groupName: null
+      });
+    } catch (error) {
+      console.error('Error fetching family messages:', error);
+      res.json({
+        messages: [],
+        currentUserId: req.session?.user?.id || 'unknown',
+        groupName: null
       });
     }
-    
-    // Get messages from in-memory storage for authenticated users
-    const messages = familyMessagesStore.get(String(groupId)) || [];
-    
-    res.json({
-      messages,
-      currentUserId: String(userId),
-      groupName: null
-    });
   });
 
-  app.post('/api/family/messages', (req: any, res) => {
-    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+  app.post('/api/family/messages', async (req: any, res) => {
+    try {
+      const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const { content, groupId } = req.body;
+      
+      if (!content || !content.trim()) {
+        return res.status(400).json({ error: 'Message content is required' });
+      }
+      
+      const userIdInt = parseInt(String(userId));
+      const userName = req.user?.name || req.session?.user?.name || req.session?.user?.email?.split('@')[0] || 'You';
+      
+      // Insert message into database
+      const [newMessage] = await db.insert(schema.familyMessages).values({
+        senderId: userIdInt,
+        content: content.trim(),
+        messageType: 'text',
+        status: 'sent',
+        recipientGroupId: groupId ? parseInt(groupId) : null
+      }).returning();
+      
+      res.json({
+        success: true,
+        message: {
+          id: String(newMessage.id),
+          senderId: String(newMessage.senderId),
+          senderName: userName,
+          content: newMessage.content,
+          createdAt: newMessage.createdAt?.toISOString() || new Date().toISOString()
+        }
+      });
+    } catch (error) {
+      console.error('Error sending family message:', error);
+      res.status(500).json({ error: 'Failed to send message' });
     }
-    
-    const { content, groupId = 'default' } = req.body;
-    
-    if (!content || !content.trim()) {
-      return res.status(400).json({ error: 'Message content is required' });
-    }
-    
-    const userName = req.user?.name || req.session?.user?.name || req.session?.user?.email?.split('@')[0] || 'You';
-    
-    const newMessage: FamilyMessage = {
-      id: Date.now().toString(),
-      senderId: String(userId),
-      senderName: userName,
-      content: content.trim(),
-      createdAt: new Date().toISOString()
-    };
-    
-    // Get or create messages array for this group
-    const existingMessages = familyMessagesStore.get(String(groupId)) || [];
-    existingMessages.push(newMessage);
-    familyMessagesStore.set(String(groupId), existingMessages);
-    
-    res.json({
-      success: true,
-      message: newMessage
-    });
   });
   
   // Delete a message
-  app.delete('/api/family/messages/:messageId', (req: any, res) => {
-    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
-    
-    if (!userId) {
-      return res.status(401).json({ error: 'Authentication required' });
+  app.delete('/api/family/messages/:messageId', async (req: any, res) => {
+    try {
+      const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
+      
+      if (!userId) {
+        return res.status(401).json({ error: 'Authentication required' });
+      }
+      
+      const { messageId } = req.params;
+      const messageIdInt = parseInt(messageId);
+      const userIdInt = parseInt(String(userId));
+      
+      // Check if message exists and belongs to user
+      const existingMessage = await db.select()
+        .from(schema.familyMessages)
+        .where(eq(schema.familyMessages.id, messageIdInt))
+        .limit(1);
+      
+      if (existingMessage.length === 0) {
+        return res.status(404).json({ error: 'Message not found' });
+      }
+      
+      // Only allow deleting own messages
+      if (existingMessage[0].senderId !== userIdInt) {
+        return res.status(403).json({ error: 'Can only delete your own messages' });
+      }
+      
+      await db.delete(schema.familyMessages)
+        .where(eq(schema.familyMessages.id, messageIdInt));
+      
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting family message:', error);
+      res.status(500).json({ error: 'Failed to delete message' });
     }
-    
-    const { messageId } = req.params;
-    const groupId = req.query.groupId || 'default';
-    
-    const messages = familyMessagesStore.get(String(groupId)) || [];
-    const messageIndex = messages.findIndex(m => m.id === messageId);
-    
-    if (messageIndex === -1) {
-      return res.status(404).json({ error: 'Message not found' });
-    }
-    
-    // Only allow deleting own messages
-    if (messages[messageIndex].senderId !== String(userId)) {
-      return res.status(403).json({ error: 'Can only delete your own messages' });
-    }
-    
-    messages.splice(messageIndex, 1);
-    familyMessagesStore.set(String(groupId), messages);
-    
-    res.json({ success: true });
   });
 
   app.get('/api/family/visit-history', (req: any, res) => {
