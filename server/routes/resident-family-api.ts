@@ -6,6 +6,8 @@ import {
   familyMessages, 
   videoCallSessions, 
   budgetPlans,
+  conversations,
+  messages,
   // activityParticipation, // Commented out until activities table is created
   type ResidentProfile,
   type FamilyMessage,
@@ -244,7 +246,7 @@ router.put('/messages/:id/read', async (req: Request, res: Response) => {
   }
 });
 
-// Get unread message count
+// Get unread message count - uses consolidated conversations/messages system
 router.get('/messages/unread-count', async (req: Request, res: Response) => {
   try {
     const { userId } = req.query;
@@ -253,16 +255,42 @@ router.get('/messages/unread-count', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'User ID required' });
     }
     
-    const result = await db.select({ count: sql<number>`count(*)` })
-      .from(familyMessages)
-      .where(
-        and(
-          eq(familyMessages.recipientId, parseInt(userId as string)),
-          eq(familyMessages.status, 'sent')
-        )
-      );
+    // Get unread count from conversations/messages system
+    // Only get conversations where the user is a participant
+    const allConversations = await db.select({ 
+      id: conversations.id,
+      participants: conversations.participants 
+    })
+      .from(conversations)
+      .where(eq(conversations.type, 'family_group'));
     
-    res.json({ count: Number(result[0]?.count || 0) });
+    // Filter to only conversations where user is a participant
+    const userConversations = allConversations.filter(conv => {
+      if (!conv.participants) return false;
+      const participantList = Array.isArray(conv.participants) ? conv.participants : [];
+      return participantList.some((p: any) => p.userId === String(userId));
+    });
+    
+    if (userConversations.length === 0) {
+      return res.json({ count: 0 });
+    }
+    
+    // Count messages in user's conversations not sent by user and not read
+    let unreadCount = 0;
+    for (const conv of userConversations) {
+      const unreadMessages = await db.select({ id: messages.id })
+        .from(messages)
+        .where(
+          and(
+            eq(messages.conversationId, conv.id),
+            sql`${messages.senderId} != ${String(userId)}`,
+            sql`NOT (${messages.readBy}::jsonb @> ${JSON.stringify([String(userId)])}::jsonb)`
+          )
+        );
+      unreadCount += unreadMessages.length;
+    }
+    
+    res.json({ count: unreadCount });
   } catch (error) {
     console.error('Error fetching unread count:', error);
     res.status(500).json({ error: 'Failed to fetch unread count' });

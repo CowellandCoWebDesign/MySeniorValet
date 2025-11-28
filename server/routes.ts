@@ -2696,6 +2696,7 @@ Disallow: /`;
   });
 
   // Messages unread count endpoint (for navbar notification badge)
+  // Uses consolidated conversations/messages system
   app.get('/api/messages/unread-count', async (req: any, res) => {
     try {
       const userId = req.session?.user?.id || req.session?.userId || req.user?.id;
@@ -2705,17 +2706,42 @@ Disallow: /`;
         return res.json({ count: 0 });
       }
       
-      // Get unread count from family messages
-      const result = await db.select({ count: sql<number>`count(*)` })
-        .from(schema.familyMessages)
-        .where(
-          and(
-            eq(schema.familyMessages.recipientId, parseInt(String(userId))),
-            eq(schema.familyMessages.status, 'sent')
-          )
-        );
+      // Get unread count from conversations/messages system
+      // Only get conversations where the user is a participant (check participants JSON array)
+      const allConversations = await db.select({ 
+        id: schema.conversations.id,
+        participants: schema.conversations.participants 
+      })
+        .from(schema.conversations)
+        .where(eq(schema.conversations.type, 'family_group'));
       
-      res.json({ count: Number(result[0]?.count || 0) });
+      // Filter to only conversations where user is a participant
+      const userConversations = allConversations.filter(conv => {
+        if (!conv.participants) return false;
+        const participants = Array.isArray(conv.participants) ? conv.participants : [];
+        return participants.some((p: any) => p.userId === String(userId));
+      });
+      
+      if (userConversations.length === 0) {
+        return res.json({ count: 0 });
+      }
+      
+      // Count messages in user's conversations not sent by user and not read
+      let unreadCount = 0;
+      for (const conv of userConversations) {
+        const unreadMessages = await db.select({ id: schema.messages.id })
+          .from(schema.messages)
+          .where(
+            and(
+              eq(schema.messages.conversationId, conv.id),
+              sql`${schema.messages.senderId} != ${String(userId)}`,
+              sql`NOT (${schema.messages.readBy}::jsonb @> ${JSON.stringify([String(userId)])}::jsonb)`
+            )
+          );
+        unreadCount += unreadMessages.length;
+      }
+      
+      res.json({ count: unreadCount });
     } catch (error) {
       console.error('Error fetching messages unread count:', error);
       // Return 0 instead of error to prevent UI disruption
