@@ -66,7 +66,8 @@ import {
   Phone,
   Vote,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+  Eye
 } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
@@ -1579,7 +1580,12 @@ export default function FamilyCollaborationCenter() {
                       Document your community visits with detailed reports your whole family can review
                     </CardDescription>
                   </div>
-
+                  <Link href="/tour-tracker">
+                    <Button variant="outline" size="sm" className="gap-2" data-testid="link-full-tour-tracker">
+                      <Eye className="w-4 h-4" />
+                      Full Tour Manager
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1847,7 +1853,12 @@ export default function FamilyCollaborationCenter() {
                       Coordinate tour schedules with your family and never miss an appointment
                     </CardDescription>
                   </div>
-
+                  <Link href="/tour-tracker">
+                    <Button variant="outline" size="sm" className="gap-2" data-testid="link-full-tourmate">
+                      <Eye className="w-4 h-4" />
+                      Full Tour Manager
+                    </Button>
+                  </Link>
                 </div>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -1856,8 +1867,17 @@ export default function FamilyCollaborationCenter() {
                     <CalendarCheck className="w-4 h-4" />
                     Upcoming Tours
                   </h3>
-                  {upcomingTours.map((tour: Tour) => (
-                    <Card key={tour.id} className="border-l-4 border-l-blue-500">
+                  {toursLoading ? (
+                    <div className="text-center py-8 text-muted-foreground">Loading tours...</div>
+                  ) : upcomingTours.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                      <p className="text-muted-foreground">No tours scheduled yet.</p>
+                      <p className="text-sm text-muted-foreground mt-1">Use the form below to schedule your first community tour.</p>
+                    </div>
+                  ) : (
+                    upcomingTours.map((tour: Tour) => (
+                      <Card key={tour.id} className="border-l-4 border-l-blue-500">
                       <CardContent className="pt-4">
                         <div className="space-y-3">
                           <div className="flex justify-between items-start">
@@ -1898,18 +1918,19 @@ export default function FamilyCollaborationCenter() {
                               </p>
                             )}
                           </div>
-                          <div className="flex gap-2">
-                            <Button size="sm" className="flex-1">
-                              Add to Calendar
-                            </Button>
-                            <Button size="sm" variant="outline" className="flex-1">
-                              Get Directions
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button size="sm" className="flex-1">
+                                Add to Calendar
+                              </Button>
+                              <Button size="sm" variant="outline" className="flex-1">
+                                Get Directions
+                              </Button>
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </div>
 
                 <Separator />

@@ -8,12 +8,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { queryClient, apiRequest } from '@/lib/queryClient';
 import { format } from 'date-fns';
 import { 
   Shield, Pill, DollarSign, FileText, CheckCircle, AlertCircle,
   Clock, Calendar, User, CreditCard, Building, Phone, MapPin,
-  TrendingUp, Info, Search, Calculator, Heart, Star, HelpCircle, Plus
+  TrendingUp, Info, Search, Calculator, Heart, Star, HelpCircle, Plus, Edit, Trash2
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -78,26 +79,64 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
     });
   };
   
+  // Fetch medications from API
+  const { data: medicationsData, isLoading: medicationsLoading } = useQuery({
+    queryKey: ['/api/family/medications'],
+  });
+
+  // Transform API medications to Medicare format (with cost/savings calculations)
+  const monthlyMedications = (medicationsData || []).map((med: any) => ({
+    id: med.id,
+    name: med.name,
+    quantity: 30,
+    cost: med.dosage ? parseFloat(med.dosage.replace(/[^0-9.]/g, '')) || 10 : 10,
+    savings: 25
+  }));
+
+  // Mutations for medications
+  const addMedicationMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await apiRequest('POST', '/api/family/medications', data);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/medications'] });
+      toast({ title: "Medication Added", description: "Medication has been added to your list." });
+      setShowAddMedication(false);
+      setNewMedication({ name: '', quantity: '', cost: '' });
+    },
+    onError: () => toast({ title: "Error", description: "Failed to add medication", variant: "destructive" })
+  });
+
+  const deleteMedicationMutation = useMutation({
+    mutationFn: async (id: string) => {
+      await apiRequest('DELETE', `/api/family/medications/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/medications'] });
+      toast({ title: "Deleted", description: "Medication removed from your list." });
+    },
+    onError: () => toast({ title: "Error", description: "Failed to delete medication", variant: "destructive" })
+  });
+
   const handleAddMedication = () => {
     if (!newMedication.name.trim()) {
       toast({ title: "Error", description: "Medication name is required", variant: "destructive" });
       return;
     }
-    const newId = Math.max(...monthlyMedications.map(m => m.id), 0) + 1;
-    const cost = parseFloat(newMedication.cost) || 10;
-    setMonthlyMedications(prev => [...prev, {
-      id: newId,
+    addMedicationMutation.mutate({
       name: newMedication.name,
-      quantity: parseInt(newMedication.quantity) || 30,
-      cost: cost,
-      savings: Math.round(cost * 3)
-    }]);
-    toast({
-      title: "Medication Added",
-      description: `${newMedication.name} has been added to your medication list.`,
+      dosage: `${newMedication.quantity || 30} tablets`,
+      frequency: 'Once daily',
+      time: 'Morning',
+      prescribedBy: 'Primary Care Physician'
     });
-    setShowAddMedication(false);
-    setNewMedication({ name: '', quantity: '', cost: '' });
+  };
+
+  const handleDeleteMedication = (id: string) => {
+    if (confirm('Are you sure you want to remove this medication?')) {
+      deleteMedicationMutation.mutate(id);
+    }
   };
 
   // Fetch user's Medicare information
@@ -123,12 +162,6 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
     { type: 'Part B', status: 'Active', premium: 164.90 },
     { type: 'Part D', status: 'Active', premium: 32.74, planName: 'SilverScript Choice' }
   ];
-
-  const [monthlyMedications, setMonthlyMedications] = useState([
-    { id: 1, name: 'Metformin 500mg', quantity: 60, cost: 4, savings: 36 },
-    { id: 2, name: 'Lisinopril 10mg', quantity: 30, cost: 4, savings: 21 },
-    { id: 3, name: 'Atorvastatin 20mg', quantity: 30, cost: 10, savings: 180 }
-  ]);
 
   const totalMonthlyCost = monthlyMedications.reduce((sum, med) => sum + med.cost, 0);
   const totalAnnualSavings = monthlyMedications.reduce((sum, med) => sum + (med.savings * 12), 0);
@@ -240,21 +273,27 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {monthlyMedications.map((med, idx) => (
-                    <div key={idx} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Pill className="w-4 h-4 text-blue-500" />
-                        <div>
-                          <p className="font-medium">{med.name}</p>
-                          <p className="text-sm text-gray-600">Qty: {med.quantity}</p>
+                  {monthlyMedications.length === 0 ? (
+                    <div className="text-center py-4 text-muted-foreground text-sm">
+                      <p>No medications tracked yet.</p>
+                    </div>
+                  ) : (
+                    monthlyMedications.map((med: any) => (
+                      <div key={med.id} className="flex items-center justify-between p-3 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <Pill className="w-4 h-4 text-blue-500" />
+                          <div>
+                            <p className="font-medium">{med.name}</p>
+                            <p className="text-sm text-gray-600">Qty: {med.quantity}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">${med.cost}</p>
+                          <p className="text-xs text-green-600">Save ${med.savings}/mo</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-semibold">${med.cost}</p>
-                        <p className="text-xs text-green-600">Save ${med.savings}/mo</p>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -323,32 +362,45 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
                 <h3 className="font-semibold mb-3">Your Current Medications</h3>
                 <ScrollArea className="h-[300px]">
                   <div className="space-y-3">
-                    {monthlyMedications.map((med, idx) => (
-                      <div key={idx} className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h4 className="font-semibold">{med.name}</h4>
-                            <div className="mt-2 space-y-1 text-sm text-gray-600">
-                              <p>Prescriber: Dr. Smith</p>
-                              <p>Last filled: {format(new Date(), 'MMM d, yyyy')}</p>
-                              <p>Next refill: {format(new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), 'MMM d')}</p>
+                    {medicationsLoading ? (
+                      <div className="text-center py-8 text-muted-foreground">Loading medications...</div>
+                    ) : monthlyMedications.length === 0 ? (
+                      <div className="text-center py-8">
+                        <Pill className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                        <p className="text-muted-foreground">No medications added yet.</p>
+                        <p className="text-sm text-muted-foreground mt-1">Click "Add Medication" to track your prescriptions.</p>
+                      </div>
+                    ) : (
+                      monthlyMedications.map((med: any, idx: number) => (
+                        <div key={med.id} className="border rounded-lg p-4">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="font-semibold">{med.name}</h4>
+                              <div className="mt-2 space-y-1 text-sm text-gray-600">
+                                <p>Prescriber: Dr. Smith</p>
+                                <p>Last filled: {format(new Date(), 'MMM d, yyyy')}</p>
+                                <p>Next refill: {format(new Date(Date.now() + 20 * 24 * 60 * 60 * 1000), 'MMM d')}</p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <Badge variant="outline" className="mb-2">Tier 1</Badge>
+                              <p className="font-bold text-lg">${med.cost}</p>
+                              <p className="text-sm text-gray-600">with Part D</p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <Badge variant="outline" className="mb-2">Tier 1</Badge>
-                            <p className="font-bold text-lg">${med.cost}</p>
-                            <p className="text-sm text-gray-600">with Part D</p>
+                          <div className="mt-3 pt-3 border-t">
+                            <div className="flex gap-2">
+                              <Button size="sm" variant="outline" onClick={() => handleRefillMedication(med.name)} data-testid={`button-refill-${med.id}`}>Refill</Button>
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "Finding Alternatives", description: `Searching for cheaper alternatives to ${med.name}...` })} data-testid={`button-find-cheaper-${med.id}`}>Find Cheaper</Button>
+                              <Button size="sm" variant="outline" onClick={() => toast({ title: "Reminder Set", description: `You'll be reminded to refill ${med.name}.` })} data-testid={`button-set-reminder-${med.id}`}>Set Reminder</Button>
+                              <Button size="sm" variant="ghost" onClick={() => handleDeleteMedication(med.id)} data-testid={`button-delete-med-${med.id}`}>
+                                <Trash2 className="w-4 h-4 text-red-500" />
+                              </Button>
+                            </div>
                           </div>
                         </div>
-                        <div className="mt-3 pt-3 border-t">
-                          <div className="flex gap-2">
-                            <Button size="sm" variant="outline" onClick={() => handleRefillMedication(med.name)} data-testid={`button-refill-${idx}`}>Refill</Button>
-                            <Button size="sm" variant="outline" onClick={() => toast({ title: "Finding Alternatives", description: `Searching for cheaper alternatives to ${med.name}...` })} data-testid={`button-find-cheaper-${idx}`}>Find Cheaper</Button>
-                            <Button size="sm" variant="outline" onClick={() => toast({ title: "Reminder Set", description: `You'll be reminded to refill ${med.name}.` })} data-testid={`button-set-reminder-${idx}`}>Set Reminder</Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </ScrollArea>
               </div>
