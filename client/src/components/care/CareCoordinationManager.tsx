@@ -31,7 +31,8 @@ import {
   ClipboardCheck,
   TrendingUp,
   AlertTriangle,
-  UserCheck
+  UserCheck,
+  MapPin
 } from 'lucide-react';
 
 interface CareCoordinationManagerProps {

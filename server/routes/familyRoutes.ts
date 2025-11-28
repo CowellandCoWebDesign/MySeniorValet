@@ -1077,7 +1077,7 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
       address: communities.address,
       city: communities.city,
       state: communities.state,
-      monthlyFee: communities.monthlyFee,
+      priceRange: communities.priceRange,
       careTypes: communities.careTypes
     })
       .from(favorites)
