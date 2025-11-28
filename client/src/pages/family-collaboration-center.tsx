@@ -273,10 +273,13 @@ export default function FamilyCollaborationCenter() {
     },
   });
 
+  // Generate polls query key based on selected group
+  const pollsQueryKey = selectedGroupId ? `/api/family/groups/${selectedGroupId}/polls` : '';
+
   // Fetch polls for selected group
-  const { data: pollsData, isLoading: pollsLoading } = useQuery<FamilyPoll[]>({
-    queryKey: [`/api/family/groups/${selectedGroupId}/polls`],
-    enabled: !!user && !!selectedGroupId,
+  const { data: pollsData, isLoading: pollsLoading, refetch: refetchPolls } = useQuery<FamilyPoll[]>({
+    queryKey: [pollsQueryKey],
+    enabled: !!user && !!selectedGroupId && pollsQueryKey !== '',
     retry: 2,
   });
   const polls = pollsData || [];
@@ -284,21 +287,33 @@ export default function FamilyCollaborationCenter() {
   // Create poll mutation
   const createPollMutation = useMutation({
     mutationFn: async (pollData: { title: string; description: string; options: { id: string; text: string }[] }) => {
+      if (!selectedGroupId) throw new Error('No group selected');
       const response = await fetch(`/api/family/groups/${selectedGroupId}/polls`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(pollData),
+        body: JSON.stringify({
+          ...pollData,
+          anonymousVoting: false,
+          showResultsRealtime: true
+        }),
       });
-      if (!response.ok) throw new Error('Failed to create poll');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create poll');
+      }
       return response.json();
     },
     onSuccess: () => {
-      queryClientHook.invalidateQueries({ queryKey: [`/api/family/groups/${selectedGroupId}/polls`] });
+      refetchPolls();
       setShowCreatePoll(false);
       setNewPollTitle('');
       setNewPollDescription('');
       setNewPollOptions(['', '']);
+      toast({ title: 'Poll Created', description: 'Your poll has been created successfully!' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
@@ -311,11 +326,18 @@ export default function FamilyCollaborationCenter() {
         credentials: 'include',
         body: JSON.stringify({ optionIds }),
       });
-      if (!response.ok) throw new Error('Failed to submit vote');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to submit vote');
+      }
       return response.json();
     },
     onSuccess: () => {
-      queryClientHook.invalidateQueries({ queryKey: [`/api/family/groups/${selectedGroupId}/polls`] });
+      refetchPolls();
+      toast({ title: 'Vote Submitted', description: 'Your vote has been recorded!' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
