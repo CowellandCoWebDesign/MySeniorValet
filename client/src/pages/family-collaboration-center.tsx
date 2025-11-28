@@ -1,4 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import { useLocation, Link } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
@@ -60,8 +63,13 @@ import {
   Zap,
   Building2,
   AlertCircle,
-  Phone
+  Phone,
+  Vote,
+  ThumbsUp,
+  ThumbsDown
 } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Progress } from '@/components/ui/progress';
 
 // Type definitions
 interface Message {
@@ -70,11 +78,14 @@ interface Message {
   senderName: string;
   content: string;
   createdAt: string;
+  messageType?: string;
+  metadata?: any;
 }
 
 interface MessagesResponse {
   messages: Message[];
   currentUserId: string;
+  groupName?: string | null;
 }
 
 interface Tour {
@@ -120,6 +131,54 @@ interface SharedFavorite {
   addedBy?: string;
 }
 
+interface FamilyGroup {
+  id: number;
+  name: string;
+  ownerId: string;
+  inviteCode?: string;
+  memberCount: number;
+  members: {
+    userId: string;
+    role: 'owner' | 'admin' | 'member' | 'viewer';
+    relationship?: string;
+    joinedAt: string;
+  }[];
+}
+
+interface FamilyPoll {
+  id: number;
+  title: string;
+  description?: string;
+  pollType: string;
+  options: { id: string; text: string; votes?: number }[];
+  hasVoted: boolean;
+  status: string;
+  expiresAt?: string;
+  createdAt: string;
+}
+
+interface FamilyNote {
+  id: string;
+  content: string;
+  authorId: string;
+  authorName?: string;
+  communityId?: number;
+  communityName?: string;
+  createdAt: string;
+  tags?: string[];
+}
+
+interface FamilyTask {
+  id: string;
+  title: string;
+  description?: string;
+  assignedTo?: string;
+  dueDate?: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  priority: 'low' | 'normal' | 'high';
+  createdAt: string;
+}
+
 export default function FamilyCollaborationCenter() {
   const [, setLocation] = useLocation();
   const [activeTab, setActiveTab] = useState('overview');
@@ -129,6 +188,136 @@ export default function FamilyCollaborationCenter() {
   const queryClientHook = useQueryClient();
   const [proText, setProText] = useState('');
   const [conText, setConText] = useState('');
+  
+  // Family group state
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [showJoinGroup, setShowJoinGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [joinCode, setJoinCode] = useState('');
+  const [showInviteDialog, setShowInviteDialog] = useState(false);
+  const [inviteEmail, setInviteEmail] = useState('');
+  
+  // Poll creation state
+  const [showCreatePoll, setShowCreatePoll] = useState(false);
+  const [newPollTitle, setNewPollTitle] = useState('');
+  const [newPollDescription, setNewPollDescription] = useState('');
+  const [newPollOptions, setNewPollOptions] = useState(['', '']);
+
+  // Fetch family groups
+  const { data: familyGroups = [], isLoading: groupsLoading } = useQuery<FamilyGroup[]>({
+    queryKey: ['/api/family/groups'],
+    enabled: !!user,
+    retry: 2,
+  });
+
+  // Auto-select first group if none selected
+  useEffect(() => {
+    if (familyGroups.length > 0 && !selectedGroupId) {
+      setSelectedGroupId(familyGroups[0].id);
+    }
+  }, [familyGroups, selectedGroupId]);
+
+  // Create family group mutation
+  const createGroupMutation = useMutation({
+    mutationFn: async (name: string) => {
+      const response = await fetch('/api/family/groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      if (!response.ok) throw new Error('Failed to create group');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/groups'] });
+      setSelectedGroupId(data.id);
+      setShowCreateGroup(false);
+      setNewGroupName('');
+    },
+  });
+
+  // Join group mutation
+  const joinGroupMutation = useMutation({
+    mutationFn: async (inviteCode: string) => {
+      const response = await fetch('/api/family/groups/join', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inviteCode }),
+      });
+      if (!response.ok) throw new Error('Invalid invite code');
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/groups'] });
+      setSelectedGroupId(data.group?.id);
+      setShowJoinGroup(false);
+      setJoinCode('');
+    },
+  });
+
+  // Invite member mutation
+  const inviteMemberMutation = useMutation({
+    mutationFn: async (email: string) => {
+      const response = await fetch(`/api/family/groups/${selectedGroupId}/invite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (!response.ok) throw new Error('Failed to send invite');
+      return response.json();
+    },
+    onSuccess: () => {
+      setShowInviteDialog(false);
+      setInviteEmail('');
+    },
+  });
+
+  // Fetch polls for selected group
+  const { data: pollsData, isLoading: pollsLoading } = useQuery<FamilyPoll[]>({
+    queryKey: [`/api/family/groups/${selectedGroupId}/polls`],
+    enabled: !!user && !!selectedGroupId,
+    retry: 2,
+  });
+  const polls = pollsData || [];
+
+  // Create poll mutation
+  const createPollMutation = useMutation({
+    mutationFn: async (pollData: { title: string; description: string; options: { id: string; text: string }[] }) => {
+      const response = await fetch(`/api/family/groups/${selectedGroupId}/polls`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(pollData),
+      });
+      if (!response.ok) throw new Error('Failed to create poll');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: [`/api/family/groups/${selectedGroupId}/polls`] });
+      setShowCreatePoll(false);
+      setNewPollTitle('');
+      setNewPollDescription('');
+      setNewPollOptions(['', '']);
+    },
+  });
+
+  // Vote on poll mutation
+  const votePollMutation = useMutation({
+    mutationFn: async ({ pollId, optionIds }: { pollId: number; optionIds: string[] }) => {
+      const response = await fetch(`/api/family/polls/${pollId}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ optionIds }),
+      });
+      if (!response.ok) throw new Error('Failed to submit vote');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: [`/api/family/groups/${selectedGroupId}/polls`] });
+    },
+  });
 
   // Only fetch data if user is authenticated
   const { data: messagesData, isLoading: messagesLoading, error: messagesError } = useQuery<MessagesResponse>({
@@ -185,6 +374,9 @@ export default function FamilyCollaborationCenter() {
     enabled: !!user, // Only run query if user is authenticated
     retry: 2, // Reduce retries to fail faster
   });
+
+  // Get current group details
+  const currentGroup = familyGroups.find(g => g.id === selectedGroupId);
 
   // Show loading state while checking authentication or fetching initial data
   const isInitialLoading = authLoading || (user && (messagesLoading || toursLoading || historyLoading || favoritesLoading));
@@ -865,6 +1057,17 @@ export default function FamilyCollaborationCenter() {
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="polls" 
+                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 to-amber-500/0 group-hover:from-orange-500/10 group-hover:to-amber-500/10 data-[state=active]:from-orange-500/20 data-[state=active]:to-amber-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Vote className="w-5 h-5 mr-2 flex-shrink-0 text-orange-600 dark:text-orange-400 group-data-[state=active]:text-orange-700 dark:group-data-[state=active]:text-orange-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Polls & Voting</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 to-amber-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
                   value="video-calls" 
                   className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
                 >
@@ -958,6 +1161,208 @@ export default function FamilyCollaborationCenter() {
 
           {/* Overview Tab */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Family Group Management */}
+            <Card className="border-2 border-blue-500/20 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-blue-600" />
+                    Your Family Group
+                  </CardTitle>
+                  <div className="flex gap-2">
+                    {familyGroups.length > 0 && (
+                      <Select 
+                        value={selectedGroupId?.toString() || ''} 
+                        onValueChange={(val) => setSelectedGroupId(parseInt(val))}
+                      >
+                        <SelectTrigger className="w-[200px]" data-testid="select-family-group">
+                          <SelectValue placeholder="Select group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {familyGroups.map(group => (
+                            <SelectItem key={group.id} value={group.id.toString()}>
+                              {group.name} ({group.memberCount} members)
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {familyGroups.length === 0 ? (
+                  <div className="text-center py-6">
+                    <Users className="w-12 h-12 mx-auto mb-4 text-blue-400 opacity-50" />
+                    <h3 className="font-semibold mb-2">No Family Group Yet</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Create a family group to collaborate with your loved ones on finding senior care.
+                    </p>
+                    <div className="flex gap-3 justify-center">
+                      <Dialog open={showCreateGroup} onOpenChange={setShowCreateGroup}>
+                        <DialogTrigger asChild>
+                          <Button className="bg-gradient-to-r from-blue-600 to-indigo-600" data-testid="button-create-group">
+                            <Plus className="w-4 h-4 mr-2" />
+                            Create Family Group
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Create a Family Group</DialogTitle>
+                            <DialogDescription>
+                              Create a group to collaborate with family members on finding senior care.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                              <Label>Group Name</Label>
+                              <Input 
+                                placeholder="e.g., Johnson Family" 
+                                value={newGroupName}
+                                onChange={(e) => setNewGroupName(e.target.value)}
+                                data-testid="input-group-name"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowCreateGroup(false)}>Cancel</Button>
+                            <Button 
+                              onClick={() => createGroupMutation.mutate(newGroupName)}
+                              disabled={!newGroupName.trim() || createGroupMutation.isPending}
+                              data-testid="button-confirm-create-group"
+                            >
+                              {createGroupMutation.isPending ? 'Creating...' : 'Create Group'}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog open={showJoinGroup} onOpenChange={setShowJoinGroup}>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" data-testid="button-join-group">
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Join with Code
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Join a Family Group</DialogTitle>
+                            <DialogDescription>
+                              Enter the invite code shared by a family member to join their group.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                              <Label>Invite Code</Label>
+                              <Input 
+                                placeholder="Enter 8-character code" 
+                                value={joinCode}
+                                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                                maxLength={8}
+                                className="text-center text-xl tracking-widest font-mono"
+                                data-testid="input-join-code"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowJoinGroup(false)}>Cancel</Button>
+                            <Button 
+                              onClick={() => joinGroupMutation.mutate(joinCode)}
+                              disabled={joinCode.length < 4 || joinGroupMutation.isPending}
+                              data-testid="button-confirm-join"
+                            >
+                              {joinGroupMutation.isPending ? 'Joining...' : 'Join Group'}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                ) : currentGroup && (
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-semibold text-lg">{currentGroup.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {currentGroup.memberCount} member{currentGroup.memberCount !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Dialog open={showInviteDialog} onOpenChange={setShowInviteDialog}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" data-testid="button-invite-member">
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Invite Member
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Invite Family Member</DialogTitle>
+                              <DialogDescription>
+                                Share this code with family members to invite them to your group.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 py-4">
+                              <div className="text-center p-4 bg-muted rounded-lg">
+                                <p className="text-sm text-muted-foreground mb-2">Invite Code</p>
+                                <p className="text-3xl font-mono font-bold tracking-widest">
+                                  {currentGroup.inviteCode || 'N/A'}
+                                </p>
+                              </div>
+                              <Separator />
+                              <div className="space-y-2">
+                                <Label>Or send email invitation</Label>
+                                <Input 
+                                  type="email"
+                                  placeholder="family@example.com" 
+                                  value={inviteEmail}
+                                  onChange={(e) => setInviteEmail(e.target.value)}
+                                  data-testid="input-invite-email"
+                                />
+                              </div>
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setShowInviteDialog(false)}>Close</Button>
+                              <Button 
+                                onClick={() => inviteMemberMutation.mutate(inviteEmail)}
+                                disabled={!inviteEmail.includes('@') || inviteMemberMutation.isPending}
+                                data-testid="button-send-invite"
+                              >
+                                {inviteMemberMutation.isPending ? 'Sending...' : 'Send Invite'}
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                    </div>
+                    
+                    {/* Group Members */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      {currentGroup.members.map((member, idx) => (
+                        <div key={member.userId} className="flex items-center gap-2 p-2 rounded-lg bg-white/50 dark:bg-gray-800/50">
+                          <div className="relative">
+                            <Avatar className="h-8 w-8">
+                              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                                {member.relationship?.substring(0, 2).toUpperCase() || 'FM'}
+                              </AvatarFallback>
+                            </Avatar>
+                            {idx === 0 && (
+                              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium truncate">{member.relationship || 'Member'}</p>
+                            <Badge variant="secondary" className="text-xs">
+                              {member.role}
+                            </Badge>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
             <div className="grid md:grid-cols-2 gap-6">
               {/* Quick Stats */}
               <Card>
@@ -970,22 +1375,22 @@ export default function FamilyCollaborationCenter() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Communities Viewed</span>
-                    <Badge>12</Badge>
+                    <Badge>{sharedFavorites.length || 0}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Tours Scheduled</span>
-                    <Badge>2</Badge>
+                    <Badge>{upcomingTours.filter((t: Tour) => t.status === 'pending' || t.status === 'confirmed').length}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Tours Completed</span>
-                    <Badge>2</Badge>
+                    <Badge>{visitHistory.length || 0}</Badge>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Family Members</span>
-                    <Badge>3</Badge>
+                    <Badge>{currentGroup?.memberCount || 1}</Badge>
                   </div>
                   <Separator className="my-4" />
-                  <Button className="w-full" variant="outline">
+                  <Button className="w-full" variant="outline" onClick={() => setShowInviteDialog(true)} disabled={!currentGroup}>
                     <UserPlus className="w-4 h-4 mr-2" />
                     Invite Family Member
                   </Button>
@@ -1409,6 +1814,201 @@ export default function FamilyCollaborationCenter() {
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Polls & Voting Tab */}
+          <TabsContent value="polls" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Vote className="w-5 h-5 text-orange-500" />
+                      Family Polls & Voting
+                    </CardTitle>
+                    <CardDescription>
+                      Make important decisions together as a family
+                    </CardDescription>
+                  </div>
+                  {selectedGroupId && (
+                    <Dialog open={showCreatePoll} onOpenChange={setShowCreatePoll}>
+                      <DialogTrigger asChild>
+                        <Button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white" data-testid="button-create-poll">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Create Poll
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>Create a Family Poll</DialogTitle>
+                          <DialogDescription>
+                            Start a vote on an important decision
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label>Poll Title</Label>
+                            <Input 
+                              placeholder="What should we decide?" 
+                              value={newPollTitle}
+                              onChange={(e) => setNewPollTitle(e.target.value)}
+                              data-testid="input-poll-title"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Description (optional)</Label>
+                            <Textarea 
+                              placeholder="Provide context for this decision..." 
+                              value={newPollDescription}
+                              onChange={(e) => setNewPollDescription(e.target.value)}
+                              data-testid="input-poll-description"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label>Options (minimum 2)</Label>
+                            {newPollOptions.map((option, index) => (
+                              <div key={index} className="flex gap-2">
+                                <Input
+                                  value={option}
+                                  onChange={(e) => {
+                                    const updated = [...newPollOptions];
+                                    updated[index] = e.target.value;
+                                    setNewPollOptions(updated);
+                                  }}
+                                  placeholder={`Option ${index + 1}`}
+                                  data-testid={`input-poll-option-${index}`}
+                                />
+                                {index > 1 && (
+                                  <Button 
+                                    size="icon" 
+                                    variant="ghost"
+                                    onClick={() => setNewPollOptions(newPollOptions.filter((_, i) => i !== index))}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
+                            ))}
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => setNewPollOptions([...newPollOptions, ''])}
+                              className="w-full"
+                            >
+                              <Plus className="w-4 h-4 mr-2" />
+                              Add Option
+                            </Button>
+                          </div>
+                        </div>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setShowCreatePoll(false)}>Cancel</Button>
+                          <Button 
+                            onClick={() => {
+                              const validOptions = newPollOptions.filter(o => o.trim());
+                              if (newPollTitle.trim() && validOptions.length >= 2) {
+                                createPollMutation.mutate({
+                                  title: newPollTitle,
+                                  description: newPollDescription,
+                                  options: validOptions.map((text, i) => ({ id: `opt-${i}`, text }))
+                                });
+                              }
+                            }}
+                            disabled={!newPollTitle.trim() || newPollOptions.filter(o => o.trim()).length < 2 || createPollMutation.isPending}
+                            data-testid="button-submit-poll"
+                          >
+                            {createPollMutation.isPending ? 'Creating...' : 'Create Poll'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!selectedGroupId ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Vote className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                    <p>Create or join a family group first to start polls</p>
+                    <Button variant="link" onClick={() => setActiveTab('overview')}>
+                      Go to Overview
+                    </Button>
+                  </div>
+                ) : pollsLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading polls...
+                  </div>
+                ) : polls.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Vote className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                    <p>No polls yet. Create one to start making decisions together!</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {polls.map((poll: FamilyPoll) => (
+                      <Card key={poll.id} className={`border-l-4 ${poll.status === 'active' ? 'border-l-orange-500' : 'border-l-gray-400'}`}>
+                        <CardContent className="pt-4">
+                          <div className="space-y-4">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h4 className="font-semibold text-lg">{poll.title}</h4>
+                                {poll.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{poll.description}</p>
+                                )}
+                              </div>
+                              <Badge variant={poll.status === 'active' ? 'default' : 'secondary'}>
+                                {poll.status === 'active' ? 'Active' : 'Closed'}
+                              </Badge>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              {poll.options.map((option: { id: string; text: string; votes?: number }) => {
+                                const totalVotes = poll.options.reduce((sum: number, o: { votes?: number }) => sum + (o.votes || 0), 0);
+                                const percentage = totalVotes > 0 ? Math.round(((option.votes || 0) / totalVotes) * 100) : 0;
+                                
+                                return (
+                                  <div key={option.id} className="space-y-1">
+                                    <div className="flex items-center justify-between">
+                                      <div className="flex items-center gap-2">
+                                        {poll.status === 'active' && !poll.hasVoted && (
+                                          <Button 
+                                            size="sm" 
+                                            variant="outline"
+                                            onClick={() => votePollMutation.mutate({ pollId: poll.id, optionIds: [option.id] })}
+                                            disabled={votePollMutation.isPending}
+                                            data-testid={`button-vote-${poll.id}-${option.id}`}
+                                          >
+                                            Vote
+                                          </Button>
+                                        )}
+                                        <span className="text-sm">{option.text}</span>
+                                      </div>
+                                      <span className="text-sm font-medium">{option.votes || 0} votes ({percentage}%)</span>
+                                    </div>
+                                    <Progress value={percentage} className="h-2" />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            
+                            {poll.hasVoted && (
+                              <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                <CheckCircle className="w-3 h-3 mr-1" />
+                                You voted
+                              </Badge>
+                            )}
+                            
+                            <p className="text-xs text-muted-foreground">
+                              Created {new Date(poll.createdAt).toLocaleDateString()}
+                              {poll.expiresAt && ` • Expires ${new Date(poll.expiresAt).toLocaleDateString()}`}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

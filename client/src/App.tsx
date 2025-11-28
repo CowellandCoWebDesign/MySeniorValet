@@ -40,9 +40,8 @@ import VeteransHousing from "@/pages/veterans-housing";
 import EnterpriseDashboardVerification from "@/pages/enterprise-dashboard-verification";
 import Phase5bValidation from "@/pages/phase5b-validation";
 import AffordableHousing from "@/pages/affordable-housing";
-import FamilyCollaboration from "@/pages/family-collaboration";
 import FamilyCollaborationCenter from "@/pages/family-collaboration-center";
-import FamilyDashboard from "@/pages/family-dashboard";
+// Legacy family pages removed - all routes consolidated to FamilyCollaborationCenter
 import MessagingDashboard from "@/pages/MessagingDashboard";
 import EmergencyContacts from "@/pages/emergency-contacts";
 import CommunityDetail from "@/pages/community-detail";
