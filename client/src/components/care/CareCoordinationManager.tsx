@@ -12,6 +12,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { apiRequest, queryClient } from '@/lib/queryClient';
 import {
   Heart,
   Pill,
@@ -35,7 +37,8 @@ import {
   TrendingUp,
   AlertTriangle,
   UserCheck,
-  MapPin
+  MapPin,
+  Pencil
 } from 'lucide-react';
 
 interface CareCoordinationManagerProps {
@@ -49,6 +52,10 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddMedication, setShowAddMedication] = useState(false);
   const [showAddAppointment, setShowAddAppointment] = useState(false);
+  const [showEditMedication, setShowEditMedication] = useState(false);
+  const [showEditAppointment, setShowEditAppointment] = useState(false);
+  const [editingMedication, setEditingMedication] = useState<any>(null);
+  const [editingAppointment, setEditingAppointment] = useState<any>(null);
   
   // Form states
   const [newMedication, setNewMedication] = useState({
@@ -60,75 +67,107 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
 
   const canEdit = viewMode === 'community' || viewMode === 'family';
   
-  // Stateful data for medications and appointments
-  const [medications, setMedications] = useState([
-    {
-      id: 1,
-      name: 'Metformin',
-      dosage: '500mg',
-      frequency: 'Twice daily',
-      time: '8:00 AM, 8:00 PM',
-      remaining: 28,
-      prescribedBy: 'Dr. Smith',
-      nextRefill: 'Apr 15, 2025',
-      status: 'active'
-    },
-    {
-      id: 2,
-      name: 'Lisinopril',
-      dosage: '10mg',
-      frequency: 'Once daily',
-      time: '9:00 AM',
-      remaining: 14,
-      prescribedBy: 'Dr. Johnson',
-      nextRefill: 'Apr 1, 2025',
-      status: 'active'
-    },
-    {
-      id: 3,
-      name: 'Vitamin D',
-      dosage: '1000 IU',
-      frequency: 'Once daily',
-      time: '9:00 AM',
-      remaining: 45,
-      prescribedBy: 'Dr. Smith',
-      nextRefill: 'May 1, 2025',
-      status: 'active'
-    }
-  ]);
+  // Fetch medications from API
+  const { data: medications = [], isLoading: medicationsLoading } = useQuery<any[]>({
+    queryKey: ['/api/family/medications'],
+  });
   
-  const [appointments, setAppointments] = useState([
-    {
-      id: 1,
-      type: 'Cardiology Checkup',
-      doctor: 'Dr. Emily Johnson',
-      date: 'Apr 5, 2025',
-      time: '10:30 AM',
-      location: 'Heart Health Center',
-      status: 'confirmed',
-      notes: 'Annual checkup - bring medication list'
+  // Fetch appointments from API
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery<any[]>({
+    queryKey: ['/api/family/appointments'],
+  });
+  
+  // Add medication mutation
+  const addMedicationMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return apiRequest('POST', '/api/family/medications', data);
     },
-    {
-      id: 2,
-      type: 'Physical Therapy',
-      doctor: 'PT Sarah Williams',
-      date: 'Apr 8, 2025',
-      time: '2:00 PM',
-      location: 'On-site Therapy Room',
-      status: 'scheduled',
-      notes: 'Session 4 of 8 - knee rehabilitation'
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/medications'] });
+      toast({ title: "Medication Added", description: `${newMedication.name} has been added.` });
+      setShowAddMedication(false);
+      setNewMedication({ name: '', dosage: '', frequency: 'Once daily', time: '', prescribedBy: '' });
     },
-    {
-      id: 3,
-      type: 'Eye Exam',
-      doctor: 'Dr. Michael Chen',
-      date: 'Apr 12, 2025',
-      time: '11:00 AM',
-      location: 'Vision Care Clinic',
-      status: 'pending',
-      notes: 'Annual diabetic eye screening'
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to add medication", variant: "destructive" });
     }
-  ]);
+  });
+  
+  // Update medication mutation
+  const updateMedicationMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return apiRequest('PUT', `/api/family/medications/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/medications'] });
+      toast({ title: "Medication Updated", description: "Changes saved successfully." });
+      setShowEditMedication(false);
+      setEditingMedication(null);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to update medication", variant: "destructive" });
+    }
+  });
+  
+  // Delete medication mutation
+  const deleteMedicationMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest('DELETE', `/api/family/medications/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/medications'] });
+      toast({ title: "Medication Removed", description: "Medication has been removed from the list." });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to remove medication", variant: "destructive" });
+    }
+  });
+  
+  // Add appointment mutation
+  const addAppointmentMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return apiRequest('POST', '/api/family/appointments', data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/appointments'] });
+      toast({ title: "Appointment Scheduled", description: `${newAppointment.type} scheduled for ${newAppointment.date}.` });
+      setShowAddAppointment(false);
+      setNewAppointment({ type: '', doctor: '', date: '', time: '', location: '', notes: '' });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to schedule appointment", variant: "destructive" });
+    }
+  });
+  
+  // Update appointment mutation
+  const updateAppointmentMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: any }) => {
+      return apiRequest('PUT', `/api/family/appointments/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/appointments'] });
+      toast({ title: "Appointment Updated", description: "Changes saved successfully." });
+      setShowEditAppointment(false);
+      setEditingAppointment(null);
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to update appointment", variant: "destructive" });
+    }
+  });
+  
+  // Delete appointment mutation
+  const deleteAppointmentMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest('DELETE', `/api/family/appointments/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/family/appointments'] });
+      toast({ title: "Appointment Cancelled", description: "Appointment has been removed." });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to cancel appointment", variant: "destructive" });
+    }
+  });
   
   // Action handlers
   const handleContactDoctor = () => {
@@ -157,24 +196,7 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
       toast({ title: "Error", description: "Medication name is required", variant: "destructive" });
       return;
     }
-    const newId = Math.max(...medications.map(m => m.id), 0) + 1;
-    setMedications(prev => [...prev, {
-      id: newId,
-      name: newMedication.name,
-      dosage: newMedication.dosage || 'As prescribed',
-      frequency: newMedication.frequency,
-      time: newMedication.time || 'Morning',
-      remaining: 30,
-      prescribedBy: newMedication.prescribedBy || 'Doctor',
-      nextRefill: 'In 30 days',
-      status: 'active'
-    }]);
-    toast({
-      title: "Medication Added",
-      description: `${newMedication.name} has been added to the medication schedule.`,
-    });
-    setShowAddMedication(false);
-    setNewMedication({ name: '', dosage: '', frequency: 'Once daily', time: '', prescribedBy: '' });
+    addMedicationMutation.mutate(newMedication);
   };
   
   const handleAddAppointment = () => {
@@ -182,23 +204,41 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
       toast({ title: "Error", description: "Appointment type and date are required", variant: "destructive" });
       return;
     }
-    const newId = Math.max(...appointments.map(a => a.id), 0) + 1;
-    setAppointments(prev => [...prev, {
-      id: newId,
-      type: newAppointment.type,
-      doctor: newAppointment.doctor || 'TBD',
-      date: newAppointment.date,
-      time: newAppointment.time || 'TBD',
-      location: newAppointment.location || 'TBD',
-      status: 'pending',
-      notes: newAppointment.notes || ''
-    }]);
-    toast({
-      title: "Appointment Scheduled",
-      description: `${newAppointment.type} scheduled for ${newAppointment.date}.`,
-    });
-    setShowAddAppointment(false);
-    setNewAppointment({ type: '', doctor: '', date: '', time: '', location: '', notes: '' });
+    addAppointmentMutation.mutate(newAppointment);
+  };
+  
+  const handleEditMedication = (med: any) => {
+    setEditingMedication({ ...med });
+    setShowEditMedication(true);
+  };
+  
+  const handleSaveEditMedication = () => {
+    if (!editingMedication?.name?.trim()) {
+      toast({ title: "Error", description: "Medication name is required", variant: "destructive" });
+      return;
+    }
+    updateMedicationMutation.mutate({ id: editingMedication.id, data: editingMedication });
+  };
+  
+  const handleDeleteMedication = (id: number) => {
+    deleteMedicationMutation.mutate(id);
+  };
+  
+  const handleEditAppointment = (appt: any) => {
+    setEditingAppointment({ ...appt });
+    setShowEditAppointment(true);
+  };
+  
+  const handleSaveEditAppointment = () => {
+    if (!editingAppointment?.type?.trim() || !editingAppointment?.date) {
+      toast({ title: "Error", description: "Appointment type and date are required", variant: "destructive" });
+      return;
+    }
+    updateAppointmentMutation.mutate({ id: editingAppointment.id, data: editingAppointment });
+  };
+  
+  const handleDeleteAppointment = (id: number) => {
+    deleteAppointmentMutation.mutate(id);
   };
 
   // Mock data for demonstration
@@ -373,62 +413,72 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {medications.map((med) => (
-                  <div key={med.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
-                          <h4 className="font-semibold text-lg">{med.name}</h4>
-                          <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                            Active
-                          </Badge>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Dosage:</span>
-                            <span className="ml-2 font-medium">{med.dosage}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Frequency:</span>
-                            <span className="ml-2 font-medium">{med.frequency}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Times:</span>
-                            <span className="ml-2 font-medium">{med.time}</span>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Prescribed by:</span>
-                            <span className="ml-2 font-medium">{med.prescribedBy}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4 mt-2">
-                          <div className="flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4 text-amber-500" />
-                            <span className="text-sm">
-                              {med.remaining} doses remaining
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-blue-500" />
-                            <span className="text-sm">
-                              Next refill: {med.nextRefill}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      {canEdit && (
-                        <div className="flex gap-2">
-                          <Button size="icon" variant="ghost">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
+                {medicationsLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading medications...</div>
+                ) : medications.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Pill className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                    <p className="text-muted-foreground">No medications added yet.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Click "Add Medication" to get started.</p>
                   </div>
-                ))}
+                ) : (
+                  medications.map((med) => (
+                    <div key={med.id} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-semibold text-lg">{med.name}</h4>
+                            <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                              Active
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <span className="text-muted-foreground">Dosage:</span>
+                              <span className="ml-2 font-medium">{med.dosage}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Frequency:</span>
+                              <span className="ml-2 font-medium">{med.frequency}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Times:</span>
+                              <span className="ml-2 font-medium">{med.time}</span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground">Prescribed by:</span>
+                              <span className="ml-2 font-medium">{med.prescribedBy}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-4 mt-2">
+                            <div className="flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4 text-amber-500" />
+                              <span className="text-sm">
+                                {med.remaining || 30} doses remaining
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-blue-500" />
+                              <span className="text-sm">
+                                Next refill: {med.nextRefill || 'In 30 days'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        {canEdit && (
+                          <div className="flex gap-2">
+                            <Button size="icon" variant="ghost" onClick={() => handleEditMedication(med)} data-testid={`button-edit-med-${med.id}`}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" onClick={() => handleDeleteMedication(med.id)} data-testid={`button-delete-med-${med.id}`}>
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -473,50 +523,60 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {appointments.map((apt) => (
-                  <div key={apt.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
-                          <Stethoscope className="w-5 h-5 text-blue-600" />
-                          <h4 className="font-semibold">{apt.type}</h4>
-                          <Badge variant={apt.status === 'confirmed' ? 'default' : 'outline'}>
-                            {apt.status}
-                          </Badge>
+                {appointmentsLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading appointments...</div>
+                ) : appointments.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calendar className="w-12 h-12 mx-auto mb-3 text-muted-foreground opacity-50" />
+                    <p className="text-muted-foreground">No appointments scheduled yet.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Click "Schedule Appointment" to get started.</p>
+                  </div>
+                ) : (
+                  appointments.map((apt) => (
+                    <div key={apt.id} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-2 flex-1">
+                          <div className="flex items-center gap-2">
+                            <Stethoscope className="w-5 h-5 text-blue-600" />
+                            <h4 className="font-semibold">{apt.type}</h4>
+                            <Badge variant={apt.status === 'confirmed' ? 'default' : 'outline'}>
+                              {apt.status}
+                            </Badge>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div className="flex items-center gap-2">
+                              <User className="w-4 h-4 text-muted-foreground" />
+                              <span>{apt.doctor}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-muted-foreground" />
+                              <span>{apt.date} at {apt.time}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <MapPin className="w-4 h-4 text-muted-foreground" />
+                              <span>{apt.location}</span>
+                            </div>
+                          </div>
+                          {apt.notes && (
+                            <p className="text-sm text-muted-foreground italic">
+                              Note: {apt.notes}
+                            </p>
+                          )}
                         </div>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div className="flex items-center gap-2">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <span>{apt.doctor}</span>
+                        {canEdit && (
+                          <div className="flex gap-2">
+                            <Button size="icon" variant="ghost" onClick={() => handleEditAppointment(apt)} data-testid={`button-edit-appt-${apt.id}`}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button size="icon" variant="ghost" onClick={() => handleDeleteAppointment(apt.id)} data-testid={`button-delete-appt-${apt.id}`}>
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            <span>{apt.date} at {apt.time}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <MapPin className="w-4 h-4 text-muted-foreground" />
-                            <span>{apt.location}</span>
-                          </div>
-                        </div>
-                        {apt.notes && (
-                          <p className="text-sm text-muted-foreground italic">
-                            Note: {apt.notes}
-                          </p>
                         )}
                       </div>
-                      {canEdit && (
-                        <div className="flex gap-2">
-                          <Button size="icon" variant="ghost">
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" variant="ghost">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      )}
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </CardContent>
           </Card>
@@ -873,6 +933,144 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowAddAppointment(false)}>Cancel</Button>
             <Button onClick={handleAddAppointment} data-testid="button-submit-appointment">Schedule</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Medication Dialog */}
+      <Dialog open={showEditMedication} onOpenChange={setShowEditMedication}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Medication</DialogTitle>
+            <DialogDescription>Update medication details</DialogDescription>
+          </DialogHeader>
+          {editingMedication && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Medication Name *</Label>
+                <Input 
+                  value={editingMedication.name || ''}
+                  onChange={(e) => setEditingMedication((prev: any) => ({ ...prev, name: e.target.value }))}
+                  data-testid="input-edit-med-name"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Dosage</Label>
+                  <Input 
+                    value={editingMedication.dosage || ''}
+                    onChange={(e) => setEditingMedication((prev: any) => ({ ...prev, dosage: e.target.value }))}
+                    data-testid="input-edit-med-dosage"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Frequency</Label>
+                  <Select value={editingMedication.frequency || 'Once daily'} onValueChange={(v) => setEditingMedication((prev: any) => ({ ...prev, frequency: v }))}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Once daily">Once daily</SelectItem>
+                      <SelectItem value="Twice daily">Twice daily</SelectItem>
+                      <SelectItem value="Three times daily">Three times daily</SelectItem>
+                      <SelectItem value="As needed">As needed</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Administration Time</Label>
+                <Input 
+                  value={editingMedication.time || ''}
+                  onChange={(e) => setEditingMedication((prev: any) => ({ ...prev, time: e.target.value }))}
+                  data-testid="input-edit-med-time"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Prescribed By</Label>
+                <Input 
+                  value={editingMedication.prescribedBy || ''}
+                  onChange={(e) => setEditingMedication((prev: any) => ({ ...prev, prescribedBy: e.target.value }))}
+                  data-testid="input-edit-med-prescriber"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowEditMedication(false); setEditingMedication(null); }}>Cancel</Button>
+            <Button onClick={handleSaveEditMedication} disabled={updateMedicationMutation.isPending} data-testid="button-save-edit-med">
+              {updateMedicationMutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Appointment Dialog */}
+      <Dialog open={showEditAppointment} onOpenChange={setShowEditAppointment}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Edit Appointment</DialogTitle>
+            <DialogDescription>Update appointment details</DialogDescription>
+          </DialogHeader>
+          {editingAppointment && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label>Appointment Type *</Label>
+                <Input 
+                  value={editingAppointment.type || ''}
+                  onChange={(e) => setEditingAppointment((prev: any) => ({ ...prev, type: e.target.value }))}
+                  data-testid="input-edit-appt-type"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Doctor/Provider</Label>
+                <Input 
+                  value={editingAppointment.doctor || ''}
+                  onChange={(e) => setEditingAppointment((prev: any) => ({ ...prev, doctor: e.target.value }))}
+                  data-testid="input-edit-appt-doctor"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Date *</Label>
+                  <Input 
+                    type="date"
+                    value={editingAppointment.date || ''}
+                    onChange={(e) => setEditingAppointment((prev: any) => ({ ...prev, date: e.target.value }))}
+                    data-testid="input-edit-appt-date"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Time</Label>
+                  <Input 
+                    type="time"
+                    value={editingAppointment.time || ''}
+                    onChange={(e) => setEditingAppointment((prev: any) => ({ ...prev, time: e.target.value }))}
+                    data-testid="input-edit-appt-time"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Location</Label>
+                <Input 
+                  value={editingAppointment.location || ''}
+                  onChange={(e) => setEditingAppointment((prev: any) => ({ ...prev, location: e.target.value }))}
+                  data-testid="input-edit-appt-location"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Notes</Label>
+                <Textarea 
+                  value={editingAppointment.notes || ''}
+                  onChange={(e) => setEditingAppointment((prev: any) => ({ ...prev, notes: e.target.value }))}
+                  data-testid="input-edit-appt-notes"
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => { setShowEditAppointment(false); setEditingAppointment(null); }}>Cancel</Button>
+            <Button onClick={handleSaveEditAppointment} disabled={updateAppointmentMutation.isPending} data-testid="button-save-edit-appt">
+              {updateAppointmentMutation.isPending ? 'Saving...' : 'Save Changes'}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

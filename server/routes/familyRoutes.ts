@@ -1164,4 +1164,248 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
   }
 });
 
+// ============================================================================
+// FAMILY MEDICATIONS CRUD (stored in user session/memory for now)
+// ============================================================================
+
+// In-memory storage for family medications and appointments per user
+const familyMedications = new Map<string, any[]>();
+const familyAppointments = new Map<string, any[]>();
+
+// Get medications for user's family
+router.get("/medications", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.json([]);
+    }
+    
+    const userMeds = familyMedications.get(String(userId)) || [];
+    res.json(userMeds);
+  } catch (error) {
+    console.error("Error fetching medications:", error);
+    res.status(500).json({ error: "Failed to fetch medications" });
+  }
+});
+
+// Add medication
+router.post("/medications", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const { name, dosage, frequency, time, prescribedBy } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ error: "Medication name is required" });
+    }
+    
+    const userMeds = familyMedications.get(String(userId)) || [];
+    const newId = userMeds.length > 0 ? Math.max(...userMeds.map(m => m.id)) + 1 : 1;
+    
+    const newMed = {
+      id: newId,
+      name,
+      dosage: dosage || 'As prescribed',
+      frequency: frequency || 'Once daily',
+      time: time || 'Morning',
+      remaining: 30,
+      prescribedBy: prescribedBy || 'Doctor',
+      nextRefill: 'In 30 days',
+      status: 'active',
+      createdAt: new Date().toISOString()
+    };
+    
+    userMeds.push(newMed);
+    familyMedications.set(String(userId), userMeds);
+    
+    res.json(newMed);
+  } catch (error) {
+    console.error("Error adding medication:", error);
+    res.status(500).json({ error: "Failed to add medication" });
+  }
+});
+
+// Update medication
+router.put("/medications/:id", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const medId = parseInt(req.params.id);
+    const userMeds = familyMedications.get(String(userId)) || [];
+    const medIndex = userMeds.findIndex(m => m.id === medId);
+    
+    if (medIndex === -1) {
+      return res.status(404).json({ error: "Medication not found" });
+    }
+    
+    const { name, dosage, frequency, time, prescribedBy, status } = req.body;
+    userMeds[medIndex] = {
+      ...userMeds[medIndex],
+      ...(name && { name }),
+      ...(dosage && { dosage }),
+      ...(frequency && { frequency }),
+      ...(time && { time }),
+      ...(prescribedBy && { prescribedBy }),
+      ...(status && { status }),
+      updatedAt: new Date().toISOString()
+    };
+    
+    familyMedications.set(String(userId), userMeds);
+    res.json(userMeds[medIndex]);
+  } catch (error) {
+    console.error("Error updating medication:", error);
+    res.status(500).json({ error: "Failed to update medication" });
+  }
+});
+
+// Delete medication
+router.delete("/medications/:id", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const medId = parseInt(req.params.id);
+    const userMeds = familyMedications.get(String(userId)) || [];
+    const filteredMeds = userMeds.filter(m => m.id !== medId);
+    
+    if (filteredMeds.length === userMeds.length) {
+      return res.status(404).json({ error: "Medication not found" });
+    }
+    
+    familyMedications.set(String(userId), filteredMeds);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting medication:", error);
+    res.status(500).json({ error: "Failed to delete medication" });
+  }
+});
+
+// ============================================================================
+// FAMILY APPOINTMENTS CRUD
+// ============================================================================
+
+// Get appointments for user's family
+router.get("/appointments", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.json([]);
+    }
+    
+    const userAppts = familyAppointments.get(String(userId)) || [];
+    res.json(userAppts);
+  } catch (error) {
+    console.error("Error fetching appointments:", error);
+    res.status(500).json({ error: "Failed to fetch appointments" });
+  }
+});
+
+// Add appointment
+router.post("/appointments", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const { type, doctor, date, time, location, notes } = req.body;
+    
+    if (!type || !date) {
+      return res.status(400).json({ error: "Appointment type and date are required" });
+    }
+    
+    const userAppts = familyAppointments.get(String(userId)) || [];
+    const newId = userAppts.length > 0 ? Math.max(...userAppts.map(a => a.id)) + 1 : 1;
+    
+    const newAppt = {
+      id: newId,
+      type,
+      doctor: doctor || 'TBD',
+      date,
+      time: time || 'TBD',
+      location: location || 'TBD',
+      status: 'pending',
+      notes: notes || '',
+      createdAt: new Date().toISOString()
+    };
+    
+    userAppts.push(newAppt);
+    familyAppointments.set(String(userId), userAppts);
+    
+    res.json(newAppt);
+  } catch (error) {
+    console.error("Error adding appointment:", error);
+    res.status(500).json({ error: "Failed to add appointment" });
+  }
+});
+
+// Update appointment
+router.put("/appointments/:id", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const apptId = parseInt(req.params.id);
+    const userAppts = familyAppointments.get(String(userId)) || [];
+    const apptIndex = userAppts.findIndex(a => a.id === apptId);
+    
+    if (apptIndex === -1) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+    
+    const { type, doctor, date, time, location, notes, status } = req.body;
+    userAppts[apptIndex] = {
+      ...userAppts[apptIndex],
+      ...(type && { type }),
+      ...(doctor && { doctor }),
+      ...(date && { date }),
+      ...(time && { time }),
+      ...(location && { location }),
+      ...(notes !== undefined && { notes }),
+      ...(status && { status }),
+      updatedAt: new Date().toISOString()
+    };
+    
+    familyAppointments.set(String(userId), userAppts);
+    res.json(userAppts[apptIndex]);
+  } catch (error) {
+    console.error("Error updating appointment:", error);
+    res.status(500).json({ error: "Failed to update appointment" });
+  }
+});
+
+// Delete appointment
+router.delete("/appointments/:id", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const apptId = parseInt(req.params.id);
+    const userAppts = familyAppointments.get(String(userId)) || [];
+    const filteredAppts = userAppts.filter(a => a.id !== apptId);
+    
+    if (filteredAppts.length === userAppts.length) {
+      return res.status(404).json({ error: "Appointment not found" });
+    }
+    
+    familyAppointments.set(String(userId), filteredAppts);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting appointment:", error);
+    res.status(500).json({ error: "Failed to delete appointment" });
+  }
+});
+
 export default router;
