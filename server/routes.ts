@@ -2767,20 +2767,25 @@ Disallow: /`;
       // Get messages from database for authenticated users
       const userIdInt = parseInt(String(userId));
       
-      // Build query - get messages where user is sender or recipient
-      let messagesQuery = db.select({
+      // Build query - only get messages where user is sender OR recipient (scoped to user)
+      const dbMessages = await db.select({
         id: schema.familyMessages.id,
         senderId: schema.familyMessages.senderId,
+        recipientId: schema.familyMessages.recipientId,
         content: schema.familyMessages.content,
         createdAt: schema.familyMessages.createdAt,
         messageType: schema.familyMessages.messageType,
         recipientGroupId: schema.familyMessages.recipientGroupId
       })
       .from(schema.familyMessages)
+      .where(
+        or(
+          eq(schema.familyMessages.senderId, userIdInt),
+          eq(schema.familyMessages.recipientId, userIdInt)
+        )
+      )
       .orderBy(asc(schema.familyMessages.createdAt))
       .limit(100);
-      
-      const dbMessages = await messagesQuery;
       
       // Get sender names from users table
       const formattedMessages = await Promise.all(dbMessages.map(async (msg) => {
