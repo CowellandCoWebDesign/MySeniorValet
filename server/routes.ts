@@ -2725,56 +2725,127 @@ Disallow: /`;
 
   // Family Collaboration Center endpoints
   // These endpoints support the Family Collaboration features
+  
+  // In-memory storage for family messages (keyed by groupId or 'default' for ungrouped)
+  interface FamilyMessage {
+    id: string;
+    senderId: string;
+    senderName: string;
+    content: string;
+    createdAt: string;
+    messageType?: string;
+    metadata?: any;
+  }
+  const familyMessagesStore: Map<string, FamilyMessage[]> = new Map();
+  
   app.get('/api/family/messages', (req: any, res) => {
     const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
     const isAuthenticated = !!userId;
+    const groupId = req.query.groupId || 'default';
     
-    // Show demo data for unauthenticated users, empty for authenticated users
-    const messages = !isAuthenticated ? [
-      {
-        id: '1',
-        senderId: 'demo-user-1',
-        senderName: 'John',
-        content: 'I visited Sunrise Senior Living yesterday. The memory care unit was really impressive!',
-        createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '2',
-        senderId: 'demo-user-2',
-        senderName: 'Sarah',
-        content: 'That sounds great! Did you get a chance to see the dining facilities?',
-        createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '3',
-        senderId: 'demo-user-1',
-        senderName: 'John',
-        content: 'Yes! They have multiple dining options and the food looked really good. They even have a chef on staff.',
-        createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
-      }
-    ] : [];
+    // Show demo data for unauthenticated users
+    if (!isAuthenticated) {
+      const demoMessages = [
+        {
+          id: '1',
+          senderId: 'demo-user-1',
+          senderName: 'John',
+          content: 'I visited Sunrise Senior Living yesterday. The memory care unit was really impressive!',
+          createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: '2',
+          senderId: 'demo-user-2',
+          senderName: 'Sarah',
+          content: 'That sounds great! Did you get a chance to see the dining facilities?',
+          createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: '3',
+          senderId: 'demo-user-1',
+          senderName: 'John',
+          content: 'Yes! They have multiple dining options and the food looked really good. They even have a chef on staff.',
+          createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
+        }
+      ];
+      return res.json({
+        messages: demoMessages,
+        currentUserId: 'demo',
+        groupName: 'Sample Family Group'
+      });
+    }
+    
+    // Get messages from in-memory storage for authenticated users
+    const messages = familyMessagesStore.get(String(groupId)) || [];
     
     res.json({
       messages,
-      currentUserId: userId || 'demo',
-      groupName: !isAuthenticated ? 'Sample Family Group' : null
+      currentUserId: String(userId),
+      groupName: null
     });
   });
 
   app.post('/api/family/messages', (req: any, res) => {
-    // Accept message and return success
-    const newMessage = {
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    const { content, groupId = 'default' } = req.body;
+    
+    if (!content || !content.trim()) {
+      return res.status(400).json({ error: 'Message content is required' });
+    }
+    
+    const userName = req.user?.name || req.session?.user?.name || req.session?.user?.email?.split('@')[0] || 'You';
+    
+    const newMessage: FamilyMessage = {
       id: Date.now().toString(),
-      senderId: req.session?.user?.id || req.user?.id || '1',
-      senderName: req.user?.name || req.session?.user?.name || 'You',
-      content: req.body.content,
+      senderId: String(userId),
+      senderName: userName,
+      content: content.trim(),
       createdAt: new Date().toISOString()
     };
+    
+    // Get or create messages array for this group
+    const existingMessages = familyMessagesStore.get(String(groupId)) || [];
+    existingMessages.push(newMessage);
+    familyMessagesStore.set(String(groupId), existingMessages);
     
     res.json({
       success: true,
       message: newMessage
     });
+  });
+  
+  // Delete a message
+  app.delete('/api/family/messages/:messageId', (req: any, res) => {
+    const userId = req.session?.user?.id || req.session?.userId || req.user?.id || req.user?.claims?.sub;
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Authentication required' });
+    }
+    
+    const { messageId } = req.params;
+    const groupId = req.query.groupId || 'default';
+    
+    const messages = familyMessagesStore.get(String(groupId)) || [];
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    
+    if (messageIndex === -1) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+    
+    // Only allow deleting own messages
+    if (messages[messageIndex].senderId !== String(userId)) {
+      return res.status(403).json({ error: 'Can only delete your own messages' });
+    }
+    
+    messages.splice(messageIndex, 1);
+    familyMessagesStore.set(String(groupId), messages);
+    
+    res.json({ success: true });
   });
 
   app.get('/api/family/visit-history', (req: any, res) => {
