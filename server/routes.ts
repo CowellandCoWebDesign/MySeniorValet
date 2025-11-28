@@ -2732,35 +2732,12 @@ Disallow: /`;
       const isAuthenticated = !!userId;
       const groupId = req.query.groupId ? parseInt(req.query.groupId) : null;
       
-      // Show demo data for unauthenticated users
+      // Return empty state for unauthenticated users (no demo data per Golden Data Rule)
       if (!isAuthenticated) {
-        const demoMessages = [
-          {
-            id: '1',
-            senderId: 'demo-user-1',
-            senderName: 'John',
-            content: 'I visited Sunrise Senior Living yesterday. The memory care unit was really impressive!',
-            createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString()
-          },
-          {
-            id: '2',
-            senderId: 'demo-user-2',
-            senderName: 'Sarah',
-            content: 'That sounds great! Did you get a chance to see the dining facilities?',
-            createdAt: new Date(Date.now() - 1.5 * 60 * 60 * 1000).toISOString()
-          },
-          {
-            id: '3',
-            senderId: 'demo-user-1',
-            senderName: 'John',
-            content: 'Yes! They have multiple dining options and the food looked really good. They even have a chef on staff.',
-            createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString()
-          }
-        ];
         return res.json({
-          messages: demoMessages,
-          currentUserId: 'demo',
-          groupName: 'Sample Family Group'
+          messages: [],
+          currentUserId: null,
+          groupName: null
         });
       }
       
