@@ -182,16 +182,20 @@ router.get("/messages", async (req: Request, res: Response) => {
       });
     }
     
-    // For authenticated users, find their real family group
+    // For authenticated users, find their real family group (as owner or member)
     const allGroups = await db.select()
       .from(familyGroups);
     
-    const userGroups = allGroups.filter(g => g.ownerId == userId);
+    // Check if user is owner or member of any group
+    const userGroups = allGroups.filter(g => 
+      g.ownerId === String(userId) || 
+      (g.members && g.members.some((m: any) => m.userId === String(userId)))
+    );
     
     if (userGroups.length === 0) {
       return res.json({ 
         messages: [], 
-        currentUserId: userId,
+        currentUserId: String(userId),
         groupName: null 
       });
     }
@@ -279,14 +283,17 @@ router.post("/messages", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Message content is required" });
     }
     
-    // Find the user's family group - simplified query
-    const userGroups = await db.select()
-      .from(familyGroups)
-      .where(eq(familyGroups.ownerId, String(userId)))
-      .limit(1);
+    // Find the user's family group (as owner or member)
+    const allGroups = await db.select()
+      .from(familyGroups);
+    
+    const userGroups = allGroups.filter(g => 
+      g.ownerId === String(userId) || 
+      (g.members && g.members.some((m: any) => m.userId === String(userId)))
+    );
     
     if (userGroups.length === 0) {
-      return res.status(400).json({ error: "You must join a family group first" });
+      return res.status(400).json({ error: "You must join or create a family group first" });
     }
     
     const groupId = userGroups[0].id;
@@ -1025,6 +1032,70 @@ router.get("/visit-history", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching visit history:", error);
     res.status(500).json({ error: "Failed to fetch visit history" });
+  }
+});
+
+// Create a new visit report
+router.post("/visit-reports", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const { community, date, rating, notes, pros, cons, wouldRecommend } = req.body;
+    
+    if (!community) {
+      return res.status(400).json({ error: "Community name is required" });
+    }
+    
+    // Get user info for the family member name
+    const [user] = await db.select({ 
+      firstName: users.firstName, 
+      lastName: users.lastName, 
+      email: users.email 
+    })
+      .from(users)
+      .where(eq(users.id, userId))
+      .limit(1);
+    
+    const familyMemberName = user?.firstName || user?.email?.split('@')[0] || 'Family Member';
+    
+    // Create a tour record with feedback (simulating a completed visit)
+    const [newTour] = await db.insert(tours).values({
+      userId: String(userId),
+      communityId: null, // May not match an existing community
+      preferredDate: new Date(date),
+      status: 'completed',
+      tourFeedback: JSON.stringify({
+        community,
+        rating,
+        notes,
+        pros: pros || [],
+        cons: cons || [],
+        wouldRecommend: wouldRecommend ?? true,
+        familyMember: familyMemberName,
+        createdAt: new Date().toISOString()
+      })
+    }).returning();
+    
+    res.json({
+      success: true,
+      report: {
+        id: newTour.id,
+        community,
+        date,
+        rating,
+        notes,
+        pros,
+        cons,
+        wouldRecommend,
+        familyMember: familyMemberName
+      }
+    });
+  } catch (error) {
+    console.error("Error creating visit report:", error);
+    res.status(500).json({ error: "Failed to create visit report" });
   }
 });
 

@@ -204,6 +204,19 @@ export default function FamilyCollaborationCenter() {
   const [newPollDescription, setNewPollDescription] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '']);
 
+  // Visit Report state
+  const [showAddVisitReport, setShowAddVisitReport] = useState(false);
+  const [visitReportForm, setVisitReportForm] = useState({
+    community: '',
+    date: new Date().toISOString().split('T')[0],
+    rating: 4,
+    notes: '',
+    pros: [] as string[],
+    cons: [] as string[],
+    wouldRecommend: true
+  });
+  const { toast } = useToast();
+
   // Fetch family groups
   const { data: familyGroups = [], isLoading: groupsLoading } = useQuery<FamilyGroup[]>({
     queryKey: ['/api/family/groups'],
@@ -335,6 +348,42 @@ export default function FamilyCollaborationCenter() {
     onSuccess: () => {
       refetchPolls();
       toast({ title: 'Vote Submitted', description: 'Your vote has been recorded!' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  // Add visit report mutation
+  const addVisitReportMutation = useMutation({
+    mutationFn: async (reportData: typeof visitReportForm) => {
+      const response = await fetch('/api/family/visit-reports', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(reportData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to create visit report');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/visit-history'] });
+      setShowAddVisitReport(false);
+      setVisitReportForm({
+        community: '',
+        date: new Date().toISOString().split('T')[0],
+        rating: 4,
+        notes: '',
+        pros: [],
+        cons: [],
+        wouldRecommend: true
+      });
+      setProText('');
+      setConText('');
+      toast({ title: 'Visit Report Added', description: 'Your visit report has been saved!' });
     },
     onError: (error: Error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
@@ -1593,10 +1642,193 @@ export default function FamilyCollaborationCenter() {
                     </CardContent>
                   </Card>
                 ))}
-                <Button className="w-full" variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Visit Report
-                </Button>
+                <Dialog open={showAddVisitReport} onOpenChange={setShowAddVisitReport}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full" variant="outline" data-testid="button-add-visit-report">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Visit Report
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Add Visit Report</DialogTitle>
+                      <DialogDescription>
+                        Document your community visit experience for your family
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Community Name *</Label>
+                        <Input 
+                          placeholder="Enter community name" 
+                          value={visitReportForm.community}
+                          onChange={(e) => setVisitReportForm(prev => ({ ...prev, community: e.target.value }))}
+                          data-testid="input-visit-community"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Visit Date *</Label>
+                        <Input 
+                          type="date"
+                          value={visitReportForm.date}
+                          onChange={(e) => setVisitReportForm(prev => ({ ...prev, date: e.target.value }))}
+                          data-testid="input-visit-date"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Rating (1-5 stars)</Label>
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setVisitReportForm(prev => ({ ...prev, rating: star }))}
+                              className="p-1 hover:scale-110 transition-transform"
+                              data-testid={`button-rating-${star}`}
+                            >
+                              <Star
+                                className={`w-6 h-6 ${
+                                  star <= visitReportForm.rating
+                                    ? 'fill-yellow-400 text-yellow-400'
+                                    : 'text-gray-300'
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Notes / Impressions</Label>
+                        <Textarea 
+                          placeholder="Share your overall impressions of the community..."
+                          value={visitReportForm.notes}
+                          onChange={(e) => setVisitReportForm(prev => ({ ...prev, notes: e.target.value }))}
+                          rows={3}
+                          data-testid="input-visit-notes"
+                        />
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-green-600 flex items-center gap-1">
+                            <CheckCircle className="w-4 h-4" /> Pros
+                          </Label>
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="Add a pro" 
+                              value={proText}
+                              onChange={(e) => setProText(e.target.value)}
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter' && proText.trim()) {
+                                  e.preventDefault();
+                                  setVisitReportForm(prev => ({ ...prev, pros: [...prev.pros, proText.trim()] }));
+                                  setProText('');
+                                }
+                              }}
+                              data-testid="input-visit-pro"
+                            />
+                            <Button 
+                              type="button" 
+                              size="icon" 
+                              variant="outline"
+                              onClick={() => {
+                                if (proText.trim()) {
+                                  setVisitReportForm(prev => ({ ...prev, pros: [...prev.pros, proText.trim()] }));
+                                  setProText('');
+                                }
+                              }}
+                              data-testid="button-add-pro"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {visitReportForm.pros.map((pro, idx) => (
+                              <Badge key={idx} variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400">
+                                {pro}
+                                <button 
+                                  onClick={() => setVisitReportForm(prev => ({ ...prev, pros: prev.pros.filter((_, i) => i !== idx) }))}
+                                  className="ml-1"
+                                >
+                                  ×
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label className="text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" /> Cons
+                          </Label>
+                          <div className="flex gap-2">
+                            <Input 
+                              placeholder="Add a con" 
+                              value={conText}
+                              onChange={(e) => setConText(e.target.value)}
+                              onKeyPress={(e) => {
+                                if (e.key === 'Enter' && conText.trim()) {
+                                  e.preventDefault();
+                                  setVisitReportForm(prev => ({ ...prev, cons: [...prev.cons, conText.trim()] }));
+                                  setConText('');
+                                }
+                              }}
+                              data-testid="input-visit-con"
+                            />
+                            <Button 
+                              type="button" 
+                              size="icon" 
+                              variant="outline"
+                              onClick={() => {
+                                if (conText.trim()) {
+                                  setVisitReportForm(prev => ({ ...prev, cons: [...prev.cons, conText.trim()] }));
+                                  setConText('');
+                                }
+                              }}
+                              data-testid="button-add-con"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          <div className="flex flex-wrap gap-1">
+                            {visitReportForm.cons.map((con, idx) => (
+                              <Badge key={idx} variant="outline" className="bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400">
+                                {con}
+                                <button 
+                                  onClick={() => setVisitReportForm(prev => ({ ...prev, cons: prev.cons.filter((_, i) => i !== idx) }))}
+                                  className="ml-1"
+                                >
+                                  ×
+                                </button>
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="wouldRecommend"
+                          checked={visitReportForm.wouldRecommend}
+                          onChange={(e) => setVisitReportForm(prev => ({ ...prev, wouldRecommend: e.target.checked }))}
+                          className="w-4 h-4"
+                          data-testid="checkbox-would-recommend"
+                        />
+                        <Label htmlFor="wouldRecommend" className="cursor-pointer">
+                          Would recommend this community to other families
+                        </Label>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowAddVisitReport(false)}>Cancel</Button>
+                      <Button 
+                        onClick={() => addVisitReportMutation.mutate(visitReportForm)}
+                        disabled={!visitReportForm.community.trim() || addVisitReportMutation.isPending}
+                        data-testid="button-submit-visit-report"
+                      >
+                        {addVisitReportMutation.isPending ? 'Saving...' : 'Save Report'}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           </TabsContent>

@@ -9,6 +9,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 import {
   Heart,
   Pill,
@@ -42,22 +45,23 @@ interface CareCoordinationManagerProps {
 }
 
 export default function CareCoordinationManager({ residentId, viewMode, tier }: CareCoordinationManagerProps) {
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('overview');
   const [showAddMedication, setShowAddMedication] = useState(false);
   const [showAddAppointment, setShowAddAppointment] = useState(false);
+  
+  // Form states
+  const [newMedication, setNewMedication] = useState({
+    name: '', dosage: '', frequency: 'Once daily', time: '', prescribedBy: ''
+  });
+  const [newAppointment, setNewAppointment] = useState({
+    type: '', doctor: '', date: '', time: '', location: '', notes: ''
+  });
 
-  const canEdit = viewMode === 'community';
-
-  // Mock data for demonstration
-  const healthMetrics = {
-    bloodPressure: '120/80',
-    heartRate: '72 bpm',
-    weight: '165 lbs',
-    temperature: '98.6°F',
-    lastCheckup: '2 days ago'
-  };
-
-  const medications = [
+  const canEdit = viewMode === 'community' || viewMode === 'family';
+  
+  // Stateful data for medications and appointments
+  const [medications, setMedications] = useState([
     {
       id: 1,
       name: 'Metformin',
@@ -91,9 +95,9 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
       nextRefill: 'May 1, 2025',
       status: 'active'
     }
-  ];
-
-  const appointments = [
+  ]);
+  
+  const [appointments, setAppointments] = useState([
     {
       id: 1,
       type: 'Cardiology Checkup',
@@ -116,15 +120,95 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
     },
     {
       id: 3,
-      type: 'Podiatry',
+      type: 'Eye Exam',
       doctor: 'Dr. Michael Chen',
       date: 'Apr 12, 2025',
-      time: '3:30 PM',
-      location: 'Mobile Clinic Visit',
-      status: 'scheduled',
-      notes: 'Routine foot care'
+      time: '11:00 AM',
+      location: 'Vision Care Clinic',
+      status: 'pending',
+      notes: 'Annual diabetic eye screening'
     }
-  ];
+  ]);
+  
+  // Action handlers
+  const handleContactDoctor = () => {
+    toast({
+      title: "Contacting Doctor",
+      description: "Opening secure messaging to Dr. Smith's office...",
+    });
+  };
+  
+  const handleDownloadSummary = () => {
+    toast({
+      title: "Preparing Download",
+      description: "Your health summary PDF is being generated.",
+    });
+  };
+  
+  const handleReportConcern = () => {
+    toast({
+      title: "Report Health Concern",
+      description: "Opening secure form to report a health concern to the care team.",
+    });
+  };
+  
+  const handleAddMedication = () => {
+    if (!newMedication.name.trim()) {
+      toast({ title: "Error", description: "Medication name is required", variant: "destructive" });
+      return;
+    }
+    const newId = Math.max(...medications.map(m => m.id), 0) + 1;
+    setMedications(prev => [...prev, {
+      id: newId,
+      name: newMedication.name,
+      dosage: newMedication.dosage || 'As prescribed',
+      frequency: newMedication.frequency,
+      time: newMedication.time || 'Morning',
+      remaining: 30,
+      prescribedBy: newMedication.prescribedBy || 'Doctor',
+      nextRefill: 'In 30 days',
+      status: 'active'
+    }]);
+    toast({
+      title: "Medication Added",
+      description: `${newMedication.name} has been added to the medication schedule.`,
+    });
+    setShowAddMedication(false);
+    setNewMedication({ name: '', dosage: '', frequency: 'Once daily', time: '', prescribedBy: '' });
+  };
+  
+  const handleAddAppointment = () => {
+    if (!newAppointment.type.trim() || !newAppointment.date) {
+      toast({ title: "Error", description: "Appointment type and date are required", variant: "destructive" });
+      return;
+    }
+    const newId = Math.max(...appointments.map(a => a.id), 0) + 1;
+    setAppointments(prev => [...prev, {
+      id: newId,
+      type: newAppointment.type,
+      doctor: newAppointment.doctor || 'TBD',
+      date: newAppointment.date,
+      time: newAppointment.time || 'TBD',
+      location: newAppointment.location || 'TBD',
+      status: 'pending',
+      notes: newAppointment.notes || ''
+    }]);
+    toast({
+      title: "Appointment Scheduled",
+      description: `${newAppointment.type} scheduled for ${newAppointment.date}.`,
+    });
+    setShowAddAppointment(false);
+    setNewAppointment({ type: '', doctor: '', date: '', time: '', location: '', notes: '' });
+  };
+
+  // Mock data for demonstration
+  const healthMetrics = {
+    bloodPressure: '120/80',
+    heartRate: '72 bpm',
+    weight: '165 lbs',
+    temperature: '98.6°F',
+    lastCheckup: '2 days ago'
+  };
 
   const carePlan = {
     level: 'Assisted Living - Level 2',
@@ -220,20 +304,20 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button className="w-full justify-start" variant="outline">
+                <Button className="w-full justify-start" variant="outline" onClick={handleContactDoctor} data-testid="button-contact-doctor">
                   <Phone className="w-4 h-4 mr-2" />
                   Contact Primary Doctor
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button className="w-full justify-start" variant="outline" onClick={handleDownloadSummary} data-testid="button-download-summary">
                   <Download className="w-4 h-4 mr-2" />
                   Download Health Summary
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button className="w-full justify-start" variant="outline" onClick={handleReportConcern} data-testid="button-report-concern">
                   <AlertCircle className="w-4 h-4 mr-2" />
                   Report Health Concern
                 </Button>
                 {canEdit && (
-                  <Button className="w-full justify-start" variant="outline">
+                  <Button className="w-full justify-start" variant="outline" onClick={() => toast({ title: "Upload", description: "Opening file upload dialog..." })} data-testid="button-upload-document">
                     <Upload className="w-4 h-4 mr-2" />
                     Upload Medical Document
                   </Button>
@@ -649,6 +733,149 @@ export default function CareCoordinationManager({ residentId, viewMode, tier }: 
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Add Medication Dialog */}
+      <Dialog open={showAddMedication} onOpenChange={setShowAddMedication}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Medication</DialogTitle>
+            <DialogDescription>Add a new medication to the schedule</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Medication Name *</Label>
+              <Input 
+                placeholder="e.g., Lisinopril"
+                value={newMedication.name}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, name: e.target.value }))}
+                data-testid="input-medication-name"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Dosage</Label>
+                <Input 
+                  placeholder="e.g., 10mg"
+                  value={newMedication.dosage}
+                  onChange={(e) => setNewMedication(prev => ({ ...prev, dosage: e.target.value }))}
+                  data-testid="input-medication-dosage"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Frequency</Label>
+                <Select 
+                  value={newMedication.frequency} 
+                  onValueChange={(v) => setNewMedication(prev => ({ ...prev, frequency: v }))}
+                >
+                  <SelectTrigger data-testid="select-medication-frequency">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Once daily">Once daily</SelectItem>
+                    <SelectItem value="Twice daily">Twice daily</SelectItem>
+                    <SelectItem value="Three times daily">Three times daily</SelectItem>
+                    <SelectItem value="As needed">As needed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Administration Time</Label>
+              <Input 
+                placeholder="e.g., 8:00 AM"
+                value={newMedication.time}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, time: e.target.value }))}
+                data-testid="input-medication-time"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Prescribed By</Label>
+              <Input 
+                placeholder="e.g., Dr. Smith"
+                value={newMedication.prescribedBy}
+                onChange={(e) => setNewMedication(prev => ({ ...prev, prescribedBy: e.target.value }))}
+                data-testid="input-medication-prescriber"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddMedication(false)}>Cancel</Button>
+            <Button onClick={handleAddMedication} data-testid="button-submit-medication">Add Medication</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Appointment Dialog */}
+      <Dialog open={showAddAppointment} onOpenChange={setShowAddAppointment}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Schedule Appointment</DialogTitle>
+            <DialogDescription>Schedule a new medical appointment</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Appointment Type *</Label>
+              <Input 
+                placeholder="e.g., Cardiology Checkup"
+                value={newAppointment.type}
+                onChange={(e) => setNewAppointment(prev => ({ ...prev, type: e.target.value }))}
+                data-testid="input-appointment-type"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Doctor/Provider</Label>
+              <Input 
+                placeholder="e.g., Dr. Emily Johnson"
+                value={newAppointment.doctor}
+                onChange={(e) => setNewAppointment(prev => ({ ...prev, doctor: e.target.value }))}
+                data-testid="input-appointment-doctor"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>Date *</Label>
+                <Input 
+                  type="date"
+                  value={newAppointment.date}
+                  onChange={(e) => setNewAppointment(prev => ({ ...prev, date: e.target.value }))}
+                  data-testid="input-appointment-date"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>Time</Label>
+                <Input 
+                  type="time"
+                  value={newAppointment.time}
+                  onChange={(e) => setNewAppointment(prev => ({ ...prev, time: e.target.value }))}
+                  data-testid="input-appointment-time"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Location</Label>
+              <Input 
+                placeholder="e.g., Heart Health Center"
+                value={newAppointment.location}
+                onChange={(e) => setNewAppointment(prev => ({ ...prev, location: e.target.value }))}
+                data-testid="input-appointment-location"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Notes</Label>
+              <Textarea 
+                placeholder="Any special instructions or things to bring..."
+                value={newAppointment.notes}
+                onChange={(e) => setNewAppointment(prev => ({ ...prev, notes: e.target.value }))}
+                data-testid="input-appointment-notes"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddAppointment(false)}>Cancel</Button>
+            <Button onClick={handleAddAppointment} data-testid="button-submit-appointment">Schedule</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

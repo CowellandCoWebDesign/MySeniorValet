@@ -13,8 +13,10 @@ import { format } from 'date-fns';
 import { 
   Shield, Pill, DollarSign, FileText, CheckCircle, AlertCircle,
   Clock, Calendar, User, CreditCard, Building, Phone, MapPin,
-  TrendingUp, Info, Search, Calculator, Heart, Star, HelpCircle
+  TrendingUp, Info, Search, Calculator, Heart, Star, HelpCircle, Plus
 } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface FamilyMedicareManagerProps {
   userId?: string;
@@ -33,9 +35,70 @@ interface MedicationSearch {
 }
 
 export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareManagerProps) {
+  const { toast } = useToast();
   const [medicationSearch, setMedicationSearch] = useState('');
   const [selectedPlan, setSelectedPlan] = useState('');
   const [zipCode, setZipCode] = useState('');
+  const [showAddMedication, setShowAddMedication] = useState(false);
+  const [newMedication, setNewMedication] = useState({ name: '', quantity: '', cost: '' });
+  
+  // Action handlers
+  const handleDownloadCard = () => {
+    toast({
+      title: "Downloading Medicare Card",
+      description: "Your Medicare card PDF is being generated and will download shortly.",
+    });
+  };
+  
+  const handleEstimateCosts = () => {
+    toast({
+      title: "Cost Estimator",
+      description: "Opening Medicare community cost estimator tool...",
+    });
+  };
+  
+  const handleFindGaps = () => {
+    toast({
+      title: "Coverage Gap Analysis",
+      description: "Analyzing your coverage for potential gaps...",
+    });
+  };
+  
+  const handleHelpLine = () => {
+    toast({
+      title: "Medicare Help Line",
+      description: "1-800-MEDICARE (1-800-633-4227) - Available 24/7",
+    });
+  };
+  
+  const handleRefillMedication = (medName: string) => {
+    toast({
+      title: "Refill Request Sent",
+      description: `Refill request for ${medName} has been submitted to your pharmacy.`,
+    });
+  };
+  
+  const handleAddMedication = () => {
+    if (!newMedication.name.trim()) {
+      toast({ title: "Error", description: "Medication name is required", variant: "destructive" });
+      return;
+    }
+    const newId = Math.max(...monthlyMedications.map(m => m.id), 0) + 1;
+    const cost = parseFloat(newMedication.cost) || 10;
+    setMonthlyMedications(prev => [...prev, {
+      id: newId,
+      name: newMedication.name,
+      quantity: parseInt(newMedication.quantity) || 30,
+      cost: cost,
+      savings: Math.round(cost * 3)
+    }]);
+    toast({
+      title: "Medication Added",
+      description: `${newMedication.name} has been added to your medication list.`,
+    });
+    setShowAddMedication(false);
+    setNewMedication({ name: '', quantity: '', cost: '' });
+  };
 
   // Fetch user's Medicare information
   const { data: medicareInfo } = useQuery({
@@ -61,11 +124,11 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
     { type: 'Part D', status: 'Active', premium: 32.74, planName: 'SilverScript Choice' }
   ];
 
-  const monthlyMedications = [
-    { name: 'Metformin 500mg', quantity: 60, cost: 4, savings: 36 },
-    { name: 'Lisinopril 10mg', quantity: 30, cost: 4, savings: 21 },
-    { name: 'Atorvastatin 20mg', quantity: 30, cost: 10, savings: 180 }
-  ];
+  const [monthlyMedications, setMonthlyMedications] = useState([
+    { id: 1, name: 'Metformin 500mg', quantity: 60, cost: 4, savings: 36 },
+    { id: 2, name: 'Lisinopril 10mg', quantity: 30, cost: 4, savings: 21 },
+    { id: 3, name: 'Atorvastatin 20mg', quantity: 30, cost: 10, savings: 180 }
+  ]);
 
   const totalMonthlyCost = monthlyMedications.reduce((sum, med) => sum + med.cost, 0);
   const totalAnnualSavings = monthlyMedications.reduce((sum, med) => sum + (med.savings * 12), 0);
@@ -146,19 +209,19 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
                 <CardTitle className="text-lg">Quick Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full justify-start" variant="outline">
+                <Button className="w-full justify-start" variant="outline" onClick={handleDownloadCard} data-testid="button-download-medicare-card">
                   <FileText className="w-4 h-4 mr-2" />
                   Download Medicare Card
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button className="w-full justify-start" variant="outline" onClick={handleEstimateCosts} data-testid="button-estimate-costs">
                   <Calculator className="w-4 h-4 mr-2" />
                   Estimate Community Costs
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button className="w-full justify-start" variant="outline" onClick={handleFindGaps} data-testid="button-find-gaps">
                   <Search className="w-4 h-4 mr-2" />
                   Find Coverage Gaps
                 </Button>
-                <Button className="w-full justify-start" variant="outline">
+                <Button className="w-full justify-start" variant="outline" onClick={handleHelpLine} data-testid="button-medicare-helpline">
                   <HelpCircle className="w-4 h-4 mr-2" />
                   Medicare Help Line
                 </Button>
@@ -201,11 +264,17 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
         {/* My Medications Tab */}
         <TabsContent value="medications">
           <Card>
-            <CardHeader>
-              <CardTitle>Medication List & Cost Tracker</CardTitle>
-              <CardDescription>
-                Track your prescriptions and compare costs across pharmacies
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Medication List & Cost Tracker</CardTitle>
+                <CardDescription>
+                  Track your prescriptions and compare costs across pharmacies
+                </CardDescription>
+              </div>
+              <Button onClick={() => setShowAddMedication(true)} data-testid="button-add-medication">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Medication
+              </Button>
             </CardHeader>
             <CardContent>
               {/* Medication Search */}
@@ -273,9 +342,9 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
                         </div>
                         <div className="mt-3 pt-3 border-t">
                           <div className="flex gap-2">
-                            <Button size="sm" variant="outline">Refill</Button>
-                            <Button size="sm" variant="outline">Find Cheaper</Button>
-                            <Button size="sm" variant="outline">Set Reminder</Button>
+                            <Button size="sm" variant="outline" onClick={() => handleRefillMedication(med.name)} data-testid={`button-refill-${idx}`}>Refill</Button>
+                            <Button size="sm" variant="outline" onClick={() => toast({ title: "Finding Alternatives", description: `Searching for cheaper alternatives to ${med.name}...` })} data-testid={`button-find-cheaper-${idx}`}>Find Cheaper</Button>
+                            <Button size="sm" variant="outline" onClick={() => toast({ title: "Reminder Set", description: `You'll be reminded to refill ${med.name}.` })} data-testid={`button-set-reminder-${idx}`}>Set Reminder</Button>
                           </div>
                         </div>
                       </div>
@@ -505,6 +574,58 @@ export function FamilyMedicareManager({ userId, residentName }: FamilyMedicareMa
           </Card>
         </TabsContent>
       </Tabs>
+      
+      {/* Add Medication Dialog */}
+      <Dialog open={showAddMedication} onOpenChange={setShowAddMedication}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Medication</DialogTitle>
+            <DialogDescription>
+              Add a medication to your tracking list to monitor costs and refills.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="med-name">Medication Name *</Label>
+              <Input
+                id="med-name"
+                placeholder="e.g., Metformin 500mg"
+                value={newMedication.name}
+                onChange={(e) => setNewMedication({...newMedication, name: e.target.value})}
+                data-testid="input-medication-name"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="med-quantity">Quantity</Label>
+                <Input
+                  id="med-quantity"
+                  type="number"
+                  placeholder="30"
+                  value={newMedication.quantity}
+                  onChange={(e) => setNewMedication({...newMedication, quantity: e.target.value})}
+                  data-testid="input-medication-quantity"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="med-cost">Monthly Cost ($)</Label>
+                <Input
+                  id="med-cost"
+                  type="number"
+                  placeholder="10"
+                  value={newMedication.cost}
+                  onChange={(e) => setNewMedication({...newMedication, cost: e.target.value})}
+                  data-testid="input-medication-cost"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddMedication(false)}>Cancel</Button>
+            <Button onClick={handleAddMedication} data-testid="button-save-medication">Add Medication</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
