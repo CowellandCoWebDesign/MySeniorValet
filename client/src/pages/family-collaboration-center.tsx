@@ -204,6 +204,16 @@ export default function FamilyCollaborationCenter() {
   const [newPollTitle, setNewPollTitle] = useState('');
   const [newPollDescription, setNewPollDescription] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '']);
+  
+  // Member management state
+  const [showManageMembers, setShowManageMembers] = useState(false);
+  const [selectedMember, setSelectedMember] = useState<{userId: string; role: string; relationship?: string} | null>(null);
+  const [showRemoveMemberConfirm, setShowRemoveMemberConfirm] = useState(false);
+  
+  // Direct messaging state
+  const [chatMode, setChatMode] = useState<'group' | 'dm'>('group');
+  const [dmRecipient, setDmRecipient] = useState<{userId: string; relationship?: string} | null>(null);
+  const [dmMessage, setDmMessage] = useState('');
 
   // Visit Report state
   const [showAddVisitReport, setShowAddVisitReport] = useState(false);
@@ -284,6 +294,105 @@ export default function FamilyCollaborationCenter() {
     onSuccess: () => {
       setShowInviteDialog(false);
       setInviteEmail('');
+      toast({ title: 'Invite Sent', description: 'Email invitation has been sent!' });
+    },
+  });
+
+  // Remove member mutation
+  const removeMemberMutation = useMutation({
+    mutationFn: async (memberId: string) => {
+      const response = await fetch(`/api/family/groups/${selectedGroupId}/members/${memberId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to remove member');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/groups'] });
+      setShowRemoveMemberConfirm(false);
+      setSelectedMember(null);
+      toast({ title: 'Member Removed', description: 'The member has been removed from the group.' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  // Update member role mutation
+  const updateMemberRoleMutation = useMutation({
+    mutationFn: async ({ memberId, role }: { memberId: string; role: string }) => {
+      const response = await fetch(`/api/family/groups/${selectedGroupId}/members/${memberId}/role`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role }),
+      });
+      if (!response.ok) throw new Error('Failed to update role');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/groups'] });
+      toast({ title: 'Role Updated', description: 'Member role has been updated.' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  // Regenerate invite code mutation
+  const regenerateCodeMutation = useMutation({
+    mutationFn: async () => {
+      const response = await fetch(`/api/family/groups/${selectedGroupId}/regenerate-code`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (!response.ok) throw new Error('Failed to regenerate code');
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/groups'] });
+      toast({ title: 'Code Regenerated', description: 'A new invite code has been generated.' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  // Fetch DM messages
+  const { data: dmMessagesData, isLoading: dmLoading, refetch: refetchDm } = useQuery<{
+    messages: Message[];
+    currentUserId: string;
+    otherUserId: string;
+  }>({
+    queryKey: ['/api/family/groups', selectedGroupId, 'dm', dmRecipient?.userId],
+    queryFn: async () => {
+      if (!selectedGroupId || !dmRecipient) return { messages: [], currentUserId: '', otherUserId: '' };
+      const response = await fetch(`/api/family/groups/${selectedGroupId}/dm/${dmRecipient.userId}`);
+      if (!response.ok) throw new Error('Failed to fetch DM');
+      return response.json();
+    },
+    enabled: !!user && !!selectedGroupId && !!dmRecipient && chatMode === 'dm',
+    refetchInterval: 5000,
+  });
+
+  // Send DM mutation
+  const sendDmMutation = useMutation({
+    mutationFn: async (message: string) => {
+      if (!selectedGroupId || !dmRecipient) throw new Error('No recipient selected');
+      const response = await fetch(`/api/family/groups/${selectedGroupId}/dm/${dmRecipient.userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+      if (!response.ok) throw new Error('Failed to send message');
+      return response.json();
+    },
+    onSuccess: () => {
+      setDmMessage('');
+      refetchDm();
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
 
@@ -1363,7 +1472,7 @@ export default function FamilyCollaborationCenter() {
                           <DialogTrigger asChild>
                             <Button size="sm" variant="outline" data-testid="button-invite-member">
                               <UserPlus className="w-4 h-4 mr-2" />
-                              Invite Member
+                              Invite
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -1379,6 +1488,16 @@ export default function FamilyCollaborationCenter() {
                                 <p className="text-3xl font-mono font-bold tracking-widest">
                                   {currentGroup.inviteCode || 'N/A'}
                                 </p>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="mt-2"
+                                  onClick={() => regenerateCodeMutation.mutate()}
+                                  disabled={regenerateCodeMutation.isPending}
+                                  data-testid="button-regenerate-code"
+                                >
+                                  {regenerateCodeMutation.isPending ? 'Generating...' : 'Generate New Code'}
+                                </Button>
                               </div>
                               <Separator />
                               <div className="space-y-2">
@@ -1404,10 +1523,84 @@ export default function FamilyCollaborationCenter() {
                             </DialogFooter>
                           </DialogContent>
                         </Dialog>
+                        <Dialog open={showManageMembers} onOpenChange={setShowManageMembers}>
+                          <DialogTrigger asChild>
+                            <Button size="sm" variant="outline" data-testid="button-manage-members">
+                              <Users className="w-4 h-4 mr-2" />
+                              Manage
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-md">
+                            <DialogHeader>
+                              <DialogTitle>Manage Members</DialogTitle>
+                              <DialogDescription>
+                                View and manage your family group members
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-3 py-4 max-h-[400px] overflow-y-auto">
+                              {currentGroup.members.map((member) => {
+                                const isOwner = member.role === 'owner';
+                                const isCurrentUser = member.userId === user?.id;
+                                return (
+                                  <div key={member.userId} className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                                    <div className="flex items-center gap-3">
+                                      <Avatar className="h-10 w-10">
+                                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                          {member.relationship?.substring(0, 2).toUpperCase() || 'FM'}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <div>
+                                        <p className="font-medium">{member.relationship || 'Family Member'}</p>
+                                        <div className="flex items-center gap-2">
+                                          <Badge variant={isOwner ? 'default' : 'secondary'} className="text-xs">
+                                            {member.role}
+                                          </Badge>
+                                          {isCurrentUser && <Badge variant="outline" className="text-xs">You</Badge>}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    {!isOwner && !isCurrentUser && currentGroup.ownerId === user?.id && (
+                                      <div className="flex gap-1">
+                                        <Select
+                                          value={member.role}
+                                          onValueChange={(role) => updateMemberRoleMutation.mutate({ memberId: member.userId, role })}
+                                        >
+                                          <SelectTrigger className="w-24 h-8" data-testid={`select-role-${member.userId}`}>
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="admin">Admin</SelectItem>
+                                            <SelectItem value="member">Member</SelectItem>
+                                            <SelectItem value="viewer">Viewer</SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                        <Button
+                                          size="sm"
+                                          variant="ghost"
+                                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+                                          onClick={() => {
+                                            setSelectedMember(member);
+                                            setShowRemoveMemberConfirm(true);
+                                          }}
+                                          data-testid={`button-remove-${member.userId}`}
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </Button>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setShowManageMembers(false)}>Close</Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                     
-                    {/* Group Members */}
+                    {/* Group Members Grid */}
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                       {currentGroup.members.map((member, idx) => (
                         <div key={member.userId} className="flex items-center gap-2 p-2 rounded-lg bg-white/50 dark:bg-gray-800/50">
@@ -1417,8 +1610,8 @@ export default function FamilyCollaborationCenter() {
                                 {member.relationship?.substring(0, 2).toUpperCase() || 'FM'}
                               </AvatarFallback>
                             </Avatar>
-                            {idx === 0 && (
-                              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                            {member.role === 'owner' && (
+                              <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-yellow-500 rounded-full border-2 border-white" title="Owner"></div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
@@ -1430,6 +1623,29 @@ export default function FamilyCollaborationCenter() {
                         </div>
                       ))}
                     </div>
+                    
+                    {/* Remove Member Confirmation Dialog */}
+                    <Dialog open={showRemoveMemberConfirm} onOpenChange={setShowRemoveMemberConfirm}>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>Remove Member</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to remove {selectedMember?.relationship || 'this member'} from the family group? They will need to use an invite code to rejoin.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setShowRemoveMemberConfirm(false)}>Cancel</Button>
+                          <Button 
+                            variant="destructive"
+                            onClick={() => selectedMember && removeMemberMutation.mutate(selectedMember.userId)}
+                            disabled={removeMemberMutation.isPending}
+                            data-testid="button-confirm-remove"
+                          >
+                            {removeMemberMutation.isPending ? 'Removing...' : 'Remove Member'}
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 )}
               </CardContent>
@@ -1970,127 +2186,381 @@ export default function FamilyCollaborationCenter() {
 
           {/* Messages Tab */}
           <TabsContent value="messages" className="space-y-6">
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle className="flex items-center gap-2">
-                      <MessageCircle className="w-5 h-5 text-purple-500" />
-                      Family Messages
-                    </CardTitle>
-                    <CardDescription>
-                      Your unified family thread - all care journey conversations in one place
-                    </CardDescription>
-                  </div>
-                  {messagesLoading && <Badge variant="outline">Loading...</Badge>}
-                </div>
-              </CardHeader>
-              <CardContent className="flex-1 flex flex-col">
-                <ScrollArea className="flex-1 pr-4">
-                  <div className="space-y-4 mb-4">
-                    {messagesLoading ? (
-                      <div className="text-center text-muted-foreground py-8">
-                        Loading messages...
+            {familyGroups.length === 0 ? (
+              /* Onboarding Experience - No Family Group */
+              <Card className="border-2 border-purple-500/20 bg-gradient-to-br from-purple-50 via-pink-50 to-indigo-50 dark:from-purple-950/20 dark:via-pink-950/20 dark:to-indigo-950/20">
+                <CardContent className="py-12">
+                  <div className="max-w-lg mx-auto text-center space-y-6">
+                    <div className="w-20 h-20 mx-auto bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                      <MessageCircle className="w-10 h-10 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">Stay Connected with Family</h2>
+                      <p className="text-muted-foreground">
+                        Create a family group to message your loved ones, share community research, 
+                        coordinate visits, and make decisions together about senior care.
+                      </p>
+                    </div>
+                    
+                    <div className="grid gap-4 text-left bg-white/50 dark:bg-black/20 rounded-lg p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                          <Users className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Group Messaging</h4>
+                          <p className="text-sm text-muted-foreground">Share updates and discuss options with all family members at once</p>
+                        </div>
                       </div>
-                    ) : messagesData?.messages?.length ?? 0 > 0 ? (
-                      messagesData?.messages?.map((msg: any) => {
-                        const isCurrentUser = msg.senderId === messagesData?.currentUserId;
-                        const isSystemMessage = msg.messageType === 'system';
-                        
-                        return (
-                          <div
-                            key={msg.id}
-                            className={`flex gap-3 ${isCurrentUser && !isSystemMessage ? 'justify-end' : ''}`}
-                          >
-                            {!isCurrentUser && !isSystemMessage && (
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback>
-                                  {msg.senderName?.split(' ').map((n: string) => n[0]).join('') || '??'}
-                                </AvatarFallback>
-                              </Avatar>
-                            )}
-                            <div
-                              className={`max-w-[70%] ${
-                                isCurrentUser && !isSystemMessage ? 'order-first' : ''
-                              }`}
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center flex-shrink-0">
+                          <Heart className="w-4 h-4 text-pink-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Share Favorites</h4>
+                          <p className="text-sm text-muted-foreground">Save and discuss communities that catch your eye</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center flex-shrink-0">
+                          <Vote className="w-4 h-4 text-indigo-600" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium">Vote Together</h4>
+                          <p className="text-sm text-muted-foreground">Create polls to make important decisions as a family</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+                      <Dialog open={showCreateGroup} onOpenChange={setShowCreateGroup}>
+                        <DialogTrigger asChild>
+                          <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 text-white" data-testid="button-create-group-messages">
+                            <Plus className="w-5 h-5 mr-2" />
+                            Create Family Group
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Create a Family Group</DialogTitle>
+                            <DialogDescription>
+                              Create a group to collaborate with family members on finding senior care.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                              <Label>Group Name</Label>
+                              <Input 
+                                placeholder="e.g., Johnson Family" 
+                                value={newGroupName}
+                                onChange={(e) => setNewGroupName(e.target.value)}
+                                data-testid="input-group-name-messages"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowCreateGroup(false)}>Cancel</Button>
+                            <Button 
+                              onClick={() => createGroupMutation.mutate(newGroupName)}
+                              disabled={!newGroupName.trim() || createGroupMutation.isPending}
+                              data-testid="button-confirm-create-messages"
                             >
-                              {isSystemMessage ? (
-                                <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg p-3 border border-yellow-300 dark:border-yellow-700">
-                                  <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
-                                    🎉 {msg.content}
-                                  </p>
-                                  {msg.metadata && (
-                                    <div className="mt-2 text-xs text-yellow-800 dark:text-yellow-200">
-                                      {msg.metadata.communityName && (
-                                        <span>Community: {msg.metadata.communityName}</span>
-                                      )}
-                                      {msg.metadata.notes && (
-                                        <p className="mt-1 italic">{msg.metadata.notes}</p>
-                                      )}
+                              {createGroupMutation.isPending ? 'Creating...' : 'Create Group'}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog open={showJoinGroup} onOpenChange={setShowJoinGroup}>
+                        <DialogTrigger asChild>
+                          <Button size="lg" variant="outline" data-testid="button-join-group-messages">
+                            <UserPlus className="w-5 h-5 mr-2" />
+                            Join with Invite Code
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Join a Family Group</DialogTitle>
+                            <DialogDescription>
+                              Enter the invite code shared by a family member to join their group.
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4 py-4">
+                            <div className="space-y-2">
+                              <Label>Invite Code</Label>
+                              <Input 
+                                placeholder="Enter 8-character code" 
+                                value={joinCode}
+                                onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+                                maxLength={8}
+                                className="text-center text-xl tracking-widest font-mono"
+                                data-testid="input-join-code-messages"
+                              />
+                            </div>
+                          </div>
+                          <DialogFooter>
+                            <Button variant="outline" onClick={() => setShowJoinGroup(false)}>Cancel</Button>
+                            <Button 
+                              onClick={() => joinGroupMutation.mutate(joinCode)}
+                              disabled={joinCode.length < 4 || joinGroupMutation.isPending}
+                              data-testid="button-confirm-join-messages"
+                            >
+                              {joinGroupMutation.isPending ? 'Joining...' : 'Join Group'}
+                            </Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : (
+              /* Messaging Interface - Has Family Group */
+              <div className="grid md:grid-cols-4 gap-4">
+                {/* Member Sidebar */}
+                <Card className="md:col-span-1">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Conversations</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 p-2">
+                    {/* Group Chat Option */}
+                    <Button
+                      variant={chatMode === 'group' && !dmRecipient ? 'secondary' : 'ghost'}
+                      className="w-full justify-start gap-2"
+                      onClick={() => {
+                        setChatMode('group');
+                        setDmRecipient(null);
+                      }}
+                      data-testid="button-group-chat"
+                    >
+                      <Users className="w-4 h-4" />
+                      <span className="truncate">Group Chat</span>
+                    </Button>
+                    
+                    <Separator className="my-2" />
+                    <p className="text-xs text-muted-foreground px-2 py-1">Direct Messages</p>
+                    
+                    {/* Family Members for DM */}
+                    {currentGroup?.members
+                      .filter(m => m.userId !== user?.id)
+                      .map((member) => (
+                        <Button
+                          key={member.userId}
+                          variant={dmRecipient?.userId === member.userId ? 'secondary' : 'ghost'}
+                          className="w-full justify-start gap-2"
+                          onClick={() => {
+                            setChatMode('dm');
+                            setDmRecipient(member);
+                          }}
+                          data-testid={`button-dm-${member.userId}`}
+                        >
+                          <Avatar className="h-6 w-6">
+                            <AvatarFallback className="text-xs bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                              {member.relationship?.substring(0, 2).toUpperCase() || 'FM'}
+                            </AvatarFallback>
+                          </Avatar>
+                          <span className="truncate text-sm">{member.relationship || 'Member'}</span>
+                        </Button>
+                      ))}
+                    
+                    {(!currentGroup?.members || currentGroup.members.filter(m => m.userId !== user?.id).length === 0) && (
+                      <p className="text-xs text-muted-foreground text-center py-4">
+                        Invite family members to start direct messaging
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+                
+                {/* Chat Area */}
+                <Card className="md:col-span-3 h-[600px] flex flex-col">
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {chatMode === 'dm' && dmRecipient ? (
+                          <>
+                            <Avatar className="h-10 w-10">
+                              <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white">
+                                {dmRecipient.relationship?.substring(0, 2).toUpperCase() || 'FM'}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <CardTitle className="text-lg">{dmRecipient.relationship || 'Family Member'}</CardTitle>
+                              <CardDescription>Direct Message</CardDescription>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                              <Users className="w-5 h-5 text-white" />
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg">Family Group Chat</CardTitle>
+                              <CardDescription>All family members can see these messages</CardDescription>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                      {(messagesLoading || dmLoading) && <Badge variant="outline">Loading...</Badge>}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="flex-1 flex flex-col overflow-hidden">
+                    <ScrollArea className="flex-1 pr-4">
+                      <div className="space-y-4 mb-4">
+                        {chatMode === 'dm' && dmRecipient ? (
+                          /* DM Messages */
+                          dmLoading ? (
+                            <div className="text-center text-muted-foreground py-8">Loading messages...</div>
+                          ) : dmMessagesData?.messages?.length ?? 0 > 0 ? (
+                            dmMessagesData?.messages?.map((msg: any) => {
+                              const isCurrentUser = msg.senderId === dmMessagesData?.currentUserId;
+                              return (
+                                <div key={msg.id} className={`flex gap-3 ${isCurrentUser ? 'justify-end' : ''}`}>
+                                  {!isCurrentUser && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                                        {dmRecipient.relationship?.substring(0, 2).toUpperCase() || 'FM'}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  )}
+                                  <div className={`max-w-[70%] ${isCurrentUser ? 'order-first' : ''}`}>
+                                    <div className={`rounded-lg p-3 ${isCurrentUser ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white' : 'bg-muted'}`}>
+                                      <p className="text-sm">{msg.content}</p>
                                     </div>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {new Date(msg.createdAt).toLocaleTimeString()}
+                                    </p>
+                                  </div>
+                                  {isCurrentUser && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarFallback>ME</AvatarFallback>
+                                    </Avatar>
                                   )}
                                 </div>
-                              ) : (
-                                <>
-                                  <div
-                                    className={`rounded-lg p-3 ${
-                                      isCurrentUser
-                                        ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white'
-                                        : 'bg-muted'
-                                    }`}
-                                  >
-                                    <p className="text-sm">{msg.content}</p>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground mt-1">
-                                    {msg.senderName || user?.name || user?.email?.split('@')[0] || 'You'} • {new Date(msg.createdAt).toLocaleString()}
-                                  </p>
-                                </>
-                              )}
+                              );
+                            })
+                          ) : (
+                            <div className="text-center text-muted-foreground py-8">
+                              <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                              <p className="font-medium mb-1">Start a conversation</p>
+                              <p className="text-sm">Send a private message to {dmRecipient.relationship || 'this family member'}</p>
                             </div>
-                            {isCurrentUser && !isSystemMessage && (
-                              <Avatar className="h-8 w-8">
-                                <AvatarFallback>ME</AvatarFallback>
-                              </Avatar>
-                            )}
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-center text-muted-foreground py-8">
-                        <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-30" />
-                        <p>No messages yet. Start your family conversation!</p>
+                          )
+                        ) : (
+                          /* Group Chat Messages */
+                          messagesLoading ? (
+                            <div className="text-center text-muted-foreground py-8">Loading messages...</div>
+                          ) : messagesData?.messages?.length ?? 0 > 0 ? (
+                            messagesData?.messages?.map((msg: any) => {
+                              const isCurrentUser = msg.senderId === messagesData?.currentUserId;
+                              const isSystemMessage = msg.messageType === 'system';
+                              
+                              return (
+                                <div key={msg.id} className={`flex gap-3 ${isCurrentUser && !isSystemMessage ? 'justify-end' : ''}`}>
+                                  {!isCurrentUser && !isSystemMessage && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarFallback>
+                                        {msg.senderName?.split(' ').map((n: string) => n[0]).join('') || '??'}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                  )}
+                                  <div className={`max-w-[70%] ${isCurrentUser && !isSystemMessage ? 'order-first' : ''}`}>
+                                    {isSystemMessage ? (
+                                      <div className="bg-gradient-to-r from-yellow-100 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg p-3 border border-yellow-300 dark:border-yellow-700">
+                                        <p className="text-sm font-medium text-yellow-900 dark:text-yellow-100">{msg.content}</p>
+                                      </div>
+                                    ) : (
+                                      <>
+                                        <div className={`rounded-lg p-3 ${isCurrentUser ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-muted'}`}>
+                                          <p className="text-sm">{msg.content}</p>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-1">
+                                          {msg.senderName || 'You'} • {new Date(msg.createdAt).toLocaleTimeString()}
+                                        </p>
+                                      </>
+                                    )}
+                                  </div>
+                                  {isCurrentUser && !isSystemMessage && (
+                                    <Avatar className="h-8 w-8">
+                                      <AvatarFallback>ME</AvatarFallback>
+                                    </Avatar>
+                                  )}
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <div className="text-center text-muted-foreground py-8">
+                              <MessageCircle className="w-12 h-12 mx-auto mb-4 opacity-30" />
+                              <p className="font-medium mb-1">No messages yet</p>
+                              <p className="text-sm">Start your family conversation by sending the first message below!</p>
+                            </div>
+                          )
+                        )}
                       </div>
-                    )}
-                  </div>
-                </ScrollArea>
-                <div className="flex gap-2 pt-4 border-t">
-                  <Input
-                    placeholder="Type your message..."
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    disabled={sendMessageMutation.isPending}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && !e.shiftKey && newMessage.trim()) {
-                        e.preventDefault();
-                        sendMessageMutation.mutate(newMessage.trim());
-                      }
-                    }}
-                  />
-                  <Button 
-                    size="icon"
-                    className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                    onClick={() => {
-                      if (newMessage.trim()) {
-                        sendMessageMutation.mutate(newMessage.trim());
-                      }
-                    }}
-                    disabled={sendMessageMutation.isPending || !newMessage.trim()}
-                  >
-                    <Send className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    </ScrollArea>
+                    <div className="flex gap-2 pt-4 border-t">
+                      {chatMode === 'dm' && dmRecipient ? (
+                        <>
+                          <Input
+                            placeholder={`Message ${dmRecipient.relationship || 'family member'}...`}
+                            value={dmMessage}
+                            onChange={(e) => setDmMessage(e.target.value)}
+                            disabled={sendDmMutation.isPending}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey && dmMessage.trim()) {
+                                e.preventDefault();
+                                sendDmMutation.mutate(dmMessage.trim());
+                              }
+                            }}
+                            data-testid="input-dm-message"
+                          />
+                          <Button 
+                            size="icon"
+                            className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white"
+                            onClick={() => {
+                              if (dmMessage.trim()) {
+                                sendDmMutation.mutate(dmMessage.trim());
+                              }
+                            }}
+                            disabled={sendDmMutation.isPending || !dmMessage.trim()}
+                            data-testid="button-send-dm"
+                          >
+                            <Send className="w-4 h-4" />
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Input
+                            placeholder="Type your message..."
+                            value={newMessage}
+                            onChange={(e) => setNewMessage(e.target.value)}
+                            disabled={sendMessageMutation.isPending}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter' && !e.shiftKey && newMessage.trim()) {
+                                e.preventDefault();
+                                sendMessageMutation.mutate(newMessage.trim());
+                              }
+                            }}
+                            data-testid="input-message"
+                          />
+                          <Button 
+                            size="icon"
+                            className="bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                            onClick={() => {
+                              if (newMessage.trim()) {
+                                sendMessageMutation.mutate(newMessage.trim());
+                              }
+                            }}
+                            disabled={sendMessageMutation.isPending || !newMessage.trim()}
+                            data-testid="button-send-message"
+                          >
+                            <Send className="w-4 h-4" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
           </TabsContent>
 
           {/* Polls & Voting Tab */}

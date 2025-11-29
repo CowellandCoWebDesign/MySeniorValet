@@ -468,6 +468,209 @@ router.post("/groups/:groupId/messages", async (req: Request, res: Response) => 
   }
 });
 
+// Get direct messages with a specific family member
+router.get("/groups/:groupId/dm/:memberId", async (req: Request, res: Response) => {
+  try {
+    const { groupId, memberId } = req.params;
+    const userId = getUserId(req);
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // SECURITY: Verify both users are members of this family group
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Family group not found" });
+    }
+    
+    const members = group[0].members || [];
+    const requesterIsMember = members.some((m: any) => m.userId === String(userId));
+    const targetIsMember = members.some((m: any) => m.userId === String(memberId));
+    
+    if (!requesterIsMember) {
+      return res.status(403).json({ error: "You are not a member of this family group" });
+    }
+    
+    if (!targetIsMember) {
+      return res.status(403).json({ error: "Target user is not a member of this family group" });
+    }
+    
+    // Find DM conversation between these two users in this group
+    const dmConversations = await db.select()
+      .from(conversations)
+      .where(and(
+        eq(conversations.type, 'family_group'),
+        eq(conversations.familyGroupId, parseInt(groupId))
+      ));
+    
+    // Find a conversation that is a DM between these two users
+    let dmConversation = dmConversations.find((conv: any) => {
+      const meta = conv.metadata as any;
+      if (meta?.isDM && meta?.dmParticipants) {
+        const participants = meta.dmParticipants as string[];
+        return participants.includes(String(userId)) && participants.includes(String(memberId));
+      }
+      return false;
+    });
+    
+    if (!dmConversation) {
+      // Return empty messages if no DM exists yet
+      return res.json({
+        messages: [],
+        currentUserId: String(userId),
+        otherUserId: memberId
+      });
+    }
+    
+    // Fetch messages
+    const dmMessages = await db.execute(sql`
+      SELECT 
+        m.*,
+        u.name as senderName,
+        u.email as senderEmail
+      FROM messages m
+      LEFT JOIN users u ON m.sender_id = u.id
+      WHERE m.conversation_id = ${dmConversation.id}
+      ORDER BY m.created_at DESC
+      LIMIT 50
+    `);
+    
+    const formattedMessages = dmMessages.rows.map((msg: any) => ({
+      id: msg.id,
+      senderId: msg.sender_id,
+      senderName: msg.senderName || msg.senderEmail?.split('@')[0] || 'User',
+      content: msg.content,
+      createdAt: msg.created_at,
+      messageType: msg.message_type
+    }));
+    
+    res.json({
+      messages: formattedMessages.reverse(),
+      currentUserId: String(userId),
+      otherUserId: memberId
+    });
+  } catch (error) {
+    console.error("Error fetching DM:", error);
+    res.status(500).json({ error: "Failed to fetch direct messages" });
+  }
+});
+
+// Send a direct message to a family member
+router.post("/groups/:groupId/dm/:memberId", async (req: Request, res: Response) => {
+  try {
+    const { groupId, memberId } = req.params;
+    const { message } = req.body;
+    const userId = getUserId(req);
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+    
+    // SECURITY: Verify both users are members of this family group
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Family group not found" });
+    }
+    
+    const members = group[0].members || [];
+    const requesterIsMember = members.some((m: any) => m.userId === String(userId));
+    const targetIsMember = members.some((m: any) => m.userId === String(memberId));
+    
+    if (!requesterIsMember) {
+      return res.status(403).json({ error: "You are not a member of this family group" });
+    }
+    
+    if (!targetIsMember) {
+      return res.status(403).json({ error: "Target user is not a member of this family group" });
+    }
+    
+    // Find or create a DM conversation
+    const existingConversations = await db.select()
+      .from(conversations)
+      .where(and(
+        eq(conversations.type, 'family_group'),
+        eq(conversations.familyGroupId, parseInt(groupId))
+      ));
+    
+    let dmConversation = existingConversations.find((conv: any) => {
+      const meta = conv.metadata as any;
+      if (meta?.isDM && meta?.dmParticipants) {
+        const participants = meta.dmParticipants as string[];
+        return participants.includes(String(userId)) && participants.includes(String(memberId));
+      }
+      return false;
+    });
+    
+    if (!dmConversation) {
+      // Create new DM conversation
+      const conversationData: any = {
+        type: 'family_group' as const,
+        familyGroupId: parseInt(groupId),
+        participants: [
+          { userId: String(userId), role: 'member' as const, joinedAt: new Date().toISOString(), notifications: true },
+          { userId: String(memberId), role: 'member' as const, joinedAt: new Date().toISOString(), notifications: true }
+        ],
+        lastMessageAt: new Date(),
+        unreadCounts: {},
+        settings: {},
+        metadata: {
+          isDM: true,
+          dmParticipants: [String(userId), String(memberId)]
+        }
+      };
+      
+      const [newConv] = await db.insert(conversations).values(conversationData).returning();
+      dmConversation = newConv;
+    }
+    
+    // Insert message
+    const messageData: any = {
+      conversationId: dmConversation.id,
+      senderId: String(userId),
+      senderType: 'user' as const,
+      content: message,
+      messageType: 'text',
+      attachments: [],
+      readBy: [],
+      metadata: {}
+    };
+    
+    const [newMessage] = await db.insert(messages).values(messageData).returning();
+    
+    // Update conversation last message time
+    await db.update(conversations)
+      .set({ lastMessageAt: new Date() })
+      .where(eq(conversations.id, dmConversation.id));
+    
+    res.json({
+      success: true,
+      message: {
+        id: newMessage.id,
+        senderId: newMessage.senderId,
+        content: newMessage.content,
+        createdAt: newMessage.createdAt,
+        messageType: newMessage.messageType
+      }
+    });
+  } catch (error) {
+    console.error("Error sending DM:", error);
+    res.status(500).json({ error: "Failed to send direct message" });
+  }
+});
+
 // Get polls for a family group
 router.get("/groups/:groupId/polls", async (req: Request, res: Response) => {
   try {
@@ -819,6 +1022,134 @@ router.post("/groups/join", async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error joining group:", error);
     res.status(500).json({ error: "Failed to join group" });
+  }
+});
+
+// Remove member from group
+router.delete("/groups/:groupId/members/:memberId", async (req: Request, res: Response) => {
+  try {
+    const { groupId, memberId } = req.params;
+    const userId = getUserId(req);
+    
+    // Check if group exists
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    // Check if user is owner or admin
+    const currentMembers = group[0].members || [];
+    const requester = currentMembers.find((m: any) => m.userId === String(userId));
+    
+    if (!requester || (requester.role !== 'owner' && requester.role !== 'admin')) {
+      return res.status(403).json({ error: "Only owner or admin can remove members" });
+    }
+    
+    // Cannot remove owner
+    if (group[0].ownerId === memberId) {
+      return res.status(400).json({ error: "Cannot remove the group owner" });
+    }
+    
+    // Remove member from list
+    const updatedMembers = currentMembers.filter((m: any) => m.userId !== memberId);
+    
+    await db.update(familyGroups)
+      .set({ members: updatedMembers })
+      .where(eq(familyGroups.id, parseInt(groupId)));
+    
+    res.json({ success: true, message: "Member removed successfully" });
+  } catch (error) {
+    console.error("Error removing member:", error);
+    res.status(500).json({ error: "Failed to remove member" });
+  }
+});
+
+// Update member role
+router.patch("/groups/:groupId/members/:memberId/role", async (req: Request, res: Response) => {
+  try {
+    const { groupId, memberId } = req.params;
+    const { role } = req.body;
+    const userId = getUserId(req);
+    
+    if (!role || !['admin', 'member', 'viewer'].includes(role)) {
+      return res.status(400).json({ error: "Valid role is required (admin, member, or viewer)" });
+    }
+    
+    // Check if group exists
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    // Only owner can change roles
+    if (group[0].ownerId !== String(userId)) {
+      return res.status(403).json({ error: "Only group owner can change roles" });
+    }
+    
+    // Cannot change owner's role
+    if (group[0].ownerId === memberId) {
+      return res.status(400).json({ error: "Cannot change the owner's role" });
+    }
+    
+    // Update member role
+    const currentMembers = group[0].members || [];
+    const updatedMembers = currentMembers.map((m: any) => {
+      if (m.userId === memberId) {
+        return { ...m, role };
+      }
+      return m;
+    });
+    
+    await db.update(familyGroups)
+      .set({ members: updatedMembers })
+      .where(eq(familyGroups.id, parseInt(groupId)));
+    
+    res.json({ success: true, message: "Role updated successfully" });
+  } catch (error) {
+    console.error("Error updating role:", error);
+    res.status(500).json({ error: "Failed to update role" });
+  }
+});
+
+// Regenerate invite code
+router.post("/groups/:groupId/regenerate-code", async (req: Request, res: Response) => {
+  try {
+    const { groupId } = req.params;
+    const userId = getUserId(req);
+    
+    // Check if group exists and user is owner
+    const group = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.id, parseInt(groupId)))
+      .limit(1);
+    
+    if (group.length === 0) {
+      return res.status(404).json({ error: "Group not found" });
+    }
+    
+    if (group[0].ownerId !== String(userId)) {
+      return res.status(403).json({ error: "Only group owner can regenerate invite code" });
+    }
+    
+    // Generate new invite code
+    const newCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    
+    await db.update(familyGroups)
+      .set({ inviteCode: newCode })
+      .where(eq(familyGroups.id, parseInt(groupId)));
+    
+    res.json({ success: true, inviteCode: newCode });
+  } catch (error) {
+    console.error("Error regenerating code:", error);
+    res.status(500).json({ error: "Failed to regenerate invite code" });
   }
 });
 
