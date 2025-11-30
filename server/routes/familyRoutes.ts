@@ -1224,6 +1224,10 @@ router.patch("/groups/:groupId/members/:memberId/role", async (req: Request, res
     const { role } = req.body;
     const userId = getUserId(req);
     
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
     if (!role || !['admin', 'member', 'viewer'].includes(role)) {
       return res.status(400).json({ error: "Valid role is required (admin, member, or viewer)" });
     }
@@ -1238,8 +1242,9 @@ router.patch("/groups/:groupId/members/:memberId/role", async (req: Request, res
       return res.status(404).json({ error: "Group not found" });
     }
     
-    // Only owner can change roles
-    if (group[0].ownerId !== String(userId)) {
+    // Only owner can change roles (use loose equality for type coercion)
+    const isOwner = group[0].ownerId == userId || group[0].ownerId === String(userId);
+    if (!isOwner) {
       return res.status(403).json({ error: "Only group owner can change roles" });
     }
     
@@ -1274,6 +1279,10 @@ router.post("/groups/:groupId/regenerate-code", async (req: Request, res: Respon
     const { groupId } = req.params;
     const userId = getUserId(req);
     
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
     // Check if group exists and user is owner
     const group = await db.select()
       .from(familyGroups)
@@ -1284,7 +1293,9 @@ router.post("/groups/:groupId/regenerate-code", async (req: Request, res: Respon
       return res.status(404).json({ error: "Group not found" });
     }
     
-    if (group[0].ownerId !== String(userId)) {
+    // Use loose equality to handle string/number type coercion
+    const isOwner = group[0].ownerId == userId || group[0].ownerId === String(userId);
+    if (!isOwner) {
       return res.status(403).json({ error: "Only group owner can regenerate invite code" });
     }
     
