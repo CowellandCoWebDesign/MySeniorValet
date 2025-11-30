@@ -424,9 +424,13 @@ export default function FamilyCollaborationCenter() {
       if (!response.ok) throw new Error('Failed to regenerate code');
       return response.json();
     },
-    onSuccess: () => {
-      queryClientHook.invalidateQueries({ queryKey: ['/api/family/groups'] });
-      toast({ title: 'Code Regenerated', description: 'A new invite code has been generated.' });
+    onSuccess: async (data) => {
+      // Force refetch to update UI immediately
+      await queryClientHook.refetchQueries({ queryKey: ['/api/family/groups'] });
+      toast({ 
+        title: 'Code Regenerated', 
+        description: `New invite code: ${data.inviteCode}` 
+      });
     },
     onError: (error: Error) => {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
