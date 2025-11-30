@@ -15,6 +15,12 @@ import {
 } from "@shared/schema";
 import { eq, and, desc, asc, or, inArray, sql } from "drizzle-orm";
 import { randomBytes } from 'crypto';
+import sgMail from '@sendgrid/mail';
+
+// Initialize SendGrid if API key is available
+if (process.env.SENDGRID_API_KEY) {
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+}
 
 const router = Router();
 
@@ -29,6 +35,29 @@ const getUserId = (req: Request): number | null => {
   return userId ? parseInt(userId) : null;
 };
 
+// Generate a unique invite code with collision check
+async function generateUniqueInviteCode(): Promise<string> {
+  const maxAttempts = 10;
+  
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    // Generate 8-character alphanumeric code
+    const code = randomBytes(4).toString('hex').toUpperCase();
+    
+    // Check if code already exists
+    const existing = await db.select()
+      .from(familyGroups)
+      .where(eq(familyGroups.inviteCode, code))
+      .limit(1);
+    
+    if (existing.length === 0) {
+      return code;
+    }
+  }
+  
+  // Fallback: use timestamp + random for guaranteed uniqueness
+  return `${Date.now().toString(36).toUpperCase()}${randomBytes(2).toString('hex').toUpperCase()}`.substring(0, 8);
+}
+
 // Create a new family group
 router.post("/groups", async (req: Request, res: Response) => {
   try {
@@ -39,8 +68,8 @@ router.post("/groups", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Group name is required" });
     }
     
-    // Generate unique invite code
-    const inviteCode = randomBytes(4).toString('hex').toUpperCase();
+    // Generate unique invite code with collision check
+    const inviteCode = await generateUniqueInviteCode();
     
     const [newGroup] = await db.insert(familyGroups).values({
       name,
@@ -937,14 +966,14 @@ router.get("/groups/:groupId/tasks", async (req: Request, res: Response) => {
 router.post("/groups/:groupId/invite", async (req: Request, res: Response) => {
   try {
     const { groupId } = req.params;
-    const { email } = req.body;
+    const { email, senderName } = req.body;
     const userId = getUserId(req);
     
     if (!email) {
       return res.status(400).json({ error: "Email is required" });
     }
     
-    // Check if group exists and user is owner
+    // Check if group exists and user is owner or admin
     const group = await db.select()
       .from(familyGroups)
       .where(eq(familyGroups.id, parseInt(groupId)))
@@ -954,17 +983,131 @@ router.post("/groups/:groupId/invite", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Group not found" });
     }
     
-    if (group[0].ownerId !== String(userId)) {
-      return res.status(403).json({ error: "Only group owner can invite members" });
+    // Check if user has permission to invite
+    const members = group[0].members || [];
+    const requester = members.find((m: any) => m.userId === String(userId));
+    const isOwner = group[0].ownerId === String(userId);
+    const canInvite = isOwner || (requester?.role === 'admin') || (requester?.permissions?.canInvite);
+    
+    if (!canInvite) {
+      return res.status(403).json({ error: "You don't have permission to invite members" });
     }
     
-    // TODO: Send actual email invitation
-    // For now, just return success
-    res.json({
-      success: true,
-      message: "Invitation sent successfully",
-      inviteCode: group[0].inviteCode
-    });
+    const inviteCode = group[0].inviteCode;
+    const groupName = group[0].name;
+    const inviterName = senderName || 'A family member';
+    
+    // Get the base URL for the invitation link
+    const baseUrl = process.env.REPLIT_DEV_DOMAIN 
+      ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
+      : process.env.BASE_URL || 'https://myseniorvalet.com';
+    
+    const inviteLink = `${baseUrl}/family-collaboration?join=${inviteCode}`;
+    
+    // Send actual email if SendGrid is configured
+    if (process.env.SENDGRID_API_KEY) {
+      try {
+        const emailContent = {
+          to: email,
+          from: {
+            email: 'hello@myseniorvalet.com',
+            name: 'MySeniorValet'
+          },
+          subject: `${inviterName} invited you to join "${groupName}" on MySeniorValet`,
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+              <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="color: #6b46c1; margin: 0;">MySeniorValet</h1>
+                <p style="color: #718096; margin: 5px 0;">Family Collaboration Center</p>
+              </div>
+              
+              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; text-align: center;">
+                <h2 style="margin: 0 0 10px 0;">You're Invited!</h2>
+                <p style="margin: 0; font-size: 18px;">${inviterName} has invited you to join the family group:</p>
+                <p style="font-size: 24px; font-weight: bold; margin: 15px 0;">"${groupName}"</p>
+              </div>
+              
+              <div style="background: #f7fafc; padding: 25px; border-radius: 12px; margin: 20px 0; text-align: center;">
+                <p style="color: #4a5568; margin: 0 0 15px 0;">Your invite code:</p>
+                <div style="background: white; border: 2px dashed #6b46c1; padding: 15px 25px; border-radius: 8px; display: inline-block;">
+                  <code style="font-size: 28px; font-weight: bold; color: #6b46c1; letter-spacing: 3px;">${inviteCode}</code>
+                </div>
+              </div>
+              
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${inviteLink}" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; display: inline-block;">
+                  Join Family Group
+                </a>
+              </div>
+              
+              <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px;">
+                <h3 style="color: #2d3748; margin: 0 0 15px 0;">What you can do together:</h3>
+                <ul style="color: #4a5568; line-height: 1.8;">
+                  <li>Share and save favorite senior living communities</li>
+                  <li>Coordinate care research as a family</li>
+                  <li>Vote on decisions together with polls</li>
+                  <li>Message privately or as a group</li>
+                  <li>Track tours and visits</li>
+                </ul>
+              </div>
+              
+              <div style="text-align: center; color: #718096; font-size: 12px; margin-top: 30px;">
+                <p>MySeniorValet - The trusted platform for authentic senior living community information.</p>
+                <p>Helping families make informed decisions with verified data and transparent pricing.</p>
+              </div>
+            </div>
+          `,
+          text: `
+${inviterName} invited you to join "${groupName}" on MySeniorValet!
+
+Your invite code: ${inviteCode}
+
+Click here to join: ${inviteLink}
+
+Or visit MySeniorValet's Family Collaboration Center and enter the code manually.
+
+What you can do together:
+- Share and save favorite senior living communities
+- Coordinate care research as a family
+- Vote on decisions together with polls
+- Message privately or as a group
+- Track tours and visits
+
+MySeniorValet - The trusted platform for authentic senior living community information.
+          `
+        };
+        
+        await sgMail.send(emailContent);
+        console.log(`✉️ Family invite email sent to ${email} for group "${groupName}"`);
+        
+        res.json({
+          success: true,
+          message: "Invitation email sent successfully",
+          inviteCode: inviteCode,
+          emailSent: true
+        });
+      } catch (emailError: any) {
+        console.error("SendGrid error:", emailError?.response?.body || emailError);
+        // Return success with invite code even if email fails
+        res.json({
+          success: true,
+          message: "Could not send email, but here's the invite code to share manually",
+          inviteCode: inviteCode,
+          emailSent: false,
+          emailError: "Email service temporarily unavailable"
+        });
+      }
+    } else {
+      // SendGrid not configured - return invite code for manual sharing
+      console.log(`⚠️ SendGrid not configured - returning invite code for manual sharing`);
+      res.json({
+        success: true,
+        message: "Email service not configured. Share this code with your family member:",
+        inviteCode: inviteCode,
+        inviteLink: inviteLink,
+        emailSent: false
+      });
+    }
   } catch (error) {
     console.error("Error inviting member:", error);
     res.status(500).json({ error: "Failed to send invitation" });
@@ -1139,8 +1282,8 @@ router.post("/groups/:groupId/regenerate-code", async (req: Request, res: Respon
       return res.status(403).json({ error: "Only group owner can regenerate invite code" });
     }
     
-    // Generate new invite code
-    const newCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+    // Generate new unique invite code with collision check
+    const newCode = await generateUniqueInviteCode();
     
     await db.update(familyGroups)
       .set({ inviteCode: newCode })

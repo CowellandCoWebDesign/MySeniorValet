@@ -242,6 +242,27 @@ export default function FamilyCollaborationCenter() {
     }
   }, [familyGroups, selectedGroupId]);
 
+  // Handle ?join= URL parameter for invite links
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const joinCodeFromUrl = urlParams.get('join');
+    
+    if (joinCodeFromUrl && user) {
+      // Set the join code and open the join dialog
+      setJoinCode(joinCodeFromUrl.toUpperCase());
+      setShowJoinGroup(true);
+      setActiveTab('overview');
+      
+      // Clean the URL
+      window.history.replaceState({}, '', '/family-collaboration');
+      
+      toast({
+        title: 'Invite Code Detected',
+        description: 'Click "Join Group" to complete joining the family group.',
+      });
+    }
+  }, [user, toast]);
+
   // Create family group mutation
   const createGroupMutation = useMutation({
     mutationFn: async (name: string) => {
@@ -269,7 +290,10 @@ export default function FamilyCollaborationCenter() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ inviteCode }),
       });
-      if (!response.ok) throw new Error('Invalid invite code');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Invalid invite code');
+      }
       return response.json();
     },
     onSuccess: (data) => {
@@ -277,6 +301,17 @@ export default function FamilyCollaborationCenter() {
       setSelectedGroupId(data.group?.id);
       setShowJoinGroup(false);
       setJoinCode('');
+      toast({
+        title: 'Welcome to the Family!',
+        description: `You've joined "${data.group?.name || 'the family group'}" successfully.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Failed to Join',
+        description: error.message || 'Invalid invite code. Please check and try again.',
+        variant: 'destructive',
+      });
     },
   });
 
@@ -286,15 +321,38 @@ export default function FamilyCollaborationCenter() {
       const response = await fetch(`/api/family/groups/${selectedGroupId}/invite`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, senderName: user?.name || user?.email?.split('@')[0] }),
       });
-      if (!response.ok) throw new Error('Failed to send invite');
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to send invite');
+      }
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setShowInviteDialog(false);
       setInviteEmail('');
-      toast({ title: 'Invite Sent', description: 'Email invitation has been sent!' });
+      
+      if (data.emailSent) {
+        toast({ 
+          title: 'Invitation Sent!', 
+          description: `Email sent to ${inviteEmail}. They can also use code: ${data.inviteCode}` 
+        });
+      } else {
+        // Copy invite code to clipboard if email wasn't sent
+        navigator.clipboard?.writeText(data.inviteCode);
+        toast({ 
+          title: 'Invite Code Ready', 
+          description: `Code "${data.inviteCode}" copied to clipboard. Share it with your family member!`,
+        });
+      }
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Failed to Send Invite',
+        description: error.message,
+        variant: 'destructive',
+      });
     },
   });
 
