@@ -414,6 +414,9 @@ export default function FamilyCollaborationCenter() {
     },
   });
 
+  // State to store the latest invite code for display in dialog
+  const [displayedInviteCode, setDisplayedInviteCode] = useState<string | null>(null);
+
   // Regenerate invite code mutation
   const regenerateCodeMutation = useMutation({
     mutationFn: async () => {
@@ -425,7 +428,9 @@ export default function FamilyCollaborationCenter() {
       return response.json();
     },
     onSuccess: async (data) => {
-      // Force refetch to update UI immediately
+      // Update local state immediately so dialog shows new code
+      setDisplayedInviteCode(data.inviteCode);
+      // Also refetch to sync all data
       await queryClientHook.refetchQueries({ queryKey: ['/api/family/groups'] });
       toast({ 
         title: 'Code Regenerated', 
@@ -436,6 +441,17 @@ export default function FamilyCollaborationCenter() {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     },
   });
+
+  // Reset displayed invite code when dialog closes or group changes
+  useEffect(() => {
+    if (!showInviteDialog) {
+      setDisplayedInviteCode(null);
+    }
+  }, [showInviteDialog]);
+
+  useEffect(() => {
+    setDisplayedInviteCode(null);
+  }, [selectedGroupId]);
 
   // Fetch DM messages
   const { data: dmMessagesData, isLoading: dmLoading, refetch: refetchDm } = useQuery<{
@@ -1564,8 +1580,8 @@ export default function FamilyCollaborationCenter() {
                             <div className="space-y-4 py-4">
                               <div className="text-center p-4 bg-muted rounded-lg">
                                 <p className="text-sm text-muted-foreground mb-2">Invite Code</p>
-                                <p className="text-3xl font-mono font-bold tracking-widest">
-                                  {currentGroup.inviteCode || 'N/A'}
+                                <p className="text-3xl font-mono font-bold tracking-widest" data-testid="text-invite-code">
+                                  {displayedInviteCode || currentGroup.inviteCode || 'N/A'}
                                 </p>
                                 <Button 
                                   variant="ghost" 
