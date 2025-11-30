@@ -1279,7 +1279,10 @@ router.post("/groups/:groupId/regenerate-code", async (req: Request, res: Respon
     const { groupId } = req.params;
     const userId = getUserId(req);
     
+    console.log(`🔄 Regenerate code request - groupId: ${groupId}, userId: ${userId}, type: ${typeof userId}`);
+    
     if (!userId) {
+      console.log(`❌ Regenerate code failed - no userId`);
       return res.status(401).json({ error: "Authentication required" });
     }
     
@@ -1290,12 +1293,18 @@ router.post("/groups/:groupId/regenerate-code", async (req: Request, res: Respon
       .limit(1);
     
     if (group.length === 0) {
+      console.log(`❌ Regenerate code failed - group not found`);
       return res.status(404).json({ error: "Group not found" });
     }
     
+    console.log(`🔍 Group ownerId: ${group[0].ownerId}, type: ${typeof group[0].ownerId}`);
+    
     // Use loose equality to handle string/number type coercion
     const isOwner = group[0].ownerId == userId || group[0].ownerId === String(userId);
+    console.log(`🔐 Owner check: isOwner=${isOwner}, ownerId=${group[0].ownerId}, userId=${userId}`);
+    
     if (!isOwner) {
+      console.log(`❌ Regenerate code failed - not owner`);
       return res.status(403).json({ error: "Only group owner can regenerate invite code" });
     }
     
