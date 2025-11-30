@@ -329,7 +329,7 @@ export default function FamilyCollaborationCenter() {
       }
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setShowInviteDialog(false);
       setInviteEmail('');
       
@@ -339,12 +339,29 @@ export default function FamilyCollaborationCenter() {
           description: `Email sent to ${inviteEmail}. They can also use code: ${data.inviteCode}` 
         });
       } else {
-        // Copy invite code to clipboard if email wasn't sent
-        navigator.clipboard?.writeText(data.inviteCode);
-        toast({ 
-          title: 'Invite Code Ready', 
-          description: `Code "${data.inviteCode}" copied to clipboard. Share it with your family member!`,
-        });
+        // Try to copy invite code to clipboard with graceful fallback
+        let copiedToClipboard = false;
+        
+        if (navigator.clipboard && window.isSecureContext) {
+          try {
+            await navigator.clipboard.writeText(data.inviteCode);
+            copiedToClipboard = true;
+          } catch (e) {
+            console.warn('Clipboard copy failed:', e);
+          }
+        }
+        
+        if (copiedToClipboard) {
+          toast({ 
+            title: 'Invite Code Copied!', 
+            description: `Code "${data.inviteCode}" copied to clipboard. Share it with your family member!`,
+          });
+        } else {
+          toast({ 
+            title: 'Invite Code Ready', 
+            description: `Share this code with your family member: ${data.inviteCode}`,
+          });
+        }
       }
     },
     onError: (error: Error) => {

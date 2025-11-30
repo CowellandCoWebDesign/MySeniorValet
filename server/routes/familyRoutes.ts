@@ -1138,6 +1138,8 @@ router.post("/groups/join", async (req: Request, res: Response) => {
     const currentMembers = group[0].members || [];
     const userAlreadyMember = currentMembers.some((m: any) => m.userId === String(userId));
     
+    let updatedGroup = group[0];
+    
     if (!userAlreadyMember) {
       currentMembers.push({
         userId: String(userId),
@@ -1153,14 +1155,18 @@ router.post("/groups/join", async (req: Request, res: Response) => {
         joinedAt: new Date().toISOString()
       });
       
-      await db.update(familyGroups)
+      const [updated] = await db.update(familyGroups)
         .set({ members: currentMembers })
-        .where(eq(familyGroups.id, group[0].id));
+        .where(eq(familyGroups.id, group[0].id))
+        .returning();
+      
+      updatedGroup = updated;
     }
     
     res.json({
       success: true,
-      group: group[0]
+      group: updatedGroup,
+      message: userAlreadyMember ? 'You are already a member of this group' : 'Successfully joined the family group'
     });
   } catch (error) {
     console.error("Error joining group:", error);
