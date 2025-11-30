@@ -5,18 +5,13 @@ import { eq, and, desc } from "drizzle-orm";
 import { residents, paymentMethods, residentPayments, communities, paymentReceipts } from "@shared/schema";
 import { isAuthenticated } from "../auth-middleware";
 
-// Allow running without Stripe for non-payment features
-const STRIPE_DISABLED = process.env.STRIPE_DISABLED === 'true' || !process.env.STRIPE_SECRET_KEY;
-
-let stripe: Stripe | null = null;
-
-if (!STRIPE_DISABLED && process.env.STRIPE_SECRET_KEY) {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2025-08-27.basil",
-  });
-} else {
-  console.log('⚠️ Resident Payments routes disabled - Stripe not configured');
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2025-08-27.basil",
+});
 
 const CONVENIENCE_FEE = 1.99; // $1.99 processing fee
 

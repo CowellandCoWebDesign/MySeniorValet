@@ -4,18 +4,13 @@ import { stripeProducts, communitySubscriptions, communities } from '@shared/sch
 import { eq, and } from 'drizzle-orm';
 import { subscriptionTiers, addOnProducts } from '@shared/schema';
 
-// Allow running without Stripe for non-payment features (messaging, family collaboration, etc.)
-const STRIPE_DISABLED = process.env.STRIPE_DISABLED === 'true' || !process.env.STRIPE_SECRET_KEY;
-
-let stripe: Stripe | null = null;
-
-if (!STRIPE_DISABLED && process.env.STRIPE_SECRET_KEY) {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: "2024-11-20.acacia",
-  });
-} else {
-  console.log('⚠️ Stripe is disabled - payment features will not be available');
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: "2024-11-20.acacia",
+});
 
 export class StripeService {
   async initializeProducts() {

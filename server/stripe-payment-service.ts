@@ -1,18 +1,13 @@
 // Stripe Payment Service - handles payment intents and payment processing
 import Stripe from 'stripe';
 
-// Allow running without Stripe for non-payment features
-const STRIPE_DISABLED = process.env.STRIPE_DISABLED === 'true' || !process.env.STRIPE_SECRET_KEY;
-
-let stripe: Stripe | null = null;
-
-if (!STRIPE_DISABLED && process.env.STRIPE_SECRET_KEY) {
-  stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-    apiVersion: '2025-08-27.basil'
-  });
-} else {
-  console.log('⚠️ Stripe Payment Service disabled - payment features not available');
+if (!process.env.STRIPE_SECRET_KEY) {
+  throw new Error('STRIPE_SECRET_KEY environment variable is required');
 }
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+  apiVersion: '2025-08-27.basil'
+});
 
 class StripePaymentService {
   // Create a payment intent
