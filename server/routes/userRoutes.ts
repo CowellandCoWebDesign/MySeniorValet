@@ -100,6 +100,9 @@ export function registerUserRoutes(app: Express) {
 
   app.post('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
+      console.log('📌 POST /api/user/favorites - Request body:', JSON.stringify(req.body));
+      console.log('📌 POST /api/user/favorites - User:', req.user?.id, req.user?.email);
+      
       const userId = req.user?.id;
       if (!userId) {
         return res.status(401).json({ message: 'User not authenticated' });
@@ -118,6 +121,12 @@ export function registerUserRoutes(app: Express) {
       }
       
       const { communityId, notes, priority, tags } = req.body;
+      
+      // Validate communityId
+      if (!communityId) {
+        console.error('❌ POST /api/user/favorites - Missing communityId');
+        return res.status(400).json({ message: 'communityId is required' });
+      }
 
       // Check if already favorited
       const existing = await db
