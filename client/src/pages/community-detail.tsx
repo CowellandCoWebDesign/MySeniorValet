@@ -1370,8 +1370,17 @@ export default function CommunityDetail() {
   const removeFavoriteMutation = useRemoveFavorite();
   
   // Check if this community is already in favorites
-  const existingFavorite = favorites.find(f => f.communityId === Number(id));
+  // CRITICAL: communityId is stored as TEXT in database, so compare as strings
+  const existingFavorite = favorites.find(f => String(f.communityId) === String(id));
   const isFavorite = !!existingFavorite;
+  
+  // Debug log for favorites matching
+  console.log('💜 Favorites check:', {
+    currentId: id,
+    favoritesCount: favorites.length,
+    favoriteIds: favorites.map(f => f.communityId),
+    isFavorite
+  });
   
   // Check if any mutation is in progress
   const isFavoriteMutating = addFavoriteMutation.isPending || removeFavoriteMutation.isPending;

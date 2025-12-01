@@ -3,7 +3,7 @@ import { apiRequest } from "@/lib/queryClient";
 
 export interface Favorite {
   id: number;
-  communityId: number;
+  communityId: string | number; // CRITICAL: stored as TEXT in database, can be string or number
   notes?: string;
   priority: number;
   tags: string[];
