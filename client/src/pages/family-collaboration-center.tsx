@@ -1363,11 +1363,11 @@ export default function FamilyCollaborationCenter() {
         {/* Main Feature Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="sticky top-[64px] z-30 bg-gradient-to-b from-background via-background/98 to-background/95 backdrop-blur-xl pb-6 pt-4 border-b-2 border-primary/10">
-            <div ref={tabsScrollRef} className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent" style={{ scrollBehavior: 'smooth' }}>
-              <TabsList className="flex flex-wrap lg:flex-nowrap h-auto w-max lg:w-full p-2 bg-gradient-to-r from-slate-100/90 to-gray-100/90 dark:from-slate-900/90 dark:to-gray-900/90 rounded-xl shadow-lg border border-primary/10 gap-1">
+            <div ref={tabsScrollRef} className="w-full">
+              <TabsList className="!flex !flex-wrap justify-center h-auto w-full p-2 bg-gradient-to-r from-slate-100/90 to-gray-100/90 dark:from-slate-900/90 dark:to-gray-900/90 rounded-xl shadow-lg border border-primary/10 gap-1.5">
                 <TabsTrigger 
                   value="overview" 
-                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-amber-500/0 to-yellow-500/0 group-hover:from-amber-500/10 group-hover:to-yellow-500/10 data-[state=active]:from-amber-500/20 data-[state=active]:to-yellow-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1378,7 +1378,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tour-tracker" 
-                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-cyan-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1389,7 +1389,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="tourmate" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1400,7 +1400,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="messages" 
-                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-green-500/0 to-emerald-500/0 group-hover:from-green-500/10 group-hover:to-emerald-500/10 data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1411,7 +1411,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="polls" 
-                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-orange-500/0 to-amber-500/0 group-hover:from-orange-500/10 group-hover:to-amber-500/10 data-[state=active]:from-orange-500/20 data-[state=active]:to-amber-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1422,7 +1422,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="video-calls" 
-                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-pink-500/0 group-hover:from-purple-500/10 group-hover:to-pink-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1433,7 +1433,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="health-records" 
-                  className="flex-1 min-w-[150px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-cyan-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1444,7 +1444,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="medicare" 
-                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 to-blue-500/0 group-hover:from-indigo-500/10 group-hover:to-blue-500/10 data-[state=active]:from-indigo-500/20 data-[state=active]:to-blue-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1455,7 +1455,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="care" 
-                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-pink-500/0 group-hover:from-red-500/10 group-hover:to-pink-500/10 data-[state=active]:from-red-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1466,7 +1466,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="daily" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/0 to-indigo-500/0 group-hover:from-purple-500/10 group-hover:to-indigo-500/10 data-[state=active]:from-purple-500/20 data-[state=active]:to-indigo-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1477,7 +1477,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="billing" 
-                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-green-500/0 to-emerald-500/0 group-hover:from-green-500/10 group-hover:to-emerald-500/10 data-[state=active]:from-green-500/20 data-[state=active]:to-emerald-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1488,7 +1488,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="calculator" 
-                  className="flex-1 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/10 group-hover:to-cyan-500/10 data-[state=active]:from-blue-500/20 data-[state=active]:to-cyan-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
@@ -1499,7 +1499,7 @@ export default function FamilyCollaborationCenter() {
                 </TabsTrigger>
                 <TabsTrigger 
                   value="favorites" 
-                  className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
+                  className="group relative overflow-hidden rounded-lg transition-all duration-300 py-2.5 px-3 data-[state=active]:scale-[1.02]"
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-rose-500/0 group-hover:from-red-500/10 group-hover:to-rose-500/10 data-[state=active]:from-red-500/20 data-[state=active]:to-rose-500/20 transition-all duration-300" />
                   <div className="relative flex items-center justify-center">
