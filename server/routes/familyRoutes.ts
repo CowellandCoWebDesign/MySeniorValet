@@ -1577,48 +1577,36 @@ router.post("/visit-reports", async (req: Request, res: Response) => {
   }
 });
 
-// Get shared favorites for family
+// Get shared favorites for family (Golden Data Rule: no demo data)
+// Shows favorites from all members of the user's family group for collaboration
 router.get("/shared-favorites", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
-    const isAuthenticated = userId !== null;
     
-    // For unauthenticated users, show demo data
-    if (!isAuthenticated) {
-      return res.json([
-        {
-          id: 1,
-          name: 'Sunrise Senior Living',
-          address: '123 Main St',
-          city: 'San Francisco',
-          state: 'CA',
-          priceRange: '$4,500 - $7,000',
-          careType: 'Assisted Living & Memory Care',
-          rating: 4.5,
-          familyRating: 4,
-          notes: 'Great memory care program',
-          addedBy: 'John'
-        },
-        {
-          id: 2,
-          name: 'Golden Years Community',
-          address: '456 Oak Ave',
-          city: 'Los Angeles',
-          state: 'CA',
-          priceRange: '$3,800 - $5,500',
-          careType: 'Independent Living',
-          rating: 4.2,
-          familyRating: 5,
-          notes: 'Mom loved the activities!',
-          addedBy: 'Sarah'
-        }
-      ]);
+    // Golden Data Rule: Return empty array for unauthenticated users
+    if (!userId) {
+      return res.json([]);
     }
     
-    // Get user's favorites with community details
-    const userFavorites = await db.select({
+    // Find user's family groups to get all member IDs for shared viewing
+    const allGroups = await db.select().from(familyGroups);
+    const userGroup = allGroups.find(g => 
+      g.ownerId === String(userId) || 
+      (g.members && g.members.some((m: any) => m.userId === String(userId)))
+    );
+    
+    // Get all member user IDs from the family group (for shared favorites)
+    let memberUserIds = [userId]; // Default to just current user
+    if (userGroup && userGroup.members) {
+      const groupMemberIds = userGroup.members.map((m: any) => parseInt(m.userId)).filter((id: number) => !isNaN(id));
+      memberUserIds = [...new Set([userId, ...groupMemberIds])];
+    }
+    
+    // Get favorites from ALL family group members for collaboration
+    const familyFavorites = await db.select({
       id: favorites.id,
       communityId: favorites.communityId,
+      userId: favorites.userId,
       notes: favorites.notes,
       tags: favorites.tags,
       priority: favorites.priority,
@@ -1627,18 +1615,176 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
       city: communities.city,
       state: communities.state,
       priceRange: communities.priceRange,
-      careTypes: communities.careTypes
+      careTypes: communities.careTypes,
+      rating: communities.rating
     })
       .from(favorites)
       .leftJoin(communities, eq(favorites.communityId, communities.id))
-      .where(eq(favorites.userId, userId))
+      .where(inArray(favorites.userId, memberUserIds))
       .orderBy(desc(favorites.createdAt))
-      .limit(20);
+      .limit(100);
     
-    res.json(userFavorites);
+    // Get user info for "added by" attribution
+    const userIds = [...new Set(familyFavorites.map(f => f.userId))];
+    const usersData = await db.select({ id: users.id, firstName: users.firstName, lastName: users.lastName, email: users.email })
+      .from(users)
+      .where(inArray(users.id, userIds.map(id => parseInt(String(id))).filter(id => !isNaN(id))));
+    
+    const userMap = new Map(usersData.map(u => {
+      const displayName = u.firstName && u.lastName 
+        ? `${u.firstName} ${u.lastName}` 
+        : u.firstName || u.lastName || u.email?.split('@')[0] || 'Family Member';
+      return [String(u.id), displayName];
+    }));
+    
+    // Format response to match frontend expectations
+    const formattedFavorites = familyFavorites.map(fav => ({
+      ...fav,
+      price: fav.priceRange || 'Contact for pricing',
+      location: fav.city && fav.state ? `${fav.city}, ${fav.state}` : fav.address,
+      careType: Array.isArray(fav.careTypes) ? fav.careTypes.join(', ') : fav.careTypes || 'Senior Living',
+      rating: fav.rating || 0,
+      familyRating: 0,
+      addedBy: String(fav.userId) === String(userId) ? 'You' : userMap.get(String(fav.userId)) || 'Family Member',
+      isOwner: String(fav.userId) === String(userId) // Flag to show delete button only for owner
+    }));
+    
+    res.json(formattedFavorites);
   } catch (error) {
     console.error("Error fetching shared favorites:", error);
     res.status(500).json({ error: "Failed to fetch shared favorites" });
+  }
+});
+
+// Add community to favorites
+router.post("/shared-favorites", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const { communityId, notes, priority } = req.body;
+    
+    if (!communityId) {
+      return res.status(400).json({ error: "Community ID is required" });
+    }
+    
+    // Check if community exists
+    const [community] = await db.select()
+      .from(communities)
+      .where(eq(communities.id, parseInt(communityId)))
+      .limit(1);
+    
+    if (!community) {
+      return res.status(404).json({ error: "Community not found" });
+    }
+    
+    // Check if already favorited
+    const existing = await db.select()
+      .from(favorites)
+      .where(and(
+        eq(favorites.userId, userId),
+        eq(favorites.communityId, parseInt(communityId))
+      ))
+      .limit(1);
+    
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Community already in favorites" });
+    }
+    
+    // Add to favorites
+    const [newFavorite] = await db.insert(favorites).values({
+      userId,
+      communityId: parseInt(communityId),
+      notes: notes || '',
+      priority: priority || 'Medium',
+      tags: []
+    }).returning();
+    
+    res.json({
+      success: true,
+      favorite: {
+        ...newFavorite,
+        name: community.name,
+        address: community.address,
+        city: community.city,
+        state: community.state,
+        priceRange: community.priceRange,
+        careType: Array.isArray(community.careTypes) ? community.careTypes.join(', ') : 'Senior Living',
+        rating: community.rating || 0,
+        location: `${community.city}, ${community.state}`,
+        addedBy: 'You'
+      }
+    });
+  } catch (error) {
+    console.error("Error adding favorite:", error);
+    res.status(500).json({ error: "Failed to add favorite" });
+  }
+});
+
+// Remove community from favorites
+router.delete("/shared-favorites/:id", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    const { id } = req.params;
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    // Verify ownership and delete
+    const deleted = await db.delete(favorites)
+      .where(and(
+        eq(favorites.id, parseInt(id)),
+        eq(favorites.userId, userId)
+      ))
+      .returning();
+    
+    if (deleted.length === 0) {
+      return res.status(404).json({ error: "Favorite not found or not authorized" });
+    }
+    
+    res.json({ success: true, message: "Favorite removed" });
+  } catch (error) {
+    console.error("Error removing favorite:", error);
+    res.status(500).json({ error: "Failed to remove favorite" });
+  }
+});
+
+// Update favorite notes/priority
+router.patch("/shared-favorites/:id", async (req: Request, res: Response) => {
+  try {
+    const userId = getUserId(req);
+    const { id } = req.params;
+    const { notes, priority, tags } = req.body;
+    
+    if (!userId) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+    
+    const updateData: any = { updatedAt: new Date() };
+    if (notes !== undefined) updateData.notes = notes;
+    if (priority !== undefined) updateData.priority = priority;
+    if (tags !== undefined) updateData.tags = tags;
+    
+    const [updated] = await db.update(favorites)
+      .set(updateData)
+      .where(and(
+        eq(favorites.id, parseInt(id)),
+        eq(favorites.userId, userId)
+      ))
+      .returning();
+    
+    if (!updated) {
+      return res.status(404).json({ error: "Favorite not found or not authorized" });
+    }
+    
+    res.json({ success: true, favorite: updated });
+  } catch (error) {
+    console.error("Error updating favorite:", error);
+    res.status(500).json({ error: "Failed to update favorite" });
   }
 });
 

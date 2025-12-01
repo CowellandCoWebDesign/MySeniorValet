@@ -130,6 +130,7 @@ interface SharedFavorite {
   familyRating?: number;
   notes?: string;
   addedBy?: string;
+  isOwner?: boolean; // Flag to indicate if current user owns this favorite
 }
 
 interface FamilyGroup {
@@ -649,6 +650,72 @@ export default function FamilyCollaborationCenter() {
     queryKey: ['/api/family/shared-favorites'],
     enabled: !!user, // Only run query if user is authenticated
     retry: 2, // Reduce retries to fail faster
+  });
+
+  // State for add favorite dialog
+  const [showAddFavoriteDialog, setShowAddFavoriteDialog] = useState(false);
+  const [communitySearchQuery, setCommunitySearchQuery] = useState('');
+  const [favoriteNotes, setFavoriteNotes] = useState('');
+  const [favoritePriority, setFavoritePriority] = useState<'High' | 'Medium' | 'Low'>('Medium');
+
+  // Search communities for adding to favorites
+  const { data: communitySearchResults = [] } = useQuery<any[]>({
+    queryKey: ['/api/communities/search', communitySearchQuery],
+    queryFn: async () => {
+      if (!communitySearchQuery || communitySearchQuery.length < 2) return [];
+      const response = await fetch(`/api/communities/search?q=${encodeURIComponent(communitySearchQuery)}&limit=10`);
+      if (!response.ok) return [];
+      return response.json();
+    },
+    enabled: communitySearchQuery.length >= 2,
+  });
+
+  // Add favorite mutation
+  const addFavoriteMutation = useMutation({
+    mutationFn: async ({ communityId, notes, priority }: { communityId: number; notes?: string; priority?: string }) => {
+      const response = await fetch('/api/family/shared-favorites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ communityId, notes, priority }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to add favorite');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/shared-favorites'] });
+      setShowAddFavoriteDialog(false);
+      setCommunitySearchQuery('');
+      setFavoriteNotes('');
+      setFavoritePriority('Medium');
+      toast({ title: 'Success', description: 'Community added to favorites!' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  // Remove favorite mutation
+  const removeFavoriteMutation = useMutation({
+    mutationFn: async (favoriteId: number | string) => {
+      const response = await fetch(`/api/family/shared-favorites/${favoriteId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to remove favorite');
+      }
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClientHook.invalidateQueries({ queryKey: ['/api/family/shared-favorites'] });
+      toast({ title: 'Success', description: 'Favorite removed' });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    },
   });
 
   // Get current group details
@@ -2914,53 +2981,174 @@ export default function FamilyCollaborationCenter() {
                 </div>
 
                 <div className="space-y-4">
-                  {sharedFavorites.map((fav: SharedFavorite) => (
-                    <Card key={fav.id} className="border-l-4 border-l-rose-500">
-                      <CardContent className="pt-4">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1 space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h4 className="font-semibold">{fav.name}</h4>
-                              <Badge variant="outline">
-                                <DollarSign className="w-3 h-3" />
-                                {fav.price}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground flex items-center gap-1">
-                              <MapPin className="w-3 h-3" />
-                              {fav.location}
-                            </p>
-                            <div className="flex items-center gap-4">
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 text-yellow-400 fill-current" />
-                                <span className="text-sm">{fav.rating} Platform</span>
+                  {favoritesLoading ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      Loading favorites...
+                    </div>
+                  ) : sharedFavorites.length === 0 ? (
+                    <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                      <Heart className="w-12 h-12 mx-auto text-muted-foreground/50 mb-4" />
+                      <h4 className="font-medium text-lg mb-2">No Favorites Yet</h4>
+                      <p className="text-muted-foreground text-sm mb-4">
+                        Save communities you're interested in to compare and share with family
+                      </p>
+                      <Button onClick={() => setShowAddFavoriteDialog(true)} data-testid="button-add-first-favorite">
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add Your First Favorite
+                      </Button>
+                    </div>
+                  ) : (
+                    sharedFavorites.map((fav: SharedFavorite) => (
+                      <Card key={fav.id} className="border-l-4 border-l-rose-500" data-testid={`card-favorite-${fav.id}`}>
+                        <CardContent className="pt-4">
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-semibold">{fav.name}</h4>
+                                <Badge variant="outline">
+                                  <DollarSign className="w-3 h-3" />
+                                  {fav.price || fav.priceRange || 'Contact for pricing'}
+                                </Badge>
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Star className="w-4 h-4 text-purple-400 fill-current" />
-                                <span className="text-sm">{fav.familyRating} Family</span>
+                              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {fav.location || `${fav.city}, ${fav.state}`}
+                              </p>
+                              <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-1">
+                                  <Star className="w-4 h-4 text-yellow-400 fill-current" />
+                                  <span className="text-sm">{fav.rating || 0} Platform</span>
+                                </div>
+                                {fav.familyRating && fav.familyRating > 0 && (
+                                  <div className="flex items-center gap-1">
+                                    <Star className="w-4 h-4 text-purple-400 fill-current" />
+                                    <span className="text-sm">{fav.familyRating} Family</span>
+                                  </div>
+                                )}
                               </div>
+                              {fav.notes && <p className="text-sm italic">{fav.notes}</p>}
+                              <p className="text-xs text-muted-foreground">Added by {fav.addedBy || 'You'}</p>
                             </div>
-                            <p className="text-sm italic">{fav.notes}</p>
-                            <p className="text-xs text-muted-foreground">Added by {fav.addedBy}</p>
+                            <div className="flex gap-2">
+                              <Button 
+                                size="icon" 
+                                variant="outline"
+                                onClick={() => {
+                                  navigator.clipboard.writeText(`${fav.name} - ${fav.location || `${fav.city}, ${fav.state}`}`);
+                                  toast({ title: 'Copied!', description: 'Community info copied to clipboard' });
+                                }}
+                                data-testid={`button-share-favorite-${fav.id}`}
+                              >
+                                <Share2 className="w-4 h-4" />
+                              </Button>
+                              {fav.isOwner !== false && (
+                                <Button 
+                                  size="icon" 
+                                  variant="outline"
+                                  onClick={() => removeFavoriteMutation.mutate(fav.id)}
+                                  disabled={removeFavoriteMutation.isPending}
+                                  data-testid={`button-remove-favorite-${fav.id}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Button size="icon" variant="outline">
-                              <Share2 className="w-4 h-4" />
-                            </Button>
-                            <Button size="icon" variant="outline">
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
                 </div>
 
-                <Button className="w-full" variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Community to Favorites
-                </Button>
+                {/* Add Favorite Dialog */}
+                <Dialog open={showAddFavoriteDialog} onOpenChange={setShowAddFavoriteDialog}>
+                  <DialogTrigger asChild>
+                    <Button className="w-full" variant="outline" data-testid="button-add-favorite">
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add Community to Favorites
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-lg">
+                    <DialogHeader>
+                      <DialogTitle>Add Community to Favorites</DialogTitle>
+                      <DialogDescription>
+                        Search for a community to add to your shared favorites list
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      <div className="space-y-2">
+                        <Label>Search Communities</Label>
+                        <Input
+                          placeholder="Type community name or city..."
+                          value={communitySearchQuery}
+                          onChange={(e) => setCommunitySearchQuery(e.target.value)}
+                          data-testid="input-search-community"
+                        />
+                      </div>
+                      
+                      {communitySearchResults.length > 0 && (
+                        <div className="max-h-48 overflow-y-auto space-y-2 border rounded-lg p-2">
+                          {communitySearchResults.map((community: any) => (
+                            <Button
+                              key={community.id}
+                              variant="ghost"
+                              className="w-full justify-start text-left h-auto py-2"
+                              onClick={() => {
+                                addFavoriteMutation.mutate({
+                                  communityId: community.id,
+                                  notes: favoriteNotes,
+                                  priority: favoritePriority
+                                });
+                              }}
+                              disabled={addFavoriteMutation.isPending}
+                              data-testid={`button-select-community-${community.id}`}
+                            >
+                              <div>
+                                <p className="font-medium">{community.name}</p>
+                                <p className="text-xs text-muted-foreground">
+                                  {community.city}, {community.state} • {community.careTypes?.join(', ') || 'Senior Living'}
+                                </p>
+                              </div>
+                            </Button>
+                          ))}
+                        </div>
+                      )}
+
+                      {communitySearchQuery.length >= 2 && communitySearchResults.length === 0 && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          No communities found. Try a different search term.
+                        </p>
+                      )}
+
+                      <div className="space-y-2">
+                        <Label>Notes (optional)</Label>
+                        <Input
+                          placeholder="Add personal notes about this community..."
+                          value={favoriteNotes}
+                          onChange={(e) => setFavoriteNotes(e.target.value)}
+                          data-testid="input-favorite-notes"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Priority</Label>
+                        <Select value={favoritePriority} onValueChange={(v) => setFavoritePriority(v as 'High' | 'Medium' | 'Low')}>
+                          <SelectTrigger data-testid="select-priority">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="High">High Priority</SelectItem>
+                            <SelectItem value="Medium">Medium Priority</SelectItem>
+                            <SelectItem value="Low">Low Priority</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowAddFavoriteDialog(false)}>Cancel</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </CardContent>
             </Card>
           </TabsContent>
