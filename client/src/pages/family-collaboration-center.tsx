@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -228,6 +228,16 @@ export default function FamilyCollaborationCenter() {
     wouldRecommend: true
   });
   const { toast } = useToast();
+  
+  // Ref for tabs scroll container to ensure it starts at left position
+  const tabsScrollRef = useRef<HTMLDivElement>(null);
+  
+  // Reset scroll position to start (left) when component mounts
+  useEffect(() => {
+    if (tabsScrollRef.current) {
+      tabsScrollRef.current.scrollLeft = 0;
+    }
+  }, []);
 
   // Fetch family groups
   const { data: familyGroups = [], isLoading: groupsLoading } = useQuery<FamilyGroup[]>({
@@ -1353,8 +1363,8 @@ export default function FamilyCollaborationCenter() {
         {/* Main Feature Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="sticky top-[64px] z-30 bg-gradient-to-b from-background via-background/98 to-background/95 backdrop-blur-xl pb-6 pt-4 border-b-2 border-primary/10">
-            <div className="w-full overflow-x-auto px-2">
-              <TabsList className="inline-flex h-auto min-w-full lg:w-full p-2 bg-gradient-to-r from-slate-100/90 to-gray-100/90 dark:from-slate-900/90 dark:to-gray-900/90 rounded-xl shadow-lg border border-primary/10">
+            <div ref={tabsScrollRef} className="w-full overflow-x-auto scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent" style={{ scrollBehavior: 'smooth' }}>
+              <TabsList className="flex flex-wrap lg:flex-nowrap h-auto w-max lg:w-full p-2 bg-gradient-to-r from-slate-100/90 to-gray-100/90 dark:from-slate-900/90 dark:to-gray-900/90 rounded-xl shadow-lg border border-primary/10 gap-1">
                 <TabsTrigger 
                   value="overview" 
                   className="flex-1 min-w-[130px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-5 data-[state=active]:scale-105"
