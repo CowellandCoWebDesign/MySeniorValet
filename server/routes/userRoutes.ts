@@ -188,16 +188,26 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ message: 'Invalid user ID' });
       }
       
-      const communityId = parseInt(req.params.communityId);
+      // communityId is stored as TEXT in the database, so keep it as string
+      const communityId = req.params.communityId;
+      
+      console.log('🗑️ DELETE /api/user/favorites - userId:', numericUserId, 'communityId:', communityId, 'type:', typeof communityId);
 
-      await db
+      const result = await db
         .delete(userFavorites)
         .where(and(
           eq(userFavorites.userId, numericUserId),
           eq(userFavorites.communityId, communityId)
-        ));
+        ))
+        .returning();
+      
+      console.log('🗑️ DELETE result - rows deleted:', result.length);
+      
+      if (result.length === 0) {
+        console.log('⚠️ No favorite found to delete for userId:', numericUserId, 'communityId:', communityId);
+      }
 
-      res.json({ success: true });
+      res.json({ success: true, deleted: result.length });
     } catch (error) {
       console.error('Error removing favorite:', error);
       res.status(500).json({ message: 'Failed to remove favorite' });

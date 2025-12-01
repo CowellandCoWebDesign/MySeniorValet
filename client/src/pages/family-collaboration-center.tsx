@@ -122,7 +122,7 @@ interface SharedFavorite {
   address: string;
   city: string;
   state: string;
-  priceRange: string;
+  priceRange: string | { min?: number; max?: number } | null;
   price?: string;
   location?: string;
   careType: string;
@@ -3007,7 +3007,9 @@ export default function FamilyCollaborationCenter() {
                                 <h4 className="font-semibold">{fav.name}</h4>
                                 <Badge variant="outline">
                                   <DollarSign className="w-3 h-3" />
-                                  {fav.price || fav.priceRange || 'Contact for pricing'}
+                                  {fav.price || (typeof fav.priceRange === 'object' && fav.priceRange 
+                                    ? `$${fav.priceRange.min?.toLocaleString() || '?'} - $${fav.priceRange.max?.toLocaleString() || '?'}`
+                                    : fav.priceRange || 'Contact for pricing')}
                                 </Badge>
                               </div>
                               <p className="text-sm text-muted-foreground flex items-center gap-1">
