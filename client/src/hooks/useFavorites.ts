@@ -57,18 +57,45 @@ export function useAddFavorite() {
       console.log('📌 Adding favorite:', data);
       return apiRequest("POST", "/api/user/favorites", data);
     },
-    onSuccess: async () => {
-      console.log('✅ Favorite added successfully - refetching favorites list');
-      // Force immediate refetch instead of just invalidation
-      await queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
-      console.log('✅ Favorites list refetched');
+    onMutate: async (newFavorite) => {
+      console.log('⚡ Optimistic add for:', newFavorite.communityId);
+      // Cancel any outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: ["/api/user/favorites"] });
+      
+      // Snapshot the previous value
+      const previousFavorites = queryClient.getQueryData<Favorite[]>(["/api/user/favorites"]);
+      
+      // Optimistically update the cache immediately
+      queryClient.setQueryData<Favorite[]>(["/api/user/favorites"], (old = []) => [
+        ...old,
+        {
+          id: Date.now(), // Temporary ID
+          communityId: String(newFavorite.communityId),
+          notes: newFavorite.notes || '',
+          priority: newFavorite.priority || 0,
+          tags: newFavorite.tags || [],
+          addedAt: new Date().toISOString(),
+          community: { id: newFavorite.communityId, name: '', address: '', city: '', state: '', careTypes: [], photos: [] }
+        }
+      ]);
+      
+      console.log('⚡ Optimistic cache updated - heart should be filled now');
+      
+      // Return context with snapshot for rollback
+      return { previousFavorites };
     },
-    onError: (error: any) => {
-      // Check if it's "already in favorites" error - still invalidate
+    onError: (error: any, _variables, context) => {
       console.error('❌ Failed to add favorite:', error?.message || error);
-      if (error?.message?.includes('already in favorites')) {
-        queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
+      // Rollback to previous state on error
+      if (context?.previousFavorites) {
+        console.log('🔄 Rolling back optimistic update');
+        queryClient.setQueryData(["/api/user/favorites"], context.previousFavorites);
       }
+    },
+    onSettled: async () => {
+      console.log('✅ Refetching favorites to sync with server');
+      // Always refetch to get accurate server state
+      await queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
     },
   });
 }
@@ -81,14 +108,36 @@ export function useRemoveFavorite() {
       console.log('🗑️ Removing favorite:', communityId);
       return apiRequest("DELETE", `/api/user/favorites/${communityId}`);
     },
-    onSuccess: async () => {
-      console.log('✅ Favorite removed successfully - refetching favorites list');
-      // Force immediate refetch instead of just invalidation
-      await queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
-      console.log('✅ Favorites list refetched');
+    onMutate: async (communityId) => {
+      console.log('⚡ Optimistic remove for:', communityId);
+      // Cancel any outgoing refetches to avoid overwriting optimistic update
+      await queryClient.cancelQueries({ queryKey: ["/api/user/favorites"] });
+      
+      // Snapshot the previous value
+      const previousFavorites = queryClient.getQueryData<Favorite[]>(["/api/user/favorites"]);
+      
+      // Optimistically remove from cache immediately
+      queryClient.setQueryData<Favorite[]>(["/api/user/favorites"], (old = []) => 
+        old.filter(fav => String(fav.communityId) !== String(communityId))
+      );
+      
+      console.log('⚡ Optimistic cache updated - heart should be unfilled now');
+      
+      // Return context with snapshot for rollback
+      return { previousFavorites };
     },
-    onError: (error: any) => {
+    onError: (error: any, _variables, context) => {
       console.error('❌ Failed to remove favorite:', error?.message || error);
+      // Rollback to previous state on error
+      if (context?.previousFavorites) {
+        console.log('🔄 Rolling back optimistic update');
+        queryClient.setQueryData(["/api/user/favorites"], context.previousFavorites);
+      }
+    },
+    onSettled: async () => {
+      console.log('✅ Refetching favorites to sync with server');
+      // Always refetch to get accurate server state
+      await queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
     },
   });
 }
