@@ -6,7 +6,7 @@ import {
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
   CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare,
-  Flag, RefreshCw, TrendingUp, Info, ExternalLink
+  Flag, RefreshCw, TrendingUp, Info, ExternalLink, Loader2
 } from "lucide-react";
 import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
@@ -17,6 +17,7 @@ interface CommunityDetailsHeaderProps {
   verificationReport?: any;
   isVerifying?: boolean;
   isFavorite?: boolean;
+  isFavoriteMutating?: boolean;
   onFavoriteToggle?: () => void;
   getPricingBadgeInfo?: (community: any, verificationReport: any) => any;
   formatCareType?: (careTypes?: string[]) => string;
@@ -33,6 +34,7 @@ export function CommunityDetailsHeader({
   verificationReport,
   isVerifying = false,
   isFavorite = false,
+  isFavoriteMutating = false,
   onFavoriteToggle,
   getPricingBadgeInfo,
   formatCareType,
@@ -400,9 +402,17 @@ export function CommunityDetailsHeader({
             {onFavoriteToggle && (
               <button
                 onClick={onFavoriteToggle}
-                className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                disabled={isFavoriteMutating}
+                className={`p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform transition-all duration-200 border border-gray-200 dark:border-gray-700 ${
+                  isFavoriteMutating ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+                }`}
+                data-testid="button-favorite-toggle"
               >
-                <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700 dark:text-gray-300'}`} />
+                {isFavoriteMutating ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                ) : (
+                  <Heart className={`w-5 h-5 ${isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-700 dark:text-gray-300'}`} />
+                )}
               </button>
             )}
             

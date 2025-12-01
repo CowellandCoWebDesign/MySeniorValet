@@ -50,20 +50,25 @@ export function registerUserRoutes(app: Express) {
   app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id;
+      console.log('📋 GET /api/user/favorites - userId:', userId, 'type:', typeof userId);
+      
       if (!userId) {
         return res.status(401).json({ message: 'User not authenticated' });
       }
       
       // Handle test users in development
       if (typeof userId === 'string' && userId.startsWith('test-')) {
-        // Return empty favorites array for test users
+        console.log('📋 GET /api/user/favorites - Test user, returning empty array');
         return res.json([]);
       }
       
       // Ensure userId is a number for database queries
       const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+      console.log('📋 GET /api/user/favorites - numericUserId:', numericUserId);
+      
       if (isNaN(numericUserId)) {
-        return res.json([]); // Return empty array for invalid user IDs
+        console.log('📋 GET /api/user/favorites - Invalid user ID, returning empty array');
+        return res.json([]);
       }
       
       const favorites = await db
@@ -91,9 +96,14 @@ export function registerUserRoutes(app: Express) {
         .where(eq(userFavorites.userId, numericUserId))
         .orderBy(desc(userFavorites.updatedAt));
 
+      console.log('📋 GET /api/user/favorites - Found', favorites.length, 'favorites for user', numericUserId);
+      if (favorites.length > 0) {
+        console.log('📋 GET /api/user/favorites - First favorite:', JSON.stringify(favorites[0]));
+      }
+      
       res.json(favorites);
     } catch (error) {
-      console.error('Error fetching favorites:', error);
+      console.error('❌ Error fetching favorites:', error);
       res.status(500).json({ message: 'Failed to fetch favorites' });
     }
   });

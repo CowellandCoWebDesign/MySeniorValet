@@ -24,6 +24,23 @@ export interface Favorite {
 export function useFavorites() {
   return useQuery<Favorite[]>({
     queryKey: ["/api/user/favorites"],
+    queryFn: async () => {
+      console.log('📋 useFavorites: Fetching favorites from /api/user/favorites');
+      const res = await fetch('/api/user/favorites', { credentials: 'include' });
+      if (!res.ok) {
+        if (res.status === 401) {
+          console.log('📋 useFavorites: User not authenticated, returning empty array');
+          return [];
+        }
+        throw new Error(`Failed to fetch favorites: ${res.status}`);
+      }
+      const data = await res.json();
+      console.log('📋 useFavorites: Received favorites:', data.length, 'items');
+      return data;
+    },
+    staleTime: 0,
+    refetchOnMount: true,
+    retry: 1,
   });
 }
 
@@ -40,12 +57,18 @@ export function useAddFavorite() {
       console.log('📌 Adding favorite:', data);
       return apiRequest("POST", "/api/user/favorites", data);
     },
-    onSuccess: () => {
-      console.log('✅ Favorite added successfully');
-      queryClient.invalidateQueries({ queryKey: ["/api/user/favorites"] });
+    onSuccess: async () => {
+      console.log('✅ Favorite added successfully - refetching favorites list');
+      // Force immediate refetch instead of just invalidation
+      await queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
+      console.log('✅ Favorites list refetched');
     },
-    onError: (error) => {
-      console.error('❌ Failed to add favorite:', error);
+    onError: (error: any) => {
+      // Check if it's "already in favorites" error - still invalidate
+      console.error('❌ Failed to add favorite:', error?.message || error);
+      if (error?.message?.includes('already in favorites')) {
+        queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
+      }
     },
   });
 }
@@ -58,12 +81,14 @@ export function useRemoveFavorite() {
       console.log('🗑️ Removing favorite:', communityId);
       return apiRequest("DELETE", `/api/user/favorites/${communityId}`);
     },
-    onSuccess: () => {
-      console.log('✅ Favorite removed successfully');
-      queryClient.invalidateQueries({ queryKey: ["/api/user/favorites"] });
+    onSuccess: async () => {
+      console.log('✅ Favorite removed successfully - refetching favorites list');
+      // Force immediate refetch instead of just invalidation
+      await queryClient.refetchQueries({ queryKey: ["/api/user/favorites"] });
+      console.log('✅ Favorites list refetched');
     },
-    onError: (error) => {
-      console.error('❌ Failed to remove favorite:', error);
+    onError: (error: any) => {
+      console.error('❌ Failed to remove favorite:', error?.message || error);
     },
   });
 }

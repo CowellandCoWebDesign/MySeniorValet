@@ -1365,7 +1365,7 @@ export default function CommunityDetail() {
   const [, setLocation] = useLocation();
   
   // Favorites functionality - using hooks for persistence
-  const { data: favorites = [] } = useFavorites();
+  const { data: favorites = [], isLoading: favoritesLoading } = useFavorites();
   const addFavoriteMutation = useAddFavorite();
   const removeFavoriteMutation = useRemoveFavorite();
   
@@ -1373,15 +1373,28 @@ export default function CommunityDetail() {
   const existingFavorite = favorites.find(f => f.communityId === Number(id));
   const isFavorite = !!existingFavorite;
   
+  // Check if any mutation is in progress
+  const isFavoriteMutating = addFavoriteMutation.isPending || removeFavoriteMutation.isPending;
+  
   // Handle favorite toggle (actual API call)
   const handleFavoriteToggle = () => {
     if (!id) return;
     
+    // Prevent double-clicks while mutation is in progress
+    if (isFavoriteMutating) {
+      console.log('⏳ Favorite mutation already in progress, ignoring click');
+      return;
+    }
+    
+    console.log(`🔄 Toggle favorite: communityId=${id}, isFavorite=${isFavorite}, existingFavorite=`, existingFavorite);
+    
     if (isFavorite && existingFavorite) {
       // Remove from favorites
+      console.log('🗑️ Calling removeFavoriteMutation for:', Number(id));
       removeFavoriteMutation.mutate(Number(id));
     } else {
       // Add to favorites
+      console.log('📌 Calling addFavoriteMutation for:', { communityId: Number(id) });
       addFavoriteMutation.mutate({ communityId: Number(id) });
     }
   };
@@ -2242,6 +2255,7 @@ export default function CommunityDetail() {
               verificationReport={verificationReport}
               isVerifying={isVerifying}
               isFavorite={isFavorite}
+              isFavoriteMutating={isFavoriteMutating}
               onFavoriteToggle={handleFavoriteToggle}
               getPricingBadgeInfo={getPricingBadgeInfo}
               formatCareType={formatCareType}
