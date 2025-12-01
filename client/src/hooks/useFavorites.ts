@@ -37,13 +37,15 @@ export function useAddFavorite() {
       priority?: number;
       tags?: string[];
     }) => {
-      return apiRequest("/api/user/favorites", {
-        method: "POST",
-        body: data,
-      });
+      console.log('📌 Adding favorite:', data);
+      return apiRequest("POST", "/api/user/favorites", data);
     },
     onSuccess: () => {
+      console.log('✅ Favorite added successfully');
       queryClient.invalidateQueries({ queryKey: ["/api/user/favorites"] });
+    },
+    onError: (error) => {
+      console.error('❌ Failed to add favorite:', error);
     },
   });
 }
@@ -53,12 +55,15 @@ export function useRemoveFavorite() {
 
   return useMutation({
     mutationFn: async (communityId: number) => {
-      return apiRequest(`/api/user/favorites/${communityId}`, {
-        method: "DELETE",
-      });
+      console.log('🗑️ Removing favorite:', communityId);
+      return apiRequest("DELETE", `/api/user/favorites/${communityId}`);
     },
     onSuccess: () => {
+      console.log('✅ Favorite removed successfully');
       queryClient.invalidateQueries({ queryKey: ["/api/user/favorites"] });
+    },
+    onError: (error) => {
+      console.error('❌ Failed to remove favorite:', error);
     },
   });
 }
@@ -74,13 +79,15 @@ export function useUpdateFavorite() {
       tags?: string[];
     }) => {
       const { id, ...updateData } = data;
-      return apiRequest(`/api/user/favorites/${id}`, {
-        method: "PATCH",
-        body: updateData,
-      });
+      console.log('📝 Updating favorite:', id, updateData);
+      return apiRequest("PATCH", `/api/user/favorites/${id}`, updateData);
     },
     onSuccess: () => {
+      console.log('✅ Favorite updated successfully');
       queryClient.invalidateQueries({ queryKey: ["/api/user/favorites"] });
+    },
+    onError: (error) => {
+      console.error('❌ Failed to update favorite:', error);
     },
   });
 }
@@ -109,10 +116,7 @@ export function useSaveSearch() {
       searchParams: Record<string, any>;
       alertsEnabled?: boolean;
     }) => {
-      return apiRequest("/api/user/saved-searches", {
-        method: "POST",
-        body: data,
-      });
+      return apiRequest("POST", "/api/user/saved-searches", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/saved-searches"] });
@@ -125,9 +129,7 @@ export function useDeleteSavedSearch() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      return apiRequest(`/api/user/saved-searches/${id}`, {
-        method: "DELETE",
-      });
+      return apiRequest("DELETE", `/api/user/saved-searches/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/user/saved-searches"] });
