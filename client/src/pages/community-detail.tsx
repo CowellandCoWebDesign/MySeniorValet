@@ -51,6 +51,7 @@ import { ExternalLinkWarning } from "@/components/ExternalLinkWarning";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { ReservationSection } from "@/components/ReservationSection";
 import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
+import { useFavorites, useAddFavorite, useRemoveFavorite } from "@/hooks/useFavorites";
 import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
@@ -1362,7 +1363,31 @@ const calculateCompositeRating = (community: Community): string => {
 export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
-  const [isFavorite, setIsFavorite] = useState(false);
+  
+  // Favorites functionality - using hooks for persistence
+  const { data: favorites = [] } = useFavorites();
+  const addFavoriteMutation = useAddFavorite();
+  const removeFavoriteMutation = useRemoveFavorite();
+  
+  // Check if this community is already in favorites
+  const existingFavorite = favorites.find(f => f.communityId === Number(id));
+  const isFavorite = !!existingFavorite;
+  
+  // Handle favorite toggle (actual API call)
+  const handleFavoriteToggle = () => {
+    if (!id) return;
+    
+    if (isFavorite && existingFavorite) {
+      // Remove from favorites
+      removeFavoriteMutation.mutate(Number(id));
+    } else {
+      // Add to favorites
+      addFavoriteMutation.mutate({ communityId: Number(id) });
+    }
+  };
+  
+  // Legacy state for backward compatibility (will be removed)
+  const [isFavoriteLegacy, setIsFavoriteLegacy] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
   const [showReservationDialog, setShowReservationDialog] = useState(false);
   const [showInfoRequestDialog, setShowInfoRequestDialog] = useState(false);
@@ -1455,7 +1480,7 @@ export default function CommunityDetail() {
     if (id && id !== '-1' && !isNaN(Number(id))) {
       // Reset all component state when navigating to a new community
       console.log('Community ID changed to:', id, '- Resetting all state');
-      setIsFavorite(false);
+      // Note: isFavorite is now derived from query data, no need to reset
       setIsScheduleTourOpen(false);
       setIsWaitlistOpen(false);
       setWaitlistName('');
@@ -1726,9 +1751,7 @@ export default function CommunityDetail() {
     return name.split(' ').map(word => word[0]).join('').toUpperCase();
   };
 
-  const handleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
+  // handleFavorite is now handleFavoriteToggle (defined at top of component)
 
   // Helper function to get care type descriptions
   const getCareTypeDescription = (careType: string): string => {
@@ -2219,7 +2242,7 @@ export default function CommunityDetail() {
               verificationReport={verificationReport}
               isVerifying={isVerifying}
               isFavorite={isFavorite}
-              onFavoriteToggle={handleFavorite}
+              onFavoriteToggle={handleFavoriteToggle}
               getPricingBadgeInfo={getPricingBadgeInfo}
               formatCareType={formatCareType}
               generatePhoneNumber={generatePhoneNumber}

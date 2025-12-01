@@ -11,7 +11,8 @@ import {
   users,
   messages,
   conversations,
-  favorites
+  favorites,
+  userFavorites
 } from "@shared/schema";
 import { eq, and, desc, asc, or, inArray, sql } from "drizzle-orm";
 import { randomBytes } from 'crypto';
@@ -1579,6 +1580,7 @@ router.post("/visit-reports", async (req: Request, res: Response) => {
 
 // Get shared favorites for family (Golden Data Rule: no demo data)
 // Shows favorites from all members of the user's family group for collaboration
+// Uses userFavorites table (same as community pages) for unified experience
 router.get("/shared-favorites", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
@@ -1602,14 +1604,15 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
       memberUserIds = [...new Set([userId, ...groupMemberIds])];
     }
     
-    // Get favorites from ALL family group members for collaboration
+    // Get favorites from userFavorites table (same as community pages use)
     const familyFavorites = await db.select({
-      id: favorites.id,
-      communityId: favorites.communityId,
-      userId: favorites.userId,
-      notes: favorites.notes,
-      tags: favorites.tags,
-      priority: favorites.priority,
+      id: userFavorites.id,
+      communityId: userFavorites.communityId,
+      userId: userFavorites.userId,
+      notes: userFavorites.notes,
+      tags: userFavorites.tags,
+      priority: userFavorites.priority,
+      addedAt: userFavorites.addedAt,
       name: communities.name,
       address: communities.address,
       city: communities.city,
@@ -1618,10 +1621,10 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
       careTypes: communities.careTypes,
       rating: communities.rating
     })
-      .from(favorites)
-      .leftJoin(communities, eq(favorites.communityId, communities.id))
-      .where(inArray(favorites.userId, memberUserIds))
-      .orderBy(desc(favorites.createdAt))
+      .from(userFavorites)
+      .leftJoin(communities, eq(userFavorites.communityId, communities.id))
+      .where(inArray(userFavorites.userId, memberUserIds))
+      .orderBy(desc(userFavorites.addedAt))
       .limit(100);
     
     // Get user info for "added by" attribution
@@ -1656,7 +1659,7 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
   }
 });
 
-// Add community to favorites
+// Add community to favorites (using userFavorites table for unified experience)
 router.post("/shared-favorites", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
@@ -1665,7 +1668,7 @@ router.post("/shared-favorites", async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Authentication required" });
     }
     
-    const { communityId, notes, priority } = req.body;
+    const { communityId, notes, priority, tags } = req.body;
     
     if (!communityId) {
       return res.status(400).json({ error: "Community ID is required" });
@@ -1681,12 +1684,12 @@ router.post("/shared-favorites", async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Community not found" });
     }
     
-    // Check if already favorited
+    // Check if already favorited in userFavorites table
     const existing = await db.select()
-      .from(favorites)
+      .from(userFavorites)
       .where(and(
-        eq(favorites.userId, userId),
-        eq(favorites.communityId, parseInt(communityId))
+        eq(userFavorites.userId, userId),
+        eq(userFavorites.communityId, parseInt(communityId))
       ))
       .limit(1);
     
@@ -1694,13 +1697,13 @@ router.post("/shared-favorites", async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Community already in favorites" });
     }
     
-    // Add to favorites
-    const [newFavorite] = await db.insert(favorites).values({
+    // Add to userFavorites table (same table community pages use)
+    const [newFavorite] = await db.insert(userFavorites).values({
       userId,
       communityId: parseInt(communityId),
-      notes: notes || '',
-      priority: priority || 'Medium',
-      tags: []
+      notes: notes || null,
+      priority: priority || 0,
+      tags: tags || []
     }).returning();
     
     res.json({
@@ -1724,7 +1727,7 @@ router.post("/shared-favorites", async (req: Request, res: Response) => {
   }
 });
 
-// Remove community from favorites
+// Remove community from favorites (from userFavorites table)
 router.delete("/shared-favorites/:id", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
@@ -1734,11 +1737,11 @@ router.delete("/shared-favorites/:id", async (req: Request, res: Response) => {
       return res.status(401).json({ error: "Authentication required" });
     }
     
-    // Verify ownership and delete
-    const deleted = await db.delete(favorites)
+    // Verify ownership and delete from userFavorites
+    const deleted = await db.delete(userFavorites)
       .where(and(
-        eq(favorites.id, parseInt(id)),
-        eq(favorites.userId, userId)
+        eq(userFavorites.id, parseInt(id)),
+        eq(userFavorites.userId, userId)
       ))
       .returning();
     
@@ -1753,7 +1756,7 @@ router.delete("/shared-favorites/:id", async (req: Request, res: Response) => {
   }
 });
 
-// Update favorite notes/priority
+// Update favorite notes/priority (in userFavorites table)
 router.patch("/shared-favorites/:id", async (req: Request, res: Response) => {
   try {
     const userId = getUserId(req);
@@ -1769,11 +1772,11 @@ router.patch("/shared-favorites/:id", async (req: Request, res: Response) => {
     if (priority !== undefined) updateData.priority = priority;
     if (tags !== undefined) updateData.tags = tags;
     
-    const [updated] = await db.update(favorites)
+    const [updated] = await db.update(userFavorites)
       .set(updateData)
       .where(and(
-        eq(favorites.id, parseInt(id)),
-        eq(favorites.userId, userId)
+        eq(userFavorites.id, parseInt(id)),
+        eq(userFavorites.userId, userId)
       ))
       .returning();
     
