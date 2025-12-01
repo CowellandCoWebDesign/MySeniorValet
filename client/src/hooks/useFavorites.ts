@@ -3,7 +3,7 @@ import { apiRequest } from "@/lib/queryClient";
 
 export interface Favorite {
   id: number;
-  communityId: string | number; // CRITICAL: stored as TEXT in database, can be string or number
+  communityId: number; // FIXED: communityId is INTEGER in database
   notes?: string;
   priority: number;
   tags: string[];
@@ -58,7 +58,7 @@ export function useAddFavorite() {
       
       // Pre-check: If already in cache, skip the API call
       const currentFavorites = queryClient.getQueryData<Favorite[]>(["/api/user/favorites"]) || [];
-      const alreadyExists = currentFavorites.some(f => String(f.communityId) === String(data.communityId));
+      const alreadyExists = currentFavorites.some(f => Number(f.communityId) === Number(data.communityId));
       if (alreadyExists) {
         console.log('⚠️ Already in cache, skipping API call');
         return { alreadyExists: true };
@@ -74,24 +74,24 @@ export function useAddFavorite() {
       // Snapshot the previous value
       const previousFavorites = queryClient.getQueryData<Favorite[]>(["/api/user/favorites"]);
       
-      // Check if already in cache (prevent duplicate optimistic updates)
-      const alreadyInCache = previousFavorites?.some(f => String(f.communityId) === String(newFavorite.communityId));
+      // Check if already in cache (prevent duplicate optimistic updates) - use numeric comparison
+      const alreadyInCache = previousFavorites?.some(f => Number(f.communityId) === Number(newFavorite.communityId));
       if (alreadyInCache) {
         console.log('⚡ Already in optimistic cache, skipping update');
         return { previousFavorites, skipped: true };
       }
       
-      // Optimistically update the cache immediately
+      // Optimistically update the cache immediately - use numeric communityId
       queryClient.setQueryData<Favorite[]>(["/api/user/favorites"], (old = []) => [
         ...old,
         {
           id: Date.now(), // Temporary ID
-          communityId: String(newFavorite.communityId),
+          communityId: Number(newFavorite.communityId), // FIXED: Use number, not string
           notes: newFavorite.notes || '',
           priority: newFavorite.priority || 0,
           tags: newFavorite.tags || [],
           addedAt: new Date().toISOString(),
-          community: { id: newFavorite.communityId, name: '', address: '', city: '', state: '', careTypes: [], photos: [] }
+          community: { id: Number(newFavorite.communityId), name: '', address: '', city: '', state: '', careTypes: [], photos: [] }
         }
       ]);
       
@@ -104,8 +104,8 @@ export function useAddFavorite() {
       const errorMessage = error?.message || String(error);
       console.error('❌ Failed to add favorite:', errorMessage);
       
-      // DON'T rollback if the error is "already in favorites" - this is expected for duplicate calls
-      if (errorMessage.includes('already in favorites') || errorMessage.includes('Already')) {
+      // DON'T rollback if the error is "already in favorites" (409) - this is expected for duplicate calls
+      if (errorMessage.includes('already in favorites') || errorMessage.includes('Already') || errorMessage.includes('409')) {
         console.log('ℹ️ Already favorited - keeping optimistic update');
         return;
       }
@@ -145,9 +145,9 @@ export function useRemoveFavorite() {
       // Snapshot the previous value
       const previousFavorites = queryClient.getQueryData<Favorite[]>(["/api/user/favorites"]);
       
-      // Optimistically remove from cache immediately
+      // Optimistically remove from cache immediately - use numeric comparison
       queryClient.setQueryData<Favorite[]>(["/api/user/favorites"], (old = []) => 
-        old.filter(fav => String(fav.communityId) !== String(communityId))
+        old.filter(fav => Number(fav.communityId) !== Number(communityId))
       );
       
       console.log('⚡ Optimistic cache updated - heart should be unfilled now');

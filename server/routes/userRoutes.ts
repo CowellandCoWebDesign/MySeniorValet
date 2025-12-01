@@ -46,7 +46,7 @@ function formatPriceRange(priceRange: any): string {
 }
 
 export function registerUserRoutes(app: Express) {
-  // User favorites
+  // User favorites - FIXED: communityId is INTEGER in database, not TEXT
   app.get('/api/user/favorites', requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id;
@@ -71,7 +71,7 @@ export function registerUserRoutes(app: Express) {
         return res.json([]);
       }
       
-      // CRITICAL FIX: Cast communityId (TEXT) to INTEGER for proper JOIN with communities.id (INTEGER)
+      // Both communityId and communities.id are INTEGER - direct equality join
       const favorites = await db
         .select({
           id: userFavorites.id,
@@ -93,7 +93,7 @@ export function registerUserRoutes(app: Express) {
           }
         })
         .from(userFavorites)
-        .leftJoin(communities, sql`CAST(${userFavorites.communityId} AS INTEGER) = ${communities.id}`)
+        .leftJoin(communities, eq(userFavorites.communityId, communities.id))
         .where(eq(userFavorites.userId, numericUserId))
         .orderBy(desc(userFavorites.updatedAt));
 
@@ -102,7 +102,13 @@ export function registerUserRoutes(app: Express) {
         console.log('📋 GET /api/user/favorites - First favorite:', JSON.stringify(favorites[0]));
       }
       
-      res.json(favorites);
+      // Ensure communityId is always returned as a number for frontend consistency
+      const normalizedFavorites = favorites.map(fav => ({
+        ...fav,
+        communityId: Number(fav.communityId)
+      }));
+      
+      res.json(normalizedFavorites);
     } catch (error) {
       console.error('❌ Error fetching favorites:', error);
       res.status(500).json({ message: 'Failed to fetch favorites' });
@@ -133,31 +139,36 @@ export function registerUserRoutes(app: Express) {
       
       const { communityId, notes, priority, tags } = req.body;
       
-      // Validate communityId
-      if (!communityId) {
+      // Validate communityId - must be a valid number
+      if (communityId === undefined || communityId === null) {
         console.error('❌ POST /api/user/favorites - Missing communityId');
         return res.status(400).json({ message: 'communityId is required' });
       }
 
-      // CRITICAL: communityId is stored as TEXT in schema, must convert number to string
-      const communityIdStr = String(communityId);
-      console.log('📌 POST /api/user/favorites - Checking existing with communityId:', communityIdStr, 'type:', typeof communityIdStr);
+      // FIXED: communityId is INTEGER in database - parse to number
+      const numericCommunityId = typeof communityId === 'string' ? parseInt(communityId, 10) : Number(communityId);
+      if (isNaN(numericCommunityId)) {
+        console.error('❌ POST /api/user/favorites - Invalid communityId:', communityId);
+        return res.status(400).json({ message: 'communityId must be a valid number' });
+      }
       
-      // Check if already favorited
+      console.log('📌 POST /api/user/favorites - Checking existing with communityId:', numericCommunityId, 'type:', typeof numericCommunityId);
+      
+      // Check if already favorited using INTEGER comparison
       const existing = await db
         .select()
         .from(userFavorites)
         .where(and(
           eq(userFavorites.userId, numericUserId),
-          eq(userFavorites.communityId, communityIdStr)
+          eq(userFavorites.communityId, numericCommunityId)
         ))
         .limit(1);
 
       console.log('📌 POST /api/user/favorites - Existing check result:', existing.length, 'items');
       
       if (existing.length > 0) {
-        console.log('⚠️ POST /api/user/favorites - Already favorited, returning 400');
-        return res.status(400).json({ message: 'Community already in favorites' });
+        console.log('⚠️ POST /api/user/favorites - Already favorited, returning 409');
+        return res.status(409).json({ message: 'Community already in favorites' });
       }
 
       console.log('📌 POST /api/user/favorites - Inserting new favorite');
@@ -165,7 +176,7 @@ export function registerUserRoutes(app: Express) {
         .insert(userFavorites)
         .values({
           userId: numericUserId,
-          communityId: communityIdStr, // MUST be string to match TEXT column type
+          communityId: numericCommunityId,
           notes: notes || null,
           priority: priority || 0,
           tags: tags || [],
@@ -174,7 +185,7 @@ export function registerUserRoutes(app: Express) {
       
       console.log('✅ POST /api/user/favorites - Successfully added favorite:', favorite.id);
 
-      res.json(favorite);
+      res.status(201).json(favorite);
     } catch (error) {
       console.error('Error adding favorite:', error);
       res.status(500).json({ message: 'Failed to add favorite' });
@@ -199,23 +210,27 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ message: 'Invalid user ID' });
       }
       
-      // communityId is stored as TEXT in the database, so keep it as string
-      const communityId = req.params.communityId;
+      // FIXED: communityId is INTEGER in database - parse to number
+      const numericCommunityId = parseInt(req.params.communityId, 10);
+      if (isNaN(numericCommunityId)) {
+        return res.status(400).json({ message: 'Invalid communityId' });
+      }
       
-      console.log('🗑️ DELETE /api/user/favorites - userId:', numericUserId, 'communityId:', communityId, 'type:', typeof communityId);
+      console.log('🗑️ DELETE /api/user/favorites - userId:', numericUserId, 'communityId:', numericCommunityId, 'type:', typeof numericCommunityId);
 
       const result = await db
         .delete(userFavorites)
         .where(and(
           eq(userFavorites.userId, numericUserId),
-          eq(userFavorites.communityId, communityId)
+          eq(userFavorites.communityId, numericCommunityId)
         ))
         .returning();
       
       console.log('🗑️ DELETE result - rows deleted:', result.length);
       
       if (result.length === 0) {
-        console.log('⚠️ No favorite found to delete for userId:', numericUserId, 'communityId:', communityId);
+        console.log('⚠️ No favorite found to delete for userId:', numericUserId, 'communityId:', numericCommunityId);
+        return res.status(404).json({ message: 'Favorite not found' });
       }
 
       res.json({ success: true, deleted: result.length });
@@ -232,7 +247,17 @@ export function registerUserRoutes(app: Express) {
         return res.status(401).json({ message: 'User not authenticated' });
       }
       
-      const favoriteId = parseInt(req.params.id);
+      // Ensure userId is a number
+      const numericUserId = typeof userId === 'string' ? parseInt(userId, 10) : userId;
+      if (isNaN(numericUserId)) {
+        return res.status(400).json({ message: 'Invalid user ID' });
+      }
+      
+      const favoriteId = parseInt(req.params.id, 10);
+      if (isNaN(favoriteId)) {
+        return res.status(400).json({ message: 'Invalid favorite ID' });
+      }
+      
       const { notes, priority, tags } = req.body;
 
       const [updated] = await db
@@ -245,7 +270,7 @@ export function registerUserRoutes(app: Express) {
         })
         .where(and(
           eq(userFavorites.id, favoriteId),
-          eq(userFavorites.userId, userId)
+          eq(userFavorites.userId, numericUserId)
         ))
         .returning();
 

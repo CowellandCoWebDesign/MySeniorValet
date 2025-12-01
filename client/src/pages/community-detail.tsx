@@ -1370,8 +1370,8 @@ export default function CommunityDetail() {
   const removeFavoriteMutation = useRemoveFavorite();
   
   // Check if this community is already in favorites
-  // CRITICAL: communityId is stored as TEXT in database, so compare as strings
-  const existingFavorite = favorites.find(f => String(f.communityId) === String(id));
+  // FIXED: communityId is INTEGER in database, compare as numbers
+  const existingFavorite = favorites.find(f => Number(f.communityId) === Number(id));
   const isFavorite = !!existingFavorite;
   
   // Debug log for favorites matching
