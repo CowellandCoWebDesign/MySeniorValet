@@ -138,30 +138,40 @@ export function registerUserRoutes(app: Express) {
         return res.status(400).json({ message: 'communityId is required' });
       }
 
+      // CRITICAL: communityId is stored as TEXT in schema, must convert number to string
+      const communityIdStr = String(communityId);
+      console.log('📌 POST /api/user/favorites - Checking existing with communityId:', communityIdStr, 'type:', typeof communityIdStr);
+      
       // Check if already favorited
       const existing = await db
         .select()
         .from(userFavorites)
         .where(and(
           eq(userFavorites.userId, numericUserId),
-          eq(userFavorites.communityId, communityId)
+          eq(userFavorites.communityId, communityIdStr)
         ))
         .limit(1);
 
+      console.log('📌 POST /api/user/favorites - Existing check result:', existing.length, 'items');
+      
       if (existing.length > 0) {
+        console.log('⚠️ POST /api/user/favorites - Already favorited, returning 400');
         return res.status(400).json({ message: 'Community already in favorites' });
       }
 
+      console.log('📌 POST /api/user/favorites - Inserting new favorite');
       const [favorite] = await db
         .insert(userFavorites)
         .values({
           userId: numericUserId,
-          communityId,
+          communityId: communityIdStr, // MUST be string to match TEXT column type
           notes: notes || null,
           priority: priority || 0,
           tags: tags || [],
         })
         .returning();
+      
+      console.log('✅ POST /api/user/favorites - Successfully added favorite:', favorite.id);
 
       res.json(favorite);
     } catch (error) {
