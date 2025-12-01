@@ -71,6 +71,7 @@ export function registerUserRoutes(app: Express) {
         return res.json([]);
       }
       
+      // CRITICAL FIX: Cast communityId (TEXT) to INTEGER for proper JOIN with communities.id (INTEGER)
       const favorites = await db
         .select({
           id: userFavorites.id,
@@ -92,7 +93,7 @@ export function registerUserRoutes(app: Express) {
           }
         })
         .from(userFavorites)
-        .leftJoin(communities, eq(userFavorites.communityId, communities.id))
+        .leftJoin(communities, sql`CAST(${userFavorites.communityId} AS INTEGER) = ${communities.id}`)
         .where(eq(userFavorites.userId, numericUserId))
         .orderBy(desc(userFavorites.updatedAt));
 
