@@ -1642,7 +1642,7 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
     
     // Helper to format priceRange safely (can be string, object, or null)
     const formatPriceRange = (priceRange: any): string => {
-      if (!priceRange) return 'Contact for pricing';
+      if (!priceRange) return 'Click to search for pricing';
       if (typeof priceRange === 'string') return priceRange;
       if (typeof priceRange === 'object') {
         const min = priceRange.min;
@@ -1651,21 +1651,41 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
         if (min) return `From $${min.toLocaleString()}`;
         if (max) return `Up to $${max.toLocaleString()}`;
       }
-      return 'Contact for pricing';
+      return 'Click to search for pricing';
     };
     
-    // Format response to match frontend expectations
-    const formattedFavorites = familyFavorites.map(fav => ({
-      ...fav,
-      price: formatPriceRange(fav.priceRange),
-      priceRange: formatPriceRange(fav.priceRange), // Always send as string to prevent React render errors
-      location: fav.city && fav.state ? `${fav.city}, ${fav.state}` : fav.address,
-      careType: Array.isArray(fav.careTypes) ? fav.careTypes.join(', ') : fav.careTypes || 'Senior Living',
-      rating: fav.rating || 0,
-      familyRating: 0,
-      addedBy: String(fav.userId) === String(userId) ? 'You' : userMap.get(String(fav.userId)) || 'Family Member',
-      isOwner: String(fav.userId) === String(userId) // Flag to show delete button only for owner
-    }));
+    console.log('📋 Formatting shared favorites, count:', familyFavorites.length);
+    if (familyFavorites.length > 0) {
+      console.log('📋 First favorite raw priceRange:', JSON.stringify(familyFavorites[0].priceRange));
+    }
+    
+    // Format response to match frontend expectations - IMPORTANT: Don't spread fav first, build object explicitly
+    const formattedFavorites = familyFavorites.map(fav => {
+      const formattedPrice = formatPriceRange(fav.priceRange);
+      console.log('📋 Formatting favorite:', fav.communityId, 'priceRange type:', typeof fav.priceRange, 'formatted:', formattedPrice);
+      return {
+        id: fav.id,
+        communityId: fav.communityId,
+        userId: fav.userId,
+        notes: fav.notes,
+        tags: fav.tags,
+        priority: fav.priority,
+        addedAt: fav.addedAt,
+        name: fav.name,
+        address: fav.address,
+        city: fav.city,
+        state: fav.state,
+        careTypes: fav.careTypes,
+        price: formattedPrice,
+        priceRange: formattedPrice, // Always send as string to prevent React render errors
+        location: fav.city && fav.state ? `${fav.city}, ${fav.state}` : fav.address,
+        careType: Array.isArray(fav.careTypes) ? fav.careTypes.join(', ') : fav.careTypes || 'Senior Living',
+        rating: fav.rating || 0,
+        familyRating: 0,
+        addedBy: String(fav.userId) === String(userId) ? 'You' : userMap.get(String(fav.userId)) || 'Family Member',
+        isOwner: String(fav.userId) === String(userId) // Flag to show delete button only for owner
+      };
+    });
     
     res.json(formattedFavorites);
   } catch (error) {
