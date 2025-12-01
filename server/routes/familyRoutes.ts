@@ -1640,10 +1640,25 @@ router.get("/shared-favorites", async (req: Request, res: Response) => {
       return [String(u.id), displayName];
     }));
     
+    // Helper to format priceRange safely (can be string, object, or null)
+    const formatPriceRange = (priceRange: any): string => {
+      if (!priceRange) return 'Contact for pricing';
+      if (typeof priceRange === 'string') return priceRange;
+      if (typeof priceRange === 'object') {
+        const min = priceRange.min;
+        const max = priceRange.max;
+        if (min && max) return `$${min.toLocaleString()} - $${max.toLocaleString()}`;
+        if (min) return `From $${min.toLocaleString()}`;
+        if (max) return `Up to $${max.toLocaleString()}`;
+      }
+      return 'Contact for pricing';
+    };
+    
     // Format response to match frontend expectations
     const formattedFavorites = familyFavorites.map(fav => ({
       ...fav,
-      price: fav.priceRange || 'Contact for pricing',
+      price: formatPriceRange(fav.priceRange),
+      priceRange: formatPriceRange(fav.priceRange), // Always send as string to prevent React render errors
       location: fav.city && fav.state ? `${fav.city}, ${fav.state}` : fav.address,
       careType: Array.isArray(fav.careTypes) ? fav.careTypes.join(', ') : fav.careTypes || 'Senior Living',
       rating: fav.rating || 0,
