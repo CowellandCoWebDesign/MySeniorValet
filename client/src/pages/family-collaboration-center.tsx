@@ -8,7 +8,7 @@ import { queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -3202,7 +3202,18 @@ export default function FamilyCollaborationCenter() {
 
           {/* Daily Life Tab - Family View */}
           <TabsContent value="daily" className="space-y-6">
-            <Card>
+            {/* Coming Soon Notice */}
+            <Alert className="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-950/30 dark:to-violet-950/30 border-purple-200 dark:border-purple-800">
+              <Clock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <AlertTitle className="text-purple-800 dark:text-purple-200 font-semibold text-lg">
+                Coming Soon
+              </AlertTitle>
+              <AlertDescription className="text-purple-700 dark:text-purple-300">
+                Daily Life Connection features are currently in development. Soon you'll be able to stay connected with your loved one's daily activities, meals, photos, and wellness updates in real-time.
+              </AlertDescription>
+            </Alert>
+            
+            <Card className="opacity-60 pointer-events-none">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -3232,7 +3243,18 @@ export default function FamilyCollaborationCenter() {
 
           {/* Billing Tab - Family View of Financial Transparency */}
           <TabsContent value="billing" className="space-y-6">
-            <Card>
+            {/* Coming Soon Notice */}
+            <Alert className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border-green-200 dark:border-green-800">
+              <Clock className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <AlertTitle className="text-green-800 dark:text-green-200 font-semibold text-lg">
+                Coming Soon
+              </AlertTitle>
+              <AlertDescription className="text-green-700 dark:text-green-300">
+                Billing & Payments features are currently in development. Soon you'll be able to view statements, make payments, set up AutoPay, and track all financial information with full transparency.
+              </AlertDescription>
+            </Alert>
+            
+            <Card className="opacity-60 pointer-events-none">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
