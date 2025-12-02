@@ -1283,26 +1283,31 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Ban/unban user endpoint
+  // Activate/deactivate user endpoint (uses isActive field)
   adminRouter.post('/users/:id/ban', async (req, res) => {
     try {
       const userId = parseInt(req.params.id);
-      const { banned, reason } = req.body;
+      const { isActive, reason } = req.body;
+      
+      // Require explicit boolean value to prevent accidental deactivation
+      if (typeof isActive !== 'boolean') {
+        return res.status(400).json({ error: 'isActive must be a boolean value' });
+      }
       
       await db
         .update(users)
         .set({ 
-          banned,
+          isActive,
           updatedAt: new Date()
         })
         .where(eq(users.id, userId));
       
       // Log admin action
-      console.log(`Admin action: User ${userId} ${banned ? 'banned' : 'unbanned'} by ${req.user?.email}. Reason: ${reason}`);
+      console.log(`Admin action: User ${userId} ${isActive ? 'activated' : 'deactivated'} by ${req.user?.email}. Reason: ${reason || 'No reason provided'}`);
       
-      res.json({ success: true, userId, banned });
+      res.json({ success: true, userId, isActive });
     } catch (error) {
-      console.error('Error updating user ban status:', error);
+      console.error('Error updating user status:', error);
       res.status(500).json({ error: 'Failed to update user status' });
     }
   });

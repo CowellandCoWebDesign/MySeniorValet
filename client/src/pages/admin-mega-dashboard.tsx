@@ -601,10 +601,15 @@ export default function AdminMegaDashboard() {
   
   const subscriptionPlans = subscriptionTiers || [];
 
-  // Active subscriptions
-  const { data: activeSubscriptions } = useQuery({
+  // Active subscriptions with proper default structure
+  const { data: activeSubscriptions, isError: subscriptionsError, isLoading: subscriptionsLoading } = useQuery({
     queryKey: ['/api/admin/subscriptions/active'],
   });
+  
+  // Safe accessor for subscription data with defaults
+  const subscriptionData = activeSubscriptions && typeof activeSubscriptions === 'object' 
+    ? (activeSubscriptions as { subscriptions?: any[]; summary?: { total: number; community: number; vendor: number; totalMRR: number } })
+    : { subscriptions: [], summary: { total: 0, community: 0, vendor: 0, totalMRR: 0 } };
 
   // Audit logs
   const { data: auditLogs } = useQuery({
@@ -679,17 +684,21 @@ export default function AdminMegaDashboard() {
   });
   
   // Use real metrics if available, otherwise default to empty state
-  const metrics: DashboardMetrics = dashboardMetrics || {
+  // Priority: dashboardMetrics (from /api/admin/metrics) > dashboardStats (from /api/admin/dashboard/stats)
+  const metricsData = dashboardMetrics as any;
+  const statsData = dashboardStats as any;
+  
+  const metrics: DashboardMetrics = {
     platform: {
-      totalCommunities: 0,
-      totalUsers: 0,
-      totalVendors: 0,
-      activeSubscriptions: 0,
-      monthlyRevenue: 0,
-      yearlyRevenue: 0,
-      growthRate: 0
+      totalCommunities: metricsData?.platform?.totalCommunities || statsData?.totalCommunities || 0,
+      totalUsers: metricsData?.platform?.totalUsers || statsData?.totalUsers || 0,
+      totalVendors: metricsData?.platform?.totalVendors || statsData?.totalVendors || 0,
+      activeSubscriptions: metricsData?.platform?.activeSubscriptions || statsData?.activeSubscriptions || 0,
+      monthlyRevenue: metricsData?.platform?.monthlyRevenue || statsData?.monthlyRevenue || 0,
+      yearlyRevenue: metricsData?.platform?.yearlyRevenue || statsData?.yearlyRevenue || 0,
+      growthRate: metricsData?.platform?.growthRate || statsData?.growthRate || 0
     },
-    performance: {
+    performance: metricsData?.performance || {
       responseTime: 0,
       uptime: 99.9,
       errorRate: 0,
@@ -697,7 +706,7 @@ export default function AdminMegaDashboard() {
       cacheHitRate: 0,
       dbQueries: 0
     },
-    ai: {
+    ai: metricsData?.ai || {
       totalRequests: 0,
       byProvider: {
         claude: 0,
@@ -716,7 +725,7 @@ export default function AdminMegaDashboard() {
       successRate: 0,
       avgResponseTime: 0
     },
-    financial: {
+    financial: metricsData?.financial || {
       revenue: {
         today: 0,
         week: 0,
@@ -732,13 +741,13 @@ export default function AdminMegaDashboard() {
       ltv: 0,
       arpu: 0
     },
-    geographic: dashboardMetrics?.geographic || {
+    geographic: metricsData?.geographic || {
       byState: {},
       byCountry: { usa: 0, canada: 0 },
       topCities: [],
       expansionProgress: 0
     },
-    engagement: dashboardMetrics?.engagement || {
+    engagement: metricsData?.engagement || {
       dailyActiveUsers: 0,
       weeklyActiveUsers: 0,
       monthlyActiveUsers: 0,
@@ -894,10 +903,10 @@ export default function AdminMegaDashboard() {
     },
   });
 
-  // Ban/unban user mutation (from admin-unified)
+  // Activate/deactivate user mutation (from admin-unified)
   const toggleUserBanMutation = useMutation({
-    mutationFn: async (data: { userId: number; banned: boolean }) => {
-      return apiRequest("PATCH", `/api/admin/users/${data.userId}/ban`, { banned: data.banned });
+    mutationFn: async (data: { userId: number; setActive: boolean }) => {
+      return apiRequest("POST", `/api/admin/users/${data.userId}/ban`, { isActive: data.setActive });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/users'] });
@@ -1241,7 +1250,6 @@ export default function AdminMegaDashboard() {
   // Calculate summary metrics
   const calculateMetrics = (): DashboardMetrics => {
     const stats = platformStats as any;
-    const subscriptions = Array.isArray(activeSubscriptions) ? activeSubscriptions : [];
     const usersList = Array.isArray(users) ? users : [];
     
     return {
@@ -1249,7 +1257,7 @@ export default function AdminMegaDashboard() {
         totalCommunities: stats?.totalCommunities || 0,
         totalUsers: stats?.totalUsers || usersList.length || 0,
         totalVendors: usersList.filter((u: any) => u.role === 'vendor').length,
-        activeSubscriptions: subscriptions.length,
+        activeSubscriptions: subscriptionData.summary?.total || 0,
         monthlyRevenue: (financialData as any)?.revenue?.month || 0,
         yearlyRevenue: (financialData as any)?.revenue?.year || 0,
         growthRate: (financialData as any)?.growthRate || 0,
@@ -1477,8 +1485,8 @@ export default function AdminMegaDashboard() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Badge variant={user.banned ? "destructive" : "default"}>
-                      {user.banned ? "Banned" : "Active"}
+                    <Badge variant={(user.isActive ?? true) === false ? "destructive" : "default"}>
+                      {(user.isActive ?? true) === false ? "Deactivated" : "Active"}
                     </Badge>
                   </TableCell>
                   <TableCell>{format(new Date(user.createdAt), 'MMM d, yyyy')}</TableCell>
@@ -1487,9 +1495,13 @@ export default function AdminMegaDashboard() {
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => toggleUserBanMutation.mutate({ userId: user.id, banned: !user.banned })}
+                        onClick={() => toggleUserBanMutation.mutate({ 
+                          userId: user.id, 
+                          setActive: (user.isActive ?? true) === false // If currently deactivated, set to active
+                        })}
+                        title={(user.isActive ?? true) === false ? "Reactivate user" : "Deactivate user"}
                       >
-                        {user.banned ? <Unlock className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
+                        {(user.isActive ?? true) === false ? <Unlock className="h-4 w-4" /> : <Ban className="h-4 w-4" />}
                       </Button>
                       <Button 
                         size="sm" 
@@ -1608,42 +1620,97 @@ Communities Created: ${details.stats.communitiesCreated}`;
           </TabsContent>
           
           <TabsContent value="active">
-            <ScrollArea className="h-[400px]">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Plan</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Next Billing</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.isArray(activeSubscriptions) && activeSubscriptions.slice(0, 10).map((sub: any) => (
-                    <TableRow key={sub.id}>
-                      <TableCell>{sub.customerName}</TableCell>
-                      <TableCell>
-                        <Badge>{sub.planName}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="default">Active</Badge>
-                      </TableCell>
-                      <TableCell>{format(new Date(sub.nextBilling), 'MMM d, yyyy')}</TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => cancelSubscriptionMutation.mutate(sub.id)}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
+            {subscriptionsLoading ? (
+              <div className="flex justify-center items-center h-[300px]">
+                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              </div>
+            ) : subscriptionsError ? (
+              <div className="flex flex-col justify-center items-center h-[300px] text-center">
+                <AlertTriangle className="h-12 w-12 text-destructive mb-4" />
+                <p className="text-muted-foreground">Failed to load subscriptions</p>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="mt-4"
+                  onClick={() => window.location.reload()}
+                >
+                  Retry
+                </Button>
+              </div>
+            ) : (
+              <>
+                <ScrollArea className="h-[400px]">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Customer</TableHead>
+                        <TableHead>Plan</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Next Billing</TableHead>
+                        <TableHead>Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(subscriptionData.subscriptions || []).slice(0, 10).map((sub: any) => (
+                        <TableRow key={sub.id}>
+                          <TableCell>{sub.customerName}</TableCell>
+                          <TableCell>
+                            <Badge>{sub.planName}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant={sub.entityType === 'community' ? 'default' : 'secondary'}>
+                              {sub.entityType === 'community' ? 'Community' : 'Vendor'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>${((sub.amount || 0) / 100).toFixed(2)}/mo</TableCell>
+                          <TableCell>
+                            {sub.nextBilling ? format(new Date(sub.nextBilling), 'MMM d, yyyy') : 'N/A'}
+                          </TableCell>
+                          <TableCell>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => cancelSubscriptionMutation.mutate(sub.numericId)}
+                              title="Cancel subscription"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {(subscriptionData.subscriptions || []).length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
+                            No active subscriptions found
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </ScrollArea>
+                <div className="mt-4 p-4 border rounded-lg bg-muted/50">
+                  <div className="grid grid-cols-4 gap-4 text-sm">
+                    <div>
+                      <span className="text-muted-foreground">Total Active:</span>
+                      <span className="ml-2 font-medium">{subscriptionData.summary?.total || 0}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Communities:</span>
+                      <span className="ml-2 font-medium">{subscriptionData.summary?.community || 0}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">Vendors:</span>
+                      <span className="ml-2 font-medium">{subscriptionData.summary?.vendor || 0}</span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground">MRR:</span>
+                      <span className="ml-2 font-medium text-green-600">${(subscriptionData.summary?.totalMRR || 0).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </TabsContent>
           
           <TabsContent value="revenue">

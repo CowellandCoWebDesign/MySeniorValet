@@ -3,7 +3,7 @@
 
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { communities, users, messages, vendors, auditLogs } from '../../shared/schema';
+import { communities, users, messages, vendors, auditLogs, communitySubscriptions, vendorSubscriptions } from '../../shared/schema';
 import { eq, sql, desc, and, gte, lte, count, avg, sum, not, isNull } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
 
@@ -531,27 +531,107 @@ router.get('/api/admin/audit-logs', requireAuth, requireSuperAdmin, async (req: 
 
 // ========== SUBSCRIPTIONS ==========
 
-// Active subscriptions
+// Tier pricing lookup for display purposes (monthly in cents)
+const TIER_PRICING: Record<string, number> = {
+  'starter': 9900,     // $99/month
+  'growth': 19900,     // $199/month
+  'professional': 39900, // $399/month
+  'premium': 59900,    // $599/month
+  'enterprise': 99900, // $999/month
+  'vendor_basic': 4900,   // $49/month
+  'vendor_pro': 14900,    // $149/month
+  'vendor_enterprise': 29900 // $299/month
+};
+
+// Active subscriptions - fetches real data from community_subscriptions and vendor_subscriptions tables
 router.get('/api/admin/subscriptions/active', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
-  // Mock subscription data
-  res.json([
-    {
-      id: 1,
-      userId: 1,
-      plan: 'premium',
-      status: 'active',
-      amount: 299,
-      nextBilling: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    },
-    {
-      id: 2,
-      userId: 2,
-      plan: 'basic',
-      status: 'active',
-      amount: 99,
-      nextBilling: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)
-    }
-  ]);
+  try {
+    // Get community subscriptions with full details
+    const communitySubs = await db
+      .select({
+        id: communitySubscriptions.id,
+        stripeCustomerId: communitySubscriptions.stripeCustomerId,
+        stripeSubscriptionId: communitySubscriptions.stripeSubscriptionId,
+        tierLevel: communitySubscriptions.tierLevel,
+        status: communitySubscriptions.status,
+        currentPeriodStart: communitySubscriptions.currentPeriodStart,
+        currentPeriodEnd: communitySubscriptions.currentPeriodEnd,
+        createdAt: communitySubscriptions.createdAt,
+        communityId: communitySubscriptions.communityId,
+        communityName: communities.name
+      })
+      .from(communitySubscriptions)
+      .leftJoin(communities, eq(communitySubscriptions.communityId, communities.id))
+      .where(eq(communitySubscriptions.status, 'active'));
+    
+    // Get vendor subscriptions with full details
+    const vendorSubs = await db
+      .select({
+        id: vendorSubscriptions.id,
+        stripeCustomerId: vendorSubscriptions.stripeCustomerId,
+        stripeSubscriptionId: vendorSubscriptions.stripeSubscriptionId,
+        tierLevel: vendorSubscriptions.tierLevel,
+        status: vendorSubscriptions.status,
+        currentPeriodStart: vendorSubscriptions.currentPeriodStart,
+        currentPeriodEnd: vendorSubscriptions.currentPeriodEnd,
+        createdAt: vendorSubscriptions.createdAt,
+        vendorId: vendorSubscriptions.vendorId,
+        vendorName: vendors.companyName
+      })
+      .from(vendorSubscriptions)
+      .leftJoin(vendors, eq(vendorSubscriptions.vendorId, vendors.id))
+      .where(eq(vendorSubscriptions.status, 'active'));
+    
+    // Format subscriptions with complete DTO structure
+    const formattedCommunity = communitySubs.map((sub) => ({
+      id: `community-${sub.id}`,  // Use prefixed string ID to avoid collisions
+      numericId: sub.id,
+      entityType: 'community' as const,
+      entityId: sub.communityId,
+      customerName: sub.communityName || `Community #${sub.communityId}`,
+      planName: sub.tierLevel || 'starter',
+      status: sub.status,
+      amount: TIER_PRICING[sub.tierLevel || 'starter'] || 9900,
+      nextBilling: sub.currentPeriodEnd,
+      periodStart: sub.currentPeriodStart,
+      createdAt: sub.createdAt,
+      stripeCustomerId: sub.stripeCustomerId,
+      stripeSubscriptionId: sub.stripeSubscriptionId
+    }));
+    
+    const formattedVendor = vendorSubs.map((sub) => ({
+      id: `vendor-${sub.id}`,  // Use prefixed string ID to avoid collisions
+      numericId: sub.id,
+      entityType: 'vendor' as const,
+      entityId: sub.vendorId,
+      customerName: sub.vendorName || `Vendor #${sub.vendorId}`,
+      planName: sub.tierLevel || 'vendor_basic',
+      status: sub.status,
+      amount: TIER_PRICING[sub.tierLevel || 'vendor_basic'] || 4900,
+      nextBilling: sub.currentPeriodEnd,
+      periodStart: sub.currentPeriodStart,
+      createdAt: sub.createdAt,
+      stripeCustomerId: sub.stripeCustomerId,
+      stripeSubscriptionId: sub.stripeSubscriptionId
+    }));
+    
+    // Calculate summary metrics
+    const allSubscriptions = [...formattedCommunity, ...formattedVendor];
+    const totalMRR = allSubscriptions.reduce((sum, sub) => sum + (sub.amount || 0), 0);
+    
+    res.json({
+      subscriptions: allSubscriptions,
+      summary: {
+        total: allSubscriptions.length,
+        community: formattedCommunity.length,
+        vendor: formattedVendor.length,
+        totalMRR: totalMRR / 100  // Convert cents to dollars
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching active subscriptions:', error);
+    res.status(500).json({ error: 'Failed to fetch active subscriptions' });
+  }
 });
 
 // ========== ENRICHMENT STATS ==========
