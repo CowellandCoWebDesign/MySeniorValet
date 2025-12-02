@@ -394,8 +394,8 @@ export default function Rentals() {
           if (tab === 'search') window.location.href = "/map-search";
           else if (tab === 'updates') window.location.href = '/dashboard?tab=updates';
           else if (tab === 'saved') window.location.href = '/dashboard?tab=saved';
-          else if (tab === 'tours') window.location.href = '/dashboard?tab=tours';
-          else if (tab === 'inbox') window.location.href = '/dashboard?tab=inbox';
+          else if (tab === 'tours') window.location.href = '/dashboard?tab=tour-tracker';
+          else if (tab === 'inbox') window.location.href = '/dashboard?tab=messages';
         }}
       />
     </div>

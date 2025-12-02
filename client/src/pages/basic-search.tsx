@@ -261,10 +261,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
         // Stay in search page but switch to saved tab
         break;
       case 'tours':
-        navigate('/dashboard?tab=tours');
+        navigate('/dashboard?tab=tour-tracker');
         break;
       case 'inbox':
-        navigate('/dashboard?tab=inbox');
+        navigate('/dashboard?tab=messages');
         break;
     }
   };

@@ -293,7 +293,8 @@ function Router() {
       <Route path="/ai-search-intelligence" component={AISearchIntelligence} />
       <Route path="/expansion-monitor" component={SuperAdminAnalytics} />
       <Route path="/api-costs" component={SuperAdminAnalytics} />
-      <Route path="/dashboard" component={EnterpriseDashboard} />
+      <Route path="/dashboard" component={FamilyCollaborationCenter} />
+      <Route path="/dashboard-enterprise" component={EnterpriseDashboard} />
       <Route path="/dashboard-legacy" component={Dashboard} />
       <Route path="/enterprise-verification" component={EnterpriseDashboardVerification} />
       <Route path="/phase5b-validation" component={Phase5bValidation} />
