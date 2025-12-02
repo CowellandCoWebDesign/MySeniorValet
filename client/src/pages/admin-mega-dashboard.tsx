@@ -1240,14 +1240,14 @@ export default function AdminMegaDashboard() {
 
   // Calculate summary metrics
   const calculateMetrics = (): DashboardMetrics => {
-    const communities = Array.isArray((platformStats as any)?.communities) ? (platformStats as any).communities : [];
+    const stats = platformStats as any;
     const subscriptions = Array.isArray(activeSubscriptions) ? activeSubscriptions : [];
     const usersList = Array.isArray(users) ? users : [];
     
     return {
       platform: {
-        totalCommunities: communities.length,
-        totalUsers: usersList.length,
+        totalCommunities: stats?.totalCommunities || 0,
+        totalUsers: stats?.totalUsers || usersList.length || 0,
         totalVendors: usersList.filter((u: any) => u.role === 'vendor').length,
         activeSubscriptions: subscriptions.length,
         monthlyRevenue: (financialData as any)?.revenue?.month || 0,
