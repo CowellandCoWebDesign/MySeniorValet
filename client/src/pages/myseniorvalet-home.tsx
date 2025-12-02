@@ -2021,7 +2021,8 @@ export default function MySeniorValetHome() {
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
           {/* Tab Content - Direct connection to hero, no extra backgrounds */}
-          <div className="relative -mt-12 sm:-mt-16 md:-mt-12 z-20">
+          {/* Reduced negative margin on mobile to prevent overlap with search bar */}
+          <div className="relative -mt-2 sm:-mt-8 md:-mt-12 z-20">
             {/* Single unified content container */}
             <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
