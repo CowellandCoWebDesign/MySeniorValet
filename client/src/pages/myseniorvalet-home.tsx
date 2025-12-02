@@ -2017,13 +2017,13 @@ export default function MySeniorValetHome() {
       {/* Unified Tab System for Hero and Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Transforming Hero Section with Search - Mobile optimized */}
-        <div className="relative z-30">
+        {/* Lowered z-index to z-0 so content below isn't clipped; search capsule handles its own z-index */}
+        <div className="relative z-0">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
-          {/* Tab Content - Direct connection to hero, no extra backgrounds */}
-          {/* Reduced negative margin on mobile to prevent overlap with search bar */}
-          {/* Added overflow-hidden to contain any transform/scale effects from cards */}
-          <div className="relative mt-0 sm:-mt-4 md:-mt-8 z-10 overflow-hidden" style={{ isolation: 'isolate' }}>
+          {/* Tab Content - Positioned below hero with proper spacing */}
+          {/* Removed negative margins completely to prevent content sliding under hero */}
+          <div className="relative mt-0 z-10">
             {/* Single unified content container */}
             <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
@@ -2038,7 +2038,7 @@ export default function MySeniorValetHome() {
               <div className="mb-12">
                 <div className="grid grid-cols-1">
                   {/* Community Directory */}
-                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group transform hover:scale-105 cursor-pointer" onClick={(e) => {
+                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group md:hover:scale-[1.02] cursor-pointer" onClick={(e) => {
               // Only navigate if clicking on the card background, not buttons
               const target = e.target as HTMLElement;
               if (e.target === e.currentTarget || !target.closest('button')) {
