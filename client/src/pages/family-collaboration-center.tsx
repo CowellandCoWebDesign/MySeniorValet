@@ -1419,6 +1419,17 @@ export default function FamilyCollaborationCenter() {
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
                 <TabsTrigger 
+                  value="favorites" 
+                  className="flex-shrink-0 min-w-[120px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-4 data-[state=active]:scale-105"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-rose-500/0 to-pink-500/0 group-hover:from-rose-500/10 group-hover:to-pink-500/10 data-[state=active]:from-rose-500/20 data-[state=active]:to-pink-500/20 transition-all duration-300" />
+                  <div className="relative flex items-center justify-center">
+                    <Heart className="w-5 h-5 mr-2 flex-shrink-0 text-rose-600 dark:text-rose-400 group-data-[state=active]:text-rose-700 dark:group-data-[state=active]:text-rose-300" />
+                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Favorites</span>
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 to-pink-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
+                </TabsTrigger>
+                <TabsTrigger 
                   value="polls" 
                   className="flex-shrink-0 min-w-[140px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-4 data-[state=active]:scale-105"
                 >
@@ -1505,17 +1516,6 @@ export default function FamilyCollaborationCenter() {
                     <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Cost Calculator</span>
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-cyan-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="favorites" 
-                  className="flex-shrink-0 min-w-[120px] group relative overflow-hidden rounded-lg transition-all duration-300 py-3 px-4 data-[state=active]:scale-105"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 to-rose-500/0 group-hover:from-red-500/10 group-hover:to-rose-500/10 data-[state=active]:from-red-500/20 data-[state=active]:to-rose-500/20 transition-all duration-300" />
-                  <div className="relative flex items-center justify-center">
-                    <Heart className="w-5 h-5 mr-2 flex-shrink-0 text-red-600 dark:text-red-400 group-data-[state=active]:text-red-700 dark:group-data-[state=active]:text-red-300" />
-                    <span className="whitespace-nowrap font-semibold text-gray-700 dark:text-gray-300 group-data-[state=active]:text-gray-900 dark:group-data-[state=active]:text-white">Favorites</span>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-red-500 to-rose-500 transform scale-x-0 group-data-[state=active]:scale-x-100 transition-transform duration-300" />
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -3200,7 +3200,18 @@ export default function FamilyCollaborationCenter() {
 
           {/* Care Coordination Tab - Family View */}
           <TabsContent value="care" className="space-y-6">
-            <Card>
+            {/* Coming Soon Notice */}
+            <Alert className="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-950/30 dark:to-pink-950/30 border-red-200 dark:border-red-800">
+              <Clock className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <AlertTitle className="text-red-800 dark:text-red-200 font-semibold text-lg">
+                Coming Soon
+              </AlertTitle>
+              <AlertDescription className="text-red-700 dark:text-red-300">
+                Care Coordination features are currently in development. Soon you'll have complete access to health records, medications, appointments, and care plans for your loved one.
+              </AlertDescription>
+            </Alert>
+            
+            <Card className="opacity-60 pointer-events-none">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
