@@ -2949,19 +2949,45 @@ export default function FamilyCollaborationCenter() {
 
           {/* Health Records Tab */}
           <TabsContent value="health-records" className="space-y-6">
-            <FamilyHealthRecords 
-              residentId="demo"
-              communityId="demo"
-              tierLevel="premium"
-            />
+            {/* Coming Soon Notice */}
+            <Alert className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/30 dark:to-cyan-950/30 border-blue-200 dark:border-blue-800">
+              <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <AlertTitle className="text-blue-800 dark:text-blue-200 font-semibold text-lg">
+                Coming Soon
+              </AlertTitle>
+              <AlertDescription className="text-blue-700 dark:text-blue-300">
+                Health Records integration is currently in development. Soon you'll have secure access to medical records, prescriptions, doctor's notes, and health history all in one place.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="opacity-60 pointer-events-none">
+              <FamilyHealthRecords 
+                residentId="demo"
+                communityId="demo"
+                tierLevel="premium"
+              />
+            </div>
           </TabsContent>
 
           {/* Medicare Tab */}
           <TabsContent value="medicare" className="space-y-6">
-            <FamilyMedicareManager 
-              userId={user?.id || ''}
-              residentName={user?.name || 'Your Loved One'}
-            />
+            {/* Coming Soon Notice */}
+            <Alert className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 border-red-200 dark:border-red-800">
+              <Clock className="h-5 w-5 text-red-600 dark:text-red-400" />
+              <AlertTitle className="text-red-800 dark:text-red-200 font-semibold text-lg">
+                Coming Soon
+              </AlertTitle>
+              <AlertDescription className="text-red-700 dark:text-red-300">
+                Medicare management features are currently in development. Soon you'll be able to track Medicare benefits, eligibility, claims, and coverage options for your loved one.
+              </AlertDescription>
+            </Alert>
+            
+            <div className="opacity-60 pointer-events-none">
+              <FamilyMedicareManager 
+                userId={user?.id || ''}
+                residentName={user?.name || 'Your Loved One'}
+              />
+            </div>
           </TabsContent>
 
           {/* Shared Favorites Tab */}
