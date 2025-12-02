@@ -852,10 +852,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         </div>
         
         {/* Content Container - Search First, Then Value Props - Minimal bottom padding */}
-        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-1 px-2 sm:px-4`}>
+        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-4 px-2 sm:px-4`}>
         
-        {/* Search Mode Toggle Button */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-1 sm:mb-2">
+        {/* Search Mode Toggle Button - Higher z-index with isolation to prevent content overlap */}
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-1 sm:mb-2" style={{ isolation: 'isolate' }}>
           <div className="flex justify-center">
             <button
               onClick={() => setSearchMode(searchMode === 'ai' ? 'classic' : 'ai')}
@@ -887,8 +887,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </div>
         </div>
         
-        {/* Conditional Rendering: AI Assistant or Classic Search */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-40 mb-1 sm:mb-2">
+        {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-3 sm:mb-4" style={{ isolation: 'isolate' }}>
           <AnimatePresence mode="wait">
             {searchMode === 'ai' ? (
               <motion.div
@@ -2022,7 +2022,8 @@ export default function MySeniorValetHome() {
           
           {/* Tab Content - Direct connection to hero, no extra backgrounds */}
           {/* Reduced negative margin on mobile to prevent overlap with search bar */}
-          <div className="relative -mt-2 sm:-mt-8 md:-mt-12 z-20">
+          {/* Added overflow-hidden to contain any transform/scale effects from cards */}
+          <div className="relative mt-0 sm:-mt-4 md:-mt-8 z-10 overflow-hidden" style={{ isolation: 'isolate' }}>
             {/* Single unified content container */}
             <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
