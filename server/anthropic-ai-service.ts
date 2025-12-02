@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import { trackAIUsage } from './routes/adminAIMetricsRoutes';
 
 /*
 The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-sonnet-4-20250514" nor "claude-3-sonnet-20240229". 
@@ -34,6 +35,7 @@ export interface SearchIntent {
 }
 
 export async function interpretSearchQuery(query: string): Promise<SearchIntent> {
+  const startTime = Date.now();
   try {
     const systemPrompt = `You are MySeniorValet's search interpreter - helping connect families with publicly available senior living information.
     
@@ -81,6 +83,11 @@ Return a JSON object with these fields:
       ],
     });
 
+    const responseTime = Date.now() - startTime;
+    
+    // Track successful Claude API call
+    trackAIUsage('claude', true, responseTime);
+
     // Extract the JSON from the response
     const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
     
@@ -101,6 +108,10 @@ Return a JSON object with these fields:
     
     return searchIntent;
   } catch (error) {
+    // Track failed Claude API call
+    const responseTime = Date.now() - startTime;
+    trackAIUsage('claude', false, responseTime);
+    
     console.error('Error interpreting search query:', error);
     
     // Fallback to basic parsing
@@ -116,6 +127,7 @@ Return a JSON object with these fields:
 }
 
 export async function generateSearchSuggestions(partialQuery: string): Promise<string[]> {
+  const startTime = Date.now();
   try {
     const response = await anthropic.messages.create({
       model: DEFAULT_MODEL_STR,
@@ -135,6 +147,9 @@ Examples:
       ],
     });
 
+    const responseTime = Date.now() - startTime;
+    trackAIUsage('claude', true, responseTime);
+
     const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
     const jsonMatch = responseText.match(/\[[\s\S]*\]/);
     
@@ -144,12 +159,15 @@ Examples:
     
     return [];
   } catch (error) {
+    const responseTime = Date.now() - startTime;
+    trackAIUsage('claude', false, responseTime);
     console.error('Error generating suggestions:', error);
     return [];
   }
 }
 
 export async function enhanceSearchResults(query: string, results: any[]): Promise<string> {
+  const startTime = Date.now();
   try {
     const response = await anthropic.messages.create({
       model: DEFAULT_MODEL_STR,
@@ -168,8 +186,13 @@ Provide a 2-3 sentence summary of what was found and any helpful context.`
       ],
     });
 
+    const responseTime = Date.now() - startTime;
+    trackAIUsage('claude', true, responseTime);
+    
     return response.content[0].type === 'text' ? response.content[0].text : '';
   } catch (error) {
+    const responseTime = Date.now() - startTime;
+    trackAIUsage('claude', false, responseTime);
     console.error('Error enhancing search results:', error);
     return `Found ${results.length} communities matching your search.`;
   }
@@ -187,6 +210,7 @@ export class AnthropicAIService {
   }
   
   async analyze(prompt: string): Promise<string> {
+    const startTime = Date.now();
     try {
       if (!this.isConfigured()) {
         return 'AI service not configured';
@@ -200,8 +224,13 @@ export class AnthropicAIService {
         ],
       });
       
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('claude', true, responseTime);
+      
       return response.content[0].type === 'text' ? response.content[0].text : '';
     } catch (error) {
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('claude', false, responseTime);
       console.error('Error in AI analysis:', error);
       return 'Analysis unavailable at this time';
     }
@@ -209,6 +238,7 @@ export class AnthropicAIService {
 
   // Static method for enhanced search intelligence compatibility
   static async analyzeText(prompt: string): Promise<string> {
+    const startTime = Date.now();
     try {
       const response = await anthropic.messages.create({
         model: DEFAULT_MODEL_STR,
@@ -218,8 +248,13 @@ export class AnthropicAIService {
         ],
       });
       
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('claude', true, responseTime);
+      
       return response.content[0].type === 'text' ? response.content[0].text : '';
     } catch (error) {
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('claude', false, responseTime);
       console.error('Error in AI text analysis:', error);
       return 'Analysis unavailable at this time';
     }

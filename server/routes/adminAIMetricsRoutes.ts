@@ -15,21 +15,29 @@ const aiUsageTracker = {
     calls: 0,
     cost: 0,
     lastCall: null as Date | null,
-    errors: 0
+    errors: 0,
+    totalResponseTime: 0,
+    avgResponseTime: 0
   },
   claude: {
     calls: 0,
     cost: 0,
     lastCall: null as Date | null,
-    errors: 0
+    errors: 0,
+    totalResponseTime: 0,
+    avgResponseTime: 0
   },
   chatgpt: {
     calls: 0,
     cost: 0, 
     lastCall: null as Date | null,
-    errors: 0
+    errors: 0,
+    totalResponseTime: 0,
+    avgResponseTime: 0
   },
-  totalCost: 0
+  totalCost: 0,
+  totalCalls: 0,
+  totalErrors: 0
 };
 
 // Load real AI usage from database on startup
@@ -71,31 +79,42 @@ async function loadAIUsageFromDB() {
 loadAIUsageFromDB();
 
 // Track AI usage (called by other services when they use AI)
-export function trackAIUsage(provider: 'perplexity' | 'claude' | 'chatgpt', success: boolean = true) {
+export function trackAIUsage(provider: 'perplexity' | 'claude' | 'chatgpt', success: boolean = true, responseTimeMs?: number) {
   const tracker = aiUsageTracker[provider];
   if (tracker) {
     tracker.calls++;
     tracker.lastCall = new Date();
+    aiUsageTracker.totalCalls++;
     
     if (!success) {
       tracker.errors++;
+      aiUsageTracker.totalErrors++;
+    }
+    
+    // Track response time
+    if (responseTimeMs !== undefined) {
+      tracker.totalResponseTime += responseTimeMs;
+      tracker.avgResponseTime = tracker.totalResponseTime / tracker.calls;
     }
     
     // Update costs based on real pricing
+    let cost = 0;
     switch(provider) {
       case 'perplexity':
-        tracker.cost += 0.005;
-        aiUsageTracker.totalCost += 0.005;
+        cost = 0.005;  // $5 per 1000 requests
         break;
       case 'claude':
-        tracker.cost += 0.01;
-        aiUsageTracker.totalCost += 0.01;
+        cost = 0.01;   // ~$0.01 per request average
         break;
       case 'chatgpt':
-        tracker.cost += 0.002;
-        aiUsageTracker.totalCost += 0.002;
+        cost = 0.002;  // ~$0.002 per request average
         break;
     }
+    
+    tracker.cost += cost;
+    aiUsageTracker.totalCost += cost;
+    
+    console.log(`📊 AI Usage tracked: ${provider} (${success ? 'success' : 'error'})${responseTimeMs ? ` in ${responseTimeMs}ms` : ''} - Total: ${aiUsageTracker.totalCalls} calls, $${aiUsageTracker.totalCost.toFixed(2)}`);
   }
 }
 
@@ -117,30 +136,62 @@ router.get('/metrics', async (req, res) => {
     
     const stats = enrichmentStats.rows[0] || {};
     
+    // Calculate success rate
+    const totalCalls = aiUsageTracker.totalCalls;
+    const totalErrors = aiUsageTracker.totalErrors;
+    const successRate = totalCalls > 0 ? ((totalCalls - totalErrors) / totalCalls) * 100 : 0;
+    
+    // Calculate average response time across all providers
+    const totalResponseTime = 
+      aiUsageTracker.perplexity.totalResponseTime + 
+      aiUsageTracker.claude.totalResponseTime + 
+      aiUsageTracker.chatgpt.totalResponseTime;
+    const avgResponseTime = totalCalls > 0 ? Math.round(totalResponseTime / totalCalls) : 0;
+    
     res.json({
-      totalCalls: aiUsageTracker.perplexity.calls + aiUsageTracker.claude.calls + aiUsageTracker.chatgpt.calls,
+      totalRequests: totalCalls,
+      totalCalls: totalCalls, // For backwards compatibility
       totalCost: aiUsageTracker.totalCost.toFixed(2),
+      successRate: Number(successRate.toFixed(1)),
+      avgResponseTime: avgResponseTime,
+      byProvider: {
+        perplexity: aiUsageTracker.perplexity.calls,
+        claude: aiUsageTracker.claude.calls,
+        chatgpt: aiUsageTracker.chatgpt.calls,
+        gemini: 0,  // Not currently used
+        grok: 0     // Not currently used
+      },
+      costs: {
+        total: Number(aiUsageTracker.totalCost.toFixed(2)),
+        perplexity: Number(aiUsageTracker.perplexity.cost.toFixed(2)),
+        claude: Number(aiUsageTracker.claude.cost.toFixed(2)),
+        chatgpt: Number(aiUsageTracker.chatgpt.cost.toFixed(2)),
+        gemini: 0,
+      },
       providers: {
         perplexity: {
           calls: aiUsageTracker.perplexity.calls,
           cost: aiUsageTracker.perplexity.cost.toFixed(2),
           lastCall: aiUsageTracker.perplexity.lastCall,
           errors: aiUsageTracker.perplexity.errors,
-          status: 'active'
+          avgResponseTime: Math.round(aiUsageTracker.perplexity.avgResponseTime),
+          status: process.env.PERPLEXITY_API_KEY ? 'active' : 'not_configured'
         },
         claude: {
           calls: aiUsageTracker.claude.calls,
           cost: aiUsageTracker.claude.cost.toFixed(2),
           lastCall: aiUsageTracker.claude.lastCall,
           errors: aiUsageTracker.claude.errors,
-          status: 'active'
+          avgResponseTime: Math.round(aiUsageTracker.claude.avgResponseTime),
+          status: process.env.ANTHROPIC_API_KEY ? 'active' : 'not_configured'
         },
         chatgpt: {
           calls: aiUsageTracker.chatgpt.calls,
           cost: aiUsageTracker.chatgpt.cost.toFixed(2),
           lastCall: aiUsageTracker.chatgpt.lastCall,
           errors: aiUsageTracker.chatgpt.errors,
-          status: 'active'
+          avgResponseTime: Math.round(aiUsageTracker.chatgpt.avgResponseTime),
+          status: process.env.OPENAI_API_KEY ? 'active' : 'not_configured'
         }
       },
       enrichmentStats: {
@@ -150,7 +201,7 @@ router.get('/metrics', async (req, res) => {
         aiAnalyses: Number(stats.ai_analyses) || 0
       },
       timeRange,
-      _version: 'v4_ai_metrics',
+      _version: 'v5_ai_metrics_enhanced',
       _timestamp: new Date().toISOString()
     });
   } catch (error) {

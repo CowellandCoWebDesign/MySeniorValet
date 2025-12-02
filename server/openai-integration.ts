@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import { Community } from '@shared/schema';
+import { trackAIUsage } from './routes/adminAIMetricsRoutes';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -24,6 +25,7 @@ export interface SmartSearchResult {
 export class OpenAIIntegration {
   
   async processNaturalLanguageSearch(query: NaturalLanguageQuery): Promise<SmartSearchResult> {
+    const startTime = Date.now();
     try {
       const prompt = `You are MySeniorValet's AI assistant - connecting families with publicly available senior living information.
 
@@ -61,6 +63,9 @@ Example response format:
         reasoning_effort: "medium", // New GPT-5 parameter for reasoning control
       });
 
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', true, responseTime);
+
       const response = completion.choices[0]?.message?.content;
       if (!response) throw new Error('No response from OpenAI');
 
@@ -77,6 +82,8 @@ Example response format:
       };
 
     } catch (error) {
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', false, responseTime);
       console.error('OpenAI natural language search error:', error);
       throw error;
     }
@@ -89,6 +96,7 @@ Example response format:
   }
 
   async generateCommunityDescription(community: Community, extractedInfo?: any): Promise<string> {
+    const startTime = Date.now();
     try {
       // Build comprehensive prompt with all extracted information
       let detailedInfo = '';
@@ -148,9 +156,14 @@ Important:
         temperature: 0.7,
       });
 
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', true, responseTime);
+
       return completion.choices[0]?.message?.content || 'Unable to generate description';
 
     } catch (error) {
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', false, responseTime);
       console.error('OpenAI description generation error:', error);
       return community.description || 'No description available';
     }

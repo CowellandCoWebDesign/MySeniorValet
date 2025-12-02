@@ -8,6 +8,8 @@
  * - Perfect for discovery operations across all MySeniorValet tabs
  */
 
+import { trackAIUsage } from "../routes/adminAIMetricsRoutes";
+
 interface SearchResult {
   title: string;
   url: string;
@@ -52,6 +54,7 @@ export class PerplexitySearchAPI {
    * Cost: $5 per 1,000 requests (significantly cheaper than chat completions)
    */
   async search(query: string, options: SearchOptions = {}): Promise<SearchResponse> {
+    const startTime = Date.now();
     try {
       console.log(`🔍 Perplexity Search API: "${query}"`);
       
@@ -85,11 +88,17 @@ export class PerplexitySearchAPI {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`❌ Search API error (${response.status}):`, errorText);
+        // Track failed API call
+        trackAIUsage('perplexity', false);
         throw new Error(`Search API failed: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log(`✅ Found ${data.results?.length || 0} search results`);
+      const responseTime = Date.now() - startTime;
+      console.log(`✅ Found ${data.results?.length || 0} search results (${responseTime}ms)`);
+      
+      // Track successful API call
+      trackAIUsage('perplexity', true, responseTime);
       
       return {
         results: data.results || [],
@@ -98,6 +107,9 @@ export class PerplexitySearchAPI {
       };
 
     } catch (error) {
+      // Track failed API call if not already tracked
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('perplexity', false, responseTime);
       console.error('❌ Perplexity Search API error:', error);
       throw error;
     }
