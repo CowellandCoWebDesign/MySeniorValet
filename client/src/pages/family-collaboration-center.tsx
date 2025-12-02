@@ -2960,13 +2960,11 @@ export default function FamilyCollaborationCenter() {
               </AlertDescription>
             </Alert>
             
-            <div className="opacity-60 pointer-events-none">
-              <FamilyHealthRecords 
-                residentId="demo"
-                communityId="demo"
-                tierLevel="premium"
-              />
-            </div>
+            <FamilyHealthRecords 
+              residentId="demo"
+              communityId="demo"
+              tierLevel="premium"
+            />
           </TabsContent>
 
           {/* Medicare Tab */}
@@ -2982,12 +2980,10 @@ export default function FamilyCollaborationCenter() {
               </AlertDescription>
             </Alert>
             
-            <div className="opacity-60 pointer-events-none">
-              <FamilyMedicareManager 
-                userId={user?.id || ''}
-                residentName={user?.name || 'Your Loved One'}
-              />
-            </div>
+            <FamilyMedicareManager 
+              userId={user?.id || ''}
+              residentName={user?.name || 'Your Loved One'}
+            />
           </TabsContent>
 
           {/* Shared Favorites Tab */}
@@ -3211,7 +3207,7 @@ export default function FamilyCollaborationCenter() {
               </AlertDescription>
             </Alert>
             
-            <Card className="opacity-60 pointer-events-none">
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -3250,7 +3246,7 @@ export default function FamilyCollaborationCenter() {
               </AlertDescription>
             </Alert>
             
-            <Card className="opacity-60 pointer-events-none">
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -3291,7 +3287,7 @@ export default function FamilyCollaborationCenter() {
               </AlertDescription>
             </Alert>
             
-            <Card className="opacity-60 pointer-events-none">
+            <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
