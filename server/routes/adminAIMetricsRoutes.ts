@@ -46,19 +46,20 @@ async function getAIUsageFromDB(days: number = 30) {
     // Sanitize days parameter to prevent SQL injection (must be positive integer)
     const safeDays = Math.max(1, Math.min(365, Math.floor(Number(days) || 30)));
     
-    // Query actual API usage with costs and response times from metadata
+    // Query actual API usage with costs and response times from ai_usage_logs table
     // Using parameterized interval calculation to prevent SQL injection
     const result = await db.execute(sql`
       SELECT 
-        COALESCE(ai_provider, metadata->>'ai_provider', 'unknown') as provider,
+        provider,
         COUNT(*) as call_count,
-        SUM((metadata->>'cost')::numeric) as total_cost,
-        AVG((metadata->>'response_time')::numeric) as avg_response_time,
-        COUNT(CASE WHEN verification_status = 'error' OR verification_status = 'failed' THEN 1 END) as error_count,
+        SUM(COALESCE(estimated_cost, 0)) as total_cost,
+        AVG(COALESCE(request_duration, 0)) as avg_response_time,
+        SUM(COALESCE(total_tokens, 0)) as total_tokens,
+        COUNT(CASE WHEN success = false THEN 1 END) as error_count,
         MAX(created_at) as last_call
-      FROM community_enrichment_history
+      FROM ai_usage_logs
       WHERE created_at >= NOW() - (${safeDays} * INTERVAL '1 day')
-      GROUP BY COALESCE(ai_provider, metadata->>'ai_provider', 'unknown')
+      GROUP BY provider
     `);
     
     const stats = {

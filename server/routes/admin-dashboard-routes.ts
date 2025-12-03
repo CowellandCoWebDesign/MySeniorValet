@@ -65,17 +65,18 @@ router.get('/api/admin/metrics', requireAuth, requireSuperAdmin, async (req: Req
       : 0;
     const uptime = Math.min(99.9, 100 - errorRate); // Calculate uptime from error rate
     
-    // Get REAL AI usage from database (last 30 days)
+    // Get REAL AI usage from database (last 30 days) - queries ai_usage_logs table
     const aiResult = await db.execute(sql`
       SELECT 
-        COALESCE(ai_provider, metadata->>'ai_provider', 'unknown') as provider,
+        provider,
         COUNT(*) as call_count,
-        SUM((metadata->>'cost')::numeric) as total_cost,
-        AVG((metadata->>'response_time')::numeric) as avg_response_time,
-        COUNT(CASE WHEN verification_status = 'error' OR verification_status = 'failed' THEN 1 END) as error_count
-      FROM community_enrichment_history
+        SUM(COALESCE(estimated_cost, 0)) as total_cost,
+        AVG(COALESCE(request_duration, 0)) as avg_response_time,
+        SUM(COALESCE(total_tokens, 0)) as total_tokens,
+        COUNT(CASE WHEN success = false THEN 1 END) as error_count
+      FROM ai_usage_logs
       WHERE created_at >= NOW() - (30 * INTERVAL '1 day')
-      GROUP BY COALESCE(ai_provider, metadata->>'ai_provider', 'unknown')
+      GROUP BY provider
     `);
     
     // Helper function for provider-specific default costs

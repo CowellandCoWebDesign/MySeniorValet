@@ -46,14 +46,14 @@ export class AITrackerService {
         inputTokens: params.inputTokens,
         outputTokens: params.outputTokens,
         totalTokens: totalTokens > 0 ? totalTokens : undefined,
-        estimatedCost: params.estimatedCost?.toString(),
+        estimatedCost: params.estimatedCost !== undefined ? String(params.estimatedCost) : undefined,
         requestDuration: params.requestDuration,
         success: params.success ?? true,
         errorMessage: params.errorMessage,
         metadata: params.metadata,
         userId: params.userId,
-        prompt: params.prompt?.substring(0, 5000), // Limit prompt size
-        response: params.response?.substring(0, 5000), // Limit response size
+        prompt: params.prompt?.substring(0, 5000),
+        response: params.response?.substring(0, 5000),
       });
 
       console.log(`📊 AI Usage Tracked: ${params.provider}/${params.model} - ${params.action} (${params.requestDuration}ms, $${params.estimatedCost?.toFixed(4) || '0.0000'})`);
