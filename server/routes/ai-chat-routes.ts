@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { like, or, and, sql, desc } from 'drizzle-orm';
 import fetch from 'node-fetch';
+import { aiTracker } from '../services/ai-tracker.service';
 
 const router = Router();
 
@@ -192,6 +193,7 @@ When answering:
 
     // Call Perplexity Sonar API
     let perplexityResponse: any;
+    const perplexityStartTime = Date.now();
     try {
       console.log('Calling Perplexity Sonar with query:', query);
       
@@ -202,27 +204,55 @@ When answering:
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar', // Back to basic sonar for comparison
+          model: 'sonar',
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: query }
           ],
           temperature: 0.2,
           top_p: 0.9,
-          search_recency_filter: 'month', // Get recent information
+          search_recency_filter: 'month',
           return_images: false,
           return_related_questions: true,
           stream: false
         })
       });
       
+      const perplexityDuration = Date.now() - perplexityStartTime;
+      
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Perplexity API error:', response.status, errorText);
+        
+        await aiTracker.trackPerplexityCall({
+          action: 'public_ai_chat',
+          context: 'ai_chat_endpoint',
+          model: 'sonar',
+          requestDuration: perplexityDuration,
+          success: false,
+          errorMessage: `API error: ${response.status}`,
+          prompt: query,
+        });
+        
         throw new Error(`Perplexity API error: ${response.status}`);
       }
       
       perplexityResponse = await response.json();
+      const responseContent = perplexityResponse.choices?.[0]?.message?.content || '';
+      
+      await aiTracker.trackPerplexityCall({
+        action: 'public_ai_chat',
+        context: 'ai_chat_endpoint',
+        model: 'sonar',
+        requestDuration: perplexityDuration,
+        success: true,
+        inputTokens: Math.ceil(query.length / 4),
+        outputTokens: Math.ceil(responseContent.length / 4),
+        prompt: query,
+        response: responseContent.substring(0, 1000),
+        metadata: { citations: perplexityResponse.citations?.length || 0 },
+      });
+      
       console.log('Perplexity response received:', perplexityResponse.choices?.[0]?.finish_reason);
       console.log('Citations:', perplexityResponse.citations?.length || 0, 'sources');
       

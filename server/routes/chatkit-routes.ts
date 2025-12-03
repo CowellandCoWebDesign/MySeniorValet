@@ -4,6 +4,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, and, or, ilike, sql, desc } from 'drizzle-orm';
 import axios from 'axios';
+import { aiTracker } from '../services/ai-tracker.service';
 
 const router = Router();
 const openai = new OpenAI({
@@ -252,6 +253,9 @@ router.post('/session', async (req: Request, res: Response) => {
 
 // Streaming chat endpoint
 router.post('/stream', async (req: Request, res: Response) => {
+  const chatStartTime = Date.now();
+  let totalOutputTokens = 0;
+  
   try {
     const { message, thread_id } = req.body;
 
@@ -361,6 +365,7 @@ router.post('/stream', async (req: Request, res: Response) => {
           const text = delta.content[0].text?.value || '';
           if (text) {
             res.write(text);
+            totalOutputTokens += Math.ceil(text.length / 4);
           }
         }
       }
@@ -472,12 +477,35 @@ router.post('/stream', async (req: Request, res: Response) => {
       // Run completed
       if (event.event === 'thread.run.completed') {
         console.log('✅ Run completed');
+        const chatDuration = Date.now() - chatStartTime;
+        
+        await aiTracker.trackChatGPTCall({
+          action: 'chatkit_assistant',
+          context: 'chatbot_stream',
+          model: 'gpt-4o',
+          requestDuration: chatDuration,
+          success: true,
+          inputTokens: Math.ceil(message.length / 4),
+          outputTokens: totalOutputTokens,
+          prompt: message,
+        });
       }
 
       // Run failed
       if (event.event === 'thread.run.failed') {
         console.error('❌ Run failed:', event.data.last_error);
         res.write('\n\n[Error: Failed to complete request]');
+        
+        const chatDuration = Date.now() - chatStartTime;
+        await aiTracker.trackChatGPTCall({
+          action: 'chatkit_assistant',
+          context: 'chatbot_stream',
+          model: 'gpt-4o',
+          requestDuration: chatDuration,
+          success: false,
+          errorMessage: event.data.last_error?.message || 'Run failed',
+          prompt: message,
+        });
       }
     }
 
@@ -486,6 +514,17 @@ router.post('/stream', async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('❌ Streaming error:', error);
+    
+    const chatDuration = Date.now() - chatStartTime;
+    await aiTracker.trackChatGPTCall({
+      action: 'chatkit_assistant',
+      context: 'chatbot_stream',
+      model: 'gpt-4o',
+      requestDuration: chatDuration,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    });
+    
     res.write('\n\n[Error processing request]');
     res.end();
   }

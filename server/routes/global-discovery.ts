@@ -1711,6 +1711,7 @@ Keep responses concise and focus on the most relevant results.`;
       
       // Test with Perplexity
       try {
+        const perplexityStartTime = Date.now();
         const perplexityQuery = `Find ONLY senior living communities in ${query}. List actual facility names, addresses, and contact details.`;
         const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
           method: 'POST',
@@ -1719,30 +1720,52 @@ Keep responses concise and focus on the most relevant results.`;
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'sonar-pro', // Enhanced model with low context
+            model: 'sonar-pro',
             messages: [
               { role: 'system', content: 'List senior living facilities with accurate details.' },
               { role: 'user', content: perplexityQuery }
             ],
             web_search_options: {
-              search_context_size: 'low' // Use low context to reduce costs
+              search_context_size: 'low'
             },
             temperature: 0.1,
             max_tokens: 2000
           })
         });
+        const perplexityDuration = Date.now() - perplexityStartTime;
         const perplexityData = await perplexityResponse.json();
+        const perplexityContent = perplexityData.choices[0]?.message?.content || '';
+        
+        await aiTracker.trackPerplexityCall({
+          action: 'ai_comparison',
+          context: 'compare_endpoint',
+          requestDuration: perplexityDuration,
+          success: perplexityResponse.ok,
+          inputTokens: Math.ceil(perplexityQuery.length / 4),
+          outputTokens: Math.ceil(perplexityContent.length / 4),
+          prompt: perplexityQuery,
+        });
+        
         results.providers['perplexity'] = {
-          response: perplexityData.choices[0]?.message?.content?.substring(0, 500),
+          response: perplexityContent.substring(0, 500),
           sources: perplexityData.citations || []
         };
       } catch (e) {
+        await aiTracker.trackPerplexityCall({
+          action: 'ai_comparison',
+          context: 'compare_endpoint',
+          requestDuration: 0,
+          success: false,
+          errorMessage: String(e),
+        });
         results.providers['perplexity'] = { error: 'Failed to query Perplexity' };
       }
       
       // Test with Claude
       if (process.env.ANTHROPIC_API_KEY) {
         try {
+          const claudeStartTime = Date.now();
+          const claudePrompt = `List real senior living facilities in ${query}. Include actual names and addresses.`;
           const Anthropic = require('@anthropic-ai/sdk');
           const anthropic = new Anthropic.Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
           const claudeResponse = await anthropic.messages.create({
@@ -1750,13 +1773,34 @@ Keep responses concise and focus on the most relevant results.`;
             max_tokens: 1000,
             messages: [{
               role: 'user',
-              content: `List real senior living facilities in ${query}. Include actual names and addresses.`
+              content: claudePrompt
             }]
           });
+          const claudeDuration = Date.now() - claudeStartTime;
+          const claudeContent = claudeResponse.content[0].text || '';
+          
+          await aiTracker.trackClaudeCall({
+            action: 'ai_comparison',
+            context: 'compare_endpoint',
+            model: 'claude-sonnet-4-20250514',
+            requestDuration: claudeDuration,
+            success: true,
+            inputTokens: claudeResponse.usage?.input_tokens || Math.ceil(claudePrompt.length / 4),
+            outputTokens: claudeResponse.usage?.output_tokens || Math.ceil(claudeContent.length / 4),
+            prompt: claudePrompt,
+          });
+          
           results.providers['claude'] = {
-            response: claudeResponse.content[0].text?.substring(0, 500)
+            response: claudeContent.substring(0, 500)
           };
         } catch (e) {
+          await aiTracker.trackClaudeCall({
+            action: 'ai_comparison',
+            context: 'compare_endpoint',
+            requestDuration: 0,
+            success: false,
+            errorMessage: String(e),
+          });
           results.providers['claude'] = { error: 'Failed to query Claude' };
         }
       }
@@ -1764,6 +1808,8 @@ Keep responses concise and focus on the most relevant results.`;
       // Test with ChatGPT
       if (process.env.OPENAI_API_KEY) {
         try {
+          const gptStartTime = Date.now();
+          const gptPrompt = `Find senior living communities in ${query}. List real facility names and addresses.`;
           const OpenAI = require('openai');
           const openai = new OpenAI.default({ apiKey: process.env.OPENAI_API_KEY });
           const gptResponse = await openai.chat.completions.create({
@@ -1773,15 +1819,36 @@ Keep responses concise and focus on the most relevant results.`;
               content: 'List real senior living facilities with accurate location data.'
             }, {
               role: 'user',
-              content: `Find senior living communities in ${query}. List real facility names and addresses.`
+              content: gptPrompt
             }],
             temperature: 0.1,
             max_tokens: 1000
           });
+          const gptDuration = Date.now() - gptStartTime;
+          const gptContent = gptResponse.choices[0]?.message?.content || '';
+          
+          await aiTracker.trackChatGPTCall({
+            action: 'ai_comparison',
+            context: 'compare_endpoint',
+            model: 'gpt-4o',
+            requestDuration: gptDuration,
+            success: true,
+            inputTokens: gptResponse.usage?.prompt_tokens || Math.ceil(gptPrompt.length / 4),
+            outputTokens: gptResponse.usage?.completion_tokens || Math.ceil(gptContent.length / 4),
+            prompt: gptPrompt,
+          });
+          
           results.providers['chatgpt'] = {
-            response: gptResponse.choices[0]?.message?.content?.substring(0, 500)
+            response: gptContent.substring(0, 500)
           };
         } catch (e) {
+          await aiTracker.trackChatGPTCall({
+            action: 'ai_comparison',
+            context: 'compare_endpoint',
+            requestDuration: 0,
+            success: false,
+            errorMessage: String(e),
+          });
           results.providers['chatgpt'] = { error: 'Failed to query ChatGPT' };
         }
       }
