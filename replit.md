@@ -38,7 +38,7 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components, using Vite.
 - **Backend**: Express.js with TypeScript, using esbuild.
 - **Database**: PostgreSQL, managed with Drizzle ORM, storing comprehensive senior living data.
-- **Authentication**: Custom system with email/password, social login (Google, Facebook), and Replit Auth.
+- **Authentication**: Custom system with email/password, Google OAuth, and email verification on signup. Sessions use intelligent fallback (PostgreSQL for production, MemoryStore for development). Features include: secure password reset with verified email delivery, email verification tokens with 24-hour expiry and secure base URL generation, 2FA support (optional), and proper session persistence across deployments.
 - **Comprehensive Search System**: A Zillow-level search engine handles various search types with intent detection, real-time suggestions, and dynamic autocomplete. Integrated with 32,970+ authentic communities.
 - **Self-Healing Discovery Mode**: Automatically activates when searches return zero results, using Perplexity AI to find and save new communities to the database via `DiscoveredCommunityService`, ensuring continuous database enrichment.
 - **AI Integration**: Perplexity-first for web scraping and verification; Claude and ChatGPT as fallbacks for analysis and recommendations.
