@@ -395,7 +395,7 @@ export function setupCustomAuth(app: Express) {
         .set({ lastLoginAt: new Date() })
         .where(eq(users.id, user.id));
       
-      // Create session
+      // Create session with explicit save to ensure persistence
       (req.session as any).userId = user.id;
       (req.session as any).user = {
         id: user.id,
@@ -405,16 +405,29 @@ export function setupCustomAuth(app: Express) {
         role: user.role,
       };
       
-      res.json({ 
-        success: true, 
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          twoFactorEnabled: user.twoFactorEnabled
+      // Explicitly save session before responding
+      req.session.save((err: Error | null) => {
+        if (err) {
+          console.error('❌ Session save error:', err);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Login failed - session error' 
+          });
         }
+        
+        console.log('✅ Session saved successfully for:', user.email);
+        
+        res.json({ 
+          success: true, 
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            twoFactorEnabled: user.twoFactorEnabled
+          }
+        });
       });
     } catch (error) {
       console.error('Login error:', error);
