@@ -10,7 +10,8 @@ import { performanceMonitor } from '../infrastructure/performance-monitor';
 
 const router = Router();
 
-// Middleware to check super admin permissions
+// Middleware to check admin/super admin permissions
+// Allows both 'admin' and 'super_admin' roles to access the dashboard
 const requireSuperAdmin = async (req: Request, res: Response, next: any) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
@@ -19,13 +20,15 @@ const requireSuperAdmin = async (req: Request, res: Response, next: any) => {
   const userEmail = (req.user as any).email || '';
   const userRole = (req.user as any).role || '';
   
-  // Check super admin access
-  const isSuperAdmin = userRole === 'super_admin' || 
-                       userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com';
+  // Check admin or super admin access
+  const hasAdminAccess = userRole === 'super_admin' || 
+                         userRole === 'admin' ||
+                         userEmail === 'william.cowell01@gmail.com' || 
+                         userEmail === 'cowellandcowebdesign@gmail.com' ||
+                         userEmail === 'admin@myseniorvalet.com';
   
-  if (!isSuperAdmin) {
-    return res.status(403).json({ error: 'Super admin access required' });
+  if (!hasAdminAccess) {
+    return res.status(403).json({ error: 'Admin access required' });
   }
   
   next();
