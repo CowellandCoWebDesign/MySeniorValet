@@ -269,7 +269,7 @@ export function setupCustomAuth(app: Express) {
   // Get current user
   router.get('/api/auth/user', async (req, res) => {
     const sessionData = req.session as any;
-    if (!sessionData.user) {
+    if (!sessionData || !sessionData.user) {
       return res.status(401).json({ message: 'Not authenticated' });
     }
     
@@ -306,7 +306,7 @@ export function setupCustomAuth(app: Express) {
   // Check auth status
   router.get('/api/auth/status', async (req, res) => {
     const sessionData = req.session as any;
-    if (!sessionData.user) {
+    if (!sessionData || !sessionData.user) {
       return res.json({
         isAuthenticated: false,
         user: null,
