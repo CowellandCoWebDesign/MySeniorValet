@@ -204,7 +204,7 @@ export function setupCustomAuth(app: Express) {
       }
       
       // Check if 2FA is required
-      if (user.twoFactorEnabled || requires2FA(user.email)) {
+      if (user.twoFactorEnabled || (user.email && requires2FA(user.email))) {
         // If 2FA is enabled but no code provided, request it
         if (!totpCode && !backupCode) {
           return res.status(200).json({
@@ -279,7 +279,7 @@ export function setupCustomAuth(app: Express) {
         const [dbUser] = await db
           .select()
           .from(users)
-          .where(eq(users.id, String(sessionData.user.id)))
+          .where(eq(users.id, Number(sessionData.user.id)))
           .limit(1);
         
         if (dbUser) {
@@ -320,7 +320,7 @@ export function setupCustomAuth(app: Express) {
         const [dbUser] = await db
           .select()
           .from(users)
-          .where(eq(users.id, String(sessionData.user.id)))
+          .where(eq(users.id, Number(sessionData.user.id)))
           .limit(1);
         
         if (dbUser) {
@@ -504,7 +504,7 @@ export function setupCustomAuth(app: Express) {
       }
       
       // Generate TOTP secret and backup codes
-      const { secret, qrCode, manualEntryKey } = await generateTOTPSecret(user.email);
+      const { secret, qrCode, manualEntryKey } = await generateTOTPSecret(user.email || '');
       const backupCodes = generateBackupCodes(10);
       
       // Store the secret temporarily (not enabled yet)
@@ -628,7 +628,7 @@ export function setupCustomAuth(app: Express) {
       
       res.json({
         enabled: user.twoFactorEnabled,
-        required: requires2FA(user.email),
+        required: user.email ? requires2FA(user.email) : false,
         email: user.email
       });
     } catch (error) {

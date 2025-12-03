@@ -82,6 +82,31 @@ export async function notifySuperAdmin(title: string, message: string, data?: an
   return true;
 }
 
+// Send password reset email
+export async function sendPasswordResetEmail(email: string, resetToken: string): Promise<boolean> {
+  const resetUrl = `${process.env.REPLIT_DEPLOYMENT_URL || 'https://myseniorvalet.com'}/reset-password?token=${resetToken}`;
+  
+  return await sendEmail({
+    to: email,
+    from: 'hello@myseniorvalet.com',
+    subject: 'MySeniorValet - Password Reset Request',
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #1f2937;">Password Reset Request</h2>
+        <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <p>You requested a password reset for your MySeniorValet account.</p>
+          <p>Click the button below to reset your password:</p>
+          <a href="${resetUrl}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin: 20px 0;">Reset Password</a>
+          <p style="color: #6b7280; font-size: 12px;">This link will expire in 1 hour.</p>
+          <p style="color: #6b7280; font-size: 12px;">If you didn't request this, please ignore this email.</p>
+        </div>
+        <p style="color: #6b7280; font-size: 12px;">MySeniorValet - The trusted platform for senior living</p>
+      </div>
+    `,
+    text: `You requested a password reset for your MySeniorValet account. Visit this link to reset your password: ${resetUrl}. This link expires in 1 hour.`
+  });
+}
+
 // New customer notification
 export async function notifyNewCustomer(customerType: 'community' | 'vendor', customerData: any) {
   const title = customerType === 'community' 
