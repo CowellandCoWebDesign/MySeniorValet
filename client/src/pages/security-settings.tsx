@@ -48,6 +48,7 @@ export default function SecuritySettingsPage() {
       const response = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           currentPassword,
           newPassword
@@ -135,6 +136,7 @@ export default function SecuritySettingsPage() {
                   required
                   disabled={isChangingPassword}
                   className="mt-1"
+                  data-testid="input-current-password"
                 />
               </div>
 
@@ -148,6 +150,7 @@ export default function SecuritySettingsPage() {
                   required
                   disabled={isChangingPassword}
                   className="mt-1"
+                  data-testid="input-new-password"
                 />
                 <PasswordStrengthMeter 
                   password={newPassword}
@@ -166,6 +169,7 @@ export default function SecuritySettingsPage() {
                   required
                   disabled={isChangingPassword}
                   className="mt-1"
+                  data-testid="input-confirm-password"
                 />
               </div>
 
@@ -173,6 +177,7 @@ export default function SecuritySettingsPage() {
                 type="submit" 
                 disabled={isChangingPassword || !currentPassword || !newPassword || !confirmPassword}
                 className="w-full"
+                data-testid="button-change-password"
               >
                 {isChangingPassword ? "Changing Password..." : "Change Password"}
               </Button>
