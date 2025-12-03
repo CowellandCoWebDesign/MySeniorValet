@@ -32,10 +32,8 @@ export function setupSocialAuth(app: any) {
     if (requestHost.includes('localhost')) {
       redirectUri = 'http://localhost:5000/api/auth/google/callback';
     } else if (requestHost.includes('myseniorvalet.com')) {
-      // Production domain
-      redirectUri = requestHost.includes('www.') 
-        ? 'https://www.myseniorvalet.com/api/auth/google/callback'
-        : 'https://myseniorvalet.com/api/auth/google/callback';
+      // Production domain - ALWAYS use www for consistency with Google Cloud Console
+      redirectUri = 'https://www.myseniorvalet.com/api/auth/google/callback';
     } else {
       // For Replit preview URLs - use the current host dynamically
       // IMPORTANT: This URL must be added to Google Cloud Console OAuth authorized redirect URIs
@@ -74,10 +72,8 @@ export function setupSocialAuth(app: any) {
       if (requestHost.includes('localhost')) {
         redirectUri = 'http://localhost:5000/api/auth/google/callback';
       } else if (requestHost.includes('myseniorvalet.com')) {
-        // Production domain - must match exactly what's registered in Google Cloud Console
-        redirectUri = requestHost.includes('www.') 
-          ? 'https://www.myseniorvalet.com/api/auth/google/callback'
-          : 'https://myseniorvalet.com/api/auth/google/callback';
+        // Production domain - ALWAYS use www for consistency with Google Cloud Console
+        redirectUri = 'https://www.myseniorvalet.com/api/auth/google/callback';
       } else {
         // For Replit preview URLs - use the current host dynamically
         redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
