@@ -203,6 +203,39 @@ export const passwordResetEmail: EmailTemplate = {
   `)
 };
 
+export const emailVerificationEmail: EmailTemplate = {
+  subject: 'Verify Your Email - MySeniorValet',
+  html: (data: { name: string; verificationLink: string }) => baseTemplate(`
+    <h2 style="color: ${BRAND_PRIMARY}; margin: 0 0 20px 0;">Verify Your Email Address</h2>
+    
+    <p style="color: #374151; line-height: 1.6; font-size: 16px;">
+      Hi ${data.name},
+    </p>
+    
+    <p style="color: #374151; line-height: 1.6; font-size: 16px;">
+      Thank you for creating a MySeniorValet account! Please verify your email address by clicking the button below:
+    </p>
+    
+    ${buttonHTML('Verify My Email', data.verificationLink, BRAND_SUCCESS)}
+    
+    <div style="background-color: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 6px; padding: 15px; margin: 20px 0;">
+      <p style="color: #0369a1; font-size: 14px; margin: 0;">
+        <strong>Why verify?</strong><br>
+        Verifying your email ensures you can receive important updates about communities you're interested in, tour confirmations, and password reset requests.
+      </p>
+    </div>
+    
+    <p style="color: #6b7280; font-size: 14px; line-height: 1.6;">
+      This verification link will expire in 24 hours. If you didn't create an account with MySeniorValet, please ignore this email.
+    </p>
+    
+    <p style="color: #9ca3af; font-size: 12px; line-height: 1.6; margin-top: 20px;">
+      If the button doesn't work, copy and paste this link into your browser:<br>
+      <a href="${data.verificationLink}" style="color: ${BRAND_PRIMARY}; word-break: break-all;">${data.verificationLink}</a>
+    </p>
+  `)
+};
+
 // ============= COMMUNITY TEMPLATES =============
 
 export const communitySignupEmail: EmailTemplate = {

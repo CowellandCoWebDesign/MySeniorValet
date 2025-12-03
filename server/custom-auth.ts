@@ -5,6 +5,7 @@
  */
 
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 import { Router } from 'express';
 import { db } from './db';
 import { users } from '../shared/schema';
@@ -24,6 +25,40 @@ import {
   requires2FA,
   useBackupCode
 } from './auth/two-factor-auth';
+import { EmailService } from './services/email';
+import { emailVerificationEmail } from './templates/emailTemplates';
+
+// Secure base URL configuration - never trust request headers
+const ALLOWED_HOSTS = [
+  'myseniorvalet.com',
+  'www.myseniorvalet.com',
+  'localhost:5000',
+  '127.0.0.1:5000'
+];
+
+// Add Replit workspace hosts dynamically
+const REPLIT_HOST_PATTERN = /^[a-z0-9-]+\.replit\.dev$/;
+const REPLIT_JANEWAY_PATTERN = /^[a-z0-9-]+\.janeway\.replit\.dev$/;
+
+function getSecureBaseUrl(requestHost?: string): string {
+  // In production, always use the canonical domain
+  if (process.env.NODE_ENV === 'production') {
+    return 'https://myseniorvalet.com';
+  }
+  
+  // In development, validate the host
+  if (requestHost) {
+    if (ALLOWED_HOSTS.includes(requestHost) || 
+        REPLIT_HOST_PATTERN.test(requestHost) ||
+        REPLIT_JANEWAY_PATTERN.test(requestHost)) {
+      const protocol = requestHost.includes('localhost') ? 'http' : 'https';
+      return `${protocol}://${requestHost}`;
+    }
+  }
+  
+  // Fallback to localhost in development
+  return 'http://localhost:5000';
+}
 
 // Session configuration for production
 export function setupCustomAuth(app: Express) {
@@ -126,7 +161,10 @@ export function setupCustomAuth(app: Express) {
       const hashedPassword = await bcrypt.hash(password, 10);
       const username = email.split('@')[0].toLowerCase();
       
-      // Create user with proper account type
+      // Generate email verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      
+      // Create user with proper account type and verification token
       const [newUser] = await db
         .insert(users)
         .values({
@@ -137,6 +175,7 @@ export function setupCustomAuth(app: Express) {
           lastName,
           role: accountType === 'family' ? 'user' : accountType,
           emailVerified: false,
+          emailVerificationToken: verificationToken,
           isActive: true,
           createdAt: new Date(),
           updatedAt: new Date(),
@@ -154,6 +193,26 @@ export function setupCustomAuth(app: Express) {
           registeredAt: new Date().toISOString()
         }
       );
+      
+      // Send email verification email - use secure base URL
+      const baseUrl = getSecureBaseUrl(req.get('host'));
+      const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
+      
+      try {
+        await EmailService.sendEmail({
+          to: email.toLowerCase(),
+          subject: emailVerificationEmail.subject,
+          html: emailVerificationEmail.html({
+            name: firstName || 'there',
+            verificationLink
+          }),
+          isTransactional: true
+        });
+        console.log(`Verification email sent to ${email}`);
+      } catch (emailError) {
+        console.error('Error sending verification email:', emailError);
+        // Don't fail registration if email fails
+      }
       
       // Create session
       (req.session as any).userId = newUser.id;
@@ -173,13 +232,86 @@ export function setupCustomAuth(app: Express) {
           firstName: newUser.firstName,
           lastName: newUser.lastName,
           role: newUser.role,
-        }
+          emailVerified: false,
+        },
+        message: 'Account created! Please check your email to verify your account.'
       });
     } catch (error) {
       console.error('Registration error:', error);
       res.status(500).json({ 
         success: false, 
         message: 'Registration failed' 
+      });
+    }
+  });
+  
+  // Resend email verification
+  router.post('/api/auth/resend-verification', async (req, res) => {
+    try {
+      const { email } = req.body;
+      
+      if (!email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Email is required'
+        });
+      }
+      
+      // Find user
+      const [user] = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email.toLowerCase()))
+        .limit(1);
+      
+      // Always return success to prevent email enumeration
+      if (!user || user.emailVerified) {
+        return res.json({
+          success: true,
+          message: 'If an account exists with this email, a verification link has been sent.'
+        });
+      }
+      
+      // Generate new verification token
+      const verificationToken = crypto.randomBytes(32).toString('hex');
+      
+      // Update user with new token
+      await db
+        .update(users)
+        .set({
+          emailVerificationToken: verificationToken,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, user.id));
+      
+      // Send verification email - use secure base URL
+      const baseUrl = getSecureBaseUrl(req.get('host'));
+      const verificationLink = `${baseUrl}/verify-email?token=${verificationToken}`;
+      
+      try {
+        await EmailService.sendEmail({
+          to: email.toLowerCase(),
+          subject: emailVerificationEmail.subject,
+          html: emailVerificationEmail.html({
+            name: user.firstName || 'there',
+            verificationLink
+          }),
+          isTransactional: true
+        });
+        console.log(`Verification email resent to ${email}`);
+      } catch (emailError) {
+        console.error('Error resending verification email:', emailError);
+      }
+      
+      res.json({
+        success: true,
+        message: 'If an account exists with this email, a verification link has been sent.'
+      });
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to resend verification email'
       });
     }
   });

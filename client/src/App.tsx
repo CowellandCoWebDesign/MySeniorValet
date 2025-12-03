@@ -30,6 +30,8 @@ import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import ForgotPassword from "@/pages/forgot-password";
 import ResetPassword from "@/pages/reset-password";
+import VerifyEmail from "@/pages/verify-email";
+import ResendVerification from "@/pages/resend-verification";
 import AdminSetup from "@/pages/AdminSetup";
 import Dashboard from "@/pages/dashboard";
 import EnterpriseDashboard from "@/pages/enterprise-dashboard";
@@ -320,6 +322,8 @@ function Router() {
       <Route path="/signup" component={Signup} />
       <Route path="/forgot-password" component={ForgotPassword} />
       <Route path="/reset-password" component={ResetPassword} />
+      <Route path="/verify-email" component={VerifyEmail} />
+      <Route path="/resend-verification" component={ResendVerification} />
       <Route path="/admin/setup" component={AdminSetup} />
       <Route path="/about" component={About} />
       <Route path="/contact" component={Contact} />

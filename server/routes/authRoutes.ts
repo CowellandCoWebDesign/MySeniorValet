@@ -431,9 +431,21 @@ export function registerAuthRoutes(app: Express) {
         .limit(1);
 
       if (!user) {
-        return res.status(400).json({ message: "Invalid verification token" });
+        return res.status(400).json({ message: "Invalid or expired verification token" });
       }
 
+      // Check token expiry - tokens are valid for 24 hours
+      // We use updatedAt as the timestamp when the token was last generated
+      const tokenAge = user.updatedAt ? Date.now() - new Date(user.updatedAt).getTime() : Infinity;
+      const TOKEN_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
+      
+      if (tokenAge > TOKEN_EXPIRY_MS) {
+        return res.status(400).json({ 
+          message: "Verification token has expired. Please request a new verification email." 
+        });
+      }
+
+      // Invalidate token after use
       await db
         .update(users)
         .set({
