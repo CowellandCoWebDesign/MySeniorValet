@@ -151,13 +151,13 @@ export function generateCommunityStructuredData(community: any) {
       ? `https://www.google.com/maps?q=${community.latitude},${community.longitude}`
       : undefined,
     "priceRange": community.priceRange 
-      ? `$${community.priceRange.min?.toLocaleString()}-$${community.priceRange.max?.toLocaleString()}/month` 
-      : community.rentPerMonth 
+      ? `$${community.priceRange.min?.toLocaleString() || '0'}-$${community.priceRange.max?.toLocaleString() || '0'}/month` 
+      : community.rentPerMonth && !isNaN(Number(community.rentPerMonth))
         ? `$${Number(community.rentPerMonth).toLocaleString()}/month`
         : "Contact for pricing",
     "currenciesAccepted": "USD",
-    "paymentAccepted": ["Cash", "Credit Card", "Check", "Medicare", "Medicaid", "Long-term Care Insurance"].filter(Boolean),
-    "aggregateRating": community.rating && community.rating > 0 ? {
+    "paymentAccepted": ["Cash", "Credit Card", "Check", "Medicare", "Medicaid", "Long-term Care Insurance"],
+    "aggregateRating": community.rating && typeof community.rating === 'number' && community.rating > 0 ? {
       "@type": "AggregateRating",
       "ratingValue": community.rating.toFixed(1),
       "bestRating": "5",
