@@ -5,6 +5,7 @@ import { MultiAIOrchestrator } from './multi-ai-intelligence';
 import { AnthropicAIService } from './ai-services';
 import Anthropic from '@anthropic-ai/sdk';
 import { OpenAI } from 'openai';
+import { trackAIUsage } from './services/ai-tracker.service';
 
 interface EnrichmentResult {
   communityId: number;
@@ -110,6 +111,7 @@ export class CommunityEnrichmentService {
     
     Respond with just the subtype string, nothing else.`;
 
+    const startTime = Date.now();
     try {
       const response = await this.openai.chat.completions.create({
         model: "gpt-4o",
@@ -117,6 +119,9 @@ export class CommunityEnrichmentService {
         max_tokens: 50,
         temperature: 0.3
       });
+
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', true, responseTime);
 
       const subtype = response.choices[0]?.message?.content?.trim();
       
@@ -130,6 +135,8 @@ export class CommunityEnrichmentService {
       
       return validSubtypes.includes(subtype || '') ? (subtype as string) : null;
     } catch (error) {
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', false, responseTime);
       console.error('AI classification error:', error);
       return null;
     }
@@ -201,15 +208,20 @@ export class CommunityEnrichmentService {
     
     Write 2-3 sentences that are factual and based only on the provided information. Do not make assumptions.`;
 
+    const startTime = Date.now();
     try {
       const response = await this.anthropic.messages.create({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 500,
         messages: [{ role: 'user', content: prompt }]
       });
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('claude', true, responseTime);
       const firstContent = response.content[0];
       return firstContent.type === 'text' ? firstContent.text : 'Community information pending verification.';
     } catch (error) {
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('claude', false, responseTime);
       console.error('Error generating description:', error);
       return 'Community information pending verification.';
     }
@@ -226,14 +238,23 @@ export class CommunityEnrichmentService {
     
     Write 2-3 sentences explaining what these care types mean. Use general knowledge only.`;
 
-    const response = await this.openai.chat.completions.create({
-      model: "gpt-4o",
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: 150,
-      temperature: 0.7
-    });
+    const startTime = Date.now();
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: "gpt-4o",
+        messages: [{ role: "user", content: prompt }],
+        max_tokens: 150,
+        temperature: 0.7
+      });
 
-    return response.choices[0]?.message?.content || 'Care type information available upon request.';
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', true, responseTime);
+      return response.choices[0]?.message?.content || 'Care type information available upon request.';
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      trackAIUsage('chatgpt', false, responseTime);
+      return 'Care type information available upon request.';
+    }
   }
 
   // Suggest tags based on public data

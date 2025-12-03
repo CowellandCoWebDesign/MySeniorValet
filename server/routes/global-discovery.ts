@@ -5,6 +5,7 @@ import { communities, vendors, services } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
 import { perplexitySearchAPI } from '../services/perplexity-search-api';
+import { trackAIUsage } from '../services/ai-tracker.service';
 
 // US State name to abbreviation mapping for search normalization
 const US_STATE_MAP: Record<string, string> = {
@@ -708,6 +709,9 @@ Keep responses concise and focus on the most relevant results.`;
         systemPrompt = 'You are a comprehensive senior housing research assistant. Search for ALL types of senior housing and living options, not just care facilities. Include: independent living, senior apartments, 55+ communities, affordable/subsidized senior housing, HUD housing, active adult communities, CCRCs, assisted living, memory care, nursing homes, board and care homes, and ANY housing option available to seniors. Return ONLY facilities from the requested location with accurate information.';
       }
       
+      // Track Perplexity API usage for Discovery Mode
+      const discoveryStartTime = Date.now();
+      
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
         method: 'POST',
@@ -774,6 +778,8 @@ Keep responses concise and focus on the most relevant results.`;
       }).finally(() => clearTimeout(timeout));
       
       if (!perplexityResponse.ok) {
+        const discoveryResponseTime = Date.now() - discoveryStartTime;
+        trackAIUsage('perplexity', false, discoveryResponseTime);
         console.error('❌ Perplexity API error:', perplexityResponse.status);
         throw new Error('Search service error');
       }
@@ -781,6 +787,10 @@ Keep responses concise and focus on the most relevant results.`;
       const perplexityData = await perplexityResponse.json();
       const aiResponse = perplexityData.choices[0]?.message?.content || '';
       const citations = perplexityData.citations || [];
+      
+      // Track successful Perplexity API call for Discovery Mode
+      const discoveryResponseTime = Date.now() - discoveryStartTime;
+      trackAIUsage('perplexity', true, discoveryResponseTime);
       
       console.log(`✅ Perplexity Response Length: ${aiResponse.length} characters`);
       console.log(`📚 Citations: ${citations.length} sources`);

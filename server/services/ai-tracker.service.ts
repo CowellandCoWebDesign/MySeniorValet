@@ -2,6 +2,9 @@ import { db } from "../db";
 import { communityEnrichmentHistory } from "@shared/schema";
 import { trackAIUsage } from "../routes/adminAIMetricsRoutes";
 
+// Re-export trackAIUsage for use in other services
+export { trackAIUsage };
+
 /**
  * AI Tracker Service - Intercepts and tracks all AI API calls
  * Golden Data Rule compliant - only tracks real API usage
