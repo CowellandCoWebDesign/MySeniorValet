@@ -161,13 +161,65 @@ export function registerSearchRoutes(app: Express) {
       res.status(500).json({ error: 'Failed to fetch market pricing' });
     }
   });
+  // Pre-computed Set for O(1) lookups instead of O(n) array.includes()
+  const EXCLUDED_VENDOR_NAMES = new Set([
+    // Government resources
+    'Social Security Administration',
+    'Adult Protective Services (APS)',
+    'Long-Term Care Ombudsman',
+    'Senior Centers',
+    'National Council on Aging - Senior Centers',
+    'Disability Action Centers',
+    'AARP',
+    'AARP Technology Training',
+    "Alzheimer's Association",
+    "Parkinson's Foundation",
+    'American Cancer Society',
+    'Elder Abuse Hotline',
+    'Meals on Wheels',
+    'PACE Programs',
+    'MediGap/Supplemental',
+    'Area Agency on Aging',
+    'SHIP (Medicare Counseling)',
+    'Veterans Crisis Line',
+    'OLLI (Lifelong Learning)',
+    'Senior Planet',
+    'Relay Services (711)',
+    'Language Line',
+    'NEMT Services',
+    'Medicare.gov',
+    'VA Benefits & Healthcare',
+    'Health Education for Seniors',
+    // Charitable organizations
+    'OneSAFE Place',
+    'Salvation Army',
+    'Rescue Missions Directory',
+    "Nation's Finest",
+    'Goodwill',
+    'St. Vincent de Paul',
+    'Catholic Charities',
+    'United Way',
+    'Red Cross',
+    'Food Banks',
+    'Habitat for Humanity',
+    'Boys & Girls Club',
+    'YMCA',
+    'YWCA',
+    'Community Action Agencies',
+    'Homeless Shelters',
+    'Crisis Centers',
+    'Domestic Violence Resources',
+    'Substance Abuse Resources',
+    'Mental Health Resources'
+  ]);
+
   // Vendor spatial search endpoint for map
   app.get('/api/vendors/search/spatial', async (req, res) => {
     try {
       const { swLat, swLng, neLat, neLng, limit = '200' } = req.query; // ENTERPRISE: Higher vendor limit
       
       // Query marketplace vendors (which have more data than regular vendors)
-      let vendorResults = await db
+      const vendorResults = await db
         .select({
           id: marketplaceVendors.id,
           name: marketplaceVendors.name,
@@ -184,77 +236,28 @@ export function registerSearchRoutes(app: Express) {
         .where(eq(marketplaceVendors.isHidden, false))
         .limit(parseInt(limit as string));
       
-      // Filter out charitable organizations and senior resources that should only appear in resources section
-      const charitableAndResourceNames = [
-        // Government resources
-        'Social Security Administration',
-        'Adult Protective Services (APS)',
-        'Long-Term Care Ombudsman',
-        'Senior Centers',
-        'National Council on Aging - Senior Centers',
-        'Disability Action Centers',
-        'AARP',
-        'AARP Technology Training',
-        "Alzheimer's Association",
-        "Parkinson's Foundation",
-        'American Cancer Society',
-        'Elder Abuse Hotline',
-        'Meals on Wheels',
-        'PACE Programs',
-        'MediGap/Supplemental',
-        'Area Agency on Aging',
-        'SHIP (Medicare Counseling)',
-        'Veterans Crisis Line',
-        'OLLI (Lifelong Learning)',
-        'Senior Planet',
-        'Relay Services (711)',
-        'Language Line',
-        'NEMT Services',
-        'Medicare.gov',
-        'VA Benefits & Healthcare',
-        'Health Education for Seniors',
-        // Charitable organizations
-        'OneSAFE Place',
-        'Salvation Army',
-        'Rescue Missions Directory',
-        "Nation's Finest",
-        'Goodwill',
-        'St. Vincent de Paul',
-        'Catholic Charities',
-        'United Way',
-        'Red Cross',
-        'Food Banks',
-        'Habitat for Humanity',
-        'Boys & Girls Club',
-        'YMCA',
-        'YWCA',
-        'Community Action Agencies',
-        'Homeless Shelters',
-        'Crisis Centers',
-        'Domestic Violence Resources',
-        'Substance Abuse Resources',
-        'Mental Health Resources'
-      ];
-      
-      vendorResults = vendorResults.filter(vendor => 
-        !charitableAndResourceNames.includes(vendor.name)
-      );
-
-      // Transform to match expected vendor format for VendorCard
-      const transformedVendors = vendorResults.map(vendor => ({
-        id: vendor.id,
-        name: vendor.name,
-        businessName: vendor.name,
-        description: vendor.description || 'Quality senior services provider',
-        category: vendor.categoryName || 'General Services',
-        logoUrl: vendor.logoUrl,
-        website: vendor.externalUrl,
-        isFeatured: vendor.isFeatured,
-        rating: 4.5 + (Math.random() * 0.5), // For demo purposes
-        reviewCount: Math.floor(Math.random() * 50) + 10,
-        serviceAreas: ['Local Area', 'Surrounding Counties'],
-        priceRange: vendor.isFeatured ? '$$' : '$',
-      }));
+      // Optimized: Single-pass filter and transform using reduce
+      // Uses Set.has() for O(1) lookup instead of array.includes() O(n)
+      const transformedVendors = vendorResults.reduce((acc: any[], vendor) => {
+        // Filter out charitable organizations and senior resources
+        if (!EXCLUDED_VENDOR_NAMES.has(vendor.name)) {
+          acc.push({
+            id: vendor.id,
+            name: vendor.name,
+            businessName: vendor.name,
+            description: vendor.description || 'Quality senior services provider',
+            category: vendor.categoryName || 'General Services',
+            logoUrl: vendor.logoUrl,
+            website: vendor.externalUrl,
+            isFeatured: vendor.isFeatured,
+            rating: 4.5 + (Math.random() * 0.5), // For demo purposes
+            reviewCount: Math.floor(Math.random() * 50) + 10,
+            serviceAreas: ['Local Area', 'Surrounding Counties'],
+            priceRange: vendor.isFeatured ? '$$' : '$',
+          });
+        }
+        return acc;
+      }, []);
       
       console.log(`Vendor search returned ${transformedVendors.length} vendors`);
       res.json(transformedVendors);

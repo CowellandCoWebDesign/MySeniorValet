@@ -802,9 +802,84 @@ Format all information clearly with section headers.
     return undefined;
   }
 
+  // Pre-compiled regex patterns for better performance (avoids re-compilation on each call)
+  private static readonly REVIEW_PATTERNS = {
+    google: /Google[^\*]*?(\d+\.?\d*)[^\*]*?stars?/i,
+    yelp: /Yelp[^\*]*?(\d+\.?\d*)[^\*]*?stars?/i,
+    caring: /Caring\.com[^\*]*?(\d+\.?\d*)[^\*]*?stars?/i,
+    average: /(?:average|overall)[^\*]*?(\d+\.?\d*)[^\*]*?(?:stars?|rating)/i,
+    count: /(\d+)\s*(?:reviews?|ratings?)/i,
+    violations: /(?:violation|citation|deficiency)[^.]*\./gi,
+    inspectionDate: /(?:inspection|inspected)[^\*]*?(\d{1,2}\/\d{1,2}\/\d{2,4}|\w+\s+\d{1,2},?\s+\d{4})/i
+  };
+
+  /**
+   * Extract all review data in a single pass through the content
+   * This is more efficient than calling multiple extract methods separately
+   */
+  private extractAllReviews(content: string): {
+    googleReviews: any[];
+    yelpReviews: any[];
+    caringComReviews: any[];
+    averageRating?: number;
+    totalReviewCount?: number;
+  } {
+    const result = {
+      googleReviews: [] as any[],
+      yelpReviews: [] as any[],
+      caringComReviews: [] as any[],
+      averageRating: undefined as number | undefined,
+      totalReviewCount: undefined as number | undefined
+    };
+
+    // Extract Google reviews
+    const googleMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.google);
+    if (googleMatch) {
+      result.googleReviews = [{
+        source: 'Google',
+        rating: parseFloat(googleMatch[1]),
+        text: googleMatch[0]
+      }];
+    }
+
+    // Extract Yelp reviews
+    const yelpMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.yelp);
+    if (yelpMatch) {
+      result.yelpReviews = [{
+        source: 'Yelp',
+        rating: parseFloat(yelpMatch[1]),
+        text: yelpMatch[0]
+      }];
+    }
+
+    // Extract Caring.com reviews
+    const caringMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.caring);
+    if (caringMatch) {
+      result.caringComReviews = [{
+        source: 'Caring.com',
+        rating: parseFloat(caringMatch[1]),
+        text: caringMatch[0]
+      }];
+    }
+
+    // Extract average rating
+    const avgMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.average);
+    if (avgMatch) {
+      result.averageRating = parseFloat(avgMatch[1]);
+    }
+
+    // Extract review count
+    const countMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.count);
+    if (countMatch) {
+      result.totalReviewCount = parseInt(countMatch[1]);
+    }
+
+    return result;
+  }
+
+  // Keep individual methods for backward compatibility but delegate to cached patterns
   private extractGoogleReviews(content: string): any[] {
-    // Parse Google review mentions
-    const googleSection = content.match(/Google[^\\*]*?(\d+\.?\d*)[^\\*]*?stars?/i);
+    const googleSection = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.google);
     if (googleSection) {
       return [{
         source: 'Google',
@@ -816,7 +891,7 @@ Format all information clearly with section headers.
   }
 
   private extractYelpReviews(content: string): any[] {
-    const yelpSection = content.match(/Yelp[^\\*]*?(\d+\.?\d*)[^\\*]*?stars?/i);
+    const yelpSection = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.yelp);
     if (yelpSection) {
       return [{
         source: 'Yelp',
@@ -828,7 +903,7 @@ Format all information clearly with section headers.
   }
 
   private extractCaringReviews(content: string): any[] {
-    const caringSection = content.match(/Caring\.com[^\\*]*?(\d+\.?\d*)[^\\*]*?stars?/i);
+    const caringSection = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.caring);
     if (caringSection) {
       return [{
         source: 'Caring.com',
@@ -840,12 +915,12 @@ Format all information clearly with section headers.
   }
 
   private extractAverageRating(content: string): number | undefined {
-    const ratingMatch = content.match(/(?:average|overall)[^\\*]*?(\d+\.?\d*)[^\\*]*?(?:stars?|rating)/i);
+    const ratingMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.average);
     return ratingMatch ? parseFloat(ratingMatch[1]) : undefined;
   }
 
   private extractReviewCount(content: string): number | undefined {
-    const countMatch = content.match(/(\d+)\s*(?:reviews?|ratings?)/i);
+    const countMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.count);
     return countMatch ? parseInt(countMatch[1]) : undefined;
   }
 
@@ -861,19 +936,20 @@ Format all information clearly with section headers.
   }
 
   private extractViolations(content: string): any[] {
-    const violationMatches = content.match(/(?:violation|citation|deficiency)[^.]*\./gi);
+    const violationMatches = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.violations);
     return violationMatches ? violationMatches.map(v => ({ description: v })) : [];
   }
 
   private extractInspectionDate(content: string): string | undefined {
-    const dateMatch = content.match(/(?:inspection|inspected)[^\\*]*?(\d{1,2}\/\d{1,2}\/\d{2,4}|\w+\s+\d{1,2},?\s+\d{4})/i);
+    const dateMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.inspectionDate);
     return dateMatch ? dateMatch[1] : undefined;
   }
 
   private extractComplianceStatus(content: string): string {
-    if (content.toLowerCase().includes('no violation')) return 'Compliant';
-    if (content.toLowerCase().includes('violation')) return 'Issues Found';
-    if (content.toLowerCase().includes('compliant')) return 'Compliant';
+    const lowerContent = content.toLowerCase();
+    if (lowerContent.includes('no violation')) return 'Compliant';
+    if (lowerContent.includes('violation')) return 'Issues Found';
+    if (lowerContent.includes('compliant')) return 'Compliant';
     return 'Unknown';
   }
 

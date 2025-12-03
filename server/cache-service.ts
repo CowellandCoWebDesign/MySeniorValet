@@ -153,46 +153,69 @@ export class CacheService {
 
   /**
    * Get cache statistics
+   * Optimized: Uses lazy size calculation to avoid expensive JSON.stringify on every call
    */
-  getStats() {
+  getStats(includeDetailedEntries: boolean = false) {
+    const now = Date.now();
     const stats = {
       size: this.memoryCache.size,
       entries: [] as any[],
       totalHits: 0,
-      totalMemory: 0,
+      estimatedMemory: 0, // Renamed from totalMemory - this is an estimate
       oldestEntry: null as Date | null,
       newestEntry: null as Date | null
     };
 
+    // Track min/max timestamps for oldest/newest calculation
+    let minTimestamp = Infinity;
+    let maxTimestamp = 0;
+
     for (const [key, entry] of this.memoryCache.entries()) {
-      const entrySize = JSON.stringify(entry.data).length;
-      stats.totalMemory += entrySize;
       stats.totalHits += entry.hits;
       
-      const entryDate = new Date(entry.timestamp);
-      if (!stats.oldestEntry || entryDate < stats.oldestEntry) {
-        stats.oldestEntry = entryDate;
+      // Track oldest and newest using numbers (faster than Date comparison)
+      if (entry.timestamp < minTimestamp) {
+        minTimestamp = entry.timestamp;
       }
-      if (!stats.newestEntry || entryDate > stats.newestEntry) {
-        stats.newestEntry = entryDate;
+      if (entry.timestamp > maxTimestamp) {
+        maxTimestamp = entry.timestamp;
       }
 
-      stats.entries.push({
-        key,
-        size: entrySize,
-        hits: entry.hits,
-        age: Math.floor((Date.now() - entry.timestamp) / 1000),
-        ttl: entry.ttl / 1000,
-        expired: this.isExpired(entry)
-      });
+      // Only calculate detailed entry info when explicitly requested
+      // This avoids expensive JSON.stringify operations for simple stat checks
+      if (includeDetailedEntries) {
+        const entrySize = JSON.stringify(entry.data).length;
+        stats.estimatedMemory += entrySize;
+        
+        stats.entries.push({
+          key,
+          size: entrySize,
+          hits: entry.hits,
+          age: Math.floor((now - entry.timestamp) / 1000),
+          ttl: entry.ttl / 1000,
+          expired: now - entry.timestamp > entry.ttl
+        });
+      }
     }
 
-    // Sort entries by hits (most accessed first)
-    stats.entries.sort((a, b) => b.hits - a.hits);
+    // Convert timestamps to dates only if we found entries
+    if (minTimestamp !== Infinity) {
+      stats.oldestEntry = new Date(minTimestamp);
+    }
+    if (maxTimestamp > 0) {
+      stats.newestEntry = new Date(maxTimestamp);
+    }
+
+    // Sort entries by hits only if we collected them
+    if (includeDetailedEntries && stats.entries.length > 0) {
+      stats.entries.sort((a, b) => b.hits - a.hits);
+    }
 
     return {
       ...stats,
-      totalMemoryMB: (stats.totalMemory / 1024 / 1024).toFixed(2),
+      totalMemoryMB: includeDetailedEntries 
+        ? (stats.estimatedMemory / 1024 / 1024).toFixed(2) 
+        : 'N/A (use includeDetailedEntries=true)',
       averageHits: stats.size > 0 ? (stats.totalHits / stats.size).toFixed(2) : 0
     };
   }
@@ -221,12 +244,22 @@ export class CacheService {
    */
   private cleanupCache(): void {
     let removed = 0;
+    const now = Date.now();
+    
+    // Optimized: Collect keys to delete first, then delete in batch
+    // This avoids modifying the Map during iteration
+    const keysToDelete: string[] = [];
     
     for (const [key, entry] of this.memoryCache.entries()) {
-      if (this.isExpired(entry)) {
-        this.memoryCache.delete(key);
-        removed++;
+      if (now - entry.timestamp > entry.ttl) {
+        keysToDelete.push(key);
       }
+    }
+    
+    // Batch delete expired entries
+    for (const key of keysToDelete) {
+      this.memoryCache.delete(key);
+      removed++;
     }
     
     if (removed > 0) {
@@ -235,22 +268,38 @@ export class CacheService {
   }
 
   /**
-   * Evict the oldest entry when cache is full
+   * Evict entries when cache is full using LRU-inspired strategy
+   * Prioritizes removal of: expired entries > low hit count entries > oldest entries
    */
   private evictOldestEntry(): void {
-    let oldestKey: string | null = null;
-    let oldestTime = Date.now();
+    // First, try to evict any expired entries
+    const now = Date.now();
+    let bestCandidateKey: string | null = null;
+    let bestCandidateScore = Infinity;
     
     for (const [key, entry] of this.memoryCache.entries()) {
-      if (entry.timestamp < oldestTime) {
-        oldestTime = entry.timestamp;
-        oldestKey = key;
+      // Check if expired - immediate candidate for eviction
+      if (now - entry.timestamp > entry.ttl) {
+        this.memoryCache.delete(key);
+        console.log(`♻️ Cache eviction: removed expired entry "${key}"`);
+        return;
+      }
+      
+      // Calculate eviction score: lower is better candidate for eviction
+      // Score combines age (older = lower score) and hit count (fewer hits = lower score)
+      const age = now - entry.timestamp;
+      const hitWeight = entry.hits * 1000; // Give weight to frequently accessed entries
+      const score = hitWeight - age; // Lower score = better eviction candidate
+      
+      if (score < bestCandidateScore) {
+        bestCandidateScore = score;
+        bestCandidateKey = key;
       }
     }
     
-    if (oldestKey) {
-      this.memoryCache.delete(oldestKey);
-      console.log(`♻️ Cache eviction: removed oldest entry "${oldestKey}"`);
+    if (bestCandidateKey) {
+      this.memoryCache.delete(bestCandidateKey);
+      console.log(`♻️ Cache eviction: removed least valuable entry "${bestCandidateKey}"`);
     }
   }
 

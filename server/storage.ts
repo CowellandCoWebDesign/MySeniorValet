@@ -1648,53 +1648,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async markReviewHelpful(reviewId: number, userId: number, isHelpful: boolean): Promise<void> {
-    // First check if user already rated this review
-    const existing = await db
-      .select()
-      .from(reviewHelpfulness)
-      .where(and(
-        eq(reviewHelpfulness.reviewId, reviewId),
-        eq(reviewHelpfulness.userId, userId)
-      ));
+    // Use upsert pattern to eliminate the check-then-update/insert anti-pattern
+    // This reduces from 2 queries to 1 for the upsert operation
+    await db
+      .insert(reviewHelpfulness)
+      .values({ reviewId, userId, isHelpful })
+      .onConflictDoUpdate({
+        target: [reviewHelpfulness.reviewId, reviewHelpfulness.userId],
+        set: { isHelpful }
+      });
 
-    if (existing.length > 0) {
-      // Update existing rating
-      await db
-        .update(reviewHelpfulness)
-        .set({ isHelpful })
-        .where(and(
-          eq(reviewHelpfulness.reviewId, reviewId),
-          eq(reviewHelpfulness.userId, userId)
-        ));
-    } else {
-      // Create new rating
-      await db
-        .insert(reviewHelpfulness)
-        .values({ reviewId, userId, isHelpful });
-    }
-
-    // Update the review's helpful/notHelpful counters
-    const helpfulCount = await db
-      .select()
+    // Use a single aggregation query instead of two separate count queries
+    // This reduces from 2 queries to 1 for counting
+    const [counts] = await db
+      .select({
+        helpfulCount: sql<number>`COUNT(*) FILTER (WHERE ${reviewHelpfulness.isHelpful} = true)::int`,
+        notHelpfulCount: sql<number>`COUNT(*) FILTER (WHERE ${reviewHelpfulness.isHelpful} = false)::int`
+      })
       .from(reviewHelpfulness)
-      .where(and(
-        eq(reviewHelpfulness.reviewId, reviewId),
-        eq(reviewHelpfulness.isHelpful, true)
-      ));
-
-    const notHelpfulCount = await db
-      .select()
-      .from(reviewHelpfulness)
-      .where(and(
-        eq(reviewHelpfulness.reviewId, reviewId),
-        eq(reviewHelpfulness.isHelpful, false)
-      ));
+      .where(eq(reviewHelpfulness.reviewId, reviewId));
 
     await db
       .update(reviews)
       .set({
-        helpful: helpfulCount.length,
-        notHelpful: notHelpfulCount.length
+        helpful: counts?.helpfulCount || 0,
+        notHelpful: counts?.notHelpfulCount || 0
       })
       .where(eq(reviews.id, reviewId));
   }
