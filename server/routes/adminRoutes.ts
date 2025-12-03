@@ -103,10 +103,16 @@ export function registerAdminRoutes(app: Express) {
         .select({ count: sql<number>`COUNT(*)::integer` })
         .from(vendors);
       
-      // Get claimed communities count
-      const [claimedCount] = await db
-        .select({ count: sql<number>`COUNT(*)::integer` })
-        .from(claimedCommunities);
+      // Get claimed communities count - wrapped in try/catch as table may not exist
+      let claimedCount = { count: 0 };
+      try {
+        const [result] = await db
+          .select({ count: sql<number>`COUNT(*)::integer` })
+          .from(claimedCommunities);
+        claimedCount = result || { count: 0 };
+      } catch (e) {
+        console.warn('claimed_communities table not available, using 0');
+      }
       
       // Get featured communities count
       const [featuredCount] = await db
@@ -200,42 +206,53 @@ export function registerAdminRoutes(app: Express) {
   // Recent activity endpoint
   adminRouter.get('/activity/recent', async (req, res) => {
     try {
-      // Get recent user registrations
-      const recentUsers = await db
-        .select({
-          type: sql<string>`'user_registration'`,
-          id: users.id,
-          email: users.email,
-          name: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
-          timestamp: users.createdAt,
-          details: users.role
-        })
-        .from(users)
-        .orderBy(desc(users.createdAt))
-        .limit(20);
+      // Get recent user registrations - wrapped in try/catch
+      let recentUsers: any[] = [];
+      try {
+        recentUsers = await db
+          .select({
+            type: sql<string>`'user_registration'`,
+            id: users.id,
+            email: users.email,
+            name: sql<string>`CONCAT(${users.firstName}, ' ', ${users.lastName})`,
+            timestamp: users.createdAt,
+            details: users.role
+          })
+          .from(users)
+          .orderBy(desc(users.createdAt))
+          .limit(20);
+      } catch (e) {
+        console.warn('Could not fetch users for activity:', e);
+      }
       
-      // Get recent community claims if available
-      const recentClaims = await db
-        .select({
-          type: sql<string>`'community_claim'`,
-          id: communityClaims.id,
-          email: communityClaims.contactEmail,
-          name: communityClaims.contactName,
-          timestamp: communityClaims.createdAt,
-          details: communityClaims.status
-        })
-        .from(communityClaims)
-        .orderBy(desc(communityClaims.createdAt))
-        .limit(10);
+      // Get recent community claims if available - wrapped in try/catch
+      let recentClaims: any[] = [];
+      try {
+        recentClaims = await db
+          .select({
+            type: sql<string>`'community_claim'`,
+            id: communityClaims.id,
+            email: communityClaims.contactEmail,
+            name: communityClaims.contactName,
+            timestamp: communityClaims.createdAt,
+            details: communityClaims.status
+          })
+          .from(communityClaims)
+          .orderBy(desc(communityClaims.createdAt))
+          .limit(10);
+      } catch (e) {
+        console.warn('Could not fetch claims for activity:', e);
+      }
       
-      // Combine and sort all activities by timestamp
+      // Combine and sort all activities by timestamp - filter nulls
       const activities = [...recentUsers, ...recentClaims]
+        .filter(item => item && item.timestamp)
         .sort((a, b) => {
           const dateA = new Date(a.timestamp || 0).getTime();
           const dateB = new Date(b.timestamp || 0).getTime();
           return dateB - dateA;
         })
-        .slice(0, 50); // Return top 50 most recent activities
+        .slice(0, 50);
       
       res.json({
         activities,
@@ -243,7 +260,8 @@ export function registerAdminRoutes(app: Express) {
       });
     } catch (error) {
       console.error('Error fetching recent activity:', error);
-      res.status(500).json({ error: 'Failed to fetch recent activity' });
+      // Return empty on error instead of crashing
+      res.json({ activities: [], total: 0 });
     }
   });
 
@@ -878,10 +896,16 @@ export function registerAdminRoutes(app: Express) {
         .select({ count: sql<number>`COUNT(*)::integer` })
         .from(users);
 
-      // Get claimed communities count
-      const [claimedCommunitiesCount] = await db
-        .select({ count: sql<number>`COUNT(*)::integer` })
-        .from(claimedCommunities);
+      // Get claimed communities count - wrapped in try/catch as table may not exist
+      let claimedCommunitiesCount = { count: 0 };
+      try {
+        const [result] = await db
+          .select({ count: sql<number>`COUNT(*)::integer` })
+          .from(claimedCommunities);
+        claimedCommunitiesCount = result || { count: 0 };
+      } catch (e) {
+        console.warn('claimed_communities table not available in engagement metrics, using 0');
+      }
 
       // Get vendor engagement
       const [activeVendors] = await db

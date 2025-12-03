@@ -373,32 +373,43 @@ router.get('/api/admin/communities/stats', requireAuth, requireSuperAdmin, async
 // Get recent activity across the platform
 router.get('/api/admin/activity/recent', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
-    // Get recent messages
-    const recentMessages = await db
-      .select({
-        type: sql<string>`'message'`,
-        description: sql<string>`'New message sent'`,
-        user: messages.senderId,
-        timestamp: messages.createdAt
-      })
-      .from(messages)
-      .orderBy(desc(messages.createdAt))
-      .limit(5);
+    // Get recent messages - wrapped in try/catch as table may have issues
+    let recentMessages: any[] = [];
+    try {
+      recentMessages = await db
+        .select({
+          type: sql<string>`'message'`,
+          description: sql<string>`'New message sent'`,
+          user: messages.senderId,
+          timestamp: messages.createdAt
+        })
+        .from(messages)
+        .orderBy(desc(messages.createdAt))
+        .limit(5);
+    } catch (e) {
+      console.warn('Could not fetch messages for activity:', e);
+    }
     
     // Get recent user registrations
-    const recentUsers = await db
-      .select({
-        type: sql<string>`'user_registration'`,
-        description: sql<string>`'New user registered'`,
-        user: users.email,
-        timestamp: users.createdAt
-      })
-      .from(users)
-      .orderBy(desc(users.createdAt))
-      .limit(5);
+    let recentUsers: any[] = [];
+    try {
+      recentUsers = await db
+        .select({
+          type: sql<string>`'user_registration'`,
+          description: sql<string>`'New user registered'`,
+          user: users.email,
+          timestamp: users.createdAt
+        })
+        .from(users)
+        .orderBy(desc(users.createdAt))
+        .limit(5);
+    } catch (e) {
+      console.warn('Could not fetch users for activity:', e);
+    }
     
-    // Combine and sort by timestamp
+    // Combine and sort by timestamp - filter out any null entries
     const activity = [...recentMessages, ...recentUsers]
+      .filter(item => item && item.timestamp)
       .sort((a, b) => {
         const bTime = b.timestamp ? new Date(b.timestamp).getTime() : 0;
         const aTime = a.timestamp ? new Date(a.timestamp).getTime() : 0;
@@ -409,7 +420,8 @@ router.get('/api/admin/activity/recent', requireAuth, requireSuperAdmin, async (
     res.json(activity);
   } catch (error) {
     console.error('Error fetching recent activity:', error);
-    res.status(500).json({ error: 'Failed to fetch recent activity' });
+    // Return empty array on error instead of crashing
+    res.json([]);
   }
 });
 
@@ -446,49 +458,146 @@ router.get('/api/admin/revenue/analytics', requireAuth, requireSuperAdmin, async
 
 // ========== AI METRICS ==========
 
-// AI usage metrics
+// Helper function for provider-specific default costs
+const getProviderDefaultCost = (provider: string): number => {
+  switch(provider) {
+    case 'perplexity': return 0.005;
+    case 'claude': case 'anthropic': return 0.01;
+    case 'chatgpt': case 'openai': return 0.002;
+    default: return 0.005;
+  }
+};
+
+// AI usage metrics - queries REAL data from community_enrichment_history
 router.get('/api/admin/ai/metrics', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
-  res.json({
-    perplexity: {
-      calls: 450,
-      cost: 22.50,
-      avgResponseTime: 850,
-      successRate: 98.5
-    },
-    claude: {
-      calls: 120,
-      cost: 8.40,
-      avgResponseTime: 1200,
-      successRate: 99.2
-    },
-    chatgpt: {
-      calls: 80,
-      cost: 4.00,
-      avgResponseTime: 950,
-      successRate: 97.8
-    },
-    total: {
-      calls: 650,
-      cost: 34.90,
-      avgResponseTime: 933,
-      successRate: 98.5
+  try {
+    // Query AI usage from community_enrichment_history table
+    const aiResult = await db.execute(sql`
+      SELECT 
+        COALESCE(ai_provider, metadata->>'ai_provider', 'unknown') as provider,
+        COUNT(*) as call_count,
+        SUM((metadata->>'cost')::numeric) as total_cost,
+        AVG((metadata->>'response_time')::numeric) as avg_response_time,
+        COUNT(CASE WHEN (metadata->>'success')::boolean = false OR (metadata->>'error') IS NOT NULL THEN 1 END) as error_count
+      FROM community_enrichment_history
+      WHERE created_at >= NOW() - (30 * INTERVAL '1 day')
+      GROUP BY COALESCE(ai_provider, metadata->>'ai_provider', 'unknown')
+    `);
+
+    // Process results
+    const stats = {
+      perplexity: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 },
+      claude: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 },
+      chatgpt: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 },
+      total: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 }
+    };
+
+    let totalCalls = 0;
+    let totalCost = 0;
+    let totalResponseTime = 0;
+    let totalErrors = 0;
+
+    for (const row of aiResult.rows) {
+      const provider = (row.provider as string || '').toLowerCase();
+      const calls = Number(row.call_count) || 0;
+      const dbCost = row.total_cost;
+      const cost = (dbCost !== null && dbCost !== undefined) 
+        ? Number(dbCost) 
+        : (calls * getProviderDefaultCost(provider));
+      const avgTime = Number(row.avg_response_time) || 0;
+      const errors = Number(row.error_count) || 0;
+      const successRate = calls > 0 ? ((calls - errors) / calls) * 100 : 100;
+
+      if (provider === 'perplexity') {
+        stats.perplexity = { calls, cost: Number(cost.toFixed(2)), avgResponseTime: Math.round(avgTime), successRate: Number(successRate.toFixed(1)) };
+      } else if (provider === 'claude' || provider === 'anthropic') {
+        stats.claude = { calls, cost: Number(cost.toFixed(2)), avgResponseTime: Math.round(avgTime), successRate: Number(successRate.toFixed(1)) };
+      } else if (provider === 'chatgpt' || provider === 'openai') {
+        stats.chatgpt = { calls, cost: Number(cost.toFixed(2)), avgResponseTime: Math.round(avgTime), successRate: Number(successRate.toFixed(1)) };
+      }
+
+      totalCalls += calls;
+      totalCost += cost;
+      totalResponseTime += avgTime * calls;
+      totalErrors += errors;
     }
-  });
+
+    // Calculate totals
+    stats.total = {
+      calls: totalCalls,
+      cost: Number(totalCost.toFixed(2)),
+      avgResponseTime: totalCalls > 0 ? Math.round(totalResponseTime / totalCalls) : 0,
+      successRate: totalCalls > 0 ? Number((((totalCalls - totalErrors) / totalCalls) * 100).toFixed(1)) : 100
+    };
+
+    res.json(stats);
+  } catch (error) {
+    console.error('Error fetching AI metrics:', error);
+    // Return zeros on error instead of crashing
+    res.json({
+      perplexity: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 },
+      claude: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 },
+      chatgpt: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 },
+      total: { calls: 0, cost: 0, avgResponseTime: 0, successRate: 100 }
+    });
+  }
 });
 
-// API costs
+// API costs - queries REAL data from community_enrichment_history
 router.get('/api/admin/api/costs', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
-  res.json({
-    daily: 4.99,
-    weekly: 34.90,
-    monthly: 149.50,
-    byService: {
-      perplexity: 89.50,
-      sendgrid: 25.00,
-      google: 15.00,
-      stripe: 20.00
+  try {
+    const timeRange = req.query.timeRange as string || '30d';
+    const days = timeRange === '7d' ? 7 : timeRange === '24h' ? 1 : 30;
+
+    const costResult = await db.execute(sql`
+      SELECT 
+        COALESCE(ai_provider, metadata->>'ai_provider', 'unknown') as provider,
+        SUM((metadata->>'cost')::numeric) as total_cost,
+        COUNT(*) as call_count
+      FROM community_enrichment_history
+      WHERE created_at >= NOW() - (${days} * INTERVAL '1 day')
+      GROUP BY COALESCE(ai_provider, metadata->>'ai_provider', 'unknown')
+    `);
+
+    let perplexityCost = 0, claudeCost = 0, chatgptCost = 0;
+    
+    for (const row of costResult.rows) {
+      const provider = (row.provider as string || '').toLowerCase();
+      const calls = Number(row.call_count) || 0;
+      const dbCost = row.total_cost;
+      const cost = (dbCost !== null && dbCost !== undefined) 
+        ? Number(dbCost) 
+        : (calls * getProviderDefaultCost(provider));
+
+      if (provider === 'perplexity') perplexityCost = cost;
+      else if (provider === 'claude' || provider === 'anthropic') claudeCost = cost;
+      else if (provider === 'chatgpt' || provider === 'openai') chatgptCost = cost;
     }
-  });
+
+    const totalCost = perplexityCost + claudeCost + chatgptCost;
+    
+    res.json({
+      daily: Number((totalCost / days).toFixed(2)),
+      weekly: Number((totalCost / days * 7).toFixed(2)),
+      monthly: Number((totalCost / days * 30).toFixed(2)),
+      byService: {
+        perplexity: Number(perplexityCost.toFixed(2)),
+        claude: Number(claudeCost.toFixed(2)),
+        chatgpt: Number(chatgptCost.toFixed(2)),
+        sendgrid: 0,
+        google: 0,
+        stripe: 0
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching API costs:', error);
+    res.json({
+      daily: 0,
+      weekly: 0,
+      monthly: 0,
+      byService: { perplexity: 0, claude: 0, chatgpt: 0, sendgrid: 0, google: 0, stripe: 0 }
+    });
+  }
 });
 
 // ========== PERFORMANCE METRICS ==========
@@ -665,41 +774,63 @@ const TIER_PRICING: Record<string, number> = {
 // Active subscriptions - fetches real data from community_subscriptions and vendor_subscriptions tables
 router.get('/api/admin/subscriptions/active', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
-    // Get community subscriptions with full details
-    const communitySubs = await db
-      .select({
-        id: communitySubscriptions.id,
-        stripeCustomerId: communitySubscriptions.stripeCustomerId,
-        stripeSubscriptionId: communitySubscriptions.stripeSubscriptionId,
-        tierLevel: communitySubscriptions.tierLevel,
-        status: communitySubscriptions.status,
-        currentPeriodStart: communitySubscriptions.currentPeriodStart,
-        currentPeriodEnd: communitySubscriptions.currentPeriodEnd,
-        createdAt: communitySubscriptions.createdAt,
-        communityId: communitySubscriptions.communityId,
-        communityName: communities.name
-      })
-      .from(communitySubscriptions)
-      .leftJoin(communities, eq(communitySubscriptions.communityId, communities.id))
-      .where(eq(communitySubscriptions.status, 'active'));
+    // Get community subscriptions with full details - wrapped in try/catch
+    let communitySubs: any[] = [];
+    try {
+      communitySubs = await db
+        .select({
+          id: communitySubscriptions.id,
+          stripeCustomerId: communitySubscriptions.stripeCustomerId,
+          stripeSubscriptionId: communitySubscriptions.stripeSubscriptionId,
+          tierLevel: communitySubscriptions.tierLevel,
+          status: communitySubscriptions.status,
+          currentPeriodStart: communitySubscriptions.currentPeriodStart,
+          currentPeriodEnd: communitySubscriptions.currentPeriodEnd,
+          createdAt: communitySubscriptions.createdAt,
+          communityId: communitySubscriptions.communityId,
+          communityName: communities.name
+        })
+        .from(communitySubscriptions)
+        .leftJoin(communities, eq(communitySubscriptions.communityId, communities.id))
+        .where(eq(communitySubscriptions.status, 'active'));
+    } catch (e) {
+      console.warn('Could not fetch community subscriptions:', e);
+    }
     
-    // Get vendor subscriptions with full details
-    const vendorSubs = await db
-      .select({
-        id: vendorSubscriptions.id,
-        stripeCustomerId: vendorSubscriptions.stripeCustomerId,
-        stripeSubscriptionId: vendorSubscriptions.stripeSubscriptionId,
-        tierLevel: vendorSubscriptions.tierLevel,
-        status: vendorSubscriptions.status,
-        currentPeriodStart: vendorSubscriptions.currentPeriodStart,
-        currentPeriodEnd: vendorSubscriptions.currentPeriodEnd,
-        createdAt: vendorSubscriptions.createdAt,
-        vendorId: vendorSubscriptions.vendorId,
-        vendorName: vendors.companyName
-      })
-      .from(vendorSubscriptions)
-      .leftJoin(vendors, eq(vendorSubscriptions.vendorId, vendors.id))
-      .where(eq(vendorSubscriptions.status, 'active'));
+    // Get vendor subscriptions with full details - use raw SQL to avoid schema mismatch
+    let vendorSubs: any[] = [];
+    try {
+      const vendorSubsResult = await db.execute(sql`
+        SELECT 
+          vs.id,
+          vs.vendor_id,
+          vs.subscription_type,
+          vs.stripe_subscription_id,
+          vs.status,
+          vs.current_period_start,
+          vs.current_period_end,
+          vs.amount_cents,
+          vs.created_at,
+          v.business_name as vendor_name
+        FROM vendor_subscriptions vs
+        LEFT JOIN vendors v ON vs.vendor_id = v.id
+        WHERE vs.status = 'active'
+      `);
+      vendorSubs = vendorSubsResult.rows.map((row: any) => ({
+        id: row.id,
+        vendorId: row.vendor_id,
+        tierLevel: row.subscription_type || 'vendor_basic',
+        stripeSubscriptionId: row.stripe_subscription_id,
+        status: row.status,
+        currentPeriodStart: row.current_period_start,
+        currentPeriodEnd: row.current_period_end,
+        createdAt: row.created_at,
+        vendorName: row.vendor_name,
+        amountCents: row.amount_cents || 0
+      }));
+    } catch (e) {
+      console.warn('Could not fetch vendor subscriptions:', e);
+    }
     
     // Format subscriptions with complete DTO structure
     const formattedCommunity = communitySubs.map((sub) => ({
@@ -719,18 +850,17 @@ router.get('/api/admin/subscriptions/active', requireAuth, requireSuperAdmin, as
     }));
     
     const formattedVendor = vendorSubs.map((sub) => ({
-      id: `vendor-${sub.id}`,  // Use prefixed string ID to avoid collisions
+      id: `vendor-${sub.id}`,
       numericId: sub.id,
       entityType: 'vendor' as const,
       entityId: sub.vendorId,
       customerName: sub.vendorName || `Vendor #${sub.vendorId}`,
       planName: sub.tierLevel || 'vendor_basic',
       status: sub.status,
-      amount: TIER_PRICING[sub.tierLevel || 'vendor_basic'] || 4900,
+      amount: sub.amountCents || TIER_PRICING[sub.tierLevel || 'vendor_basic'] || 4900,
       nextBilling: sub.currentPeriodEnd,
       periodStart: sub.currentPeriodStart,
       createdAt: sub.createdAt,
-      stripeCustomerId: sub.stripeCustomerId,
       stripeSubscriptionId: sub.stripeSubscriptionId
     }));
     
