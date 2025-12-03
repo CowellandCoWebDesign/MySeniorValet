@@ -321,6 +321,8 @@ export function setupCustomAuth(app: Express) {
     try {
       const { email, password, totpCode, backupCode } = req.body;
       
+      console.log('🔐 Login attempt for:', email?.toLowerCase());
+      
       // Find user
       const [user] = await db
         .select()
@@ -328,21 +330,37 @@ export function setupCustomAuth(app: Express) {
         .where(eq(users.email, email.toLowerCase()))
         .limit(1);
       
-      if (!user || !user.password) {
+      if (!user) {
+        console.log('❌ Login failed: User not found for:', email?.toLowerCase());
         return res.status(401).json({ 
           success: false, 
           message: 'Invalid email or password' 
         });
       }
       
-      // Verify password
-      const isValid = await bcrypt.compare(password, user.password);
-      if (!isValid) {
+      if (!user.password) {
+        console.log('❌ Login failed: No password set (OAuth-only) for:', email?.toLowerCase());
         return res.status(401).json({ 
           success: false, 
           message: 'Invalid email or password' 
         });
       }
+      
+      console.log('✓ User found, checking password for:', user.email);
+      
+      // Verify password
+      const isValid = await bcrypt.compare(password, user.password);
+      console.log('🔑 Password check result:', isValid ? 'VALID' : 'INVALID');
+      
+      if (!isValid) {
+        console.log('❌ Login failed: Wrong password for:', user.email);
+        return res.status(401).json({ 
+          success: false, 
+          message: 'Invalid email or password' 
+        });
+      }
+      
+      console.log('✅ Password verified for:', user.email);
       
       // Check if 2FA is required
       if (user.twoFactorEnabled || (user.email && requires2FA(user.email))) {

@@ -37,9 +37,11 @@ export function setupSocialAuth(app: any) {
         ? 'https://www.myseniorvalet.com/api/auth/google/callback'
         : 'https://myseniorvalet.com/api/auth/google/callback';
     } else {
-      // For Replit preview URLs (janeway.replit.dev, etc.) - use the stable deployment URL
-      // The callback will redirect back to the origin after authentication
-      redirectUri = 'https://workspace-williamcowell01.replit.app/api/auth/google/callback';
+      // For Replit preview URLs - use the current host dynamically
+      // IMPORTANT: This URL must be added to Google Cloud Console OAuth authorized redirect URIs
+      redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
+      console.log('⚠️ Using dynamic Replit redirect URI:', redirectUri);
+      console.log('⚠️ Make sure this URI is added to Google Cloud Console OAuth settings');
     }
     
     // Store the original host for post-login redirect
@@ -65,16 +67,20 @@ export function setupSocialAuth(app: any) {
       }
 
       // SECURITY: Use same consistent redirect URI as the initial auth request
-      const isProduction = process.env.NODE_ENV === 'production';
-      const isLocalhost = req.get('host')?.includes('localhost');
+      const requestHost = req.get('host') || '';
+      const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
 
       let redirectUri;
-      if (isLocalhost) {
+      if (requestHost.includes('localhost')) {
         redirectUri = 'http://localhost:5000/api/auth/google/callback';
-      } else if (isProduction) {
-        redirectUri = 'https://myseniorvalet.com/api/auth/google/callback';
+      } else if (requestHost.includes('myseniorvalet.com')) {
+        // Production domain - must match exactly what's registered in Google Cloud Console
+        redirectUri = requestHost.includes('www.') 
+          ? 'https://www.myseniorvalet.com/api/auth/google/callback'
+          : 'https://myseniorvalet.com/api/auth/google/callback';
       } else {
-        redirectUri = 'https://workspace-williamcowell01.replit.app/api/auth/google/callback';
+        // For Replit preview URLs - use the current host dynamically
+        redirectUri = `${requestProtocol}://${requestHost}/api/auth/google/callback`;
       }
 
       console.log('🔐 Google OAuth callback processing with redirect URI:', redirectUri);
