@@ -41,13 +41,21 @@ export function setupCustomAuth(app: Express) {
   // Enable trust proxy for Replit's proxied environment
   app.set('trust proxy', 1);
   
-  // Use PostgreSQL for session storage
+  // Use PostgreSQL for session storage with error handling
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
     createTableIfMissing: true,
     ttl: sessionTtl,
     tableName: "sessions",
+    errorLog: (error: Error) => {
+      console.error('Session store error (non-fatal):', error.message);
+    }
+  });
+  
+  // Handle session store errors gracefully
+  sessionStore.on('error', (error: Error) => {
+    console.error('Session store connection error:', error.message);
   });
   
   app.use(session({
@@ -64,6 +72,15 @@ export function setupCustomAuth(app: Express) {
       path: '/', // Ensure cookie is available on all paths
     },
   }));
+  
+  // Session error handler middleware - must come right after session setup
+  app.use((err: any, req: any, res: any, next: any) => {
+    if (err && err.message && err.message.includes('Authentication timed out')) {
+      console.warn('Session database timeout - continuing without session');
+      return next(); // Continue without session rather than crash
+    }
+    next(err);
+  });
   
   const router = Router();
   

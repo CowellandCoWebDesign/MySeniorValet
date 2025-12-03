@@ -229,16 +229,6 @@ app.use((req, res, next) => {
       });
     }
 
-    // Don't expose sensitive error details in production
-    const isDevelopment = app.get("env") === "development";
-    const message = isDevelopment ? err.message : getSecureErrorMessage(status);
-
-    res.status(status).json({ 
-      error: getErrorType(status),
-      message,
-      ...(isDevelopment && { stack: err.stack })
-    });
-
     // Log error for monitoring (don't throw to avoid crashing)
     if (status >= 500) {
       console.error('Server Error:', {
@@ -250,6 +240,22 @@ app.use((req, res, next) => {
         timestamp: new Date().toISOString(),
       });
     }
+
+    // CRITICAL: Check if headers already sent to prevent "Cannot set headers" error
+    if (res.headersSent) {
+      console.warn('Headers already sent, cannot send error response for:', req.path);
+      return;
+    }
+
+    // Don't expose sensitive error details in production
+    const isDevelopment = app.get("env") === "development";
+    const message = isDevelopment ? err.message : getSecureErrorMessage(status);
+
+    res.status(status).json({ 
+      error: getErrorType(status),
+      message,
+      ...(isDevelopment && { stack: err.stack })
+    });
   });
 
   function getErrorType(status: number): string {
