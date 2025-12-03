@@ -88,13 +88,14 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(sql`CAST(${communities.rentPerMonth} AS DECIMAL) ASC`)
         .limit(8);
 
-      // Optimized: Use synchronous map since CommunityPhotoEnrichment.enrichCommunityIfNeeded
-      // is essentially synchronous (just filters photos in memory)
-      // This avoids unnecessary Promise.all overhead for synchronous operations
-      const enrichedHudFeatured = hudFeatured.map(community => {
-        const enriched = CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
-        return eliminateCallForPricing(enriched);
-      });
+      // Optimized: Process all communities in parallel using Promise.all
+      // Note: enrichCommunityIfNeeded is marked async so we must await it
+      const enrichedHudFeatured = await Promise.all(
+        hudFeatured.map(async community => {
+          const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+          return eliminateCallForPricing(enriched);
+        })
+      );
       
       res.json(enrichedHudFeatured);
     } catch (error) {
@@ -113,11 +114,14 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(20);
 
-      // Optimized: Use synchronous map since enrichment is just in-memory filtering
-      const enrichedTrending = trending.map(community => {
-        const enriched = CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
-        return eliminateCallForPricing(enriched);
-      });
+      // Optimized: Process all communities in parallel using Promise.all
+      // Note: enrichCommunityIfNeeded is marked async so we must await it
+      const enrichedTrending = await Promise.all(
+        trending.map(async community => {
+          const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+          return eliminateCallForPricing(enriched);
+        })
+      );
       
       res.json(enrichedTrending);
     } catch (error) {

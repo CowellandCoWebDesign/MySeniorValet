@@ -152,8 +152,35 @@ export class CacheService {
   }
 
   /**
+   * Estimate the size of an object in bytes using a fast heuristic
+   * This avoids the expensive JSON.stringify operation
+   */
+  private estimateObjectSize(obj: any): number {
+    if (obj === null || obj === undefined) return 0;
+    
+    switch (typeof obj) {
+      case 'boolean':
+        return 4;
+      case 'number':
+        return 8;
+      case 'string':
+        return obj.length * 2; // Each char ~2 bytes in JS
+      case 'object':
+        if (Array.isArray(obj)) {
+          // For arrays, estimate based on length with overhead
+          return 24 + obj.length * 8; // Rough estimate: 24 bytes overhead + 8 per element
+        }
+        // For objects, estimate based on number of keys
+        const keys = Object.keys(obj);
+        return 32 + keys.length * 16; // Rough estimate: 32 bytes overhead + 16 per key-value
+      default:
+        return 8;
+    }
+  }
+
+  /**
    * Get cache statistics
-   * Optimized: Uses lazy size calculation to avoid expensive JSON.stringify on every call
+   * Optimized: Uses fast heuristic size estimation instead of expensive JSON.stringify
    */
   getStats(includeDetailedEntries: boolean = false) {
     const now = Date.now();
@@ -161,7 +188,7 @@ export class CacheService {
       size: this.memoryCache.size,
       entries: [] as any[],
       totalHits: 0,
-      estimatedMemory: 0, // Renamed from totalMemory - this is an estimate
+      estimatedMemory: 0, // Rough estimate without expensive serialization
       oldestEntry: null as Date | null,
       newestEntry: null as Date | null
     };
@@ -182,9 +209,9 @@ export class CacheService {
       }
 
       // Only calculate detailed entry info when explicitly requested
-      // This avoids expensive JSON.stringify operations for simple stat checks
       if (includeDetailedEntries) {
-        const entrySize = JSON.stringify(entry.data).length;
+        // Use fast heuristic estimation instead of JSON.stringify
+        const entrySize = this.estimateObjectSize(entry.data);
         stats.estimatedMemory += entrySize;
         
         stats.entries.push({

@@ -810,7 +810,11 @@ Format all information clearly with section headers.
     average: /(?:average|overall)[^\*]*?(\d+\.?\d*)[^\*]*?(?:stars?|rating)/i,
     count: /(\d+)\s*(?:reviews?|ratings?)/i,
     violations: /(?:violation|citation|deficiency)[^.]*\./gi,
-    inspectionDate: /(?:inspection|inspected)[^\*]*?(\d{1,2}\/\d{1,2}\/\d{2,4}|\w+\s+\d{1,2},?\s+\d{4})/i
+    inspectionDate: /(?:inspection|inspected)[^\*]*?(\d{1,2}\/\d{1,2}\/\d{2,4}|\w+\s+\d{1,2},?\s+\d{4})/i,
+    // Compliance patterns for extractComplianceStatus
+    noViolation: /no\s+violation/i,
+    hasViolation: /violation/i,
+    compliant: /compliant/i
   };
 
   /**
@@ -946,10 +950,10 @@ Format all information clearly with section headers.
   }
 
   private extractComplianceStatus(content: string): string {
-    const lowerContent = content.toLowerCase();
-    if (lowerContent.includes('no violation')) return 'Compliant';
-    if (lowerContent.includes('violation')) return 'Issues Found';
-    if (lowerContent.includes('compliant')) return 'Compliant';
+    // Use pre-compiled patterns for better performance
+    if (UnifiedPerplexityCache.REVIEW_PATTERNS.noViolation.test(content)) return 'Compliant';
+    if (UnifiedPerplexityCache.REVIEW_PATTERNS.hasViolation.test(content)) return 'Issues Found';
+    if (UnifiedPerplexityCache.REVIEW_PATTERNS.compliant.test(content)) return 'Compliant';
     return 'Unknown';
   }
 
