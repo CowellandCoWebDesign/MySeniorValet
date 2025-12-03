@@ -468,20 +468,21 @@ const getProviderDefaultCost = (provider: string): number => {
   }
 };
 
-// AI usage metrics - queries REAL data from community_enrichment_history
+// AI usage metrics - queries REAL data from ai_usage_logs table
 router.get('/api/admin/ai/metrics', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
-    // Query AI usage from community_enrichment_history table
+    // Query AI usage from ai_usage_logs table (the correct source for AI tracking)
     const aiResult = await db.execute(sql`
       SELECT 
-        COALESCE(ai_provider, metadata->>'ai_provider', 'unknown') as provider,
+        provider,
         COUNT(*) as call_count,
-        SUM((metadata->>'cost')::numeric) as total_cost,
-        AVG((metadata->>'response_time')::numeric) as avg_response_time,
-        COUNT(CASE WHEN (metadata->>'success')::boolean = false OR (metadata->>'error') IS NOT NULL THEN 1 END) as error_count
-      FROM community_enrichment_history
+        SUM(COALESCE(estimated_cost, 0)) as total_cost,
+        AVG(COALESCE(request_duration, 0)) as avg_response_time,
+        SUM(COALESCE(total_tokens, 0)) as total_tokens,
+        COUNT(CASE WHEN success = false THEN 1 END) as error_count
+      FROM ai_usage_logs
       WHERE created_at >= NOW() - (30 * INTERVAL '1 day')
-      GROUP BY COALESCE(ai_provider, metadata->>'ai_provider', 'unknown')
+      GROUP BY provider
     `);
 
     // Process results
@@ -543,7 +544,7 @@ router.get('/api/admin/ai/metrics', requireAuth, requireSuperAdmin, async (req: 
   }
 });
 
-// API costs - queries REAL data from community_enrichment_history
+// API costs - queries REAL data from ai_usage_logs table
 router.get('/api/admin/api/costs', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
     const timeRange = req.query.timeRange as string || '30d';
@@ -551,12 +552,13 @@ router.get('/api/admin/api/costs', requireAuth, requireSuperAdmin, async (req: R
 
     const costResult = await db.execute(sql`
       SELECT 
-        COALESCE(ai_provider, metadata->>'ai_provider', 'unknown') as provider,
-        SUM((metadata->>'cost')::numeric) as total_cost,
-        COUNT(*) as call_count
-      FROM community_enrichment_history
+        provider,
+        SUM(COALESCE(estimated_cost, 0)) as total_cost,
+        COUNT(*) as call_count,
+        SUM(COALESCE(total_tokens, 0)) as total_tokens
+      FROM ai_usage_logs
       WHERE created_at >= NOW() - (${days} * INTERVAL '1 day')
-      GROUP BY COALESCE(ai_provider, metadata->>'ai_provider', 'unknown')
+      GROUP BY provider
     `);
 
     let perplexityCost = 0, claudeCost = 0, chatgptCost = 0;

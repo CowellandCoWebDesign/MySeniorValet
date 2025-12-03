@@ -5,7 +5,7 @@ import { MultiAIOrchestrator } from './multi-ai-intelligence';
 import { AnthropicAIService } from './ai-services';
 import Anthropic from '@anthropic-ai/sdk';
 import { OpenAI } from 'openai';
-import { trackAIUsage } from './services/ai-tracker.service';
+import { aiTracker } from './services/ai-tracker.service';
 
 interface EnrichmentResult {
   communityId: number;
@@ -121,9 +121,16 @@ export class CommunityEnrichmentService {
       });
 
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', true, responseTime);
-
       const subtype = response.choices[0]?.message?.content?.trim();
+      
+      await aiTracker.trackChatGPTCall({
+        action: 'classify_subtype',
+        context: 'community_classification',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: Math.ceil((subtype || '').length / 4),
+      });
       
       // Validate the response
       const validSubtypes = [
@@ -136,7 +143,13 @@ export class CommunityEnrichmentService {
       return validSubtypes.includes(subtype || '') ? (subtype as string) : null;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', false, responseTime);
+      await aiTracker.trackChatGPTCall({
+        action: 'classify_subtype',
+        context: 'community_classification',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
       console.error('AI classification error:', error);
       return null;
     }
@@ -216,12 +229,28 @@ export class CommunityEnrichmentService {
         messages: [{ role: 'user', content: prompt }]
       });
       const responseTime = Date.now() - startTime;
-      trackAIUsage('claude', true, responseTime);
       const firstContent = response.content[0];
-      return firstContent.type === 'text' ? firstContent.text : 'Community information pending verification.';
+      const responseText = firstContent.type === 'text' ? firstContent.text : 'Community information pending verification.';
+      
+      await aiTracker.trackClaudeCall({
+        action: 'generate_description',
+        context: 'community_enrichment',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: Math.ceil(responseText.length / 4),
+      });
+      
+      return responseText;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      trackAIUsage('claude', false, responseTime);
+      await aiTracker.trackClaudeCall({
+        action: 'generate_description',
+        context: 'community_enrichment',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
       console.error('Error generating description:', error);
       return 'Community information pending verification.';
     }
@@ -248,11 +277,27 @@ export class CommunityEnrichmentService {
       });
 
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', true, responseTime);
-      return response.choices[0]?.message?.content || 'Care type information available upon request.';
+      const responseText = response.choices[0]?.message?.content || 'Care type information available upon request.';
+      
+      await aiTracker.trackChatGPTCall({
+        action: 'explain_care_types',
+        context: 'care_type_explanation',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: Math.ceil(responseText.length / 4),
+      });
+      
+      return responseText;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', false, responseTime);
+      await aiTracker.trackChatGPTCall({
+        action: 'explain_care_types',
+        context: 'care_type_explanation',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
       return 'Care type information available upon request.';
     }
   }

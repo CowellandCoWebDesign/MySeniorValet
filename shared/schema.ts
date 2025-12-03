@@ -4372,6 +4372,35 @@ export const communityEnrichmentHistory = pgTable("community_enrichment_history"
   index("idx_enrichment_type").on(table.enrichmentType),
 ]);
 
+// AI Usage Logs table - tracks all AI API calls for billing and analytics
+export const aiUsageLogs = pgTable("ai_usage_logs", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
+  provider: varchar("provider", { length: 50 }).notNull(), // 'perplexity', 'claude', 'chatgpt', 'openai'
+  model: varchar("model", { length: 100 }).notNull(),
+  endpoint: varchar("endpoint", { length: 255 }),
+  action: varchar("action", { length: 100 }).notNull(), // 'search', 'analyze', 'chat', 'enrichment'
+  context: varchar("context", { length: 255 }), // 'community_search', 'discovery', 'chat_assistant'
+  inputTokens: integer("input_tokens"),
+  outputTokens: integer("output_tokens"),
+  totalTokens: integer("total_tokens"),
+  estimatedCost: decimal("estimated_cost", { precision: 10, scale: 6 }),
+  prompt: text("prompt"),
+  response: text("response"),
+  requestDuration: integer("request_duration"), // milliseconds
+  success: boolean("success").default(true),
+  errorMessage: text("error_message"),
+  errorCode: varchar("error_code", { length: 50 }),
+  metadata: jsonb("metadata").$type<Record<string, any>>(),
+  sessionId: varchar("session_id", { length: 255 }),
+  ip: varchar("ip", { length: 45 }),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_ai_usage_provider").on(table.provider),
+  index("idx_ai_usage_created").on(table.createdAt),
+]);
+
 // Tour Reviews table - comprehensive tour tracking and review system
 export const tourReviews = pgTable("tour_reviews", {
   id: serial("id").primaryKey(),

@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 import { Community } from '@shared/schema';
-import { trackAIUsage } from './routes/adminAIMetricsRoutes';
+import { aiTracker } from './services/ai-tracker.service';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -64,9 +64,17 @@ Example response format:
       });
 
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', true, responseTime);
-
       const response = completion.choices[0]?.message?.content;
+      
+      await aiTracker.trackChatGPTCall({
+        action: 'natural_language_search',
+        context: 'search_query_parsing',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: Math.ceil((response || '').length / 4),
+      });
+
       if (!response) throw new Error('No response from OpenAI');
 
       const parsedQuery = JSON.parse(response);
@@ -83,7 +91,13 @@ Example response format:
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', false, responseTime);
+      await aiTracker.trackChatGPTCall({
+        action: 'natural_language_search',
+        context: 'search_query_parsing',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
       console.error('OpenAI natural language search error:', error);
       throw error;
     }
@@ -157,13 +171,28 @@ Important:
       });
 
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', true, responseTime);
+      const responseText = completion.choices[0]?.message?.content || 'Unable to generate description';
+      
+      await aiTracker.trackChatGPTCall({
+        action: 'generate_description',
+        context: 'community_description',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: Math.ceil(responseText.length / 4),
+      });
 
-      return completion.choices[0]?.message?.content || 'Unable to generate description';
+      return responseText;
 
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      trackAIUsage('chatgpt', false, responseTime);
+      await aiTracker.trackChatGPTCall({
+        action: 'generate_description',
+        context: 'community_description',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
       console.error('OpenAI description generation error:', error);
       return community.description || 'No description available';
     }

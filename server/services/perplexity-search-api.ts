@@ -8,7 +8,7 @@
  * - Perfect for discovery operations across all MySeniorValet tabs
  */
 
-import { trackAIUsage } from "../routes/adminAIMetricsRoutes";
+import { aiTracker } from "./ai-tracker.service";
 
 interface SearchResult {
   title: string;
@@ -88,8 +88,16 @@ export class PerplexitySearchAPI {
       if (!response.ok) {
         const errorText = await response.text();
         console.error(`❌ Search API error (${response.status}):`, errorText);
-        // Track failed API call
-        trackAIUsage('perplexity', false);
+        const errorTime = Date.now() - startTime;
+        // Track failed API call to database
+        await aiTracker.trackPerplexityCall({
+          action: 'search',
+          context: 'perplexity_search_api',
+          requestDuration: errorTime,
+          success: false,
+          errorMessage: `${response.status} - ${errorText}`,
+          prompt: query,
+        });
         throw new Error(`Search API failed: ${response.status} - ${errorText}`);
       }
 
@@ -97,8 +105,17 @@ export class PerplexitySearchAPI {
       const responseTime = Date.now() - startTime;
       console.log(`✅ Found ${data.results?.length || 0} search results (${responseTime}ms)`);
       
-      // Track successful API call
-      trackAIUsage('perplexity', true, responseTime);
+      // Track successful API call to database
+      await aiTracker.trackPerplexityCall({
+        action: 'search',
+        context: 'perplexity_search_api',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(query.length / 4),
+        outputTokens: Math.ceil(JSON.stringify(data).length / 4),
+        prompt: query,
+        response: JSON.stringify(data.results?.slice(0, 3)),
+      });
       
       return {
         results: data.results || [],
@@ -109,7 +126,14 @@ export class PerplexitySearchAPI {
     } catch (error) {
       // Track failed API call if not already tracked
       const responseTime = Date.now() - startTime;
-      trackAIUsage('perplexity', false, responseTime);
+      await aiTracker.trackPerplexityCall({
+        action: 'search',
+        context: 'perplexity_search_api',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        prompt: query,
+      });
       console.error('❌ Perplexity Search API error:', error);
       throw error;
     }

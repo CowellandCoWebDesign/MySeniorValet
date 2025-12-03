@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { trackAIUsage } from './routes/adminAIMetricsRoutes';
+import { aiTracker } from './services/ai-tracker.service';
 
 /*
 The newest Anthropic model is "claude-sonnet-4-20250514", not "claude-3-7-sonnet-20250219", "claude-sonnet-4-20250514" nor "claude-3-sonnet-20240229". 
@@ -85,11 +85,20 @@ Return a JSON object with these fields:
 
     const responseTime = Date.now() - startTime;
     
-    // Track successful Claude API call
-    trackAIUsage('claude', true, responseTime);
-
     // Extract the JSON from the response
     const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
+    
+    // Track successful Claude API call to database
+    await aiTracker.trackClaudeCall({
+      action: 'interpret_search',
+      context: 'search_query_interpretation',
+      requestDuration: responseTime,
+      success: true,
+      inputTokens: Math.ceil(userPrompt.length / 4),
+      outputTokens: Math.ceil(responseText.length / 4),
+      prompt: userPrompt,
+      response: responseText.substring(0, 500),
+    });
     
     // Try to find JSON in the response
     const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -108,9 +117,15 @@ Return a JSON object with these fields:
     
     return searchIntent;
   } catch (error) {
-    // Track failed Claude API call
+    // Track failed Claude API call to database
     const responseTime = Date.now() - startTime;
-    trackAIUsage('claude', false, responseTime);
+    await aiTracker.trackClaudeCall({
+      action: 'interpret_search',
+      context: 'search_query_interpretation',
+      requestDuration: responseTime,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    });
     
     console.error('Error interpreting search query:', error);
     
@@ -148,9 +163,17 @@ Examples:
     });
 
     const responseTime = Date.now() - startTime;
-    trackAIUsage('claude', true, responseTime);
-
     const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
+    
+    await aiTracker.trackClaudeCall({
+      action: 'generate_suggestions',
+      context: 'search_suggestions',
+      requestDuration: responseTime,
+      success: true,
+      inputTokens: Math.ceil(partialQuery.length / 4),
+      outputTokens: Math.ceil(responseText.length / 4),
+    });
+
     const jsonMatch = responseText.match(/\[[\s\S]*\]/);
     
     if (jsonMatch) {
@@ -160,7 +183,13 @@ Examples:
     return [];
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    trackAIUsage('claude', false, responseTime);
+    await aiTracker.trackClaudeCall({
+      action: 'generate_suggestions',
+      context: 'search_suggestions',
+      requestDuration: responseTime,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    });
     console.error('Error generating suggestions:', error);
     return [];
   }
@@ -187,12 +216,27 @@ Provide a 2-3 sentence summary of what was found and any helpful context.`
     });
 
     const responseTime = Date.now() - startTime;
-    trackAIUsage('claude', true, responseTime);
+    const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
     
-    return response.content[0].type === 'text' ? response.content[0].text : '';
+    await aiTracker.trackClaudeCall({
+      action: 'enhance_search',
+      context: 'search_results_enhancement',
+      requestDuration: responseTime,
+      success: true,
+      inputTokens: Math.ceil(query.length / 4),
+      outputTokens: Math.ceil(responseText.length / 4),
+    });
+    
+    return responseText;
   } catch (error) {
     const responseTime = Date.now() - startTime;
-    trackAIUsage('claude', false, responseTime);
+    await aiTracker.trackClaudeCall({
+      action: 'enhance_search',
+      context: 'search_results_enhancement',
+      requestDuration: responseTime,
+      success: false,
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    });
     console.error('Error enhancing search results:', error);
     return `Found ${results.length} communities matching your search.`;
   }
@@ -225,12 +269,27 @@ export class AnthropicAIService {
       });
       
       const responseTime = Date.now() - startTime;
-      trackAIUsage('claude', true, responseTime);
+      const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
       
-      return response.content[0].type === 'text' ? response.content[0].text : '';
+      await aiTracker.trackClaudeCall({
+        action: 'analyze',
+        context: 'general_analysis',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: Math.ceil(responseText.length / 4),
+      });
+      
+      return responseText;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      trackAIUsage('claude', false, responseTime);
+      await aiTracker.trackClaudeCall({
+        action: 'analyze',
+        context: 'general_analysis',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
       console.error('Error in AI analysis:', error);
       return 'Analysis unavailable at this time';
     }
@@ -249,12 +308,27 @@ export class AnthropicAIService {
       });
       
       const responseTime = Date.now() - startTime;
-      trackAIUsage('claude', true, responseTime);
+      const responseText = response.content[0].type === 'text' ? response.content[0].text : '';
       
-      return response.content[0].type === 'text' ? response.content[0].text : '';
+      await aiTracker.trackClaudeCall({
+        action: 'analyze_text',
+        context: 'text_analysis',
+        requestDuration: responseTime,
+        success: true,
+        inputTokens: Math.ceil(prompt.length / 4),
+        outputTokens: Math.ceil(responseText.length / 4),
+      });
+      
+      return responseText;
     } catch (error) {
       const responseTime = Date.now() - startTime;
-      trackAIUsage('claude', false, responseTime);
+      await aiTracker.trackClaudeCall({
+        action: 'analyze_text',
+        context: 'text_analysis',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+      });
       console.error('Error in AI text analysis:', error);
       return 'Analysis unavailable at this time';
     }
