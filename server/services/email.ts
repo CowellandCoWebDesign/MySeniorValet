@@ -70,6 +70,21 @@ export class EmailService {
         replyTo: options.replyTo
       };
       
+      // Disable click and open tracking for transactional/security emails
+      // This prevents SendGrid from rewriting URLs through tracking domains
+      // which can cause SSL certificate errors if link branding isn't configured
+      if (options.isTransactional) {
+        msg.trackingSettings = {
+          clickTracking: {
+            enable: false,
+            enableText: false
+          },
+          openTracking: {
+            enable: false
+          }
+        };
+      }
+      
       // Add List-Unsubscribe headers for marketing emails (not transactional)
       if (!options.isTransactional) {
         const unsubscribeUrl = `https://myseniorvalet.com/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;

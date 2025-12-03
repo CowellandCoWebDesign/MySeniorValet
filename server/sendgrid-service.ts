@@ -26,7 +26,7 @@ interface MessageNotificationParams {
   senderName: string;
 }
 
-export async function sendEmail(params: EmailParams): Promise<boolean> {
+export async function sendEmail(params: EmailParams & { disableTracking?: boolean }): Promise<boolean> {
   try {
     console.log(`Sending email to ${params.to}: ${params.subject}`);
     
@@ -34,13 +34,28 @@ export async function sendEmail(params: EmailParams): Promise<boolean> {
     const text = params.text || params.html?.replace(/<[^>]*>/g, '') || 'MySeniorValet Notification';
     const html = params.html || params.text || '<p>MySeniorValet Notification</p>';
     
-    const msg = {
+    const msg: any = {
       to: params.to,
       from: params.from,
       subject: params.subject,
       text: text,
       html: html
     };
+    
+    // Disable click and open tracking for security-critical emails
+    // This prevents SendGrid from rewriting URLs through tracking domains
+    // which can cause SSL certificate errors if link branding isn't configured
+    if (params.disableTracking) {
+      msg.trackingSettings = {
+        clickTracking: {
+          enable: false,
+          enableText: false
+        },
+        openTracking: {
+          enable: false
+        }
+      };
+    }
 
     const [response] = await sgMail.send(msg);
     
@@ -90,6 +105,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
     to: email,
     from: 'hello@myseniorvalet.com',
     subject: 'MySeniorValet - Password Reset Request',
+    disableTracking: true, // Security-critical email - prevent URL rewriting
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1f2937;">Password Reset Request</h2>
