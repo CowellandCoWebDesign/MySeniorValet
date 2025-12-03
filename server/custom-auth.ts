@@ -11,6 +11,7 @@ import { users } from '../shared/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { notifySuperAdmin } from './sendgrid-service';
 import session from 'express-session';
+import MemoryStore from 'memorystore';
 import connectPg from 'connect-pg-simple';
 import type { Express } from 'express';
 import { validatePassword } from './auth/password-validator';
@@ -41,22 +42,39 @@ export function setupCustomAuth(app: Express) {
   // Enable trust proxy for Replit's proxied environment
   app.set('trust proxy', 1);
   
-  // Use PostgreSQL for session storage with error handling
-  const pgStore = connectPg(session);
-  const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
-    createTableIfMissing: true,
-    ttl: sessionTtl,
-    tableName: "sessions",
-    errorLog: (error: Error) => {
-      console.error('Session store error (non-fatal):', error.message);
-    }
-  });
+  // Session store setup - PostgreSQL for production, memory for development
+  let sessionStore: session.Store;
   
-  // Handle session store errors gracefully
-  sessionStore.on('error', (error: Error) => {
-    console.error('Session store connection error:', error.message);
-  });
+  if (process.env.DATABASE_URL && isProduction) {
+    // Production: Use PostgreSQL for persistent sessions
+    try {
+      const PgStore = connectPg(session);
+      sessionStore = new PgStore({
+        conString: process.env.DATABASE_URL,
+        createTableIfMissing: true,
+        ttl: sessionTtl,
+        tableName: "sessions",
+        errorLog: (error: Error) => {
+          console.error('Session store error (non-fatal):', error.message);
+        }
+      });
+      console.log('✅ Using PostgreSQL session store for production');
+    } catch (err) {
+      // Fallback to memory store if PostgreSQL fails
+      console.warn('⚠️ PostgreSQL session store failed, using memory store:', (err as Error).message);
+      const MemStore = MemoryStore(session);
+      sessionStore = new MemStore({
+        checkPeriod: 86400000
+      });
+    }
+  } else {
+    // Development: Use memory store for reliability (avoids timeout issues)
+    const MemStore = MemoryStore(session);
+    sessionStore = new MemStore({
+      checkPeriod: 86400000 // prune expired entries every 24h
+    });
+    console.log('✅ Using in-memory session store for development');
+  }
   
   app.use(session({
     secret: sessionSecret || 'dev-only-secret-change-this',
@@ -72,15 +90,6 @@ export function setupCustomAuth(app: Express) {
       path: '/', // Ensure cookie is available on all paths
     },
   }));
-  
-  // Session error handler middleware - must come right after session setup
-  app.use((err: any, req: any, res: any, next: any) => {
-    if (err && err.message && err.message.includes('Authentication timed out')) {
-      console.warn('Session database timeout - continuing without session');
-      return next(); // Continue without session rather than crash
-    }
-    next(err);
-  });
   
   const router = Router();
   

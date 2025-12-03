@@ -22,24 +22,28 @@ const googleClient = new OAuth2Client(
 export function setupSocialAuth(app: any) {
   // Google OAuth Login Endpoint
   router.get('/api/auth/google', (req, res) => {
-    const requestHost = req.get('host');
+    const requestHost = req.get('host') || '';
     const requestProtocol = req.get('x-forwarded-proto') || req.protocol;
 
-    // Determine the correct redirect URI based on the request host
-    let redirectUri;
+    // Build redirect URI dynamically from the current host
+    // This handles all Replit preview URLs, production domains, and localhost
+    let redirectUri: string;
     
-    if (requestHost?.includes('localhost')) {
+    if (requestHost.includes('localhost')) {
       redirectUri = 'http://localhost:5000/api/auth/google/callback';
-    } else if (requestHost?.includes('workspace-williamcowell01.replit.app') || requestHost?.includes('replit.dev')) {
-      redirectUri = 'https://workspace-williamcowell01.replit.app/api/auth/google/callback';
-    } else if (requestHost?.includes('www.myseniorvalet.com')) {
-      redirectUri = 'https://www.myseniorvalet.com/api/auth/google/callback';
-    } else if (requestHost?.includes('myseniorvalet.com')) {
-      redirectUri = 'https://myseniorvalet.com/api/auth/google/callback';
+    } else if (requestHost.includes('myseniorvalet.com')) {
+      // Production domain
+      redirectUri = requestHost.includes('www.') 
+        ? 'https://www.myseniorvalet.com/api/auth/google/callback'
+        : 'https://myseniorvalet.com/api/auth/google/callback';
     } else {
-      console.error(`🚨 SECURITY: Unknown host in Google OAuth - Host: ${requestHost}`);
-      return res.status(400).json({ error: 'Invalid request origin' });
+      // For Replit preview URLs (janeway.replit.dev, etc.) - use the stable deployment URL
+      // The callback will redirect back to the origin after authentication
+      redirectUri = 'https://workspace-williamcowell01.replit.app/api/auth/google/callback';
     }
+    
+    // Store the original host for post-login redirect
+    (req.session as any).oauth_origin = `${requestProtocol}://${requestHost}`;
 
     console.log('Google OAuth redirect URI:', redirectUri, 'for host:', requestHost);
 
@@ -147,11 +151,22 @@ export function setupSocialAuth(app: any) {
         }
         console.log('Google OAuth successful for user:', user.email);
 
+        // Get the original host the user came from (for cross-domain redirect)
+        const oauthOrigin = (req.session as any).oauth_origin;
+        delete (req.session as any).oauth_origin;
+        
         // Check if user was trying to make a payment
-        const redirectTo = (req.session as any).redirectAfterLogin || '/dashboard';
+        const redirectPath = (req.session as any).redirectAfterLogin || '/dashboard';
         delete (req.session as any).redirectAfterLogin;
 
-        res.redirect(redirectTo);
+        // If oauth_origin is different from current host, redirect back to origin
+        const currentHost = req.get('host');
+        if (oauthOrigin && !oauthOrigin.includes(currentHost || '')) {
+          console.log('Cross-origin OAuth redirect from', currentHost, 'to', oauthOrigin);
+          res.redirect(`${oauthOrigin}${redirectPath}`);
+        } else {
+          res.redirect(redirectPath);
+        }
       });
     } catch (error) {
       console.error('Google OAuth error:', error);

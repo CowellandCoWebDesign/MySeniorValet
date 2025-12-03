@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Heart, Shield, Users, UserPlus, Mail, Lock, User } from "lucide-react";
-import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,37 +126,16 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Social Signup Options */}
-            <div className="space-y-3">
-              <Button
-                onClick={() => window.location.href = "/api/auth/google"}
-                className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium flex items-center justify-center gap-3"
-                type="button"
-              >
-                <FaGoogle className="h-5 w-5 text-red-500" />
-                Sign up with Google
-              </Button>
-              
-              <Button
-                disabled
-                className="w-full h-12 bg-gray-200 hover:bg-gray-200 text-gray-500 font-medium flex items-center justify-center gap-3 cursor-not-allowed"
-                type="button"
-                title="Facebook login coming soon"
-              >
-                <FaFacebook className="h-5 w-5" />
-                Facebook (Coming Soon)
-              </Button>
-              
-              <Button
-                className="w-full h-12 bg-black hover:bg-gray-900 text-white font-medium flex items-center justify-center gap-3 opacity-50 cursor-not-allowed"
-                type="button"
-                disabled
-                title="Coming soon"
-              >
-                <FaApple className="h-5 w-5" />
-                Sign up with Apple (Coming Soon)
-              </Button>
-            </div>
+            {/* Google Signup */}
+            <Button
+              onClick={() => window.location.href = "/api/auth/google"}
+              className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium flex items-center justify-center gap-3"
+              type="button"
+              data-testid="button-google-signup"
+            >
+              <FaGoogle className="h-5 w-5 text-red-500" />
+              Sign up with Google
+            </Button>
             
             {/* Divider */}
             <div className="relative">
