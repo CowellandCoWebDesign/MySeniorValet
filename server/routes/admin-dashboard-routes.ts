@@ -6,6 +6,7 @@ import { db } from '../db';
 import { communities, users, messages, vendors, auditLogs, communitySubscriptions, vendorSubscriptions } from '../../shared/schema';
 import { eq, sql, desc, and, gte, lte, count, avg, sum, not, isNull } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
+import { performanceMonitor } from '../infrastructure/performance-monitor';
 
 const router = Router();
 
@@ -56,6 +57,82 @@ router.get('/api/admin/metrics', requireAuth, requireSuperAdmin, async (req: Req
       })
       .from(users);
     
+    // Get REAL performance metrics from the performance monitor
+    const perfMetrics = performanceMonitor.getMetrics();
+    const totalRequests = perfMetrics.requests.total;
+    const errorRate = totalRequests > 0 
+      ? (perfMetrics.requests.failed / totalRequests) * 100 
+      : 0;
+    const uptime = Math.min(99.9, 100 - errorRate); // Calculate uptime from error rate
+    
+    // Get REAL AI usage from database (last 30 days)
+    const aiResult = await db.execute(sql`
+      SELECT 
+        COALESCE(ai_provider, metadata->>'ai_provider', 'unknown') as provider,
+        COUNT(*) as call_count,
+        SUM((metadata->>'cost')::numeric) as total_cost,
+        AVG((metadata->>'response_time')::numeric) as avg_response_time,
+        COUNT(CASE WHEN verification_status = 'error' OR verification_status = 'failed' THEN 1 END) as error_count
+      FROM community_enrichment_history
+      WHERE created_at >= NOW() - (30 * INTERVAL '1 day')
+      GROUP BY COALESCE(ai_provider, metadata->>'ai_provider', 'unknown')
+    `);
+    
+    // Helper function for provider-specific default costs
+    const getProviderDefaultCost = (provider: string): number => {
+      switch(provider) {
+        case 'perplexity': return 0.005;
+        case 'claude': case 'anthropic': return 0.01;
+        case 'chatgpt': case 'openai': return 0.002;
+        default: return 0.005;
+      }
+    };
+    
+    // Process AI stats
+    let aiStats = {
+      totalRequests: 0,
+      perplexity: { calls: 0, cost: 0 },
+      claude: { calls: 0, cost: 0 },
+      chatgpt: { calls: 0, cost: 0 },
+      totalCost: 0,
+      totalErrors: 0,
+      avgResponseTime: 0
+    };
+    
+    let totalResponseTime = 0;
+    for (const row of aiResult.rows) {
+      const provider = (row.provider as string || '').toLowerCase();
+      const calls = Number(row.call_count) || 0;
+      // Only use default cost if metadata cost is null/undefined, not if it's 0
+      const dbCost = row.total_cost;
+      const cost = (dbCost !== null && dbCost !== undefined) 
+        ? Number(dbCost) 
+        : (calls * getProviderDefaultCost(provider));
+      const avgTime = Number(row.avg_response_time) || 0;
+      const errors = Number(row.error_count) || 0;
+      
+      if (provider === 'perplexity') {
+        aiStats.perplexity = { calls, cost };
+      } else if (provider === 'claude' || provider === 'anthropic') {
+        aiStats.claude = { calls, cost };
+      } else if (provider === 'chatgpt' || provider === 'openai') {
+        aiStats.chatgpt = { calls, cost };
+      }
+      
+      aiStats.totalRequests += calls;
+      aiStats.totalCost += cost;
+      aiStats.totalErrors += errors;
+      totalResponseTime += avgTime * calls;
+    }
+    
+    aiStats.avgResponseTime = aiStats.totalRequests > 0 
+      ? Math.round(totalResponseTime / aiStats.totalRequests) 
+      : 0;
+    
+    const aiSuccessRate = aiStats.totalRequests > 0 
+      ? ((aiStats.totalRequests - aiStats.totalErrors) / aiStats.totalRequests) * 100 
+      : 100;
+    
     // Return in format expected by DashboardMetrics interface
     res.json({
       platform: {
@@ -68,31 +145,31 @@ router.get('/api/admin/metrics', requireAuth, requireSuperAdmin, async (req: Req
         growthRate: 0,
       },
       performance: {
-        responseTime: 250,
-        uptime: 99.9,
-        errorRate: 0.2,
-        apiCalls: 0,
-        cacheHitRate: 85,
-        dbQueries: 0,
+        responseTime: Math.round(perfMetrics.requests.averageResponseTime) || 250,
+        uptime: Number(uptime.toFixed(1)),
+        errorRate: Number(errorRate.toFixed(2)),
+        apiCalls: totalRequests,
+        cacheHitRate: Math.round(perfMetrics.cache.hitRate) || 0,
+        dbQueries: Math.round(perfMetrics.database.queriesPerSecond * 60) || 0,
       },
       ai: {
-        totalRequests: 0,
+        totalRequests: aiStats.totalRequests,
         byProvider: {
-          claude: 0,
-          chatgpt: 0,
-          perplexity: 0,
+          claude: aiStats.claude.calls,
+          chatgpt: aiStats.chatgpt.calls,
+          perplexity: aiStats.perplexity.calls,
           gemini: 0,
           grok: 0,
         },
         costs: {
-          total: 0,
-          claude: 0,
-          chatgpt: 0,
-          perplexity: 0,
+          total: Number(aiStats.totalCost.toFixed(2)),
+          claude: Number(aiStats.claude.cost.toFixed(2)),
+          chatgpt: Number(aiStats.chatgpt.cost.toFixed(2)),
+          perplexity: Number(aiStats.perplexity.cost.toFixed(2)),
           gemini: 0,
         },
-        successRate: 0,
-        avgResponseTime: 0,
+        successRate: Number(aiSuccessRate.toFixed(1)),
+        avgResponseTime: aiStats.avgResponseTime,
       },
       financial: {
         revenue: {
@@ -131,6 +208,8 @@ router.get('/api/admin/metrics', requireAuth, requireSuperAdmin, async (req: Req
       // Legacy format for backwards compatibility
       communities: communityStats,
       users: userStats,
+      _source: 'database_and_performance_monitor',
+      _timestamp: new Date().toISOString()
     });
   } catch (error) {
     console.error('Error fetching admin metrics:', error);
