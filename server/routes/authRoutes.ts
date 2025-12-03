@@ -56,29 +56,34 @@ export function registerAuthRoutes(app: Express) {
         role: newUser.role
       };
 
-      // Send internal notification
-      try {
-        await internalNotifications.notifyUserRegistered({
-          userId: newUser.id,
-          userName: `${newUser.firstName} ${newUser.lastName}`.trim() || newUser.email,
-          userEmail: newUser.email,
-          role: newUser.role,
-          signupMethod: 'standard'
-        });
-      } catch (notificationError) {
+      // Send internal notification (async, don't block response)
+      internalNotifications.notifyUserRegistered({
+        userId: newUser.id,
+        userName: `${newUser.firstName} ${newUser.lastName}`.trim() || newUser.email,
+        userEmail: newUser.email,
+        role: newUser.role,
+        signupMethod: 'standard'
+      }).catch(notificationError => {
         console.error('Error sending internal user registration notification:', notificationError);
-        // Don't fail the registration if internal notification fails
-      }
+      });
 
-      res.status(201).json({
-        success: true,
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          role: newUser.role
+      // Explicitly save session before responding (consistent with login flow)
+      (req as any).session.save((err: Error | null) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ message: 'Failed to create account - session error' });
         }
+        
+        res.status(201).json({
+          success: true,
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            role: newUser.role
+          }
+        });
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
