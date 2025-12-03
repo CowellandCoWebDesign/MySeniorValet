@@ -91,39 +91,131 @@ export function SEO({
 }
 
 // Generate structured data for a senior living community
+// Enhanced with additional schema.org properties for better SEO
 export function generateCommunityStructuredData(community: any) {
+  // Map care types to schema.org ResidentialCommunity subtypes
+  const careTypeMap: Record<string, string> = {
+    'independent': 'IndependentLiving',
+    'assisted': 'AssistedLivingFacility', 
+    'memory': 'MemoryCareFacility',
+    'nursing': 'NursingHome',
+    'skilled': 'SkilledNursingFacility',
+    'rehabilitation': 'RehabilitationCenter',
+    'continuing': 'ContinuingCareRetirementCommunity'
+  };
+  
+  // Determine the best @type based on care types
+  const primaryCareType = community.careTypes?.[0]?.toLowerCase() || '';
+  const schemaType = careTypeMap[primaryCareType] || 'SeniorLiving';
+  
+  // Build comprehensive description
+  const careTypesText = community.careTypes?.length > 0 
+    ? community.careTypes.join(", ") 
+    : "senior living";
+  
+  const description = community.description && community.description.length > 100
+    ? community.description.slice(0, 300) + "..."
+    : `${community.name} offers ${careTypesText} services in ${community.city}, ${community.state}. Providing quality senior care with comprehensive amenities and services for seniors and their families.`;
+
+  // Build image array for better SEO
+  const images = community.photos?.length > 0 
+    ? community.photos.slice(0, 10)
+    : ["/default-community.jpg"];
+
   return {
     "@context": "https://schema.org",
-    "@type": "SeniorLiving",
+    "@type": ["LocalBusiness", schemaType],
+    "@id": `https://www.myseniorvalet.com/community/${community.id}#organization`,
     "name": community.name,
-    "description": `${community.name} is a ${community.careTypes?.join(", ")} community in ${community.city}, ${community.state}`,
+    "alternateName": community.alternateNames || undefined,
+    "description": description,
+    "url": `https://www.myseniorvalet.com/community/${community.id}`,
+    "image": images,
+    "logo": community.logo || undefined,
+    "telephone": community.phone,
+    "email": community.email || undefined,
     "address": {
       "@type": "PostalAddress",
       "streetAddress": community.address,
       "addressLocality": community.city,
       "addressRegion": community.state,
       "postalCode": community.zipCode,
-      "addressCountry": "US"
+      "addressCountry": community.country || "US"
     },
-    "telephone": community.phone,
-    "url": `https://www.myseniorvalet.com/community/${community.id}`,
-    "image": community.photos?.[0] || "/default-community.jpg",
-    "priceRange": community.priceRange ? `$${community.priceRange.min}-$${community.priceRange.max}` : community.rentPerMonth ? `$${community.rentPerMonth}` : "Contact for pricing",
-    "aggregateRating": community.rating ? {
-      "@type": "AggregateRating",
-      "ratingValue": community.rating,
-      "reviewCount": community.reviewCount || 0
-    } : undefined,
     "geo": community.latitude && community.longitude ? {
       "@type": "GeoCoordinates",
       "latitude": community.latitude,
       "longitude": community.longitude
     } : undefined,
+    "hasMap": community.latitude && community.longitude 
+      ? `https://www.google.com/maps?q=${community.latitude},${community.longitude}`
+      : undefined,
+    "priceRange": community.priceRange 
+      ? `$${community.priceRange.min?.toLocaleString()}-$${community.priceRange.max?.toLocaleString()}/month` 
+      : community.rentPerMonth 
+        ? `$${Number(community.rentPerMonth).toLocaleString()}/month`
+        : "Contact for pricing",
+    "currenciesAccepted": "USD",
+    "paymentAccepted": ["Cash", "Credit Card", "Check", "Medicare", "Medicaid", "Long-term Care Insurance"].filter(Boolean),
+    "aggregateRating": community.rating && community.rating > 0 ? {
+      "@type": "AggregateRating",
+      "ratingValue": community.rating.toFixed(1),
+      "bestRating": "5",
+      "worstRating": "1",
+      "ratingCount": community.reviewCount || 1,
+      "reviewCount": community.reviewCount || 1
+    } : undefined,
     "amenityFeature": community.amenities?.map((amenity: string) => ({
       "@type": "LocationFeatureSpecification",
       "name": amenity,
       "value": true
-    }))
+    })),
+    "speciality": community.careTypes || ["Senior Living"],
+    "numberOfRooms": community.capacity || undefined,
+    "petsAllowed": community.petFriendly || undefined,
+    "smokingAllowed": false,
+    "isAccessibleForFree": false,
+    "openingHoursSpecification": {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+      "opens": "00:00",
+      "closes": "23:59"
+    },
+    "sameAs": [
+      community.website,
+      community.facebookUrl,
+      community.linkedinUrl
+    ].filter(Boolean),
+    "potentialAction": {
+      "@type": "ReserveAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": `https://www.myseniorvalet.com/community/${community.id}?action=schedule-tour`,
+        "actionPlatform": ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"]
+      },
+      "result": {
+        "@type": "Reservation",
+        "name": "Schedule a Tour"
+      }
+    }
+  };
+}
+
+// Generate LocalBusiness structured data for organization schema
+export function generateOrganizationStructuredData(community: any) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "@id": `https://www.myseniorvalet.com/community/${community.id}#org`,
+    "name": community.name,
+    "url": `https://www.myseniorvalet.com/community/${community.id}`,
+    "logo": community.logo || community.photos?.[0],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": community.phone,
+      "contactType": "customer service",
+      "availableLanguage": ["English", "Spanish"]
+    }
   };
 }
 
@@ -155,4 +247,88 @@ export function generateFAQStructuredData(faqs: Array<{ question: string; answer
       }
     }))
   };
+}
+
+// Generate Review structured data for individual reviews
+export function generateReviewStructuredData(review: {
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+  communityName: string;
+  communityId: string;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Review",
+    "itemReviewed": {
+      "@type": "LocalBusiness",
+      "name": review.communityName,
+      "@id": `https://www.myseniorvalet.com/community/${review.communityId}#organization`
+    },
+    "author": {
+      "@type": "Person",
+      "name": review.author
+    },
+    "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": review.rating,
+      "bestRating": "5",
+      "worstRating": "1"
+    },
+    "reviewBody": review.text,
+    "datePublished": review.date
+  };
+}
+
+// Generate Product structured data for pricing display
+export function generateServiceStructuredData(community: any) {
+  const services = [];
+  
+  if (community.careTypes?.includes('Independent Living')) {
+    services.push({
+      "@type": "Service",
+      "name": "Independent Living",
+      "description": `Independent living services at ${community.name}`,
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": community.name
+      },
+      "offers": community.priceRange?.independent ? {
+        "@type": "Offer",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": community.priceRange.independent,
+          "priceCurrency": "USD",
+          "unitCode": "MON"
+        }
+      } : undefined
+    });
+  }
+  
+  if (community.careTypes?.includes('Assisted Living')) {
+    services.push({
+      "@type": "Service", 
+      "name": "Assisted Living",
+      "description": `Assisted living care at ${community.name}`,
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": community.name
+      }
+    });
+  }
+  
+  if (community.careTypes?.includes('Memory Care')) {
+    services.push({
+      "@type": "Service",
+      "name": "Memory Care",
+      "description": `Memory care and Alzheimer's care at ${community.name}`,
+      "provider": {
+        "@type": "LocalBusiness",
+        "name": community.name
+      }
+    });
+  }
+  
+  return services;
 }

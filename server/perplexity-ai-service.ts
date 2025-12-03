@@ -44,64 +44,101 @@ export class PerplexityAIService {
     }
 
     try {
-      const systemPrompt = `You are a senior living research expert. Provide comprehensive community information.
+      const systemPrompt = `You are an expert senior living research analyst providing comprehensive, SEO-optimized community information for family caregivers searching for senior living options.
 
-${context ? `Target: ${context}` : ''}
+${context ? `Target Facility: ${context}` : ''}
 
-Provide a detailed overview, then include ALL the following sections (use "Not found" if unavailable):
+**IMPORTANT: Write in a natural, informative style that helps families make informed decisions. Include specific facts, numbers, and details.**
 
-**OFFICIAL WEBSITE:** [URL or "Not found"]
+Provide information in this structured format:
 
-**PRICING & RATES:**
-- Monthly rates by care level (Independent, Assisted, Memory Care)
-- Entry fees or deposits
-- Additional service fees
-- Financial assistance programs accepted
+## Overview
+Write a compelling 2-3 paragraph overview of this community highlighting what makes it unique, its care philosophy, and who it's best suited for. Include the year established, capacity, and any notable features.
 
-**FLOOR PLANS & ROOM OPTIONS:**
-- Available room types (studio, 1BR, 2BR, suites)
-- Square footage ranges
-- Private vs shared rooms
-- Special features (kitchenettes, balconies)
+## Pricing & Financial Information
+### Monthly Rates (provide ranges when exact rates unavailable)
+- Independent Living: $X,XXX - $X,XXX/month
+- Assisted Living: $X,XXX - $X,XXX/month  
+- Memory Care: $X,XXX - $X,XXX/month
+- Skilled Nursing: $X,XXX - $X,XXX/month
 
-**CONTACT INFORMATION:**
-- Phone number
-- Full address
-- Email if available
-- Tours/admissions contact
+### Additional Costs
+- Entry/Community Fee: $X,XXX
+- Second Person Fee: $X,XXX/month
+- Level of Care Charges: Starting at $X,XXX/month
 
-**CARE LEVELS & SERVICES:**
-- All care types offered
-- Specialized programs (dementia, Parkinson's, diabetes)
-- Medical services on-site
-- Therapy services (PT, OT, Speech)
-- Hospice/palliative care
+### Financial Assistance
+List accepted: Medicare, Medicaid, VA Benefits, Long-term Care Insurance, etc.
 
-**AMENITIES & FEATURES:**
-- Dining (number of meals, restaurant-style, special diets)
-- Activities & social programs
-- Transportation services
-- Pet policies
-- Beauty salon/barber
-- Fitness facilities
-- Outdoor spaces
+## Room Types & Floor Plans
+List all available options with square footage:
+- Studio apartments (XXX-XXX sq ft)
+- One-bedroom apartments (XXX-XXX sq ft)
+- Two-bedroom apartments (XXX-XXX sq ft)
+- Companion/shared rooms
+- Private rooms
 
-**STAFFING & CARE:**
-- Staff-to-resident ratios
+## Care Services & Medical Support
+### Care Levels Offered
+- Independent Living
+- Assisted Living
+- Memory Care/Alzheimer's Care
+- Skilled Nursing
+- Rehabilitation Services
+
+### Medical Services On-Site
 - 24/7 nursing availability
-- Staff qualifications
-- Languages spoken
+- Medication management
+- Physical therapy, occupational therapy, speech therapy
+- Specialized care programs (diabetes, Parkinson's, cardiac)
 
-**ADDITIONAL DETAILS:**
-- Visiting hours
-- Religious services
-- Insurance accepted (Medicare, Medicaid, private)
-- Respite care availability
-- Year established
-- Number of residents/capacity
-- Recent awards or certifications
+### Staff Qualifications
+- Staff-to-resident ratios
+- Nurse credentials (RN, LPN)
+- Caregiver training and certifications
 
-Include specific details, prices, and numbers whenever available.`;
+## Amenities & Lifestyle
+### Dining
+- Meals per day, dining style
+- Special diets accommodated
+- Restaurant-style vs cafeteria
+
+### Activities & Programs
+- Daily activities, entertainment
+- Fitness programs, wellness center
+- Religious services, spiritual programs
+- Educational and social events
+
+### Community Features
+- Beauty salon/barber shop
+- Library, computer center
+- Outdoor spaces, gardens
+- Pet-friendly policies
+- Transportation services
+
+## Contact Information
+- **Phone:** (XXX) XXX-XXXX
+- **Address:** Full street address, City, State ZIP
+- **Website:** Full URL
+- **Email:** if available
+
+## Recent Reviews & Ratings
+Summarize recent feedback from Google Reviews, Yelp, or Caring.com including:
+- Average rating (X.X/5 stars)
+- Number of reviews
+- Common praise and concerns
+- Notable quotes from families
+
+## Health & Safety
+- Most recent inspection results
+- Any violations or citations  
+- Compliance status
+- COVID-19 protocols if relevant
+
+## Virtual Tour & Photos
+If available, note virtual tour links and describe facility appearance.
+
+Include specific numbers, prices, and factual details wherever possible. For unavailable information, state "Contact community for current information" rather than "Not found".`;
 
       const response = await axios.post<PerplexityResponse>(
         this.baseUrl,
@@ -117,15 +154,15 @@ Include specific details, prices, and numbers whenever available.`;
               content: query
             }
           ],
-          max_tokens: 3000,  // Increased for more complete responses
-          temperature: 0.2,
-          top_p: 0.9,
+          max_tokens: 4000,  // Increased for more comprehensive SEO content
+          temperature: 0.1,  // Lower temperature for more factual, consistent responses
+          top_p: 0.95,
           return_images: true,  // Include images from search results
           return_related_questions: false,
-          search_domain_filter: [],  // Search all domains for maximum photo coverage
-          search_recency_filter: undefined,  // No time restriction - search all available data from last 2+ years
+          search_domain_filter: [],  // Search all domains for maximum coverage
+          search_recency_filter: 'year',  // Focus on recent data for accuracy
           web_search_options: {
-            search_context_size: "medium"  // Medium context for balanced cost and quality
+            search_context_size: "high"  // High context for comprehensive data
           },
           stream: false
         },
@@ -133,7 +170,8 @@ Include specific details, prices, and numbers whenever available.`;
           headers: {
             'Authorization': `Bearer ${this.apiKey}`,
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 60000  // 60 second timeout for comprehensive searches
         }
       );
 
