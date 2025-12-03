@@ -428,6 +428,12 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
+                    <Link href="/security-settings" className="flex items-center space-x-2 w-full cursor-pointer" data-testid="link-security-settings">
+                      <Shield className="h-4 w-4" />
+                      <span>Security Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/accessibility" className="flex items-center space-x-2 w-full cursor-pointer">
                       <Accessibility className="h-4 w-4" />
                       <span>Accessibility</span>
