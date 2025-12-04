@@ -73,27 +73,119 @@ const discoveredCommunitySchema = z.object({
 async function validateBusinessExists(businessName: string, city?: string, state?: string): Promise<boolean> {
   // Skip validation to improve performance - was causing 90+ second delays
   return true;
+}
+
+// AUTO-APPROVAL VERIFICATION FUNCTION
+// Determines if a discovered community should be auto-approved or needs manual review
+interface VerificationResult {
+  isVerified: boolean;
+  autoApproved: boolean;
+  suspiciousReasons: string[];
+  confidenceScore: number;
+}
+
+function verifyCommunityForAutoApproval(community: {
+  name: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  description?: string;
+  careTypes?: string[];
+}): VerificationResult {
+  const suspiciousReasons: string[] = [];
+  let confidenceScore = 0;
   
-  // Original expensive validation code commented out:
-  /*
-  try {
-    const location = [city, state].filter(Boolean).join(', ');
-    console.log(`🔍 Validating business exists: ${businessName}${location ? ` in ${location}` : ''}`);
-    
-    // Use new Search API for cost-effective validation ($5/1K vs higher Sonar Pro costs)
-    const validation = await perplexitySearchAPI.validateBusinessExists(businessName, location);
-    
-    // Consider it valid if confidence is 50% or higher, or if we have multiple sources
-    const isValid = validation.confidence >= 50 || validation.sources.length >= 2;
-    
-    console.log(`✅ Search API validation: ${businessName} = ${isValid ? 'VALID' : 'INVALID'} (confidence: ${validation.confidence}%, sources: ${validation.sources.length})`);
-    
-    return isValid;
-  } catch (error) {
-    console.error('⚠️ Business validation error:', error);
-    return true; // Default to true if validation fails
+  // Suspicious name patterns (needs manual review)
+  const suspiciousNamePatterns = [
+    /^test/i,
+    /^sample/i,
+    /^example/i,
+    /^placeholder/i,
+    /^demo/i,
+    /^xxx/i,
+    /^aaa/i,
+    /unknown/i,
+    /^[0-9]+$/,
+    /lorem ipsum/i,
+  ];
+  
+  // Check name validity
+  if (!community.name || community.name.length < 3) {
+    suspiciousReasons.push('Name too short or missing');
+  } else if (suspiciousNamePatterns.some(pattern => pattern.test(community.name))) {
+    suspiciousReasons.push('Name contains suspicious test/placeholder pattern');
+  } else {
+    confidenceScore += 20;
   }
-  */
+  
+  // Check address validity
+  if (community.address && 
+      community.address !== 'Address pending verification' && 
+      community.address.length > 5) {
+    confidenceScore += 20;
+  } else {
+    suspiciousReasons.push('Missing or invalid address');
+  }
+  
+  // Check city and state
+  if (community.city && community.city !== 'Unknown' && community.city.length > 1) {
+    confidenceScore += 15;
+  } else {
+    suspiciousReasons.push('Missing or invalid city');
+  }
+  
+  if (community.state && community.state !== 'Unknown' && community.state.length >= 2) {
+    confidenceScore += 10;
+  } else {
+    suspiciousReasons.push('Missing or invalid state');
+  }
+  
+  // Check contact information (at least one required for verification)
+  const hasPhone = community.phone && community.phone.length >= 7;
+  const hasEmail = community.email && community.email.includes('@');
+  const hasWebsite = community.website && (
+    community.website.includes('http') || 
+    community.website.includes('www') ||
+    community.website.includes('.com') ||
+    community.website.includes('.org')
+  );
+  
+  if (hasPhone) confidenceScore += 15;
+  if (hasEmail) confidenceScore += 10;
+  if (hasWebsite) confidenceScore += 10;
+  
+  if (!hasPhone && !hasEmail && !hasWebsite) {
+    suspiciousReasons.push('No contact information (phone, email, or website)');
+  }
+  
+  // Check if care types are specified
+  if (community.careTypes && community.careTypes.length > 0 && 
+      !community.careTypes.includes('Unknown')) {
+    confidenceScore += 10;
+  }
+  
+  // Auto-approve if:
+  // 1. Confidence score >= 60 (has name, address, city/state, and at least one contact method)
+  // 2. No critical suspicious reasons
+  const criticalReasons = suspiciousReasons.filter(r => 
+    r.includes('Name') || r.includes('contact information')
+  );
+  
+  const isVerified = confidenceScore >= 60;
+  const autoApproved = isVerified && criticalReasons.length === 0;
+  
+  console.log(`🔍 Auto-approval check for "${community.name}": score=${confidenceScore}, verified=${isVerified}, autoApproved=${autoApproved}${suspiciousReasons.length > 0 ? ', reasons: ' + suspiciousReasons.join('; ') : ''}`);
+  
+  return {
+    isVerified,
+    autoApproved,
+    suspiciousReasons,
+    confidenceScore
+  };
 }
 
 export function setupGlobalDiscoveryRoutes(app: Express) {
@@ -1203,12 +1295,35 @@ Keep responses concise and focus on the most relevant results.`;
                 }
               }
 
+              // AUTO-APPROVAL: Check if community meets verification criteria
+              const preparedAddress = discovered.address || discovered.location || 'Address pending verification';
+              const preparedCity = discovered.city || query.split(',')[0] || 'Unknown';
+              const preparedState = discovered.state || query.split(',')[1]?.trim() || 'Unknown';
+              
+              const verificationResult = verifyCommunityForAutoApproval({
+                name: discovered.name,
+                address: preparedAddress,
+                city: preparedCity,
+                state: preparedState,
+                country: discovered.country || defaultCountry,
+                phone: discovered.phone,
+                email: discovered.email,
+                website: websiteUrl || undefined,
+                description: discovered.description,
+                careTypes: discovered.careTypes
+              });
+
+              // Set enrichment status based on verification
+              // 'completed' = auto-approved and ready for display
+              // 'pending' = needs manual review in approval queue
+              const enrichmentStatus = verificationResult.autoApproved ? 'completed' : 'pending';
+
               const [newCommunity] = await db.insert(communities)
                 .values({
                   name: discovered.name,
-                  address: discovered.address || discovered.location || 'Address pending verification',
-                  city: discovered.city || query.split(',')[0] || 'Unknown',
-                  state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                  address: preparedAddress,
+                  city: preparedCity,
+                  state: preparedState,
                   country: discovered.country || defaultCountry,
                   zipCode: discovered.zipCode || '00000',
                   latitude: latitude,
@@ -1222,15 +1337,17 @@ Keep responses concise and focus on the most relevant results.`;
                   data_source: 'AI Discovery (Perplexity Global Search)',
                   discoverySource: 'Global Discovery Search',
                   discoveryDate: new Date(),
-                  enrichmentStatus: 'pending',
-                  enrichmentCompleted: false,
+                  enrichmentStatus: enrichmentStatus,
+                  enrichmentCompleted: verificationResult.autoApproved,
                   enrichmentHistory: [{
                     timestamp: new Date().toISOString(),
                     source: 'Perplexity Global Search',
                     fieldsUpdated: ['initial_discovery'],
-                    autoApproved: false
-                  }] as any[], // Cast to any[] to match JSON type
-                  isVerified: false
+                    autoApproved: verificationResult.autoApproved,
+                    confidenceScore: verificationResult.confidenceScore,
+                    suspiciousReasons: verificationResult.suspiciousReasons
+                  }] as any[],
+                  isVerified: verificationResult.autoApproved
                 })
                 .returning();
               
@@ -1692,6 +1809,88 @@ Keep responses concise and focus on the most relevant results.`;
       res.status(500).json({ 
         success: false,
         error: 'Failed to reject community' 
+      });
+    }
+  });
+  
+  // Bulk approve all verified communities (communities that pass verification criteria)
+  app.post('/api/global-discovery/bulk-approve-verified', async (req, res) => {
+    try {
+      // Get all pending communities
+      const pendingCommunities = await db.select()
+        .from(communities)
+        .where(
+          and(
+            eq(communities.enrichmentStatus, 'pending'),
+            eq(communities.discoverySource, 'Global Discovery Search')
+          )
+        );
+      
+      let approvedCount = 0;
+      let skippedCount = 0;
+      const approvedIds: number[] = [];
+      const skippedReasons: Array<{ id: number; name: string; reasons: string[] }> = [];
+      
+      for (const community of pendingCommunities) {
+        // Run verification check
+        const verificationResult = verifyCommunityForAutoApproval({
+          name: community.name,
+          address: community.address,
+          city: community.city,
+          state: community.state,
+          country: community.country || undefined,
+          phone: community.phone || undefined,
+          email: community.email || undefined,
+          website: community.website || undefined,
+          description: community.description || undefined,
+          careTypes: community.careTypes
+        });
+        
+        if (verificationResult.autoApproved) {
+          // Auto-approve this community
+          await db.update(communities)
+            .set({
+              enrichmentStatus: 'completed',
+              enrichmentCompleted: true,
+              isVerified: true,
+              data_source: 'Verified via Global Discovery (Auto-Approved)',
+              enrichmentHistory: sql`array_append(enrichment_history, ${JSON.stringify({
+                timestamp: new Date().toISOString(),
+                source: 'Bulk Auto-Approval',
+                fieldsUpdated: ['status_auto_approved'],
+                confidenceScore: verificationResult.confidenceScore,
+                autoApproved: true
+              })}::jsonb)`
+            })
+            .where(eq(communities.id, community.id));
+          
+          approvedCount++;
+          approvedIds.push(community.id);
+        } else {
+          skippedCount++;
+          skippedReasons.push({
+            id: community.id,
+            name: community.name,
+            reasons: verificationResult.suspiciousReasons
+          });
+        }
+      }
+      
+      console.log(`✅ Bulk auto-approval complete: ${approvedCount} approved, ${skippedCount} need manual review`);
+      
+      res.json({
+        success: true,
+        approved: approvedCount,
+        skipped: skippedCount,
+        approvedIds,
+        skippedReasons,
+        message: `Successfully auto-approved ${approvedCount} verified communities. ${skippedCount} communities require manual review.`
+      });
+    } catch (error) {
+      console.error('Error in bulk auto-approval:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to process bulk auto-approval' 
       });
     }
   });
