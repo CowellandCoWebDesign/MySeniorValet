@@ -2017,13 +2017,12 @@ export default function MySeniorValetHome() {
       {/* Unified Tab System for Hero and Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Transforming Hero Section with Search - Mobile optimized */}
-        {/* Lowered z-index to z-0 so content below isn't clipped; search capsule handles its own z-index */}
-        <div className="relative z-0">
+        {/* Hero section needs higher z-index so search dropdown appears above content */}
+        <div className="relative z-20">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
           {/* Tab Content - Positioned below hero with proper spacing */}
-          {/* Removed negative margins completely to prevent content sliding under hero */}
-          <div className="relative mt-0 z-10">
+          <div className="relative mt-0">
             {/* Single unified content container */}
             <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
@@ -2059,19 +2058,11 @@ export default function MySeniorValetHome() {
                     </div>
                     <CardTitle className="relative z-10 text-2xl sm:text-3xl md:text-4xl font-bold py-4">Global Senior Living Directory</CardTitle>
                   </div>
-                  {/* Community count below title */}
-                  <div className="flex items-center gap-2 mt-2">
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-xl font-bold text-foreground">
-                      {communityStats?.communities || '33,863'}
-                    </span>
-                    <span className="text-sm text-muted-foreground">Senior Living Communities</span>
-                  </div>
                 </CardHeader>
                 <CardContent className="relative z-10">
                   {/* Featured Excellence Communities - Moved from below */}
                   <div className="mb-6">
-                    <RedTagDeals />
+                    <RedTagDeals communityCount={communityStats?.communities || '33,874'} />
                   </div>
 
                   {/* Recently Discovered Communities Section */}
@@ -3836,7 +3827,7 @@ export default function MySeniorValetHome() {
         </div>
       </Tabs>
 
-{/* Senior Living Command Center Section - Moved after Resources */}
+      {/* Senior Living Command Center Section - Moved after Resources */}
       <section className="relative overflow-hidden">
         {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
         <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">

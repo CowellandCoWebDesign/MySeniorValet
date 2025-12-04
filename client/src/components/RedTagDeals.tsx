@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, Star, 
-         MapPin, Wifi, Car, Utensils, Activity, Heart, Users, Shield } from "lucide-react";
+         MapPin, Wifi, Car, Utensils, Activity, Heart, Users, Shield, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -22,7 +22,11 @@ interface RedTagDeal {
   whyFeatured: string[];
 }
 
-export function RedTagDeals() {
+interface RedTagDealsProps {
+  communityCount?: string;
+}
+
+export function RedTagDeals({ communityCount }: RedTagDealsProps) {
   const [fallbackDeals, setFallbackDeals] = useState<RedTagDeal[]>([]);
   
   // Fetch featured communities from API
@@ -182,14 +186,10 @@ export function RedTagDeals() {
   
   return (
     <div className="space-y-4">
-      <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4 text-center">
-        Outstanding senior living communities showcasing excellence across five countries
-      </p>
-
-      {/* Featured Communities Alert - Compact */}
+      {/* Featured Communities Alert - Compact with Community Count */}
       <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
         <CardContent className="py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-2">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-full">
                 <Star className="w-4 h-4 text-orange-600" />
@@ -199,9 +199,18 @@ export function RedTagDeals() {
                 <p className="text-xs text-muted-foreground">Premium communities across 5 countries</p>
               </div>
             </div>
-            <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
-              {redTagDeals.length} Featured
-            </Badge>
+            <div className="flex items-center gap-3">
+              {communityCount && (
+                <div className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded-full">
+                  <TrendingUp className="h-3.5 w-3.5 text-green-600" />
+                  <span className="text-sm font-bold text-green-700 dark:text-green-400">{communityCount}</span>
+                  <span className="text-xs text-green-600 dark:text-green-500 hidden sm:inline">Total</span>
+                </div>
+              )}
+              <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
+                {redTagDeals.length} Featured
+              </Badge>
+            </div>
           </div>
         </CardContent>
       </Card>
