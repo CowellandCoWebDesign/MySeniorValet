@@ -51,7 +51,7 @@ export function RecentlyDiscoveredCommunities() {
     <div className="space-y-6">
       {/* Section Title */}
       <div className="text-center">
-        <div className="flex items-center justify-center gap-3 mb-2">
+        <div className="flex items-center justify-center gap-3">
           <Sparkles className="w-7 h-7 text-yellow-400 animate-pulse" />
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
             Recently Discovered Communities
@@ -60,9 +60,6 @@ export function RecentlyDiscoveredCommunities() {
             🔥 NEW
           </Badge>
         </div>
-        <p className="text-base text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Fresh additions to our database - Real communities discovered through our AI-powered search
-        </p>
       </div>
 
       {/* Communities Carousel */}
