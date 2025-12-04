@@ -189,9 +189,9 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
     : community.rating || 4.5;
 
   return (
-    <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 ${compact ? '' : ''}`}>
+    <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 flex flex-col ${compact ? 'w-[280px] min-w-[280px] max-w-[280px]' : 'w-[300px] min-w-[300px] max-w-[300px]'} h-full`}>
       {/* Hero Image with Carousel */}
-      <div className={`relative ${compact ? 'h-36' : 'h-40'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900`}>
+      <div className={`relative ${compact ? 'h-36' : 'h-40'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900 flex-shrink-0`}>
         {enrichedPhotos && enrichedPhotos.length > 0 ? (
           <>
             <img 
@@ -305,47 +305,17 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
         </div>
       </div>
 
-      <CardContent className={compact ? 'p-2.5' : 'p-3'}>
-        {/* Header with community info and rating */}
-        <div className={`flex justify-between items-start ${compact ? 'mb-2' : 'mb-3'}`}>
-          {/* Left: Community info */}
-          <div className="flex-1 pr-3">
-            <h3 className={`${compact ? 'text-sm' : 'text-base'} font-bold mb-1 leading-tight text-gray-900 dark:text-white`}>
-              {community.name}
-            </h3>
-            {/* Location - show address if available, otherwise just city/state (never both to avoid duplication) */}
-            <div className="flex items-start gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5" data-testid={`location-${community.id}`}>
-              <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
-              <span className="line-clamp-1">
-                {community.address 
-                  ? community.address 
-                  : `${community.city}, ${community.state}`}
-              </span>
-            </div>
-            {/* Phone display - show actual phone number if available */}
-            {community.phone && (
-              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5" data-testid={`phone-display-${community.id}`}>
-                <span>📞</span>
-                <span>{community.phone}</span>
-              </div>
-            )}
-            {/* Action buttons - only show if actual data exists */}
-            <div className="flex items-center gap-3 text-xs">
-              {community.phone && (
-                <a href={`tel:${community.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer" data-testid={`link-call-${community.id}`}>📞 Call</a>
-              )}
-              {community.website && (
-                <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer" data-testid={`link-website-${community.id}`}>🌐 Website</a>
-              )}
-              <Link href={`/community/${community.id}?tab=tour`} data-testid={`link-tour-${community.id}`}>
-                <span className="text-green-600 dark:text-green-400 hover:underline cursor-pointer">📅 Tour</span>
-              </Link>
-            </div>
-          </div>
+      <CardContent className={`${compact ? 'p-2.5' : 'p-3'} flex flex-col flex-grow`}>
+        {/* Header with community name and rating */}
+        <div className={`flex justify-between items-start ${compact ? 'mb-1.5' : 'mb-2'}`}>
+          {/* Left: Community name */}
+          <h3 className={`${compact ? 'text-sm' : 'text-base'} font-bold leading-tight text-gray-900 dark:text-white line-clamp-2 flex-1 pr-2`}>
+            {community.name}
+          </h3>
 
           {/* Right: Rating */}
           <div className="text-right flex-shrink-0">
-            <div className="flex items-center gap-0.5 justify-end mb-1">
+            <div className="flex items-center gap-0.5 justify-end">
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
@@ -359,6 +329,78 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
               <span className="text-xs ml-1 text-gray-700 dark:text-gray-300">({!isNaN(rating) ? rating.toFixed(1) : '4.5'})</span>
             </div>
           </div>
+        </div>
+
+        {/* Uniform Contact Information Section */}
+        <div className="space-y-1 mb-2 text-xs text-gray-600 dark:text-gray-400" data-testid={`contact-section-${community.id}`}>
+          {/* Address line (if available) */}
+          {community.address && (
+            <div className="flex items-start gap-1.5" data-testid={`address-${community.id}`}>
+              <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-500" />
+              <span className="line-clamp-1">{community.address}</span>
+            </div>
+          )}
+          
+          {/* City, State (always shown) */}
+          <div className="flex items-center gap-1.5" data-testid={`city-state-${community.id}`}>
+            {!community.address && <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500" />}
+            {community.address && <span className="w-3 flex-shrink-0" />}
+            <span>{community.city}, {community.state}</span>
+          </div>
+          
+          {/* Phone (if available) */}
+          {community.phone && (
+            <div className="flex items-center gap-1.5" data-testid={`phone-${community.id}`}>
+              <span className="w-3 text-center flex-shrink-0">📞</span>
+              <a href={`tel:${community.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                {community.phone}
+              </a>
+            </div>
+          )}
+          
+          {/* Website (if available) */}
+          {community.website && (
+            <div className="flex items-center gap-1.5" data-testid={`website-${community.id}`}>
+              <span className="w-3 text-center flex-shrink-0">🌐</span>
+              <a 
+                href={community.website.startsWith('http') ? community.website : `https://${community.website}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="text-blue-600 dark:text-blue-400 hover:underline truncate"
+              >
+                Website
+              </a>
+            </div>
+          )}
+        </div>
+
+        {/* Action buttons row */}
+        <div className="flex items-center gap-2 text-xs mb-2">
+          {community.phone && (
+            <a 
+              href={`tel:${community.phone}`} 
+              className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" 
+              data-testid={`link-call-${community.id}`}
+            >
+              📞 Call
+            </a>
+          )}
+          {community.website && (
+            <a 
+              href={community.website.startsWith('http') ? community.website : `https://${community.website}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="flex items-center gap-1 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors" 
+              data-testid={`link-website-${community.id}`}
+            >
+              🌐 Website
+            </a>
+          )}
+          <Link href={`/community/${community.id}?tab=tour`} data-testid={`link-tour-${community.id}`}>
+            <span className="flex items-center gap-1 px-2 py-1 rounded bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors cursor-pointer">
+              📅 Tour
+            </span>
+          </Link>
         </div>
 
         {/* Care Types as badges */}

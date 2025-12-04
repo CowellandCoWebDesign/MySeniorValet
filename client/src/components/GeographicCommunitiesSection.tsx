@@ -187,16 +187,18 @@ export function GeographicCommunitiesSection() {
             <div ref={hawaiiSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400" style={{scrollBehavior: 'smooth'}}>
               {(hawaiiLoading || !hawaiiCommunities || !(hawaiiCommunities as any)?.communities?.length) ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="flex-shrink-0 w-72 h-[420px] bg-gradient-to-br from-cyan-900/50 to-blue-900/50 rounded-xl border border-cyan-500/30 overflow-hidden animate-pulse">
-                    <div className="h-40 bg-gradient-to-br from-cyan-800/50 to-blue-800/50"></div>
-                    <div className="p-4 space-y-3">
+                  <div key={index} className="flex-shrink-0 w-[280px] min-w-[280px] max-w-[280px] h-[380px] bg-gradient-to-br from-cyan-900/50 to-blue-900/50 rounded-xl border border-cyan-500/30 overflow-hidden animate-pulse">
+                    <div className="h-36 bg-gradient-to-br from-cyan-800/50 to-blue-800/50"></div>
+                    <div className="p-3 space-y-3">
                       <div className="h-5 bg-cyan-800/50 rounded"></div>
                       <div className="h-4 bg-cyan-800/50 rounded w-3/4"></div>
+                      <div className="h-3 bg-cyan-800/50 rounded w-1/2"></div>
+                      <div className="h-3 bg-cyan-800/50 rounded w-2/3"></div>
                     </div>
                   </div>
                 ))
               ) : (
-                ((hawaiiCommunities as any)?.communities || []).map((community: any, index: number) => (
+                ((hawaiiCommunities as any)?.communities || []).slice(0, 12).map((community: any, index: number) => (
                   <div key={`hawaii-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-hawaii-community-${community.id}`}>
                     <FeaturedExcellenceCard 
                       community={{
@@ -287,7 +289,7 @@ export function GeographicCommunitiesSection() {
             <div ref={texasSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-orange-500 dark:scrollbar-thumb-orange-400" style={{scrollBehavior: 'smooth'}}>
               {(texasLoading || !texasCommunities || !(texasCommunities as any)?.communities?.length) ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="flex-shrink-0 w-72 h-[420px] bg-gradient-to-br from-orange-900/50 to-red-900/50 rounded-xl border border-orange-500/30 overflow-hidden animate-pulse">
+                  <div key={index} className="flex-shrink-0 w-[280px] min-w-[280px] max-w-[280px] h-[380px] bg-gradient-to-br from-orange-900/50 to-red-900/50 rounded-xl border border-orange-500/30 overflow-hidden animate-pulse">
                     <div className="h-40 bg-gradient-to-br from-orange-800/50 to-red-800/50"></div>
                     <div className="p-4 space-y-3">
                       <div className="h-5 bg-orange-800/50 rounded"></div>
@@ -387,7 +389,7 @@ export function GeographicCommunitiesSection() {
             <div ref={newYorkSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-purple-500 dark:scrollbar-thumb-purple-400" style={{scrollBehavior: 'smooth'}}>
               {(newYorkLoading || !newYorkCommunities || !(newYorkCommunities as any)?.communities?.length) ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="flex-shrink-0 w-72 h-[420px] bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-xl border border-purple-500/30 overflow-hidden animate-pulse">
+                  <div key={index} className="flex-shrink-0 w-[280px] min-w-[280px] max-w-[280px] h-[380px] bg-gradient-to-br from-purple-900/50 to-indigo-900/50 rounded-xl border border-purple-500/30 overflow-hidden animate-pulse">
                     <div className="h-40 bg-gradient-to-br from-purple-800/50 to-indigo-800/50"></div>
                     <div className="p-4 space-y-3">
                       <div className="h-5 bg-purple-800/50 rounded"></div>
@@ -730,7 +732,7 @@ export function GeographicCommunitiesSection() {
             <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400" style={{scrollBehavior: 'smooth'}}>
               {(cubaLoading || !cubaCommunities || !(cubaCommunities as any)?.communities?.length) ? (
                 Array.from({ length: 4 }).map((_, index) => (
-                  <div key={index} className="flex-shrink-0 w-72 h-[420px] bg-gradient-to-br from-blue-900/50 to-red-900/50 rounded-xl border border-blue-500/30 overflow-hidden animate-pulse">
+                  <div key={index} className="flex-shrink-0 w-[280px] min-w-[280px] max-w-[280px] h-[380px] bg-gradient-to-br from-blue-900/50 to-red-900/50 rounded-xl border border-blue-500/30 overflow-hidden animate-pulse">
                     <div className="h-40 bg-gradient-to-br from-blue-800/50 to-red-800/50"></div>
                     <div className="p-4 space-y-3">
                       <div className="h-5 bg-blue-800/50 rounded"></div>
