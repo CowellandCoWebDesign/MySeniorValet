@@ -32,6 +32,7 @@ import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 import { RedTagDeals } from "@/components/RedTagDeals";
+import { GeographicCommunitiesSection } from "@/components/GeographicCommunitiesSection";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
@@ -2059,6 +2060,11 @@ export default function MySeniorValetHome() {
                   {/* Featured Communities & Savings Tips */}
                   <div className="mb-6">
                     <RedTagDeals hideHeader={true} />
+                  </div>
+
+                  {/* Geographic Communities Section - Hawaii, Fort Worth, NYC, Canadian, Puerto Rico, Peru, Cuba, Costa Rica, Panama */}
+                  <div className="mb-6">
+                    <GeographicCommunitiesSection />
                   </div>
 
                   {/* 3D Care Spectrum Mini Carousel */}
