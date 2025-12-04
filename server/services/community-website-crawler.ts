@@ -1005,23 +1005,23 @@ export class CommunityWebsiteCrawler {
     try {
       const pageText = await page.textContent('body') || '';
       
-      // Look for pricing patterns
-      const pricingPatterns = [
-        { type: 'independentLiving', regex: /independent\s*living[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
-        { type: 'assistedLiving', regex: /assisted\s*living[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
-        { type: 'memoryCare', regex: /memory\s*care[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
-        { type: 'skilledNursing', regex: /skilled\s*nursing[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
-        { type: 'respiteCare', regex: /respite[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
-        { type: 'entryFee', regex: /(?:entry|community)\s*fee[^$]*?\$[\d,]+/gi },
-        { type: 'generalRange', regex: /(?:starting|from|rates?)\s+(?:at\s+)?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi }
+      // Look for pricing patterns with type-safe key mapping
+      const pricingPatterns: Array<{ key: keyof DeepCrawlResult['pricing']; regex: RegExp }> = [
+        { key: 'independentLiving', regex: /independent\s*living[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
+        { key: 'assistedLiving', regex: /assisted\s*living[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
+        { key: 'memoryCare', regex: /memory\s*care[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
+        { key: 'skilledNursing', regex: /skilled\s*nursing[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
+        { key: 'respiteCare', regex: /respite[^$]*?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi },
+        { key: 'entryFee', regex: /(?:entry|community)\s*fee[^$]*?\$[\d,]+/gi },
+        { key: 'generalRange', regex: /(?:starting|from|rates?)\s+(?:at\s+)?\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/gi }
       ];
 
-      for (const { type, regex } of pricingPatterns) {
+      for (const { key, regex } of pricingPatterns) {
         const match = pageText.match(regex);
         if (match) {
           const priceMatch = match[0].match(/\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?/);
-          if (priceMatch) {
-            (pricing as any)[type] = priceMatch[0];
+          if (priceMatch && key !== 'additionalFees') {
+            pricing[key] = priceMatch[0];
           }
         }
       }

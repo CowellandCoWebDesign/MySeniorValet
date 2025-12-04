@@ -611,21 +611,28 @@ Format all information clearly with section headers.
       if (deepCrawlData && deepCrawlData.confidence !== 'low') {
         console.log(`🔄 Merging deep crawl data with Perplexity response...`);
         
+        // Helper to ensure deepCrawlData structure exists
+        const ensureDeepCrawlData = () => {
+          if (!structuredData.deepCrawlData) {
+            structuredData.deepCrawlData = {
+              virtualTours: [],
+              floorPlans: [],
+              videos: [],
+              amenities: [],
+              pricingDetails: {}
+            };
+          }
+          return structuredData.deepCrawlData;
+        };
+        
         // Add virtual tours from deep crawl (primary source)
-        if (deepCrawlData.virtualTours.length > 0) {
+        if (deepCrawlData.virtualTours && deepCrawlData.virtualTours.length > 0) {
           structuredData.marketData.virtualTourUrl = deepCrawlData.virtualTours[0].url;
-          structuredData.deepCrawlData = structuredData.deepCrawlData || {
-            virtualTours: [],
-            floorPlans: [],
-            videos: [],
-            amenities: [],
-            pricingDetails: {}
-          };
-          structuredData.deepCrawlData.virtualTours = deepCrawlData.virtualTours;
+          ensureDeepCrawlData().virtualTours = deepCrawlData.virtualTours;
         }
         
         // Add photos from deep crawl (merge with Perplexity photos)
-        if (deepCrawlData.photos.length > 0) {
+        if (deepCrawlData.photos && deepCrawlData.photos.length > 0) {
           const crawlPhotoUrls = deepCrawlData.photos
             .slice(0, 20)
             .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
@@ -633,58 +640,30 @@ Format all information clearly with section headers.
         }
         
         // Add floor plans
-        if (deepCrawlData.floorPlans.length > 0) {
-          structuredData.deepCrawlData = structuredData.deepCrawlData || {
-            virtualTours: [],
-            floorPlans: [],
-            videos: [],
-            amenities: [],
-            pricingDetails: {}
-          };
-          structuredData.deepCrawlData.floorPlans = deepCrawlData.floorPlans;
+        if (deepCrawlData.floorPlans && deepCrawlData.floorPlans.length > 0) {
+          ensureDeepCrawlData().floorPlans = deepCrawlData.floorPlans;
         }
         
         // Add videos
-        if (deepCrawlData.videos.length > 0) {
-          structuredData.deepCrawlData = structuredData.deepCrawlData || {
-            virtualTours: [],
-            floorPlans: [],
-            videos: [],
-            amenities: [],
-            pricingDetails: {}
-          };
-          structuredData.deepCrawlData.videos = deepCrawlData.videos;
+        if (deepCrawlData.videos && deepCrawlData.videos.length > 0) {
+          ensureDeepCrawlData().videos = deepCrawlData.videos;
         }
         
         // Add pricing from deep crawl (more accurate than Perplexity)
-        if (Object.keys(deepCrawlData.pricing).length > 0) {
-          structuredData.deepCrawlData = structuredData.deepCrawlData || {
-            virtualTours: [],
-            floorPlans: [],
-            videos: [],
-            amenities: [],
-            pricingDetails: {}
-          };
-          structuredData.deepCrawlData.pricingDetails = deepCrawlData.pricing;
+        if (deepCrawlData.pricing && Object.keys(deepCrawlData.pricing).length > 0) {
+          ensureDeepCrawlData().pricingDetails = deepCrawlData.pricing;
         }
         
         // Add amenities
-        if (deepCrawlData.amenities.length > 0) {
-          structuredData.deepCrawlData = structuredData.deepCrawlData || {
-            virtualTours: [],
-            floorPlans: [],
-            videos: [],
-            amenities: [],
-            pricingDetails: {}
-          };
-          structuredData.deepCrawlData.amenities = deepCrawlData.amenities;
+        if (deepCrawlData.amenities && deepCrawlData.amenities.length > 0) {
+          ensureDeepCrawlData().amenities = deepCrawlData.amenities;
         }
         
         // Update contact info from deep crawl if missing
-        if (deepCrawlData.contact.phone && !structuredData.marketData.phone) {
+        if (deepCrawlData.contact?.phone && !structuredData.marketData.phone) {
           structuredData.marketData.phone = deepCrawlData.contact.phone;
         }
-        if (deepCrawlData.contact.email && !structuredData.marketData.email) {
+        if (deepCrawlData.contact?.email && !structuredData.marketData.email) {
           structuredData.marketData.email = deepCrawlData.contact.email;
         }
       }
@@ -720,25 +699,25 @@ Format all information clearly with section headers.
         return {
           marketData: {
             website: websiteUrl,
-            phone: deepCrawlData.contact.phone,
-            email: deepCrawlData.contact.email,
-            virtualTourUrl: deepCrawlData.virtualTours[0]?.url
+            phone: deepCrawlData.contact?.phone,
+            email: deepCrawlData.contact?.email,
+            virtualTourUrl: deepCrawlData.virtualTours?.[0]?.url
           },
           reviews: {},
           inspections: {},
-          photos: deepCrawlData.photos.slice(0, 20).map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`),
-          sources: deepCrawlData.pagesExplored,
+          photos: (deepCrawlData.photos || []).slice(0, 20).map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`),
+          sources: deepCrawlData.pagesExplored || [],
           timestamp: Date.now(),
           communityId,
           communityName,
           location,
           source: 'fresh-fetch',
           deepCrawlData: {
-            virtualTours: deepCrawlData.virtualTours,
-            floorPlans: deepCrawlData.floorPlans,
-            videos: deepCrawlData.videos,
-            amenities: deepCrawlData.amenities,
-            pricingDetails: deepCrawlData.pricing
+            virtualTours: deepCrawlData.virtualTours || [],
+            floorPlans: deepCrawlData.floorPlans || [],
+            videos: deepCrawlData.videos || [],
+            amenities: deepCrawlData.amenities || [],
+            pricingDetails: deepCrawlData.pricing || {}
           }
         };
       }
