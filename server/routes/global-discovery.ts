@@ -1812,17 +1812,32 @@ Keep responses concise and focus on the most relevant results.`;
     try {
       const communityId = parseInt(req.params.id);
       
+      // First fetch the community to get current enrichment history
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+      
+      if (!community) {
+        return res.status(404).json({ success: false, error: 'Community not found' });
+      }
+      
+      // Append new history entry
+      const historyEntry = {
+        timestamp: new Date().toISOString(),
+        source: 'Admin Approval',
+        fieldsUpdated: ['status_approved'],
+        approvedBy: (req as any).user?.id || 'admin'
+      };
+      const currentHistory = Array.isArray(community.enrichmentHistory) ? community.enrichmentHistory : [];
+      const updatedHistory = [...currentHistory, historyEntry];
+      
       const [updated] = await db.update(communities)
         .set({
           enrichmentStatus: 'completed',
           isVerified: true,
           data_source: 'Verified via Global Discovery',
-          enrichmentHistory: sql`array_append(enrichment_history, ${JSON.stringify({
-            timestamp: new Date().toISOString(),
-            source: 'Admin Approval',
-            fieldsUpdated: ['status_approved'],
-            approvedBy: (req as any).user?.id || 'admin'
-          })}::jsonb)`
+          enrichmentHistory: updatedHistory
         })
         .where(eq(communities.id, communityId))
         .returning();
@@ -1903,19 +1918,25 @@ Keep responses concise and focus on the most relevant results.`;
         
         if (verificationResult.autoApproved) {
           // Auto-approve this community
+          const historyEntry = {
+            timestamp: new Date().toISOString(),
+            source: 'Bulk Auto-Approval',
+            fieldsUpdated: ['status_auto_approved'],
+            confidenceScore: verificationResult.confidenceScore,
+            autoApproved: true
+          };
+          
+          // Get current enrichment history and append new entry
+          const currentHistory = Array.isArray(community.enrichmentHistory) ? community.enrichmentHistory : [];
+          const updatedHistory = [...currentHistory, historyEntry];
+          
           await db.update(communities)
             .set({
               enrichmentStatus: 'completed',
               enrichmentCompleted: true,
               isVerified: true,
               data_source: 'Verified via Global Discovery (Auto-Approved)',
-              enrichmentHistory: sql`array_append(enrichment_history, ${JSON.stringify({
-                timestamp: new Date().toISOString(),
-                source: 'Bulk Auto-Approval',
-                fieldsUpdated: ['status_auto_approved'],
-                confidenceScore: verificationResult.confidenceScore,
-                autoApproved: true
-              })}::jsonb)`
+              enrichmentHistory: updatedHistory
             })
             .where(eq(communities.id, community.id));
           
