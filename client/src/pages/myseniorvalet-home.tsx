@@ -31,6 +31,7 @@ import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
+import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
@@ -2043,28 +2044,7 @@ export default function MySeniorValetHome() {
                 window.location.href = '/community-directory';
               }
             }}>
-                {/* Title with vacancy sign background */}
-                <CardHeader className="relative z-10 pb-2 overflow-hidden">
-                  <div className="relative">
-                    {/* Vacancy sign image behind title only */}
-                    <div className="absolute inset-0 -mx-6 -my-2">
-                      <img 
-                        src={MotelVacancySign} 
-                        alt="Retro motel vacancy sign" 
-                        className="w-full h-full object-cover opacity-40"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-background/80"></div>
-                    </div>
-                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-4">
-                      <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">Global Senior Living Directory</CardTitle>
-                      <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-1.5 rounded-full text-white text-sm font-semibold shadow-lg">
-                        <TrendingUp className="w-4 h-4" />
-                        <span>{communityStats?.communities || '33,874'} Communities</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="relative z-10">
+                <CardContent className="relative z-10 pt-4">
 
                   {/* Recently Discovered Communities Section */}
                   <div className="mb-6">
@@ -2074,6 +2054,11 @@ export default function MySeniorValetHome() {
                   {/* HUD Communities & Government Verified Section */}
                   <div className="mb-6">
                     <HUDCommunitiesSection />
+                  </div>
+
+                  {/* Featured Communities & Savings Tips */}
+                  <div className="mb-6">
+                    <RedTagDeals hideHeader={true} />
                   </div>
 
                   {/* 3D Care Spectrum Mini Carousel */}

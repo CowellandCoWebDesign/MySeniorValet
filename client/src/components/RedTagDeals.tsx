@@ -24,9 +24,10 @@ interface RedTagDeal {
 
 interface RedTagDealsProps {
   communityCount?: string;
+  hideHeader?: boolean;
 }
 
-export function RedTagDeals({ communityCount }: RedTagDealsProps) {
+export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsProps) {
   const [fallbackDeals, setFallbackDeals] = useState<RedTagDeal[]>([]);
   
   // Fetch featured communities from API
@@ -186,34 +187,36 @@ export function RedTagDeals({ communityCount }: RedTagDealsProps) {
   
   return (
     <div className="space-y-4">
-      {/* Featured Communities Alert - Compact with Community Count */}
-      <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
-        <CardContent className="py-3">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-full">
-                <Star className="w-4 h-4 text-orange-600" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">Excellence Showcase</p>
-                <p className="text-xs text-muted-foreground">Premium communities across 5 countries</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              {communityCount && (
-                <div className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded-full">
-                  <TrendingUp className="h-3.5 w-3.5 text-green-600" />
-                  <span className="text-sm font-bold text-green-700 dark:text-green-400">{communityCount}</span>
-                  <span className="text-xs text-green-600 dark:text-green-500 hidden sm:inline">Total</span>
+      {/* Featured Communities Alert - Compact with Community Count (hidden when hideHeader is true) */}
+      {!hideHeader && (
+        <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
+          <CardContent className="py-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-full">
+                  <Star className="w-4 h-4 text-orange-600" />
                 </div>
-              )}
-              <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
-                {redTagDeals.length} Featured
-              </Badge>
+                <div>
+                  <p className="font-medium text-sm">Excellence Showcase</p>
+                  <p className="text-xs text-muted-foreground">Premium communities across 5 countries</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                {communityCount && (
+                  <div className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded-full">
+                    <TrendingUp className="h-3.5 w-3.5 text-green-600" />
+                    <span className="text-sm font-bold text-green-700 dark:text-green-400">{communityCount}</span>
+                    <span className="text-xs text-green-600 dark:text-green-500 hidden sm:inline">Total</span>
+                  </div>
+                )}
+                <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
+                  {redTagDeals.length} Featured
+                </Badge>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Enhanced Deal Cards with Horizontal Scroll Carousel */}
       <div className="relative">
