@@ -2045,34 +2045,29 @@ export default function MySeniorValetHome() {
                 window.location.href = '/community-directory';
               }
             }}>
-                {/* Title ABOVE the image */}
-                <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">Global Senior Living Directory</CardTitle>
-                </CardHeader>
-                {/* Full-size Vacancy Sign Image */}
-                <div className="relative h-48 sm:h-56 md:h-64 w-full">
-                  <img 
-                    src={MotelVacancySign} 
-                    alt="Retro motel vacancy sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
-                    <span className="text-3xl">🏢</span>
+                {/* Title with vacancy sign background */}
+                <CardHeader className="relative z-10 pb-2 overflow-hidden">
+                  <div className="relative">
+                    {/* Vacancy sign image behind title only */}
+                    <div className="absolute inset-0 -mx-6 -my-2">
+                      <img 
+                        src={MotelVacancySign} 
+                        alt="Retro motel vacancy sign" 
+                        className="w-full h-full object-cover opacity-40"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-background/80"></div>
+                    </div>
+                    <CardTitle className="relative z-10 text-2xl sm:text-3xl md:text-4xl font-bold py-4">Global Senior Living Directory</CardTitle>
                   </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
-                    PRIMARY DATABASE
-                  </Badge>
-                  {/* Community count overlay in bottom-right */}
-                  <div className="absolute bottom-4 right-4 flex items-center gap-2 p-3 bg-black/70 backdrop-blur-sm rounded-lg shadow-lg border border-green-500/30">
+                  {/* Community count below title */}
+                  <div className="flex items-center gap-2 mt-2">
                     <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-white">
+                    <span className="text-xl font-bold text-foreground">
                       {communityStats?.communities || '33,863'}
                     </span>
-                    <span className="text-sm text-gray-200">Senior Living Communities</span>
+                    <span className="text-sm text-muted-foreground">Senior Living Communities</span>
                   </div>
-                </div>
+                </CardHeader>
                 <CardContent className="relative z-10">
                   {/* Featured Excellence Communities - Moved from below */}
                   <div className="mb-6">
