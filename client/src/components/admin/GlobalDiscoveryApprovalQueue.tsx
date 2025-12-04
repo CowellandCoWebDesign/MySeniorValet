@@ -194,8 +194,8 @@ export function GlobalDiscoveryApprovalQueue() {
               <Globe className="w-6 h-6 text-blue-600" />
               Global Discovery Approval Queue
             </CardTitle>
-            <CardDescription>
-              Review and approve communities discovered through global searches
+            <CardDescription className="max-w-xl">
+              New discoveries are automatically approved when verified. This queue shows only communities that need manual review due to missing data or suspicious patterns.
             </CardDescription>
           </div>
           <div className="flex items-center gap-3">
@@ -214,7 +214,7 @@ export function GlobalDiscoveryApprovalQueue() {
                 ) : (
                   <>
                     <Zap className="w-4 h-4 mr-2" />
-                    Auto-Approve Verified
+                    Verify & Approve Eligible
                   </>
                 )}
               </Button>

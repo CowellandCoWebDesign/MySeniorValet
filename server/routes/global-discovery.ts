@@ -937,19 +937,33 @@ Keep responses concise and focus on the most relevant results.`;
             
             // Only add if we haven't seen this facility before
             if (!uniqueFacilities.has(key)) {
+              // Normalize contact info from various Perplexity field names - use nullish coalescing to preserve first non-empty value
+              const phone = facility.phone ?? facility.primaryPhone ?? facility.phoneNumber ?? 
+                           facility.contactPhone ?? facility.contact?.phone ?? facility.contactInfo?.phone ??
+                           (Array.isArray(facility.phoneNumbers) && facility.phoneNumbers[0] ? facility.phoneNumbers[0] : null) ??
+                           facility.tollFree ?? '';
+              
+              const website = facility.website ?? facility.primaryWebsite ?? facility.url ?? 
+                             facility.homepage ?? facility.contact?.website ?? facility.contactInfo?.website ??
+                             facility.links?.primary ?? facility.mapsUrl ?? facility.listingUrl ?? '';
+              
+              const email = facility.email ?? facility.primaryEmail ?? facility.contactEmail ??
+                           facility.contact?.email ?? facility.contactInfo?.email ??
+                           (Array.isArray(facility.emails) && facility.emails[0] ? facility.emails[0] : null) ?? '';
+              
               uniqueFacilities.set(key, {
                 name: facility.name,
                 address: facility.address || '',
                 city: facility.city || query.split(',')[0]?.trim() || '',
                 state: facility.state || query.split(',')[1]?.trim() || '',
                 country: facility.country || defaultCountry,
-                phone: facility.phone || '',
-                website: facility.website || '',
-                email: facility.email || '',
+                phone: phone,
+                website: website,
+                email: email,
                 zipCode: facility.zipCode || '',
                 description: facility.description || `Senior living facility in ${facility.city || query}`,
                 careTypes: facility.careTypes || [],
-                photoSources: facility.photoSources || [], // Add photo sources from Perplexity
+                photoSources: facility.photoSources || [],
                 source: 'Perplexity AI Discovery',
                 confidence: 95,
                 isDiscovered: true
@@ -968,6 +982,27 @@ Keep responses concise and focus on the most relevant results.`;
         try {
           const uniqueFallbackFacilities = new Map();
           
+          // Helper to extract phone number near a facility name
+          const extractPhone = (text: string): string => {
+            const phonePatterns = [
+              /(?:Phone|Tel|Call|Contact)[\s:]*([+\d\s\-\(\)]{10,})/i,
+              /\b(\+?1?[\s\-\.]?\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4})\b/,
+              /\b(\d{3}[\s\-\.]\d{3}[\s\-\.]\d{4})\b/
+            ];
+            for (const pattern of phonePatterns) {
+              const match = text.match(pattern);
+              if (match) return match[1].trim();
+            }
+            return '';
+          };
+          
+          // Helper to extract email near a facility name
+          const extractEmail = (text: string): string => {
+            const emailPattern = /[\w\.\-]+@[\w\.\-]+\.[a-z]{2,}/i;
+            const match = text.match(emailPattern);
+            return match ? match[0] : '';
+          };
+          
           // First, extract facilities from URL patterns with names
           // Pattern: "Name: website" or "Name - website" or "Name (website)"
           const urlPatterns = [
@@ -981,6 +1016,12 @@ Keep responses concise and focus on the most relevant results.`;
             for (const match of matches) {
               const name = match[1]?.trim();
               const website = match[2]?.trim();
+              
+              // Get context around this match for phone/email extraction
+              const matchIndex = match.index || 0;
+              const contextStart = Math.max(0, matchIndex - 50);
+              const contextEnd = Math.min(aiResponse.length, matchIndex + match[0].length + 200);
+              const context = aiResponse.substring(contextStart, contextEnd);
               
               // Filter out directories and aggregators, and validate name
               const isValidName = name && 
@@ -1005,12 +1046,14 @@ Keep responses concise and focus on the most relevant results.`;
                   uniqueFallbackFacilities.set(key, {
                     name: name,
                     website: website,
+                    phone: extractPhone(context),
+                    email: extractEmail(context),
                     address: '',
                     city: query.split(',')[0]?.trim() || '',
                     state: query.split(',')[1]?.trim() || '',
                     country: defaultCountry,
                     description: `${name} - found via search for "${query}"`,
-                    photoSources: [], // Empty array for fallback parsing
+                    photoSources: [],
                     source: 'Perplexity Web Search',
                     confidence: 85,
                     isDiscovered: true
@@ -1050,14 +1093,22 @@ Keep responses concise and focus on the most relevant results.`;
               if (isValidName) {
                 const key = name.toLowerCase();
                 if (!uniqueFallbackFacilities.has(key)) {
+                  // Get context around this match for phone/email extraction
+                  const matchIndex = match.index || 0;
+                  const contextStart = Math.max(0, matchIndex - 50);
+                  const contextEnd = Math.min(aiResponse.length, matchIndex + match[0].length + 200);
+                  const context = aiResponse.substring(contextStart, contextEnd);
+                  
                   uniqueFallbackFacilities.set(key, {
                     name: name,
                     address: location,
+                    phone: extractPhone(context),
+                    email: extractEmail(context),
                     city: query.split(',')[0]?.trim() || '',
                     state: query.split(',')[1]?.trim() || '',
                     country: defaultCountry,
                     description: `Found via search for "${query}"`,
-                    photoSources: [], // Empty array for fallback parsing
+                    photoSources: [],
                     source: 'Perplexity Web Search',
                     confidence: 85,
                     isDiscovered: true
@@ -1351,7 +1402,11 @@ Keep responses concise and focus on the most relevant results.`;
                 })
                 .returning();
               
-              console.log(`✅ SUCCESSFULLY SAVED discovered community: ${discovered.name} (ID: ${newCommunity.id}, Country: ${discovered.country || defaultCountry}, Data Source: AI Discovery (Perplexity Global Search))`);
+              const approvalStatus = verificationResult.autoApproved ? '🟢 AUTO-APPROVED' : '🟡 PENDING REVIEW';
+              console.log(`✅ SAVED: ${discovered.name} (ID: ${newCommunity.id}) - ${approvalStatus} (Score: ${verificationResult.confidenceScore}/100)`);
+              if (!verificationResult.autoApproved && verificationResult.suspiciousReasons.length > 0) {
+                console.log(`   ⚠️ Flagged reasons: ${verificationResult.suspiciousReasons.join(', ')}`);
+              }
               newlyInsertedIds.add(newCommunity.id); // Track as TRULY NEW
               savedCommunities.push(newCommunity);
             } catch (insertError) {
