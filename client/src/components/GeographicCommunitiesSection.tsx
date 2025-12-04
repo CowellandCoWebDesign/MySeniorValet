@@ -50,35 +50,30 @@ export function GeographicCommunitiesSection() {
 
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
     queryKey: ['/api/communities/by-state?state=HI'],
-    enabled: isVisible,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
   const { data: texasCommunities, isLoading: texasLoading } = useQuery({
     queryKey: ['/api/communities/by-city?city=Fort%20Worth&state=TX'],
-    enabled: isVisible,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
   const { data: newYorkCommunities, isLoading: newYorkLoading } = useQuery({
     queryKey: ['/api/communities/by-state?state=NY'],
-    enabled: isVisible,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
   const { data: canadianCommunities, isLoading: canadianLoading } = useQuery({
-    queryKey: ['/api/communities/canadian', 6],
-    enabled: isVisible,
+    queryKey: ['/api/communities/canadian'],
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
 
   const { data: puertoRicoCommunities, isLoading: puertoRicoLoading } = useQuery({
-    queryKey: ['/api/communities/puerto-rico', 12],
-    enabled: isVisible,
+    queryKey: ['/api/communities/puerto-rico'],
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
@@ -90,7 +85,6 @@ export function GeographicCommunitiesSection() {
       if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
     },
-    enabled: isVisible,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
@@ -102,7 +96,6 @@ export function GeographicCommunitiesSection() {
       if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
     },
-    enabled: isVisible,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
@@ -114,7 +107,6 @@ export function GeographicCommunitiesSection() {
       if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
     },
-    enabled: isVisible,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
@@ -126,7 +118,6 @@ export function GeographicCommunitiesSection() {
       if (!response.ok) throw new Error('Failed to fetch');
       return response.json();
     },
-    enabled: isVisible,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
   });
