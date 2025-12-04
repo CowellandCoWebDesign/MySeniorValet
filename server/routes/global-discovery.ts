@@ -33,6 +33,94 @@ function normalizeState(stateInput: string): string {
   return US_STATE_MAP[normalized] || stateInput;
 }
 
+// State abbreviation to name reverse mapping
+const STATE_ABBREV_MAP: Record<string, string> = {
+  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+  'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+  'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+  'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+  'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+  'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+  'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+  'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+  'DC': 'District of Columbia'
+};
+
+// Parse location from address string to extract city/state
+function parseLocationFromAddress(address: string, query: string = ''): { city: string; state: string; country: string } {
+  let city = '';
+  let state = '';
+  let country = 'USA';
+  
+  // Clean up the address
+  const cleanAddress = (address || '').trim();
+  
+  // Try to extract state abbreviation from end of address (e.g., "123 Main St, Atlanta, GA 30303")
+  const stateAbbrMatch = cleanAddress.match(/,\s*([A-Z]{2})\s*\d{5}(?:-\d{4})?$/);
+  if (stateAbbrMatch) {
+    state = stateAbbrMatch[1];
+  }
+  
+  // Try pattern: "City, State ZIP" or "City, State"
+  const cityStateMatch = cleanAddress.match(/([^,]+),\s*([A-Z]{2})(?:\s*\d{5})?/);
+  if (cityStateMatch) {
+    // The city is the part before the state
+    const parts = cleanAddress.split(',');
+    if (parts.length >= 2) {
+      // City is second-to-last part before state (skip street address)
+      city = parts[parts.length - 2]?.trim() || '';
+      state = cityStateMatch[2] || state;
+    }
+  }
+  
+  // Try to find state from full state name
+  if (!state) {
+    for (const [fullName, abbr] of Object.entries(US_STATE_MAP)) {
+      const regex = new RegExp(`\\b${fullName}\\b`, 'i');
+      if (regex.test(cleanAddress)) {
+        state = abbr;
+        break;
+      }
+    }
+  }
+  
+  // If still no city/state, try to extract from query
+  if (!city || !state) {
+    const queryParts = query.split(',').map(p => p.trim());
+    if (queryParts.length >= 2) {
+      if (!city) city = queryParts[0];
+      if (!state) {
+        const potentialState = normalizeState(queryParts[1]);
+        if (potentialState.length === 2) state = potentialState;
+      }
+    } else if (queryParts.length === 1) {
+      // Check if query is a state name
+      const potentialState = normalizeState(queryParts[0]);
+      if (potentialState.length === 2 && STATE_ABBREV_MAP[potentialState]) {
+        state = potentialState;
+      } else if (!city) {
+        city = queryParts[0];
+      }
+    }
+  }
+  
+  // Detect country from query or address
+  const lowerQuery = query.toLowerCase();
+  const lowerAddress = cleanAddress.toLowerCase();
+  if (lowerQuery.includes('canada') || lowerAddress.includes('canada') || 
+      lowerAddress.match(/\b(ON|BC|AB|QC|MB|SK|NS|NB|NL|PE|YT|NT|NU)\b/)) {
+    country = 'Canada';
+  } else if (lowerQuery.includes('mexico') || lowerAddress.includes('mexico')) {
+    country = 'Mexico';
+  } else if (lowerQuery.includes('cuba') || lowerAddress.includes('cuba')) {
+    country = 'Cuba';
+  }
+  
+  return { city, state, country };
+}
+
 // Schema for global discovery search
 const globalSearchSchema = z.object({
   query: z.string(),
@@ -144,19 +232,27 @@ function verifyCommunityForAutoApproval(community: {
     suspiciousReasons.push('Missing or invalid state');
   }
   
-  // Check contact information (at least one required for verification)
+  // Check contact information - more weight given to valid contact info
+  // Contact info is crucial for families - give it significant weight
   const hasPhone = community.phone && community.phone.length >= 7;
   const hasEmail = community.email && community.email.includes('@');
   const hasWebsite = community.website && (
     community.website.includes('http') || 
     community.website.includes('www') ||
     community.website.includes('.com') ||
-    community.website.includes('.org')
+    community.website.includes('.org') ||
+    community.website.includes('.net')
   );
   
-  if (hasPhone) confidenceScore += 15;
+  // Increased points for contact info - essential for user experience
+  if (hasPhone) confidenceScore += 20; // Increased from 15
   if (hasEmail) confidenceScore += 10;
-  if (hasWebsite) confidenceScore += 10;
+  if (hasWebsite) confidenceScore += 15; // Increased from 10
+  
+  // Bonus for having both phone AND website (high quality lead)
+  if (hasPhone && hasWebsite) {
+    confidenceScore += 10; // Quality bonus
+  }
   
   if (!hasPhone && !hasEmail && !hasWebsite) {
     suspiciousReasons.push('No contact information (phone, email, or website)');
@@ -169,10 +265,10 @@ function verifyCommunityForAutoApproval(community: {
   }
   
   // Auto-approve if:
-  // 1. Confidence score >= 60 (has name, address, city/state, and at least one contact method)
-  // 2. No critical suspicious reasons
+  // 1. Confidence score >= 60 (has name + valid contact info can compensate for partial address)
+  // 2. No critical suspicious reasons (name issues or NO contact at all)
   const criticalReasons = suspiciousReasons.filter(r => 
-    r.includes('Name') || r.includes('contact information')
+    r.includes('Name') || r.includes('No contact information')
   );
   
   const isVerified = confidenceScore >= 60;
@@ -955,17 +1051,32 @@ Keep responses concise and focus on the most relevant results.`;
               const hasContactInfo = phone || website || email;
               console.log(`📍 Facility: "${facility.name}" | Phone: ${phone || '(none)'} | Website: ${website || '(none)'} | Email: ${email || '(none)'} | HasContact: ${hasContactInfo ? 'YES' : 'NO'}`);
               
+              // Use advanced location parsing when city/state are missing
+              let parsedCity = facility.city || '';
+              let parsedState = facility.state || '';
+              let parsedCountry = facility.country || defaultCountry;
+              
+              // If city or state is missing, try to parse from address or query
+              if (!parsedCity || !parsedState) {
+                const parsed = parseLocationFromAddress(facility.address || '', query);
+                if (!parsedCity && parsed.city) parsedCity = parsed.city;
+                if (!parsedState && parsed.state) parsedState = parsed.state;
+                if (parsed.country !== 'USA') parsedCountry = parsed.country;
+                
+                console.log(`🔍 Location parsing for "${facility.name}": city=${parsedCity || '(none)'}, state=${parsedState || '(none)'}, country=${parsedCountry}`);
+              }
+              
               uniqueFacilities.set(key, {
                 name: facility.name,
                 address: facility.address || '',
-                city: facility.city || query.split(',')[0]?.trim() || '',
-                state: facility.state || query.split(',')[1]?.trim() || '',
-                country: facility.country || defaultCountry,
+                city: parsedCity,
+                state: parsedState,
+                country: parsedCountry,
                 phone: phone,
                 website: website,
                 email: email,
                 zipCode: facility.zipCode || '',
-                description: facility.description || `Senior living facility in ${facility.city || query}`,
+                description: facility.description || `Senior living facility in ${parsedCity || query}`,
                 careTypes: facility.careTypes || [],
                 photoSources: facility.photoSources || [],
                 source: 'Perplexity AI Discovery',
@@ -1052,15 +1163,18 @@ Keep responses concise and focus on the most relevant results.`;
                 
                 const key = name.toLowerCase().replace(/\s+(aged care|care services|retirement|village|group|ltd|inc|pty|plc).*$/i, '').trim();
                 if (!uniqueFallbackFacilities.has(key)) {
+                  // Use location parser to extract city/state from query
+                  const parsedLocation = parseLocationFromAddress('', query);
+                  
                   uniqueFallbackFacilities.set(key, {
                     name: name,
                     website: website,
                     phone: extractPhone(context),
                     email: extractEmail(context),
                     address: '',
-                    city: query.split(',')[0]?.trim() || '',
-                    state: query.split(',')[1]?.trim() || '',
-                    country: defaultCountry,
+                    city: parsedLocation.city,
+                    state: parsedLocation.state,
+                    country: parsedLocation.country || defaultCountry,
                     description: `${name} - found via search for "${query}"`,
                     photoSources: [],
                     source: 'Perplexity Web Search',
@@ -1114,14 +1228,17 @@ Keep responses concise and focus on the most relevant results.`;
                   // Log contact info extraction for fallback path
                   console.log(`📍 [Fallback] Facility: "${name}" | Phone: ${phone || '(none)'} | Email: ${email || '(none)'}`);
                   
+                  // Use location parser to extract city/state from address or query
+                  const parsedLocation = parseLocationFromAddress(location, query);
+                  
                   uniqueFallbackFacilities.set(key, {
                     name: name,
                     address: location,
                     phone: phone,
                     email: email,
-                    city: query.split(',')[0]?.trim() || '',
-                    state: query.split(',')[1]?.trim() || '',
-                    country: defaultCountry,
+                    city: parsedLocation.city,
+                    state: parsedLocation.state,
+                    country: parsedLocation.country || defaultCountry,
                     description: `Found via search for "${query}"`,
                     photoSources: [],
                     source: 'Perplexity Web Search',

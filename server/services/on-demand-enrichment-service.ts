@@ -138,17 +138,18 @@ export class OnDemandEnrichmentService {
       if (community.website && !community.websiteProtected) {
         try {
           // Use MultiAIPhotoExtractor for consolidated photo extraction
+          // FIXED: Correct argument order - (communityName, perplexityContent, websiteUrl, citations)
           const photoResult = await MultiAIPhotoExtractor.findAuthenticPhotos(
             community.name || 'Unknown Community',
-            community.city || 'Unknown',
-            community.state || 'Unknown',
-            `${community.name} photos`,
-            community.website,
-            []
+            `${community.name} ${community.city || ''} ${community.state || ''} senior living`, // perplexityContent - search context
+            community.website, // websiteUrl - the actual community website to scrape!
+            [] // citations
           );
           
+          console.log(`📸 Photo extraction for ${community.name}: ${photoResult?.authenticPhotos?.length || 0} photos found from ${community.website}`);
+          
           scrapedData = {
-            photos: photoResult?.authenticPhotos?.map(p => p.url || p) || [],
+            photos: photoResult?.authenticPhotos?.map((p: any) => p.url || p) || [],
             floorPlans: [], // Not currently extracted
             virtualTours: [], // Not currently extracted 
             videos: [], // Not currently extracted
@@ -216,24 +217,84 @@ export class OnDemandEnrichmentService {
         result.protectedFieldsSkipped.push('email');
       }
 
-      // Generate AI description if needed and not already present
+      // Try to get authentic description from the community website first
+      // Only generate AI description as fallback
       if (!community.description || community.description.length < 100) {
-        try {
-          const aiDescription = await this.openAIIntegration.generateCommunityDescription({
-            name: community.name,
-            city: community.city,
-            state: community.state,
-            careTypes: community.careTypes,
-            amenities: scrapedData?.amenities || community.amenities || [],
-            services: scrapedData?.services || community.services || []
-          });
-          
-          if (aiDescription) {
-            updates.description = aiDescription;
-            result.fieldsUpdated.push('description');
+        let foundDescription = false;
+        
+        // Step 1: Try to scrape description from actual website
+        if (community.website && !foundDescription) {
+          try {
+            console.log(`🔍 Attempting to scrape description from ${community.website}`);
+            const response = await fetch(community.website, {
+              headers: {
+                'User-Agent': 'MySeniorValet Bot/1.0 (Senior Living Directory; +https://myseniorvalet.com)'
+              },
+              signal: AbortSignal.timeout(10000)
+            });
+            
+            if (response.ok) {
+              const html = await response.text();
+              
+              // Extract meta description first (most reliable)
+              const metaDescMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i) ||
+                                    html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']description["']/i);
+              
+              // Try OG description
+              const ogDescMatch = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i) ||
+                                  html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*property=["']og:description["']/i);
+              
+              // Extract from about/description sections
+              const aboutMatch = html.match(/<(?:div|section|article)[^>]*(?:class|id)=["'][^"']*(?:about|description|overview|intro)[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|section|article)>/i);
+              
+              let scrapedDescription = '';
+              if (metaDescMatch && metaDescMatch[1] && metaDescMatch[1].length > 50) {
+                scrapedDescription = metaDescMatch[1].trim();
+              } else if (ogDescMatch && ogDescMatch[1] && ogDescMatch[1].length > 50) {
+                scrapedDescription = ogDescMatch[1].trim();
+              } else if (aboutMatch && aboutMatch[1]) {
+                // Clean HTML tags from about section
+                scrapedDescription = aboutMatch[1]
+                  .replace(/<[^>]+>/g, ' ')
+                  .replace(/\s+/g, ' ')
+                  .trim()
+                  .substring(0, 500);
+              }
+              
+              if (scrapedDescription && scrapedDescription.length >= 50) {
+                updates.description = scrapedDescription;
+                updates.descriptionSource = 'website_scrape';
+                result.fieldsUpdated.push('description');
+                foundDescription = true;
+                console.log(`✅ Scraped authentic description (${scrapedDescription.length} chars) from ${community.website}`);
+              }
+            }
+          } catch (error: any) {
+            console.log(`⚠️ Could not scrape description from ${community.website}: ${error.message}`);
           }
-        } catch (error) {
-          console.error(`Failed to generate AI description for community ${communityId}:`, error);
+        }
+        
+        // Step 2: Fall back to AI generation if no authentic description found
+        if (!foundDescription) {
+          try {
+            const aiDescription = await this.openAIIntegration.generateCommunityDescription({
+              name: community.name,
+              city: community.city,
+              state: community.state,
+              careTypes: community.careTypes,
+              amenities: scrapedData?.amenities || community.amenities || [],
+              services: scrapedData?.services || community.services || []
+            });
+            
+            if (aiDescription) {
+              updates.description = aiDescription;
+              updates.descriptionSource = 'ai_generated';
+              result.fieldsUpdated.push('description');
+              console.log(`📝 Generated AI description for ${community.name}`);
+            }
+          } catch (error) {
+            console.error(`Failed to generate AI description for community ${communityId}:`, error);
+          }
         }
       }
 
