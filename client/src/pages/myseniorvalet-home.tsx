@@ -33,7 +33,6 @@ import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
-import { RedTagDeals } from "@/components/RedTagDeals";
 import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
 import { HUDCommunitiesSection } from "@/components/HUDCommunitiesSection";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
@@ -2056,14 +2055,16 @@ export default function MySeniorValetHome() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-r from-background/80 via-background/60 to-background/80"></div>
                     </div>
-                    <CardTitle className="relative z-10 text-2xl sm:text-3xl md:text-4xl font-bold py-4">Global Senior Living Directory</CardTitle>
+                    <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 py-4">
+                      <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">Global Senior Living Directory</CardTitle>
+                      <div className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-amber-500 px-3 py-1.5 rounded-full text-white text-sm font-semibold shadow-lg">
+                        <TrendingUp className="w-4 h-4" />
+                        <span>{communityStats?.communities || '33,874'} Communities</span>
+                      </div>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="relative z-10">
-                  {/* Featured Excellence Communities - Moved from below */}
-                  <div className="mb-6">
-                    <RedTagDeals communityCount={communityStats?.communities || '33,874'} />
-                  </div>
 
                   {/* Recently Discovered Communities Section */}
                   <div className="mb-6">
