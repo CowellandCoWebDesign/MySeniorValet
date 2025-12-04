@@ -774,12 +774,12 @@ Keep responses concise and focus on the most relevant results.`;
           searchScope = `Include ONLY facilities physically located in ${query}.`;
         }
         
-        searchQuery = `Find the top 15 senior housing facilities in ${query}. ${searchScope} Include a mix of: assisted living, independent living, memory care, nursing homes, and senior apartments. For each: name, address, phone, website (if available), type. Focus on established facilities with good information.`;
+        searchQuery = `Find the top 15 senior housing facilities in ${query}. ${searchScope} Include a mix of: assisted living, independent living, memory care, nursing homes, and senior apartments. For each facility provide: name, full address, phone number (strongly preferred - search for it), website URL (strongly preferred - find official website), and type. Focus on established facilities, and prioritize those with verified contact information.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
         searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
       } else {
-        searchQuery = `Find senior facilities related to ${query}. Include: senior apartments, HUD/Section 8/Section 202, Section 811 disability housing, VA homes, 55+ apartments, RV parks, independent living, assisted living, memory care, skilled nursing, adult foster care, disability action centers, Centers for Independent Living, subsidized apartments, affordable housing. Include names, addresses, contact info. List all options.`;
+        searchQuery = `Find senior facilities related to ${query}. Include: senior apartments, HUD/Section 8/Section 202, Section 811 disability housing, VA homes, 55+ apartments, RV parks, independent living, assisted living, memory care, skilled nursing, adult foster care, disability action centers, Centers for Independent Living, subsidized apartments, affordable housing. For each facility provide: name, full address, phone number (strongly preferred), website URL (strongly preferred), and email if available. List all options, prioritizing those with verified contact information.`;
       }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
@@ -798,7 +798,7 @@ Keep responses concise and focus on the most relevant results.`;
       if (searchType === 'services') {
         systemPrompt = 'You are a helpful assistant that finds businesses and services based on user searches. Provide accurate and relevant results.';
       } else {
-        systemPrompt = 'You are a comprehensive senior housing research assistant. Search for ALL types of senior housing and living options, not just care facilities. Include: independent living, senior apartments, 55+ communities, affordable/subsidized senior housing, HUD housing, active adult communities, CCRCs, assisted living, memory care, nursing homes, board and care homes, and ANY housing option available to seniors. Return ONLY facilities from the requested location with accurate information.';
+        systemPrompt = 'You are a comprehensive senior housing research assistant. Search for ALL types of senior housing and living options, not just care facilities. Include: independent living, senior apartments, 55+ communities, affordable/subsidized senior housing, HUD housing, active adult communities, CCRCs, assisted living, memory care, nursing homes, board and care homes, and ANY housing option available to seniors. IMPORTANT: For every facility, make a strong effort to find their phone number and official website URL. Contact details are valuable for families researching care options. Return ONLY facilities from the requested location, prioritizing those with verified contact information.';
       }
       
       // Track Perplexity API usage for Discovery Mode
@@ -820,7 +820,7 @@ Keep responses concise and focus on the most relevant results.`;
             },
             {
               role: 'user',
-              content: searchQuery + ' Provide the response as structured JSON data with ALL facilities found, not just examples. Include every single facility you can find.'
+              content: searchQuery + ' Provide the response as structured JSON data with ALL facilities found, not just examples. Include every single facility you can find. IMPORTANT: Please search thoroughly for phone numbers and website URLs for each facility as these help families make contact.'
             }
           ],
           web_search_options: {
@@ -951,6 +951,10 @@ Keep responses concise and focus on the most relevant results.`;
                            facility.contact?.email ?? facility.contactInfo?.email ??
                            (Array.isArray(facility.emails) && facility.emails[0] ? facility.emails[0] : null) ?? '';
               
+              // Log contact info extraction for debugging
+              const hasContactInfo = phone || website || email;
+              console.log(`📍 Facility: "${facility.name}" | Phone: ${phone || '(none)'} | Website: ${website || '(none)'} | Email: ${email || '(none)'} | HasContact: ${hasContactInfo ? 'YES' : 'NO'}`);
+              
               uniqueFacilities.set(key, {
                 name: facility.name,
                 address: facility.address || '',
@@ -972,7 +976,12 @@ Keep responses concise and focus on the most relevant results.`;
           });
           
           discoveredCommunities = Array.from(uniqueFacilities.values());
+          
+          // Summary of contact info status
+          const withContact = discoveredCommunities.filter(c => c.phone || c.website).length;
+          const withoutContact = discoveredCommunities.length - withContact;
           console.log(`✅ Successfully parsed ${discoveredCommunities.length} unique facilities from structured JSON`);
+          console.log(`📊 Contact Info Summary: ${withContact} with contact info, ${withoutContact} missing contact info`);
         }
       } catch (parseError) {
         console.error('⚠️ Error parsing structured JSON:', parseError);
@@ -1099,11 +1108,17 @@ Keep responses concise and focus on the most relevant results.`;
                   const contextEnd = Math.min(aiResponse.length, matchIndex + match[0].length + 200);
                   const context = aiResponse.substring(contextStart, contextEnd);
                   
+                  const phone = extractPhone(context);
+                  const email = extractEmail(context);
+                  
+                  // Log contact info extraction for fallback path
+                  console.log(`📍 [Fallback] Facility: "${name}" | Phone: ${phone || '(none)'} | Email: ${email || '(none)'}`);
+                  
                   uniqueFallbackFacilities.set(key, {
                     name: name,
                     address: location,
-                    phone: extractPhone(context),
-                    email: extractEmail(context),
+                    phone: phone,
+                    email: email,
                     city: query.split(',')[0]?.trim() || '',
                     state: query.split(',')[1]?.trim() || '',
                     country: defaultCountry,
@@ -1121,7 +1136,12 @@ Keep responses concise and focus on the most relevant results.`;
           const fallbackResults = Array.from(uniqueFallbackFacilities.values());
           if (fallbackResults.length > 0) {
             discoveredCommunities = fallbackResults;
+            
+            // Summary of contact info for fallback
+            const withContact = fallbackResults.filter((c: any) => c.phone || c.website).length;
+            const withoutContact = fallbackResults.length - withContact;
             console.log(`✅ Fallback parsing extracted ${discoveredCommunities.length} unique facilities`);
+            console.log(`📊 [Fallback] Contact Info Summary: ${withContact} with contact info, ${withoutContact} missing contact info`);
           }
         } catch (fallbackError) {
           console.error('❌ Fallback parsing also failed:', fallbackError);

@@ -290,9 +290,11 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           </div>
         )}
         
-        {/* Premium/Excellence Badge */}
+        {/* Dynamic Care Type Badge - shows actual care type or defaults to "Senior Living" */}
         <div className="absolute top-2 right-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-2 py-0.5 rounded text-xs font-bold">
-          Premium Coastal Living
+          {community.careTypes && community.careTypes.length > 0 
+            ? community.careTypes[0] 
+            : "Senior Living"}
         </div>
         
         {/* Availability Badge */}
@@ -311,26 +313,33 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
             <h3 className={`${compact ? 'text-sm' : 'text-base'} font-bold mb-1 leading-tight text-gray-900 dark:text-white`}>
               {community.name}
             </h3>
-            {community.address && (
-              <div className="flex items-start gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5">
-                <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                <span className="line-clamp-1">{community.address}</span>
-              </div>
-            )}
+            {/* Location - show address if available, otherwise just city/state (never both to avoid duplication) */}
+            <div className="flex items-start gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5" data-testid={`location-${community.id}`}>
+              <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+              <span className="line-clamp-1">
+                {community.address 
+                  ? community.address 
+                  : `${community.city}, ${community.state}`}
+              </span>
+            </div>
+            {/* Phone display - show actual phone number if available */}
             {community.phone && (
-              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5">
+              <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-0.5" data-testid={`phone-display-${community.id}`}>
                 <span>📞</span>
                 <span>{community.phone}</span>
               </div>
             )}
-            <div className="flex items-center gap-1 text-xs text-gray-600 dark:text-gray-400 mb-1">
-              <MapPin className="w-3 h-3" />
-              <span>{community.city}, {community.state}</span>
-            </div>
+            {/* Action buttons - only show if actual data exists */}
             <div className="flex items-center gap-3 text-xs">
-              <span className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">📞 Call</span>
-              <span className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer">🌐 Website</span>
-              <span className="text-green-600 dark:text-green-400 hover:underline cursor-pointer">📅 Tour</span>
+              {community.phone && (
+                <a href={`tel:${community.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer" data-testid={`link-call-${community.id}`}>📞 Call</a>
+              )}
+              {community.website && (
+                <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline cursor-pointer" data-testid={`link-website-${community.id}`}>🌐 Website</a>
+              )}
+              <Link href={`/community/${community.id}?tab=tour`} data-testid={`link-tour-${community.id}`}>
+                <span className="text-green-600 dark:text-green-400 hover:underline cursor-pointer">📅 Tour</span>
+              </Link>
             </div>
           </div>
 
