@@ -1,6 +1,7 @@
 import { PerplexityAIService } from './perplexity-ai-service';
 import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
+import { communityWebsiteCrawler, DeepCrawlResult } from './services/community-website-crawler';
 import { db } from './db';
 import { perplexityCache, communities } from '../shared/schema';
 import { eq, lt, and } from 'drizzle-orm';
@@ -41,6 +42,19 @@ interface CachedCommunityData {
   rawPerplexityContent?: string;
   // Track whether data came from cache or fresh fetch
   source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos' | 'database-content' | 'empty';
+  // Enhanced data from deep website crawl (primary source of truth)
+  deepCrawlData?: {
+    virtualTours: { url: string; platform?: string; embedCode?: string }[];
+    floorPlans: { url: string; unitType?: string; squareFootage?: string; price?: string; imageUrl?: string }[];
+    videos: { url: string; platform?: string; embedUrl?: string; title?: string }[];
+    amenities: string[];
+    pricingDetails: {
+      independentLiving?: string;
+      assistedLiving?: string;
+      memoryCare?: string;
+      generalRange?: string;
+    };
+  };
 }
 
 class UnifiedPerplexityCache {
@@ -485,6 +499,35 @@ class UnifiedPerplexityCache {
       console.log(`ℹ️ Could not fetch additional metadata for query enhancement:`, error);
     }
 
+    // PRIORITY: Deep crawl the community's website FIRST as the primary source of truth
+    let deepCrawlData: DeepCrawlResult | null = null;
+    if (websiteUrl) {
+      try {
+        console.log(`🕷️ PRIORITY: Deep crawling community website as primary source of truth...`);
+        deepCrawlData = await communityWebsiteCrawler.deepCrawlCommunityWebsite(
+          websiteUrl,
+          communityName,
+          {
+            maxPagesToExplore: 15, // Explore more pages for comprehensive data
+            timeout: 45000, // 45 second timeout
+            includeFloorPlans: true,
+            includePricing: true
+          }
+        );
+        
+        if (deepCrawlData.confidence !== 'low') {
+          console.log(`✅ Deep crawl successful! Found:`);
+          console.log(`   - ${deepCrawlData.virtualTours.length} virtual tours`);
+          console.log(`   - ${deepCrawlData.photos.length} photos`);
+          console.log(`   - ${deepCrawlData.floorPlans.length} floor plans`);
+          console.log(`   - ${deepCrawlData.videos.length} videos`);
+          console.log(`   - ${deepCrawlData.amenities.length} amenities`);
+        }
+      } catch (crawlError) {
+        console.log(`⚠️ Deep crawl failed, falling back to Perplexity:`, crawlError instanceof Error ? crawlError.message : 'Unknown error');
+      }
+    }
+
     // Build enhanced query with all available metadata for precise disambiguation
     const metadataContext = [
       communityAddress ? `Full Address: ${communityAddress}` : null,
@@ -492,7 +535,7 @@ class UnifiedPerplexityCache {
       websiteUrl ? `Official Website: ${websiteUrl}` : null
     ].filter(Boolean).join('\n');
 
-    // ONE comprehensive query that gets EVERYTHING
+    // ONE comprehensive query that gets EVERYTHING (supplements deep crawl data)
     const comprehensiveQuery = `
 For the senior living community "${communityName}" located in ${location}, provide comprehensive information including:
 
@@ -521,7 +564,7 @@ ${metadataContext ? `**KNOWN VERIFIED DETAILS:**\n${metadataContext}\n\n**Please
 
 **PHOTOS & VIRTUAL TOURS:**
 - Links to facility photos
-- Virtual tour availability
+- Virtual tour availability (Matterport, 360 tours, video tours)
 - Floor plans if available
 
 **MANAGEMENT & STAFF:**
@@ -533,7 +576,7 @@ Format all information clearly with section headers.
 `;
 
     try {
-      // Make ONE comprehensive API call (only when user manually requests)
+      // Make ONE comprehensive API call (supplements deep crawl data)
       const response = await this.perplexityService.searchRealTime(
         comprehensiveQuery,
         `User-requested data for ${communityName}`
@@ -564,6 +607,88 @@ Format all information clearly with section headers.
       
       const isCompleteResponse = hasComprehensiveData && !communityNotFound;
       
+      // MERGE deep crawl data with Perplexity data (deep crawl takes priority)
+      if (deepCrawlData && deepCrawlData.confidence !== 'low') {
+        console.log(`🔄 Merging deep crawl data with Perplexity response...`);
+        
+        // Add virtual tours from deep crawl (primary source)
+        if (deepCrawlData.virtualTours.length > 0) {
+          structuredData.marketData.virtualTourUrl = deepCrawlData.virtualTours[0].url;
+          structuredData.deepCrawlData = structuredData.deepCrawlData || {
+            virtualTours: [],
+            floorPlans: [],
+            videos: [],
+            amenities: [],
+            pricingDetails: {}
+          };
+          structuredData.deepCrawlData.virtualTours = deepCrawlData.virtualTours;
+        }
+        
+        // Add photos from deep crawl (merge with Perplexity photos)
+        if (deepCrawlData.photos.length > 0) {
+          const crawlPhotoUrls = deepCrawlData.photos
+            .slice(0, 20)
+            .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
+          structuredData.photos = [...crawlPhotoUrls, ...structuredData.photos].slice(0, 30);
+        }
+        
+        // Add floor plans
+        if (deepCrawlData.floorPlans.length > 0) {
+          structuredData.deepCrawlData = structuredData.deepCrawlData || {
+            virtualTours: [],
+            floorPlans: [],
+            videos: [],
+            amenities: [],
+            pricingDetails: {}
+          };
+          structuredData.deepCrawlData.floorPlans = deepCrawlData.floorPlans;
+        }
+        
+        // Add videos
+        if (deepCrawlData.videos.length > 0) {
+          structuredData.deepCrawlData = structuredData.deepCrawlData || {
+            virtualTours: [],
+            floorPlans: [],
+            videos: [],
+            amenities: [],
+            pricingDetails: {}
+          };
+          structuredData.deepCrawlData.videos = deepCrawlData.videos;
+        }
+        
+        // Add pricing from deep crawl (more accurate than Perplexity)
+        if (Object.keys(deepCrawlData.pricing).length > 0) {
+          structuredData.deepCrawlData = structuredData.deepCrawlData || {
+            virtualTours: [],
+            floorPlans: [],
+            videos: [],
+            amenities: [],
+            pricingDetails: {}
+          };
+          structuredData.deepCrawlData.pricingDetails = deepCrawlData.pricing;
+        }
+        
+        // Add amenities
+        if (deepCrawlData.amenities.length > 0) {
+          structuredData.deepCrawlData = structuredData.deepCrawlData || {
+            virtualTours: [],
+            floorPlans: [],
+            videos: [],
+            amenities: [],
+            pricingDetails: {}
+          };
+          structuredData.deepCrawlData.amenities = deepCrawlData.amenities;
+        }
+        
+        // Update contact info from deep crawl if missing
+        if (deepCrawlData.contact.phone && !structuredData.marketData.phone) {
+          structuredData.marketData.phone = deepCrawlData.contact.phone;
+        }
+        if (deepCrawlData.contact.email && !structuredData.marketData.email) {
+          structuredData.marketData.email = deepCrawlData.contact.email;
+        }
+      }
+      
       // Calculate cache duration and label
       const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
       const cacheLabel = isFeatured ? '24 hours (featured)' : '7 days';
@@ -588,6 +713,35 @@ Format all information clearly with section headers.
       return { ...structuredData, source: 'fresh-fetch' };
     } catch (error) {
       console.error(`Failed to fetch comprehensive data for ${communityName}:`, error);
+      
+      // If Perplexity failed but we have deep crawl data, use that instead
+      if (deepCrawlData && deepCrawlData.confidence !== 'low') {
+        console.log(`📌 Using deep crawl data as fallback since Perplexity failed`);
+        return {
+          marketData: {
+            website: websiteUrl,
+            phone: deepCrawlData.contact.phone,
+            email: deepCrawlData.contact.email,
+            virtualTourUrl: deepCrawlData.virtualTours[0]?.url
+          },
+          reviews: {},
+          inspections: {},
+          photos: deepCrawlData.photos.slice(0, 20).map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`),
+          sources: deepCrawlData.pagesExplored,
+          timestamp: Date.now(),
+          communityId,
+          communityName,
+          location,
+          source: 'fresh-fetch',
+          deepCrawlData: {
+            virtualTours: deepCrawlData.virtualTours,
+            floorPlans: deepCrawlData.floorPlans,
+            videos: deepCrawlData.videos,
+            amenities: deepCrawlData.amenities,
+            pricingDetails: deepCrawlData.pricing
+          }
+        };
+      }
       
       // Return minimal data on error
       return {
