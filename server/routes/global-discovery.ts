@@ -706,6 +706,18 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               )
             )
             .limit(50);
+        } else if (!citySearch && stateSearch) {
+          // State-only search (e.g., "senior living in Alabama" where city cleanup left empty)
+          console.log(`🗺️ State-only search: finding communities in ${stateSearch}`);
+          existingCommunities = await db.select()
+            .from(communities)
+            .where(
+              and(
+                eq(communities.state, stateSearch),
+                eq(communities.isVerified, true)
+              )
+            )
+            .limit(50);
         } else {
           // City/state search with normalized state abbreviation
           existingCommunities = await db.select()
