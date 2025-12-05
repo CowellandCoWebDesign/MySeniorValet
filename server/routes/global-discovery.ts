@@ -1147,6 +1147,36 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             return match ? match[0] : '';
           };
           
+          // Helper to check if text is an instruction/advice rather than a facility name
+          const isInstructionText = (text: string): boolean => {
+            const instructionWords = [
+              'use ', 'check ', 'search ', 'contact ', 'call ', 'ask ', 'visit ', 
+              'find ', 'look ', 'browse ', 'explore ', 'reach ', 'try ', 'consider ',
+              'identify ', 'start ', 'begin ', 'for licensed', 'for more', 'to get ',
+              'here is ', 'here are ', 'you can ', 'you should ', 'you may ',
+              'senior housing locator', 'alaska-specific', 'local organizations',
+              'regular apartments', 'housing resources', 'curated lists',
+              'currently there is', 'not enough', 'cannot be', 'would be misleading',
+              'independent living', 'assisted living averages', 'the best fit',
+              'many independent', 'available levels', 'typical costs', 'if you share'
+            ];
+            const lowerText = text.toLowerCase();
+            return instructionWords.some(word => lowerText.startsWith(word) || lowerText.includes(word));
+          };
+          
+          // Helper to check if text is just a generic care type (not a real facility name)
+          const isGenericCareType = (text: string): boolean => {
+            const genericTypes = [
+              'independent living', 'assisted living', 'memory care', 'nursing home',
+              'senior living', 'skilled nursing', 'continuing care', 'retirement community',
+              'adult care', 'residential care', 'long-term care', 'respite care',
+              'hospice care', 'senior housing', 'elderly care', 'dementia care',
+              'alzheimer care', 'personal care', 'board and care', '55+ community'
+            ];
+            const lowerText = text.toLowerCase().trim();
+            return genericTypes.some(type => lowerText === type);
+          };
+          
           // First, extract facilities from URL patterns with names
           // Pattern: "Name: website" or "Name - website" or "Name (website)"
           const urlPatterns = [
@@ -1210,68 +1240,217 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             }
           }
           
-          // Try more patterns to extract facility information
+          // Helper to extract description from text after facility name
+          const extractDescription = (fullLine: string, facilityName: string): string => {
+            // Remove the facility name from the line to get remaining text
+            let remaining = fullLine;
+            
+            // Remove markdown bold markers and the name
+            remaining = remaining.replace(/\*\*[^\*]+\*\*/g, '').trim();
+            
+            // Remove citation references like [1], [2], [3]
+            remaining = remaining.replace(/\[\d+\]/g, '').trim();
+            
+            // Remove leading punctuation and whitespace
+            remaining = remaining.replace(/^[\s\-–—:,\.]+/, '').trim();
+            
+            // If we have meaningful text left (more than 10 chars), use it as description
+            if (remaining.length > 10 && !remaining.startsWith('http')) {
+              // Clean up the description - capitalize first letter
+              return remaining.charAt(0).toUpperCase() + remaining.slice(1);
+            }
+            
+            return '';
+          };
+          
+          // Try more patterns to extract facility information WITH descriptions
+          // Pattern for markdown bullets with bold names: "- **Facility Name** description text"
+          const markdownBulletPattern = /^[-•*]\s+\*\*([^\*]+)\*\*\s*(.*)$/gim;
+          
+          // First pass: Extract from markdown bold bullets (most common format)
+          const bulletMatches = aiResponse.matchAll(markdownBulletPattern);
+          for (const match of bulletMatches) {
+            const name = match[1]?.trim();
+            const descriptionPart = match[2]?.trim() || '';
+            
+            // Clean the description: remove citations and clean up
+            let description = descriptionPart
+              .replace(/\[\d+\]/g, '') // Remove citation numbers
+              .replace(/^\s*[-–—:,\.]+\s*/, '') // Remove leading punctuation
+              .trim();
+            
+            // Capitalize first letter if we have a description
+            if (description.length > 10) {
+              description = description.charAt(0).toUpperCase() + description.slice(1);
+            }
+            
+            const isValidName = name && 
+              name.length > 4 && 
+              name.length < 80 && 
+              !name.includes('?') &&
+              /^[A-Z]/.test(name);
+            
+            if (isValidName) {
+              const key = name.toLowerCase();
+              if (!uniqueFallbackFacilities.has(key)) {
+                const matchIndex = match.index || 0;
+                const contextStart = Math.max(0, matchIndex - 50);
+                const contextEnd = Math.min(aiResponse.length, matchIndex + match[0].length + 200);
+                const context = aiResponse.substring(contextStart, contextEnd);
+                
+                const phone = extractPhone(context);
+                const email = extractEmail(context);
+                const parsedLocation = parseLocationFromAddress('', query);
+                
+                console.log(`📍 [Fallback] Facility: "${name}" | Desc: "${description.substring(0, 50)}..." | Phone: ${phone || '(none)'}`);
+                
+                uniqueFallbackFacilities.set(key, {
+                  name: name,
+                  address: '', // Leave blank, will be populated by enrichment
+                  phone: phone,
+                  email: email,
+                  city: parsedLocation.city,
+                  state: parsedLocation.state,
+                  country: parsedLocation.country || defaultCountry,
+                  description: description || `Senior living facility in ${parsedLocation.city || query}`,
+                  photoSources: [],
+                  source: 'Perplexity Web Search',
+                  confidence: 85,
+                  isDiscovered: true
+                });
+              }
+            }
+          }
+          
+          // Second pass: Parse all bullet list items line by line
+          const lines = aiResponse.split('\n');
+          for (const line of lines) {
+            // Check if this is a bullet point
+            const bulletMatch = line.match(/^[-•*]\s+(.+)$/);
+            if (!bulletMatch) continue;
+            
+            let bulletContent = bulletMatch[1].trim();
+            
+            // Remove citation references like [1], [2], [3]
+            bulletContent = bulletContent.replace(/\s*\[\d+\]\s*/g, '').trim();
+            
+            // Skip if empty after cleaning
+            if (!bulletContent) continue;
+            
+            // Parse the content: Name (care type), Address info
+            let name = '';
+            let description = '';
+            let addressPart = '';
+            
+            // Check for parenthetical description: "Name (description), rest"
+            const parenMatch = bulletContent.match(/^([^(]+?)\s*\(([^)]+)\)\s*(?:,\s*(.*))?$/);
+            if (parenMatch) {
+              name = parenMatch[1].trim();
+              description = parenMatch[2].trim();
+              addressPart = parenMatch[3]?.trim() || '';
+            } else {
+              // Simple format: just a name, possibly with trailing content
+              name = bulletContent.replace(/,\s*$/, '').trim();
+            }
+            
+            // Clean the name
+            name = name.replace(/\s+$/, '').replace(/\s*[-–—:,]$/, '');
+            
+            // Capitalize description if we have one
+            if (description) {
+              description = description.charAt(0).toUpperCase() + description.slice(1);
+            }
+            
+            // Extract street address (pattern: number + street name)
+            let streetAddress = '';
+            if (addressPart) {
+              const streetMatch = addressPart.match(/(\d+\s+[A-Z][a-zA-Z\s]+(?:Street|St|Avenue|Ave|Road|Rd|Drive|Dr|Lane|Ln|Way|Boulevard|Blvd|Court|Ct|Place|Pl))/i);
+              if (streetMatch) {
+                streetAddress = streetMatch[1];
+              }
+            }
+            
+            // Extract city and state from address part
+            let city = '';
+            let state = '';
+            if (addressPart) {
+              const cityStateMatch = addressPart.match(/([A-Z][a-zA-Z\s]+),\s*([A-Z]{2})/);
+              if (cityStateMatch) {
+                city = cityStateMatch[1].trim();
+                state = cityStateMatch[2].trim();
+              }
+            }
+            
+            // Validate the name
+            const isValidName = name && 
+              name.length > 4 && 
+              name.length < 80 && 
+              !name.includes('?') &&
+              /^[A-Z]/.test(name) &&
+              !isInstructionText(name) &&
+              !isGenericCareType(name);
+            
+            if (isValidName) {
+              const key = name.toLowerCase();
+              if (!uniqueFallbackFacilities.has(key)) {
+                // Use parsed city/state if found, otherwise fall back to query
+                const parsedLocation = parseLocationFromAddress(streetAddress, query);
+                const finalCity = city || parsedLocation.city;
+                const finalState = state || parsedLocation.state;
+                
+                // Build full address if we have street address
+                const fullAddress = streetAddress 
+                  ? `${streetAddress}, ${finalCity}, ${finalState}`
+                  : '';
+                
+                console.log(`📍 [Fallback] Facility: "${name}" | Desc: "${description}" | Addr: "${fullAddress}"`);
+                
+                uniqueFallbackFacilities.set(key, {
+                  name: name,
+                  address: fullAddress,
+                  phone: '',
+                  email: '',
+                  city: finalCity,
+                  state: finalState,
+                  country: parsedLocation.country || defaultCountry,
+                  description: description || `Senior living facility in ${finalCity || query}`,
+                  photoSources: [],
+                  source: 'Perplexity Web Search',
+                  confidence: streetAddress ? 90 : 85,
+                  isDiscovered: true
+                });
+              }
+            }
+          }
+          
+          // Legacy patterns for backwards compatibility (numbered lists, explicit labels)
           const patterns = [
-            /\*\*([^\*]+)\*\*[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
             /\d+\.\s+([^\n,:]+)(?:[,:]\s*([^\n]+))?/gi,
-            /^[-•*]\s+([^\n,:]+)(?:[,:]\s*([^\n]+))?/gim,
-            /(?:Name|Facility):\s*([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
-            /\b([A-Z][\w\s&'\-\.]+(?:Retirement|Care|Living|Village|Home|Center|Centre|Aged Care|Services))\b/gi
+            /(?:Name|Facility):\s*([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi
           ];
-          
-          // Helper to check if text is an instruction/advice rather than a facility name
-          const isInstructionText = (text: string): boolean => {
-            const instructionWords = [
-              'use ', 'check ', 'search ', 'contact ', 'call ', 'ask ', 'visit ', 
-              'find ', 'look ', 'browse ', 'explore ', 'reach ', 'try ', 'consider ',
-              'identify ', 'start ', 'begin ', 'for licensed', 'for more', 'to get ',
-              'here is ', 'here are ', 'you can ', 'you should ', 'you may ',
-              'senior housing locator', 'alaska-specific', 'local organizations',
-              'regular apartments', 'housing resources', 'curated lists',
-              'currently there is', 'not enough', 'cannot be', 'would be misleading'
-            ];
-            const lowerText = text.toLowerCase();
-            return instructionWords.some(word => lowerText.startsWith(word) || lowerText.includes(word));
-          };
-          
-          // Helper to check if text is just a generic care type (not a real facility name)
-          const isGenericCareType = (text: string): boolean => {
-            const genericTypes = [
-              'independent living', 'assisted living', 'memory care', 'nursing home',
-              'senior living', 'skilled nursing', 'continuing care', 'retirement community',
-              'adult care', 'residential care', 'long-term care', 'respite care',
-              'hospice care', 'senior housing', 'elderly care', 'dementia care',
-              'alzheimer care', 'personal care', 'board and care', '55+ community'
-            ];
-            const lowerText = text.toLowerCase().trim();
-            return genericTypes.some(type => lowerText === type);
-          };
 
           for (const pattern of patterns) {
             const matches = aiResponse.matchAll(pattern);
             for (const match of matches) {
               const name = match[1]?.trim();
-              const location = match[2]?.trim() || '';
               
-              // Validate the name - must be a proper facility name, NOT an instruction or generic category
+              // Validate the name
               const isValidName = name && 
-                name.length > 8 && // Minimum length for a real business name
-                name.length < 80 && // Not too long (instructions are often long)
+                name.length > 4 && 
+                name.length < 80 && 
                 !name.includes('?') && 
-                !name.includes('example') &&
-                !name.startsWith('and ') && // Filter out fragments like "and a fitness center"
-                !name.startsWith('www.') && // Filter out partial URLs
-                !name.startsWith('http') && // Filter out URLs
-                /^[A-Z]/.test(name) && // Must start with capital letter
-                !/^\d/.test(name) && // Shouldn't start with a number
-                name.split(' ').length <= 10 && // Reasonable word count for a business name
-                !isInstructionText(name) && // CRITICAL: Must not be an instruction/advice
-                !isGenericCareType(name); // CRITICAL: Must not be a generic care type
+                !name.startsWith('and ') &&
+                !name.startsWith('www.') &&
+                !name.startsWith('http') &&
+                /^[A-Z]/.test(name) &&
+                !/^\d/.test(name) &&
+                name.split(' ').length <= 10 &&
+                !isInstructionText(name) &&
+                !isGenericCareType(name);
               
               if (isValidName) {
                 const key = name.toLowerCase();
                 if (!uniqueFallbackFacilities.has(key)) {
-                  // Get context around this match for phone/email extraction
                   const matchIndex = match.index || 0;
                   const contextStart = Math.max(0, matchIndex - 50);
                   const contextEnd = Math.min(aiResponse.length, matchIndex + match[0].length + 200);
@@ -1279,22 +1458,19 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   
                   const phone = extractPhone(context);
                   const email = extractEmail(context);
+                  const parsedLocation = parseLocationFromAddress('', query);
                   
-                  // Log contact info extraction for fallback path
-                  console.log(`📍 [Fallback] Facility: "${name}" | Phone: ${phone || '(none)'} | Email: ${email || '(none)'}`);
-                  
-                  // Use location parser to extract city/state from address or query
-                  const parsedLocation = parseLocationFromAddress(location, query);
+                  console.log(`📍 [Fallback-Legacy] Facility: "${name}" | Phone: ${phone || '(none)'}`);
                   
                   uniqueFallbackFacilities.set(key, {
                     name: name,
-                    address: location,
+                    address: '',
                     phone: phone,
                     email: email,
                     city: parsedLocation.city,
                     state: parsedLocation.state,
                     country: parsedLocation.country || defaultCountry,
-                    description: `Found via search for "${query}"`,
+                    description: `Senior living facility in ${parsedLocation.city || query}`,
                     photoSources: [],
                     source: 'Perplexity Web Search',
                     confidence: 85,
