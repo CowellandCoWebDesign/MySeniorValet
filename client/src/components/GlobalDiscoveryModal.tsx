@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
@@ -8,6 +8,7 @@ import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, Aler
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { useLocation } from 'wouter';
+import { queryClient } from '@/lib/queryClient';
 
 interface GlobalDiscoveryResult {
   id: number;
@@ -61,6 +62,15 @@ export function GlobalDiscoveryModal({
   const [selectedCommunity, setSelectedCommunity] = useState<GlobalDiscoveryResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showRawResponse, setShowRawResponse] = useState(false);
+  
+  // CRITICAL: Invalidate recently-discovered cache when modal opens with results
+  // This ensures new discoveries appear immediately in Recently Discovered section
+  useEffect(() => {
+    if (isOpen && results && results.length > 0) {
+      queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+      console.log('🔄 GlobalDiscoveryModal: Invalidated recently-discovered cache for', results.length, 'results');
+    }
+  }, [isOpen, results]);
   
   const handleSelectCommunity = (community: GlobalDiscoveryResult) => {
     setSelectedCommunity(community);
