@@ -12,13 +12,16 @@ interface FeaturedExcellenceCardProps {
     city: string;
     state: string;
     address?: string;
+    streetAddress?: string; // Legacy field mapping
     careTypes?: string[];
     rating?: number;
     photos?: string[];
     description?: string;
     amenities?: string[];
     phone?: string;
+    phoneNumber?: string; // Legacy field mapping
     website?: string;
+    url?: string; // Legacy field mapping
     priceRange?: { min: number; max: number };
     rentPerMonth?: number | string;
     totalUnits?: number;
@@ -31,6 +34,10 @@ interface FeaturedExcellenceCardProps {
 }
 
 export function FeaturedExcellenceCard({ community, index = 0, compact = false, disableAutoPhotoLoad = false }: FeaturedExcellenceCardProps) {
+  // Normalize legacy field names to standard fields
+  const normalizedAddress = community.address || community.streetAddress;
+  const normalizedPhone = community.phone || community.phoneNumber;
+  const normalizedWebsite = community.website || community.url;
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [enrichedPhotos, setEnrichedPhotos] = useState<string[]>(community.photos || []);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
@@ -334,36 +341,38 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
         {/* Uniform Contact Information Section */}
         <div className="space-y-1 mb-2 text-xs text-gray-600 dark:text-gray-400" data-testid={`contact-section-${community.id}`}>
           {/* Address line (if available) */}
-          {community.address && (
+          {normalizedAddress && (
             <div className="flex items-start gap-1.5" data-testid={`address-${community.id}`}>
               <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0 text-gray-500" />
-              <span className="line-clamp-1">{community.address}</span>
+              <span className="line-clamp-1">{normalizedAddress}</span>
             </div>
           )}
           
-          {/* City, State (always shown) */}
-          <div className="flex items-center gap-1.5" data-testid={`city-state-${community.id}`}>
-            {!community.address && <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500" />}
-            {community.address && <span className="w-3 flex-shrink-0" />}
-            <span>{community.city}, {community.state}</span>
-          </div>
+          {/* City, State (always shown when both exist) */}
+          {community.city && community.state && (
+            <div className="flex items-center gap-1.5" data-testid={`city-state-${community.id}`}>
+              {!normalizedAddress && <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500" />}
+              {normalizedAddress && <span className="w-3 flex-shrink-0" />}
+              <span>{community.city}, {community.state}</span>
+            </div>
+          )}
           
           {/* Phone (if available) */}
-          {community.phone && (
+          {normalizedPhone && (
             <div className="flex items-center gap-1.5" data-testid={`phone-${community.id}`}>
               <span className="w-3 text-center flex-shrink-0">📞</span>
-              <a href={`tel:${community.phone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
-                {community.phone}
+              <a href={`tel:${normalizedPhone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                {normalizedPhone}
               </a>
             </div>
           )}
           
           {/* Website (if available) */}
-          {community.website && (
+          {normalizedWebsite && (
             <div className="flex items-center gap-1.5" data-testid={`website-${community.id}`}>
               <span className="w-3 text-center flex-shrink-0">🌐</span>
               <a 
-                href={community.website.startsWith('http') ? community.website : `https://${community.website}`} 
+                href={normalizedWebsite.startsWith('http') ? normalizedWebsite : `https://${normalizedWebsite}`} 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 className="text-blue-600 dark:text-blue-400 hover:underline truncate"
@@ -376,18 +385,18 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
 
         {/* Action buttons row */}
         <div className="flex items-center gap-2 text-xs mb-2">
-          {community.phone && (
+          {normalizedPhone && (
             <a 
-              href={`tel:${community.phone}`} 
+              href={`tel:${normalizedPhone}`} 
               className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" 
               data-testid={`link-call-${community.id}`}
             >
               📞 Call
             </a>
           )}
-          {community.website && (
+          {normalizedWebsite && (
             <a 
-              href={community.website.startsWith('http') ? community.website : `https://${community.website}`} 
+              href={normalizedWebsite.startsWith('http') ? normalizedWebsite : `https://${normalizedWebsite}`} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="flex items-center gap-1 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors" 

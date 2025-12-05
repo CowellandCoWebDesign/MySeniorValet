@@ -40,7 +40,7 @@ export function GeographicCommunitiesSection() {
 
   const scrollSlider = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
     if (ref.current) {
-      const scrollAmount = 300;
+      const scrollAmount = 296; // card width (280px) + gap (16px)
       ref.current.scrollBy({
         left: direction === 'left' ? -scrollAmount : scrollAmount,
         behavior: 'smooth'

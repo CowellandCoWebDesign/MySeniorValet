@@ -97,7 +97,7 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
       highlights: ["Ocean views in Hawaii", "Premium island lifestyle", "Resort-style amenities"],
       rating: 4.8,
       heroImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
-      availability: "Limited Availability",
+      availability: "Limited Spots",
       amenities: ["Ocean Views", "Tropical Gardens", "Fine Dining", "Island Activities"],
       whyFeatured: ["Hawaii's premier senior community", "Paradise island living", "Exceptional tropical lifestyle"]
     },
@@ -187,7 +187,23 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
   
   return (
     <div className="space-y-4">
-      {/* Featured Communities Alert - Compact with Community Count (hidden when hideHeader is true) */}
+      {/* Section Title - Always visible */}
+      <div className="text-center">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <Star className="w-7 h-7 text-orange-500" />
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+            Featured Excellence Communities
+          </h2>
+          <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-1 text-sm font-bold">
+            Premium
+          </Badge>
+        </div>
+        <p className="text-base text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          Hand-picked exceptional senior living communities across 5 countries
+        </p>
+      </div>
+
+      {/* Featured Communities Alert - Extra details (hidden when hideHeader is true) */}
       {!hideHeader && (
         <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
           <CardContent className="py-3">
@@ -240,7 +256,7 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
               };
               
               return (
-                <div key={deal.id} className="w-[280px] sm:w-[320px] lg:w-[360px] flex-shrink-0">
+                <div key={deal.id} className="flex-shrink-0">
                   <FeaturedExcellenceCard
                     community={community}
                     index={index}

@@ -20,16 +20,16 @@ export function RecentlyDiscoveredCommunities() {
     }
   };
 
-  // Scroll navigation functions
+  // Scroll navigation functions - card width 280px + gap 16px
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -424, behavior: 'smooth' });
+      scrollContainerRef.current.scrollBy({ left: -296, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 424, behavior: 'smooth' });
+      scrollContainerRef.current.scrollBy({ left: 296, behavior: 'smooth' });
     }
   };
 
@@ -79,21 +79,22 @@ export function RecentlyDiscoveredCommunities() {
         {/* Carousel Container */}
         <div 
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2"
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-2"
           onScroll={checkScrollPosition}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {isLoading ? (
-            // Loading skeleton
+            // Loading skeleton - matching FeaturedExcellenceCard dimensions
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[400px]">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-5 animate-pulse border border-gray-200 dark:border-gray-700">
-                  <div className="h-40 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-lg mb-4"></div>
-                  <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4 mb-3"></div>
-                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-1/2 mb-3"></div>
-                  <div className="flex gap-2 mt-4">
-                    <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-full w-24"></div>
-                    <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-full w-24"></div>
+              <div key={i} className="flex-shrink-0 w-[280px] min-w-[280px] max-w-[280px] h-[380px] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="h-36 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700"></div>
+                <div className="p-3 space-y-3">
+                  <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-1/2"></div>
+                  <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-2/3"></div>
+                  <div className="flex gap-2 mt-3">
+                    <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-16"></div>
+                    <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-16"></div>
                   </div>
                 </div>
               </div>

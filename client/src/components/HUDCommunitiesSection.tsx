@@ -20,10 +20,10 @@ export function HUDCommunitiesSection() {
     queryKey: ['/api/communities/hud-properties?limit=10']
   });
 
-  // Scroll navigation function
+  // Scroll navigation function - card width 280px + gap 16px
   const scrollSlider = (direction: 'left' | 'right') => {
     if (hudSliderRef.current) {
-      const scrollAmount = 320; // Width of one card plus gap
+      const scrollAmount = 296; // Width of one card (280px) plus gap (16px)
       const currentScroll = hudSliderRef.current.scrollLeft;
       const newScroll = direction === 'left' 
         ? currentScroll - scrollAmount 
@@ -79,20 +79,21 @@ export function HUDCommunitiesSection() {
         {/* HUD Communities Carousel */}
         <div 
           ref={hudSliderRef} 
-          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2" 
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-2" 
           style={{ scrollBehavior: 'smooth', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {(!hudProperties || (hudProperties as any[]).length === 0) ? (
-            // Loading skeleton cards
+            // Loading skeleton cards - matching FeaturedExcellenceCard dimensions
             Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="flex-shrink-0 w-[400px]">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-5 animate-pulse border border-gray-200 dark:border-gray-700">
-                  <div className="h-40 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-lg mb-4"></div>
-                  <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4 mb-3"></div>
-                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-1/2 mb-3"></div>
-                  <div className="flex gap-2 mt-4">
-                    <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-full w-24"></div>
-                    <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-full w-24"></div>
+              <div key={index} className="flex-shrink-0 w-[280px] min-w-[280px] max-w-[280px] h-[380px] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="h-36 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700"></div>
+                <div className="p-3 space-y-3">
+                  <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-1/2"></div>
+                  <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-2/3"></div>
+                  <div className="flex gap-2 mt-3">
+                    <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-16"></div>
+                    <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-16"></div>
                   </div>
                 </div>
               </div>
@@ -111,25 +112,25 @@ export function HUDCommunitiesSection() {
                 </div>
               ))}
               
-              {/* View More Card */}
+              {/* View More Card - matching card dimensions */}
               <div className="flex-shrink-0">
                 <Link to="/search?certified=hud" data-testid="link-view-all-hud">
-                  <div className="w-[400px] border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl overflow-hidden">
-                    <div className="h-48 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center">
-                      <div className="text-center p-6">
-                        <div className="text-5xl mb-3">🏠</div>
-                        <div className="text-lg font-bold text-green-800 dark:text-green-200">View All HUD Communities</div>
+                  <div className="w-[280px] min-w-[280px] max-w-[280px] h-full border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl overflow-hidden flex flex-col">
+                    <div className="h-36 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center flex-shrink-0">
+                      <div className="text-center p-4">
+                        <div className="text-4xl mb-2">🏠</div>
+                        <div className="text-sm font-bold text-green-800 dark:text-green-200">View All HUD</div>
                       </div>
                     </div>
-                    <div className="p-4">
-                      <h3 className="font-bold text-xl text-gray-900 dark:text-gray-100 mb-2">
-                        Explore {(hudCount as any)?.total || '4,771'}+ HUD Properties
+                    <div className="p-3 flex flex-col flex-grow">
+                      <h3 className="font-bold text-sm text-gray-900 dark:text-gray-100 mb-1 line-clamp-2">
+                        {(hudCount as any)?.total || '4,771'}+ HUD Properties
                       </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-sm">
-                        Discover affordable senior housing options with government-verified pricing across the nation.
+                      <p className="text-gray-600 dark:text-gray-400 text-xs mb-2 line-clamp-2">
+                        Affordable housing with verified pricing
                       </p>
-                      <Button data-testid="button-browse-hud" className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white">
-                        Browse All HUD Communities →
+                      <Button data-testid="button-browse-hud" size="sm" className="w-full mt-auto bg-green-600 hover:bg-green-700 text-white text-xs">
+                        Browse All →
                       </Button>
                     </div>
                   </div>
