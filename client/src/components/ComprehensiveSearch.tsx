@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MascotLoadingDisplay } from './MascotLoadingDisplay';
+import { queryClient } from '@/lib/queryClient';
 
 interface SearchResult {
   communities: any[];
@@ -157,6 +158,13 @@ export function ComprehensiveSearch({
         
         if (globalResponse.ok) {
           const globalData = await globalResponse.json();
+          
+          // CRITICAL: Invalidate recently-discovered cache after global discovery
+          // This ensures new discoveries appear immediately in the Recently Discovered section
+          if (globalData.metadata?.discoveredCount > 0 || globalData.results?.length > 0) {
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+            console.log('🔄 Invalidated recently-discovered cache after discovery search');
+          }
           
           // Format global results to match expected structure
           const formattedResult = {

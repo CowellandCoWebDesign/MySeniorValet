@@ -41,10 +41,13 @@ export function RecentlyDiscoveredCommunities() {
   }, []);
 
   // Fetch recently discovered communities
+  // FIXED: Reduced cache time for real-time discovery updates
   const { data: recentCommunities = [], isLoading } = useQuery<any[]>({
-    queryKey: ['/api/communities/recently-discovered?limit=100'],
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
+    queryKey: ['/api/communities/recently-discovered'],
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes (was 30 min - too stale for discovery)
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: true, // Refresh when user returns to tab
+    refetchOnMount: 'always', // Always check for fresh data when component mounts
   });
 
   return (

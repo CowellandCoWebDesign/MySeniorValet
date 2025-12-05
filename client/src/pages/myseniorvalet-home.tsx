@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
+import { queryClient } from "@/lib/queryClient";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
@@ -360,6 +361,14 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         if (response.ok) {
           const data = await response.json();
+          
+          // CRITICAL: Invalidate recently-discovered cache after discovery search
+          // This ensures new discoveries appear immediately in the Recently Discovered section
+          if (data.results?.length > 0 || data.metadata?.discoveredCount > 0) {
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+            console.log('🔄 Invalidated recently-discovered cache after Discovery Mode search');
+          }
+          
           // Clear loading state first to remove loading modal
           setIsLoading(false);
           setSearchResults({ results: [], metadata: null });
@@ -473,6 +482,13 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         if (!response.ok) throw new Error('Discovery search failed');
         
         const data = await response.json();
+        
+        // CRITICAL: Invalidate recently-discovered cache after discovery search
+        // This ensures new discoveries appear immediately in the Recently Discovered section
+        if (data.results?.length > 0 || data.metadata?.discoveredCount > 0) {
+          queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+          console.log('🔄 Invalidated recently-discovered cache after discover mode search');
+        }
         
         // Show discovered facilities in modal
         if (data.results && data.results.length > 0) {
