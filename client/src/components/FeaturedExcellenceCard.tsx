@@ -38,6 +38,13 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
   const normalizedAddress = community.address || community.streetAddress;
   const normalizedPhone = community.phone || community.phoneNumber;
   const normalizedWebsite = community.website || community.url;
+  
+  // Check if address already contains city/state to avoid duplication
+  const cityState = community.city && community.state ? `${community.city}, ${community.state}` : '';
+  const addressContainsCityState = normalizedAddress && cityState && 
+    normalizedAddress.toLowerCase().includes(community.city?.toLowerCase() || '') &&
+    normalizedAddress.toLowerCase().includes(community.state?.toLowerCase() || '');
+  const showSeparateCityState = !addressContainsCityState && cityState;
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [enrichedPhotos, setEnrichedPhotos] = useState<string[]>(community.photos || []);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
@@ -348,12 +355,12 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
             </div>
           )}
           
-          {/* City, State (always shown when both exist) */}
-          {community.city && community.state && (
+          {/* City, State (only shown if address doesn't already contain it) */}
+          {showSeparateCityState && (
             <div className="flex items-center gap-1.5" data-testid={`city-state-${community.id}`}>
               {!normalizedAddress && <MapPin className="w-3 h-3 flex-shrink-0 text-gray-500" />}
               {normalizedAddress && <span className="w-3 flex-shrink-0" />}
-              <span>{community.city}, {community.state}</span>
+              <span>{cityState}</span>
             </div>
           )}
           

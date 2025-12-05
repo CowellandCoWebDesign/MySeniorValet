@@ -240,16 +240,23 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
         <div className="overflow-x-auto pb-4 -mx-4 px-4">
           <div className="flex gap-4" style={{ width: 'max-content' }}>
             {redTagDeals.map((deal, index) => {
+              // Get API data for this community to include contact info
+              const apiData = apiDataMap.get(deal.id);
+              const apiCommunity = apiData?.community;
+              
               // Transform deal data to community format for FeaturedExcellenceCard
               const community = {
                 id: deal.id,
                 name: deal.communityName,
                 city: deal.location.split(',')[0]?.trim() || '',
                 state: deal.location.split(',')[1]?.trim() || '',
+                address: apiCommunity?.address || apiCommunity?.streetAddress,
+                phone: apiCommunity?.phone || apiCommunity?.phoneNumber,
+                website: apiCommunity?.website || apiCommunity?.url,
                 rating: deal.rating,
                 amenities: deal.amenities,
                 careTypes: deal.highlights,
-                photos: apiDataMap.get(deal.id)?.community?.photos || [], // Use real photos from API
+                photos: apiCommunity?.photos || [],
                 occupancyRate: deal.availability === "Available Now" ? 75 : 
                               deal.availability === "Limited Spots" ? 85 : 
                               deal.availability === "Waitlist" ? 95 : 80
