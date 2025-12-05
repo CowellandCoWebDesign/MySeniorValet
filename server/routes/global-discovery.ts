@@ -1709,7 +1709,15 @@ Return up to 20 real facilities with verified information. Prioritize facilities
               console.log(`  📝 Updating address: ${discovered.address}`);
             }
             
-            // Apply updates if any
+            // CRITICAL FIX: Always update data_source and discoveryDate so community appears in Recently Discovered
+            // Even if no other fields changed, mark it as recently discovered
+            updates.data_source = 'Verified via Global Discovery (Auto-Approved)';
+            updates.discoveryDate = new Date();
+            updates.discoverySource = 'Global Discovery Search';
+            hasUpdates = true;
+            console.log(`  📝 Marking as recently discovered via Global Discovery`);
+            
+            // Apply updates (always happens now since we always mark as discovered)
             if (hasUpdates) {
               try {
                 await db.update(communities)
@@ -1722,13 +1730,13 @@ Return up to 20 real facilities with verified information. Prioritize facilities
                         timestamp: new Date().toISOString(),
                         source: 'Global Discovery Update',
                         fieldsUpdated: Object.keys(updates),
-                        autoApproved: false
+                        autoApproved: true
                       }])}::jsonb
                     `
                   })
                   .where(eq(communities.id, existingCommunity.id));
                 
-                console.log(`✅ Updated existing community: ${existingCommunity.name} (ID: ${existingCommunity.id})`);
+                console.log(`✅ Updated existing community: ${existingCommunity.name} (ID: ${existingCommunity.id}) - Now appears in Recently Discovered`);
                 
                 // Get updated record
                 const [updatedCommunity] = await db.select()
