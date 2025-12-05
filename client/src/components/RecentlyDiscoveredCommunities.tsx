@@ -42,8 +42,14 @@ export function RecentlyDiscoveredCommunities() {
 
   // Fetch recently discovered communities
   // FIXED: Reduced cache time for real-time discovery updates
+  // INCREASED: Now fetches last 100 discovered communities instead of 20
   const { data: recentCommunities = [], isLoading } = useQuery<any[]>({
-    queryKey: ['/api/communities/recently-discovered'],
+    queryKey: ['/api/communities/recently-discovered', { limit: 100 }],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/recently-discovered?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    },
     staleTime: 2 * 60 * 1000, // Cache for 2 minutes (was 30 min - too stale for discovery)
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
     refetchOnWindowFocus: true, // Refresh when user returns to tab

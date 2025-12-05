@@ -929,20 +929,32 @@ Find businesses and services matching this search. For each result provide:
 
 Return up to 15 results.`;
         } else {
-          // For all senior living searches - pass query directly, let Perplexity understand it
+          // BROADEST POSSIBLE SEARCH - Any housing option a senior could use
           searchQuery = `Search for: "${query}"
 
-Find senior living communities and housing options matching this search. Include all types: assisted living, independent living, memory care, nursing homes, senior apartments, 55+ communities, affordable housing, HUD housing.
+Find ANY housing options that seniors (age 55+) could live in. This includes but is not limited to:
+- Senior apartments and 55+ communities
+- Affordable/subsidized housing (HUD, Section 8, Section 202)
+- Independent living communities
+- Assisted living facilities
+- Memory care facilities
+- Nursing homes and skilled nursing
+- Retirement communities and CCRCs
+- Mobile home parks and RV communities accepting seniors
+- Regular apartment complexes that accept seniors
+- Low-income housing for elderly
+- Veterans housing
+- Any residential option in this area
 
-For each facility provide:
-- Facility name
+For each housing option provide:
+- Name of property/facility
 - Full street address
 - City and state
-- Phone number (required - search for it)
-- Website URL (required - find official site)
-- Type of care/housing offered
+- Phone number (find it)
+- Website URL (find it)
+- Type of housing
 
-Return up to 20 real facilities with verified information. Prioritize facilities with complete contact details.`;
+Return up to 25 results. Include ANY housing where seniors can live, not just dedicated senior facilities.`;
         }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
