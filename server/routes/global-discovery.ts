@@ -916,19 +916,15 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         
         try {
 
-        // BEST PRACTICES PROMPT: [Goal] → [Context] → [Output Format]
-        // Following Perplexity official documentation for optimal results
+        // NATURAL LANGUAGE: Pass user's query directly to Perplexity
+        // Let the AI understand intent - don't over-constrain the search
         if (searchType === 'services') {
-          searchQuery = `Find local businesses and services for: ${query}
-
-List each business with name, address, city, state, and type of service.`;
+          searchQuery = query;
         } else {
-          // Simplified, focused query - let Perplexity's web search do the work
-          searchQuery = `Find senior living communities and housing options in ${query}.
+          // Pass user query directly, add context for broad housing search
+          searchQuery = `${query}
 
-Include assisted living, independent living, memory care, nursing homes, 55+ apartments, and retirement communities in this area.
-
-For each facility found, provide the name, address, city, state, and care type.`;
+Search for ALL types of housing options where seniors can live: senior apartments, 55+ communities, assisted living, independent living, memory care, nursing homes, affordable housing, HUD properties, regular apartments, mobile home communities, retirement communities, and any other residential options available.`;
         }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
@@ -982,16 +978,17 @@ For each facility found, provide the name, address, city, state, and care type.`
                         address: { type: 'string' },
                         city: { type: 'string' },
                         state: { type: 'string' },
+                        phone: { type: 'string' },
+                        website: { type: 'string' },
                         description: { type: 'string' },
                         careTypes: { type: 'array', items: { type: 'string' } }
                       },
-                      required: ['name', 'city', 'state']
+                      required: ['name']
                     }
                   },
                   totalFound: { type: 'number' },
                   searchLocation: { type: 'string' }
-                },
-                required: ['facilities']
+                }
               }
             }
           }
