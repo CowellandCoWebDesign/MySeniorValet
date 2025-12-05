@@ -1021,12 +1021,14 @@ Include ALL housing options you find - even regular apartments, mobile home park
             }
           ],
           web_search_options: {
-            search_context_size: 'medium' // Increased from 'low' for better remote location coverage
+            search_context_size: 'medium' // Medium context for balanced cost/coverage
           },
-          temperature: 0.5, // Higher for more comprehensive results
+          temperature: 0.1, // Lower for more factual, consistent responses
           max_tokens: 8000,
           top_p: 0.95,
-          stream: false
+          stream: false,
+          return_images: true, // Enable full web search capabilities
+          search_recency_filter: 'year' // Focus on recent data for accuracy
         })
       }).finally(() => clearTimeout(timeout));
       
