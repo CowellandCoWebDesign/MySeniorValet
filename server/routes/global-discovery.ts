@@ -916,71 +916,34 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         
         try {
 
-        // SIMPLIFIED: Pass user query directly to Perplexity - let AI understand the intent
-        // No complex parsing needed - Perplexity handles natural language queries well
+        // BEST PRACTICES PROMPT: [Goal] → [Context] → [Output Format]
+        // Following Perplexity official documentation for optimal results
         if (searchType === 'services') {
-          searchQuery = `Search for: "${query}"
+          searchQuery = `Find local businesses and services for: ${query}
 
-Find businesses and services matching this search. For each result provide:
-- Name
-- Full address (street, city, state, zip)
-- Phone number
-- Website URL
-
-Return up to 15 results.`;
+List each business with name, address, city, state, and type of service.`;
         } else {
-          // BROADEST POSSIBLE SEARCH - Any housing option a senior could use
-          searchQuery = `Search for: "${query}"
+          // Simplified, focused query - let Perplexity's web search do the work
+          searchQuery = `Find senior living communities and housing options in ${query}.
 
-Find ANY housing options that seniors (age 55+) could live in. This includes but is not limited to:
-- Senior apartments and 55+ communities
-- Affordable/subsidized housing (HUD, Section 8, Section 202)
-- Independent living communities
-- Assisted living facilities
-- Memory care facilities
-- Nursing homes and skilled nursing
-- Retirement communities and CCRCs
-- Mobile home parks and RV communities accepting seniors
-- Regular apartment complexes that accept seniors
-- Low-income housing for elderly
-- Veterans housing
-- Any residential option in this area
+Include assisted living, independent living, memory care, nursing homes, 55+ apartments, and retirement communities in this area.
 
-For each housing option provide:
-- Name of property/facility
-- Full street address
-- City and state
-- Phone number (find it)
-- Website URL (find it)
-- Type of housing
-
-Return up to 25 results. Include ANY housing where seniors can live, not just dedicated senior facilities.`;
+For each facility found, provide the name, address, city, state, and care type.`;
         }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
-      // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
-      // BALANCED: 30s timeout - enough for Perplexity to respond, not too long for users
-      const isComplexSearch = (isCountrySearch || searchType === 'services' || query.toLowerCase().includes('hotels') || query.toLowerCase().includes('transportation'));
-      const TIMEOUT_MS = 30000; // 30s timeout - Perplexity needs time to search comprehensively
+      // 30s timeout - enough for Perplexity to respond
+      const TIMEOUT_MS = 30000;
       console.log(`⏱️ Using ${TIMEOUT_MS/1000}s timeout for discovery search`);
       
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
       
-      // Simplified system prompt - let Perplexity do the heavy lifting
-      let systemPrompt = '';
-      if (searchType === 'services') {
-        systemPrompt = 'You are a business directory assistant. Search the web and return real businesses with accurate contact information.';
-      } else {
-        systemPrompt = 'You are a senior living facility finder. Search the web for real senior living communities, apartments, and care facilities. Always include phone numbers and websites when available. Return only real, existing facilities - never make up or invent facilities.';
-      }
-      
       // Track Perplexity API usage for Discovery Mode
       const discoveryStartTime = Date.now();
       
-      // FIXED: Remove strict JSON schema - it causes empty results for remote/unusual locations
-      // Use natural language response with best-effort JSON parsing, then fallback to text extraction
+      // Use response_format with JSON schema per Perplexity best practices
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
         method: 'POST',
@@ -992,43 +955,46 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
           model: 'sonar-pro',
           messages: [
             {
-              role: 'system',
-              content: systemPrompt
-            },
-            {
               role: 'user',
-              content: searchQuery + `
-
-IMPORTANT: Return your response as JSON with this structure:
-{
-  "facilities": [
-    {
-      "name": "Facility Name",
-      "address": "123 Main St",
-      "city": "City",
-      "state": "ST",
-      "phone": "555-123-4567",
-      "website": "https://example.com",
-      "description": "Brief description",
-      "careTypes": ["Independent Living", "Assisted Living"]
-    }
-  ],
-  "totalFound": 5,
-  "searchLocation": "City, State"
-}
-
-Include ALL housing options you find - even regular apartments, mobile home parks, or any place where seniors could live. Better to include more options than fewer.`
+              content: searchQuery
             }
           ],
           web_search_options: {
-            search_context_size: 'medium' // Medium context for balanced cost/coverage
+            search_context_size: 'medium'
           },
-          temperature: 0.1, // Lower for more factual, consistent responses
-          max_tokens: 8000,
-          top_p: 0.95,
+          temperature: 0.1,
+          max_tokens: 4000,
           stream: false,
-          return_images: true, // Enable full web search capabilities
-          search_recency_filter: 'year' // Focus on recent data for accuracy
+          return_images: true,
+          search_recency_filter: 'year',
+          response_format: {
+            type: 'json_schema',
+            json_schema: {
+              schema: {
+                type: 'object',
+                properties: {
+                  facilities: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string' },
+                        address: { type: 'string' },
+                        city: { type: 'string' },
+                        state: { type: 'string' },
+                        description: { type: 'string' },
+                        careTypes: { type: 'array', items: { type: 'string' } }
+                      },
+                      required: ['name', 'city', 'state']
+                    }
+                  },
+                  totalFound: { type: 'number' },
+                  searchLocation: { type: 'string' }
+                },
+                required: ['facilities']
+              }
+            }
+          }
         })
       }).finally(() => clearTimeout(timeout));
       
