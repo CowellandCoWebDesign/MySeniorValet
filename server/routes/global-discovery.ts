@@ -979,6 +979,8 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
       // Track Perplexity API usage for Discovery Mode
       const discoveryStartTime = Date.now();
       
+      // FIXED: Remove strict JSON schema - it causes empty results for remote/unusual locations
+      // Use natural language response with best-effort JSON parsing, then fallback to text extraction
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
         method: 'POST',
@@ -987,7 +989,7 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar-pro', // Enhanced model with low context for quality and cost balance
+          model: 'sonar-pro',
           messages: [
             {
               role: 'system',
@@ -995,51 +997,35 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
             },
             {
               role: 'user',
-              content: searchQuery + ' Provide the response as structured JSON data with ALL facilities found, not just examples. Include every single facility you can find. IMPORTANT: Please search thoroughly for phone numbers and website URLs for each facility as these help families make contact.'
+              content: searchQuery + `
+
+IMPORTANT: Return your response as JSON with this structure:
+{
+  "facilities": [
+    {
+      "name": "Facility Name",
+      "address": "123 Main St",
+      "city": "City",
+      "state": "ST",
+      "phone": "555-123-4567",
+      "website": "https://example.com",
+      "description": "Brief description",
+      "careTypes": ["Independent Living", "Assisted Living"]
+    }
+  ],
+  "totalFound": 5,
+  "searchLocation": "City, State"
+}
+
+Include ALL housing options you find - even regular apartments, mobile home parks, or any place where seniors could live. Better to include more options than fewer.`
             }
           ],
           web_search_options: {
-            search_context_size: 'low' // Use low context to reduce costs
+            search_context_size: 'medium' // Increased from 'low' for better remote location coverage
           },
-          response_format: {
-            type: 'json_schema',
-            json_schema: {
-              schema: {
-                type: 'object',
-                properties: {
-                  facilities: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        name: { type: 'string' },
-                        address: { type: 'string' },
-                        city: { type: 'string' },
-                        state: { type: 'string' },
-                        country: { type: 'string' },
-                        phone: { type: 'string' },
-                        website: { type: 'string' },
-                        email: { type: 'string' },
-                        description: { type: 'string' },
-                        careTypes: {
-                          type: 'array',
-                          items: { type: 'string' }
-                        },
-                        zipCode: { type: 'string' }
-                      },
-                      required: ['name']
-                    }
-                  },
-                  totalFound: { type: 'number' },
-                  searchLocation: { type: 'string' }
-                },
-                required: ['facilities']
-              }
-            }
-          },
-          temperature: 0.3, // Slightly higher for more diverse results
-          max_tokens: 8000, // Further increased to handle comprehensive responses with 20+ facilities
-          top_p: 0.9,
+          temperature: 0.5, // Higher for more comprehensive results
+          max_tokens: 8000,
+          top_p: 0.95,
           stream: false
         })
       }).finally(() => clearTimeout(timeout));
@@ -1081,6 +1067,35 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
       
       // Log the raw response for debugging
       console.log(`🔍 Raw Perplexity Response:`, aiResponse.substring(0, 500));
+      
+      // Check if Perplexity says it can't find data (don't try to parse advice/instructions)
+      const noDataPhrases = [
+        'there is not enough',
+        'cannot be pulled in',
+        'would be misleading',
+        'no access to external search',
+        'currently there is no access',
+        'not able to provide',
+        'unable to find specific',
+        'no specific properties found',
+        'limited data available',
+        'access to the external search and browsing tools',
+        'temporarily unavailable',
+        'is temporarily unavailable',
+        'would be speculative',
+        'risk being wrong or out of date',
+        'not possible to complete this request',
+        'without those tools'
+      ];
+      const lowerResponse = aiResponse.toLowerCase();
+      const isNoDataResponse = noDataPhrases.some(phrase => lowerResponse.includes(phrase));
+      
+      if (isNoDataResponse) {
+        console.log(`⚠️ Perplexity indicates no data available for this location - skipping parsing`);
+        console.log(`📋 Returning ${existingCommunities.length} existing database results only.`);
+        // Skip parsing and use only database results
+        discoveredCommunities = [];
+      } else {
       
       // Step 3: Parse the structured JSON response
       // discoveredCommunities already declared above
@@ -1274,15 +1289,44 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
             /\b([A-Z][\w\s&'\-\.]+(?:Retirement|Care|Living|Village|Home|Center|Centre|Aged Care|Services))\b/gi
           ];
           
+          // Helper to check if text is an instruction/advice rather than a facility name
+          const isInstructionText = (text: string): boolean => {
+            const instructionWords = [
+              'use ', 'check ', 'search ', 'contact ', 'call ', 'ask ', 'visit ', 
+              'find ', 'look ', 'browse ', 'explore ', 'reach ', 'try ', 'consider ',
+              'identify ', 'start ', 'begin ', 'for licensed', 'for more', 'to get ',
+              'here is ', 'here are ', 'you can ', 'you should ', 'you may ',
+              'senior housing locator', 'alaska-specific', 'local organizations',
+              'regular apartments', 'housing resources', 'curated lists',
+              'currently there is', 'not enough', 'cannot be', 'would be misleading'
+            ];
+            const lowerText = text.toLowerCase();
+            return instructionWords.some(word => lowerText.startsWith(word) || lowerText.includes(word));
+          };
+          
+          // Helper to check if text is just a generic care type (not a real facility name)
+          const isGenericCareType = (text: string): boolean => {
+            const genericTypes = [
+              'independent living', 'assisted living', 'memory care', 'nursing home',
+              'senior living', 'skilled nursing', 'continuing care', 'retirement community',
+              'adult care', 'residential care', 'long-term care', 'respite care',
+              'hospice care', 'senior housing', 'elderly care', 'dementia care',
+              'alzheimer care', 'personal care', 'board and care', '55+ community'
+            ];
+            const lowerText = text.toLowerCase().trim();
+            return genericTypes.some(type => lowerText === type);
+          };
+
           for (const pattern of patterns) {
             const matches = aiResponse.matchAll(pattern);
             for (const match of matches) {
               const name = match[1]?.trim();
               const location = match[2]?.trim() || '';
               
-              // Validate the name - must be a proper facility name
+              // Validate the name - must be a proper facility name, NOT an instruction or generic category
               const isValidName = name && 
                 name.length > 8 && // Minimum length for a real business name
+                name.length < 80 && // Not too long (instructions are often long)
                 !name.includes('?') && 
                 !name.includes('example') &&
                 !name.startsWith('and ') && // Filter out fragments like "and a fitness center"
@@ -1290,7 +1334,9 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
                 !name.startsWith('http') && // Filter out URLs
                 /^[A-Z]/.test(name) && // Must start with capital letter
                 !/^\d/.test(name) && // Shouldn't start with a number
-                name.split(' ').length <= 10; // Reasonable word count for a business name
+                name.split(' ').length <= 10 && // Reasonable word count for a business name
+                !isInstructionText(name) && // CRITICAL: Must not be an instruction/advice
+                !isGenericCareType(name); // CRITICAL: Must not be a generic care type
               
               if (isValidName) {
                 const key = name.toLowerCase();
@@ -1343,6 +1389,8 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
           console.error('❌ Fallback parsing also failed:', fallbackError);
         }
       }
+      
+      } // End of if (isNoDataResponse) else block
       
       } catch (sonarError) {
         console.error('⚠️ Sonar API error:', sonarError);
@@ -1732,18 +1780,21 @@ Return up to 25 results. Include ANY housing where seniors can live, not just de
             // Apply updates (always happens now since we always mark as discovered)
             if (hasUpdates) {
               try {
+                // Create enrichment history entry as a properly typed JSONB value
+                const enrichmentEntry = JSON.stringify([{
+                  timestamp: new Date().toISOString(),
+                  source: 'Global Discovery Update',
+                  fieldsUpdated: Object.keys(updates),
+                  autoApproved: true
+                }]);
+                
                 await db.update(communities)
                   .set({
                     ...updates,
                     updatedAt: new Date(),
+                    // FIXED: Properly cast both sides to jsonb to avoid type mismatch
                     enrichmentHistory: sql`
-                      COALESCE(enrichment_history, '[]'::jsonb) || 
-                      ${JSON.stringify([{
-                        timestamp: new Date().toISOString(),
-                        source: 'Global Discovery Update',
-                        fieldsUpdated: Object.keys(updates),
-                        autoApproved: true
-                      }])}::jsonb
+                      COALESCE(enrichment_history::jsonb, '[]'::jsonb) || ${enrichmentEntry}::jsonb
                     `
                   })
                   .where(eq(communities.id, existingCommunity.id));
