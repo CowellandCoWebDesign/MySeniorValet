@@ -334,6 +334,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
     let query = '';
     let searchType: string | undefined = undefined;
     let limit = 30;
+    let citySearch = '';
+    let stateSearch = '';
     
     try {
       const parsed = globalSearchSchema.parse(req.body);
@@ -622,8 +624,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
       } else if (searchType !== 'services') {
         // Parse location from query (e.g., "Dallas, Texas", "Eureka California", or just "France")
-        let citySearch = '';
-        let stateSearch = '';
+        // Note: citySearch and stateSearch are declared at function scope for use in broader search
         
         if (query.includes(',')) {
           // Handle "City, State" format
