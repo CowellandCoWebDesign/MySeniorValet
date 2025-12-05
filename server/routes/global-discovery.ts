@@ -910,6 +910,22 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       console.log(`🔍 Discovery Mode: Using ONLY Sonar API for discovery searches (not Search API)`);
       discoveredCommunities = []; // Initialize empty to trigger Sonar search below
       
+      // CRITICAL FIX: Build clean location string from parsed city/state for Perplexity queries
+      // This prevents queries like "senior apartments in Sacramento" from being sent as the location
+      // Instead, we extract just "Sacramento, CA" to get better AI results
+      let cleanSearchLocation = '';
+      if (citySearch && stateSearch) {
+        cleanSearchLocation = `${citySearch}, ${stateSearch}`;
+      } else if (citySearch) {
+        cleanSearchLocation = citySearch;
+      } else if (stateSearch) {
+        cleanSearchLocation = stateSearch;
+      } else {
+        // Fallback to original query if no location parsed
+        cleanSearchLocation = query;
+      }
+      console.log(`🎯 Clean search location for Perplexity: "${cleanSearchLocation}" (from raw query: "${query}")`);
+      
       // Always use Sonar API for discovery
       if (true) {
         console.log(`🔍 Using Sonar API for comprehensive discovery...`);
@@ -932,17 +948,17 @@ Keep responses concise and focus on the most relevant results.`;
         // Adjust for country-level searches
         let searchScope = '';
         if (isCountrySearch && !isSpecificCitySearch) {
-          searchScope = `Search across major cities and regions in ${query}. Include facilities from different areas of the country.`;
+          searchScope = `Search across major cities and regions in ${cleanSearchLocation}. Include facilities from different areas of the country.`;
         } else {
-          searchScope = `Include ONLY facilities physically located in ${query}.`;
+          searchScope = `Include ONLY facilities physically located in ${cleanSearchLocation}.`;
         }
         
-        searchQuery = `Find the top 15 senior housing facilities in ${query}. ${searchScope} Include a mix of: assisted living, independent living, memory care, nursing homes, and senior apartments. For each facility provide: name, full address, phone number (strongly preferred - search for it), website URL (strongly preferred - find official website), and type. Focus on established facilities, and prioritize those with verified contact information.`;
+        searchQuery = `Find the top 15 senior housing facilities in ${cleanSearchLocation}. ${searchScope} Include a mix of: assisted living, independent living, memory care, nursing homes, and senior apartments. For each facility provide: name, full address, phone number (strongly preferred - search for it), website URL (strongly preferred - find official website), and type. Focus on established facilities, and prioritize those with verified contact information.`;
       } else if (searchType === 'service') {
         // Legacy service type for backward compatibility
         searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
       } else {
-        searchQuery = `Find senior facilities related to ${query}. Include: senior apartments, HUD/Section 8/Section 202, Section 811 disability housing, VA homes, 55+ apartments, RV parks, independent living, assisted living, memory care, skilled nursing, adult foster care, disability action centers, Centers for Independent Living, subsidized apartments, affordable housing. For each facility provide: name, full address, phone number (strongly preferred), website URL (strongly preferred), and email if available. List all options, prioritizing those with verified contact information.`;
+        searchQuery = `Find senior facilities related to ${cleanSearchLocation}. Include: senior apartments, HUD/Section 8/Section 202, Section 811 disability housing, VA homes, 55+ apartments, RV parks, independent living, assisted living, memory care, skilled nursing, adult foster care, disability action centers, Centers for Independent Living, subsidized apartments, affordable housing. For each facility provide: name, full address, phone number (strongly preferred), website URL (strongly preferred), and email if available. List all options, prioritizing those with verified contact information.`;
       }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
