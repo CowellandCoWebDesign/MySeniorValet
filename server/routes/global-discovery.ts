@@ -910,56 +910,40 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       console.log(`🔍 Discovery Mode: Using ONLY Sonar API for discovery searches (not Search API)`);
       discoveredCommunities = []; // Initialize empty to trigger Sonar search below
       
-      // CRITICAL FIX: Build clean location string from parsed city/state for Perplexity queries
-      // This prevents queries like "senior apartments in Sacramento" from being sent as the location
-      // Instead, we extract just "Sacramento, CA" to get better AI results
-      let cleanSearchLocation = '';
-      if (citySearch && stateSearch) {
-        cleanSearchLocation = `${citySearch}, ${stateSearch}`;
-      } else if (citySearch) {
-        cleanSearchLocation = citySearch;
-      } else if (stateSearch) {
-        cleanSearchLocation = stateSearch;
-      } else {
-        // Fallback to original query if no location parsed
-        cleanSearchLocation = query;
-      }
-      console.log(`🎯 Clean search location for Perplexity: "${cleanSearchLocation}" (from raw query: "${query}")`);
-      
       // Always use Sonar API for discovery
       if (true) {
         console.log(`🔍 Using Sonar API for comprehensive discovery...`);
         
         try {
 
+        // SIMPLIFIED: Pass user query directly to Perplexity - let AI understand the intent
+        // No complex parsing needed - Perplexity handles natural language queries well
         if (searchType === 'services') {
-          // OPTIMIZED: Request fewer results for faster response
-          searchQuery = `Find the top 10 businesses and services matching: "${query}". 
-          
-For EACH business provide:
-- Business name
-- Address
-- City, state, country
-- Phone (if available)
-- Website (if available)
+          searchQuery = `Search for: "${query}"
 
-Keep responses concise and focus on the most relevant results.`;
-        } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
-        // Adjust for country-level searches
-        let searchScope = '';
-        if (isCountrySearch && !isSpecificCitySearch) {
-          searchScope = `Search across major cities and regions in ${cleanSearchLocation}. Include facilities from different areas of the country.`;
+Find businesses and services matching this search. For each result provide:
+- Name
+- Full address (street, city, state, zip)
+- Phone number
+- Website URL
+
+Return up to 15 results.`;
         } else {
-          searchScope = `Include ONLY facilities physically located in ${cleanSearchLocation}.`;
+          // For all senior living searches - pass query directly, let Perplexity understand it
+          searchQuery = `Search for: "${query}"
+
+Find senior living communities and housing options matching this search. Include all types: assisted living, independent living, memory care, nursing homes, senior apartments, 55+ communities, affordable housing, HUD housing.
+
+For each facility provide:
+- Facility name
+- Full street address
+- City and state
+- Phone number (required - search for it)
+- Website URL (required - find official site)
+- Type of care/housing offered
+
+Return up to 20 real facilities with verified information. Prioritize facilities with complete contact details.`;
         }
-        
-        searchQuery = `Find the top 15 senior housing facilities in ${cleanSearchLocation}. ${searchScope} Include a mix of: assisted living, independent living, memory care, nursing homes, and senior apartments. For each facility provide: name, full address, phone number (strongly preferred - search for it), website URL (strongly preferred - find official website), and type. Focus on established facilities, and prioritize those with verified contact information.`;
-      } else if (searchType === 'service') {
-        // Legacy service type for backward compatibility
-        searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
-      } else {
-        searchQuery = `Find senior facilities related to ${cleanSearchLocation}. Include: senior apartments, HUD/Section 8/Section 202, Section 811 disability housing, VA homes, 55+ apartments, RV parks, independent living, assisted living, memory care, skilled nursing, adult foster care, disability action centers, Centers for Independent Living, subsidized apartments, affordable housing. For each facility provide: name, full address, phone number (strongly preferred), website URL (strongly preferred), and email if available. List all options, prioritizing those with verified contact information.`;
-      }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
       
@@ -972,12 +956,12 @@ Keep responses concise and focus on the most relevant results.`;
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
       
-      // Adjust system prompt based on search type
+      // Simplified system prompt - let Perplexity do the heavy lifting
       let systemPrompt = '';
       if (searchType === 'services') {
-        systemPrompt = 'You are a helpful assistant that finds businesses and services based on user searches. Provide accurate and relevant results.';
+        systemPrompt = 'You are a business directory assistant. Search the web and return real businesses with accurate contact information.';
       } else {
-        systemPrompt = 'You are a comprehensive senior housing research assistant. Search for ALL types of senior housing and living options, not just care facilities. Include: independent living, senior apartments, 55+ communities, affordable/subsidized senior housing, HUD housing, active adult communities, CCRCs, assisted living, memory care, nursing homes, board and care homes, and ANY housing option available to seniors. IMPORTANT: For every facility, make a strong effort to find their phone number and official website URL. Contact details are valuable for families researching care options. Return ONLY facilities from the requested location, prioritizing those with verified contact information.';
+        systemPrompt = 'You are a senior living facility finder. Search the web for real senior living communities, apartments, and care facilities. Always include phone numbers and websites when available. Return only real, existing facilities - never make up or invent facilities.';
       }
       
       // Track Perplexity API usage for Discovery Mode
