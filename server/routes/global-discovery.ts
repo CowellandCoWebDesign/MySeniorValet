@@ -916,15 +916,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         
         try {
 
-        // NATURAL LANGUAGE: Pass user's query directly to Perplexity
-        // Let the AI understand intent - don't over-constrain the search
+        // Natural web search style - ask for specific facility names
         if (searchType === 'services') {
           searchQuery = query;
         } else {
-          // Pass user query directly, add context for broad housing search
-          searchQuery = `${query}
-
-Search for ALL types of housing options where seniors can live: senior apartments, 55+ communities, assisted living, independent living, memory care, nursing homes, affordable housing, HUD properties, regular apartments, mobile home communities, retirement communities, and any other residential options available.`;
+          searchQuery = `List the names of senior living facilities in ${query}`;
         }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
@@ -939,7 +935,7 @@ Search for ALL types of housing options where seniors can live: senior apartment
       // Track Perplexity API usage for Discovery Mode
       const discoveryStartTime = Date.now();
       
-      // Use response_format with JSON schema per Perplexity best practices
+      // Simple API call - just the query, let Perplexity search the web
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
         method: 'POST',
@@ -956,42 +952,11 @@ Search for ALL types of housing options where seniors can live: senior apartment
             }
           ],
           web_search_options: {
-            search_context_size: 'medium'
+            search_context_size: 'high'
           },
           temperature: 0.1,
           max_tokens: 4000,
-          stream: false,
-          return_images: true,
-          search_recency_filter: 'year',
-          response_format: {
-            type: 'json_schema',
-            json_schema: {
-              schema: {
-                type: 'object',
-                properties: {
-                  facilities: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        name: { type: 'string' },
-                        address: { type: 'string' },
-                        city: { type: 'string' },
-                        state: { type: 'string' },
-                        phone: { type: 'string' },
-                        website: { type: 'string' },
-                        description: { type: 'string' },
-                        careTypes: { type: 'array', items: { type: 'string' } }
-                      },
-                      required: ['name']
-                    }
-                  },
-                  totalFound: { type: 'number' },
-                  searchLocation: { type: 'string' }
-                }
-              }
-            }
-          }
+          stream: false
         })
       }).finally(() => clearTimeout(timeout));
       
