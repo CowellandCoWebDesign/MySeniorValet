@@ -59,6 +59,7 @@ export class DiscoveredCommunityService {
       }
 
       // Insert new discovered community with all available contact information
+      // CRITICAL FIX: Default careTypes to empty array to prevent NOT NULL constraint failure
       const result = await db
         .insert(communities)
         .values({
@@ -67,22 +68,27 @@ export class DiscoveredCommunityService {
           city: community.city || '',
           state: community.state || '',
           zipCode: community.zip || '',
-          country: community.country || null, // Don't default to United States for international communities
+          country: community.country || null,
           website: community.website,
           phone: community.phone,
           email: community.email,
           fax: community.fax,
           description: community.description,
-          careTypes: community.careTypes,
-          latitude: community.latitude,
-          longitude: community.longitude,
+          careTypes: community.careTypes ?? [], // CRITICAL: Must be array, NOT NULL in schema
+          amenities: [],
+          services: [],
+          careServices: [],
+          medicalRestrictions: [],
+          photos: [],
+          photoAttributions: [],
+          latitude: community.latitude ? String(community.latitude) : null,
+          longitude: community.longitude ? String(community.longitude) : null,
           county: community.county,
           data_source: `ai_discovered_${community.discoverySource}`,
-          is_active: true, // CRITICAL: Mark discovered communities as active so they appear in searches
-          is_verified: false, // Mark as not verified until manual verification
-          operatingHours: community.hoursOfOperation,
-          created_at: new Date(),
-          updated_at: new Date()
+          isActive: true,
+          isVerified: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
         })
         .returning({ id: communities.id });
 
@@ -120,7 +126,7 @@ export class DiscoveredCommunityService {
   ): Promise<boolean> {
     try {
       const updateData: any = {
-        updated_at: new Date()
+        updatedAt: new Date()
       };
 
       // Add all available contact fields

@@ -56,26 +56,67 @@ function parseLocationFromAddress(address: string, query: string = ''): { city: 
   
   // Clean up the address
   const cleanAddress = (address || '').trim();
+  const cleanQuery = (query || '').trim();
   
-  // Try to extract state abbreviation from end of address (e.g., "123 Main St, Atlanta, GA 30303")
-  const stateAbbrMatch = cleanAddress.match(/,\s*([A-Z]{2})\s*\d{5}(?:-\d{4})?$/);
-  if (stateAbbrMatch) {
-    state = stateAbbrMatch[1];
+  // CRITICAL FIX: Parse "in <city> <state>" patterns from query FIRST
+  // Examples: "senior living in Dothan Alabama", "apartments in Dallas Texas"
+  // Use a more precise regex that captures only the city name (word(s) right before state)
+  const statePattern = '(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\\s+Hampshire|New\\s+Jersey|New\\s+Mexico|New\\s+York|North\\s+Carolina|North\\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\\s+Island|South\\s+Carolina|South\\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\\s+Virginia|Wisconsin|Wyoming|AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)';
+  
+  // First try to find pattern: "in/near CityName State" - city is 1-3 words right before state
+  const inLocationMatch = cleanQuery.match(new RegExp(`\\b(?:in|near|around|at)\\s+([A-Za-z][A-Za-z\\s]{0,30}?)\\s+${statePattern}\\b`, 'i'));
+  
+  if (inLocationMatch) {
+    // Extract just the city part - take the last word(s) before state that look like a city name
+    let rawCity = inLocationMatch[1].trim();
+    // Remove common search terms that aren't part of city name
+    rawCity = rawCity.replace(/^(senior\s+living|apartments?|homes?|housing|care|facilities?|communities?)\s+(in|near|around|at)?\s*/i, '');
+    rawCity = rawCity.replace(/^(senior\s+living|apartments?|homes?|housing|care|facilities?|communities?)\s*/i, '');
+    // If we still have words left, use them as city
+    if (rawCity.length > 0 && /^[A-Za-z]/.test(rawCity)) {
+      city = rawCity;
+    }
+    const rawState = inLocationMatch[2].trim();
+    state = normalizeState(rawState);
+    console.log(`📍 Parsed location from query: "${cleanQuery}" -> city="${city}", state="${state}"`);
   }
   
-  // Try pattern: "City, State ZIP" or "City, State"
-  const cityStateMatch = cleanAddress.match(/([^,]+),\s*([A-Z]{2})(?:\s*\d{5})?/);
-  if (cityStateMatch) {
-    // The city is the part before the state
-    const parts = cleanAddress.split(',');
-    if (parts.length >= 2) {
-      // City is second-to-last part before state (skip street address)
-      city = parts[parts.length - 2]?.trim() || '';
-      state = cityStateMatch[2] || state;
+  // Also try pattern: "City, State" or "City State" at end of query
+  if (!city || !state) {
+    // Pattern: "Dothan, Alabama" or "Dothan Alabama" at end
+    const cityStateEndMatch = cleanQuery.match(/([A-Za-z\s]+?)[,\s]+([A-Za-z\s]+)$/i);
+    if (cityStateEndMatch) {
+      const potentialState = normalizeState(cityStateEndMatch[2].trim());
+      if (potentialState.length === 2 && STATE_ABBREV_MAP[potentialState]) {
+        if (!city) city = cityStateEndMatch[1].trim();
+        if (!state) state = potentialState;
+      }
     }
   }
   
-  // Try to find state from full state name
+  // Try to extract state abbreviation from end of address (e.g., "123 Main St, Atlanta, GA 30303")
+  if (!state) {
+    const stateAbbrMatch = cleanAddress.match(/,\s*([A-Z]{2})\s*\d{5}(?:-\d{4})?$/);
+    if (stateAbbrMatch) {
+      state = stateAbbrMatch[1];
+    }
+  }
+  
+  // Try pattern: "City, State ZIP" or "City, State"
+  if (!city || !state) {
+    const cityStateMatch = cleanAddress.match(/([^,]+),\s*([A-Z]{2})(?:\s*\d{5})?/);
+    if (cityStateMatch) {
+      // The city is the part before the state
+      const parts = cleanAddress.split(',');
+      if (parts.length >= 2) {
+        // City is second-to-last part before state (skip street address)
+        if (!city) city = parts[parts.length - 2]?.trim() || '';
+        if (!state) state = cityStateMatch[2] || state;
+      }
+    }
+  }
+  
+  // Try to find state from full state name in address
   if (!state) {
     for (const [fullName, abbr] of Object.entries(US_STATE_MAP)) {
       const regex = new RegExp(`\\b${fullName}\\b`, 'i');
@@ -86,9 +127,9 @@ function parseLocationFromAddress(address: string, query: string = ''): { city: 
     }
   }
   
-  // If still no city/state, try to extract from query
+  // If still no city/state, try to extract from query parts
   if (!city || !state) {
-    const queryParts = query.split(',').map(p => p.trim());
+    const queryParts = cleanQuery.split(',').map(p => p.trim());
     if (queryParts.length >= 2) {
       if (!city) city = queryParts[0];
       if (!state) {
@@ -107,7 +148,7 @@ function parseLocationFromAddress(address: string, query: string = ''): { city: 
   }
   
   // Detect country from query or address
-  const lowerQuery = query.toLowerCase();
+  const lowerQuery = cleanQuery.toLowerCase();
   const lowerAddress = cleanAddress.toLowerCase();
   if (lowerQuery.includes('canada') || lowerAddress.includes('canada') || 
       lowerAddress.match(/\b(ON|BC|AB|QC|MB|SK|NS|NB|NL|PE|YT|NT|NU)\b/)) {
@@ -591,6 +632,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           stateSearch = queryParts[1] || '';
         } else {
           // Handle "City State" format (no comma) - e.g., "Eureka California"
+          // Also handles "senior living in City State" format
           const words = query.trim().split(/\s+/);
           
           if (words.length >= 2) {
@@ -613,6 +655,16 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             } else {
               // No recognizable state, treat entire query as city
               citySearch = query;
+            }
+            
+            // CRITICAL FIX: Remove common search terms from city to extract actual city name
+            // e.g., "senior living in Dothan" → "Dothan"
+            if (citySearch) {
+              // Remove leading search terms
+              citySearch = citySearch.replace(/^(senior\s+living|assisted\s+living|memory\s+care|nursing\s+home|retirement\s+home|apartments?|housing|homes?|care\s+facilities?|facilities?|communities?)(\s+(in|near|around|at))?\s*/gi, '');
+              // Also try removing just the preposition pattern
+              citySearch = citySearch.replace(/.*\b(in|near|around|at)\s+/i, '');
+              citySearch = citySearch.trim();
             }
           } else {
             // Single word query
@@ -674,6 +726,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           term.length > 2 && !['for', 'in', 'at', 'the', 'senior', 'living', 'care'].includes(term)
         );
         
+        // Build query conditions - always include state filter if we have one
         const additionalResults = await db.select()
           .from(communities)
           .where(
@@ -682,11 +735,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 ...searchTerms.map(term => 
                   or(
                     sql`LOWER(${communities.city}) LIKE ${'%' + term + '%'}`,
-                    sql`LOWER(${communities.state}) LIKE ${'%' + term + '%'}`,
                     sql`LOWER(${communities.name}) LIKE ${'%' + term + '%'}`
                   )
                 )
               ),
+              // CRITICAL FIX: Apply state filter to prevent returning wrong locations
+              stateSearch ? eq(communities.state, stateSearch) : sql`true`,
               eq(communities.isVerified, true)
             )
           )
@@ -1520,8 +1574,13 @@ Keep responses concise and focus on the most relevant results.`;
                   email: discovered.email || null,
                   website: websiteUrl,
                   description: discovered.description || `Discovered via search for "${query}"`,
-                  careTypes: discovered.careTypes || ['Unknown'],
+                  careTypes: discovered.careTypes || ['Senior Living'],
+                  amenities: [],
+                  services: [],
+                  careServices: [],
+                  medicalRestrictions: [],
                   photos: [],
+                  photoAttributions: [],
                   data_source: 'AI Discovery (Perplexity Global Search)',
                   discoverySource: 'Global Discovery Search',
                   discoveryDate: new Date(),
@@ -1535,7 +1594,9 @@ Keep responses concise and focus on the most relevant results.`;
                     confidenceScore: verificationResult.confidenceScore,
                     suspiciousReasons: verificationResult.suspiciousReasons
                   }] as any[],
-                  isVerified: verificationResult.autoApproved
+                  isVerified: verificationResult.autoApproved,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 })
                 .returning();
               
