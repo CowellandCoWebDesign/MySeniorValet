@@ -1304,19 +1304,20 @@ export function registerCommunityRoutes(app: Express) {
       const limit = parseInt(req.query.limit as string) || 20;
       
       // Get communities that were discovered through AI/Discovery Mode
-      // These have data_source like 'AI Discovery (Perplexity Global Search)' or similar
+      // Includes all variations of discovery data sources
       const recentCommunities = await db.select()
         .from(communities)
         .where(
           or(
             sql`${communities.data_source} LIKE 'AI Discovery%'`,
             sql`${communities.data_source} LIKE 'ai_discovered_%'`,
+            sql`${communities.data_source} LIKE 'Verified via Global Discovery%'`,
             eq(communities.data_source, 'discovered_community'),
             eq(communities.data_source, 'global_discovery'),
             eq(communities.data_source, 'ai_discovered_global_search')
           )
         )
-        .orderBy(desc(communities.id))
+        .orderBy(desc(communities.createdAt), desc(communities.id))
         .limit(limit);
       
       console.log(`🌍 Recently discovered communities query returned ${recentCommunities.length} results`);
