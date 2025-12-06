@@ -215,9 +215,10 @@ export default function CommunityDirectory() {
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
   });
   
-  // Recently discovered communities query
+  // Recently discovered communities query - SHORT cache for real-time updates
+  // CRITICAL: queryKey must match RecentlyDiscoveredCommunities.tsx for proper cache invalidation
   const { data: recentCommunities = [], isLoading: isLoadingRecent } = useQuery({
-    queryKey: ['/api/communities/recently-discovered'],
+    queryKey: ['/api/communities/recently-discovered', { limit: 100 }],
     queryFn: async () => {
       const response = await fetch('/api/communities/recently-discovered?limit=100');
       if (!response.ok) throw new Error('Failed to fetch recent communities');
@@ -226,8 +227,10 @@ export default function CommunityDirectory() {
       // Ensure we always return an array
       return Array.isArray(data) ? data : [];
     },
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
+    staleTime: 60 * 1000, // Cache for 1 minute only - allows near real-time discovery updates
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    refetchOnWindowFocus: true, // Refetch when user returns to tab
+    refetchOnMount: 'always', // Always check for fresh data when component mounts
     retry: 1
   });
   

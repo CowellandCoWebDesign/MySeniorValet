@@ -365,7 +365,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           // CRITICAL: Invalidate recently-discovered cache after discovery search
           // This ensures new discoveries appear immediately in the Recently Discovered section
           if (data.results?.length > 0 || data.metadata?.discoveredCount > 0) {
+            // Use prefix matching to invalidate all recently-discovered queries regardless of params
             queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+            // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
             console.log('🔄 Invalidated recently-discovered cache after Discovery Mode search');
           }
           
@@ -486,7 +489,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         // CRITICAL: Invalidate recently-discovered cache after discovery search
         // This ensures new discoveries appear immediately in the Recently Discovered section
         if (data.results?.length > 0 || data.metadata?.discoveredCount > 0) {
+          // Use prefix matching to invalidate all recently-discovered queries regardless of params
           queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+          // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
+          queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
           console.log('🔄 Invalidated recently-discovered cache after discover mode search');
         }
         

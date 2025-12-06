@@ -1267,6 +1267,15 @@ export function registerCommunityRoutes(app: Express) {
   // Get recently discovered communities (those found via Discovery Mode)
   app.get('/api/communities/recently-discovered', async (req, res) => {
     try {
+      // CRITICAL: No caching for recently-discovered to ensure real-time updates
+      // New discoveries should appear immediately after being saved
+      res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+      });
+      
       const limit = parseInt(req.query.limit as string) || 20;
       
       // Get communities that were discovered through AI/Discovery Mode

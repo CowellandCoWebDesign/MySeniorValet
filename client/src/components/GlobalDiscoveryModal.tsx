@@ -67,7 +67,10 @@ export function GlobalDiscoveryModal({
   // This ensures new discoveries appear immediately in Recently Discovered section
   useEffect(() => {
     if (isOpen && results && results.length > 0) {
+      // Use prefix matching to invalidate all recently-discovered queries regardless of params
       queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+      // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
+      queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
       console.log('🔄 GlobalDiscoveryModal: Invalidated recently-discovered cache for', results.length, 'results');
     }
   }, [isOpen, results]);
