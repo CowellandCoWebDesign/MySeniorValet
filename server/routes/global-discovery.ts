@@ -1271,7 +1271,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               'regular apartments', 'housing resources', 'curated lists',
               'currently there is', 'not enough', 'cannot be', 'would be misleading',
               'independent living', 'assisted living averages', 'the best fit',
-              'many independent', 'available levels', 'typical costs', 'if you share'
+              'many independent', 'available levels', 'typical costs', 'if you share',
+              'programmatically', 'query each', 'as separate steps', 'supplement with',
+              'then, as', 'directories for', 'directory.com', 'assistedliving.org',
+              'ecdol', 'county of', 'affordable housing facility directory',
+              'official website', 'address/phone', 'city/state', 'phone:', 'address:',
+              'website:', 'name:', 'steps, you can', 'above directories'
             ];
             const lowerText = text.toLowerCase();
             return instructionWords.some(word => lowerText.startsWith(word) || lowerText.includes(word));
@@ -1423,11 +1428,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               description = description.charAt(0).toUpperCase() + description.slice(1);
             }
             
+            // Use the shared validation function for consistency
             const isValidName = name && 
-              name.length > 4 && 
-              name.length < 80 && 
-              !name.includes('?') &&
-              /^[A-Z]/.test(name);
+              isValidFacilityName(name) && 
+              !isInstructionText(name) &&
+              !isGenericCareType(name);
             
             if (isValidName) {
               const key = name.toLowerCase();
