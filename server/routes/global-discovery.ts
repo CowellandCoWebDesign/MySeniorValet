@@ -1145,7 +1145,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             'contact information', 'general information', 'more information',
             'additional information', 'for more details', 'disclaimer',
             'note:', 'notes:', 'important:', 'warning:', 'caution:',
-            'consumer directories', 'advisor numbers', 'route inquiries'
+            'consumer directories', 'advisor numbers', 'route inquiries',
+            // Instruction text patterns from Perplexity responses
+            'produce this', 'csv/json', 'scraping pipeline', 'tailored to',
+            'here is a list', 'here are the', 'below is', 'above is',
+            'the following', 'as requested', 'per your request', 'as you asked',
+            'i found', 'i have compiled', 'i have gathered', 'i have listed'
           ];
           
           // Check if a name is a valid facility name (not a field label or generic term)
