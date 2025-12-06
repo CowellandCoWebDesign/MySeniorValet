@@ -920,7 +920,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         if (searchType === 'services') {
           searchQuery = query;
         } else {
-          searchQuery = `List the names of senior living facilities in ${query}`;
+          searchQuery = `List senior housing facilities in ${query}. Include assisted living, independent living, memory care, 55+ communities, CCRCs, and nursing homes.`;
         }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
@@ -1147,6 +1147,20 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             return match ? match[0] : '';
           };
           
+          // Helper to extract website URL near a facility name
+          const extractWebsite = (text: string): string => {
+            const websitePatterns = [
+              /(?:Website|Site|Web|URL)[\s:]*([^\s]+\.(?:com|org|net|gov|edu)[^\s]*)/i,
+              /(https?:\/\/[^\s\)\]]+)/i,
+              /(www\.[^\s\)\]]+)/i
+            ];
+            for (const pattern of websitePatterns) {
+              const match = text.match(pattern);
+              if (match) return match[1].trim();
+            }
+            return '';
+          };
+          
           // Helper to check if text is an instruction/advice rather than a facility name
           const isInstructionText = (text: string): boolean => {
             const instructionWords = [
@@ -1164,7 +1178,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             return instructionWords.some(word => lowerText.startsWith(word) || lowerText.includes(word));
           };
           
-          // Helper to check if text is just a generic care type (not a real facility name)
+          // Helper to check if text is just a generic care type or field label (not a real facility name)
           const isGenericCareType = (text: string): boolean => {
             const genericTypes = [
               'independent living', 'assisted living', 'memory care', 'nursing home',
@@ -1173,8 +1187,23 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               'hospice care', 'senior housing', 'elderly care', 'dementia care',
               'alzheimer care', 'personal care', 'board and care', '55+ community'
             ];
+            // Also filter out field labels that appear when Perplexity gives disclaimers
+            const fieldLabels = [
+              'physical address', 'primary phone', 'website url', 'license type',
+              'care levels offered', 'capacity', 'number of units', 'number of beds',
+              'national and regional', 'resource directories', 'affordable senior housing',
+              'voucher-subsidized', 'homeshare', 'room-rental', 'continuing care retirement',
+              'assisted living facilities', 'memory care units', 'why a full list',
+              'why a complete list', 'not feasible', 'examples', 'ccrc', 'ccrcs'
+            ];
             const lowerText = text.toLowerCase().trim();
-            return genericTypes.some(type => lowerText === type);
+            // Check exact matches for care types
+            if (genericTypes.some(type => lowerText === type)) return true;
+            // Check partial matches for field labels
+            if (fieldLabels.some(label => lowerText.includes(label) || lowerText.startsWith(label))) return true;
+            // Check if it ends with common category suffixes
+            if (lowerText.endsWith('.') && lowerText.length < 60) return true;
+            return false;
           };
           
           // First, extract facilities from URL patterns with names
@@ -1300,19 +1329,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 
                 const phone = extractPhone(context);
                 const email = extractEmail(context);
-                const parsedLocation = parseLocationFromAddress('', query);
+                const website = extractWebsite(context);
                 
-                console.log(`📍 [Fallback] Facility: "${name}" | Desc: "${description.substring(0, 50)}..." | Phone: ${phone || '(none)'}`);
+                // Use global parsed city/state
+                const finalCity = citySearch || '';
+                const finalState = stateSearch || '';
+                
+                console.log(`📍 [Markdown] Facility: "${name}" | City: "${finalCity}" | State: "${finalState}" | Desc: "${description.substring(0, 40)}..." | Phone: ${phone || '(none)'}`);
                 
                 uniqueFallbackFacilities.set(key, {
                   name: name,
                   address: '', // Leave blank, will be populated by enrichment
                   phone: phone,
                   email: email,
-                  city: parsedLocation.city,
-                  state: parsedLocation.state,
-                  country: parsedLocation.country || defaultCountry,
-                  description: description || `Senior living facility in ${parsedLocation.city || query}`,
+                  website: website,
+                  city: finalCity,
+                  state: finalState,
+                  country: defaultCountry,
+                  description: description || `Senior living facility in ${finalCity || query}`,
                   photoSources: [],
                   source: 'Perplexity Web Search',
                   confidence: 85,
@@ -1393,17 +1427,16 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             if (isValidName) {
               const key = name.toLowerCase();
               if (!uniqueFallbackFacilities.has(key)) {
-                // Use parsed city/state if found, otherwise fall back to query
-                const parsedLocation = parseLocationFromAddress(streetAddress, query);
-                const finalCity = city || parsedLocation.city;
-                const finalState = state || parsedLocation.state;
+                // Use parsed city/state from address if found, otherwise use global parsed location
+                const finalCity = city || citySearch || '';
+                const finalState = state || stateSearch || '';
                 
                 // Build full address if we have street address
                 const fullAddress = streetAddress 
                   ? `${streetAddress}, ${finalCity}, ${finalState}`
                   : '';
                 
-                console.log(`📍 [Fallback] Facility: "${name}" | Desc: "${description}" | Addr: "${fullAddress}"`);
+                console.log(`📍 [Fallback] Facility: "${name}" | City: "${finalCity}" | State: "${finalState}" | Desc: "${description.substring(0, 50)}..."`);
                 
                 uniqueFallbackFacilities.set(key, {
                   name: name,
@@ -1412,7 +1445,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   email: '',
                   city: finalCity,
                   state: finalState,
-                  country: parsedLocation.country || defaultCountry,
+                  country: defaultCountry,
                   description: description || `Senior living facility in ${finalCity || query}`,
                   photoSources: [],
                   source: 'Perplexity Web Search',
@@ -1458,19 +1491,22 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   
                   const phone = extractPhone(context);
                   const email = extractEmail(context);
-                  const parsedLocation = parseLocationFromAddress('', query);
                   
-                  console.log(`📍 [Fallback-Legacy] Facility: "${name}" | Phone: ${phone || '(none)'}`);
+                  // Use global parsed city/state instead of re-parsing
+                  const finalCity = citySearch || '';
+                  const finalState = stateSearch || '';
+                  
+                  console.log(`📍 [Fallback-Legacy] Facility: "${name}" | City: "${finalCity}" | State: "${finalState}" | Phone: ${phone || '(none)'}`);
                   
                   uniqueFallbackFacilities.set(key, {
                     name: name,
                     address: '',
                     phone: phone,
                     email: email,
-                    city: parsedLocation.city,
-                    state: parsedLocation.state,
-                    country: parsedLocation.country || defaultCountry,
-                    description: `Senior living facility in ${parsedLocation.city || query}`,
+                    city: finalCity,
+                    state: finalState,
+                    country: defaultCountry,
+                    description: `Senior living facility in ${finalCity || query}`,
                     photoSources: [],
                     source: 'Perplexity Web Search',
                     confidence: 85,
