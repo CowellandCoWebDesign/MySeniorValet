@@ -1126,7 +1126,58 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         try {
           const uniqueFallbackFacilities = new Map();
           
-          // PRIORITY: Parse markdown tables first (your prompt returns this format)
+          // ========== SHARED VALIDATION HELPERS (used by all parsing paths) ==========
+          
+          // Comprehensive field label blacklist
+          const fieldLabelBlacklist = [
+            'physical address', 'primary phone', 'website url', 'license type',
+            'care levels offered', 'capacity', 'number of units', 'number of beds',
+            'national and regional', 'resource directories', 'affordable senior housing',
+            'voucher-subsidized', 'homeshare', 'room-rental', 'continuing care retirement',
+            'name:', 'city/state:', 'city:', 'state:', 'address:', 'phone:', 'website:',
+            'facility name', 'community name', 'location:', 'contact:', 'type:',
+            'assisted living facilities', 'memory care units', 'why a full list',
+            'why a complete list', 'not feasible', 'examples', 'ccrc', 'ccrcs',
+            'license type(s)', 'number(s)', 'and number', 'license number',
+            'phone number', 'fax number', 'toll-free', 'email address',
+            'mailing address', 'street address', 'zip code', 'postal code',
+            'hours of operation', 'office hours', 'business hours',
+            'contact information', 'general information', 'more information',
+            'additional information', 'for more details', 'disclaimer',
+            'note:', 'notes:', 'important:', 'warning:', 'caution:',
+            'consumer directories', 'advisor numbers', 'route inquiries'
+          ];
+          
+          // Check if a name is a valid facility name (not a field label or generic term)
+          const isValidFacilityName = (name: string): boolean => {
+            if (!name) return false;
+            const lowerName = name.toLowerCase().trim();
+            
+            // Must be reasonable length
+            if (name.length < 5 || name.length > 80) return false;
+            
+            // Must start with capital letter
+            if (!/^[A-Z]/.test(name)) return false;
+            
+            // Must not contain question marks
+            if (name.includes('?')) return false;
+            
+            // Must not be a field label
+            if (fieldLabelBlacklist.some(label => lowerName.includes(label) || lowerName.startsWith(label))) {
+              return false;
+            }
+            
+            // Must not be just a care type
+            const genericTypes = [
+              'independent living', 'assisted living', 'memory care', 'nursing home',
+              'senior living', 'skilled nursing', 'continuing care', 'retirement community'
+            ];
+            if (genericTypes.some(type => lowerName === type)) return false;
+            
+            return true;
+          };
+          
+          // ========== MARKDOWN TABLE PARSER ==========
           // Format: | Facility Name | City | State | Address | Phone | Website |
           const tableRows = aiResponse.split('\n').filter((line: string) => 
             line.includes('|') && 
@@ -1146,21 +1197,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               const tablePhone = cells[4] || '';
               const tableWebsite = (cells[5] && cells[5] !== 'N/A') ? cells[5] : '';
               
-              // Validate it's a real facility name
-              const isValidTableName = tableName && 
-                tableName.length > 4 && 
-                tableName.length < 80 && 
-                !tableName.includes('?') &&
-                /^[A-Z]/.test(tableName) &&
-                !tableName.toLowerCase().includes('housing') &&
-                !tableName.toLowerCase().includes('senior living') ||
-                tableName.toLowerCase().includes('home') ||
-                tableName.toLowerCase().includes('manor') ||
-                tableName.toLowerCase().includes('place') ||
-                tableName.toLowerCase().includes('villa') ||
-                tableName.toLowerCase().includes('care');
-              
-              if (isValidTableName) {
+              // Use shared validation
+              if (isValidFacilityName(tableName)) {
                 const key = tableName.toLowerCase();
                 if (!uniqueFallbackFacilities.has(key)) {
                   uniqueFallbackFacilities.set(key, {
@@ -1257,7 +1295,16 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               'name:', 'city/state:', 'city:', 'state:', 'address:', 'phone:', 'website:',
               'facility name', 'community name', 'location:', 'contact:', 'type:',
               'assisted living facilities', 'memory care units', 'why a full list',
-              'why a complete list', 'not feasible', 'examples', 'ccrc', 'ccrcs'
+              'why a complete list', 'not feasible', 'examples', 'ccrc', 'ccrcs',
+              // Additional field labels to filter
+              'license type(s)', 'number(s)', 'and number', 'license number',
+              'phone number', 'fax number', 'toll-free', 'email address',
+              'mailing address', 'street address', 'zip code', 'postal code',
+              'hours of operation', 'office hours', 'business hours',
+              'contact information', 'general information', 'more information',
+              'additional information', 'for more details', 'disclaimer',
+              'note:', 'notes:', 'important:', 'warning:', 'caution:',
+              'consumer directories', 'advisor numbers', 'route inquiries'
             ];
             const lowerText = text.toLowerCase().trim();
             // Check exact matches for care types
