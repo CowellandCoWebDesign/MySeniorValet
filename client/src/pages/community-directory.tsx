@@ -410,20 +410,40 @@ export default function CommunityDirectory() {
     queryKey: ['/api/communities/hud-count']
   });
   
-  // Fetch community stats including top states
-  const { data: communityStats } = useQuery<{
+  // Fetch community stats including top states - COMPREHENSIVE REAL DATA
+  const { data: communityStats, isLoading: statsLoading } = useQuery<{
     totalCommunities: string;
     avgRating: number;
     totalWithPhotos: string;
     totalHUD: string;
     stateCount: string;
+    countryCount: string;
+    totalVerified: string;
+    totalClaimed: string;
     topStates: Array<{ state: string; count: string }>;
+    countryDistribution: Array<{ country: string; count: string }>;
+    recentlyDiscovered30d: number;
+    careTypeDistribution: {
+      independentLiving: string;
+      assistedLiving: string;
+      memoryCare: string;
+      skilledNursing: string;
+    };
   }>({
-    queryKey: ['/api/communities/stats']
+    queryKey: ['/api/communities/stats'],
+    staleTime: 60000, // Refresh every minute
   });
   
   // Extract topStates from stats
   const topStates = communityStats?.topStates || [];
+  
+  // Helper to format numbers with loading state
+  const formatCount = (value: string | number | undefined, loading: boolean = false) => {
+    if (loading) return '...';
+    if (!value) return '-';
+    const num = typeof value === 'string' ? parseInt(value.replace(/,/g, '')) : value;
+    return isNaN(num) ? '-' : num.toLocaleString();
+  };
   
   // Fetch Hawaii communities
   const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
@@ -610,13 +630,13 @@ export default function CommunityDirectory() {
   return (
     <div>
       <Helmet>
-        <title>Assisted Living, Memory Care & Nursing Homes Directory - 33,500+ Communities</title>
-        <meta name="description" content="Search assisted living, memory care, independent living & nursing homes across 33,500+ communities worldwide. Verified pricing, real availability, 24/7 support. USA, Canada, Australia, Japan, Mexico." />
+        <title>Assisted Living, Memory Care & Nursing Homes Directory | MySeniorValet</title>
+        <meta name="description" content="Search assisted living, memory care, independent living & nursing homes worldwide. Verified pricing, real availability, 24/7 support. USA, Canada, Australia, Japan, Mexico and more." />
         <meta name="keywords" content="senior living Canada, retirement homes Ontario, senior care Quebec, assisted living BC, Alberta senior communities, senior living Australia, NSW retirement homes, Queensland aged care, Victoria nursing homes, senior living Japan, Tokyo retirement, Singapore elderly care, Scotland care homes, Mexico retirement communities, senior living USA, Brookdale Senior Living, Atria Senior Living, Provincial Senior Living, HUD senior housing, international senior care directory, worldwide retirement homes, global elderly care, Ontario nursing homes, Quebec CHSLD, British Columbia senior care, Australian aged care facilities, Japanese senior homes" />
         
         {/* Open Graph tags for social sharing */}
         <meta property="og:title" content="Assisted Living, Memory Care & Nursing Homes Directory | MySeniorValet" />
-        <meta property="og:description" content="Search assisted living, memory care, independent living & nursing homes. 33,500+ communities with verified pricing across USA, Canada, Australia, Japan & Mexico. Compare care options 24/7." />
+        <meta property="og:description" content="Search assisted living, memory care, independent living & nursing homes worldwide. Verified pricing across USA, Canada, Australia, Japan & Mexico. Compare care options 24/7." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://myseniorvalet.com/community-directory" />
         <meta property="og:image" content="https://myseniorvalet.com/images/community-directory-og.jpg" />
@@ -625,7 +645,7 @@ export default function CommunityDirectory() {
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Assisted Living, Memory Care & Nursing Homes Directory" />
-        <meta name="twitter:description" content="Search 33,500+ assisted living, memory care, independent living & nursing homes. Verified pricing, real availability, 24/7 support across USA, Canada, Australia, Japan." />
+        <meta name="twitter:description" content="Search assisted living, memory care, independent living & nursing homes worldwide. Verified pricing, real availability, 24/7 support across USA, Canada, Australia, Japan." />
         <meta name="twitter:image" content="https://myseniorvalet.com/images/community-directory-twitter.jpg" />
         
         {/* Additional SEO tags */}
@@ -639,7 +659,7 @@ export default function CommunityDirectory() {
             "@context": "https://schema.org",
             "@type": "CollectionPage",
             "name": "Worldwide Senior Living Directory 2025",
-            "description": "World's most comprehensive senior living directory with 33,500+ communities across 15+ countries. Canada (5,343), Australia (1,458), USA (25,000+), Japan, Singapore, Scotland, Mexico.",
+            "description": "Comprehensive senior living directory with communities across multiple countries. USA, Canada, Australia, Japan, Singapore, Scotland, Mexico and more.",
             "url": "https://myseniorvalet.com/community-directory",
             "breadcrumb": {
               "@type": "BreadcrumbList",
@@ -765,26 +785,26 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {((communityCount as any)?.count || '33,500').toLocaleString()}+ senior living communities worldwide. Canada (5,343), Australia (1,458), USA (25,000+), Japan, Singapore, Scotland, Mexico, and more across 15+ countries!
+              Access our complete database of {formatCount((communityCount as any)?.count, statsLoading)}+ senior living communities worldwide across {formatCount(communityStats?.countryCount, statsLoading)}+ countries!
             </p>
             
-            {/* Key Stats */}
+            {/* Key Stats - ALL REAL DATA */}
             <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">{((communityCount as any)?.count || '35,264').toLocaleString()}+</div>
+                  <div className="text-3xl font-bold text-white">{formatCount((communityCount as any)?.count, statsLoading)}+</div>
                   <div className="text-xs text-blue-100">Total Communities</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-yellow-300">{((hudCount as any)?.total || '5,077').toLocaleString()}</div>
+                  <div className="text-3xl font-bold text-yellow-300">{formatCount(communityStats?.totalHUD, statsLoading)}</div>
                   <div className="text-xs text-blue-100">HUD Properties</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">9</div>
+                  <div className="text-3xl font-bold text-white">{formatCount(communityStats?.countryCount, statsLoading)}</div>
                   <div className="text-xs text-blue-100">Countries Covered</div>
                 </CardContent>
               </Card>
@@ -809,7 +829,7 @@ export default function CommunityDirectory() {
                 Search Communities
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {((communityCount as any)?.count || '35,264').toLocaleString()}+ Communities • Live Pricing • Real Reviews
+                {formatCount((communityCount as any)?.count, statsLoading)}+ Communities • Live Pricing • Real Reviews
               </p>
             </div>
             
@@ -3670,26 +3690,26 @@ export default function CommunityDirectory() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <TrendingUp className="h-6 w-6 text-blue-600" />
-                  Growth Metrics
+                  Database Metrics
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Communities Added (30d)</span>
-                    <span className="font-bold text-green-600">+1,247</span>
+                    <span className="text-gray-600 dark:text-gray-400">Total Communities</span>
+                    <span className="font-bold text-green-600">{formatCount(communityStats?.totalCommunities, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Price Updates (24h)</span>
-                    <span className="font-bold text-blue-600">3,892</span>
+                    <span className="text-gray-600 dark:text-gray-400">Countries Covered</span>
+                    <span className="font-bold text-blue-600">{formatCount(communityStats?.countryCount, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">New Reviews</span>
-                    <span className="font-bold text-purple-600">427</span>
+                    <span className="text-gray-600 dark:text-gray-400">AI Discovered (30d)</span>
+                    <span className="font-bold text-purple-600">+{formatCount(communityStats?.recentlyDiscovered30d, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Photos Added</span>
-                    <span className="font-bold text-orange-600">8,293</span>
+                    <span className="text-gray-600 dark:text-gray-400">With Photos</span>
+                    <span className="font-bold text-orange-600">{formatCount(communityStats?.totalWithPhotos, statsLoading)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -3706,19 +3726,19 @@ export default function CommunityDirectory() {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">HUD Verified</span>
-                    <span className="font-bold text-green-600">{((hudCount as any)?.total || '5,936').toLocaleString()}</span>
+                    <span className="font-bold text-green-600">{formatCount(communityStats?.totalHUD, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">AI Verified Pricing</span>
-                    <span className="font-bold text-blue-600">18,427</span>
+                    <span className="text-gray-600 dark:text-gray-400">AI Verified</span>
+                    <span className="font-bold text-blue-600">{formatCount(communityStats?.totalVerified, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Claimed by Owners</span>
-                    <span className="font-bold text-purple-600">2,156</span>
+                    <span className="font-bold text-purple-600">{formatCount(communityStats?.totalClaimed, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">Virtual Tours</span>
-                    <span className="font-bold text-orange-600">892</span>
+                    <span className="text-gray-600 dark:text-gray-400">States/Regions</span>
+                    <span className="font-bold text-orange-600">{formatCount(communityStats?.stateCount, statsLoading)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -3735,19 +3755,19 @@ export default function CommunityDirectory() {
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Independent Living</span>
-                    <span className="font-bold">12,847</span>
+                    <span className="font-bold">{formatCount(communityStats?.careTypeDistribution?.independentLiving, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Assisted Living</span>
-                    <span className="font-bold">9,234</span>
+                    <span className="font-bold">{formatCount(communityStats?.careTypeDistribution?.assistedLiving, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Memory Care</span>
-                    <span className="font-bold">4,892</span>
+                    <span className="font-bold">{formatCount(communityStats?.careTypeDistribution?.memoryCare, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-gray-600 dark:text-gray-400">Skilled Nursing</span>
-                    <span className="font-bold">7,208</span>
+                    <span className="font-bold">{formatCount(communityStats?.careTypeDistribution?.skilledNursing, statsLoading)}</span>
                   </div>
                 </div>
               </CardContent>
@@ -3842,7 +3862,7 @@ export default function CommunityDirectory() {
             </div>
             <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-700/80 px-3 py-2 rounded-full">
               <BarChart3 className="w-4 h-4 text-purple-600" />
-              <span className="font-medium text-gray-900 dark:text-white">35,182+ Communities</span>
+              <span className="font-medium text-gray-900 dark:text-white">{formatCount(communityStats?.totalCommunities, statsLoading)}+ Communities</span>
             </div>
           </div>
         </div>

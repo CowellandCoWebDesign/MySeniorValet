@@ -1265,19 +1265,24 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Get community statistics
+  // Get community statistics - COMPREHENSIVE REAL DATA
   app.get("/api/communities/stats", async (req, res) => {
     try {
+      // Basic stats
       const stats = await db
         .select({
           totalCommunities: sql`COUNT(*)`,
           avgRating: sql`AVG(CAST(${communities.rating} AS FLOAT))`,
           totalWithPhotos: sql`COUNT(CASE WHEN ${communities.photos}::text[] != '{}' THEN 1 END)`,
           totalHUD: sql`COUNT(CASE WHEN ${communities.hudPropertyId} IS NOT NULL THEN 1 END)`,
-          stateCount: sql`COUNT(DISTINCT ${communities.state})`
+          stateCount: sql`COUNT(DISTINCT ${communities.state})`,
+          countryCount: sql`COUNT(DISTINCT ${communities.country})`,
+          totalVerified: sql`COUNT(CASE WHEN ${communities.isVerified} = true THEN 1 END)`,
+          totalClaimed: sql`COUNT(CASE WHEN ${communities.isClaimed} = true THEN 1 END)`
         })
         .from(communities);
 
+      // State distribution
       const stateDistribution = await db
         .select({
           state: communities.state,
@@ -1288,9 +1293,51 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(sql`COUNT(*)`))
         .limit(10);
 
+      // Country distribution - real counts
+      const countryDistribution = await db
+        .select({
+          country: communities.country,
+          count: sql`COUNT(*)`
+        })
+        .from(communities)
+        .where(isNotNull(communities.country))
+        .groupBy(communities.country)
+        .orderBy(desc(sql`COUNT(*)`))
+        .limit(20);
+
+      // Recently discovered stats (last 30 days)
+      const recentlyDiscoveredStats = await db
+        .select({
+          count: sql`COUNT(*)`
+        })
+        .from(communities)
+        .where(
+          and(
+            or(
+              sql`${communities.data_source} LIKE 'AI Discovery%'`,
+              sql`${communities.data_source} LIKE 'ai_discovered_%'`,
+              eq(communities.data_source, 'global_discovery')
+            ),
+            sql`${communities.createdAt} > NOW() - INTERVAL '30 days'`
+          )
+        );
+
+      // Care type distribution - parse from careTypes array
+      const careTypeStats = await db
+        .select({
+          independentLiving: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%independent%' THEN 1 END)`,
+          assistedLiving: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%assisted%' THEN 1 END)`,
+          memoryCare: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%memory%' THEN 1 END)`,
+          skilledNursing: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%skilled%' OR ${communities.careTypes}::text ILIKE '%nursing%' THEN 1 END)`
+        })
+        .from(communities);
+
       res.json({
         ...stats[0],
-        topStates: stateDistribution
+        topStates: stateDistribution,
+        countryDistribution: countryDistribution,
+        recentlyDiscovered30d: Number(recentlyDiscoveredStats[0]?.count) || 0,
+        careTypeDistribution: careTypeStats[0] || {}
       });
     } catch (error) {
       console.error("Error fetching community statistics:", error);
