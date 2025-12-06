@@ -1128,51 +1128,51 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           
           // PRIORITY: Parse markdown tables first (your prompt returns this format)
           // Format: | Facility Name | City | State | Address | Phone | Website |
-          const tableRows = aiResponse.split('\n').filter(line => 
+          const tableRows = aiResponse.split('\n').filter((line: string) => 
             line.includes('|') && 
             !line.includes('---|') && // Skip header separator
             !line.toLowerCase().includes('facility name') // Skip header row
           );
           
           for (const row of tableRows) {
-            const cells = row.split('|').map(c => c.trim()).filter(c => c.length > 0);
+            const cells = row.split('|').map((c: string) => c.trim()).filter((c: string) => c.length > 0);
             
             // Expect: [Name, City, State, Address, Phone, Website]
             if (cells.length >= 3) {
-              const name = cells[0];
-              const city = cells[1] || globalParsedCity;
-              const state = cells[2] || globalParsedState;
-              const address = cells[3] || '';
-              const phone = cells[4] || '';
-              const website = (cells[5] && cells[5] !== 'N/A') ? cells[5] : '';
+              const tableName = cells[0];
+              const tableCity = cells[1] || citySearch;
+              const tableState = cells[2] || stateSearch;
+              const tableAddress = cells[3] || '';
+              const tablePhone = cells[4] || '';
+              const tableWebsite = (cells[5] && cells[5] !== 'N/A') ? cells[5] : '';
               
               // Validate it's a real facility name
-              const isValidName = name && 
-                name.length > 4 && 
-                name.length < 80 && 
-                !name.includes('?') &&
-                /^[A-Z]/.test(name) &&
-                !name.toLowerCase().includes('housing') &&
-                !name.toLowerCase().includes('senior living') ||
-                name.toLowerCase().includes('home') ||
-                name.toLowerCase().includes('manor') ||
-                name.toLowerCase().includes('place') ||
-                name.toLowerCase().includes('villa') ||
-                name.toLowerCase().includes('care');
+              const isValidTableName = tableName && 
+                tableName.length > 4 && 
+                tableName.length < 80 && 
+                !tableName.includes('?') &&
+                /^[A-Z]/.test(tableName) &&
+                !tableName.toLowerCase().includes('housing') &&
+                !tableName.toLowerCase().includes('senior living') ||
+                tableName.toLowerCase().includes('home') ||
+                tableName.toLowerCase().includes('manor') ||
+                tableName.toLowerCase().includes('place') ||
+                tableName.toLowerCase().includes('villa') ||
+                tableName.toLowerCase().includes('care');
               
-              if (isValidName) {
-                const key = name.toLowerCase();
+              if (isValidTableName) {
+                const key = tableName.toLowerCase();
                 if (!uniqueFallbackFacilities.has(key)) {
                   uniqueFallbackFacilities.set(key, {
-                    name: name,
-                    website: website,
-                    phone: phone,
+                    name: tableName,
+                    website: tableWebsite,
+                    phone: tablePhone,
                     email: '',
-                    address: address,
-                    city: city || globalParsedCity,
-                    state: state || globalParsedState,
+                    address: tableAddress,
+                    city: tableCity || citySearch,
+                    state: tableState || stateSearch,
                     country: defaultCountry,
-                    description: `${name} - Senior housing in ${city || globalParsedCity}, ${state || globalParsedState}`,
+                    description: `${tableName} - Senior housing in ${tableCity || citySearch}, ${tableState || stateSearch}`,
                     photoSources: [],
                     source: 'Perplexity Web Search',
                     confidence: 90,
@@ -1254,6 +1254,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               'care levels offered', 'capacity', 'number of units', 'number of beds',
               'national and regional', 'resource directories', 'affordable senior housing',
               'voucher-subsidized', 'homeshare', 'room-rental', 'continuing care retirement',
+              'name:', 'city/state:', 'city:', 'state:', 'address:', 'phone:', 'website:',
+              'facility name', 'community name', 'location:', 'contact:', 'type:',
               'assisted living facilities', 'memory care units', 'why a full list',
               'why a complete list', 'not feasible', 'examples', 'ccrc', 'ccrcs'
             ];
@@ -1448,8 +1450,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               name = bulletContent.replace(/,\s*$/, '').trim();
             }
             
-            // Clean the name
+            // Clean the name - strip field label prefixes
             name = name.replace(/\s+$/, '').replace(/\s*[-–—:,]$/, '');
+            name = name.replace(/^(Name|Facility|Community|City|State|Address|Phone|Website|Location|Contact|Type|City\/State|City \/ State|City\/State\/ZIP|City \/ State \/ ZIP):\s*/i, '');
             
             // Capitalize description if we have one
             if (description) {
@@ -1526,7 +1529,15 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           for (const pattern of patterns) {
             const matches = aiResponse.matchAll(pattern);
             for (const match of matches) {
-              const name = match[1]?.trim();
+              let name = match[1]?.trim() || '';
+              
+              // Strip field label prefixes and citation brackets
+              name = name.replace(/^(Name|Facility|Community|City|State|Address|Phone|Website|Location|Contact|Type|City\/State|City \/ State):\s*/i, '');
+              name = name.replace(/\s*\[\d+\]\s*/g, '').trim();
+              
+              // Skip if name is now just a location (city/state/zip)
+              if (/^[A-Z][a-z]+,?\s+[A-Z]{2}\s*\d*$/.test(name)) continue;
+              if (/^\d{5}(-\d{4})?$/.test(name)) continue; // zip code only
               
               // Validate the name
               const isValidName = name && 
