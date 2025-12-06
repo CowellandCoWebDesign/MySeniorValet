@@ -920,7 +920,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         if (searchType === 'services') {
           searchQuery = query;
         } else {
-          searchQuery = `List senior housing facilities in ${query}. Include assisted living, independent living, memory care, 55+ communities, CCRCs, and nursing homes.`;
+          searchQuery = `We are acting as a search tool to help seniors. Your mission is to give me a list with all housing options a senior could utilize, with the name, city, state, address, phone, and official website so we can later target it for scraping photos and further information. This is the search query that was entered: "${query}"`;
         }
       
       console.log(`🔍 Perplexity Query: ${searchQuery}`);
@@ -1125,6 +1125,67 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         // Enhanced fallback: Extract from markdown, URLs, and lists
         try {
           const uniqueFallbackFacilities = new Map();
+          
+          // PRIORITY: Parse markdown tables first (your prompt returns this format)
+          // Format: | Facility Name | City | State | Address | Phone | Website |
+          const tableRows = aiResponse.split('\n').filter(line => 
+            line.includes('|') && 
+            !line.includes('---|') && // Skip header separator
+            !line.toLowerCase().includes('facility name') // Skip header row
+          );
+          
+          for (const row of tableRows) {
+            const cells = row.split('|').map(c => c.trim()).filter(c => c.length > 0);
+            
+            // Expect: [Name, City, State, Address, Phone, Website]
+            if (cells.length >= 3) {
+              const name = cells[0];
+              const city = cells[1] || globalParsedCity;
+              const state = cells[2] || globalParsedState;
+              const address = cells[3] || '';
+              const phone = cells[4] || '';
+              const website = (cells[5] && cells[5] !== 'N/A') ? cells[5] : '';
+              
+              // Validate it's a real facility name
+              const isValidName = name && 
+                name.length > 4 && 
+                name.length < 80 && 
+                !name.includes('?') &&
+                /^[A-Z]/.test(name) &&
+                !name.toLowerCase().includes('housing') &&
+                !name.toLowerCase().includes('senior living') ||
+                name.toLowerCase().includes('home') ||
+                name.toLowerCase().includes('manor') ||
+                name.toLowerCase().includes('place') ||
+                name.toLowerCase().includes('villa') ||
+                name.toLowerCase().includes('care');
+              
+              if (isValidName) {
+                const key = name.toLowerCase();
+                if (!uniqueFallbackFacilities.has(key)) {
+                  uniqueFallbackFacilities.set(key, {
+                    name: name,
+                    website: website,
+                    phone: phone,
+                    email: '',
+                    address: address,
+                    city: city || globalParsedCity,
+                    state: state || globalParsedState,
+                    country: defaultCountry,
+                    description: `${name} - Senior housing in ${city || globalParsedCity}, ${state || globalParsedState}`,
+                    photoSources: [],
+                    source: 'Perplexity Web Search',
+                    confidence: 90,
+                    isDiscovered: true
+                  });
+                }
+              }
+            }
+          }
+          
+          if (uniqueFallbackFacilities.size > 0) {
+            console.log(`✅ Parsed ${uniqueFallbackFacilities.size} facilities from markdown table`);
+          }
           
           // Helper to extract phone number near a facility name
           const extractPhone = (text: string): string => {
