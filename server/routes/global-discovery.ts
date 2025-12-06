@@ -1826,6 +1826,16 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           }
           
           if (existing.length === 0 && discovered.name) {
+            // FIXED: Clean the name by removing markdown artifacts like ** and trailing punctuation
+            // Defined outside try block so it's accessible in catch block
+            const cleanedName = discovered.name
+              .replace(/\*\*$/g, '') // Remove trailing **
+              .replace(/^\*\*/g, '') // Remove leading **
+              .replace(/\*\*/g, '')  // Remove any remaining **
+              .replace(/\s*–\s*/g, ' - ') // Normalize dashes
+              .replace(/\s+/g, ' ')  // Normalize spaces
+              .trim();
+            
             // Save new discovered community to database
             try {
               // Geocode the location to get coordinates for map display
@@ -1878,11 +1888,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
 
               // AUTO-APPROVAL: Check if community meets verification criteria
               const preparedAddress = discovered.address || discovered.location || 'Address pending verification';
-              const preparedCity = discovered.city || query.split(',')[0] || 'Unknown';
-              const preparedState = discovered.state || query.split(',')[1]?.trim() || 'Unknown';
+              // FIXED: Use parsed citySearch/stateSearch as fallback, not the raw query
+              const preparedCity = discovered.city || citySearch || 'Unknown';
+              const preparedState = discovered.state || stateSearch || 'Unknown';
               
               const verificationResult = verifyCommunityForAutoApproval({
-                name: discovered.name,
+                name: cleanedName,
                 address: preparedAddress,
                 city: preparedCity,
                 state: preparedState,
@@ -1901,7 +1912,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
 
               const [newCommunity] = await db.insert(communities)
                 .values({
-                  name: discovered.name,
+                  name: cleanedName,
                   address: preparedAddress,
                   city: preparedCity,
                   state: preparedState,
@@ -1950,9 +1961,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               console.error(`❌ FAILED TO SAVE community ${discovered.name}:`, {
                 error: insertError,
                 attemptedData: {
-                  name: discovered.name,
-                  city: discovered.city || query.split(',')[0] || 'Unknown',
-                  state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                  name: cleanedName,
+                  city: discovered.city || citySearch || 'Unknown',
+                  state: discovered.state || stateSearch || 'Unknown',
                   country: discovered.country || defaultCountry,
                   data_source: 'AI Discovery (Perplexity Global Search)'
                 }
@@ -1960,10 +1971,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               // Create a fallback object if insert fails
               const fallbackCommunity = {
                 id: 0, // Invalid ID to indicate error
-                name: discovered.name,
+                name: cleanedName,
                 address: discovered.address || discovered.location || 'Address pending verification',
-                city: discovered.city || query.split(',')[0] || 'Unknown',
-                state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                city: discovered.city || citySearch || 'Unknown',
+                state: discovered.state || stateSearch || 'Unknown',
                 country: discovered.country || defaultCountry,
                 zipCode: discovered.zipCode || '00000',
                 phone: discovered.phone || null,
