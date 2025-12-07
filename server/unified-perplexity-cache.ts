@@ -616,35 +616,52 @@ class UnifiedPerplexityCache {
 
     // Focused query for essential data - BE VERY SPECIFIC to avoid generic averages
     const comprehensiveQuery = `
-SPECIFIC SENIOR LIVING COMMUNITY LOOKUP:
+CRITICAL INSTRUCTION: ONLY PROVIDE VERIFIED, SPECIFIC DATA FOR THIS EXACT COMMUNITY.
+
+==============================================================================
+COMMUNITY TO RESEARCH:
 Name: "${communityName}"
 Location: ${location}
-${metadataContext ? `\nVERIFIED IDENTIFIERS:\n${metadataContext}` : ''}
+${metadataContext ? `\nVERIFIED IDENTIFIERS (USE THESE TO CONFIRM YOU HAVE THE RIGHT COMMUNITY):\n${metadataContext}` : ''}
+==============================================================================
 
-IMPORTANT: Search for THIS EXACT community using the identifiers above. Do NOT provide generic industry averages or data from other communities.
+⚠️ ABSOLUTE REQUIREMENTS - READ CAREFULLY:
+1. DO NOT "infer" any information from the community name
+2. DO NOT provide generic industry averages or regional estimates
+3. DO NOT provide data from similarly-named communities in other locations
+4. DO NOT guess or estimate if you cannot find verified information
+5. ONLY return information that is VERIFIABLY about THIS SPECIFIC community
 
-Provide SPECIFIC information for "${communityName}" ONLY:
+If you cannot find verified information about "${communityName}" at ${location}:
+- Say "No verified public information found for this specific community"
+- Do NOT substitute generic data or inferences
 
-1. PRICING (for this specific community):
+REQUESTED INFORMATION (only if you find verified sources):
+
+1. PRICING (from this community's website, directories, or official sources):
    - Current monthly rates for each care level they offer
-   - Any published pricing from their website or directories
-   - Historical pricing changes if documented (past 3 years)
+   - Published pricing from caring.com, aplaceformom, or their official site
+   - Only include prices you can attribute to a specific source
 
 2. FLOOR PLANS (from their website/brochures):
    - Available apartment/unit types (Studio, 1BR, 2BR, etc.)
    - Square footage for each unit type
    - What's included in each floor plan
 
-3. CARE LEVELS OFFERED at this location:
+3. CARE LEVELS OFFERED at this specific location:
    - Independent Living, Assisted Living, Memory Care, Skilled Nursing, Respite
    - Specific services they provide
 
 4. DIRECT CONTACT INFO (not referral services):
-   - Their direct phone number
+   - Their direct phone number (not a call center)
    - Physical address
    - Official website URL
 
-If you cannot find specific information for "${communityName}", state "Information not available for this specific community" rather than providing generic industry data.
+5. REVIEWS AND RATINGS:
+   - Google, Yelp, Caring.com ratings with review counts
+   - Recent feedback themes
+
+CITE YOUR SOURCES for each piece of information you provide.
 `;
 
     try {
@@ -664,20 +681,38 @@ If you cannot find specific information for "${communityName}", state "Informati
       );
 
       // Check if response is complete before caching
-      // Only reject if the COMMUNITY itself wasn't found, not if individual fields are missing
+      // Reject responses that are generic/inferred rather than specific verified data
       const lowerContent = structuredData.rawPerplexityContent?.toLowerCase() || '';
       const hasComprehensiveData = 
         structuredData.rawPerplexityContent && 
         structuredData.rawPerplexityContent.length > 500; // At least 500 chars of content
       
-      // Only reject if Perplexity couldn't find the community at all
+      // Detect if Perplexity provided generic/inferred data instead of verified info
+      const isInferredOrGeneric = 
+        lowerContent.includes('inferred from the name') ||
+        lowerContent.includes('inferred from its name') ||
+        lowerContent.includes('based on the name') ||
+        lowerContent.includes('no detailed public profile') ||
+        lowerContent.includes('no verified public information') ||
+        lowerContent.includes('no specific information available') ||
+        lowerContent.includes('generic industry') ||
+        lowerContent.includes('regional average') ||
+        lowerContent.includes('typical range for') ||
+        lowerContent.includes('average cost in');
+      
+      // Reject if Perplexity couldn't find the community at all
       const communityNotFound = 
         lowerContent.includes('no direct search results specifically confirm') ||
         lowerContent.includes('no direct evidence of a') ||
         lowerContent.includes('unable to find this community') ||
         lowerContent.includes('does not appear to exist');
       
-      const isCompleteResponse = hasComprehensiveData && !communityNotFound;
+      // Log if we detected inferred/generic content
+      if (isInferredOrGeneric) {
+        console.log(`⚠️ Detected INFERRED/GENERIC content for ${communityName} - will not cache as complete`);
+      }
+      
+      const isCompleteResponse = hasComprehensiveData && !communityNotFound && !isInferredOrGeneric;
       
       // MERGE deep crawl data with Perplexity data (deep crawl takes priority)
       if (deepCrawlData && deepCrawlData.confidence !== 'low') {
