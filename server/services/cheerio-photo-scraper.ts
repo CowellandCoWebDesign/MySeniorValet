@@ -501,7 +501,6 @@ export class CheerioPhotoScraper {
     
     return score;
   }
-}
 
   /**
    * Comprehensive scrape that extracts both photos AND videos
