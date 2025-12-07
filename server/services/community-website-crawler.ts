@@ -84,13 +84,41 @@ export interface DeepCrawlResult {
 
 export class CommunityWebsiteCrawler {
   private browser: Browser | null = null;
+  private initializationFailed: boolean = false;
 
   async initialize() {
+    if (this.initializationFailed) {
+      throw new Error('Playwright initialization previously failed - use Cheerio fallback');
+    }
+    
     if (!this.browser) {
-      this.browser = await chromium.launch({
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-      });
+      try {
+        this.browser = await chromium.launch({
+          headless: true,
+          args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-gpu',
+            '--disable-software-rasterizer',
+            '--disable-extensions',
+            '--no-first-run',
+            '--no-zygote',
+            '--single-process',
+            '--disable-background-networking',
+            '--disable-default-apps',
+            '--disable-sync',
+            '--disable-translate',
+            '--mute-audio',
+            '--hide-scrollbars'
+          ]
+        });
+        console.log('✅ Playwright browser initialized successfully');
+      } catch (error) {
+        this.initializationFailed = true;
+        console.log('⚠️ Playwright browser initialization failed:', error instanceof Error ? error.message : 'Unknown error');
+        throw error;
+      }
     }
   }
 

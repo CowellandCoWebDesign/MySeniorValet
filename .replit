@@ -154,3 +154,7 @@ APP_URL = "https://myseniorvalet.com"
 
 [userenv.development]
 APP_URL = "https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev"
+
+[userenv.shared]
+PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true"
+PLAYWRIGHT_BROWSERS_PATH = "0"

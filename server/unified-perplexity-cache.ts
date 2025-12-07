@@ -499,32 +499,88 @@ class UnifiedPerplexityCache {
       console.log(`ℹ️ Could not fetch additional metadata for query enhancement:`, error);
     }
 
-    // PRIORITY: Deep crawl the community's website FIRST as the primary source of truth
+    // HYBRID PATTERN: Try fast Cheerio first, then Playwright fallback for JS-heavy sites
     let deepCrawlData: DeepCrawlResult | null = null;
+    let cheerioPhotos: { url: string; alt?: string; title?: string; context?: string }[] = [];
+    
     if (websiteUrl) {
+      // STEP 1: Try fast Cheerio scraper first (10x faster, no browser needed)
       try {
-        console.log(`🕷️ PRIORITY: Deep crawling community website as primary source of truth...`);
-        deepCrawlData = await communityWebsiteCrawler.deepCrawlCommunityWebsite(
+        console.log(`🚀 STEP 1: Fast Cheerio scrape of ${websiteUrl}...`);
+        cheerioPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
           websiteUrl,
           communityName,
-          {
-            maxPagesToExplore: 15, // Explore more pages for comprehensive data
-            timeout: 45000, // 45 second timeout
-            includeFloorPlans: true,
-            includePricing: true
-          }
+          { maxPhotos: 30, timeout: 15000 }
         );
         
-        if (deepCrawlData.confidence !== 'low') {
-          console.log(`✅ Deep crawl successful! Found:`);
-          console.log(`   - ${deepCrawlData.virtualTours.length} virtual tours`);
-          console.log(`   - ${deepCrawlData.photos.length} photos`);
-          console.log(`   - ${deepCrawlData.floorPlans.length} floor plans`);
-          console.log(`   - ${deepCrawlData.videos.length} videos`);
-          console.log(`   - ${deepCrawlData.amenities.length} amenities`);
+        if (cheerioPhotos.length >= 5) {
+          console.log(`✅ Cheerio found ${cheerioPhotos.length} photos - sufficient for display`);
+        } else {
+          console.log(`⚠️ Cheerio found only ${cheerioPhotos.length} photos - will try Playwright for more`);
         }
-      } catch (crawlError) {
-        console.log(`⚠️ Deep crawl failed, falling back to Perplexity:`, crawlError instanceof Error ? crawlError.message : 'Unknown error');
+      } catch (cheerioError) {
+        console.log(`⚠️ Cheerio scrape failed:`, cheerioError instanceof Error ? cheerioError.message : 'Unknown error');
+      }
+      
+      // STEP 2: If Cheerio didn't find enough content, try Playwright (handles JS-rendered sites)
+      const needsPlaywright = cheerioPhotos.length < 5;
+      
+      if (needsPlaywright) {
+        try {
+          console.log(`🕷️ STEP 2: Playwright deep crawl for JS-rendered content...`);
+          deepCrawlData = await communityWebsiteCrawler.deepCrawlCommunityWebsite(
+            websiteUrl,
+            communityName,
+            {
+              maxPagesToExplore: 10,
+              timeout: 30000,
+              includeFloorPlans: true,
+              includePricing: true
+            }
+          );
+          
+          if (deepCrawlData && deepCrawlData.confidence !== 'low') {
+            console.log(`✅ Playwright deep crawl successful! Found:`);
+            console.log(`   - ${deepCrawlData.virtualTours.length} virtual tours`);
+            console.log(`   - ${deepCrawlData.photos.length} photos`);
+            console.log(`   - ${deepCrawlData.floorPlans.length} floor plans`);
+            console.log(`   - ${deepCrawlData.videos.length} videos`);
+            console.log(`   - ${deepCrawlData.amenities.length} amenities`);
+          }
+        } catch (crawlError) {
+          console.log(`⚠️ Playwright crawl failed:`, crawlError instanceof Error ? crawlError.message : 'Unknown error');
+          console.log(`📸 Using ${cheerioPhotos.length} photos from Cheerio fallback`);
+        }
+      }
+      
+      // MERGE: Combine Cheerio photos with Playwright data if both exist
+      if (cheerioPhotos.length > 0) {
+        if (!deepCrawlData) {
+          // Create minimal deepCrawlData from Cheerio results
+          deepCrawlData = {
+            virtualTours: [],
+            photoGalleries: [],
+            photos: cheerioPhotos.map(p => ({ url: p.url, alt: p.alt, context: p.context })),
+            floorPlans: [],
+            videos: [],
+            pricing: {},
+            contact: {},
+            amenities: [],
+            pagesExplored: [websiteUrl],
+            confidence: cheerioPhotos.length >= 10 ? 'high' : cheerioPhotos.length >= 5 ? 'medium' : 'low',
+            crawlDate: new Date(),
+            errors: []
+          };
+        } else {
+          // Merge Cheerio photos with Playwright photos (deduplicate by URL)
+          const existingUrls = new Set(deepCrawlData.photos.map(p => p.url));
+          for (const photo of cheerioPhotos) {
+            if (!existingUrls.has(photo.url)) {
+              deepCrawlData.photos.push({ url: photo.url, alt: photo.alt, context: photo.context });
+            }
+          }
+        }
+        console.log(`📸 Total photos after merge: ${deepCrawlData.photos.length}`);
       }
     }
 
@@ -535,44 +591,17 @@ class UnifiedPerplexityCache {
       websiteUrl ? `Official Website: ${websiteUrl}` : null
     ].filter(Boolean).join('\n');
 
-    // ONE comprehensive query that gets EVERYTHING (supplements deep crawl data)
+    // Focused query for essential data (photos/media handled by scraper)
     const comprehensiveQuery = `
-For the senior living community "${communityName}" located in ${location}, provide comprehensive information including:
+Senior living community: "${communityName}" in ${location}
+${metadataContext ? `Verified: ${metadataContext}\n` : ''}
+Provide ONLY:
+1. PRICING: Monthly rates for Independent Living, Assisted Living, Memory Care (current + any historical data from past 3 years)
+2. FLOOR PLANS: Available unit types, sizes (sq ft), bedroom counts
+3. CARE LEVELS: What care services are offered (IL, AL, MC, SNF, respite)
+4. CONTACT: Direct phone, address, website (NO referral services)
 
-${metadataContext ? `**KNOWN VERIFIED DETAILS:**\n${metadataContext}\n\n**Please use the above verified details to locate the correct facility.**\n\n` : ''}**PRICING & AVAILABILITY:**
-- Current monthly rates for all care levels
-- Entrance fees, deposits, and additional costs
-- Current availability and waitlist status
-
-**CONTACT INFORMATION:**
-- Direct facility phone number (not referral services)
-- Official website URL
-- Email address
-- Physical address
-
-**REVIEWS & RATINGS:**
-- Recent Google reviews with ratings
-- Yelp reviews if available
-- Caring.com feedback
-- Family satisfaction scores
-
-**HEALTH & SAFETY:**
-- Recent health inspection results
-- Any violations or citations
-- Compliance status
-- Safety ratings
-
-**PHOTOS & VIRTUAL TOURS:**
-- Links to facility photos
-- Virtual tour availability (Matterport, 360 tours, video tours)
-- Floor plans if available
-
-**MANAGEMENT & STAFF:**
-- Parent company or management group
-- Staff credentials and certifications
-- Staff-to-resident ratios
-
-Format all information clearly with section headers.
+Keep response concise. Skip reviews, inspections, and staff info.
 `;
 
     try {
