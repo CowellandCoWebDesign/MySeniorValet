@@ -243,13 +243,32 @@ class UnifiedPerplexityCache {
       const rawContent = data.rawPerplexityContent || '';
       const pricingDetails = data.deepCrawlData?.pricingDetails || {};
       
-      // Define care level mappings
+      // Define care level mappings with enhanced patterns for various formats
+      // Pattern groups capture: "$X,XXX", "$X,XXX/month", "$X,XXX to $Y,YYY", etc.
       const careLevelPatterns = [
-        { type: 'independent_living', patterns: [/independent\s*living[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /IL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
-        { type: 'assisted_living', patterns: [/assisted\s*living[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /AL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
-        { type: 'memory_care', patterns: [/memory\s*care[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /MC[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
-        { type: 'skilled_nursing', patterns: [/(?:skilled\s*)?nursing(?:\s*home)?[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /SNF[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
-        { type: 'respite', patterns: [/respite[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] }
+        { type: 'independent_living', patterns: [
+          /independent\s*living[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /\(independent(?:\s*living)?\)[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /IL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'assisted_living', patterns: [
+          /assisted\s*living[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /\(assisted(?:\s*living)?\)[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /AL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'memory_care', patterns: [
+          /memory\s*care[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /\(memory\s*care\)[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /lowest\s*(?:monthly\s*)?price\s*\(memory\s*care\)[:\*\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /MC[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'skilled_nursing', patterns: [
+          /(?:skilled\s*)?nursing(?:\s*home)?[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /SNF[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'respite', patterns: [
+          /respite[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]}
       ];
       
       const extractedPricing: Array<{
@@ -259,6 +278,9 @@ class UnifiedPerplexityCache {
         source: string;
       }> = [];
       
+      console.log(`💰 Attempting to extract pricing for community ${communityPk}...`);
+      console.log(`💰 Raw content length: ${rawContent.length} chars`);
+      
       // Extract pricing from raw content
       for (const { type, patterns } of careLevelPatterns) {
         for (const pattern of patterns) {
@@ -266,6 +288,7 @@ class UnifiedPerplexityCache {
           for (const match of matches) {
             if (match[1]) {
               const priceStr = match[1];
+              console.log(`💰 Found ${type} price match: "${priceStr}"`);
               const parsed = this.parsePriceRange(priceStr);
               if (parsed.min || parsed.max) {
                 extractedPricing.push({
@@ -278,6 +301,36 @@ class UnifiedPerplexityCache {
               }
             }
           }
+        }
+      }
+      
+      // Fallback: Look for any "monthly" pricing patterns
+      if (extractedPricing.length === 0) {
+        console.log(`💰 No specific care level pricing found, trying general patterns...`);
+        const generalPatterns = [
+          /(?:starting\s*(?:at|from)|(?:from|at)\s+)?\$?([\d,]+)\s*(?:to|-)?\s*\$?([\d,]+)?\s*(?:per\s+month|\/month|monthly)/gi,
+          /\*\*\$(\d[\d,]*)\s*(?:to|-)?\s*\$?(\d[\d,]*)?\s*(?:per\s+month|\/month|monthly)?\*\*/gi
+        ];
+        
+        for (const pattern of generalPatterns) {
+          const matches = rawContent.matchAll(pattern);
+          for (const match of matches) {
+            if (match[1]) {
+              const priceStr = `$${match[1]}${match[2] ? ` to $${match[2]}` : ''}`;
+              console.log(`💰 Found general price match: "${priceStr}"`);
+              const parsed = this.parsePriceRange(priceStr);
+              if (parsed.min || parsed.max) {
+                extractedPricing.push({
+                  priceType: 'base',
+                  priceMin: parsed.min,
+                  priceMax: parsed.max,
+                  source: 'perplexity_enrichment'
+                });
+                break;
+              }
+            }
+          }
+          if (extractedPricing.length > 0) break;
         }
       }
       
