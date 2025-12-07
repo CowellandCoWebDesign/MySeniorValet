@@ -3,8 +3,50 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw, Play } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+
+// Helper functions for video detection and embed URL generation
+const isVideoUrl = (url: string): boolean => {
+  if (!url) return false;
+  const lowerUrl = url.toLowerCase();
+  return (
+    lowerUrl.includes('youtube.com') ||
+    lowerUrl.includes('youtu.be') ||
+    lowerUrl.includes('vimeo.com') ||
+    lowerUrl.includes('youtube-nocookie.com')
+  );
+};
+
+const getVideoEmbedUrl = (url: string): string | null => {
+  if (!url) return null;
+  
+  // YouTube standard URL
+  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  if (youtubeMatch) {
+    return `https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1`;
+  }
+  
+  // Vimeo URL
+  const vimeoMatch = url.match(/(?:vimeo\.com\/(?:video\/)?|player\.vimeo\.com\/video\/)(\d+)/);
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+  }
+  
+  // If it's already an embed URL, return as-is
+  if (url.includes('/embed/') || url.includes('player.vimeo.com')) {
+    return url;
+  }
+  
+  return null;
+};
+
+const getVideoPlatform = (url: string): string => {
+  if (!url) return 'Video';
+  if (url.includes('youtube') || url.includes('youtu.be')) return 'YouTube';
+  if (url.includes('vimeo')) return 'Vimeo';
+  return 'Video';
+};
 
 interface PhotoCarouselProps {
   photos?: any[];
@@ -80,18 +122,36 @@ export function EnhancedPhotoCarousel({
   const [loadingStage, setLoadingStage] = useState<'initial' | 'quick' | 'quality' | 'complete'>('initial');
   const [progressiveLoadAttempted, setProgressiveLoadAttempted] = useState(false);
   
-  // Get all photos from database, web intelligence, and progressive loading  
+  // Get all photos AND videos from database, web intelligence, and progressive loading  
   const getAllPhotos = () => {
-    const allPhotos: { url: string; source: string; isAuthentic?: boolean }[] = [];
+    const allPhotos: { url: string; source: string; isAuthentic?: boolean; isVideo?: boolean }[] = [];
     
-    // Add progressive photos first (these are highest priority)
+    // Add community videos FIRST (highest priority for engagement)
+    if (community?.communityVideos && community.communityVideos.length > 0) {
+      community.communityVideos.forEach((videoUrl: string) => {
+        if (videoUrl && videoUrl.length > 10 && isVideoUrl(videoUrl)) {
+          console.log(`🎬 Adding community video: ${videoUrl}`);
+          allPhotos.push({ 
+            url: videoUrl, 
+            source: 'video',
+            isAuthentic: true,
+            isVideo: true
+          });
+        }
+      });
+    }
+    
+    // Add progressive photos (these are highest priority for photos)
     if (progressivePhotos.length > 0) {
       progressivePhotos.forEach((url: string) => {
         if (url && url.length > 10) {
+          // Check if it's a video URL
+          const videoFlag = isVideoUrl(url);
           allPhotos.push({ 
             url, 
             source: loadingStage === 'complete' ? 'high-quality' : 'quick-load',
-            isAuthentic: true 
+            isAuthentic: true,
+            isVideo: videoFlag
           });
         }
       });
@@ -514,10 +574,10 @@ export function EnhancedPhotoCarousel({
           </Alert>
         )}
 
-        {/* Main Photo */}
+        {/* Main Photo or Video */}
         <div className="relative aspect-video bg-gray-100 dark:bg-gray-800">
-          {/* Loading indicator for individual image */}
-          {currentPhoto && !loadedImages.has(currentPhoto.url) && !imageErrors.has(currentPhoto.url) && (
+          {/* Loading indicator for individual image (not shown for videos) */}
+          {currentPhoto && !currentPhoto.isVideo && !loadedImages.has(currentPhoto.url) && !imageErrors.has(currentPhoto.url) && (
             <div className="absolute inset-0 flex items-center justify-center z-10">
               <div className="text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-300 dark:border-gray-600 border-t-primary mx-auto"></div>
@@ -527,7 +587,7 @@ export function EnhancedPhotoCarousel({
           )}
           
           {/* Error state for broken image */}
-          {currentPhoto && imageErrors.has(currentPhoto.url) && (
+          {currentPhoto && !currentPhoto.isVideo && imageErrors.has(currentPhoto.url) && (
             <div className="absolute inset-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800">
               <div className="text-center text-gray-500">
                 <AlertTriangle className="w-12 h-12 mx-auto mb-2 text-orange-500" />
@@ -537,7 +597,50 @@ export function EnhancedPhotoCarousel({
             </div>
           )}
           
-          {currentPhoto && (
+          {/* VIDEO RENDERING - Embedded player for YouTube/Vimeo */}
+          {currentPhoto && currentPhoto.isVideo && (
+            <div className="w-full h-full relative">
+              {(() => {
+                const embedUrl = getVideoEmbedUrl(currentPhoto.url);
+                const platform = getVideoPlatform(currentPhoto.url);
+                
+                if (embedUrl) {
+                  return (
+                    <iframe
+                      src={embedUrl}
+                      title={`${communityName} - ${platform} Video`}
+                      className="w-full h-full border-0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    />
+                  );
+                } else {
+                  return (
+                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900">
+                      <a 
+                        href={currentPhoto.url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center text-white hover:text-primary transition-colors"
+                      >
+                        <Play className="w-16 h-16 mb-2" />
+                        <span className="text-sm">Watch on {platform}</span>
+                      </a>
+                    </div>
+                  );
+                }
+              })()}
+              
+              {/* Video Platform Badge */}
+              <div className="absolute bottom-4 left-4 bg-red-600/90 text-white px-3 py-1 rounded-full text-xs font-medium backdrop-blur-sm flex items-center gap-1 z-20">
+                <Play className="w-3 h-3" />
+                {getVideoPlatform(currentPhoto.url)} Video
+              </div>
+            </div>
+          )}
+          
+          {/* IMAGE RENDERING - Standard photo display */}
+          {currentPhoto && !currentPhoto.isVideo && (
             <img
               src={currentPhoto.url}
               alt={`${communityName} - Photo ${currentIndex + 1}`}
@@ -549,11 +652,9 @@ export function EnhancedPhotoCarousel({
                 setLoadedImages(prev => new Set([...prev, currentPhoto.url]));
               }}
               onError={(e) => {
-                // Handle broken images gracefully
                 const target = e.target as HTMLImageElement;
                 const originalSrc = target.src;
                 
-                // Check if this is a corrupted URL (very long or has synthetic patterns)
                 const isCorrupted = originalSrc.includes('QwQwQwQw') || 
                                    originalSrc.includes('kQz8kQz8') ||
                                    originalSrc.includes('QwQwQwQwQwQwQwQw') ||
@@ -563,14 +664,12 @@ export function EnhancedPhotoCarousel({
                 if (isCorrupted) {
                   console.log(`🚫 Corrupted URL detected and blocked: ${originalSrc.substring(0, 100)}...`);
                   setImageErrors(prev => new Set([...prev, currentPhoto.url]));
-                  // Immediately move to next photo for corrupted URLs
                   if (safePhotos.length > 1) {
                     setTimeout(nextPhoto, 100);
                   }
                   return;
                 }
                 
-                // Only retry for legitimate URLs that might be temporarily unavailable
                 if (!target.dataset.retried && !originalSrc.includes('/api/image-proxy')) {
                   target.dataset.retried = "true";
                   console.log(`🔄 Retrying failed image: ${originalSrc.substring(0, 100)}...`);
@@ -595,7 +694,6 @@ export function EnhancedPhotoCarousel({
                   }));
                 }
                 
-                // Try to move to next photo if available
                 if (safePhotos.length > 1) {
                   setTimeout(nextPhoto, 500);
                 }
@@ -722,29 +820,34 @@ export function EnhancedPhotoCarousel({
                         : 'hover:opacity-80 hover:scale-105'
                     }`}
                     onClick={() => goToPhoto(idx)}
-                    aria-label={`View photo ${idx + 1}`}
+                    aria-label={photo.isVideo ? `View video ${idx + 1}` : `View photo ${idx + 1}`}
                   >
-                    <img
-                      src={photo.url}
-                      alt={`Thumbnail ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                      loading="lazy"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = 'none';
-                        const parent = target.parentElement;
-                        if (parent) {
-                          // Add placeholder for broken thumbnail
-                          const placeholder = document.createElement('div');
-                          placeholder.className = 'w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center';
-                          placeholder.innerHTML = '<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>';
-                          parent.appendChild(placeholder);
-                        }
-                      }}
-                    />
-                    {/* Photo number badge */}
-                    <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1 rounded">
-                      {idx + 1}
+                    {photo.isVideo ? (
+                      <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+                        <Play className="w-6 h-6 text-white" />
+                      </div>
+                    ) : (
+                      <img
+                        src={photo.url}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = 'none';
+                          const parent = target.parentElement;
+                          if (parent) {
+                            const placeholder = document.createElement('div');
+                            placeholder.className = 'w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center';
+                            placeholder.innerHTML = '<svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>';
+                            parent.appendChild(placeholder);
+                          }
+                        }}
+                      />
+                    )}
+                    {/* Item number/type badge */}
+                    <div className={`absolute bottom-1 right-1 text-white text-xs px-1 rounded ${photo.isVideo ? 'bg-red-600/80' : 'bg-black/60'}`}>
+                      {photo.isVideo ? <Play className="w-3 h-3 inline" /> : idx + 1}
                     </div>
                   </button>
                 ))}
@@ -769,10 +872,15 @@ export function EnhancedPhotoCarousel({
               )}
             </div>
             
-            {/* Photo count and navigation hints */}
+            {/* Photo/video count and navigation hints */}
             <div className="mt-2 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
               <span className="font-medium">
-                Viewing {currentIndex + 1} of {safePhotos.length} photos
+                Viewing {currentIndex + 1} of {safePhotos.length} {safePhotos.some(p => p.isVideo) ? 'items' : 'photos'}
+                {safePhotos.filter(p => p.isVideo).length > 0 && (
+                  <span className="ml-1 text-red-500">
+                    ({safePhotos.filter(p => p.isVideo).length} video{safePhotos.filter(p => p.isVideo).length > 1 ? 's' : ''})
+                  </span>
+                )}
               </span>
               <span className="text-gray-500">
                 Use arrows or click thumbnails to navigate

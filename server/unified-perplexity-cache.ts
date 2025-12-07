@@ -3,8 +3,8 @@ import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 import { communityWebsiteCrawler, DeepCrawlResult } from './services/community-website-crawler';
 import { db } from './db';
-import { perplexityCache, communities } from '../shared/schema';
-import { eq, lt, and } from 'drizzle-orm';
+import { perplexityCache, communities, pricingHistory } from '../shared/schema';
+import { eq, lt, and, isNull } from 'drizzle-orm';
 
 interface CachedCommunityData {
   communityPk?: number; // Numeric primary key from communities.id table
@@ -201,6 +201,9 @@ class UnifiedPerplexityCache {
             console.log(`🏠 Syncing ${tourUrls.length} virtual tours to communities.virtualTours for ID ${communityPk}`);
           }
           
+          // CRITICAL: Sync pricing to pricing_history table
+          await this.syncPricingToHistory(communityPk, data);
+          
           if (Object.keys(updates).length > 0) {
             updates.updatedAt = new Date();
             updates.lastSuccessfulEnrichment = new Date();
@@ -229,6 +232,200 @@ class UnifiedPerplexityCache {
     } catch (error) {
       console.error('Failed to save to database cache:', error);
     }
+  }
+
+  /**
+   * Extract and sync pricing data to pricing_history table
+   * Parses pricing from raw Perplexity content and marketData
+   */
+  private async syncPricingToHistory(communityPk: number, data: CachedCommunityData) {
+    try {
+      const rawContent = data.rawPerplexityContent || '';
+      const pricingDetails = data.deepCrawlData?.pricingDetails || {};
+      
+      // Define care level mappings
+      const careLevelPatterns = [
+        { type: 'independent_living', patterns: [/independent\s*living[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /IL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
+        { type: 'assisted_living', patterns: [/assisted\s*living[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /AL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
+        { type: 'memory_care', patterns: [/memory\s*care[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /MC[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
+        { type: 'skilled_nursing', patterns: [/(?:skilled\s*)?nursing(?:\s*home)?[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi, /SNF[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] },
+        { type: 'respite', patterns: [/respite[^$]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?)/gi] }
+      ];
+      
+      const extractedPricing: Array<{
+        priceType: string;
+        priceMin: string | null;
+        priceMax: string | null;
+        source: string;
+      }> = [];
+      
+      // Extract pricing from raw content
+      for (const { type, patterns } of careLevelPatterns) {
+        for (const pattern of patterns) {
+          const matches = rawContent.matchAll(pattern);
+          for (const match of matches) {
+            if (match[1]) {
+              const priceStr = match[1];
+              const parsed = this.parsePriceRange(priceStr);
+              if (parsed.min || parsed.max) {
+                extractedPricing.push({
+                  priceType: type,
+                  priceMin: parsed.min,
+                  priceMax: parsed.max,
+                  source: 'perplexity_enrichment'
+                });
+                break; // Only take first match per type
+              }
+            }
+          }
+        }
+      }
+      
+      // Also check deepCrawlData pricing
+      if (pricingDetails.independentLiving) {
+        const parsed = this.parsePriceRange(pricingDetails.independentLiving);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'independent_living', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      if (pricingDetails.assistedLiving) {
+        const parsed = this.parsePriceRange(pricingDetails.assistedLiving);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'assisted_living', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      if (pricingDetails.memoryCare) {
+        const parsed = this.parsePriceRange(pricingDetails.memoryCare);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'memory_care', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      if (pricingDetails.generalRange) {
+        const parsed = this.parsePriceRange(pricingDetails.generalRange);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'base', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      
+      // Check marketData.pricing (enhanced extraction)
+      if (data.marketData?.pricing) {
+        const pricingData = data.marketData.pricing;
+        if (typeof pricingData === 'object') {
+          // Handle structured pricing object
+          const pricingObj = pricingData as any;
+          if (pricingObj.general) {
+            const parsed = this.parsePriceRange(pricingObj.general);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'base', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+          if (pricingObj.studio) {
+            const parsed = this.parsePriceRange(pricingObj.studio);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'studio', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+          if (pricingObj.oneBedroom) {
+            const parsed = this.parsePriceRange(pricingObj.oneBedroom);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'one_bedroom', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+          if (pricingObj.twoBedroom) {
+            const parsed = this.parsePriceRange(pricingObj.twoBedroom);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'two_bedroom', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+        } else if (typeof pricingData === 'string') {
+          const parsed = this.parsePriceRange(pricingData);
+          if (parsed.min || parsed.max) {
+            extractedPricing.push({ priceType: 'base', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+          }
+        }
+      }
+      
+      if (extractedPricing.length === 0) {
+        console.log(`💰 No pricing data found for community ${communityPk}`);
+        return;
+      }
+      
+      console.log(`💰 Found ${extractedPricing.length} pricing entries for community ${communityPk}`);
+      
+      // Deduplicate by priceType (prefer website_crawl over perplexity)
+      const pricingMap = new Map<string, typeof extractedPricing[0]>();
+      for (const pricing of extractedPricing) {
+        const existing = pricingMap.get(pricing.priceType);
+        if (!existing || pricing.source === 'website_crawl') {
+          pricingMap.set(pricing.priceType, pricing);
+        }
+      }
+      
+      // Insert pricing records
+      const today = new Date().toISOString().split('T')[0];
+      
+      for (const [priceType, pricing] of pricingMap) {
+        try {
+          // End any existing current pricing for this type
+          await db
+            .update(pricingHistory)
+            .set({ endDate: today })
+            .where(
+              and(
+                eq(pricingHistory.communityId, communityPk),
+                eq(pricingHistory.priceType, priceType),
+                isNull(pricingHistory.endDate)
+              )
+            );
+          
+          // Insert new pricing record
+          await db.insert(pricingHistory).values({
+            communityId: communityPk,
+            priceType: priceType,
+            priceMin: pricing.priceMin,
+            priceMax: pricing.priceMax,
+            effectiveDate: today,
+            source: pricing.source,
+            verificationStatus: 'unverified',
+            notes: `Auto-extracted from ${pricing.source} on ${new Date().toISOString()}`
+          });
+          
+          console.log(`💰 Saved ${priceType} pricing to history: $${pricing.priceMin || '?'} - $${pricing.priceMax || '?'}`);
+        } catch (insertError) {
+          console.error(`Failed to insert pricing for ${priceType}:`, insertError);
+        }
+      }
+      
+    } catch (error) {
+      console.error(`Failed to sync pricing to history for community ${communityPk}:`, error);
+    }
+  }
+  
+  /**
+   * Parse a price string like "$3,719 to $10,038" into min/max values
+   */
+  private parsePriceRange(priceStr: string): { min: string | null; max: string | null } {
+    if (!priceStr) return { min: null, max: null };
+    
+    // Remove commas and extract numbers
+    const numbers = priceStr.match(/\$?([\d,]+)/g);
+    if (!numbers || numbers.length === 0) return { min: null, max: null };
+    
+    // Clean and convert to decimal format
+    const cleanNumbers = numbers.map(n => n.replace(/[$,]/g, ''));
+    
+    if (cleanNumbers.length === 1) {
+      return { min: cleanNumbers[0], max: cleanNumbers[0] };
+    } else if (cleanNumbers.length >= 2) {
+      const num1 = parseFloat(cleanNumbers[0]);
+      const num2 = parseFloat(cleanNumbers[1]);
+      return {
+        min: Math.min(num1, num2).toString(),
+        max: Math.max(num1, num2).toString()
+      };
+    }
+    
+    return { min: null, max: null };
   }
 
   // Public method to save comprehensive data to cache
@@ -614,9 +811,9 @@ class UnifiedPerplexityCache {
       website: websiteUrl || 'NOT AVAILABLE'
     });
 
-    // Focused query for essential data - BE VERY SPECIFIC to avoid generic averages
+    // Enhanced query to search ALL sources - official website (highest priority) + third-party directories
     const comprehensiveQuery = `
-CRITICAL INSTRUCTION: ONLY PROVIDE VERIFIED, SPECIFIC DATA FOR THIS EXACT COMMUNITY.
+CRITICAL INSTRUCTION: SEARCH ALL AVAILABLE SOURCES FOR THIS EXACT COMMUNITY.
 
 ==============================================================================
 COMMUNITY TO RESEARCH:
@@ -625,43 +822,82 @@ Location: ${location}
 ${metadataContext ? `\nVERIFIED IDENTIFIERS (USE THESE TO CONFIRM YOU HAVE THE RIGHT COMMUNITY):\n${metadataContext}` : ''}
 ==============================================================================
 
-⚠️ ABSOLUTE REQUIREMENTS - READ CAREFULLY:
+⚠️ DATA QUALITY REQUIREMENTS:
 1. DO NOT "infer" any information from the community name
 2. DO NOT provide generic industry averages or regional estimates
 3. DO NOT provide data from similarly-named communities in other locations
 4. DO NOT guess or estimate if you cannot find verified information
 5. ONLY return information that is VERIFIABLY about THIS SPECIFIC community
 
-If you cannot find verified information about "${communityName}" at ${location}:
-- Say "No verified public information found for this specific community"
-- Do NOT substitute generic data or inferences
+🔍 MULTI-SOURCE SEARCH STRATEGY - CHECK ALL OF THESE:
 
-REQUESTED INFORMATION (only if you find verified sources):
+**HIGHEST PRIORITY - Official Community Sources:**
+${websiteUrl ? `- Their official website: ${websiteUrl}` : '- Search for their official website'}
+- Look for /pricing, /rates, /floor-plans, /apartments, /living-options pages
+- Check their brochures, rate sheets, or PDF downloads
 
-1. PRICING (from this community's website, directories, or official sources):
-   - Current monthly rates for each care level they offer
-   - Published pricing from caring.com, aplaceformom, or their official site
-   - Only include prices you can attribute to a specific source
+**SECONDARY SOURCES - Senior Care Directories:**
+- Caring.com profile for "${communityName}"
+- A Place for Mom listing for "${communityName}"
+- SeniorAdvisor.com profile for "${communityName}"
+- SeniorHomes.com or SeniorLiving.org listings
 
-2. FLOOR PLANS (from their website/brochures):
+**GOVERNMENT & REGULATORY SOURCES:**
+- Medicare.gov Nursing Home Compare (for skilled nursing facilities)
+- State licensing database for ${location}
+- HUD housing database (if applicable)
+
+**COST DATA SOURCES:**
+- Genworth Cost of Care Survey for ${location} region
+- PayingForSeniorCare.com data
+
+**REVIEWS & RATINGS:**
+- Google Reviews and star rating
+- Yelp reviews
+- Facebook page reviews
+
+REQUESTED INFORMATION (search ALL sources above):
+
+## 1. PRICING (aggregate from all sources - note which source each comes from):
+   - Monthly rates for each care level (Independent, Assisted, Memory Care, Skilled Nursing)
+   - Entry fees or community fees if any
+   - FORMAT: "$X,XXX - $X,XXX per month" with source attribution
+   - IMPORTANT: Check caring.com, aplaceformom.com, senioradvisor.com even if official site doesn't show pricing
+
+## 2. FLOOR PLANS & UNITS:
    - Available apartment/unit types (Studio, 1BR, 2BR, etc.)
    - Square footage for each unit type
    - What's included in each floor plan
+   - Check the community's /floor-plans or /apartments page
 
-3. CARE LEVELS OFFERED at this specific location:
+## 3. CARE LEVELS OFFERED at this specific location:
    - Independent Living, Assisted Living, Memory Care, Skilled Nursing, Respite
    - Specific services they provide
+   - Staff-to-resident ratios if available
 
-4. DIRECT CONTACT INFO (not referral services):
-   - Their direct phone number (not a call center)
+## 4. CONTACT INFO (official, not referral services):
+   - Direct phone number (not a call center like A Place for Mom's number)
    - Physical address
    - Official website URL
+   - Email address if available
 
-5. REVIEWS AND RATINGS:
-   - Google, Yelp, Caring.com ratings with review counts
+## 5. REVIEWS AND RATINGS (from all platforms):
+   - Google rating and review count
+   - Yelp rating and review count  
+   - Caring.com rating and review count
    - Recent feedback themes
 
-CITE YOUR SOURCES for each piece of information you provide.
+## 6. ADDITIONAL DATA:
+   - Year established
+   - Total number of units/beds
+   - Pet policy
+   - Parking availability
+   - Nearby hospitals/medical facilities
+
+CITE YOUR SOURCES for each piece of information. Format as:
+[Source: website-url or "platform name"]
+
+If you cannot find verified information from any source, say "No verified public information found" - do NOT substitute generic data.
 `;
 
     try {
