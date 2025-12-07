@@ -7,6 +7,18 @@ interface ScrapedPhoto {
   context?: string;
 }
 
+interface ScrapedVideo {
+  url: string;
+  platform?: string;
+  title?: string;
+  embedUrl?: string;
+}
+
+interface ScrapeResult {
+  photos: ScrapedPhoto[];
+  videos: ScrapedVideo[];
+}
+
 export class CheerioPhotoScraper {
   
   async scrapePhotosFromWebsite(
@@ -19,32 +31,72 @@ export class CheerioPhotoScraper {
   ): Promise<ScrapedPhoto[]> {
     const photos: ScrapedPhoto[] = [];
     
-    try {
-      console.log(`🌐 Fetching ${websiteUrl} with Cheerio...`);
-      
-      // Fetch the HTML
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), options?.timeout || 10000);
-      
-      const response = await fetch(websiteUrl, {
-        signal: controller.signal,
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Accept-Encoding': 'gzip, deflate, br',
-          'Connection': 'keep-alive',
-          'Upgrade-Insecure-Requests': '1',
-          'Cache-Control': 'max-age=0'
+    // Normalize URL to HTTPS
+    let normalizedUrl = websiteUrl;
+    if (normalizedUrl.startsWith('http://')) {
+      normalizedUrl = normalizedUrl.replace('http://', 'https://');
+    }
+    if (!normalizedUrl.startsWith('https://') && !normalizedUrl.startsWith('http://')) {
+      normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
+    // URLs to try (original + HTTPS version if different)
+    const urlsToTry = [normalizedUrl];
+    if (websiteUrl !== normalizedUrl) {
+      urlsToTry.push(websiteUrl); // Fallback to original if normalized fails
+    }
+    
+    let lastError: Error | null = null;
+    let response: Response | null = null;
+    
+    // Retry logic with multiple URL attempts
+    for (const url of urlsToTry) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          console.log(`🌐 Fetching ${url} with Cheerio (attempt ${attempt})...`);
+          
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), options?.timeout || 15000);
+          
+          response = await fetch(url, {
+            signal: controller.signal,
+            redirect: 'follow', // Follow redirects automatically
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5',
+              'Accept-Encoding': 'gzip, deflate, br',
+              'Connection': 'keep-alive',
+              'Upgrade-Insecure-Requests': '1',
+              'Cache-Control': 'max-age=0'
+            }
+          });
+          
+          clearTimeout(timeout);
+          
+          if (response.ok) {
+            console.log(`✅ Successfully fetched ${url}`);
+            break; // Success, exit retry loop
+          } else {
+            console.log(`⚠️ HTTP ${response.status} for ${url}, ${attempt < 2 ? 'retrying...' : 'trying next URL...'}`);
+            response = null;
+          }
+        } catch (fetchError) {
+          lastError = fetchError instanceof Error ? fetchError : new Error(String(fetchError));
+          console.log(`⚠️ Fetch error for ${url}: ${lastError.message}, ${attempt < 2 ? 'retrying...' : 'trying next URL...'}`);
+          response = null;
         }
-      });
-      
-      clearTimeout(timeout);
-      
-      if (!response.ok) {
-        console.log(`⚠️ Failed to fetch ${websiteUrl}: ${response.status}`);
-        return [];
       }
+      
+      if (response && response.ok) break; // Success, exit URL loop
+    }
+    
+    if (!response || !response.ok) {
+      console.log(`❌ All fetch attempts failed for ${websiteUrl}`);
+      return [];
+    }
+    
+    try {
       
       const html = await response.text();
       const $ = cheerio.load(html);
@@ -448,6 +500,250 @@ export class CheerioPhotoScraper {
     }
     
     return score;
+  }
+}
+
+  /**
+   * Comprehensive scrape that extracts both photos AND videos
+   */
+  async scrapePhotosAndVideos(
+    websiteUrl: string,
+    communityName: string,
+    options?: {
+      maxPhotos?: number;
+      timeout?: number;
+    }
+  ): Promise<ScrapeResult> {
+    const result: ScrapeResult = { photos: [], videos: [] };
+    
+    // Normalize URL to HTTPS
+    let normalizedUrl = websiteUrl;
+    if (normalizedUrl.startsWith('http://')) {
+      normalizedUrl = normalizedUrl.replace('http://', 'https://');
+    }
+    if (!normalizedUrl.startsWith('https://') && !normalizedUrl.startsWith('http://')) {
+      normalizedUrl = 'https://' + normalizedUrl;
+    }
+    
+    // URLs to try (original + HTTPS version if different)
+    const urlsToTry = [normalizedUrl];
+    if (websiteUrl !== normalizedUrl) {
+      urlsToTry.push(websiteUrl);
+    }
+    
+    let response: Response | null = null;
+    
+    // Retry logic with multiple URL attempts
+    for (const url of urlsToTry) {
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          console.log(`🌐 Full scrape of ${url} (attempt ${attempt})...`);
+          
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), options?.timeout || 15000);
+          
+          response = await fetch(url, {
+            signal: controller.signal,
+            redirect: 'follow',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+              'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+              'Accept-Language': 'en-US,en;q=0.5'
+            }
+          });
+          
+          clearTimeout(timeout);
+          
+          if (response.ok) break;
+          response = null;
+        } catch (e) {
+          response = null;
+        }
+      }
+      if (response && response.ok) break;
+    }
+    
+    if (!response || !response.ok) {
+      return result;
+    }
+    
+    try {
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      
+      // Extract photos (reuse existing logic)
+      result.photos = await this.extractPhotosFromHtml($, websiteUrl, communityName, options?.maxPhotos || 30);
+      
+      // Extract videos
+      result.videos = this.extractVideosFromHtml($, websiteUrl);
+      
+      console.log(`✅ Full scrape complete: ${result.photos.length} photos, ${result.videos.length} videos`);
+      
+    } catch (error) {
+      console.error(`❌ Error in full scrape:`, error instanceof Error ? error.message : error);
+    }
+    
+    return result;
+  }
+  
+  private extractPhotosFromHtml($: cheerio.CheerioAPI, websiteUrl: string, communityName: string, maxPhotos: number): ScrapedPhoto[] {
+    const photos: ScrapedPhoto[] = [];
+    
+    // Extract all img tags
+    $('img').each((index, element) => {
+      const $img = $(element);
+      const src = $img.attr('src') || $img.attr('data-src') || $img.attr('data-lazy-src');
+      const alt = $img.attr('alt');
+      const title = $img.attr('title');
+      const width = $img.attr('width');
+      const height = $img.attr('height');
+      
+      if (width && height) {
+        const w = parseInt(width);
+        const h = parseInt(height);
+        if (!isNaN(w) && !isNaN(h) && (w < 100 || h < 100)) return;
+      }
+      
+      if (src && this.isValidPhotoUrl(src) && !this.isStockPhoto(src)) {
+        photos.push({
+          url: this.resolveUrl(src, websiteUrl),
+          alt,
+          title,
+          context: `Image: ${alt || title || 'facility photo'}`
+        });
+      }
+    });
+    
+    // Extract background images
+    $('[style*="background-image"]').each((index, element) => {
+      const $el = $(element);
+      const style = $el.attr('style') || '';
+      const urlMatch = style.match(/url\(['"]?(.*?)['"]?\)/);
+      
+      if (urlMatch && urlMatch[1]) {
+        const bgUrl = urlMatch[1];
+        if (this.isValidPhotoUrl(bgUrl) && !this.isStockPhoto(bgUrl)) {
+          photos.push({
+            url: this.resolveUrl(bgUrl, websiteUrl),
+            context: 'Background image'
+          });
+        }
+      }
+    });
+    
+    // Extract Open Graph image
+    const ogImage = $('meta[property="og:image"]').attr('content');
+    if (ogImage && this.isValidPhotoUrl(ogImage) && !this.isStockPhoto(ogImage)) {
+      photos.push({
+        url: this.resolveUrl(ogImage, websiteUrl),
+        context: 'Open Graph image'
+      });
+    }
+    
+    return this.deduplicatePhotos(photos).slice(0, maxPhotos);
+  }
+  
+  private extractVideosFromHtml($: cheerio.CheerioAPI, websiteUrl: string): ScrapedVideo[] {
+    const videos: ScrapedVideo[] = [];
+    const seenUrls = new Set<string>();
+    
+    // Extract YouTube iframes
+    $('iframe[src*="youtube"], iframe[data-src*="youtube"]').each((index, element) => {
+      const $iframe = $(element);
+      const src = $iframe.attr('src') || $iframe.attr('data-src');
+      if (src && !seenUrls.has(src)) {
+        seenUrls.add(src);
+        videos.push({
+          url: src,
+          platform: 'youtube',
+          embedUrl: src,
+          title: $iframe.attr('title') || 'YouTube Video'
+        });
+      }
+    });
+    
+    // Extract Vimeo iframes
+    $('iframe[src*="vimeo"], iframe[data-src*="vimeo"]').each((index, element) => {
+      const $iframe = $(element);
+      const src = $iframe.attr('src') || $iframe.attr('data-src');
+      if (src && !seenUrls.has(src)) {
+        seenUrls.add(src);
+        videos.push({
+          url: src,
+          platform: 'vimeo',
+          embedUrl: src,
+          title: $iframe.attr('title') || 'Vimeo Video'
+        });
+      }
+    });
+    
+    // Extract Wistia videos
+    $('iframe[src*="wistia"], div[class*="wistia"], script[src*="wistia"]').each((index, element) => {
+      const $el = $(element);
+      const src = $el.attr('src') || '';
+      const wistiaId = $el.attr('class')?.match(/wistia_embed.*?wistia_async_([a-z0-9]+)/i)?.[1];
+      
+      if (src && src.includes('wistia') && !seenUrls.has(src)) {
+        seenUrls.add(src);
+        videos.push({
+          url: src,
+          platform: 'wistia',
+          embedUrl: src,
+          title: 'Wistia Video'
+        });
+      } else if (wistiaId && !seenUrls.has(wistiaId)) {
+        seenUrls.add(wistiaId);
+        videos.push({
+          url: `https://fast.wistia.net/embed/iframe/${wistiaId}`,
+          platform: 'wistia',
+          embedUrl: `https://fast.wistia.net/embed/iframe/${wistiaId}`,
+          title: 'Wistia Video'
+        });
+      }
+    });
+    
+    // Extract HTML5 video elements
+    $('video source, video').each((index, element) => {
+      const $el = $(element);
+      const src = $el.attr('src');
+      if (src && !seenUrls.has(src)) {
+        seenUrls.add(src);
+        videos.push({
+          url: this.resolveUrl(src, websiteUrl),
+          platform: 'html5',
+          title: 'Video'
+        });
+      }
+    });
+    
+    // Extract video links (YouTube, Vimeo URLs in href)
+    $('a[href*="youtube.com/watch"], a[href*="youtu.be/"], a[href*="vimeo.com/"]').each((index, element) => {
+      const $link = $(element);
+      const href = $link.attr('href');
+      if (href && !seenUrls.has(href)) {
+        seenUrls.add(href);
+        const platform = href.includes('youtube') || href.includes('youtu.be') ? 'youtube' : 'vimeo';
+        videos.push({
+          url: href,
+          platform,
+          title: $link.text().trim() || `${platform} Video`
+        });
+      }
+    });
+    
+    // Extract Open Graph video
+    const ogVideo = $('meta[property="og:video"]').attr('content');
+    if (ogVideo && !seenUrls.has(ogVideo)) {
+      seenUrls.add(ogVideo);
+      videos.push({
+        url: ogVideo,
+        platform: 'og',
+        title: 'Video'
+      });
+    }
+    
+    console.log(`🎬 Found ${videos.length} videos from HTML`);
+    return videos;
   }
 }
 

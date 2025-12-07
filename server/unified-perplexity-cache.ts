@@ -186,6 +186,21 @@ class UnifiedPerplexityCache {
             console.log(`📝 Syncing FULL Perplexity content (${data.rawPerplexityContent.length} chars) to communities.description for ID ${communityPk}`);
           }
           
+          // CRITICAL: Also sync videos to communities table
+          if (data.deepCrawlData?.videos && data.deepCrawlData.videos.length > 0) {
+            const videoUrls = data.deepCrawlData.videos.map((v: { url: string }) => v.url);
+            updates.communityVideos = videoUrls;
+            console.log(`🎬 Syncing ${videoUrls.length} videos to communities.communityVideos for ID ${communityPk}`);
+          }
+          
+          // Sync virtual tours
+          if (data.deepCrawlData?.virtualTours && data.deepCrawlData.virtualTours.length > 0) {
+            const tourUrls = data.deepCrawlData.virtualTours.map((t: { url: string }) => t.url);
+            updates.virtualTours = tourUrls;
+            updates.virtualTourUrl = tourUrls[0]; // Set primary virtual tour URL
+            console.log(`🏠 Syncing ${tourUrls.length} virtual tours to communities.virtualTours for ID ${communityPk}`);
+          }
+          
           if (Object.keys(updates).length > 0) {
             updates.updatedAt = new Date();
             updates.lastSuccessfulEnrichment = new Date();
@@ -584,24 +599,52 @@ class UnifiedPerplexityCache {
       }
     }
 
-    // Build enhanced query with all available metadata for precise disambiguation
+    // Build enhanced query with ALL available metadata for PRECISE disambiguation
+    // CRITICAL: Include as many identifiers as possible to prevent generic/average responses
     const metadataContext = [
-      communityAddress ? `Full Address: ${communityAddress}` : null,
-      communityPhone ? `Direct Phone: ${communityPhone}` : null,
-      websiteUrl ? `Official Website: ${websiteUrl}` : null
+      communityAddress ? `EXACT ADDRESS: ${communityAddress}` : null,
+      communityPhone ? `PHONE: ${communityPhone}` : null,
+      websiteUrl ? `OFFICIAL WEBSITE: ${websiteUrl}` : null
     ].filter(Boolean).join('\n');
 
-    // Focused query for essential data (photos/media handled by scraper)
-    const comprehensiveQuery = `
-Senior living community: "${communityName}" in ${location}
-${metadataContext ? `Verified: ${metadataContext}\n` : ''}
-Provide ONLY:
-1. PRICING: Monthly rates for Independent Living, Assisted Living, Memory Care (current + any historical data from past 3 years)
-2. FLOOR PLANS: Available unit types, sizes (sq ft), bedroom counts
-3. CARE LEVELS: What care services are offered (IL, AL, MC, SNF, respite)
-4. CONTACT: Direct phone, address, website (NO referral services)
+    // Log the query for debugging
+    console.log(`🔍 Perplexity query for ${communityName}:`, {
+      address: communityAddress || 'NOT AVAILABLE',
+      phone: communityPhone || 'NOT AVAILABLE',
+      website: websiteUrl || 'NOT AVAILABLE'
+    });
 
-Keep response concise. Skip reviews, inspections, and staff info.
+    // Focused query for essential data - BE VERY SPECIFIC to avoid generic averages
+    const comprehensiveQuery = `
+SPECIFIC SENIOR LIVING COMMUNITY LOOKUP:
+Name: "${communityName}"
+Location: ${location}
+${metadataContext ? `\nVERIFIED IDENTIFIERS:\n${metadataContext}` : ''}
+
+IMPORTANT: Search for THIS EXACT community using the identifiers above. Do NOT provide generic industry averages or data from other communities.
+
+Provide SPECIFIC information for "${communityName}" ONLY:
+
+1. PRICING (for this specific community):
+   - Current monthly rates for each care level they offer
+   - Any published pricing from their website or directories
+   - Historical pricing changes if documented (past 3 years)
+
+2. FLOOR PLANS (from their website/brochures):
+   - Available apartment/unit types (Studio, 1BR, 2BR, etc.)
+   - Square footage for each unit type
+   - What's included in each floor plan
+
+3. CARE LEVELS OFFERED at this location:
+   - Independent Living, Assisted Living, Memory Care, Skilled Nursing, Respite
+   - Specific services they provide
+
+4. DIRECT CONTACT INFO (not referral services):
+   - Their direct phone number
+   - Physical address
+   - Official website URL
+
+If you cannot find specific information for "${communityName}", state "Information not available for this specific community" rather than providing generic industry data.
 `;
 
     try {
