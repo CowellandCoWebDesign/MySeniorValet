@@ -2,6 +2,39 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, and, sql } from "drizzle-orm";
 
+/**
+ * Clean Perplexity AI citation markers from data
+ * Removes patterns like [1], [2][3], *(verify)*, etc.
+ */
+function cleanPerplexityCitations(text: string | undefined): string | undefined {
+  if (!text) return text;
+  return text
+    .replace(/\s*\*\(verify\)\*/gi, '')  // Remove *(verify)*
+    .replace(/\s*\[\d+\]/g, '')          // Remove [1], [2], etc.
+    .replace(/\[\d+\]\[\d+\]/g, '')      // Remove [1][2] patterns
+    .replace(/\s+/g, ' ')                // Normalize whitespace
+    .trim();
+}
+
+/**
+ * Clean all fields that might have citation markers
+ */
+function cleanDiscoveredCommunity(community: DiscoveredCommunity): DiscoveredCommunity {
+  return {
+    ...community,
+    name: cleanPerplexityCitations(community.name) || community.name,
+    address: cleanPerplexityCitations(community.address),
+    city: cleanPerplexityCitations(community.city),
+    state: cleanPerplexityCitations(community.state),
+    zip: cleanPerplexityCitations(community.zip),
+    website: cleanPerplexityCitations(community.website),
+    phone: cleanPerplexityCitations(community.phone),
+    email: cleanPerplexityCitations(community.email),
+    fax: cleanPerplexityCitations(community.fax),
+    description: cleanPerplexityCitations(community.description),
+  };
+}
+
 export interface DiscoveredCommunity {
   name: string;
   address?: string;
@@ -38,22 +71,25 @@ export class DiscoveredCommunityService {
    */
   async saveDiscoveredCommunity(community: DiscoveredCommunity): Promise<number> {
     try {
+      // Clean citation markers from all fields before saving
+      const cleanedCommunity = cleanDiscoveredCommunity(community);
+      
       // Check if community already exists (by name and city/state)
-      if (community.name && community.city && community.state) {
+      if (cleanedCommunity.name && cleanedCommunity.city && cleanedCommunity.state) {
         const existing = await db
           .select()
           .from(communities)
           .where(
             and(
-              eq(communities.name, community.name),
-              eq(communities.city, community.city),
-              eq(communities.state, community.state)
+              eq(communities.name, cleanedCommunity.name),
+              eq(communities.city, cleanedCommunity.city),
+              eq(communities.state, cleanedCommunity.state)
             )
           )
           .limit(1);
 
         if (existing.length > 0) {
-          console.log(`Community already exists: ${community.name} in ${community.city}, ${community.state}`);
+          console.log(`Community already exists: ${cleanedCommunity.name} in ${cleanedCommunity.city}, ${cleanedCommunity.state}`);
           return existing[0].id;
         }
       }
@@ -63,28 +99,28 @@ export class DiscoveredCommunityService {
       const result = await db
         .insert(communities)
         .values({
-          name: community.name,
-          address: community.address || `${community.city}, ${community.state}`,
-          city: community.city || '',
-          state: community.state || '',
-          zipCode: community.zip || '',
-          country: community.country || null,
-          website: community.website,
-          phone: community.phone,
-          email: community.email,
-          fax: community.fax,
-          description: community.description,
-          careTypes: community.careTypes ?? [], // CRITICAL: Must be array, NOT NULL in schema
+          name: cleanedCommunity.name,
+          address: cleanedCommunity.address || `${cleanedCommunity.city}, ${cleanedCommunity.state}`,
+          city: cleanedCommunity.city || '',
+          state: cleanedCommunity.state || '',
+          zipCode: cleanedCommunity.zip || '',
+          country: cleanedCommunity.country || null,
+          website: cleanedCommunity.website,
+          phone: cleanedCommunity.phone,
+          email: cleanedCommunity.email,
+          fax: cleanedCommunity.fax,
+          description: cleanedCommunity.description,
+          careTypes: cleanedCommunity.careTypes ?? [], // CRITICAL: Must be array, NOT NULL in schema
           amenities: [],
           services: [],
           careServices: [],
           medicalRestrictions: [],
           photos: [],
           photoAttributions: [],
-          latitude: community.latitude ? String(community.latitude) : null,
-          longitude: community.longitude ? String(community.longitude) : null,
-          county: community.county,
-          data_source: `ai_discovered_${community.discoverySource}`,
+          latitude: cleanedCommunity.latitude ? String(cleanedCommunity.latitude) : null,
+          longitude: cleanedCommunity.longitude ? String(cleanedCommunity.longitude) : null,
+          county: cleanedCommunity.county,
+          data_source: `ai_discovered_${cleanedCommunity.discoverySource}`,
           isActive: true,
           isVerified: false,
           createdAt: new Date(),
@@ -92,7 +128,7 @@ export class DiscoveredCommunityService {
         })
         .returning({ id: communities.id });
 
-      console.log(`✅ Saved discovered community: ${community.name} (ID: ${result[0].id})`);
+      console.log(`✅ Saved discovered community: ${cleanedCommunity.name} (ID: ${result[0].id})`);
       return result[0].id;
     } catch (error) {
       console.error('Error saving discovered community:', error);
