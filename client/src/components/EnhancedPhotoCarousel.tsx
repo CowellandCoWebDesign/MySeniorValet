@@ -21,23 +21,79 @@ const isVideoUrl = (url: string): boolean => {
 const getVideoEmbedUrl = (url: string): string | null => {
   if (!url) return null;
   
-  // YouTube standard URL
-  const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
-  if (youtubeMatch) {
-    return `https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1`;
+  try {
+    const urlObj = new URL(url);
+    const hostname = urlObj.hostname.toLowerCase();
+    
+    // YouTube handling - comprehensive patterns
+    if (hostname.includes('youtube.com') || hostname.includes('youtu.be') || hostname.includes('youtube-nocookie.com')) {
+      let videoId: string | null = null;
+      
+      // youtube.com/watch?v=VIDEO_ID (with optional extra params like &t=)
+      if (urlObj.searchParams.has('v')) {
+        videoId = urlObj.searchParams.get('v');
+      }
+      // youtube.com/embed/VIDEO_ID
+      else if (urlObj.pathname.startsWith('/embed/')) {
+        videoId = urlObj.pathname.split('/embed/')[1]?.split(/[?&/]/)[0];
+      }
+      // youtube.com/shorts/VIDEO_ID
+      else if (urlObj.pathname.startsWith('/shorts/')) {
+        videoId = urlObj.pathname.split('/shorts/')[1]?.split(/[?&/]/)[0];
+      }
+      // youtube.com/live/VIDEO_ID
+      else if (urlObj.pathname.startsWith('/live/')) {
+        videoId = urlObj.pathname.split('/live/')[1]?.split(/[?&/]/)[0];
+      }
+      // youtu.be/VIDEO_ID
+      else if (hostname === 'youtu.be') {
+        videoId = urlObj.pathname.slice(1).split(/[?&/]/)[0];
+      }
+      // youtube.com/v/VIDEO_ID (legacy)
+      else if (urlObj.pathname.startsWith('/v/')) {
+        videoId = urlObj.pathname.split('/v/')[1]?.split(/[?&/]/)[0];
+      }
+      
+      // Validate video ID (should be 11 characters, alphanumeric with - and _)
+      if (videoId && /^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
+        return `https://www.youtube-nocookie.com/embed/${videoId}?rel=0&modestbranding=1`;
+      }
+    }
+    
+    // Vimeo handling - comprehensive patterns
+    if (hostname.includes('vimeo.com') || hostname.includes('player.vimeo.com')) {
+      let videoId: string | null = null;
+      
+      // player.vimeo.com/video/VIDEO_ID
+      if (urlObj.pathname.startsWith('/video/')) {
+        videoId = urlObj.pathname.split('/video/')[1]?.split(/[?&/]/)[0];
+      }
+      // vimeo.com/VIDEO_ID or vimeo.com/channels/xxx/VIDEO_ID or vimeo.com/album/xxx/video/VIDEO_ID
+      else {
+        const pathParts = urlObj.pathname.split('/').filter(p => p);
+        // Find the LAST numeric-only segment (this is the video ID, not channel/album ID)
+        const numericParts = pathParts.filter(p => /^\d+$/.test(p));
+        videoId = numericParts.length > 0 ? numericParts[numericParts.length - 1] : null;
+      }
+      
+      if (videoId && /^\d+$/.test(videoId)) {
+        return `https://player.vimeo.com/video/${videoId}`;
+      }
+    }
+  } catch {
+    // URL parsing failed, try legacy regex patterns
+    const youtubeMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/|v\/)|youtu\.be\/|youtube-nocookie\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    if (youtubeMatch) {
+      return `https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1`;
+    }
+    
+    const vimeoMatch = url.match(/(?:vimeo\.com\/(?:video\/)?|player\.vimeo\.com\/video\/)(\d+)/);
+    if (vimeoMatch) {
+      return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    }
   }
   
-  // Vimeo URL
-  const vimeoMatch = url.match(/(?:vimeo\.com\/(?:video\/)?|player\.vimeo\.com\/video\/)(\d+)/);
-  if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
-  }
-  
-  // If it's already an embed URL, return as-is
-  if (url.includes('/embed/') || url.includes('player.vimeo.com')) {
-    return url;
-  }
-  
+  // Return null if no valid embed URL could be derived
   return null;
 };
 
