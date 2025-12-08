@@ -2317,239 +2317,6 @@ export default function MySeniorValetHome() {
 
       {/* Services Tab */}
       <TabsContent value="services" className="mt-1">
-        <div className="grid grid-cols-1 gap-8">
-          {/* Senior Marketplace */}
-          <Link to="/senior-marketplace">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Title ABOVE the image */}
-                <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="text-xl sm:text-2xl">🌍 Global Business & Services Directory</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Market Transparency Through Public Data Citations
-                  </CardDescription>
-                </CardHeader>
-                {/* Full-size Retro Shopping Sign Image */}
-                <div className="relative h-48 sm:h-56 md:h-64 w-full">
-                  <img 
-                    src={RetroShoppingSign} 
-                    alt="Retro shopping center neon sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
-                    <span className="text-3xl">🛍️</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
-                    COMMERCIAL
-                  </Badge>
-                </div>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🌍 Research global businesses & services - All information cited from public sources for transparency
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Premium Partners & Public Listings */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      {/* Affiliate Partners Section */}
-                      <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Star className="h-4 w-4 text-purple-500 animate-pulse" />
-                          <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
-                          <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <ShoppingCart className="h-3 w-3 text-purple-500" />
-                            <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Gift className="h-3 w-3 text-purple-500" />
-                            <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Public Research Data */}
-                      <div className="flex items-center gap-2 mb-2">
-                        <Globe className="h-4 w-4 text-green-500" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Maximum Height Scrollable Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>📊</span> Research Categories (Citation-Based)
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚚</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">⚖️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💼</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏛️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚗</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Florists & Gift Shops</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Modification</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔒</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Insurance Brokers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Veterans Benefits Assistance</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏡</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Real Estate Agents</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧹</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Cleaning Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">✂️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Beauty & Barber Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">👕</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Laundry Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Portrait Photography</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎉</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Event Planning</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🐕</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Pet Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">⛪</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Spiritual Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📚</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Library Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎭</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Entertainment Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🍴</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Catering Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📱</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Tech Support Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏋️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Fitness Trainers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎨</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Art & Craft Supplies</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏪</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Grocery Delivery</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💐</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Memorial Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📝</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Notary Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔧</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Handyman Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚐</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Shuttle Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎁</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Gift Concierge</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
-                        +more vendors
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Additional Legal Notice */}
-                  <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                    <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
-                      <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
-                      <span>
-                        <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
-                        All sources are cited. Premium partnerships are transparently disclosed. We protect against false steering claims through complete transparency.
-                      </span>
-                    </p>
-                  </div>
-                  
-                  <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <Search className="mr-2 h-4 w-4" />
-                    <span className="font-semibold">Research Businesses & Services</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-
           {/* Partner CTAs Section */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -4042,453 +3809,133 @@ export default function MySeniorValetHome() {
         </div>
       </Tabs>
 
-      {/* Senior Living Command Center Section - Moved after Resources */}
-      <section className="relative overflow-hidden">
-        {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
-        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-pulse"></div>
-          
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center">
-              <h2 className="text-5xl font-bold text-white mb-4">
-                Senior Living Command Center
-              </h2>
-              <div className="flex flex-col items-center gap-3 mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
-                  <Brain className="w-5 h-5" />
-                  <span className="text-sm font-semibold">AI-Powered Platform • FREE FOR FAMILIES ALWAYS</span>
+      {/* Global Business & Services Discovery Section */}
+      <section className="py-12 px-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+        <div className="max-w-6xl mx-auto">
+          <Link to="/senior-marketplace">
+            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-[1.02]">
+              <CardHeader className="relative z-10 pb-2">
+                <CardTitle className="text-2xl sm:text-3xl">🌍 Global Business & Services Directory</CardTitle>
+                <CardDescription className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                  Market Transparency Through Public Data Citations
+                </CardDescription>
+              </CardHeader>
+              <div className="relative h-48 sm:h-56 md:h-64 w-full">
+                <img 
+                  src={RetroShoppingSign} 
+                  alt="Retro shopping center neon sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
+                  <span className="text-3xl">🛍️</span>
                 </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-                  <span className="text-xs text-white/80">Powered by:</span>
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
-                      1. Perplexity AI (Web Search & Discovery)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-gray-700 to-gray-500 text-white px-2 py-0.5 text-xs">
-                      2. Grok (Reviews & Live Intelligence)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
-                      3. Claude Sonnet 4.0 (Analysis & Reasoning)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
-                      4. ChatGPT-4o (Verification & Backup)
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
-                <p className="mb-6">Access the most comprehensive senior living ecosystem ever assembled - over 42,000 resources spanning communities, vendors, healthcare, and education. Every listing enhanced by AI-powered search, Red Tag specials, and real-time market intelligence.</p>
-                <div className="space-y-2 text-lg">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏘️</span>
-                    <span className="font-semibold">34,181+ Communities</span> with verified HUD pricing
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🛍️</span>
-                    <span className="font-semibold">1,500+ Vendor Services</span> for senior living needs
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏥</span>
-                    <span className="font-semibold">6,800+ Healthcare Providers</span> nationwide
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">📚</span>
-                    <span className="font-semibold">100+ Educational Resources</span> for informed decisions
-                  </div>
-                </div>
-              </div>
-              
-              {/* Feature Badges */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
-                  <Flame className="w-4 h-4 mr-2" />
-                  Red Tag Specials
-                </Badge>
-                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Brain className="w-4 h-4 mr-2" />
-                  AI Market Intelligence
-                </Badge>
-                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Calculator className="w-4 h-4 mr-2" />
-                  Cost Calculators
-                </Badge>
-                <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  42,481+ Total Resources
-                </Badge>
-                <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Complete Care Spectrum
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
+                  COMMERCIAL
                 </Badge>
               </div>
-              
-              {/* Quick Stats Bar - like marketplace page */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">34,181+</div>
-                    <div className="text-xs text-blue-100">Communities</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">1,500+</div>
-                    <div className="text-xs text-blue-100">Vendors</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">6,800+</div>
-                    <div className="text-xs text-blue-100">Healthcare</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">100+</div>
-                    <div className="text-xs text-blue-100">Resources</div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Senior Living News & Research Section - SEO Optimized Articles */}
-      <section className="py-12 px-4 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <Card className="border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
-            <CardHeader>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                    <FileText className="h-6 w-6" />
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  🌍 Research global businesses & services - All information cited from public sources for transparency
+                </p>
+                
+                <div className="flex gap-3 mb-6">
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-4 w-4 text-purple-500 animate-pulse" />
+                        <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
+                        <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <ShoppingCart className="h-3 w-3 text-purple-500" />
+                          <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Gift className="h-3 w-3 text-purple-500" />
+                          <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                      <Globe className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-2xl mb-1">Senior Living Research & City Guides</CardTitle>
-                    <CardDescription className="font-semibold">Data-Driven Insights from 33,657 Verified Communities</CardDescription>
+                  
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>📊</span> Research Categories (Citation-Based)
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🚚</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">📦</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">⚖️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💼</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏛️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🚗</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
+                      +more vendors
+                    </p>
                   </div>
                 </div>
-                <Badge className="bg-blue-500 text-white animate-pulse">NEW RESEARCH</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Article 1: Best Senior Living in San Francisco */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-blue-600 dark:text-blue-400 mb-3">
-                    Best Senior Living in San Francisco (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Comprehensive Guide to San Francisco's 287 Senior Communities
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>287 verified communities</strong> in San Francisco Bay Area</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>Average cost: <strong>$7,800-$12,500/month</strong> for assisted living</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>42 HUD-subsidized</strong> affordable options available</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>Top neighborhoods: <strong>Pacific Heights, Marina, Sunset</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>89% occupancy rate</strong> - book early for best locations</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Based on analysis of 287 San Francisco communities
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/senior-living-san-francisco'}
-                      >
-                        Read Full Article →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
 
-                {/* Article 2: Best Senior Living in San Diego */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-green-600 dark:text-green-400 mb-3">
-                    Best Senior Living in San Diego (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Complete Directory of San Diego's 412 Senior Communities
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span><strong>412 verified communities</strong> across San Diego County</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span>Average cost: <strong>$5,200-$8,900/month</strong> for assisted living</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span><strong>67 HUD-subsidized</strong> affordable communities</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span>Top areas: <strong>La Jolla, Del Mar, Carlsbad</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span><strong>Memory care specialists:</strong> 124 dedicated facilities</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Based on analysis of 412 San Diego communities
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/senior-living-san-diego'}
-                      >
-                        Read Full Article →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 3: Platform Announcement - FEATURED */}
-                <article className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg shadow-lg hover:shadow-xl transition-shadow border-2 border-purple-300 dark:border-purple-700">
-                  <Badge className="mb-2 bg-purple-600 text-white">FEATURED</Badge>
-                  <h3 className="font-bold text-lg text-purple-600 dark:text-purple-400 mb-3">
-                    Complete Senior Living Platform: Search to Support
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      The Google of Senior Care - ALL Levels, WORLDWIDE Coverage
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>ALL 9 Care Levels</strong> from Independent to Hospice</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>Complete Journey</strong> - Search to Move-in to Support</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>Healthcare Network</strong> - 6,800+ providers</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>Resident Portals</strong> & ongoing support tools</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>100% Free</strong> - No referral fees ever</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet: Complete platform from search to settled
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-purple-600 hover:text-purple-800 font-bold"
-                        onClick={() => window.location.href = '/senior-living-worldwide'}
-                      >
-                        Read Complete Platform Overview →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 4: Best Senior Living in Los Angeles */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-orange-600 dark:text-orange-400 mb-3">
-                    Best Senior Living in Los Angeles (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Explore 892 Verified LA Senior Communities
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>892 communities</strong> from Downtown to the Valley</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span>Price range: <strong>$3,500-$15,000/month</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>156 HUD-subsidized</strong> affordable options</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span>Top areas: <strong>Beverly Hills, Pasadena, Santa Monica</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>Luxury options:</strong> 89 five-star communities</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Based on 892 verified LA communities
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/'}
-                      >
-                        View All Los Angeles Communities →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 5: Affordable Senior Living Guide */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-red-600 dark:text-red-400 mb-3">
-                    Complete Guide to Affordable Senior Living
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      How to Find HUD & Section 8 Senior Housing
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>4,771 HUD properties</strong> in our database</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span>Income-based rent: <strong>30% of income</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>Section 202</strong> specifically for seniors 62+</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span>Average wait: <strong>1-3 years</strong> (apply early!)</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>LIHTC properties:</strong> Tax credit affordable housing</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Verified HUD.gov data integration
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/'}
-                      >
-                        Find Affordable Housing Now →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 6: Best Senior Living in New York */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-indigo-600 dark:text-indigo-400 mb-3">
-                    Best Senior Living in New York City (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      NYC's 524 Senior Communities Analyzed
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>524 communities</strong> across five boroughs</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span>Manhattan average: <strong>$8,000-$18,000/month</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>Brooklyn & Queens:</strong> 40% more affordable</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>198 NYCHA</strong> senior developments</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>Kosher options:</strong> 47 specialized communities</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Complete NYC senior living database
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/'}
-                      >
-                        View All NYC Communities →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-              </div>
-
-              {/* Action Bar */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
-                    <div>
-                      <p className="font-bold text-gray-900 dark:text-gray-100">The Google of Senior Care</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">33,657 Communities | 100% Free | No Referral Fees</p>
-                    </div>
-                  </div>
-                  <Button 
-                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90"
-                    onClick={() => window.location.href = '/'}
-                  >
-                    <Search className="mr-2 h-4 w-4" />
-                    Search All 33,657 Communities
-                  </Button>
-                </div>
-              </div>
-
-              {/* SEO Keywords Ticker for Search Engines */}
-              <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                <div className="flex items-center gap-2 text-xs">
-                  <Badge className="bg-blue-500 text-white">TRENDING</Badge>
-                  <div className="animate-marquee whitespace-nowrap">
-                    <span className="text-gray-700 dark:text-gray-300">
-                      🔍 Best senior living San Francisco • 🔍 Senior living San Diego • 
-                      🔍 Affordable senior housing Los Angeles • 🔍 NYC senior communities • 
-                      🔍 HUD senior housing • 🔍 Section 8 for seniors • 
-                      🔍 Memory care facilities near me • 🔍 Assisted living costs 2025
+                <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
+                    <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
+                      All sources are cited. Premium partnerships are transparently disclosed.
                     </span>
-                  </div>
+                  </p>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+                
+                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                  <Search className="mr-2 h-4 w-4" />
+                  <span className="font-semibold">Research Businesses & Services</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
       </section>
 
