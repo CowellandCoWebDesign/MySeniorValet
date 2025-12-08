@@ -71,6 +71,7 @@ import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_m
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
+import BusinessDistrictBg from '@assets/generated_images/Business_district_twilight_a2a388f0.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
@@ -238,6 +239,125 @@ const TAB_GRADIENTS = {
     shadowColor: 'rgba(99, 102, 241, 0.5)',
   },
 };
+
+// Recently Discovered Services Carousel Component for Services Tab
+function RecentlyDiscoveredServicesCarousel() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Fetch recently discovered services
+  const { data: recentServices, isLoading } = useQuery({
+    queryKey: ['/api/services/recently-discovered'],
+    queryFn: async () => {
+      const response = await fetch('/api/services/recently-discovered?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch recent services');
+      return response.json();
+    }
+  });
+
+  // Check scroll position
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  // Scroll handlers
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [recentServices]);
+
+  return (
+    <div className="relative">
+      {/* Left Scroll Button */}
+      {canScrollLeft && (
+        <button
+          onClick={scrollLeft}
+          className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6 text-purple-600" />
+        </button>
+      )}
+
+      {/* Services Carousel */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+        onScroll={checkScrollPosition}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-72">
+              <div className="bg-white rounded-lg p-4 shadow-xl animate-pulse">
+                <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : recentServices && recentServices.length > 0 ? (
+          recentServices.map((vendor: any, index: number) => (
+            <motion.div 
+              key={vendor.id} 
+              className="flex-shrink-0 w-72"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+            >
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <VendorServiceCard 
+                  vendor={vendor} 
+                  variant="grid"
+                  onSelect={() => {
+                    window.location.href = `/service/${vendor.id}`;
+                  }}
+                />
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="text-white/80 text-center py-8 w-full">
+            No services discovered yet. Try searching for businesses above!
+          </div>
+        )}
+      </div>
+
+      {/* Right Scroll Button */}
+      {canScrollRight && (
+        <button
+          onClick={scrollRight}
+          className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6 text-purple-600" />
+        </button>
+      )}
+    </div>
+  );
+}
 
 // Simplified Hero Section with Fixed Search Bar
 function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
@@ -2429,6 +2549,87 @@ export default function MySeniorValetHome() {
               </Card>
             </Link>
           </div>
+
+          {/* Partner CTAs Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
+          >
+            <Link to="/vendor-partner">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <Briefcase className="w-5 h-5 mr-2" />
+                Become a Vendor Partner
+              </Button>
+            </Link>
+            
+            <Link to="/vendor-login">
+              <Button size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <LogIn className="w-5 h-5 mr-2" />
+                Vendor Login Portal
+              </Button>
+            </Link>
+          </motion.div>
+
+          {/* Recently Discovered Services Section */}
+          <section className="relative overflow-hidden py-12 mt-8 rounded-xl">
+            {/* Business District Twilight Background Image */}
+            <div 
+              className="absolute inset-0 z-0 rounded-xl"
+              style={{
+                backgroundImage: `url(${BusinessDistrictBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 via-indigo-900/60 to-black/80 rounded-xl"></div>
+            </div>
+            
+            <div className="relative z-10 container mx-auto px-4">
+              {/* Section Title */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-8"
+              >
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Flame className="w-6 h-6 text-orange-400 animate-pulse" />
+                  <h2 className="text-xl sm:text-2xl font-medium text-white/90">Recently Discovered Services</h2>
+                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                    HOT
+                  </Badge>
+                </div>
+              </motion.div>
+
+              {/* Services Carousel - Using VendorMarketplaceTabs for browsing */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="relative max-w-7xl mx-auto"
+              >
+                <RecentlyDiscoveredServicesCarousel />
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Browse Vendors by Category Section */}
+          <section className="py-12 mt-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="mb-8"
+            >
+              <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+                Browse Vendors by Category
+              </h2>
+              <VendorMarketplaceTabs />
+            </motion.div>
+          </section>
       </TabsContent>
 
       {/* Resources Tab */}
