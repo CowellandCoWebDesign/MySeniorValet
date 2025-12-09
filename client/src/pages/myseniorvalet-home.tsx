@@ -2317,28 +2317,6 @@ export default function MySeniorValetHome() {
 
       {/* Services Tab */}
       <TabsContent value="services" className="mt-1">
-          {/* Partner CTAs Section */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center mt-8"
-          >
-            <Link to="/vendor-partner">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                <Briefcase className="w-5 h-5 mr-2" />
-                Become a Vendor Partner
-              </Button>
-            </Link>
-            
-            <Link to="/vendor-login">
-              <Button size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                <LogIn className="w-5 h-5 mr-2" />
-                Vendor Login Portal
-              </Button>
-            </Link>
-          </motion.div>
-
           {/* Recently Discovered Services Section */}
           <section className="relative overflow-hidden py-12 mt-8 rounded-xl">
             {/* Business District Twilight Background Image */}
@@ -3406,143 +3384,6 @@ export default function MySeniorValetHome() {
                 </CardContent>
               </Card>
             </Link>
-
-            {/* Vendor Portal */}
-            <Link to="/vendor-marketplace-tiers">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Partnership Sign Image at top of card */}
-                <div className="relative h-64 w-full">
-                  <img 
-                    src={RetroVendorMarketplace} 
-                    alt="Retro vendor marketplace sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
-                    <span className="text-3xl">🤝</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
-                    VENDORS
-                  </Badge>
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Vendor Portal & Dashboard</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Your Complete Vendor Management Experience
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Join 1,500+ Service Providers - Reach families nationwide with your senior care services.
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Special Offer and Checkmarks */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$499/mo</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Verified Badge</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">API Integration</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Coverage Tiers Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🌎</span> 3 Partnership Tiers
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic</p>
-                            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, up to 10 leads/mo</p>
-                        </div>
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Featured ⭐</p>
-                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$249/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium placement, up to 50 leads/mo</p>
-                        </div>
-                        <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">National Partner</p>
-                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Unlimited leads, API access, white-label</p>
-                        </div>
-                        <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
-                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
-                          <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
-                        </div>
-                        <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
-                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Roadmap Features Section */}
-                  <div className="mt-4 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
-                    <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">🚀 Vendor Features Roadmap</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Smart Lead Routing</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">ROI Analytics</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Service Scheduler</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Contract Manager</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Multi-Territory</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">White-Label</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
-                    <span className="font-semibold">Access Portal & Dashboard</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
           </div>
           
           {/* Vendor Categories Title */}
@@ -3936,6 +3777,164 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
           </Link>
+        </div>
+      </section>
+
+      {/* Vendor Portal & Partner CTAs Section */}
+      <section className="py-12 px-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
+        <div className="max-w-6xl mx-auto">
+          {/* Vendor Portal Card */}
+          <Link to="/vendor-marketplace-tiers">
+            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-[1.02] mb-8">
+              <div className="relative h-64 w-full">
+                <img 
+                  src={RetroVendorMarketplace} 
+                  alt="Retro vendor marketplace sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
+                  <span className="text-3xl">🤝</span>
+                </div>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
+                  VENDORS
+                </Badge>
+              </div>
+              <CardHeader className="relative z-10">
+                <CardTitle className="text-2xl mb-2">Vendor Portal & Dashboard</CardTitle>
+                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Your Complete Vendor Management Experience
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Join 1,500+ Service Providers - Reach families nationwide with your senior care services.
+                </p>
+                
+                <div className="flex gap-3 mb-6">
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
+                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$499/mo</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified Badge</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">API Integration</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>🌎</span> 3 Partnership Tiers
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic</p>
+                          <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, up to 10 leads/mo</p>
+                      </div>
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Featured ⭐</p>
+                          <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$249/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium placement, up to 50 leads/mo</p>
+                      </div>
+                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">National Partner</p>
+                          <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Unlimited leads, API access, white-label</p>
+                      </div>
+                      <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
+                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
+                        <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
+                      </div>
+                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
+                        <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
+                  <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">🚀 Vendor Features Roadmap</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Smart Lead Routing</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">ROI Analytics</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Service Scheduler</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Contract Manager</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Multi-Territory</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">White-Label</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
+                  <span className="font-semibold">Access Portal & Dashboard</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Partner CTAs */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link to="/vendor-partner">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <Briefcase className="w-5 h-5 mr-2" />
+                Become a Vendor Partner
+              </Button>
+            </Link>
+            
+            <Link to="/vendor-login">
+              <Button size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <LogIn className="w-5 h-5 mr-2" />
+                Vendor Login Portal
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 
