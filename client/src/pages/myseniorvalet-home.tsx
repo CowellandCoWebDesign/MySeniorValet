@@ -2375,6 +2375,294 @@ export default function MySeniorValetHome() {
               <VendorMarketplaceTabs />
             </motion.div>
           </section>
+
+      {/* Global Business & Services Discovery Section */}
+      <section className="py-12 px-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+        <div className="max-w-6xl mx-auto">
+          <Link to="/senior-marketplace">
+            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-[1.02]">
+              <CardHeader className="relative z-10 pb-2">
+                <CardTitle className="text-2xl sm:text-3xl">🌍 Global Business & Services Directory</CardTitle>
+                <CardDescription className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                  Market Transparency Through Public Data Citations
+                </CardDescription>
+              </CardHeader>
+              <div className="relative h-48 sm:h-56 md:h-64 w-full">
+                <img 
+                  src={RetroShoppingSign} 
+                  alt="Retro shopping center neon sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
+                  <span className="text-3xl">🛍️</span>
+                </div>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
+                  COMMERCIAL
+                </Badge>
+              </div>
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  🌍 Research global businesses & services - All information cited from public sources for transparency
+                </p>
+                
+                <div className="flex gap-3 mb-6">
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Star className="h-4 w-4 text-purple-500 animate-pulse" />
+                        <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
+                        <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <ShoppingCart className="h-3 w-3 text-purple-500" />
+                          <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Gift className="h-3 w-3 text-purple-500" />
+                          <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 mb-2">
+                      <Globe className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>📊</span> Research Categories (Citation-Based)
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🚚</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">📦</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">⚖️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💼</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏛️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🚗</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
+                      +more vendors
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
+                    <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
+                      All sources are cited. Premium partnerships are transparently disclosed.
+                    </span>
+                  </p>
+                </div>
+                
+                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                  <Search className="mr-2 h-4 w-4" />
+                  <span className="font-semibold">Research Businesses & Services</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </section>
+
+      {/* Vendor Portal & Partner CTAs Section */}
+      <section className="py-12 px-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
+        <div className="max-w-6xl mx-auto">
+          {/* Vendor Portal Card */}
+          <Link to="/vendor-marketplace-tiers">
+            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-[1.02] mb-8">
+              <div className="relative h-64 w-full">
+                <img 
+                  src={RetroVendorMarketplace} 
+                  alt="Retro vendor marketplace sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
+                  <span className="text-3xl">🤝</span>
+                </div>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
+                  VENDORS
+                </Badge>
+              </div>
+              <CardHeader className="relative z-10">
+                <CardTitle className="text-2xl mb-2">Vendor Portal & Dashboard</CardTitle>
+                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Your Complete Vendor Management Experience
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Join 1,500+ Service Providers - Reach families nationwide with your senior care services.
+                </p>
+                
+                <div className="flex gap-3 mb-6">
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
+                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$499/mo</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified Badge</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">API Integration</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>🌎</span> 3 Partnership Tiers
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic</p>
+                          <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, up to 10 leads/mo</p>
+                      </div>
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Featured ⭐</p>
+                          <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$249/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium placement, up to 50 leads/mo</p>
+                      </div>
+                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">National Partner</p>
+                          <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Unlimited leads, API access, white-label</p>
+                      </div>
+                      <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
+                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
+                        <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
+                      </div>
+                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
+                        <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
+                  <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">🚀 Vendor Features Roadmap</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Smart Lead Routing</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">ROI Analytics</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Service Scheduler</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Contract Manager</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Multi-Territory</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">White-Label</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
+                  <span className="font-semibold">Access Portal & Dashboard</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Partner CTAs */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Link to="/vendor-partner">
+              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <Briefcase className="w-5 h-5 mr-2" />
+                Become a Vendor Partner
+              </Button>
+            </Link>
+            
+            <Link to="/vendor-login">
+              <Button size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                <LogIn className="w-5 h-5 mr-2" />
+                Vendor Login Portal
+              </Button>
+            </Link>
+          </motion.div>
+        </div>
+      </section>
       </TabsContent>
 
       {/* Resources Tab */}
@@ -3649,294 +3937,6 @@ export default function MySeniorValetHome() {
           </div>
         </div>
       </Tabs>
-
-      {/* Global Business & Services Discovery Section */}
-      <section className="py-12 px-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
-        <div className="max-w-6xl mx-auto">
-          <Link to="/senior-marketplace">
-            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-[1.02]">
-              <CardHeader className="relative z-10 pb-2">
-                <CardTitle className="text-2xl sm:text-3xl">🌍 Global Business & Services Directory</CardTitle>
-                <CardDescription className="text-base font-semibold text-gray-700 dark:text-gray-300">
-                  Market Transparency Through Public Data Citations
-                </CardDescription>
-              </CardHeader>
-              <div className="relative h-48 sm:h-56 md:h-64 w-full">
-                <img 
-                  src={RetroShoppingSign} 
-                  alt="Retro shopping center neon sign" 
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
-                  <span className="text-3xl">🛍️</span>
-                </div>
-                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
-                  COMMERCIAL
-                </Badge>
-              </div>
-              <CardContent className="relative z-10">
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  🌍 Research global businesses & services - All information cited from public sources for transparency
-                </p>
-                
-                <div className="flex gap-3 mb-6">
-                  <div className="space-y-2 flex-shrink-0 min-w-fit">
-                    <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Star className="h-4 w-4 text-purple-500 animate-pulse" />
-                        <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
-                        <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
-                      </div>
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <ShoppingCart className="h-3 w-3 text-purple-500" />
-                          <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Gift className="h-3 w-3 text-purple-500" />
-                          <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mb-2">
-                      <Globe className="h-4 w-4 text-green-500" />
-                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
-                      <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                      <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
-                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                      <span>📊</span> Research Categories (Citation-Based)
-                    </p>
-                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
-                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                        <span className="text-xs">🚚</span>
-                        <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
-                      </div>
-                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                        <span className="text-xs">📦</span>
-                        <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
-                      </div>
-                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                        <span className="text-xs">⚖️</span>
-                        <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
-                      </div>
-                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                        <span className="text-xs">💼</span>
-                        <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
-                      </div>
-                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                        <span className="text-xs">🏛️</span>
-                        <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
-                      </div>
-                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                        <span className="text-xs">🚗</span>
-                        <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
-                      </div>
-                    </div>
-                    <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
-                      +more vendors
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                  <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
-                    <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
-                      All sources are cited. Premium partnerships are transparently disclosed.
-                    </span>
-                  </p>
-                </div>
-                
-                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                  <Search className="mr-2 h-4 w-4" />
-                  <span className="font-semibold">Research Businesses & Services</span>
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-        </div>
-      </section>
-
-      {/* Vendor Portal & Partner CTAs Section */}
-      <section className="py-12 px-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
-        <div className="max-w-6xl mx-auto">
-          {/* Vendor Portal Card */}
-          <Link to="/vendor-marketplace-tiers">
-            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-[1.02] mb-8">
-              <div className="relative h-64 w-full">
-                <img 
-                  src={RetroVendorMarketplace} 
-                  alt="Retro vendor marketplace sign" 
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
-                  <span className="text-3xl">🤝</span>
-                </div>
-                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
-                  VENDORS
-                </Badge>
-              </div>
-              <CardHeader className="relative z-10">
-                <CardTitle className="text-2xl mb-2">Vendor Portal & Dashboard</CardTitle>
-                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Your Complete Vendor Management Experience
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="relative z-10">
-                <p className="text-gray-600 dark:text-gray-400 mb-6">
-                  Join 1,500+ Service Providers - Reach families nationwide with your senior care services.
-                </p>
-                
-                <div className="flex gap-3 mb-6">
-                  <div className="space-y-2 flex-shrink-0 min-w-fit">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
-                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$499/mo</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified Badge</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 dark:text-gray-300">API Integration</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
-                    <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                      <span>🌎</span> 3 Partnership Tiers
-                    </p>
-                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
-                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
-                        <div className="flex justify-between items-center">
-                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic</p>
-                          <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
-                        </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, up to 10 leads/mo</p>
-                      </div>
-                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
-                        <div className="flex justify-between items-center">
-                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Featured ⭐</p>
-                          <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$249/mo</p>
-                        </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium placement, up to 50 leads/mo</p>
-                      </div>
-                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
-                        <div className="flex justify-between items-center">
-                          <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">National Partner</p>
-                          <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
-                        </div>
-                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Unlimited leads, API access, white-label</p>
-                      </div>
-                      <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
-                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
-                        <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
-                      </div>
-                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
-                        <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-4 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
-                  <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">🚀 Vendor Features Roadmap</p>
-                  <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="flex items-center gap-1">
-                      <CheckSquare className="h-3 w-3 text-green-500" />
-                      <span className="text-gray-700 dark:text-gray-300">Smart Lead Routing</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CheckSquare className="h-3 w-3 text-green-500" />
-                      <span className="text-gray-700 dark:text-gray-300">ROI Analytics</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CheckSquare className="h-3 w-3 text-green-500" />
-                      <span className="text-gray-700 dark:text-gray-300">Service Scheduler</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CheckSquare className="h-3 w-3 text-green-500" />
-                      <span className="text-gray-700 dark:text-gray-300">Contract Manager</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CheckSquare className="h-3 w-3 text-green-500" />
-                      <span className="text-gray-700 dark:text-gray-300">Multi-Territory</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <CheckSquare className="h-3 w-3 text-green-500" />
-                      <span className="text-gray-700 dark:text-gray-300">White-Label</span>
-                    </div>
-                  </div>
-                </div>
-
-                <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
-                  <span className="font-semibold">Access Portal & Dashboard</span>
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-
-          {/* Partner CTAs */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to="/vendor-partner">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                <Briefcase className="w-5 h-5 mr-2" />
-                Become a Vendor Partner
-              </Button>
-            </Link>
-            
-            <Link to="/vendor-login">
-              <Button size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
-                <LogIn className="w-5 h-5 mr-2" />
-                Vendor Login Portal
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
 
       {/* Partnership Information Section - Simplified */}
       <section className="py-12 px-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
