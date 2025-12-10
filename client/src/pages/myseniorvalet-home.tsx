@@ -403,13 +403,13 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   
   // New state for search mode toggle (AI Assistant vs Classic Search)
   const [searchMode, setSearchMode] = useState<'ai' | 'classic'>(() => {
-    // Load from localStorage or default to 'ai'
+    // Load from localStorage or default to 'classic' (Classic Search is the primary experience)
     // Check if we're in the browser to prevent SSR errors
     if (typeof window !== 'undefined') {
       const savedMode = localStorage.getItem('searchMode');
-      return (savedMode === 'classic' || savedMode === 'ai') ? savedMode : 'ai';
+      return (savedMode === 'classic' || savedMode === 'ai') ? savedMode : 'classic';
     }
-    return 'ai';
+    return 'classic';
   });
   
   // Save search mode to localStorage whenever it changes
@@ -418,6 +418,18 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       localStorage.setItem('searchMode', searchMode);
     }
   }, [searchMode]);
+  
+  // Listen for search mode changes from the navbar
+  useEffect(() => {
+    const handleSearchModeChange = (e: CustomEvent) => {
+      const newMode = e.detail as 'ai' | 'classic';
+      if (newMode === 'ai' || newMode === 'classic') {
+        setSearchMode(newMode);
+      }
+    };
+    window.addEventListener('searchModeChange', handleSearchModeChange as EventListener);
+    return () => window.removeEventListener('searchModeChange', handleSearchModeChange as EventListener);
+  }, []);
   
   // Update placeholder text when view mode or category changes
   useEffect(() => {
@@ -1001,7 +1013,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-1 sm:mb-2" style={{ isolation: 'isolate' }}>
           <div className="flex justify-center">
             <button
-              onClick={() => setSearchMode(searchMode === 'ai' ? 'classic' : 'ai')}
+              onClick={() => {
+                const newMode = searchMode === 'ai' ? 'classic' : 'ai';
+                setSearchMode(newMode);
+                window.dispatchEvent(new CustomEvent('searchModeChange', { detail: newMode }));
+              }}
               className="group flex items-center gap-3 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-300"
             >
               {/* AI Assistant Icon & Label */}

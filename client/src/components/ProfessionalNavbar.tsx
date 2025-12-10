@@ -48,6 +48,13 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
   const { toast } = useToast();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchMode, setSearchModeState] = useState<'ai' | 'classic'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('searchMode');
+      return (saved === 'ai' || saved === 'classic') ? saved : 'classic';
+    }
+    return 'classic';
+  });
   
   // Check for unread notifications
   const { data: unreadCount } = useQuery({
@@ -62,6 +69,18 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  // Listen for search mode changes from other components (e.g., home page toggle)
+  useEffect(() => {
+    const handleSearchModeChange = (e: CustomEvent) => {
+      const newMode = e.detail as 'ai' | 'classic';
+      if (newMode === 'ai' || newMode === 'classic') {
+        setSearchModeState(newMode);
+      }
+    };
+    window.addEventListener('searchModeChange', handleSearchModeChange as EventListener);
+    return () => window.removeEventListener('searchModeChange', handleSearchModeChange as EventListener);
   }, []);
 
   // Apply accessibility preferences to the document
@@ -212,6 +231,41 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
                   </div>
                 </SheetHeader>
+                
+                {/* Search Mode Toggle - AI Assistant vs Classic Search */}
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-850 dark:to-gray-900">
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
+                    Search Mode
+                  </p>
+                  <div 
+                    className="flex items-center justify-between bg-gray-800 dark:bg-gray-700 rounded-full p-1 cursor-pointer"
+                    onClick={() => {
+                      const newMode = searchMode === 'ai' ? 'classic' : 'ai';
+                      setSearchModeState(newMode);
+                      localStorage.setItem('searchMode', newMode);
+                      window.dispatchEvent(new CustomEvent('searchModeChange', { detail: newMode }));
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      searchMode === 'ai' 
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' 
+                        : 'text-gray-400'
+                    }`}>
+                      <span className="text-sm">🤖</span>
+                      <span className="text-xs font-medium">AI Assistant</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      searchMode === 'classic' 
+                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' 
+                        : 'text-gray-400'
+                    }`}>
+                      <span className="text-xs font-medium">Classic Search</span>
+                      <Search className="h-3 w-3" />
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="py-4 flex-1 overflow-y-auto overflow-x-hidden">
                   {/* Mobile Navigation - Enhanced Professional */}
                   <div className="space-y-1 px-4">
