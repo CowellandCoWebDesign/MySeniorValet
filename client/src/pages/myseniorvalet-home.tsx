@@ -2340,10 +2340,10 @@ export default function MySeniorValetHome() {
                           )} - Reach qualified families actively searching for senior care.
                         </p>
                         
-                        {/* Flex container for side-by-side layout */}
-                        <div className="flex gap-3 mb-6">
+                        {/* Flex container for side-by-side layout - stacks on mobile */}
+                        <div className="flex flex-col md:flex-row gap-4 mb-6">
                           {/* Left side - Pricing and Checkmarks */}
-                          <div className="space-y-2 flex-shrink-0 min-w-fit">
+                          <div className="space-y-2 md:flex-shrink-0 md:min-w-fit">
                             <div className="flex items-center gap-2 mb-3">
                               <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
                               <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $399+/mo</span>
@@ -2371,7 +2371,7 @@ export default function MySeniorValetHome() {
                           </div>
                           
                           {/* Right side - Pricing Tiers Preview */}
-                          <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
+                          <div className="flex-1 md:ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
                             <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
                               <span>💰</span> 5 Tier Options
                             </p>
