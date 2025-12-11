@@ -851,14 +851,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Construct an intelligent search query for Perplexity - optimized for international searches
       let searchQuery = '';
       
-      // List of known country names for detection
+      // List of known country names for detection - comprehensive global coverage
       const countryNames = [
-        'japan', 'france', 'germany', 'italy', 'spain', 'uk', 'united kingdom', 'canada', 
-        'australia', 'china', 'india', 'brazil', 'mexico', 'russia', 'south korea', 'korea',
-        'netherlands', 'belgium', 'switzerland', 'sweden', 'norway', 'denmark', 'finland',
-        'poland', 'czech republic', 'austria', 'portugal', 'greece', 'turkey', 'israel',
-        'new zealand', 'singapore', 'thailand', 'vietnam', 'philippines', 'indonesia',
-        'malaysia', 'hong kong', 'taiwan', 'argentina', 'chile', 'colombia', 'peru'
+        // Americas
+        'usa', 'united states', 'canada', 'mexico', 'brazil', 'argentina', 'chile', 'colombia', 'peru',
+        // Europe
+        'uk', 'united kingdom', 'england', 'scotland', 'wales', 'ireland', 'france', 'germany', 'italy', 
+        'spain', 'portugal', 'netherlands', 'belgium', 'switzerland', 'sweden', 'norway', 'denmark', 
+        'finland', 'poland', 'czech republic', 'austria', 'greece', 'turkey',
+        // Middle East
+        'uae', 'united arab emirates', 'dubai', 'abu dhabi', 'saudi arabia', 'qatar', 'kuwait', 
+        'bahrain', 'oman', 'jordan', 'lebanon', 'israel', 'egypt', 'iran', 'iraq',
+        // Asia Pacific
+        'japan', 'china', 'india', 'south korea', 'korea', 'singapore', 'thailand', 'vietnam', 
+        'philippines', 'indonesia', 'malaysia', 'hong kong', 'taiwan', 'pakistan', 'bangladesh',
+        // Oceania
+        'australia', 'new zealand',
+        // Africa
+        'south africa', 'nigeria', 'kenya', 'morocco', 'tunisia'
       ];
       
       // Detect if query contains a country name
@@ -871,38 +881,114 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       let aiResponse = ''; // Initialize for both paths
       // searchQuery already declared earlier in the function
 
-      // Detect default country from the beginning
+      // Detect default country from the beginning - comprehensive global coverage
       const defaultCountry = (() => {
         const lowerQuery = query.toLowerCase();
+        // Middle East (check first for Dubai, UAE, etc.)
+        if (lowerQuery.includes('dubai') || lowerQuery.includes('abu dhabi') || lowerQuery.includes('uae') || lowerQuery.includes('united arab emirates') || lowerQuery.includes('sharjah') || lowerQuery.includes('ajman')) return 'United Arab Emirates';
+        if (lowerQuery.includes('saudi') || lowerQuery.includes('riyadh') || lowerQuery.includes('jeddah')) return 'Saudi Arabia';
+        if (lowerQuery.includes('qatar') || lowerQuery.includes('doha')) return 'Qatar';
+        if (lowerQuery.includes('kuwait')) return 'Kuwait';
+        if (lowerQuery.includes('bahrain') || lowerQuery.includes('manama')) return 'Bahrain';
+        if (lowerQuery.includes('oman') || lowerQuery.includes('muscat')) return 'Oman';
+        if (lowerQuery.includes('jordan') || lowerQuery.includes('amman')) return 'Jordan';
+        if (lowerQuery.includes('lebanon') || lowerQuery.includes('beirut')) return 'Lebanon';
+        if (lowerQuery.includes('israel') || lowerQuery.includes('tel aviv')) return 'Israel';
+        if (lowerQuery.includes('egypt') || lowerQuery.includes('cairo')) return 'Egypt';
+        // Asia Pacific
+        if (lowerQuery.includes('singapore')) return 'Singapore';
+        if (lowerQuery.includes('hong kong')) return 'Hong Kong';
+        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo') || lowerQuery.includes('osaka')) return 'Japan';
+        if (lowerQuery.includes('china') || lowerQuery.includes('beijing') || lowerQuery.includes('shanghai')) return 'China';
+        if (lowerQuery.includes('india') || lowerQuery.includes('mumbai') || lowerQuery.includes('delhi')) return 'India';
+        if (lowerQuery.includes('thailand') || lowerQuery.includes('bangkok')) return 'Thailand';
+        if (lowerQuery.includes('malaysia') || lowerQuery.includes('kuala lumpur')) return 'Malaysia';
+        if (lowerQuery.includes('indonesia') || lowerQuery.includes('jakarta') || lowerQuery.includes('bali')) return 'Indonesia';
+        if (lowerQuery.includes('philippines') || lowerQuery.includes('manila')) return 'Philippines';
+        if (lowerQuery.includes('vietnam') || lowerQuery.includes('hanoi') || lowerQuery.includes('ho chi minh')) return 'Vietnam';
+        if (lowerQuery.includes('south korea') || lowerQuery.includes('korea') || lowerQuery.includes('seoul')) return 'South Korea';
+        if (lowerQuery.includes('taiwan') || lowerQuery.includes('taipei')) return 'Taiwan';
+        // Oceania
         if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
+        if (lowerQuery.includes('new zealand') || lowerQuery.includes('auckland') || lowerQuery.includes('wellington')) return 'New Zealand';
+        // Europe
         if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
         if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
         if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
         if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
-        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
+        if (lowerQuery.includes('ireland') || lowerQuery.includes('dublin')) return 'Ireland';
         if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
-        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
-        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
-        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
-        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
-        return 'United States'; // Default
+        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin') || lowerQuery.includes('munich')) return 'Germany';
+        if (lowerQuery.includes('italy') || lowerQuery.includes('rome') || lowerQuery.includes('milan')) return 'Italy';
+        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid') || lowerQuery.includes('barcelona')) return 'Spain';
+        if (lowerQuery.includes('portugal') || lowerQuery.includes('lisbon')) return 'Portugal';
+        if (lowerQuery.includes('netherlands') || lowerQuery.includes('amsterdam')) return 'Netherlands';
+        if (lowerQuery.includes('switzerland') || lowerQuery.includes('zurich') || lowerQuery.includes('geneva')) return 'Switzerland';
+        // Americas
+        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver') || lowerQuery.includes('montreal')) return 'Canada';
+        if (lowerQuery.includes('mexico') || lowerQuery.includes('mexico city')) return 'Mexico';
+        if (lowerQuery.includes('brazil') || lowerQuery.includes('sao paulo') || lowerQuery.includes('rio')) return 'Brazil';
+        // Africa
+        if (lowerQuery.includes('south africa') || lowerQuery.includes('johannesburg') || lowerQuery.includes('cape town')) return 'South Africa';
+        if (lowerQuery.includes('nigeria') || lowerQuery.includes('lagos')) return 'Nigeria';
+        if (lowerQuery.includes('kenya') || lowerQuery.includes('nairobi')) return 'Kenya';
+        if (lowerQuery.includes('morocco') || lowerQuery.includes('casablanca')) return 'Morocco';
+        return 'United States'; // Default only if no match
       })();
 
-      // Helper function to detect country from query
+      // Helper function to detect country from query - comprehensive global coverage
       const detectCountry = (query: string): string => {
         const lowerQuery = query.toLowerCase();
+        // Middle East
+        if (lowerQuery.includes('dubai') || lowerQuery.includes('abu dhabi') || lowerQuery.includes('uae') || lowerQuery.includes('united arab emirates') || lowerQuery.includes('sharjah') || lowerQuery.includes('ajman')) return 'United Arab Emirates';
+        if (lowerQuery.includes('saudi') || lowerQuery.includes('riyadh') || lowerQuery.includes('jeddah') || lowerQuery.includes('mecca') || lowerQuery.includes('medina')) return 'Saudi Arabia';
+        if (lowerQuery.includes('qatar') || lowerQuery.includes('doha')) return 'Qatar';
+        if (lowerQuery.includes('kuwait')) return 'Kuwait';
+        if (lowerQuery.includes('bahrain') || lowerQuery.includes('manama')) return 'Bahrain';
+        if (lowerQuery.includes('oman') || lowerQuery.includes('muscat')) return 'Oman';
+        if (lowerQuery.includes('jordan') || lowerQuery.includes('amman')) return 'Jordan';
+        if (lowerQuery.includes('lebanon') || lowerQuery.includes('beirut')) return 'Lebanon';
+        if (lowerQuery.includes('israel') || lowerQuery.includes('tel aviv') || lowerQuery.includes('jerusalem')) return 'Israel';
+        if (lowerQuery.includes('egypt') || lowerQuery.includes('cairo')) return 'Egypt';
+        // Asia Pacific
+        if (lowerQuery.includes('singapore')) return 'Singapore';
+        if (lowerQuery.includes('hong kong')) return 'Hong Kong';
+        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo') || lowerQuery.includes('osaka')) return 'Japan';
+        if (lowerQuery.includes('china') || lowerQuery.includes('beijing') || lowerQuery.includes('shanghai')) return 'China';
+        if (lowerQuery.includes('india') || lowerQuery.includes('mumbai') || lowerQuery.includes('delhi') || lowerQuery.includes('bangalore')) return 'India';
+        if (lowerQuery.includes('thailand') || lowerQuery.includes('bangkok')) return 'Thailand';
+        if (lowerQuery.includes('malaysia') || lowerQuery.includes('kuala lumpur')) return 'Malaysia';
+        if (lowerQuery.includes('indonesia') || lowerQuery.includes('jakarta') || lowerQuery.includes('bali')) return 'Indonesia';
+        if (lowerQuery.includes('philippines') || lowerQuery.includes('manila')) return 'Philippines';
+        if (lowerQuery.includes('vietnam') || lowerQuery.includes('hanoi') || lowerQuery.includes('ho chi minh')) return 'Vietnam';
+        if (lowerQuery.includes('south korea') || lowerQuery.includes('korea') || lowerQuery.includes('seoul')) return 'South Korea';
+        if (lowerQuery.includes('taiwan') || lowerQuery.includes('taipei')) return 'Taiwan';
+        // Oceania
         if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
+        if (lowerQuery.includes('new zealand') || lowerQuery.includes('auckland') || lowerQuery.includes('wellington')) return 'New Zealand';
+        // Europe
         if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
         if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
         if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
         if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
-        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
+        if (lowerQuery.includes('ireland') || lowerQuery.includes('dublin')) return 'Ireland';
         if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
-        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
-        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
-        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
-        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
-        return 'United States'; // Default
+        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin') || lowerQuery.includes('munich')) return 'Germany';
+        if (lowerQuery.includes('italy') || lowerQuery.includes('rome') || lowerQuery.includes('milan')) return 'Italy';
+        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid') || lowerQuery.includes('barcelona')) return 'Spain';
+        if (lowerQuery.includes('portugal') || lowerQuery.includes('lisbon')) return 'Portugal';
+        if (lowerQuery.includes('netherlands') || lowerQuery.includes('amsterdam')) return 'Netherlands';
+        if (lowerQuery.includes('switzerland') || lowerQuery.includes('zurich') || lowerQuery.includes('geneva')) return 'Switzerland';
+        // Americas
+        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver') || lowerQuery.includes('montreal')) return 'Canada';
+        if (lowerQuery.includes('mexico') || lowerQuery.includes('mexico city')) return 'Mexico';
+        if (lowerQuery.includes('brazil') || lowerQuery.includes('sao paulo') || lowerQuery.includes('rio')) return 'Brazil';
+        // Africa
+        if (lowerQuery.includes('south africa') || lowerQuery.includes('johannesburg') || lowerQuery.includes('cape town')) return 'South Africa';
+        if (lowerQuery.includes('nigeria') || lowerQuery.includes('lagos')) return 'Nigeria';
+        if (lowerQuery.includes('kenya') || lowerQuery.includes('nairobi')) return 'Kenya';
+        if (lowerQuery.includes('morocco') || lowerQuery.includes('casablanca')) return 'Morocco';
+        return 'United States'; // Default only if no match
       };
 
       // ALWAYS USE SONAR API FOR DISCOVERY MODE - Per user request, we only use Sonar for discovery searches
@@ -935,7 +1021,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       // Track Perplexity API usage for Discovery Mode
       const discoveryStartTime = Date.now();
       
-      // Simple API call - just the query, let Perplexity search the web
+      // Structured API call with JSON schema to force consistent output format
       const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
         signal: controller.signal,
         method: 'POST',
@@ -955,8 +1041,42 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             search_context_size: 'high'
           },
           temperature: 0.1,
-          max_tokens: 4000,
-          stream: false
+          max_tokens: 8000,
+          stream: false,
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              schema: {
+                type: "object",
+                properties: {
+                  facilities: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string", description: "Full name of the facility" },
+                        address: { type: "string", description: "Full street address" },
+                        city: { type: "string", description: "City name" },
+                        state: { type: "string", description: "State/province/region" },
+                        country: { type: "string", description: "Country name" },
+                        phone: { type: "string", description: "Phone number with country code" },
+                        website: { type: "string", description: "Official website URL" },
+                        email: { type: "string", description: "Contact email if available" },
+                        description: { type: "string", description: "Brief description of services" },
+                        careTypes: { 
+                          type: "array", 
+                          items: { type: "string" },
+                          description: "Types of care offered (e.g., assisted living, memory care, nursing home)"
+                        }
+                      },
+                      required: ["name"]
+                    }
+                  }
+                },
+                required: ["facilities"]
+              }
+            }
+          }
         })
       }).finally(() => clearTimeout(timeout));
       
