@@ -61,8 +61,6 @@ import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
 import { setupSeniorResourcesRoutes } from "./seniorResourcesRoutes";
 import authenticPricingRoutes from "./authentic-pricing-routes";
-import weaviateRoutes from "./weaviate-routes";
-import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import nlpSearchRoutes from "./nlpSearchRoutes";
 import comprehensiveSearchRoutes from "./comprehensiveSearchRoutes";
@@ -228,11 +226,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register authentic pricing routes
   app.use('/api/authentic-pricing', authenticPricingRoutes);
 
-  // Register Weaviate semantic search routes
-  app.use('/api/weaviate', weaviateRoutes);
-  
-  // Register Enhanced Weaviate AI-native routes
-  app.use('/api/weaviate-enhanced', enhancedWeaviateRoutes);
   
   // Register Natural Language Search routes (Wave 1 Enhancement)
   app.use('/api/natural-language', naturalLanguageSearchRoutes);

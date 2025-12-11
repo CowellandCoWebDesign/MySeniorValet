@@ -199,7 +199,7 @@ export default function Landing() {
             <h2 className="text-3xl font-bold mb-8">Powered By Enterprise Technology</h2>
             <div className="flex flex-wrap gap-4 justify-center">
               {[
-                "TypeScript", "React", "Node.js", "PostgreSQL", "Weaviate Vector DB",
+                "TypeScript", "React", "Node.js", "PostgreSQL",
                 "Redis Cache", "WebSockets", "Stripe", "SendGrid", "Documenso",
                 "ChatGPT API", "Claude API", "Perplexity API", "Framer Motion", "Drizzle ORM"
               ].map((tech) => (

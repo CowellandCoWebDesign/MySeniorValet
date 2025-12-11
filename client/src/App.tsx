@@ -111,7 +111,6 @@ import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
 import PaymentDemo from "@/pages/payment-demo";
-import WeaviateTest from "@/pages/weaviate-test";
 import DataQualityDashboard from "@/pages/data-quality-dashboard";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
@@ -399,7 +398,6 @@ function Router() {
       <Route path="/test-debug" component={TestDebug} />
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
-      <Route path="/weaviate-test" component={WeaviateTest} />
       <Route path="/admin-mega-dashboard" component={AdminMegaDashboard} />
       <Route path="/data-quality" component={SuperAdminAnalytics} />
       <Route path="/database-test" component={DatabaseTest} />

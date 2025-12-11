@@ -4,9 +4,8 @@
  */
 
 import { db } from '../db';
-import { communities, services, healthcareProviders } from '@shared/schema';
+import { communities, services } from '@shared/schema';
 import { and, or, ilike, gte, lte, eq, sql } from 'drizzle-orm';
-import { weaviateService } from './weaviate-service';
 
 // Search Intent Types
 interface SearchIntent {
@@ -37,7 +36,7 @@ class QueryEnhancer {
     'near': ['close to', 'nearby', 'around', 'in the area of', 'by']
   };
   
-  private stateAbbreviations = {
+  public stateAbbreviations: Record<string, string> = {
     'TX': 'Texas',
     'CA': 'California',
     'NY': 'New York',
@@ -288,13 +287,11 @@ class ResultFusion {
 
 // Main Enhanced Search Engine
 export class EnhancedSearchEngine {
-  private weaviate: any;
   private queryEnhancer: QueryEnhancer;
   private intentClassifier: IntentClassifier;
   private resultFusion: ResultFusion;
   
   constructor() {
-    this.weaviate = weaviateService;
     this.queryEnhancer = new QueryEnhancer();
     this.intentClassifier = new IntentClassifier();
     this.resultFusion = new ResultFusion();
@@ -317,19 +314,14 @@ export class EnhancedSearchEngine {
     // Step 3: Execute search based on strategy
     const resultSets = [];
     
-    if (intent.searchStrategy === 'hybrid' || intent.searchStrategy === 'vector') {
-      const vectorResults = await this.vectorSearch(enhancedQueries[0], intent, options);
-      resultSets.push({ source: 'vector', results: vectorResults, weight: 0.5 });
-    }
-    
     if (intent.searchStrategy === 'hybrid' || intent.searchStrategy === 'keyword') {
       const keywordResults = await this.keywordSearch(query, intent, options);
-      resultSets.push({ source: 'keyword', results: keywordResults, weight: 0.3 });
+      resultSets.push({ source: 'keyword', results: keywordResults, weight: 0.5 });
     }
     
-    // Always add database search as fallback
+    // Always add database search
     const dbResults = await this.databaseSearch(query, intent, options);
-    resultSets.push({ source: 'database', results: dbResults, weight: 0.2 });
+    resultSets.push({ source: 'database', results: dbResults, weight: 0.5 });
     
     // Step 4: Fuse results
     let fusedResults = this.resultFusion.fuseResults(resultSets);
@@ -359,34 +351,6 @@ export class EnhancedSearchEngine {
     };
   }
   
-  /**
-   * Vector/Semantic search using Weaviate
-   */
-  private async vectorSearch(query: string, intent: SearchIntent, options?: any): Promise<any[]> {
-    try {
-      // Ensure limit is a number
-      const limit = typeof options?.limit === 'number' ? options.limit : 50;
-      
-      const results = await this.weaviate.semanticSearch(query, {
-        limit: limit,
-        certainty: 0.7
-      });
-      
-      return results.map((r: any) => ({
-        id: r.community?.id || r.id,
-        name: r.community?.name || r.name,
-        city: r.community?.city || r.city,
-        state: r.community?.state || r.state,
-        careTypes: r.community?.careTypes || r.careTypes,
-        rentPerMonth: r.community?.pricing || r.priceRange,
-        ...r.community,
-        ...r
-      }));
-    } catch (error) {
-      console.error('Vector search error:', error);
-      return [];
-    }
-  }
   
   /**
    * Keyword search using database
@@ -515,7 +479,7 @@ export class EnhancedSearchEngine {
       const careTypes = new Map<string, number>();
       communities.forEach(c => {
         if (c.careTypes) {
-          const types = c.careTypes.toLowerCase().split(',');
+          const types = String(c.careTypes).toLowerCase().split(',');
           types.forEach(type => {
             const trimmed = type.trim();
             careTypes.set(trimmed, (careTypes.get(trimmed) || 0) + 1);

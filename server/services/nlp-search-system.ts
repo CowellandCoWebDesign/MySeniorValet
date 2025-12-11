@@ -14,7 +14,6 @@
 import { db } from '../db';
 import { communities, services, vendors, hospitals, educationalResources } from '@shared/schema';
 import { and, or, ilike, sql, eq, gte, lte, desc, asc } from 'drizzle-orm';
-import { weaviateService } from './weaviate-service';
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 

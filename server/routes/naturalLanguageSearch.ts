@@ -13,7 +13,6 @@ import { z } from 'zod';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { and, or, eq, ilike, gte, lte, sql, inArray } from 'drizzle-orm';
-import { enhancedWeaviateService } from '../enhanced-weaviate-service';
 
 const router = Router();
 
@@ -283,7 +282,7 @@ router.post('/search', async (req, res) => {
     
     console.log('📊 Parsed intent:', JSON.stringify(parsed.parsedIntent, null, 2));
 
-    // Build filters for Weaviate search
+    // Build filters for database search
     filters = {}; // Reset filters
     
     if (parsed.parsedIntent.careTypes) {
@@ -318,41 +317,12 @@ router.post('/search', async (req, res) => {
       enhancedQuery += ' HUD affordable subsidized';
     }
 
-    // Try to use Weaviate enhanced search first
+    // Use database search
     let searchResults: any[] = [];
-    let searchMethod = 'weaviate';
+    let searchMethod = 'database';
     
-    try {
-      // Use Weaviate enhanced semantic search
-      const weaviateResults = await enhancedWeaviateService.enhancedSemanticSearch({
-        query: enhancedQuery,
-        limit: 20,
-        searchType: 'hybrid',
-        alpha: 0.75,
-        filters
-      });
-      
-      searchResults = weaviateResults.map((result: any) => ({
-        ...result.community,
-        score: result.score,
-        relevanceFactors: result.relevanceFactors
-      }));
-      
-      console.log(`✅ Weaviate returned ${searchResults.length} results`);
-      
-      // If Weaviate returns no results, fall back to database search
-      if (searchResults.length === 0) {
-        console.log('⚠️ No Weaviate results, falling back to database search');
-        searchMethod = 'database';
-      }
-      
-    } catch (weaviateError) {
-      console.log('⚠️ Weaviate error, falling back to database search:', weaviateError);
-      searchMethod = 'database';
-    }
-    
-    // Execute database fallback if needed
-    if (searchMethod === 'database') {
+    // Execute database search
+    {
       
       // Fallback to database search
       const conditions: any[] = [];
@@ -401,7 +371,7 @@ router.post('/search', async (req, res) => {
       // Apply price filters - skip for now due to JSONB complexity in fallback
       if (parsed.parsedIntent.priceRange) {
         // Skip price filtering in database fallback to avoid SQL errors
-        // The Weaviate search handles price filtering properly
+        // Skip price filtering in database fallback
         console.log('Note: Price filtering temporarily disabled in database fallback');
       }
       
