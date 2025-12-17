@@ -708,23 +708,25 @@ class UnifiedPerplexityCache {
             console.log(`✅ Found HIGH QUALITY existing data in communities table for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
             return existingData;
           } else {
+            // COST CONTROL: Return existing low quality data instead of auto-fetching
+            // This was causing massive API costs from bots/crawlers triggering Perplexity calls
             console.log(`📊 Communities table has LOW QUALITY data for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
             console.log(`   Issues: ${qualityAssessment.issues.join(', ')}`);
-            console.log(`   🚀 AUTO-FETCHING comprehensive data to improve quality...`);
+            console.log(`   ⚠️ Returning existing data (auto-fetch disabled for cost control)`);
             
-            // AUTO-FETCH: Trigger automatic enrichment for poor quality data
-            // Don't return existing low quality data - fetch fresh comprehensive data
-            // Continue to fetching logic below by not returning here
+            // Return existing data even if low quality - user can manually refresh if needed
+            return existingData;
           }
         }
       } catch (error) {
         console.error(`Failed to check communities table for ${communityName}:`, error);
       }
       
-      // No data at all
-      console.log(`⚠️ No data found for ${communityName} - triggering auto-fetch for first-time visitor`);
+      // No data at all - return null instead of auto-fetching (cost control)
+      console.log(`⚠️ No data found for ${communityName} - returning null (auto-fetch disabled for cost control)`);
       
-      // AUTO-FETCH for completely empty data - continue to fetching logic below
+      // COST CONTROL: Don't auto-fetch for empty data - return null and let caller handle gracefully
+      return null;
     }
 
     // Reaching here means we need to fetch fresh data

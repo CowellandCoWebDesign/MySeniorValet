@@ -160,17 +160,22 @@ export class CommunityEnrichmentService {
         
         console.log(`📋 Enrichment job ${job.id} created for community ${communityId}`);
       } else {
-        // Redis not available - process synchronously
-        console.log(`🔄 Processing enrichment synchronously for community ${communityId} (Redis not available)`);
+        // COST CONTROL: Redis not available - DO NOT call Perplexity automatically
+        // This was causing massive API costs ($1/5min) from bots/crawlers hitting community pages
+        // Instead, just log and skip - user can manually refresh if needed
+        console.log(`⚠️ Skipping automatic enrichment for community ${communityId} (Redis not available, cost control enabled)`);
         
-        // Run enrichment in background without blocking the response
-        setImmediate(async () => {
-          try {
-            await this.processEnrichmentSync(communityId, communityData);
-          } catch (error) {
-            console.error(`Failed to enrich community ${communityId}:`, error);
-          }
-        });
+        // Check if explicit enrichment is requested via environment variable
+        if (process.env.ENABLE_SYNC_ENRICHMENT === 'true') {
+          console.log(`🔄 Processing enrichment synchronously for community ${communityId} (explicitly enabled)`);
+          setImmediate(async () => {
+            try {
+              await this.processEnrichmentSync(communityId, communityData);
+            } catch (error) {
+              console.error(`Failed to enrich community ${communityId}:`, error);
+            }
+          });
+        }
       }
     } catch (error) {
       console.error(`Failed to enqueue enrichment for community ${communityId}:`, error);
