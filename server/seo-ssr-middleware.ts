@@ -170,23 +170,24 @@ async function getEnrichedCommunityData(communityId: number, community: any) {
       }
     }
     
-    // STEP 2: Use CommunityEnrichmentService to get enriched content
-    // This will check cache, database, or enqueue background job as needed
-    const enrichmentResult = await communityEnrichmentService.getEnrichedContent(communityId);
-    
-    if (enrichmentResult) {
+    // STEP 2: COST CONTROL - Use STALE enrichment content instead of calling service
+    // Even stale enrichment (>7 days) is better than basic description for SEO
+    // This prevents Perplexity API calls while preserving existing enrichment data
+    if (community.enrichedContent) {
+      const enrichment = community.enrichedContent;
+      console.log(`📦 Using stale enrichment for community ${communityId} (cost control - no API call)`);
       return {
-        description: enrichmentResult.content,
+        description: enrichment.content || community.description,
         photos: community.photos || [],
         hasEnrichment: true,
-        enrichmentSource: 'service',
-        seoData: enrichmentResult.seoData,
-        metadata: enrichmentResult.metadata,
-        wordCount: enrichmentResult.metadata.wordCount
+        enrichmentSource: 'stale',
+        seoData: enrichment.seoData || {},
+        metadata: enrichment.metadata || {},
+        wordCount: enrichment.metadata?.wordCount || 0
       };
     }
     
-    // STEP 3: Fall back to database fields if enrichment unavailable
+    // STEP 3: Fall back to database fields only if no enrichment exists at all
     return {
       description: community.description,
       photos: community.photos || [],

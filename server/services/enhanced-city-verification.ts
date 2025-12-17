@@ -37,8 +37,16 @@ export class EnhancedCityVerification {
   
   /**
    * Search for ALL communities in a city using a single comprehensive Perplexity search
+   * COST CONTROL: Requires ENABLE_CITY_VERIFICATION=true to run
    */
   async searchAllCommunitiesInCity(city: string, state: string): Promise<BulkCommunityData[]> {
+    // COST CONTROL: Guard against automatic city verification calls
+    // This uses Perplexity API which is expensive - only enable for explicit admin actions
+    if (process.env.ENABLE_CITY_VERIFICATION !== 'true') {
+      console.log(`⚠️ City verification DISABLED for ${city}, ${state} - set ENABLE_CITY_VERIFICATION=true to enable`);
+      return [];
+    }
+    
     console.log(`\n🌐 ENHANCED BULK SEARCH: ${city}, ${state}`);
     console.log(`Using Perplexity's live web search to discover ALL communities...`);
     
