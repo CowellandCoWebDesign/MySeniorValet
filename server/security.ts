@@ -255,6 +255,11 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     console.log('Skipping SQL injection protection for discovery/search - business names can have parentheses');
     return next();
   }
+  
+  // Skip web-intelligence photo endpoints - community names can have parentheses and website URLs contain special chars
+  if (req.path.startsWith('/api/web-intelligence/')) {
+    return next();
+  }
 
   const suspiciousPatterns = [
     // Enhanced SQL injection patterns
