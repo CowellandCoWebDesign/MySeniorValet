@@ -57,14 +57,15 @@ export interface WebSearchResponse {
 
 export class SearXNGSearchService {
   // Updated list of reliable public SearXNG instances (verified Dec 2024)
+  // These are tested and known to return JSON responses
   private publicInstances = [
-    'https://search.mdosch.de',
-    'https://searx.work',
-    'https://search.demoniak.ch',
-    'https://search.privacytools.io',
-    'https://priv.au',
-    'https://search.neet.works',
-    'https://s.fraki.cz',
+    'https://search.bus-hit.me',
+    'https://searx.tuxcloud.net',
+    'https://search.leptons.xyz',
+    'https://searx.prvcy.eu',
+    'https://search.inetol.net',
+    'https://searx.namejeff.xyz',
+    'https://search.gcomm.ch',
   ];
   
   private currentInstanceIndex = 0;

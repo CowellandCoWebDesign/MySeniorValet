@@ -1,0 +1,97 @@
+{
+  "usableSessionsCount": 2,
+  "retiredSessionsCount": 0,
+  "sessions": [
+    {
+      "id": "session_xdVOYqJGF8",
+      "cookieJar": {
+        "version": "tough-cookie@6.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": []
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-12-28T20:00:15.502Z",
+      "createdAt": "2025-12-28T19:10:15.502Z",
+      "usageCount": 0,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    },
+    {
+      "id": "session_OVwklcBqdd",
+      "cookieJar": {
+        "version": "tough-cookie@6.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "_gcl_au",
+            "value": "1.1.74749805.1766949018",
+            "expires": "2026-03-28T19:10:18.000Z",
+            "domain": "privatecare.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-28T19:10:20.835Z",
+            "lastAccessed": "2025-12-28T19:10:20.835Z"
+          },
+          {
+            "key": "_ga_RKNFR08EHP",
+            "value": "GS2.1.s1766949018$o1$g0$t1766949018$j60$l0$h0",
+            "expires": "2027-02-01T19:10:18.769Z",
+            "domain": "privatecare.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-28T19:10:20.841Z",
+            "lastAccessed": "2025-12-28T19:10:20.841Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.1.88225532.1766949019",
+            "expires": "2027-02-01T19:10:18.829Z",
+            "domain": "privatecare.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-28T19:10:20.843Z",
+            "lastAccessed": "2025-12-28T19:10:20.843Z"
+          },
+          {
+            "key": "_ga_4ZY9JGRXJ3",
+            "value": "GS2.1.s1766949018$o1$g0$t1766949020$j58$l0$h0",
+            "expires": "2027-02-01T19:10:20.017Z",
+            "domain": "privatecare.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-28T19:10:20.843Z",
+            "lastAccessed": "2025-12-28T19:10:20.843Z"
+          },
+          {
+            "key": "_fbp",
+            "value": "fb.1.1766949020749.85817108321432533",
+            "expires": "2026-03-28T19:10:20.000Z",
+            "domain": "privatecare.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-28T19:10:20.843Z",
+            "lastAccessed": "2025-12-28T19:10:20.843Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2025-12-28T20:00:15.506Z",
+      "createdAt": "2025-12-28T19:10:15.506Z",
+      "usageCount": 1,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    }
+  ]
+}

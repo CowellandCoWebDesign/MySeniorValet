@@ -1091,9 +1091,103 @@ If you cannot find verified information from any source, say "No verified public
     } catch (error) {
       console.error(`Failed to fetch comprehensive data for ${communityName}:`, error);
       
-      // If Perplexity failed but we have deep crawl data, use that instead
+      // FALLBACK: Use SearXNG (free) + Crawlee for photos when Perplexity is unavailable
+      console.log(`🔄 Attempting FREE fallback: SearXNG search + Crawlee photo scraping`);
+      
+      try {
+        const { SearXNGSearchService } = await import('./services/searxng-search');
+        const { crawleeScraper } = await import('./services/crawlee-scraper');
+        const searxng = new SearXNGSearchService();
+        
+        // IMPROVED: Use staged search strategy with quoted names for relevance
+        // Parse location into city and state
+        const locationParts = location.split(',').map(s => s.trim());
+        const city = locationParts[0] || '';
+        const state = locationParts[1] || '';
+        
+        // Strategy: Staged search queries from specific to broad
+        // Avoid complex boolean operators as some SearXNG instances don't support them
+        const searchQueries = [
+          `"${communityName}" ${city} ${state} senior living`,
+          `${communityName} ${city} assisted living`,
+          `${communityName} senior care ${state}`,
+          websiteUrl ? `site:${new URL(websiteUrl).hostname}` : null,
+        ].filter(Boolean) as string[];
+        
+        let searchResult = { results: [] as any[], query: '', totalResults: 0, sources: [], searchTime: 0, instanceUsed: '' };
+        
+        // Try each query until we get relevant results
+        for (const query of searchQueries) {
+          console.log(`🔍 Trying search query: ${query}`);
+          const result = await searxng.search(query, { maxResults: 15 });
+          
+          // Filter results to only include those mentioning community name or location
+          const relevantResults = result.results.filter(r => {
+            const text = (r.title + ' ' + r.snippet).toLowerCase();
+            const nameWords = communityName.toLowerCase().split(/\s+/).filter(w => w.length > 3);
+            const hasName = nameWords.some(word => text.includes(word));
+            const hasCity = city.toLowerCase() && text.includes(city.toLowerCase());
+            const hasSeniorKeywords = ['senior', 'assisted', 'living', 'care', 'nursing'].some(k => text.includes(k));
+            return hasName || (hasCity && hasSeniorKeywords);
+          });
+          
+          if (relevantResults.length >= 2) {
+            console.log(`✅ Found ${relevantResults.length} relevant results with query: ${query}`);
+            searchResult = { ...result, results: relevantResults };
+            break;
+          }
+        }
+        
+        // Build a summary from search results
+        let rawContent = `## ${communityName}\n**Location:** ${location}\n\n`;
+        rawContent += `### Search Results Summary\n`;
+        
+        const sources: string[] = [];
+        for (const result of searchResult.results.slice(0, 5)) {
+          rawContent += `- **${result.title}**: ${result.snippet}\n`;
+          if (result.url) sources.push(result.url);
+        }
+        
+        // Try to scrape photos from the community website using Crawlee
+        let photos: string[] = [];
+        if (websiteUrl) {
+          console.log(`📸 Using Crawlee to scrape photos from: ${websiteUrl}`);
+          try {
+            const scrapedPhotos = await crawleeScraper.scrapePhotosFromWebsite(websiteUrl, communityName, { maxPhotos: 20 });
+            photos = scrapedPhotos
+              .filter(p => p.quality !== 'low')
+              .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
+            console.log(`✅ Crawlee scraped ${photos.length} photos from website`);
+          } catch (scrapeError) {
+            console.error(`Crawlee photo scraping failed:`, scrapeError);
+          }
+        }
+        
+        console.log(`✅ FREE fallback completed: ${searchResult.results.length} search results, ${photos.length} photos`);
+        
+        return {
+          marketData: {
+            website: websiteUrl,
+            description: rawContent
+          },
+          reviews: {},
+          inspections: {},
+          photos,
+          sources,
+          timestamp: Date.now(),
+          communityId,
+          communityName,
+          location,
+          rawPerplexityContent: rawContent,
+          source: 'fresh-fetch'
+        };
+      } catch (fallbackError) {
+        console.error(`FREE fallback also failed:`, fallbackError);
+      }
+      
+      // If deep crawl data is available, use it
       if (deepCrawlData && deepCrawlData.confidence !== 'low') {
-        console.log(`📌 Using deep crawl data as fallback since Perplexity failed`);
+        console.log(`📌 Using deep crawl data as fallback since all else failed`);
         return {
           marketData: {
             website: websiteUrl,
@@ -1120,9 +1214,25 @@ If you cannot find verified information from any source, say "No verified public
         };
       }
       
-      // Return minimal data on error
+      // Return graceful degradation message when all data sources fail
+      console.log(`⚠️ All data sources unavailable for ${communityName} - returning placeholder`);
+      
+      const placeholderContent = `## ${communityName}\n**Location:** ${location}\n\n` +
+        `### Data Temporarily Unavailable\n\n` +
+        `We are currently unable to fetch live market data for this community. This may be because:\n\n` +
+        `- The community's website is temporarily unavailable\n` +
+        `- External data sources are not responding\n\n` +
+        `**What you can do:**\n` +
+        `- Contact the community directly using the phone number listed\n` +
+        `- Try refreshing again in a few minutes\n` +
+        `- Check our existing database information below\n\n` +
+        `*Last attempted: ${new Date().toLocaleString()}*`;
+      
       return {
-        marketData: {},
+        marketData: {
+          website: websiteUrl,
+          description: placeholderContent
+        },
         reviews: {},
         inspections: {},
         photos: [],
@@ -1131,6 +1241,7 @@ If you cannot find verified information from any source, say "No verified public
         communityId,
         communityName,
         location,
+        rawPerplexityContent: placeholderContent,
         source: 'fresh-fetch' // Still counts as a fresh fetch attempt, even if it failed
       };
     }
