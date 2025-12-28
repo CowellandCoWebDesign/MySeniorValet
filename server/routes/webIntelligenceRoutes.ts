@@ -1,10 +1,52 @@
 import { Router } from 'express';
 import { perplexityService } from '../perplexity-ai-service';
+import { searxngSearch } from '../services/searxng-search';
+import { crawleeScraper } from '../services/crawlee-scraper';
 import { MultiAIVerificationService } from '../multi-ai-verification-service';
 import { MultiAIPhotoExtractor } from '../services/multi-ai-photo-extractor';
-// websiteScraperService replaced by MultiAIPhotoExtractor for consolidated photo extraction
 import { discoveredCommunityService } from '../services/discovered-community-service';
 import { apiCircuitBreaker } from '../infrastructure/api-circuit-breaker';
+
+// Smart search function: uses Perplexity if available, falls back to free SearXNG
+async function smartWebSearch(query: string, context?: string): Promise<{ summary: string; sources: string[]; images?: string[] }> {
+  // Try Perplexity first if configured
+  if (perplexityService.isConfigured()) {
+    try {
+      return await perplexityService.searchRealTime(query, context);
+    } catch (error) {
+      console.warn('⚠️ Perplexity failed, falling back to SearXNG:', error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
+  
+  // Fallback to free SearXNG
+  console.log('🔍 Using free SearXNG search (Perplexity not available or failed)');
+  try {
+    const searchResult = await searxngSearch.search(query, { maxResults: 15 });
+    
+    // Format SearXNG results to match Perplexity response format
+    const summary = searchResult.results
+      .slice(0, 5)
+      .map((r, i) => `${i + 1}. **${r.title}**\n${r.snippet}\nSource: ${r.url}`)
+      .join('\n\n');
+    
+    const sources = searchResult.results.map(r => r.url);
+    const images = searchResult.results
+      .filter(r => r.imageUrl)
+      .map(r => r.imageUrl as string);
+    
+    return {
+      summary: summary || 'No results found from web search.',
+      sources,
+      images: images.length > 0 ? images : undefined
+    };
+  } catch (searxError) {
+    console.error('❌ SearXNG search also failed:', searxError);
+    return {
+      summary: 'Web search temporarily unavailable. Please try again later.',
+      sources: []
+    };
+  }
+}
 
 const router = Router();
 
@@ -281,7 +323,7 @@ ${website ? `Known Website: ${website}` : ''}
 
 Search for this EXACT community at this SPECIFIC location.`;
       
-      perplexityResponse = await perplexityService.searchRealTime(
+      perplexityResponse = await smartWebSearch(
         searchQuery,
         communityContext
       );
@@ -448,7 +490,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
     const comprehensiveQuery = `"${communityName}" ${address ? `"${address}"` : ''} ${city} ${state} senior living`;
     console.log(`🎯 Making ONE consolidated API call for all community information`);
     
-    const consolidatedResponse = await perplexityService.searchRealTime(
+    const consolidatedResponse = await smartWebSearch(
       comprehensiveQuery,
       `Find ALL of the following information about ${communityName} at ${address || 'this location'} in ${city}, ${state} in a SINGLE comprehensive search:
       
@@ -686,7 +728,7 @@ router.post('/api/communities/web-intelligence', async (req, res) => {
       const targetedQuery = `"${communityName}" "${city}" "${state}" senior living community contact information`;
       
       try {
-        const retryResponse = await perplexityService.searchRealTime(targetedQuery);
+        const retryResponse = await smartWebSearch(targetedQuery);
         
         // Quick check if this improved things
         const retryContent = (retryResponse?.summary || '').toLowerCase();
@@ -819,7 +861,7 @@ router.post('/api/communities/comparative-intelligence', async (req, res) => {
     
     console.log(`📊 Fetching comparative intelligence for: ${location}`);
     
-    const response = await perplexityService.searchRealTime(searchQuery);
+    const response = await smartWebSearch(searchQuery);
     
     res.json({
       content: response.summary || '',
@@ -854,7 +896,7 @@ router.post('/api/communities/verify-information', async (req, res) => {
     
     console.log(`🔍 Verifying information for: ${communityName}`);
     
-    const response = await perplexityService.searchRealTime(verificationQuery);
+    const response = await smartWebSearch(verificationQuery);
     
     // Extract verification results
     const content = response.summary || '';

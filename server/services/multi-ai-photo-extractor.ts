@@ -1,8 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { playwrightPhotoScraper } from './playwright-photo-scraper';
+import { crawleeScraper } from './crawlee-scraper';
 import { CheerioPhotoScraper } from './cheerio-photo-scraper';
 
 const cheerioPhotoScraper = new CheerioPhotoScraper();
+
+// Legacy alias for backward compatibility - Crawlee replaces Playwright
+const playwrightPhotoScraper = {
+  async scrapePhotosFromWebsite(url: string, name: string, options?: any) {
+    console.log('🔄 Redirecting Playwright call to Crawlee (production-grade scraper)');
+    return crawleeScraper.scrapePhotosFromWebsite(url, name, options);
+  }
+};
 
 /**
  * Enhanced Photo Extraction Service
