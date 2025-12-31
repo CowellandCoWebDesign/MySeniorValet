@@ -1,0 +1,9 @@
+{
+	"id": "DAk8ejBSA8FnojR",
+	"json": "{\"id\":\"DAk8ejBSA8FnojR\",\"url\":\"https://www.yelp.com/biz/patriot-palms-el-paso\",\"loadedUrl\":\"https://www.yelp.com/biz/patriot-palms-el-paso\",\"uniqueKey\":\"https://www.yelp.com/biz/patriot-palms-el-paso\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2025-12-31T21:57:45.720Z\"}",
+	"method": "GET",
+	"orderNo": null,
+	"retryCount": 0,
+	"uniqueKey": "https://www.yelp.com/biz/patriot-palms-el-paso",
+	"url": "https://www.yelp.com/biz/patriot-palms-el-paso"
+}

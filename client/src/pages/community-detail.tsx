@@ -944,19 +944,23 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 {/* Community-specific insights from web search */}
                 {(() => {
                   // Check all possible data paths for Perplexity content
-                  // CRITICAL FIX: Backend returns content in searchResults.summary (primary source)
+                  // CRITICAL FIX: Also check comprehensiveData for FREE pipeline output
+                  const cachedData = (community as any)?.comprehensiveData;
                   const perplexityContent = 
                     localVerificationReport?.verificationResults?.searchResults?.summary ||
                     localVerificationReport?.searchResults?.summary ||
                     localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
                     localVerificationReport?.perplexityData?.searchContent ||
                     localVerificationReport?.searchContent ||
-                    localVerificationReport?.content;
+                    localVerificationReport?.content ||
+                    cachedData?.marketData?.description ||
+                    cachedData?.rawPerplexityContent;
                   
                   const perplexitySources = 
                     localVerificationReport?.verificationResults?.perplexityData?.sources ||
                     localVerificationReport?.perplexityData?.sources ||
-                    localVerificationReport?.sources;
+                    localVerificationReport?.sources ||
+                    cachedData?.sources;
                   
                   const webIntelligenceDescription = localVerificationReport?.verificationResults?.webIntelligence?.description;
                   const verifiedFacts = localVerificationReport?.consensus?.verifiedFacts;

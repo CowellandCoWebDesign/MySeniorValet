@@ -3,7 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_c047WBF9k0",
+      "id": "session_69cZ0ZPpmm",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -16,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-12-31T22:36:26.073Z",
-      "createdAt": "2025-12-31T21:46:26.073Z",
+      "expiresAt": "2025-12-31T22:47:38.443Z",
+      "createdAt": "2025-12-31T21:57:38.443Z",
       "usageCount": 0,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_DrfbZnGQgD",
+      "id": "session_Lk8cQvPuCr",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -31,13 +31,172 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": "bse",
+            "value": "a55cf15e40254770b9206a7d8860d1ce",
+            "expires": "2025-12-31T22:47:43.408Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.411Z",
+            "lastAccessed": "2025-12-31T21:57:43.411Z"
+          },
+          {
+            "key": "hl",
+            "value": "en_US",
+            "expires": "2026-12-31T21:57:40.855Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.418Z",
+            "lastAccessed": "2025-12-31T21:57:43.418Z"
+          },
+          {
+            "key": "bsi",
+            "value": "1%7C929cb163-2654-5321-a2ab-46687a059842%7C1767218258998%7C1767218258998%7C1%7C7ea37d040c60823c",
+            "expires": "2026-01-07T21:57:40.855Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.420Z",
+            "lastAccessed": "2025-12-31T21:57:43.420Z"
+          },
+          {
+            "key": "wdi",
+            "value": "2|A1EAC3EB9A98BF77|0x1.a556714bfc2f8p+30|7dd9408b169e02cb",
+            "expires": "2026-12-31T21:57:43.239Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.420Z",
+            "lastAccessed": "2025-12-31T21:57:43.420Z"
+          },
+          {
+            "key": "xcj",
+            "value": "1|A1o3UL0mh_rbR-TpDGgsvnKpw3oT-ZpMSA2fRD8qtBI",
+            "expires": "2026-03-31T21:57:40.898Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.421Z",
+            "lastAccessed": "2025-12-31T21:57:43.421Z"
+          },
+          {
+            "key": "_ga_K9Z2ZEVC8C",
+            "value": "GS2.2.s1767218261$o1$g0$t1767218261$j60$l0$h0",
+            "expires": "2027-02-04T21:57:41.977Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.421Z",
+            "lastAccessed": "2025-12-31T21:57:43.421Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.2.A1EAC3EB9A98BF77",
+            "expires": "2027-02-04T21:57:41.978Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.421Z",
+            "lastAccessed": "2025-12-31T21:57:43.421Z"
+          },
+          {
+            "key": "spses.5f33",
+            "value": "*",
+            "expires": "2025-12-31T22:27:42.000Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.421Z",
+            "lastAccessed": "2025-12-31T21:57:43.421Z"
+          },
+          {
+            "key": "datadome",
+            "value": "QZS9tKkFuQobLUt9rYQwhHrBBHA7N40udpcqaG2vu4v8NBdAdvnGfDKB~V77gvbKjvOBZ53Vw5VDIF6AMsaYAzJYlvemhUuYI43Kr4rIePnGVIM1R~YjYzgMU8vnk_xZ",
+            "expires": "2026-12-31T21:57:42.010Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.421Z",
+            "lastAccessed": "2025-12-31T21:57:43.421Z"
+          },
+          {
+            "key": "spid.5f33",
+            "value": "dd48262d-3bf8-46d5-b133-650537d8f711.1767218262.1.1767218262..3d8567a5-e6cf-4aa2-9689-c4264ccbc60c..4d5e019d-58f2-4958-a75b-5ca6a651927b.1767218261991.2",
+            "expires": "2026-12-31T21:57:42.000Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.421Z",
+            "lastAccessed": "2025-12-31T21:57:43.421Z"
+          },
+          {
+            "key": "_gcl_au",
+            "value": "1.1.1987286923.1767218262",
+            "expires": "2026-03-31T21:57:42.000Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.421Z",
+            "lastAccessed": "2025-12-31T21:57:43.421Z"
+          },
+          {
+            "key": "g_state",
+            "value": "{\"i_l\":0,\"i_ll\":1767218262598,\"i_b\":\"osOtIWfs34RbohJWnEGTb7JNziNG0CmANBDkhrayUJQ\",\"i_e\":{\"enable_itp_optimization\":0}}",
+            "expires": "2026-06-29T21:57:42.000Z",
+            "domain": "www.yelp.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-12-31T21:57:43.422Z",
+            "lastAccessed": "2025-12-31T21:57:43.422Z"
+          },
+          {
+            "key": "_uetsid",
+            "value": "bb653ec0e69311f0b9bfb3d7334d32ca",
+            "expires": "2026-01-01T21:57:42.000Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.422Z",
+            "lastAccessed": "2025-12-31T21:57:43.422Z"
+          },
+          {
+            "key": "_uetvid",
+            "value": "bb656f10e69311f090cb771f35d5ccd4",
+            "expires": "2027-01-25T21:57:42.000Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.422Z",
+            "lastAccessed": "2025-12-31T21:57:43.422Z"
+          },
+          {
+            "key": "_fbp",
+            "value": "fb.1.1767218263290.13443091846225708",
+            "expires": "2026-03-31T21:57:43.000Z",
+            "domain": "yelp.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T21:57:43.423Z",
+            "lastAccessed": "2025-12-31T21:57:43.423Z"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-12-31T22:36:26.077Z",
-      "createdAt": "2025-12-31T21:46:26.077Z",
+      "expiresAt": "2025-12-31T22:47:38.446Z",
+      "createdAt": "2025-12-31T21:57:38.446Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0

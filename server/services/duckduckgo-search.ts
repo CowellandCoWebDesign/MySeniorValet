@@ -154,11 +154,82 @@ export class DuckDuckGoSearchService {
       }
       
       const html = await response.text();
-      return this.parseLiteResults(html);
+      
+      // Diagnostic: Check for anti-bot markers
+      if (html.includes('vqd') || html.includes('captcha') || html.includes('robot')) {
+        console.log(`⚠️ DuckDuckGo anti-bot detection triggered`);
+      }
+      
+      const results = this.parseLiteResults(html);
+      
+      // If no results, try parsing with alternative selectors
+      if (results.length === 0) {
+        return this.parseAlternativeFormat(html);
+      }
+      
+      return results;
     } catch (error: any) {
       console.error(`❌ DuckDuckGo Lite error:`, error.message);
       return [];
     }
+  }
+  
+  private parseAlternativeFormat(html: string): SearchResult[] {
+    const $ = cheerio.load(html);
+    const results: SearchResult[] = [];
+    
+    // Try various selectors that DuckDuckGo might use
+    // Check for zero-result links table (current format)
+    $('table.results-table tr, table tr').each((_, row) => {
+      const $row = $(row);
+      const links = $row.find('a[href^="http"]');
+      
+      links.each((__, link) => {
+        const $link = $(link);
+        const href = $link.attr('href') || '';
+        const title = $link.text().trim();
+        
+        // Skip internal DDG links
+        if (href.includes('duckduckgo.com') || title.length < 5) return;
+        
+        results.push({
+          title,
+          url: href,
+          snippet: $row.text().replace(title, '').trim().slice(0, 200),
+          source: this.extractDomain(href)
+        });
+      });
+    });
+    
+    // Try finding any anchor with external href
+    if (results.length === 0) {
+      $('a[href^="http"]').each((_, el) => {
+        const $el = $(el);
+        const href = $el.attr('href') || '';
+        const title = $el.text().trim();
+        
+        if (!href.includes('duckduckgo.com') && 
+            !href.includes('duck.com') && 
+            title.length > 10 &&
+            !href.includes('javascript:') &&
+            !href.includes('privacy')) {
+          results.push({
+            title,
+            url: href,
+            snippet: '',
+            source: this.extractDomain(href)
+          });
+        }
+      });
+    }
+    
+    // Deduplicate
+    const seen = new Set<string>();
+    return results.filter(r => {
+      if (seen.has(r.url)) return false;
+      seen.add(r.url);
+      return true;
+    }).slice(0, 10);
   }
   
   private async searchHtml(query: string, region: string): Promise<SearchResult[]> {

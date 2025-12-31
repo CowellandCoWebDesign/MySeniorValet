@@ -14,14 +14,8 @@ import { duckDuckGoSearch } from './duckduckgo-search';
 import { crawleeScraper } from './crawlee-scraper';
 import { searxngSearch } from './searxng-search';
 
-// Known senior living directory base URLs for reliable data
-const SENIOR_DIRECTORIES = [
-  { name: 'Caring.com', baseUrl: 'https://www.caring.com/senior-living' },
-  { name: 'A Place for Mom', baseUrl: 'https://www.aplaceformom.com' },
-  { name: 'SeniorHousingNet', baseUrl: 'https://www.seniorhousingnet.com' },
-  { name: 'SeniorLiving.org', baseUrl: 'https://www.seniorliving.org' },
-  { name: 'SeniorAdvisor', baseUrl: 'https://www.senioradvisor.com' },
-];
+// NOTE: We do NOT fabricate URLs from these directories
+// All URLs must come from actual search results (Golden Data Rule)
 
 interface SearchPipelineResult {
   summary: string;
@@ -89,22 +83,6 @@ export class FreeAISearchPipeline {
         }
       }
     }
-  }
-  
-  private getStateName(abbrev: string): string {
-    const states: Record<string, string> = {
-      'AL': 'alabama', 'AK': 'alaska', 'AZ': 'arizona', 'AR': 'arkansas', 'CA': 'california',
-      'CO': 'colorado', 'CT': 'connecticut', 'DE': 'delaware', 'FL': 'florida', 'GA': 'georgia',
-      'HI': 'hawaii', 'ID': 'idaho', 'IL': 'illinois', 'IN': 'indiana', 'IA': 'iowa',
-      'KS': 'kansas', 'KY': 'kentucky', 'LA': 'louisiana', 'ME': 'maine', 'MD': 'maryland',
-      'MA': 'massachusetts', 'MI': 'michigan', 'MN': 'minnesota', 'MS': 'mississippi', 'MO': 'missouri',
-      'MT': 'montana', 'NE': 'nebraska', 'NV': 'nevada', 'NH': 'new-hampshire', 'NJ': 'new-jersey',
-      'NM': 'new-mexico', 'NY': 'new-york', 'NC': 'north-carolina', 'ND': 'north-dakota', 'OH': 'ohio',
-      'OK': 'oklahoma', 'OR': 'oregon', 'PA': 'pennsylvania', 'RI': 'rhode-island', 'SC': 'south-carolina',
-      'SD': 'south-dakota', 'TN': 'tennessee', 'TX': 'texas', 'UT': 'utah', 'VT': 'vermont',
-      'VA': 'virginia', 'WA': 'washington', 'WV': 'west-virginia', 'WI': 'wisconsin', 'WY': 'wyoming'
-    };
-    return states[abbrev.toUpperCase()] || abbrev.toLowerCase();
   }
   
   /**
@@ -194,23 +172,28 @@ export class FreeAISearchPipeline {
         }
       }
       
-      // TIER 3: Direct directory search (always try for comprehensive coverage)
-      console.log('   Tier 3: Direct directory search...');
-      const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const citySlug = (city || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const stateSlug = (state || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-      const stateFull = this.getStateName(state || '');
-      
-      // Build deterministic directory URLs for known senior living sites
-      const directoryUrls = [
-        { title: `${communityName} on Caring.com`, url: `https://www.caring.com/senior-living/${stateFull.toLowerCase()}/${citySlug}/${communitySlug}`, snippet: 'Reviews and pricing' },
-        { title: `${communityName} on A Place for Mom`, url: `https://www.aplaceformom.com/community/${communitySlug}`, snippet: 'Senior care advisor' },
-        { title: `${communityName} on SeniorAdvisor`, url: `https://www.senioradvisor.com/community/${communitySlug}`, snippet: 'Senior living reviews' },
-      ];
-      
-      for (const dir of directoryUrls) {
-        if (!allSources.find(s => s.url.includes(dir.url.split('/')[2]))) {
-          allSources.push(dir);
+      // NO FABRICATED URLs - Golden Data Rule: Only use real URLs from search results
+      // If we need more sources, do additional site-specific searches
+      if (allSources.length < 5) {
+        console.log('   Tier 3: Site-specific searches for more coverage...');
+        const siteQueries = [
+          `site:caring.com "${communityName}"`,
+          `site:aplaceformom.com "${communityName}"`,
+          `site:yelp.com "${communityName}" senior`
+        ];
+        
+        for (const siteQuery of siteQueries) {
+          if (allSources.length >= 8) break;
+          try {
+            const siteResults = await duckDuckGoSearch.search(siteQuery);
+            for (const result of siteResults) {
+              if (!allSources.find(s => s.url === result.url)) {
+                allSources.push(result);
+              }
+            }
+          } catch (err) {
+            // Continue to next query
+          }
         }
       }
       
@@ -261,58 +244,57 @@ export class FreeAISearchPipeline {
         console.log('   Using fallback synthesis (Groq not configured or no sources)');
       }
       
-      // STEP 5: Scrape photos if requested - prioritize REAL discovered URLs
+      // STEP 5: Scrape photos if requested - use ALL real discovered URLs
       if (includePhotos) {
-        console.log('\n📸 Step 4: Scraping photos from discovered sources...');
+        console.log('\n📸 Step 4: Scraping photos from ALL discovered sources...');
         
-        // PRIORITY 1: Use REAL URLs from DuckDuckGo search (these are verified to exist)
+        // Blocked domains that don't allow scraping
+        const blockedDomains = ['facebook.com', 'linkedin.com', 'twitter.com', 'instagram.com', 'pinterest.com'];
+        
+        // Use ALL real URLs from search results (not just specific domains)
         const realPhotoSources = allSources
           .filter(s => 
             s.url.startsWith('http') &&
-            !s.url.includes('facebook.com') && // Facebook blocks scraping
-            !s.url.includes('linkedin.com') && // LinkedIn blocks scraping
-            (s.url.includes('caring.com') ||
-             s.url.includes('aplaceformom.com') ||
-             s.url.includes('seniorly.com') ||
-             s.url.includes('senioradvisor.com') ||
-             s.url.includes('seniorhomes.com') ||
-             s.url.includes('miradorliving.com') ||
-             s.url.includes('yelp.com'))
+            !blockedDomains.some(blocked => s.url.includes(blocked))
           )
-          .slice(0, 3);
+          .slice(0, 6); // Try up to 6 sources
         
-        console.log(`   Found ${realPhotoSources.length} real photo sources from search`);
+        console.log(`   Found ${realPhotoSources.length} real sources to scrape for photos`);
         
         for (const source of realPhotoSources) {
-          if (photos.length >= 15) break;
+          if (photos.length >= 20) break;
           
+          console.log(`   Scraping: ${source.url.substring(0, 60)}...`);
           try {
             const scrapedPhotos = await crawleeScraper.scrapePhotosFromWebsite(
               source.url,
               communityName,
-              { maxPhotos: 10 }
+              { maxPhotos: 15, timeout: 45000 }
             );
             
             const newPhotos = scrapedPhotos
-              .filter(p => p.url && p.url.startsWith('http'))
+              .filter(p => p.url && p.url.startsWith('http') && !p.url.includes('icon') && !p.url.includes('logo'))
               .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
             
+            const addedCount = newPhotos.filter(p => !photos.includes(p)).length;
             photos.push(...newPhotos.filter(p => !photos.includes(p)));
+            console.log(`     Found ${addedCount} new photos from this source`);
           } catch (err) {
-            // Continue to next source
+            console.log(`     Scrape failed, continuing...`);
           }
         }
         
         // PRIORITY 2: Try official website only if we have few photos
         if (photos.length < 5 && websiteUrl && !websiteUrl.includes('NOT AVAILABLE')) {
+          console.log(`   Trying official website: ${websiteUrl}`);
           try {
             const scrapedPhotos = await crawleeScraper.scrapePhotosFromWebsite(
               websiteUrl,
               communityName,
-              { maxPhotos: 10 }
+              { maxPhotos: 15, timeout: 45000 }
             );
             const newPhotos = scrapedPhotos
-              .filter(p => p.url && p.url.startsWith('http'))
+              .filter(p => p.url && p.url.startsWith('http') && !p.url.includes('icon') && !p.url.includes('logo'))
               .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
             photos.push(...newPhotos.filter(p => !photos.includes(p)));
           } catch (photoError) {
