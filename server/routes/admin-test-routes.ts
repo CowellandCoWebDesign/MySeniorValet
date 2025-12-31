@@ -2,8 +2,44 @@ import { Router } from 'express';
 import { ProductionEmailTester } from '../services/production-email-tester';
 import { NotificationMonitor } from '../services/notification-monitor';
 import ComprehensiveNotificationService from '../services/comprehensive-notifications';
+import { freeAISearchPipeline } from '../services/free-ai-search-pipeline';
 
 const router = Router();
+
+// Test the FREE AI search pipeline directly
+router.get('/api/test-free-pipeline', async (req, res) => {
+  try {
+    const communityName = req.query.communityName as string || 'Sunrise Senior Living of Fairfax';
+    const location = req.query.location as string || 'Fairfax, VA';
+    const includePhotos = req.query.includePhotos === 'true';
+
+    console.log(`\n🧪 Testing FREE AI Pipeline for: ${communityName}, ${location}`);
+    
+    // Clear cache for fresh test
+    freeAISearchPipeline.clearCache(communityName, location);
+    
+    const result = await freeAISearchPipeline.search(communityName, location, undefined, {
+      includePhotos
+    });
+
+    res.json({
+      success: true,
+      community: communityName,
+      location: location,
+      sources: result.sources?.length || 0,
+      photos: result.photos?.length || 0,
+      summary: result.summary?.substring(0, 500) || 'No summary',
+      pricing: result.pricing || 'Contact for pricing',
+      _timestamp: Date.now()
+    });
+  } catch (error: any) {
+    console.error('Free pipeline test error:', error);
+    res.status(500).json({ 
+      error: 'Free pipeline test failed',
+      details: error.message 
+    });
+  }
+});
 
 // Simple test endpoint for production email (admin only)
 router.post('/api/admin/quick-test/email', async (req, res) => {

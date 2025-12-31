@@ -1,50 +1,29 @@
 {
-  "requestsFinished": 0,
-  "requestsFailed": 1,
-  "requestsRetries": 1,
-  "requestsFailedPerMinute": 32,
-  "requestsFinishedPerMinute": 0,
-  "requestMinDurationMillis": null,
-  "requestMaxDurationMillis": 0,
-  "requestTotalFailedDurationMillis": 370,
-  "requestTotalFinishedDurationMillis": 0,
-  "crawlerStartedAt": "2025-12-31T21:37:16.212Z",
-  "crawlerFinishedAt": "2025-12-31T21:37:17.816Z",
-  "statsPersistedAt": "2025-12-31T21:37:17.816Z",
-  "crawlerRuntimeMillis": 1840,
-  "crawlerLastStartTimestamp": 1767217035976,
+  "requestsFinished": 1,
+  "requestsFailed": 0,
+  "requestsRetries": 0,
+  "requestsFailedPerMinute": 0,
+  "requestsFinishedPerMinute": 18,
+  "requestMinDurationMillis": 2982,
+  "requestMaxDurationMillis": 2982,
+  "requestTotalFailedDurationMillis": 0,
+  "requestTotalFinishedDurationMillis": 2982,
+  "crawlerStartedAt": "2025-12-31T21:46:25.990Z",
+  "crawlerFinishedAt": "2025-12-31T21:46:29.132Z",
+  "statsPersistedAt": "2025-12-31T21:46:29.132Z",
+  "crawlerRuntimeMillis": 3323,
+  "crawlerLastStartTimestamp": 1767217585809,
   "requestRetryHistogram": [
-    null,
-    null,
-    null,
     1
   ],
   "statsId": 0,
-  "requestAvgFailedDurationMillis": 370,
-  "requestAvgFinishedDurationMillis": null,
-  "requestTotalDurationMillis": 370,
+  "requestAvgFailedDurationMillis": null,
+  "requestAvgFinishedDurationMillis": 2982,
+  "requestTotalDurationMillis": 2982,
   "requestsTotal": 1,
-  "requestsWithStatusCode": {},
-  "errors": {
-    "/home/runner/workspace/node_modules/@crawlee/src/internals/utils/playwright-utils.ts:241:17": {
-      "missing error code": {
-        "Error": {
-          "page.goto: net::ERR_EMPTY_RESPONSE at https://www.florence-senior-living.com/": {
-            "count": 1
-          }
-        }
-      }
-    }
+  "requestsWithStatusCode": {
+    "404": 1
   },
-  "retryErrors": {
-    "/home/runner/workspace/node_modules/@crawlee/src/internals/utils/playwright-utils.ts:241:17": {
-      "missing error code": {
-        "Error": {
-          "page.goto: net::ERR_EMPTY_RESPONSE at https://www.florence-senior-living.com/": {
-            "count": 3
-          }
-        }
-      }
-    }
-  }
+  "errors": {},
+  "retryErrors": {}
 }
