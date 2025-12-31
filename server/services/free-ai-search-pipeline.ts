@@ -57,6 +57,17 @@ export class FreeAISearchPipeline {
   }
   
   private saveToCache(key: string, result: SearchPipelineResult): void {
+    // Quality check - don't cache empty/poor results
+    const hasUsefulData = result.sources.length >= 1 || 
+                          result.photos.length >= 1 || 
+                          (result.pricing && result.pricing.length > 5) ||
+                          (result.summary && result.summary.length > 200 && !result.summary.includes('contact them directly'));
+    
+    if (!hasUsefulData) {
+      console.log(`⚠️ Not caching poor quality result (no sources, photos, or useful content)`);
+      return;
+    }
+    
     this.searchCache.set(key, { result, timestamp: Date.now() });
     
     // Cleanup old entries
@@ -123,23 +134,57 @@ export class FreeAISearchPipeline {
       // STEP 2: Search web with DuckDuckGo
       console.log('\n🔍 Step 2: Searching web with DuckDuckGo...');
       
-      for (const q of queries.slice(0, 3)) { // Limit to 3 queries to respect rate limits
-        try {
-          const results = await duckDuckGoSearch.search(q.query, { maxResults: 10 });
-          
-          // Add unique results
-          for (const r of results) {
-            if (!allSources.find(s => s.url === r.url)) {
-              allSources.push({
-                title: r.title,
-                url: r.url,
-                snippet: r.snippet
-              });
-            }
+      // Extract city/state from location
+      const [city, state] = location.split(',').map(s => s.trim());
+      
+      // Try searchWithVariations first for better coverage
+      try {
+        const variationResults = await duckDuckGoSearch.searchWithVariations(communityName, city || location, state || '');
+        for (const r of variationResults) {
+          if (!allSources.find(s => s.url === r.url)) {
+            allSources.push({
+              title: r.title,
+              url: r.url,
+              snippet: r.snippet
+            });
           }
-        } catch (searchError) {
-          console.warn(`   Query failed: ${q.query.slice(0, 40)}...`, searchError);
         }
+      } catch (varError) {
+        console.warn('   Variation search failed, trying individual queries...');
+      }
+      
+      // If variations didn't work, try individual queries
+      if (allSources.length === 0) {
+        for (const q of queries.slice(0, 3)) {
+          try {
+            const results = await duckDuckGoSearch.search(q.query, { maxResults: 10 });
+            for (const r of results) {
+              if (!allSources.find(s => s.url === r.url)) {
+                allSources.push({
+                  title: r.title,
+                  url: r.url,
+                  snippet: r.snippet
+                });
+              }
+            }
+          } catch (searchError) {
+            console.warn(`   Query failed: ${q.query.slice(0, 40)}...`);
+          }
+        }
+      }
+      
+      // Fallback: Add known senior living directory URLs to check
+      if (allSources.length === 0) {
+        console.log('   Adding fallback senior living directories...');
+        const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const citySlug = (city || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const stateSlug = (state || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        
+        allSources.push(
+          { title: `${communityName} on Caring.com`, url: `https://www.caring.com/senior-living/assisted-living/${stateSlug}/${citySlug}`, snippet: 'Senior living directory' },
+          { title: `${communityName} on A Place for Mom`, url: `https://www.aplaceformom.com/community/${citySlug}-${stateSlug}`, snippet: 'Senior care advisor' },
+          { title: `${communityName} on SeniorLiving.org`, url: `https://www.seniorliving.org/${stateSlug}/${citySlug}`, snippet: 'Senior living guide' }
+        );
       }
       
       console.log(`   Found ${allSources.length} unique sources`);

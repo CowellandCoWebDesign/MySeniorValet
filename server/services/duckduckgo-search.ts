@@ -1,8 +1,8 @@
 /**
- * DuckDuckGo HTML Search Service
+ * DuckDuckGo Lite Search Service
  * 
- * FREE web search using DuckDuckGo's HTML interface
- * No API key required - uses HTML scraping with rate limiting
+ * FREE web search using DuckDuckGo's Lite interface (more reliable)
+ * No API key required - uses GET requests which work better than POST
  * 
  * This replaces the web discovery portion of Perplexity
  */
@@ -23,24 +23,28 @@ interface SearchOptions {
 }
 
 export class DuckDuckGoSearchService {
-  private readonly baseUrl = 'https://html.duckduckgo.com/html/';
+  // Use lite.duckduckgo.com which is more reliable and less bot-detection
+  private readonly baseUrl = 'https://lite.duckduckgo.com/lite/';
+  private readonly fallbackUrl = 'https://html.duckduckgo.com/html/';
+  
   private readonly userAgents = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Safari/605.1.15',
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:121.0) Gecko/20100101 Firefox/121.0',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'
   ];
   
   private requestCount = 0;
   private lastRequestTime = 0;
-  private readonly MIN_DELAY_MS = 1500; // Minimum 1.5 seconds between requests
-  private readonly MAX_REQUESTS_PER_MINUTE = 20;
+  private readonly MIN_DELAY_MS = 2000; // 2 seconds between requests for safety
+  private readonly MAX_REQUESTS_PER_MINUTE = 15;
   
   private cache = new Map<string, { results: SearchResult[]; timestamp: number }>();
   private readonly CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour cache
   
   constructor() {
-    console.log('🦆 DuckDuckGo HTML Search Service initialized (FREE - no API key)');
+    console.log('🦆 DuckDuckGo Lite Search Service initialized (FREE - no API key)');
   }
   
   private getRandomUserAgent(): string {
@@ -74,6 +78,12 @@ export class DuckDuckGoSearchService {
   }
   
   private saveToCache(key: string, results: SearchResult[]): void {
+    // Only cache if we got results - don't cache empty responses
+    if (results.length === 0) {
+      console.log(`⚠️ Not caching empty DuckDuckGo results`);
+      return;
+    }
+    
     this.cache.set(key, { results, timestamp: Date.now() });
     
     // Cleanup old entries if cache gets too large
@@ -88,7 +98,7 @@ export class DuckDuckGoSearchService {
   }
   
   async search(query: string, options: SearchOptions = {}): Promise<SearchResult[]> {
-    const { maxResults = 10, region = 'wt-wt', safeSearch = 'moderate' } = options;
+    const { maxResults = 10, region = 'wt-wt' } = options;
     
     // Check cache first
     const cacheKey = this.getCacheKey(query, options);
@@ -99,189 +109,299 @@ export class DuckDuckGoSearchService {
     
     await this.respectRateLimit();
     
-    console.log(`🔍 DuckDuckGo searching: "${query.slice(0, 60)}..."`);
+    console.log(`🔍 DuckDuckGo Lite searching: "${query.slice(0, 60)}..."`);
     
+    // Try Lite endpoint first (GET request - more reliable)
+    let results = await this.searchLite(query, region);
+    
+    // If lite fails, try fallback HTML endpoint
+    if (results.length === 0) {
+      console.log(`🔄 Trying DuckDuckGo HTML fallback...`);
+      results = await this.searchHtml(query, region);
+    }
+    
+    console.log(`✅ DuckDuckGo found ${results.length} results`);
+    
+    // Cache results (only if we got some)
+    this.saveToCache(cacheKey, results);
+    
+    return results.slice(0, maxResults);
+  }
+  
+  private async searchLite(query: string, region: string): Promise<SearchResult[]> {
+    try {
+      // Use GET request with query params - more reliable
+      const params = new URLSearchParams({
+        q: query,
+        kl: region
+      });
+      
+      const url = `${this.baseUrl}?${params.toString()}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'User-Agent': this.getRandomUserAgent(),
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Cache-Control': 'no-cache'
+        }
+      });
+      
+      if (!response.ok) {
+        console.log(`⚠️ DuckDuckGo Lite HTTP ${response.status}`);
+        return [];
+      }
+      
+      const html = await response.text();
+      return this.parseLiteResults(html);
+    } catch (error: any) {
+      console.error(`❌ DuckDuckGo Lite error:`, error.message);
+      return [];
+    }
+  }
+  
+  private async searchHtml(query: string, region: string): Promise<SearchResult[]> {
     try {
       const formData = new URLSearchParams();
       formData.append('q', query);
-      formData.append('kl', region); // Region
-      formData.append('kp', safeSearch === 'strict' ? '1' : safeSearch === 'off' ? '-2' : '-1');
+      formData.append('kl', region);
       
-      const response = await fetch(this.baseUrl, {
+      const response = await fetch(this.fallbackUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'User-Agent': this.getRandomUserAgent(),
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-          'Accept-Language': 'en-US,en;q=0.5',
-          'Referer': 'https://duckduckgo.com/',
-          'Origin': 'https://duckduckgo.com'
+          'Accept-Language': 'en-US,en;q=0.9',
+          'Referer': 'https://duckduckgo.com/'
         },
         body: formData.toString()
       });
       
       if (!response.ok) {
-        throw new Error(`DuckDuckGo HTTP ${response.status}: ${response.statusText}`);
+        console.log(`⚠️ DuckDuckGo HTML HTTP ${response.status}`);
+        return [];
       }
       
       const html = await response.text();
-      const results = this.parseResults(html);
-      
-      console.log(`✅ DuckDuckGo found ${results.length} results`);
-      
-      // Cache results
-      this.saveToCache(cacheKey, results);
-      
-      return results.slice(0, maxResults);
+      return this.parseHtmlResults(html);
     } catch (error: any) {
-      console.error(`❌ DuckDuckGo search failed:`, error.message);
-      throw error;
+      console.error(`❌ DuckDuckGo HTML error:`, error.message);
+      return [];
     }
   }
   
-  private parseResults(html: string): SearchResult[] {
+  private parseLiteResults(html: string): SearchResult[] {
     const $ = cheerio.load(html);
     const results: SearchResult[] = [];
     
-    // DuckDuckGo HTML results are in .result elements
-    $('.result').each((_, element) => {
+    // DuckDuckGo Lite has a simpler table-based format
+    // Results are in tables with class "result-link" or within specific td elements
+    
+    // Method 1: Look for result links in tables
+    $('a.result-link, td.result-link a').each((_, element) => {
       const $el = $(element);
+      const title = $el.text().trim();
+      const href = $el.attr('href') || '';
       
-      // Get the title and URL from the result link
-      const $link = $el.find('.result__a');
-      const title = $link.text().trim();
-      const href = $link.attr('href') || '';
-      
-      // Parse actual URL from DuckDuckGo redirect
-      let url = href;
-      if (href.includes('uddg=')) {
-        const match = href.match(/uddg=([^&]+)/);
-        if (match) {
-          url = decodeURIComponent(match[1]);
-        }
-      }
-      
-      // Get snippet
-      const snippet = $el.find('.result__snippet').text().trim();
-      
-      // Get source domain
-      const source = $el.find('.result__url').text().trim();
-      
-      if (title && url && !url.startsWith('/')) {
+      if (title && href && href.startsWith('http')) {
         results.push({
           title,
-          url,
-          snippet,
-          source: source || new URL(url).hostname
+          url: href,
+          snippet: '',
+          source: this.extractDomain(href)
         });
       }
     });
     
-    // Also check for alternative result format
+    // Method 2: Look for any external links in result rows
     if (results.length === 0) {
-      $('a.result__url').each((_, element) => {
-        const $el = $(element);
-        const parent = $el.closest('.result, .web-result, .results_links');
+      $('table tr').each((_, row) => {
+        const $row = $(row);
+        const $link = $row.find('a').first();
+        const href = $link.attr('href') || '';
+        const title = $link.text().trim();
         
-        const url = $el.attr('href') || $el.text().trim();
-        const title = parent.find('h2, .result__title, .result__a').first().text().trim();
-        const snippet = parent.find('.result__snippet, .snippet').text().trim();
-        
-        if (title && url && url.startsWith('http')) {
+        // Skip DuckDuckGo internal links
+        if (href && !href.includes('duckduckgo.com') && href.startsWith('http') && title.length > 5) {
+          // Get snippet from the row text
+          const rowText = $row.text().replace(title, '').trim();
+          
           results.push({
             title,
-            url,
-            snippet,
-            source: new URL(url).hostname
+            url: href,
+            snippet: rowText.slice(0, 200),
+            source: this.extractDomain(href)
           });
         }
       });
+    }
+    
+    // Method 3: Extract from web_result divs (alternative Lite format)
+    if (results.length === 0) {
+      $('.web-result, .result').each((_, element) => {
+        const $el = $(element);
+        const $link = $el.find('a').first();
+        const title = $link.text().trim();
+        const href = $link.attr('href') || '';
+        
+        if (title && href && href.startsWith('http')) {
+          results.push({
+            title,
+            url: href,
+            snippet: $el.text().replace(title, '').trim().slice(0, 200),
+            source: this.extractDomain(href)
+          });
+        }
+      });
+    }
+    
+    // Deduplicate by URL
+    const seen = new Set<string>();
+    return results.filter(r => {
+      if (seen.has(r.url)) return false;
+      seen.add(r.url);
+      return true;
+    });
+  }
+  
+  private parseHtmlResults(html: string): SearchResult[] {
+    const $ = cheerio.load(html);
+    const results: SearchResult[] = [];
+    
+    // DuckDuckGo HTML results are in .result elements
+    $('.result, .result__body').each((_, element) => {
+      const $el = $(element);
+      
+      // Get the title and URL from the result link
+      const $link = $el.find('.result__a, a.result-link').first();
+      const title = $link.text().trim();
+      let href = $link.attr('href') || '';
+      
+      // Parse actual URL from DuckDuckGo redirect
+      if (href.includes('uddg=')) {
+        const match = href.match(/uddg=([^&]+)/);
+        if (match) {
+          href = decodeURIComponent(match[1]);
+        }
+      }
+      
+      // Get snippet
+      const snippet = $el.find('.result__snippet, .result-snippet').text().trim();
+      
+      if (title && href && href.startsWith('http')) {
+        results.push({
+          title,
+          url: href,
+          snippet,
+          source: this.extractDomain(href)
+        });
+      }
+    });
+    
+    return results;
+  }
+  
+  private extractDomain(url: string): string {
+    try {
+      return new URL(url).hostname.replace('www.', '');
+    } catch {
+      return url;
+    }
+  }
+  
+  /**
+   * Search with multiple query variations for better results
+   */
+  async searchWithVariations(communityName: string, city: string, state: string): Promise<SearchResult[]> {
+    const queries = [
+      `"${communityName}" ${city} ${state} senior living`,
+      `${communityName} ${city} ${state} photos reviews`,
+      `${communityName} assisted living ${city}`,
+      `${communityName} pricing cost monthly`
+    ];
+    
+    const allResults: SearchResult[] = [];
+    const seenUrls = new Set<string>();
+    
+    for (const query of queries) {
+      try {
+        const results = await this.search(query, { maxResults: 5 });
+        for (const result of results) {
+          if (!seenUrls.has(result.url)) {
+            seenUrls.add(result.url);
+            allResults.push(result);
+          }
+        }
+        
+        // If we have enough results, stop
+        if (allResults.length >= 10) break;
+        
+      } catch (error) {
+        console.log(`⚠️ Query variation failed: ${query}`);
+      }
+    }
+    
+    return allResults;
+  }
+  
+  /**
+   * Search specifically for community photos
+   */
+  async searchForPhotos(communityName: string, city: string, state: string): Promise<SearchResult[]> {
+    const photoQueries = [
+      `${communityName} ${city} photos images`,
+      `${communityName} senior living gallery`,
+      `site:seniorliving.org ${communityName}`,
+      `site:aplaceformom.com ${communityName}`
+    ];
+    
+    const results: SearchResult[] = [];
+    
+    for (const query of photoQueries) {
+      try {
+        const searchResults = await this.search(query, { maxResults: 3 });
+        results.push(...searchResults);
+        if (results.length >= 5) break;
+      } catch {
+        continue;
+      }
     }
     
     return results;
   }
   
   /**
-   * Search specifically for senior living community information
+   * Search for community pricing info
    */
-  async searchCommunity(
-    communityName: string,
-    location: string,
-    intent: 'general' | 'pricing' | 'photos' | 'reviews' = 'general'
-  ): Promise<SearchResult[]> {
-    let query = `"${communityName}" ${location}`;
+  async searchForPricing(communityName: string, city: string, state: string): Promise<SearchResult[]> {
+    const pricingQueries = [
+      `${communityName} ${city} pricing cost monthly rent`,
+      `${communityName} how much does it cost`,
+      `site:caring.com ${communityName} ${city}`
+    ];
     
-    switch (intent) {
-      case 'pricing':
-        query += ' pricing cost monthly rate fee';
-        break;
-      case 'photos':
-        query += ' photos gallery virtual tour images';
-        break;
-      case 'reviews':
-        query += ' reviews ratings testimonials';
-        break;
-      default:
-        query += ' senior living assisted living community';
+    const results: SearchResult[] = [];
+    
+    for (const query of pricingQueries) {
+      try {
+        const searchResults = await this.search(query, { maxResults: 3 });
+        results.push(...searchResults);
+        if (results.length >= 5) break;
+      } catch {
+        continue;
+      }
     }
     
-    return this.search(query, { maxResults: 15 });
+    return results;
   }
   
-  /**
-   * Multi-query search for comprehensive coverage
-   */
-  async comprehensiveSearch(
-    communityName: string,
-    location: string
-  ): Promise<{
-    general: SearchResult[];
-    pricing: SearchResult[];
-    photos: SearchResult[];
-    reviews: SearchResult[];
-    allSources: string[];
-  }> {
-    console.log(`🔎 Comprehensive DuckDuckGo search for ${communityName}, ${location}`);
-    
-    // Run searches in sequence to respect rate limits
-    const general = await this.searchCommunity(communityName, location, 'general');
-    const pricing = await this.searchCommunity(communityName, location, 'pricing');
-    const photos = await this.searchCommunity(communityName, location, 'photos');
-    const reviews = await this.searchCommunity(communityName, location, 'reviews');
-    
-    // Collect unique sources
-    const allSources = [...new Set([
-      ...general.map(r => r.url),
-      ...pricing.map(r => r.url),
-      ...photos.map(r => r.url),
-      ...reviews.map(r => r.url)
-    ])];
-    
-    console.log(`✅ Found ${allSources.length} unique sources across all searches`);
-    
-    return {
-      general,
-      pricing,
-      photos,
-      reviews,
-      allSources
-    };
-  }
-  
-  /**
-   * Get image search results (limited in HTML version)
-   */
-  async searchImages(query: string): Promise<SearchResult[]> {
-    // DuckDuckGo HTML doesn't support image search well
-    // Return web results that might contain images
-    const imageQuery = `${query} site:pinterest.com OR site:facebook.com OR site:yelp.com photos`;
-    return this.search(imageQuery, { maxResults: 10 });
-  }
-  
-  getStats(): { requestCount: number; cacheSize: number } {
+  getStats() {
     return {
       requestCount: this.requestCount,
-      cacheSize: this.cache.size
+      cacheSize: this.cache.size,
+      lastRequestTime: this.lastRequestTime
     };
   }
 }
