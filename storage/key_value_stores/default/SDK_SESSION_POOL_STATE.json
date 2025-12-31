@@ -1,9 +1,9 @@
 {
-  "usableSessionsCount": 5,
+  "usableSessionsCount": 2,
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_bt7eY6MAb2",
+      "id": "session_T37gZo0U8K",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -16,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-12-31T20:51:47.150Z",
-      "createdAt": "2025-12-31T20:01:47.150Z",
+      "expiresAt": "2025-12-31T21:16:42.411Z",
+      "createdAt": "2025-12-31T20:26:42.411Z",
       "usageCount": 0,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_p9wkZQzEsN",
+      "id": "session_z2Dg2OJwfR",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -31,76 +31,208 @@
         "enableLooseMode": false,
         "allowSpecialUseDomain": true,
         "prefixSecurity": "silent",
-        "cookies": []
+        "cookies": [
+          {
+            "key": ".AspNetCore.Antiforgery.-rXc1S2HjzU",
+            "value": "CfDJ8CtwjdPBESBMu9DVKc5_ZZ2mNjgAeSchZ3rBRxVzBde9nScf3gcote99grm8lp6NQGupMiRMi0tQN_oTcBjKsjgF5bLdfz9Ol7xbt9Y9maoxeMZ2lYWD7JavEmYSF-msudVn7Fp99vMG7HiRroeHYFg",
+            "expires": "2025-12-31T21:16:46.369Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.373Z",
+            "lastAccessed": "2025-12-31T20:26:46.373Z"
+          },
+          {
+            "key": ".AspNetCore.Mvc.CookieTempDataProvider",
+            "value": "CfDJ8CtwjdPBESBMu9DVKc5_ZZ0CnMV1pkt-SRI2Blij6XS_KcKV40fMbJo9NeszFzX6I3i7J_IGOhjhN_9X4nAl_hrG_qz3KfwZ2sU2JaMEYrAzdUBT6J8tpoYYBNFnbh7eYi487Z-l3il_orj0UMVjbyvrpgBS-cnJt-ZCg5DxW6qTwwlO6FK7jImbsRInsyRMpA",
+            "expires": "2025-12-31T21:16:46.369Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "httpOnly": true,
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.373Z",
+            "lastAccessed": "2025-12-31T20:26:46.373Z"
+          },
+          {
+            "key": "_cfuvid",
+            "value": "iVSizXX.l.KNCcqFRENKgJFXbSjKK9LAwOLYVRDiSjg-1767212804720-0.0.1.1-604800000",
+            "expires": "2025-12-31T21:16:46.369Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T20:26:46.374Z",
+            "lastAccessed": "2025-12-31T20:26:46.374Z"
+          },
+          {
+            "key": "nud_1665751",
+            "value": "eyJwdiI6MCwiY24iOjI1MTY5NSwiYW4iOlsyNTE2OTVdLCJpYW4iOltdfQ==",
+            "expires": "2026-01-01T20:26:45.000Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "yTrackUser",
+            "value": "1HOZGYGZQ0Q6072DH6Y7CA7212805353",
+            "expires": "2027-02-04T20:26:45.353Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "yTrackVisit",
+            "value": "MV288WNHN6UDT9OHMGY70N7212805353",
+            "expires": "2027-02-04T20:26:45.353Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "trackThisPage",
+            "value": "1767212805353",
+            "expires": "2025-12-31T21:16:46.370Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "PropLeadSource_1665751",
+            "value": "portal",
+            "expires": "2026-01-30T20:26:45.000Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "sReferrerURL",
+            "expires": "2025-12-31T21:16:46.370Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "sCurrentURL",
+            "value": "https%3A%2F%2Fwww.raystoneseniors.com%2Fapartments%2Fca%2Fredding%2Friver-commons0%2F",
+            "expires": "2025-12-31T21:16:46.370Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "secure": true,
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "_ga_41K28TNVYB",
+            "value": "GS2.1.s1767212805$o1$g0$t1767212805$j60$l0$h0",
+            "expires": "2027-02-04T20:26:45.434Z",
+            "domain": "raystoneseniors.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T20:26:46.375Z",
+            "lastAccessed": "2025-12-31T20:26:46.375Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.1.1573131019.1767212805",
+            "expires": "2027-02-04T20:26:46.284Z",
+            "domain": "raystoneseniors.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T20:26:46.381Z",
+            "lastAccessed": "2025-12-31T20:26:46.381Z"
+          },
+          {
+            "key": "_gcl_au",
+            "value": "1.1.1172331346.1767212805",
+            "expires": "2026-03-31T20:26:45.000Z",
+            "domain": "raystoneseniors.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T20:26:46.383Z",
+            "lastAccessed": "2025-12-31T20:26:46.383Z"
+          },
+          {
+            "key": "__cf_bm",
+            "value": "J9rZRVrIyhMD.qTASONASsdY7a6mgwih7YH_4d6w1FY-1767212805-1.0.1.1-1hyNnYWWINHNWpCPK8U4L5gpvEWrw.HyZvsZCz12W52udoChbM_tVecLnoqWVU2fc2uj_EwNVoTMcn7WATAIWU6yExlR7cSoqGIt.k9Jqp4",
+            "expires": "2025-12-31T20:56:45.534Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T20:26:46.383Z",
+            "lastAccessed": "2025-12-31T20:26:46.383Z"
+          },
+          {
+            "key": "_yTrackUser",
+            "value": "Mzg3ODAzMzUwOCMxMzc1OTUzMzE1-9pMRMrphwD4%253d",
+            "expires": "2027-02-04T20:26:45.543Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.383Z",
+            "lastAccessed": "2025-12-31T20:26:46.383Z"
+          },
+          {
+            "key": "_yTrackVisit",
+            "value": "NjM1OTM3NjY0OCMzNTk0OTI0NDE%253d-lC%252b6YhOE2sk%253d",
+            "expires": "2025-12-31T20:46:45.000Z",
+            "domain": "www.raystoneseniors.com",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2025-12-31T20:26:46.384Z",
+            "lastAccessed": "2025-12-31T20:26:46.384Z"
+          },
+          {
+            "key": "cf_clearance",
+            "value": "DMBFO3HrR4bpcu7jJNskyejhxkWGztXPmBFCKyAjLkw-1767212806-1.2.1.1-F4u4VOhKfwPE3qUJoZ.HLTcuwBcPT60G81gkd0uOq0qj2nspKnN7ykJZOJmSjZzQfjyw0YJbfMZXuVOlRUN9XPeIJuKg3YbguwQR6vOhYllnb.J2._8vOgDAHFXb4ymacYatt7BUJLLNzCn_srvdp_16PqP6ntaanwgnIl53vJuv5LgxeqQ62zSMX5UCJE3PxpDYfAQD4W5B5I2meqCnS0i04b2MogsRxR8I8Uygo2g",
+            "expires": "2026-12-31T20:26:46.191Z",
+            "domain": "raystoneseniors.com",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2025-12-31T20:26:46.384Z",
+            "lastAccessed": "2025-12-31T20:26:46.384Z"
+          },
+          {
+            "key": "_ga_FLK5J6Y89X",
+            "value": "GS2.1.s1767212806$o1$g0$t1767212806$j60$l0$h0",
+            "expires": "2027-02-04T20:26:46.283Z",
+            "domain": "raystoneseniors.com",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2025-12-31T20:26:46.384Z",
+            "lastAccessed": "2025-12-31T20:26:46.384Z"
+          }
+        ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-12-31T20:51:47.830Z",
-      "createdAt": "2025-12-31T20:01:47.830Z",
-      "usageCount": 0,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_4WppDc5gQW",
-      "cookieJar": {
-        "version": "tough-cookie@6.0.0",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-12-31T20:51:47.952Z",
-      "createdAt": "2025-12-31T20:01:47.952Z",
-      "usageCount": 0,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_lNBl7lMkbs",
-      "cookieJar": {
-        "version": "tough-cookie@6.0.0",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-12-31T20:51:48.170Z",
-      "createdAt": "2025-12-31T20:01:48.170Z",
-      "usageCount": 0,
-      "maxUsageCount": 50,
-      "errorScore": 0
-    },
-    {
-      "id": "session_4JtfgOHpsP",
-      "cookieJar": {
-        "version": "tough-cookie@6.0.0",
-        "storeType": "MemoryCookieStore",
-        "rejectPublicSuffixes": true,
-        "enableLooseMode": false,
-        "allowSpecialUseDomain": true,
-        "prefixSecurity": "silent",
-        "cookies": []
-      },
-      "userData": {},
-      "maxErrorScore": 3,
-      "errorScoreDecrement": 0.5,
-      "expiresAt": "2025-12-31T20:51:48.172Z",
-      "createdAt": "2025-12-31T20:01:48.172Z",
+      "expiresAt": "2025-12-31T21:16:42.416Z",
+      "createdAt": "2025-12-31T20:26:42.416Z",
       "usageCount": 1,
       "maxUsageCount": 50,
-      "errorScore": 1
+      "errorScore": 0
     }
   ]
 }

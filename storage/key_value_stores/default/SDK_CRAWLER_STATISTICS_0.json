@@ -1,50 +1,29 @@
 {
-  "requestsFinished": 0,
-  "requestsFailed": 1,
-  "requestsRetries": 1,
-  "requestsFailedPerMinute": 22,
-  "requestsFinishedPerMinute": 0,
-  "requestMinDurationMillis": null,
-  "requestMaxDurationMillis": 0,
-  "requestTotalFailedDurationMillis": 462,
-  "requestTotalFinishedDurationMillis": 0,
-  "crawlerStartedAt": "2025-12-31T20:01:47.028Z",
-  "crawlerFinishedAt": "2025-12-31T20:01:48.772Z",
-  "statsPersistedAt": "2025-12-31T20:01:48.772Z",
-  "crawlerRuntimeMillis": 2646,
-  "crawlerLastStartTimestamp": 1767211306126,
+  "requestsFinished": 1,
+  "requestsFailed": 0,
+  "requestsRetries": 0,
+  "requestsFailedPerMinute": 0,
+  "requestsFinishedPerMinute": 9,
+  "requestMinDurationMillis": 6148,
+  "requestMaxDurationMillis": 6148,
+  "requestTotalFailedDurationMillis": 0,
+  "requestTotalFinishedDurationMillis": 6148,
+  "crawlerStartedAt": "2025-12-31T20:26:42.314Z",
+  "crawlerFinishedAt": "2025-12-31T20:26:48.669Z",
+  "statsPersistedAt": "2025-12-31T20:26:48.669Z",
+  "crawlerRuntimeMillis": 6739,
+  "crawlerLastStartTimestamp": 1767212801930,
   "requestRetryHistogram": [
-    null,
-    null,
-    null,
     1
   ],
   "statsId": 0,
-  "requestAvgFailedDurationMillis": 462,
-  "requestAvgFinishedDurationMillis": null,
-  "requestTotalDurationMillis": 462,
+  "requestAvgFailedDurationMillis": null,
+  "requestAvgFinishedDurationMillis": 6148,
+  "requestTotalDurationMillis": 6148,
   "requestsTotal": 1,
-  "requestsWithStatusCode": {},
-  "errors": {
-    "/home/runner/workspace/node_modules/@crawlee/src/internals/utils/playwright-utils.ts:241:17": {
-      "missing error code": {
-        "Error": {
-          "page.goto: net::ERR_EMPTY_RESPONSE at https://www.redlake-senior-living.com/": {
-            "count": 1
-          }
-        }
-      }
-    }
+  "requestsWithStatusCode": {
+    "200": 1
   },
-  "retryErrors": {
-    "/home/runner/workspace/node_modules/@crawlee/src/internals/utils/playwright-utils.ts:241:17": {
-      "missing error code": {
-        "Error": {
-          "page.goto: net::ERR_EMPTY_RESPONSE at https://www.redlake-senior-living.com/": {
-            "count": 3
-          }
-        }
-      }
-    }
-  }
+  "errors": {},
+  "retryErrors": {}
 }
