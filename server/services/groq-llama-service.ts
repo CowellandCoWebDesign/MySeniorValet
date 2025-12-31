@@ -269,32 +269,30 @@ Example: [{"query": "Sunrise Senior Living pricing costs 2024", "intent": "prici
     const websiteSection = websiteContent ? 
       `\n\nWEBSITE CONTENT:\n${websiteContent.slice(0, 3000)}` : '';
     
-    const prompt = `Analyze the following search results and website content about "${communityName}" senior living community in ${location}.
+    const prompt = `Analyze the following search results about "${communityName}" senior living community in ${location}.
 
 SEARCH RESULTS:
 ${sourcesText}
 ${websiteSection}
 
-Extract and synthesize the following information:
-1. A comprehensive summary (2-3 paragraphs) about the community
-2. Pricing information (monthly rates, entry fees if available)
-3. Phone number
-4. Official website URL
-5. List of amenities and services
-6. Types of care offered (independent living, assisted living, memory care, etc.)
+CRITICAL: Extract ALL available information, especially PRICING. Look for:
+- Monthly rates (e.g., "$3,500/month", "starting at $4,000", "$2,800 - $5,500")
+- Different care level costs (assisted living, memory care, independent living)
+- Entry fees or community fees
+- Any price mentions in snippets
 
 Format your response as JSON:
 {
-  "summary": "...",
-  "pricing": "...",
-  "phone": "...",
-  "website": "...",
-  "amenities": ["..."],
-  "careTypes": ["..."],
-  "sources": ["url1", "url2"]
+  "summary": "2-3 paragraph description of the community including services and atmosphere",
+  "pricing": "All pricing info found. Example: 'Assisted Living: $3,500-$5,000/month. Memory Care: $5,000-$7,000/month.'",
+  "phone": "Primary contact phone number with area code",
+  "website": "Official website URL (must start with http)",
+  "amenities": ["List", "of", "amenities", "and", "services"],
+  "careTypes": ["Independent Living", "Assisted Living", "Memory Care", "etc"],
+  "sources": ["url1", "url2", "url3"]
 }
 
-If information is not available, use null for that field.`;
+IMPORTANT: For pricing, extract ANY dollar amounts mentioned. If no exact pricing found, note "Contact for pricing" but include any price ranges or starting prices mentioned. Do not return null for pricing if any dollar amounts are in the content.`;
 
     try {
       const response = await this.complete(prompt, {

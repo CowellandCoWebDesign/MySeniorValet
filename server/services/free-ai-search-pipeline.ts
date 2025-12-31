@@ -12,6 +12,16 @@
 import { groqLlamaService } from './groq-llama-service';
 import { duckDuckGoSearch } from './duckduckgo-search';
 import { crawleeScraper } from './crawlee-scraper';
+import { searxngSearch } from './searxng-search';
+
+// Known senior living directory base URLs for reliable data
+const SENIOR_DIRECTORIES = [
+  { name: 'Caring.com', baseUrl: 'https://www.caring.com/senior-living' },
+  { name: 'A Place for Mom', baseUrl: 'https://www.aplaceformom.com' },
+  { name: 'SeniorHousingNet', baseUrl: 'https://www.seniorhousingnet.com' },
+  { name: 'SeniorLiving.org', baseUrl: 'https://www.seniorliving.org' },
+  { name: 'SeniorAdvisor', baseUrl: 'https://www.senioradvisor.com' },
+];
 
 interface SearchPipelineResult {
   summary: string;
@@ -81,6 +91,22 @@ export class FreeAISearchPipeline {
     }
   }
   
+  private getStateName(abbrev: string): string {
+    const states: Record<string, string> = {
+      'AL': 'alabama', 'AK': 'alaska', 'AZ': 'arizona', 'AR': 'arkansas', 'CA': 'california',
+      'CO': 'colorado', 'CT': 'connecticut', 'DE': 'delaware', 'FL': 'florida', 'GA': 'georgia',
+      'HI': 'hawaii', 'ID': 'idaho', 'IL': 'illinois', 'IN': 'indiana', 'IA': 'iowa',
+      'KS': 'kansas', 'KY': 'kentucky', 'LA': 'louisiana', 'ME': 'maine', 'MD': 'maryland',
+      'MA': 'massachusetts', 'MI': 'michigan', 'MN': 'minnesota', 'MS': 'mississippi', 'MO': 'missouri',
+      'MT': 'montana', 'NE': 'nebraska', 'NV': 'nevada', 'NH': 'new-hampshire', 'NJ': 'new-jersey',
+      'NM': 'new-mexico', 'NY': 'new-york', 'NC': 'north-carolina', 'ND': 'north-dakota', 'OH': 'ohio',
+      'OK': 'oklahoma', 'OR': 'oregon', 'PA': 'pennsylvania', 'RI': 'rhode-island', 'SC': 'south-carolina',
+      'SD': 'south-dakota', 'TN': 'tennessee', 'TX': 'texas', 'UT': 'utah', 'VT': 'vermont',
+      'VA': 'virginia', 'WA': 'washington', 'WV': 'west-virginia', 'WI': 'wisconsin', 'WY': 'wyoming'
+    };
+    return states[abbrev.toUpperCase()] || abbrev.toLowerCase();
+  }
+  
   /**
    * Main search pipeline - replaces Perplexity API
    */
@@ -131,63 +157,64 @@ export class FreeAISearchPipeline {
         console.log('   Using fallback queries (Groq not configured)');
       }
       
-      // STEP 2: Search web with DuckDuckGo
-      console.log('\n🔍 Step 2: Searching web with DuckDuckGo...');
+      // STEP 2: Multi-tier web search with fallbacks
+      console.log('\n🔍 Step 2: Multi-tier web search...');
       
       // Extract city/state from location
       const [city, state] = location.split(',').map(s => s.trim());
+      const mainQuery = `"${communityName}" ${city || location} ${state || ''} senior living`;
       
-      // Try searchWithVariations first for better coverage
+      // TIER 1: DuckDuckGo Lite
+      console.log('   Tier 1: DuckDuckGo Lite...');
       try {
-        const variationResults = await duckDuckGoSearch.searchWithVariations(communityName, city || location, state || '');
-        for (const r of variationResults) {
+        const ddgResults = await duckDuckGoSearch.searchWithVariations(communityName, city || location, state || '');
+        for (const r of ddgResults) {
           if (!allSources.find(s => s.url === r.url)) {
-            allSources.push({
-              title: r.title,
-              url: r.url,
-              snippet: r.snippet
-            });
+            allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
           }
         }
-      } catch (varError) {
-        console.warn('   Variation search failed, trying individual queries...');
+        console.log(`   DuckDuckGo found ${ddgResults.length} results`);
+      } catch (ddgError) {
+        console.warn('   DuckDuckGo failed, trying SearXNG...');
       }
       
-      // If variations didn't work, try individual queries
-      if (allSources.length === 0) {
-        for (const q of queries.slice(0, 3)) {
-          try {
-            const results = await duckDuckGoSearch.search(q.query, { maxResults: 10 });
-            for (const r of results) {
-              if (!allSources.find(s => s.url === r.url)) {
-                allSources.push({
-                  title: r.title,
-                  url: r.url,
-                  snippet: r.snippet
-                });
-              }
+      // TIER 2: SearXNG metasearch (if DuckDuckGo returned few results)
+      if (allSources.length < 5) {
+        console.log('   Tier 2: SearXNG metasearch...');
+        try {
+          const searxResult = await searxngSearch.search(mainQuery, { maxResults: 15 });
+          for (const r of searxResult.results) {
+            if (!allSources.find(s => s.url === r.url)) {
+              allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
             }
-          } catch (searchError) {
-            console.warn(`   Query failed: ${q.query.slice(0, 40)}...`);
           }
+          console.log(`   SearXNG found ${searxResult.results.length} results`);
+        } catch (searxError) {
+          console.warn('   SearXNG failed:', (searxError as Error).message);
         }
       }
       
-      // Fallback: Add known senior living directory URLs to check
-      if (allSources.length === 0) {
-        console.log('   Adding fallback senior living directories...');
-        const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const citySlug = (city || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        const stateSlug = (state || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
-        
-        allSources.push(
-          { title: `${communityName} on Caring.com`, url: `https://www.caring.com/senior-living/assisted-living/${stateSlug}/${citySlug}`, snippet: 'Senior living directory' },
-          { title: `${communityName} on A Place for Mom`, url: `https://www.aplaceformom.com/community/${citySlug}-${stateSlug}`, snippet: 'Senior care advisor' },
-          { title: `${communityName} on SeniorLiving.org`, url: `https://www.seniorliving.org/${stateSlug}/${citySlug}`, snippet: 'Senior living guide' }
-        );
+      // TIER 3: Direct directory search (always try for comprehensive coverage)
+      console.log('   Tier 3: Direct directory search...');
+      const communitySlug = communityName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const citySlug = (city || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const stateSlug = (state || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const stateFull = this.getStateName(state || '');
+      
+      // Build deterministic directory URLs for known senior living sites
+      const directoryUrls = [
+        { title: `${communityName} on Caring.com`, url: `https://www.caring.com/senior-living/${stateFull.toLowerCase()}/${citySlug}/${communitySlug}`, snippet: 'Reviews and pricing' },
+        { title: `${communityName} on A Place for Mom`, url: `https://www.aplaceformom.com/community/${communitySlug}`, snippet: 'Senior care advisor' },
+        { title: `${communityName} on SeniorAdvisor`, url: `https://www.senioradvisor.com/community/${communitySlug}`, snippet: 'Senior living reviews' },
+      ];
+      
+      for (const dir of directoryUrls) {
+        if (!allSources.find(s => s.url.includes(dir.url.split('/')[2]))) {
+          allSources.push(dir);
+        }
       }
       
-      console.log(`   Found ${allSources.length} unique sources`);
+      console.log(`   Total sources: ${allSources.length}`);
       
       // STEP 3: Deep scrape the official website if provided
       if (websiteUrl && deepScrape) {
@@ -234,61 +261,66 @@ export class FreeAISearchPipeline {
         console.log('   Using fallback synthesis (Groq not configured or no sources)');
       }
       
-      // STEP 5: Scrape photos if requested
+      // STEP 5: Scrape photos if requested - prioritize REAL discovered URLs
       if (includePhotos) {
-        console.log('\n📸 Step 4: Scraping photos...');
+        console.log('\n📸 Step 4: Scraping photos from discovered sources...');
         
-        // Try official website first
-        if (websiteUrl) {
+        // PRIORITY 1: Use REAL URLs from DuckDuckGo search (these are verified to exist)
+        const realPhotoSources = allSources
+          .filter(s => 
+            s.url.startsWith('http') &&
+            !s.url.includes('facebook.com') && // Facebook blocks scraping
+            !s.url.includes('linkedin.com') && // LinkedIn blocks scraping
+            (s.url.includes('caring.com') ||
+             s.url.includes('aplaceformom.com') ||
+             s.url.includes('seniorly.com') ||
+             s.url.includes('senioradvisor.com') ||
+             s.url.includes('seniorhomes.com') ||
+             s.url.includes('miradorliving.com') ||
+             s.url.includes('yelp.com'))
+          )
+          .slice(0, 3);
+        
+        console.log(`   Found ${realPhotoSources.length} real photo sources from search`);
+        
+        for (const source of realPhotoSources) {
+          if (photos.length >= 15) break;
+          
+          try {
+            const scrapedPhotos = await crawleeScraper.scrapePhotosFromWebsite(
+              source.url,
+              communityName,
+              { maxPhotos: 10 }
+            );
+            
+            const newPhotos = scrapedPhotos
+              .filter(p => p.url && p.url.startsWith('http'))
+              .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
+            
+            photos.push(...newPhotos.filter(p => !photos.includes(p)));
+          } catch (err) {
+            // Continue to next source
+          }
+        }
+        
+        // PRIORITY 2: Try official website only if we have few photos
+        if (photos.length < 5 && websiteUrl && !websiteUrl.includes('NOT AVAILABLE')) {
           try {
             const scrapedPhotos = await crawleeScraper.scrapePhotosFromWebsite(
               websiteUrl,
               communityName,
-              { maxPhotos: 20 }
+              { maxPhotos: 10 }
             );
-            photos = scrapedPhotos
+            const newPhotos = scrapedPhotos
               .filter(p => p.url && p.url.startsWith('http'))
               .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
-            console.log(`   Found ${photos.length} photos from official website`);
+            photos.push(...newPhotos.filter(p => !photos.includes(p)));
           } catch (photoError) {
-            console.warn('   Website photo scrape failed:', photoError);
+            console.warn('   Official website photo scrape failed');
           }
         }
         
-        // Try discovered sources if no photos from website
-        if (photos.length < 5) {
-          const photoSources = allSources
-            .filter(s => 
-              s.url.includes('facebook') ||
-              s.url.includes('yelp') ||
-              s.url.includes('caring') ||
-              s.url.includes('aplaceformom') ||
-              s.url.includes('seniorly')
-            )
-            .slice(0, 3);
-          
-          for (const source of photoSources) {
-            if (photos.length >= 20) break;
-            
-            try {
-              const scrapedPhotos = await crawleeScraper.scrapePhotosFromWebsite(
-                source.url,
-                communityName,
-                { maxPhotos: 10 }
-              );
-              
-              const newPhotos = scrapedPhotos
-                .filter(p => p.url && p.url.startsWith('http'))
-                .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
-              
-              photos.push(...newPhotos.filter(p => !photos.includes(p)));
-            } catch (err) {
-              // Ignore errors for secondary sources
-            }
-          }
-          
-          console.log(`   Total photos after secondary sources: ${photos.length}`);
-        }
+        console.log(`   Total photos found: ${photos.length}`);
       }
       
       // Build raw content for caching

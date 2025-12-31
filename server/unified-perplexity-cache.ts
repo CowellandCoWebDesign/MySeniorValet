@@ -445,7 +445,9 @@ class UnifiedPerplexityCache {
             notes: `Auto-extracted from ${pricing.source} on ${new Date().toISOString()}`
           });
           
-          console.log(`💰 Saved ${priceType} pricing to history: $${pricing.priceMin || '?'} - $${pricing.priceMax || '?'}`);
+          const minDisplay = pricing.priceMin && pricing.priceMin !== 'NaN' ? `$${pricing.priceMin}` : 'Contact';
+          const maxDisplay = pricing.priceMax && pricing.priceMax !== 'NaN' ? `$${pricing.priceMax}` : 'Contact';
+          console.log(`💰 Saved ${priceType} pricing to history: ${minDisplay} - ${maxDisplay}`);
         } catch (insertError) {
           console.error(`Failed to insert pricing for ${priceType}:`, insertError);
         }
@@ -470,10 +472,19 @@ class UnifiedPerplexityCache {
     const cleanNumbers = numbers.map(n => n.replace(/[$,]/g, ''));
     
     if (cleanNumbers.length === 1) {
+      const num = parseFloat(cleanNumbers[0]);
+      if (isNaN(num) || num === 0) return { min: null, max: null };
       return { min: cleanNumbers[0], max: cleanNumbers[0] };
     } else if (cleanNumbers.length >= 2) {
       const num1 = parseFloat(cleanNumbers[0]);
       const num2 = parseFloat(cleanNumbers[1]);
+      // Validate both numbers are valid and non-zero
+      if (isNaN(num1) || isNaN(num2) || num1 === 0 || num2 === 0) {
+        // Return the valid one if any
+        if (!isNaN(num1) && num1 > 0) return { min: cleanNumbers[0], max: cleanNumbers[0] };
+        if (!isNaN(num2) && num2 > 0) return { min: cleanNumbers[1], max: cleanNumbers[1] };
+        return { min: null, max: null };
+      }
       return {
         min: Math.min(num1, num2).toString(),
         max: Math.max(num1, num2).toString()
