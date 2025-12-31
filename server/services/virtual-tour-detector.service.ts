@@ -1,4 +1,4 @@
-import { PerplexityAIService } from '../perplexity-ai-service';
+import { groqPerplexityWrapper, isGroqAvailable } from './groq-ai-wrapper';
 import { communityWebsiteCrawler } from './community-website-crawler';
 
 // Comprehensive list of virtual tour platforms and their patterns
@@ -171,12 +171,11 @@ export interface VirtualTourResult {
 }
 
 export class VirtualTourDetectorService {
-  private perplexityService: PerplexityAIService;
   private cache: Map<number, VirtualTourResult> = new Map();
   private cacheTimeout = 3600000; // 1 hour cache
 
   constructor() {
-    this.perplexityService = new PerplexityAIService();
+    console.log(`🆓 VirtualTourDetector using Groq (FREE) - Groq available: ${isGroqAvailable()}`);
   }
 
   /**
@@ -269,13 +268,14 @@ export class VirtualTourDetectorService {
   }
 
   /**
-   * Search for virtual tours using Perplexity AI
+   * Search for virtual tours using Groq AI (FREE replacement for Perplexity)
    */
   private async searchWithPerplexity(communityName: string): Promise<VirtualTourResult> {
     try {
       const query = `Does "${communityName}" senior living community have a virtual tour, 360 tour, 360° tour, 3D tour, Matterport tour, interactive tour, or online walkthrough? Look for any buttons or links labeled "360 tour", "virtual tour", "view online", or "take a tour". If yes, what is the direct URL to view it? Check if the tour redirects to Matterport.com or any other virtual tour platform.`;
       
-      const response = await this.perplexityService.searchCommunityInfo(query);
+      // Use Groq (FREE) instead of Perplexity (paid)
+      const response = await groqPerplexityWrapper.searchCommunityInfo(query);
 
       if (!response.data) {
         return {
@@ -341,10 +341,10 @@ export class VirtualTourDetectorService {
    */
   private async scanWebsite(websiteUrl: string, communityName: string): Promise<VirtualTourResult> {
     try {
-      // Use Perplexity to scan the website
+      // Use Groq (FREE) to scan the website
       const query = `Scan the website ${websiteUrl} for any virtual tours, 360 tours, 360° tours, 3D tours, Matterport tours, or interactive tours. Look for buttons or links labeled "360 tour", "virtual tour", "view online", "take a tour" in navigation menus, galleries, amenities pages, hero sections, or footer. Follow any redirect links to find the actual tour URL. Return the direct tour URL if found.`;
       
-      const response = await this.perplexityService.searchCommunityInfo(query);
+      const response = await groqPerplexityWrapper.searchCommunityInfo(query);
 
       if (!response.data) {
         return {
@@ -405,7 +405,8 @@ export class VirtualTourDetectorService {
       ];
 
       for (const searchQuery of platformSearches) {
-        const response = await this.perplexityService.searchCommunityInfo(searchQuery);
+        // Use Groq (FREE) instead of Perplexity
+        const response = await groqPerplexityWrapper.searchCommunityInfo(searchQuery);
 
         if (response.data) {
           const tourUrl = this.extractTourUrl(response.data);

@@ -2,6 +2,8 @@ import { PerplexityAIService } from './perplexity-ai-service';
 import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 import { communityWebsiteCrawler, DeepCrawlResult } from './services/community-website-crawler';
+import { freeAISearchPipeline } from './services/free-ai-search-pipeline';
+import { groqLlamaService } from './services/groq-llama-service';
 import { db } from './db';
 import { perplexityCache, communities, pricingHistory } from '../shared/schema';
 import { eq, lt, and, isNull } from 'drizzle-orm';
@@ -956,20 +958,75 @@ If you cannot find verified information from any source, say "No verified public
 `;
 
     try {
-      // Make ONE comprehensive API call (supplements deep crawl data)
-      const response = await this.perplexityService.searchRealTime(
-        comprehensiveQuery,
-        `User-requested data for ${communityName}`
-      );
+      // ==========================================
+      // PRIMARY: Use FREE AI Pipeline (Groq + DuckDuckGo)
+      // Falls back to Perplexity only if Groq unavailable
+      // ==========================================
+      
+      let structuredData: CachedCommunityData;
+      
+      if (groqLlamaService.isConfigured()) {
+        // Use completely FREE pipeline
+        console.log(`🆓 Using FREE AI Pipeline (Groq + DuckDuckGo) for ${communityName}`);
+        
+        const pipelineResult = await freeAISearchPipeline.search(
+          communityName,
+          location,
+          websiteUrl,
+          { includePhotos: true, maxSources: 15, deepScrape: true }
+        );
+        
+        // Convert pipeline result to CachedCommunityData format
+        structuredData = {
+          communityId,
+          communityName,
+          location,
+          marketData: {
+            pricing: pipelineResult.pricing,
+            website: pipelineResult.website || websiteUrl,
+            phone: pipelineResult.phone,
+            description: pipelineResult.summary
+          },
+          reviews: {},
+          inspections: {},
+          photos: pipelineResult.photos,
+          sources: pipelineResult.sources.map(s => s.url),
+          timestamp: pipelineResult.timestamp,
+          rawPerplexityContent: pipelineResult.rawContent,
+          source: 'fresh-fetch'
+        };
+        
+        // Add amenities and care types if available
+        if (pipelineResult.amenities?.length || pipelineResult.careTypes?.length) {
+          structuredData.deepCrawlData = {
+            virtualTours: [],
+            floorPlans: [],
+            videos: [],
+            amenities: pipelineResult.amenities || [],
+            pricingDetails: {}
+          };
+        }
+        
+        console.log(`✅ FREE Pipeline returned ${structuredData.photos.length} photos, ${structuredData.sources.length} sources`);
+        
+      } else {
+        // Fallback to Perplexity (paid) if Groq not configured
+        console.log(`💰 Falling back to Perplexity API (Groq not configured)`);
+        
+        const response = await this.perplexityService.searchRealTime(
+          comprehensiveQuery,
+          `User-requested data for ${communityName}`
+        );
 
-      // Parse and structure the comprehensive response
-      const structuredData = await this.parseComprehensiveResponse(
-        response,
-        communityId,
-        communityName,
-        location,
-        websiteUrl
-      );
+        // Parse and structure the comprehensive response
+        structuredData = await this.parseComprehensiveResponse(
+          response,
+          communityId,
+          communityName,
+          location,
+          websiteUrl
+        );
+      }
 
       // Check if response is complete before caching
       // Reject responses that are generic/inferred rather than specific verified data
