@@ -404,6 +404,166 @@ Provide a detailed ${analysisType} analysis. Be specific, accurate, and helpful 
   }
   
   /**
+   * Web-enabled search using Groq Compound model
+   * This uses Groq's built-in Tavily-powered web search
+   * Returns synthesized information with sources
+   */
+  async webSearch(
+    communityName: string,
+    location: string
+  ): Promise<{
+    summary: string;
+    pricing?: string;
+    phone?: string;
+    website?: string;
+    amenities?: string[];
+    careTypes?: string[];
+    sources: Array<{ title: string; url: string; snippet: string }>;
+    rawContent: string;
+  }> {
+    if (!this.client) {
+      throw new Error('Groq service not configured - missing GROQ_API_KEY');
+    }
+    
+    const limitCheck = this.checkLimits();
+    if (!limitCheck.allowed) {
+      throw new Error(`Groq rate limit: ${limitCheck.reason}`);
+    }
+    
+    console.log(`🔍 Groq Compound web search for: ${communityName}, ${location}`);
+    
+    const searchPrompt = `Search the web for comprehensive information about "${communityName}" senior living community in ${location}.
+
+Find and provide:
+1. Overview and description of the community
+2. Pricing information (monthly costs, fees, pricing tiers)
+3. Contact information (phone number, website)
+4. Care types offered (assisted living, memory care, independent living, etc.)
+5. Amenities and services
+6. Reviews and ratings if available
+
+Return your findings in this JSON format:
+{
+  "summary": "Detailed description of the community...",
+  "pricing": "Pricing information found (e.g., '$3,500 - $5,500/month for assisted living')",
+  "phone": "Phone number if found",
+  "website": "Official website URL if found",
+  "amenities": ["amenity1", "amenity2"],
+  "careTypes": ["Assisted Living", "Memory Care"],
+  "sources": [{"title": "Source title", "url": "https://...", "snippet": "Relevant excerpt"}]
+}
+
+If information is not found, omit that field. Be thorough and cite your sources.`;
+
+    try {
+      // Try compound model first (has built-in web search via Tavily)
+      // Model ID: groq/compound - NOT compound-beta
+      const response = await this.client.chat.completions.create({
+        model: 'groq/compound', // Correct model ID for Groq Compound with web search
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a senior living research assistant with web search capabilities. Search the web thoroughly and provide accurate, sourced information about senior living communities. Always cite your sources.'
+          },
+          { role: 'user', content: searchPrompt }
+        ],
+        temperature: 0.3,
+        max_tokens: 4096
+      });
+      
+      this.requestCount++;
+      const usage = response.usage || { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+      this.tokenCount += usage.total_tokens;
+      
+      const content = response.choices[0]?.message?.content || '';
+      console.log(`✅ Groq Compound search complete: ${usage.total_tokens} tokens`);
+      
+      // Parse the JSON response
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          return {
+            summary: parsed.summary || `${communityName} is a senior living community in ${location}.`,
+            pricing: parsed.pricing,
+            phone: parsed.phone,
+            website: parsed.website,
+            amenities: parsed.amenities || [],
+            careTypes: parsed.careTypes || [],
+            sources: parsed.sources || [],
+            rawContent: content
+          };
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse Groq Compound response as JSON');
+      }
+      
+      // Return raw content if JSON parsing fails
+      return {
+        summary: content,
+        sources: [],
+        rawContent: content
+      };
+      
+    } catch (error: any) {
+      // If compound model fails, try with compound-mini
+      console.warn(`Groq groq/compound failed: ${error.message}, trying groq/compound-mini...`);
+      
+      try {
+        const fallbackResponse = await this.client.chat.completions.create({
+          model: 'groq/compound-mini', // Correct fallback model ID
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a senior living research assistant. Search the web and provide accurate information about senior living communities.'
+            },
+            { role: 'user', content: searchPrompt }
+          ],
+          temperature: 0.3,
+          max_tokens: 2048
+        });
+        
+        this.requestCount++;
+        const usage = fallbackResponse.usage || { total_tokens: 0 };
+        this.tokenCount += usage.total_tokens;
+        
+        const content = fallbackResponse.choices[0]?.message?.content || '';
+        console.log(`✅ Groq Compound-mini search complete: ${usage.total_tokens} tokens`);
+        
+        // Try to parse JSON
+        try {
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            return {
+              summary: parsed.summary || `${communityName} is a senior living community in ${location}.`,
+              pricing: parsed.pricing,
+              phone: parsed.phone,
+              website: parsed.website,
+              amenities: parsed.amenities || [],
+              careTypes: parsed.careTypes || [],
+              sources: parsed.sources || [],
+              rawContent: content
+            };
+          }
+        } catch (parseError) {
+          // Continue with raw content
+        }
+        
+        return {
+          summary: content,
+          sources: [],
+          rawContent: content
+        };
+        
+      } catch (fallbackError: any) {
+        console.error('Both Groq Compound models failed:', fallbackError.message);
+        throw fallbackError;
+      }
+    }
+  }
+  
+  /**
    * Get current usage stats
    */
   getUsageStats(): {

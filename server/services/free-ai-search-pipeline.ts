@@ -44,10 +44,9 @@ export class FreeAISearchPipeline {
   
   constructor() {
     console.log('🔄 Free AI Search Pipeline initialized');
-    console.log('   Components: Brave Search + Groq Llama 3.3 + Crawlee');
-    console.log('   Primary: Brave Search API (2000 FREE/month)');
-    console.log('   Fallbacks: DuckDuckGo, SearXNG');
-    console.log('   Cost: $0.00');
+    console.log('   PRIMARY: Groq Compound (built-in web search via Tavily)');
+    console.log('   Fallbacks: Brave Search API, DuckDuckGo, SearXNG');
+    console.log('   Cost: $0.00 (all FREE tiers)');
   }
   
   private getCacheKey(communityName: string, location: string): string {
@@ -118,139 +117,148 @@ export class FreeAISearchPipeline {
     let photos: string[] = [];
     let websiteContent = '';
     
+    // Extract city/state from location
+    const [city, state] = location.split(',').map(s => s.trim());
+    
+    let synthesis: {
+      summary: string;
+      pricing?: string;
+      phone?: string;
+      website?: string;
+      amenities?: string[];
+      careTypes?: string[];
+      sources: string[];
+    } | null = null;
+    
     try {
-      // STEP 1: Generate optimized search queries using Llama
-      console.log('\n📝 Step 1: Generating search queries with Llama...');
-      let queries: Array<{ query: string; intent: string }>;
-      
+      // PRIMARY: Groq Compound with built-in web search (Tavily-powered)
+      // This is the most reliable FREE option - no external API keys needed
       if (groqLlamaService.isConfigured()) {
-        queries = await groqLlamaService.generateSearchQueries(communityName, location, 'general');
-        searchQueries.push(...queries.map(q => q.query));
-        console.log(`   Generated ${queries.length} optimized queries`);
-      } else {
-        // Fallback: use simple queries
-        queries = [
-          { query: `"${communityName}" ${location} senior living`, intent: 'general' },
-          { query: `"${communityName}" ${location} pricing cost`, intent: 'pricing' },
-          { query: `"${communityName}" ${location} reviews`, intent: 'reviews' }
-        ];
-        searchQueries.push(...queries.map(q => q.query));
-        console.log('   Using fallback queries (Groq not configured)');
+        console.log('\n🔍 PRIMARY: Groq Compound Web Search (Tavily-powered)...');
+        try {
+          const webSearchResult = await groqLlamaService.webSearch(communityName, location);
+          
+          if (webSearchResult.summary && webSearchResult.summary.length > 100) {
+            console.log(`   ✅ Groq Compound returned comprehensive results`);
+            console.log(`   Sources: ${webSearchResult.sources.length}`);
+            
+            // Use the Groq Compound results directly
+            synthesis = {
+              summary: webSearchResult.summary,
+              pricing: webSearchResult.pricing,
+              phone: webSearchResult.phone,
+              website: webSearchResult.website,
+              amenities: webSearchResult.amenities,
+              careTypes: webSearchResult.careTypes,
+              sources: webSearchResult.sources.map(s => s.url)
+            };
+            
+            // Add sources to allSources
+            for (const source of webSearchResult.sources) {
+              if (!allSources.find(s => s.url === source.url)) {
+                allSources.push(source);
+              }
+            }
+            
+            websiteContent = webSearchResult.rawContent;
+            searchQueries.push(`Groq Compound: ${communityName} ${location}`);
+          }
+        } catch (groqError: any) {
+          console.warn(`   Groq Compound failed: ${groqError.message}`);
+          console.log('   Falling back to traditional search methods...');
+        }
       }
       
-      // STEP 2: Multi-tier web search with fallbacks
-      console.log('\n🔍 Step 2: Multi-tier web search...');
-      
-      // Extract city/state from location
-      const [city, state] = location.split(',').map(s => s.trim());
-      const mainQuery = `"${communityName}" ${city || location} ${state || ''} senior living`;
-      
-      // TIER 1: Brave Search API (2000 FREE queries/month - most reliable)
-      if (braveSearch.isConfigured() && braveSearch.getRemainingQuota() > 0) {
-        console.log('   Tier 1: Brave Search API (FREE tier)...');
-        try {
-          const braveResults = await braveSearch.search(mainQuery, { count: 15 });
-          for (const r of braveResults) {
-            if (!allSources.find(s => s.url === r.url)) {
-              allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
-            }
-          }
-          console.log(`   Brave Search found ${braveResults.length} results`);
-          
-          // Also search for pricing specifically
-          if (braveResults.length > 0) {
-            const pricingQuery = `"${communityName}" ${location} pricing cost monthly`;
-            const pricingResults = await braveSearch.search(pricingQuery, { count: 5 });
-            for (const r of pricingResults) {
+      // FALLBACK: Traditional multi-tier search if Groq Compound didn't work
+      if (!synthesis || allSources.length < 3) {
+        console.log('\n🔍 FALLBACK: Multi-tier web search...');
+        const mainQuery = `"${communityName}" ${city || location} ${state || ''} senior living`;
+        
+        // TIER 1: Brave Search API (2000 FREE queries/month)
+        if (braveSearch.isConfigured() && braveSearch.getRemainingQuota() > 0) {
+          console.log('   Tier 1: Brave Search API (FREE tier)...');
+          try {
+            const braveResults = await braveSearch.search(mainQuery, { count: 15 });
+            for (const r of braveResults) {
               if (!allSources.find(s => s.url === r.url)) {
                 allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
               }
             }
+            console.log(`   Brave Search found ${braveResults.length} results`);
+          } catch (braveError) {
+            console.warn('   Brave Search failed:', (braveError as Error).message);
           }
-        } catch (braveError) {
-          console.warn('   Brave Search failed:', (braveError as Error).message);
         }
-      } else {
-        console.log('   Brave Search not available, using fallbacks...');
-      }
-      
-      // TIER 2: DuckDuckGo (if Brave didn't return enough)
-      if (allSources.length < 5) {
-        console.log('   Tier 2: DuckDuckGo Lite...');
-        try {
-          const ddgResults = await duckDuckGoSearch.searchWithVariations(communityName, city || location, state || '');
-          for (const r of ddgResults) {
-            if (!allSources.find(s => s.url === r.url)) {
-              allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+        
+        // TIER 2: DuckDuckGo (if still need more)
+        if (allSources.length < 5) {
+          console.log('   Tier 2: DuckDuckGo Lite...');
+          try {
+            const ddgResults = await duckDuckGoSearch.searchWithVariations(communityName, city || location, state || '');
+            for (const r of ddgResults) {
+              if (!allSources.find(s => s.url === r.url)) {
+                allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+              }
             }
+            console.log(`   DuckDuckGo found ${ddgResults.length} results`);
+          } catch (ddgError) {
+            console.warn('   DuckDuckGo failed');
           }
-          console.log(`   DuckDuckGo found ${ddgResults.length} results`);
-        } catch (ddgError) {
-          console.warn('   DuckDuckGo failed');
         }
-      }
-      
-      // TIER 3: SearXNG metasearch (if still need more)
-      if (allSources.length < 5) {
-        console.log('   Tier 3: SearXNG metasearch...');
-        try {
-          const searxResult = await searxngSearch.search(mainQuery, { maxResults: 15 });
-          for (const r of searxResult.results) {
-            if (!allSources.find(s => s.url === r.url)) {
-              allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+        
+        // TIER 3: SearXNG metasearch (if still need more)
+        if (allSources.length < 5) {
+          console.log('   Tier 3: SearXNG metasearch...');
+          try {
+            const searxResult = await searxngSearch.search(mainQuery, { maxResults: 15 });
+            for (const r of searxResult.results) {
+              if (!allSources.find(s => s.url === r.url)) {
+                allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+              }
             }
+            console.log(`   SearXNG found ${searxResult.results.length} results`);
+          } catch (searxError) {
+            console.warn('   SearXNG failed:', (searxError as Error).message);
           }
-          console.log(`   SearXNG found ${searxResult.results.length} results`);
-        } catch (searxError) {
-          console.warn('   SearXNG failed:', (searxError as Error).message);
+        }
+        
+        console.log(`   Total sources: ${allSources.length}`);
+        
+        // Deep scrape the official website if provided
+        if (websiteUrl && deepScrape) {
+          console.log('\n🕷️ Scraping official website...');
+          try {
+            const scrapedContent = await crawleeScraper.scrapeWebsite(websiteUrl);
+            if (scrapedContent) {
+              websiteContent = scrapedContent.content || '';
+              console.log(`   Scraped ${websiteContent.length} characters from website`);
+            }
+          } catch (scrapeError) {
+            console.warn('   Website scrape failed:', scrapeError);
+          }
+        }
+        
+        // Synthesize results with Llama if we have sources
+        if (!synthesis && groqLlamaService.isConfigured() && allSources.length > 0) {
+          console.log('\n🧠 Synthesizing results with Llama...');
+          synthesis = await groqLlamaService.synthesizeSearchResults(
+            communityName,
+            location,
+            allSources.slice(0, maxSources),
+            websiteContent
+          );
+          console.log('   Synthesis complete');
         }
       }
       
-      console.log(`   Total sources: ${allSources.length}`);
-      
-      // STEP 3: Deep scrape the official website if provided
-      if (websiteUrl && deepScrape) {
-        console.log('\n🕷️ Step 2b: Scraping official website...');
-        try {
-          const scrapedContent = await crawleeScraper.scrapeWebsite(websiteUrl);
-          if (scrapedContent) {
-            websiteContent = scrapedContent.content || '';
-            console.log(`   Scraped ${websiteContent.length} characters from website`);
-          }
-        } catch (scrapeError) {
-          console.warn('   Website scrape failed:', scrapeError);
-        }
-      }
-      
-      // STEP 4: Synthesize results with Llama
-      console.log('\n🧠 Step 3: Synthesizing results with Llama...');
-      
-      let synthesis: {
-        summary: string;
-        pricing?: string;
-        phone?: string;
-        website?: string;
-        amenities?: string[];
-        careTypes?: string[];
-        sources: string[];
-      };
-      
-      if (groqLlamaService.isConfigured() && allSources.length > 0) {
-        synthesis = await groqLlamaService.synthesizeSearchResults(
-          communityName,
-          location,
-          allSources.slice(0, maxSources),
-          websiteContent
-        );
-        console.log('   Synthesis complete');
-      } else {
-        // Fallback: create summary from snippets
+      // Final fallback if still no synthesis
+      if (!synthesis) {
         const snippets = allSources.slice(0, 5).map(s => s.snippet).join('\n\n');
         synthesis = {
           summary: snippets || `${communityName} is a senior living community located in ${location}. Please contact them directly for more information.`,
           sources: allSources.map(s => s.url)
         };
-        console.log('   Using fallback synthesis (Groq not configured or no sources)');
+        console.log('   Using fallback synthesis (no search results)');
       }
       
       // STEP 5: Scrape photos if requested - use ALL real discovered URLs
