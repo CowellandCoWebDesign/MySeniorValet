@@ -10,6 +10,7 @@
  */
 
 import { groqLlamaService } from './groq-llama-service';
+import { braveSearch } from './brave-search';
 import { duckDuckGoSearch } from './duckduckgo-search';
 import { crawleeScraper } from './crawlee-scraper';
 import { searxngSearch } from './searxng-search';
@@ -43,7 +44,9 @@ export class FreeAISearchPipeline {
   
   constructor() {
     console.log('🔄 Free AI Search Pipeline initialized');
-    console.log('   Components: DuckDuckGo + Groq Llama 3.3 + Crawlee');
+    console.log('   Components: Brave Search + Groq Llama 3.3 + Crawlee');
+    console.log('   Primary: Brave Search API (2000 FREE/month)');
+    console.log('   Fallbacks: DuckDuckGo, SearXNG');
     console.log('   Cost: $0.00');
   }
   
@@ -104,7 +107,7 @@ export class FreeAISearchPipeline {
     
     console.log(`\n🚀 FREE AI Search Pipeline starting for: ${communityName}, ${location}`);
     console.log('   Step 1: Generate search queries with Llama');
-    console.log('   Step 2: Search web with DuckDuckGo');
+    console.log('   Step 2: Search web (Brave → DuckDuckGo → SearXNG)');
     console.log('   Step 3: Synthesize results with Llama');
     if (includePhotos) {
       console.log('   Step 4: Scrape photos with Crawlee');
@@ -142,23 +145,54 @@ export class FreeAISearchPipeline {
       const [city, state] = location.split(',').map(s => s.trim());
       const mainQuery = `"${communityName}" ${city || location} ${state || ''} senior living`;
       
-      // TIER 1: DuckDuckGo Lite
-      console.log('   Tier 1: DuckDuckGo Lite...');
-      try {
-        const ddgResults = await duckDuckGoSearch.searchWithVariations(communityName, city || location, state || '');
-        for (const r of ddgResults) {
-          if (!allSources.find(s => s.url === r.url)) {
-            allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+      // TIER 1: Brave Search API (2000 FREE queries/month - most reliable)
+      if (braveSearch.isConfigured() && braveSearch.getRemainingQuota() > 0) {
+        console.log('   Tier 1: Brave Search API (FREE tier)...');
+        try {
+          const braveResults = await braveSearch.search(mainQuery, { count: 15 });
+          for (const r of braveResults) {
+            if (!allSources.find(s => s.url === r.url)) {
+              allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+            }
           }
+          console.log(`   Brave Search found ${braveResults.length} results`);
+          
+          // Also search for pricing specifically
+          if (braveResults.length > 0) {
+            const pricingQuery = `"${communityName}" ${location} pricing cost monthly`;
+            const pricingResults = await braveSearch.search(pricingQuery, { count: 5 });
+            for (const r of pricingResults) {
+              if (!allSources.find(s => s.url === r.url)) {
+                allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+              }
+            }
+          }
+        } catch (braveError) {
+          console.warn('   Brave Search failed:', (braveError as Error).message);
         }
-        console.log(`   DuckDuckGo found ${ddgResults.length} results`);
-      } catch (ddgError) {
-        console.warn('   DuckDuckGo failed, trying SearXNG...');
+      } else {
+        console.log('   Brave Search not available, using fallbacks...');
       }
       
-      // TIER 2: SearXNG metasearch (if DuckDuckGo returned few results)
+      // TIER 2: DuckDuckGo (if Brave didn't return enough)
       if (allSources.length < 5) {
-        console.log('   Tier 2: SearXNG metasearch...');
+        console.log('   Tier 2: DuckDuckGo Lite...');
+        try {
+          const ddgResults = await duckDuckGoSearch.searchWithVariations(communityName, city || location, state || '');
+          for (const r of ddgResults) {
+            if (!allSources.find(s => s.url === r.url)) {
+              allSources.push({ title: r.title, url: r.url, snippet: r.snippet });
+            }
+          }
+          console.log(`   DuckDuckGo found ${ddgResults.length} results`);
+        } catch (ddgError) {
+          console.warn('   DuckDuckGo failed');
+        }
+      }
+      
+      // TIER 3: SearXNG metasearch (if still need more)
+      if (allSources.length < 5) {
+        console.log('   Tier 3: SearXNG metasearch...');
         try {
           const searxResult = await searxngSearch.search(mainQuery, { maxResults: 15 });
           for (const r of searxResult.results) {
@@ -169,31 +203,6 @@ export class FreeAISearchPipeline {
           console.log(`   SearXNG found ${searxResult.results.length} results`);
         } catch (searxError) {
           console.warn('   SearXNG failed:', (searxError as Error).message);
-        }
-      }
-      
-      // NO FABRICATED URLs - Golden Data Rule: Only use real URLs from search results
-      // If we need more sources, do additional site-specific searches
-      if (allSources.length < 5) {
-        console.log('   Tier 3: Site-specific searches for more coverage...');
-        const siteQueries = [
-          `site:caring.com "${communityName}"`,
-          `site:aplaceformom.com "${communityName}"`,
-          `site:yelp.com "${communityName}" senior`
-        ];
-        
-        for (const siteQuery of siteQueries) {
-          if (allSources.length >= 8) break;
-          try {
-            const siteResults = await duckDuckGoSearch.search(siteQuery);
-            for (const result of siteResults) {
-              if (!allSources.find(s => s.url === result.url)) {
-                allSources.push(result);
-              }
-            }
-          } catch (err) {
-            // Continue to next query
-          }
         }
       }
       
