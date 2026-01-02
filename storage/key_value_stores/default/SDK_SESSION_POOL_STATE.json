@@ -3,7 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_RZIKhK2fgx",
+      "id": "session_7UJXqOOoH3",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -16,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-02T19:54:21.500Z",
-      "createdAt": "2026-01-02T19:04:21.500Z",
+      "expiresAt": "2026-01-02T22:09:33.113Z",
+      "createdAt": "2026-01-02T21:19:33.113Z",
       "usageCount": 0,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_AhAq8MRLli",
+      "id": "session_5bzOZRskv2",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -33,102 +33,62 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "PHPSESSID",
-            "value": "0abd3caa76ce036243b1be6cef8079ea",
-            "expires": "2026-01-02T19:54:24.697Z",
-            "domain": "www.lowincomeapartments.us",
-            "path": "/",
-            "hostOnly": true,
-            "creation": "2026-01-02T19:04:24.699Z",
-            "lastAccessed": "2026-01-02T19:04:24.699Z"
-          },
-          {
-            "key": "__gads",
-            "value": "ID=b37d2a6d8b759e88:T=1767380662:RT=1767380662:S=ALNI_MZQV97CK2vXaqCIE-p0jo6OmF_J-w",
-            "expires": "2027-01-27T19:04:22.000Z",
-            "domain": "lowincomeapartments.us",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.700Z",
-            "lastAccessed": "2026-01-02T19:04:24.700Z"
-          },
-          {
-            "key": "__gpi",
-            "value": "UID=000012ad1b173c9b:T=1767380662:RT=1767380662:S=ALNI_MbJCDw-W-ZoF7sKWWbsMUrWy6lYLg",
-            "expires": "2027-01-27T19:04:22.000Z",
-            "domain": "lowincomeapartments.us",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.704Z",
-            "lastAccessed": "2026-01-02T19:04:24.704Z"
-          },
-          {
-            "key": "__eoi",
-            "value": "ID=21baba1b6406fabb:T=1767380662:RT=1767380662:S=AA-AfjbkKH5W713hNnwMiRA-QOyB",
-            "expires": "2026-07-01T19:04:22.000Z",
-            "domain": "lowincomeapartments.us",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.706Z",
-            "lastAccessed": "2026-01-02T19:04:24.706Z"
-          },
-          {
             "key": "_ga",
-            "value": "GA1.2.2050208378.1767380664",
-            "expires": "2027-02-06T19:04:23.812Z",
-            "domain": "lowincomeapartments.us",
+            "value": "GA1.1.1383818772.1767388778",
+            "expires": "2027-02-06T21:19:38.500Z",
+            "domain": "privatecare.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.706Z",
-            "lastAccessed": "2026-01-02T19:04:24.706Z"
+            "creation": "2026-01-02T21:19:40.112Z",
+            "lastAccessed": "2026-01-02T21:19:40.112Z"
           },
           {
-            "key": "_gid",
-            "value": "GA1.2.1223958852.1767380664",
-            "expires": "2026-01-03T19:04:23.000Z",
-            "domain": "lowincomeapartments.us",
+            "key": "_gcl_au",
+            "value": "1.1.1935285756.1767388779",
+            "expires": "2026-04-02T21:19:38.000Z",
+            "domain": "privatecare.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.706Z",
-            "lastAccessed": "2026-01-02T19:04:24.706Z"
+            "creation": "2026-01-02T21:19:40.119Z",
+            "lastAccessed": "2026-01-02T21:19:40.119Z"
           },
           {
-            "key": "_gat",
-            "value": "1",
-            "expires": "2026-01-02T19:05:23.000Z",
-            "domain": "lowincomeapartments.us",
+            "key": "_fbp",
+            "value": "fb.1.1767388778566.451130829252090953",
+            "expires": "2026-04-02T21:19:38.000Z",
+            "domain": "privatecare.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.706Z",
-            "lastAccessed": "2026-01-02T19:04:24.706Z"
+            "creation": "2026-01-02T21:19:40.121Z",
+            "lastAccessed": "2026-01-02T21:19:40.121Z"
           },
           {
-            "key": "FCCDCF",
-            "value": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%22CAAA23BD-7A95-4358-A285-903A79A2AB2B%5C%22%2C%5B1767380663%2C854000000%5D%5D%22%5D%5D%5D",
-            "expires": "2027-01-27T19:04:24.000Z",
-            "domain": "lowincomeapartments.us",
+            "key": "_ga_4ZY9JGRXJ3",
+            "value": "GS2.1.s1767388778$o1$g0$t1767388779$j59$l0$h0",
+            "expires": "2027-02-06T21:19:39.639Z",
+            "domain": "privatecare.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.706Z",
-            "lastAccessed": "2026-01-02T19:04:24.706Z"
+            "creation": "2026-01-02T21:19:40.121Z",
+            "lastAccessed": "2026-01-02T21:19:40.121Z"
           },
           {
-            "key": "_ga_KLVX3B16P9",
-            "value": "GS2.2.s1767380664$o1$g0$t1767380664$j60$l0$h0",
-            "expires": "2027-02-06T19:04:24.261Z",
-            "domain": "lowincomeapartments.us",
+            "key": "_ga_RKNFR08EHP",
+            "value": "GS2.1.s1767388778$o1$g0$t1767388779$j59$l0$h0",
+            "expires": "2027-02-06T21:19:39.644Z",
+            "domain": "privatecare.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T19:04:24.706Z",
-            "lastAccessed": "2026-01-02T19:04:24.706Z"
+            "creation": "2026-01-02T21:19:40.122Z",
+            "lastAccessed": "2026-01-02T21:19:40.122Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-02T19:54:21.505Z",
-      "createdAt": "2026-01-02T19:04:21.505Z",
+      "expiresAt": "2026-01-02T22:09:33.116Z",
+      "createdAt": "2026-01-02T21:19:33.116Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
