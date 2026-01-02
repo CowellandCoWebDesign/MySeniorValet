@@ -3,7 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_yDfOCVHqaP",
+      "id": "session_RZIKhK2fgx",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -16,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-02T19:04:22.868Z",
-      "createdAt": "2026-01-02T18:14:22.868Z",
+      "expiresAt": "2026-01-02T19:54:21.500Z",
+      "createdAt": "2026-01-02T19:04:21.500Z",
       "usageCount": 0,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_fspbl8JrlE",
+      "id": "session_AhAq8MRLli",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -33,34 +33,102 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "osano_consentmanager_uuid",
-            "value": "bf872f9b-4756-4856-871d-14d878d9902e",
-            "expires": "2027-01-02T18:14:27.463Z",
-            "domain": "atriaseniorliving.com",
+            "key": "PHPSESSID",
+            "value": "0abd3caa76ce036243b1be6cef8079ea",
+            "expires": "2026-01-02T19:54:24.697Z",
+            "domain": "www.lowincomeapartments.us",
             "path": "/",
-            "secure": true,
-            "hostOnly": false,
-            "creation": "2026-01-02T18:14:29.781Z",
-            "lastAccessed": "2026-01-02T18:14:29.781Z"
+            "hostOnly": true,
+            "creation": "2026-01-02T19:04:24.699Z",
+            "lastAccessed": "2026-01-02T19:04:24.699Z"
           },
           {
-            "key": "osano_consentmanager",
-            "value": "pC6b6Yfdv8S0y-mA8XzVJLC43PEy8GECR8Re6sN1cZS5q_IwH8wcKQBkVKvCOeNdXL6iLNtHTDe69EBg68JEjz0DgtZdiSgGh6xs-Z52jf4QiIryRLTyLm1C_qMGIyCcUrK1q9h3GJ5zzhKtdfijzpFPvtqLkQHswJ0qPKjh1to56UP79sDSamcLtFmKh2Qy1CcwHHEbYNdlO5xtR9Rx1UTlg1RAax8pTuPOzzv0f1VjgCPFUZCglmWROHc8-bAse_M7xtJCBmMOOiM4sxRr1CmJLqRNhoAxEfsP2XzeXLkAD_Vzj1Cppe264XDIgGLC6OZE5ecbqXg=",
-            "expires": "2027-01-02T18:14:27.464Z",
-            "domain": "atriaseniorliving.com",
+            "key": "__gads",
+            "value": "ID=b37d2a6d8b759e88:T=1767380662:RT=1767380662:S=ALNI_MZQV97CK2vXaqCIE-p0jo6OmF_J-w",
+            "expires": "2027-01-27T19:04:22.000Z",
+            "domain": "lowincomeapartments.us",
             "path": "/",
-            "secure": true,
             "hostOnly": false,
-            "creation": "2026-01-02T18:14:29.785Z",
-            "lastAccessed": "2026-01-02T18:14:29.785Z"
+            "creation": "2026-01-02T19:04:24.700Z",
+            "lastAccessed": "2026-01-02T19:04:24.700Z"
+          },
+          {
+            "key": "__gpi",
+            "value": "UID=000012ad1b173c9b:T=1767380662:RT=1767380662:S=ALNI_MbJCDw-W-ZoF7sKWWbsMUrWy6lYLg",
+            "expires": "2027-01-27T19:04:22.000Z",
+            "domain": "lowincomeapartments.us",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-02T19:04:24.704Z",
+            "lastAccessed": "2026-01-02T19:04:24.704Z"
+          },
+          {
+            "key": "__eoi",
+            "value": "ID=21baba1b6406fabb:T=1767380662:RT=1767380662:S=AA-AfjbkKH5W713hNnwMiRA-QOyB",
+            "expires": "2026-07-01T19:04:22.000Z",
+            "domain": "lowincomeapartments.us",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-02T19:04:24.706Z",
+            "lastAccessed": "2026-01-02T19:04:24.706Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.2.2050208378.1767380664",
+            "expires": "2027-02-06T19:04:23.812Z",
+            "domain": "lowincomeapartments.us",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-02T19:04:24.706Z",
+            "lastAccessed": "2026-01-02T19:04:24.706Z"
+          },
+          {
+            "key": "_gid",
+            "value": "GA1.2.1223958852.1767380664",
+            "expires": "2026-01-03T19:04:23.000Z",
+            "domain": "lowincomeapartments.us",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-02T19:04:24.706Z",
+            "lastAccessed": "2026-01-02T19:04:24.706Z"
+          },
+          {
+            "key": "_gat",
+            "value": "1",
+            "expires": "2026-01-02T19:05:23.000Z",
+            "domain": "lowincomeapartments.us",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-02T19:04:24.706Z",
+            "lastAccessed": "2026-01-02T19:04:24.706Z"
+          },
+          {
+            "key": "FCCDCF",
+            "value": "%5Bnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2C%5B%5B32%2C%22%5B%5C%22CAAA23BD-7A95-4358-A285-903A79A2AB2B%5C%22%2C%5B1767380663%2C854000000%5D%5D%22%5D%5D%5D",
+            "expires": "2027-01-27T19:04:24.000Z",
+            "domain": "lowincomeapartments.us",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-02T19:04:24.706Z",
+            "lastAccessed": "2026-01-02T19:04:24.706Z"
+          },
+          {
+            "key": "_ga_KLVX3B16P9",
+            "value": "GS2.2.s1767380664$o1$g0$t1767380664$j60$l0$h0",
+            "expires": "2027-02-06T19:04:24.261Z",
+            "domain": "lowincomeapartments.us",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-02T19:04:24.706Z",
+            "lastAccessed": "2026-01-02T19:04:24.706Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-02T19:04:22.872Z",
-      "createdAt": "2026-01-02T18:14:22.872Z",
+      "expiresAt": "2026-01-02T19:54:21.505Z",
+      "createdAt": "2026-01-02T19:04:21.505Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
