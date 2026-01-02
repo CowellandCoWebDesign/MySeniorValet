@@ -7,6 +7,7 @@ import { geocodeWithNominatim } from '../nominatim-geocoding';
 import { perplexitySearchAPI } from '../services/perplexity-search-api';
 import { aiTracker } from '../services/ai-tracker.service';
 import { groqLlamaService } from '../services/groq-llama-service';
+import { groqDiscoveryOrchestrator } from '../services/groq-discovery-orchestrator';
 
 // US State name to abbreviation mapping for search normalization
 const US_STATE_MAP: Record<string, string> = {
@@ -1781,100 +1782,50 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       } catch (sonarError) {
         console.error('⚠️ Sonar API error:', sonarError);
-        console.log(`🔄 Perplexity failed, trying Groq Compound as FREE fallback...`);
+        console.log(`🔄 Perplexity failed, using Groq Discovery Pipeline (FREE)...`);
         
         // Alert: Perplexity failure - operators should check API key
-        console.warn(`🚨 ALERT: Perplexity API unavailable - Discovery Mode using Groq fallback`);
+        console.warn(`🚨 ALERT: Perplexity API unavailable - Using Groq → Crawlee Discovery Pipeline`);
         
-        // Try Groq Compound (Tavily-powered web search) as FREE fallback
-        if (groqLlamaService.isConfigured()) {
-          try {
-            // Parse location from query using existing helper
-            const parsedLocation = parseLocationFromAddress('', query);
-            const searchCity = parsedLocation.city;
-            const searchState = parsedLocation.state;
-            const defaultCountry = detectCountry(query);
+        // Use the full Groq Discovery Orchestrator (Groq finds sources → Crawlee scrapes data)
+        try {
+          const facilities = await groqDiscoveryOrchestrator.discoverCommunities(query, {
+            maxResults: 10,
+            scrapeTimeout: 15000
+          });
+          
+          if (facilities.length > 0) {
+            console.log(`✅ Groq Discovery Pipeline found ${facilities.length} verified facilities`);
             
-            const location = searchCity && searchState ? `${searchCity}, ${searchState}` : query;
-            console.log(`🔍 Groq Compound discovery for: ${query} -> city: ${searchCity || '(unknown)'}, state: ${searchState || '(unknown)'}`);
-            
-            const groqResult = await groqLlamaService.webSearch(`senior living communities in ${query}`, location);
-            
-            if (groqResult && groqResult.sources && groqResult.sources.length > 0) {
-              console.log(`✅ Groq Compound returned ${groqResult.sources.length} sources`);
-              
-              // Only create entries from trusted senior living directories
-              // This respects Golden Data Rule - only verifiable sources
-              const trustedDomains = [
-                'aplaceformom.com', 'senioradvisor.com', 'caring.com', 
-                'seniorhousingnet.com', 'seniorliving.org', 'brookdale.com',
-                'fivestarseniorliving.com', 'assistedliving.com', 'seniorcare.com',
-                'newlifestyles.com', 'seniorsplaces.com'
-              ];
-              
-              for (const source of groqResult.sources.slice(0, 20)) {
-                if (!source.url || !source.title) continue;
-                
-                // Check if source is from a trusted directory
-                const urlLower = source.url.toLowerCase();
-                const isTrusted = trustedDomains.some(d => urlLower.includes(d));
-                
-                if (isTrusted) {
-                  // Extract facility name from title (e.g., "Brookdale Lake Highlands – Dallas, TX")
-                  const titleParts = source.title.split(/\s*[-–|]\s*/);
-                  const facilityName = titleParts[0]?.trim();
-                  
-                  if (facilityName && facilityName.length > 3 && facilityName.length < 100) {
-                    // Extract location from title suffix if available
-                    const locationPart = titleParts[1] || titleParts[2] || '';
-                    const sourceLocation = parseLocationFromAddress(locationPart, '');
-                    
-                    // Construct location string for schema compliance
-                    const finalCity = sourceLocation.city || searchCity || '';
-                    const finalState = sourceLocation.state || searchState || '';
-                    const locationString = finalCity && finalState ? `${finalCity}, ${finalState}` : query;
-                    
-                    discoveredCommunities.push({
-                      name: facilityName,
-                      address: '',
-                      city: finalCity,
-                      state: finalState,
-                      country: defaultCountry,
-                      location: locationString, // Schema-compliant location field
-                      phone: '',
-                      website: source.url,
-                      description: source.snippet || `Senior living facility in ${locationString}`,
-                      careTypes: [],
-                      photoSources: [source.url],
-                      source: 'Groq Compound (FREE)',
-                      sourceUrl: source.url, // Golden Data provenance
-                      sourceTitle: source.title, // Additional provenance
-                      sourceSnippet: source.snippet || '', // Full provenance
-                      confidence: 60,
-                      isDiscovered: true
-                    });
-                    
-                    console.log(`📍 Discovered from trusted source: "${facilityName}" [${urlLower.split('/')[2]}]`);
-                  }
-                }
-              }
-              
-              console.log(`📋 Groq Compound discovered ${discoveredCommunities.length} facilities from trusted sources`);
-              
-              if (discoveredCommunities.length === 0) {
-                console.log(`⚠️ No trusted sources found, returning database results only`);
-              }
-            } else {
-              console.log(`⚠️ Groq Compound returned no sources, using database only`);
-              discoveredCommunities = [];
+            // Convert scraped facilities to discovery format
+            for (const facility of facilities) {
+              discoveredCommunities.push({
+                name: facility.name,
+                address: facility.address,
+                city: facility.city,
+                state: facility.state,
+                country: facility.country,
+                phone: facility.phone,
+                website: facility.website,
+                email: facility.email,
+                description: facility.description,
+                careTypes: facility.careTypes,
+                photoSources: facility.photos,
+                source: `Groq + Crawlee (FREE) via ${facility.sourceDomain}`,
+                sourceUrl: facility.sourceUrl,
+                confidence: facility.confidence,
+                isDiscovered: true
+              });
             }
-          } catch (groqError) {
-            console.error('⚠️ Groq Compound fallback failed:', groqError);
-            console.warn(`🚨 ALERT: Both Perplexity and Groq failed for discovery in "${query}"`);
+            
+            console.log(`📋 Added ${discoveredCommunities.length} communities from Groq Discovery Pipeline`);
+          } else {
+            console.log(`⚠️ Groq Discovery Pipeline returned no results, using database only`);
             discoveredCommunities = [];
           }
-        } else {
-          console.warn(`⚠️ Groq not configured, using database results only`);
+        } catch (pipelineError) {
+          console.error('⚠️ Groq Discovery Pipeline failed:', pipelineError);
+          console.warn(`🚨 ALERT: Both Perplexity and Groq pipelines failed for "${query}"`);
           discoveredCommunities = [];
         }
       }

@@ -564,6 +564,128 @@ If information is not found, omit that field. Be thorough and cite your sources.
   }
   
   /**
+   * Discovery search - finds senior living directory URLs for a location
+   * Specifically designed for the Groq → Crawlee discovery pipeline
+   */
+  async discoveryCommunitySearch(
+    location: string
+  ): Promise<{
+    sources: Array<{ title: string; url: string; snippet: string }>;
+    rawContent: string;
+  }> {
+    if (!this.client) {
+      throw new Error('Groq service not configured - missing GROQ_API_KEY');
+    }
+    
+    const limitCheck = this.checkLimits();
+    if (!limitCheck.allowed) {
+      throw new Error(`Groq rate limit: ${limitCheck.reason}`);
+    }
+    
+    console.log(`🔍 Groq Discovery Search for: ${location}`);
+    
+    const searchPrompt = `Search the web and find senior living communities and facilities in ${location}.
+
+I need URLs from reputable senior living directories like:
+- A Place for Mom (aplaceformom.com)
+- SeniorAdvisor (senioradvisor.com) 
+- Caring.com
+- Brookdale (brookdale.com)
+- Senior Housing Net (seniorhousingnet.com)
+- New LifeStyles (newlifestyles.com)
+
+Return a JSON array of senior living community pages you find:
+{
+  "communities": [
+    {"name": "Community Name", "url": "https://...", "snippet": "Brief description"},
+    ...
+  ]
+}
+
+Find at least 5-10 specific senior living communities in ${location}. Include the direct URL to each community's page on these directory sites.`;
+
+    const maxRetries = 3;
+    let lastError: any;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const response = await this.client.chat.completions.create({
+          model: 'groq/compound',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a senior living research assistant with web search capabilities. Find senior living community listings from directory websites. Return URLs to specific community pages, not just directory homepages.'
+            },
+            { role: 'user', content: searchPrompt }
+          ],
+          temperature: 0.2,
+          max_tokens: 4096
+        });
+        
+        this.requestCount++;
+        const usage = response.usage || { total_tokens: 0 };
+        this.tokenCount += usage.total_tokens;
+        
+        const content = response.choices[0]?.message?.content || '';
+        console.log(`✅ Groq Discovery Search complete: ${usage.total_tokens} tokens`);
+      
+        // Parse the JSON response
+        try {
+          const jsonMatch = content.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            const parsed = JSON.parse(jsonMatch[0]);
+            const communities = parsed.communities || [];
+            return {
+              sources: communities.map((c: any) => ({
+                title: c.name || '',
+                url: c.url || '',
+                snippet: c.snippet || c.description || ''
+              })),
+              rawContent: content
+            };
+          }
+        } catch (parseError) {
+          console.warn('Failed to parse Groq discovery response as JSON, extracting URLs...');
+          
+          // Extract URLs from raw content
+          const urlMatches = content.match(/https?:\/\/[^\s\"\'\<\>]+/g) || [];
+          const sources = urlMatches
+            .filter((url: string) => 
+              url.includes('aplaceformom.com') ||
+              url.includes('senioradvisor.com') ||
+              url.includes('caring.com') ||
+              url.includes('brookdale.com') ||
+              url.includes('seniorhousingnet.com') ||
+              url.includes('newlifestyles.com')
+            )
+            .map((url: string) => ({ title: '', url, snippet: '' }));
+          
+          return { sources, rawContent: content };
+        }
+        
+        return { sources: [], rawContent: content };
+        
+      } catch (error: any) {
+        lastError = error;
+        if (error.status === 429) {
+          // Rate limit - wait and retry
+          const waitTime = Math.min(2000 * attempt, 10000);
+          console.log(`⏳ Rate limit hit (attempt ${attempt}/${maxRetries}), waiting ${waitTime/1000}s...`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        }
+        // Non-rate-limit error, throw immediately
+        console.error('Groq Discovery Search failed:', error.message);
+        throw error;
+      }
+    }
+    
+    // All retries exhausted
+    console.error('Groq Discovery Search failed after retries:', lastError?.message);
+    throw lastError || new Error('Discovery search failed after retries');
+  }
+  
+  /**
    * Get current usage stats
    */
   getUsageStats(): {
