@@ -1,16 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { crawleeScraper } from './crawlee-scraper';
+import { playwrightPhotoScraper } from './playwright-photo-scraper';
 import { CheerioPhotoScraper } from './cheerio-photo-scraper';
 
 const cheerioPhotoScraper = new CheerioPhotoScraper();
-
-// Legacy alias for backward compatibility - Crawlee replaces Playwright
-const playwrightPhotoScraper = {
-  async scrapePhotosFromWebsite(url: string, name: string, options?: any) {
-    console.log('🔄 Redirecting Playwright call to Crawlee (production-grade scraper)');
-    return crawleeScraper.scrapePhotosFromWebsite(url, name, options);
-  }
-};
 
 /**
  * Enhanced Photo Extraction Service
@@ -639,34 +631,7 @@ Be lenient - mark as authentic unless clearly stock photos.`
         websiteSources.push(websiteUrl);
         console.log(`  ✅ Found ${playwrightCandidates.length} high-quality photos`);
       } catch (error) {
-        console.error('Playwright extraction failed, falling back to Cheerio:', error);
-        
-        // Fallback to simple HTTP fetch + Cheerio when Playwright fails
-        try {
-          console.log(`🔄 Cheerio fallback for ${communityName}...`);
-          const response = await fetch(websiteUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-          });
-          
-          if (response.ok) {
-            const htmlContent = await response.text();
-            const cheerioPhotos = this.extractPhotosFromContent(htmlContent, communityName);
-            
-            if (cheerioPhotos.length > 0) {
-              allPhotoCandidates.push(...cheerioPhotos);
-              websiteSources.push(websiteUrl);
-              console.log(`  ✅ Cheerio fallback found ${cheerioPhotos.length} photos`);
-            } else {
-              console.log(`  ⚠️ Cheerio fallback found no photos in HTML`);
-            }
-          } else {
-            console.log(`  ⚠️ Cheerio fallback HTTP ${response.status} for ${websiteUrl}`);
-          }
-        } catch (cheerioError) {
-          console.error('Cheerio fallback also failed:', cheerioError);
-        }
+        console.error('High-quality extraction failed:', error);
       }
     }
 

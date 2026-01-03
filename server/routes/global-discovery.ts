@@ -6,8 +6,6 @@ import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
 import { perplexitySearchAPI } from '../services/perplexity-search-api';
 import { aiTracker } from '../services/ai-tracker.service';
-import { groqLlamaService } from '../services/groq-llama-service';
-import { groqDiscoveryOrchestrator } from '../services/groq-discovery-orchestrator';
 
 // US State name to abbreviation mapping for search normalization
 const US_STATE_MAP: Record<string, string> = {
@@ -1782,52 +1780,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       } catch (sonarError) {
         console.error('⚠️ Sonar API error:', sonarError);
-        console.log(`🔄 Perplexity failed, using Groq Discovery Pipeline (FREE)...`);
+        console.log(`🔄 Perplexity failed, but we have ${existingCommunities.length} database results. Returning database results only.`);
         
-        // Alert: Perplexity failure - operators should check API key
-        console.warn(`🚨 ALERT: Perplexity API unavailable - Using Groq → Crawlee Discovery Pipeline`);
-        
-        // Use the full Groq Discovery Orchestrator (Groq finds sources → Crawlee scrapes data)
-        try {
-          const facilities = await groqDiscoveryOrchestrator.discoverCommunities(query, {
-            maxResults: 10,
-            scrapeTimeout: 15000
-          });
-          
-          if (facilities.length > 0) {
-            console.log(`✅ Groq Discovery Pipeline found ${facilities.length} verified facilities`);
-            
-            // Convert scraped facilities to discovery format
-            for (const facility of facilities) {
-              discoveredCommunities.push({
-                name: facility.name,
-                address: facility.address,
-                city: facility.city,
-                state: facility.state,
-                country: facility.country,
-                phone: facility.phone,
-                website: facility.website,
-                email: facility.email,
-                description: facility.description,
-                careTypes: facility.careTypes,
-                photoSources: facility.photos,
-                source: `Groq + Crawlee (FREE) via ${facility.sourceDomain}`,
-                sourceUrl: facility.sourceUrl,
-                confidence: facility.confidence,
-                isDiscovered: true
-              });
-            }
-            
-            console.log(`📋 Added ${discoveredCommunities.length} communities from Groq Discovery Pipeline`);
-          } else {
-            console.log(`⚠️ Groq Discovery Pipeline returned no results, using database only`);
-            discoveredCommunities = [];
-          }
-        } catch (pipelineError) {
-          console.error('⚠️ Groq Discovery Pipeline failed:', pipelineError);
-          console.warn(`🚨 ALERT: Both Perplexity and Groq pipelines failed for "${query}"`);
-          discoveredCommunities = [];
-        }
+        // When Perplexity fails, set empty discovered communities
+        // The database results will be returned below
+        discoveredCommunities = [];
       }
       } // End of Sonar API fallback block
       

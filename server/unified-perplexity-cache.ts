@@ -2,8 +2,6 @@ import { PerplexityAIService } from './perplexity-ai-service';
 import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 import { communityWebsiteCrawler, DeepCrawlResult } from './services/community-website-crawler';
-import { freeAISearchPipeline } from './services/free-ai-search-pipeline';
-import { groqLlamaService } from './services/groq-llama-service';
 import { db } from './db';
 import { perplexityCache, communities, pricingHistory } from '../shared/schema';
 import { eq, lt, and, isNull } from 'drizzle-orm';
@@ -445,9 +443,7 @@ class UnifiedPerplexityCache {
             notes: `Auto-extracted from ${pricing.source} on ${new Date().toISOString()}`
           });
           
-          const minDisplay = pricing.priceMin && pricing.priceMin !== 'NaN' ? `$${pricing.priceMin}` : 'Contact';
-          const maxDisplay = pricing.priceMax && pricing.priceMax !== 'NaN' ? `$${pricing.priceMax}` : 'Contact';
-          console.log(`💰 Saved ${priceType} pricing to history: ${minDisplay} - ${maxDisplay}`);
+          console.log(`💰 Saved ${priceType} pricing to history: $${pricing.priceMin || '?'} - $${pricing.priceMax || '?'}`);
         } catch (insertError) {
           console.error(`Failed to insert pricing for ${priceType}:`, insertError);
         }
@@ -472,19 +468,10 @@ class UnifiedPerplexityCache {
     const cleanNumbers = numbers.map(n => n.replace(/[$,]/g, ''));
     
     if (cleanNumbers.length === 1) {
-      const num = parseFloat(cleanNumbers[0]);
-      if (isNaN(num) || num === 0) return { min: null, max: null };
       return { min: cleanNumbers[0], max: cleanNumbers[0] };
     } else if (cleanNumbers.length >= 2) {
       const num1 = parseFloat(cleanNumbers[0]);
       const num2 = parseFloat(cleanNumbers[1]);
-      // Validate both numbers are valid and non-zero
-      if (isNaN(num1) || isNaN(num2) || num1 === 0 || num2 === 0) {
-        // Return the valid one if any
-        if (!isNaN(num1) && num1 > 0) return { min: cleanNumbers[0], max: cleanNumbers[0] };
-        if (!isNaN(num2) && num2 > 0) return { min: cleanNumbers[1], max: cleanNumbers[1] };
-        return { min: null, max: null };
-      }
       return {
         min: Math.min(num1, num2).toString(),
         max: Math.max(num1, num2).toString()
@@ -969,75 +956,20 @@ If you cannot find verified information from any source, say "No verified public
 `;
 
     try {
-      // ==========================================
-      // PRIMARY: Use FREE AI Pipeline (Groq + DuckDuckGo)
-      // Falls back to Perplexity only if Groq unavailable
-      // ==========================================
-      
-      let structuredData: CachedCommunityData;
-      
-      if (groqLlamaService.isConfigured()) {
-        // Use completely FREE pipeline
-        console.log(`🆓 Using FREE AI Pipeline (Groq + DuckDuckGo) for ${communityName}`);
-        
-        const pipelineResult = await freeAISearchPipeline.search(
-          communityName,
-          location,
-          websiteUrl,
-          { includePhotos: true, maxSources: 15, deepScrape: true }
-        );
-        
-        // Convert pipeline result to CachedCommunityData format
-        structuredData = {
-          communityId,
-          communityName,
-          location,
-          marketData: {
-            pricing: pipelineResult.pricing,
-            website: pipelineResult.website || websiteUrl,
-            phone: pipelineResult.phone,
-            description: pipelineResult.summary
-          },
-          reviews: {},
-          inspections: {},
-          photos: pipelineResult.photos,
-          sources: pipelineResult.sources.map(s => s.url),
-          timestamp: pipelineResult.timestamp,
-          rawPerplexityContent: pipelineResult.rawContent,
-          source: 'fresh-fetch'
-        };
-        
-        // Add amenities and care types if available
-        if (pipelineResult.amenities?.length || pipelineResult.careTypes?.length) {
-          structuredData.deepCrawlData = {
-            virtualTours: [],
-            floorPlans: [],
-            videos: [],
-            amenities: pipelineResult.amenities || [],
-            pricingDetails: {}
-          };
-        }
-        
-        console.log(`✅ FREE Pipeline returned ${structuredData.photos.length} photos, ${structuredData.sources.length} sources`);
-        
-      } else {
-        // Fallback to Perplexity (paid) if Groq not configured
-        console.log(`💰 Falling back to Perplexity API (Groq not configured)`);
-        
-        const response = await this.perplexityService.searchRealTime(
-          comprehensiveQuery,
-          `User-requested data for ${communityName}`
-        );
+      // Make ONE comprehensive API call (supplements deep crawl data)
+      const response = await this.perplexityService.searchRealTime(
+        comprehensiveQuery,
+        `User-requested data for ${communityName}`
+      );
 
-        // Parse and structure the comprehensive response
-        structuredData = await this.parseComprehensiveResponse(
-          response,
-          communityId,
-          communityName,
-          location,
-          websiteUrl
-        );
-      }
+      // Parse and structure the comprehensive response
+      const structuredData = await this.parseComprehensiveResponse(
+        response,
+        communityId,
+        communityName,
+        location,
+        websiteUrl
+      );
 
       // Check if response is complete before caching
       // Reject responses that are generic/inferred rather than specific verified data
@@ -1159,103 +1091,9 @@ If you cannot find verified information from any source, say "No verified public
     } catch (error) {
       console.error(`Failed to fetch comprehensive data for ${communityName}:`, error);
       
-      // FALLBACK: Use SearXNG (free) + Crawlee for photos when Perplexity is unavailable
-      console.log(`🔄 Attempting FREE fallback: SearXNG search + Crawlee photo scraping`);
-      
-      try {
-        const { SearXNGSearchService } = await import('./services/searxng-search');
-        const { crawleeScraper } = await import('./services/crawlee-scraper');
-        const searxng = new SearXNGSearchService();
-        
-        // IMPROVED: Use staged search strategy with quoted names for relevance
-        // Parse location into city and state
-        const locationParts = location.split(',').map(s => s.trim());
-        const city = locationParts[0] || '';
-        const state = locationParts[1] || '';
-        
-        // Strategy: Staged search queries from specific to broad
-        // Avoid complex boolean operators as some SearXNG instances don't support them
-        const searchQueries = [
-          `"${communityName}" ${city} ${state} senior living`,
-          `${communityName} ${city} assisted living`,
-          `${communityName} senior care ${state}`,
-          websiteUrl ? `site:${new URL(websiteUrl).hostname}` : null,
-        ].filter(Boolean) as string[];
-        
-        let searchResult = { results: [] as any[], query: '', totalResults: 0, sources: [], searchTime: 0, instanceUsed: '' };
-        
-        // Try each query until we get relevant results
-        for (const query of searchQueries) {
-          console.log(`🔍 Trying search query: ${query}`);
-          const result = await searxng.search(query, { maxResults: 15 });
-          
-          // Filter results to only include those mentioning community name or location
-          const relevantResults = result.results.filter(r => {
-            const text = (r.title + ' ' + r.snippet).toLowerCase();
-            const nameWords = communityName.toLowerCase().split(/\s+/).filter(w => w.length > 3);
-            const hasName = nameWords.some(word => text.includes(word));
-            const hasCity = city.toLowerCase() && text.includes(city.toLowerCase());
-            const hasSeniorKeywords = ['senior', 'assisted', 'living', 'care', 'nursing'].some(k => text.includes(k));
-            return hasName || (hasCity && hasSeniorKeywords);
-          });
-          
-          if (relevantResults.length >= 2) {
-            console.log(`✅ Found ${relevantResults.length} relevant results with query: ${query}`);
-            searchResult = { ...result, results: relevantResults };
-            break;
-          }
-        }
-        
-        // Build a summary from search results
-        let rawContent = `## ${communityName}\n**Location:** ${location}\n\n`;
-        rawContent += `### Search Results Summary\n`;
-        
-        const sources: string[] = [];
-        for (const result of searchResult.results.slice(0, 5)) {
-          rawContent += `- **${result.title}**: ${result.snippet}\n`;
-          if (result.url) sources.push(result.url);
-        }
-        
-        // Try to scrape photos from the community website using Crawlee
-        let photos: string[] = [];
-        if (websiteUrl) {
-          console.log(`📸 Using Crawlee to scrape photos from: ${websiteUrl}`);
-          try {
-            const scrapedPhotos = await crawleeScraper.scrapePhotosFromWebsite(websiteUrl, communityName, { maxPhotos: 20 });
-            photos = scrapedPhotos
-              .filter(p => p.quality !== 'low')
-              .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
-            console.log(`✅ Crawlee scraped ${photos.length} photos from website`);
-          } catch (scrapeError) {
-            console.error(`Crawlee photo scraping failed:`, scrapeError);
-          }
-        }
-        
-        console.log(`✅ FREE fallback completed: ${searchResult.results.length} search results, ${photos.length} photos`);
-        
-        return {
-          marketData: {
-            website: websiteUrl,
-            description: rawContent
-          },
-          reviews: {},
-          inspections: {},
-          photos,
-          sources,
-          timestamp: Date.now(),
-          communityId,
-          communityName,
-          location,
-          rawPerplexityContent: rawContent,
-          source: 'fresh-fetch'
-        };
-      } catch (fallbackError) {
-        console.error(`FREE fallback also failed:`, fallbackError);
-      }
-      
-      // If deep crawl data is available, use it
+      // If Perplexity failed but we have deep crawl data, use that instead
       if (deepCrawlData && deepCrawlData.confidence !== 'low') {
-        console.log(`📌 Using deep crawl data as fallback since all else failed`);
+        console.log(`📌 Using deep crawl data as fallback since Perplexity failed`);
         return {
           marketData: {
             website: websiteUrl,
@@ -1282,25 +1120,9 @@ If you cannot find verified information from any source, say "No verified public
         };
       }
       
-      // Return graceful degradation message when all data sources fail
-      console.log(`⚠️ All data sources unavailable for ${communityName} - returning placeholder`);
-      
-      const placeholderContent = `## ${communityName}\n**Location:** ${location}\n\n` +
-        `### Data Temporarily Unavailable\n\n` +
-        `We are currently unable to fetch live market data for this community. This may be because:\n\n` +
-        `- The community's website is temporarily unavailable\n` +
-        `- External data sources are not responding\n\n` +
-        `**What you can do:**\n` +
-        `- Contact the community directly using the phone number listed\n` +
-        `- Try refreshing again in a few minutes\n` +
-        `- Check our existing database information below\n\n` +
-        `*Last attempted: ${new Date().toLocaleString()}*`;
-      
+      // Return minimal data on error
       return {
-        marketData: {
-          website: websiteUrl,
-          description: placeholderContent
-        },
+        marketData: {},
         reviews: {},
         inspections: {},
         photos: [],
@@ -1309,7 +1131,6 @@ If you cannot find verified information from any source, say "No verified public
         communityId,
         communityName,
         location,
-        rawPerplexityContent: placeholderContent,
         source: 'fresh-fetch' // Still counts as a fresh fetch attempt, even if it failed
       };
     }

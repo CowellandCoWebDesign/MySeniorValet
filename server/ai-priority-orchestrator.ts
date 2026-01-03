@@ -1,45 +1,47 @@
 /**
  * AI Priority Orchestrator for MySeniorValet
  * 
- * Priority Order (Updated December 31, 2025):
- * 1. Groq + Llama 3.3 70B (PRIMARY - FREE) - All AI tasks routed through Groq
- * 2. DuckDuckGo + Crawlee (FREE) - Web search and scraping
- * 3. Paid APIs (DISABLED) - Claude, OpenAI, Perplexity disabled to save costs
+ * Priority Order (Updated August 25, 2025):
+ * 1. Perplexity (Primary) - Real-time web search and verification of alternative sources
+ * 2. ChatGPT (Secondary) - Complex reasoning, analysis, and care planning
+ * 3. Claude (Backup) - Fallback when ChatGPT unavailable (credit limits affecting Claude)
  * 
- * This update replaces ALL paid AI services with FREE alternatives:
- * - Groq provides FREE Llama 3.3 70B inference (14,400 req/day, 500K tokens/day)
- * - DuckDuckGo provides FREE web search
- * - Crawlee provides FREE web scraping
+ * Note: Gemini and Grok removed from orchestration per user request (Aug 8, 2025)
+ * This orchestrator prioritizes Perplexity for web-based verification, 
+ * ChatGPT for reliable analysis, and Claude as backup only.
  */
 
+import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
-import { groqLlamaService } from './services/groq-llama-service';
-import { freeAISearchPipeline } from './services/free-ai-search-pipeline';
+// import { GoogleGenAI } from '@google/genai'; // DISABLED: Gemini service disabled
 import { perplexityService } from './perplexity-ai-service';
 import { grokService } from './xai-grok-integration';
 
-// Initialize Groq client (FREE - primary AI service)
-const groqClient = process.env.GROQ_API_KEY ? new OpenAI({
-  apiKey: process.env.GROQ_API_KEY,
-  baseURL: 'https://api.groq.com/openai/v1'
-}) : null;
+// Initialize AI services with priority order
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY!
+});
 
-// Paid services (DISABLED by default - only used as fallback)
-const PAID_SERVICES_ENABLED = false; // Set to true to enable paid fallbacks
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!
+});
 
-// Model versions
-const GROQ_MODEL = "llama-3.3-70b-versatile"; // FREE via Groq
-const CLAUDE_MODEL = "claude-sonnet-4-20250514"; // DISABLED - paid
-const CHATGPT_MODEL = "gpt-5"; // DISABLED - paid
-const PERPLEXITY_MODEL = "llama-3.1-sonar-large-128k-online"; // DISABLED - paid
+// const genai = new GoogleGenAI({
+//   apiKey: process.env.GEMINI_API_KEY!
+// }); // DISABLED: Gemini service disabled
+
+// Latest model versions
+const CLAUDE_MODEL = "claude-sonnet-4-20250514"; // Latest Claude 4 Sonnet
+const CHATGPT_MODEL = "gpt-5"; // Upgraded to GPT-5 (Released August 7, 2025)
+const GEMINI_MODEL = "gemini-2.5-pro"; // Latest Gemini 2.5
+const PERPLEXITY_MODEL = "llama-3.1-sonar-large-128k-online"; // Best Perplexity model
 
 export interface AIServiceStatus {
-  groq: boolean; // PRIMARY - FREE
-  claude: boolean; // DISABLED - paid
-  chatgpt: boolean; // DISABLED - paid
-  perplexity: boolean; // DISABLED - paid
-  gemini: boolean; // DISABLED - paid
-  grok: boolean; // DISABLED - paid
+  claude: boolean;
+  chatgpt: boolean;
+  perplexity: boolean;
+  gemini: boolean;
+  grok: boolean;
 }
 
 export interface AIAnalysisRequest {
@@ -65,29 +67,23 @@ export class AIPriorityOrchestrator {
 
   constructor() {
     this.aiStatus = {
-      groq: !!process.env.GROQ_API_KEY, // PRIMARY - FREE
-      claude: PAID_SERVICES_ENABLED && !!process.env.ANTHROPIC_API_KEY,
-      chatgpt: PAID_SERVICES_ENABLED && !!process.env.OPENAI_API_KEY,
-      perplexity: PAID_SERVICES_ENABLED && !!process.env.PERPLEXITY_API_KEY,
-      gemini: false, // DISABLED
-      grok: false // DISABLED
+      claude: !!process.env.ANTHROPIC_API_KEY,
+      chatgpt: !!process.env.OPENAI_API_KEY,
+      perplexity: !!process.env.PERPLEXITY_API_KEY,
+      gemini: !!process.env.GEMINI_API_KEY,
+      grok: !!process.env.XAI_API_KEY
     };
 
-    console.log('🚀 AI Priority Orchestrator initialized (FREE MODE):');
-    console.log('  1️⃣ Groq + Llama 3.3:', this.aiStatus.groq ? '✅ Active (PRIMARY - FREE)' : '❌ Missing GROQ_API_KEY');
-    console.log('  2️⃣ DuckDuckGo Search: ✅ Active (FREE - no API key needed)');
-    console.log('  3️⃣ Crawlee Scraper: ✅ Active (FREE - Playwright-based)');
-    console.log('  ❌ Perplexity: DISABLED (paid)');
-    console.log('  ❌ Claude: DISABLED (paid)');
-    console.log('  ❌ ChatGPT: DISABLED (paid)');
-    
-    if (!this.aiStatus.groq) {
-      console.warn('⚠️ GROQ_API_KEY not set - AI features will be limited');
-    }
+    console.log('🚀 AI Priority Orchestrator initialized:');
+    console.log('  1️⃣ Perplexity:', this.aiStatus.perplexity ? '✅ Active (Primary - Web Search)' : '❌ Missing API key');
+    console.log('  2️⃣ ChatGPT:', this.aiStatus.chatgpt ? '✅ Active (Secondary - Analysis)' : '❌ Missing API key');
+    console.log('  3️⃣ Claude:', this.aiStatus.claude ? '✅ Active (Backup)' : '❌ Missing API key');
+    console.log('  ❌ Gemini: Removed from orchestration');
+    console.log('  ❌ Grok: Removed from orchestration');
   }
 
   /**
-   * Main orchestration method - ALL REQUESTS GO THROUGH GROQ (FREE)
+   * Main orchestration method - routes to appropriate AI based on task type and priority
    */
   async analyzeWithPriority(request: AIAnalysisRequest): Promise<AIAnalysisResponse> {
     const servicesUsed: string[] = [];
@@ -96,52 +92,69 @@ export class AIPriorityOrchestrator {
     let tertiaryResult = null;
 
     try {
-      // ==========================================
-      // PRIMARY: Use Groq + Llama 3.3 70B (FREE)
-      // ==========================================
-      if (this.aiStatus.groq) {
-        console.log('🆓 Using Groq + Llama 3.3 (FREE) for analysis...');
-        primaryResult = await this.callGroq(request);
-        servicesUsed.push('Groq (Llama 3.3 70B)');
+      // Special case: Real-time search goes to Perplexity first
+      if (request.requireRealTime && this.aiStatus.perplexity) {
+        console.log('🔍 Using Perplexity for real-time search...');
+        primaryResult = await this.callPerplexity(request);
+        servicesUsed.push('Perplexity');
         
-        // For real-time search, also use free web search pipeline
-        if (request.requireRealTime || request.type === 'search' || request.type === 'realtime') {
-          console.log('🔍 Using FREE web search pipeline (DuckDuckGo + Crawlee)...');
-          try {
-            // Extract search terms from request
-            const searchResult = await freeAISearchPipeline.quickSearch(
-              request.query,
-              request.context?.location || ''
-            );
-            secondaryResult = searchResult;
-            servicesUsed.push('DuckDuckGo (FREE)');
-          } catch (searchError) {
-            console.warn('Web search pipeline failed:', searchError);
+        // Get Claude's analysis of Perplexity results
+        if (this.aiStatus.claude) {
+          secondaryResult = await this.callClaude({
+            ...request,
+            context: { ...request.context, perplexityResults: primaryResult }
+          });
+          servicesUsed.push('Claude');
+        }
+      }
+      // Financial analysis prioritizes ChatGPT
+      else if (request.requireFinancial && this.aiStatus.chatgpt) {
+        console.log('💰 Using ChatGPT for financial analysis...');
+        primaryResult = await this.callChatGPT(request);
+        servicesUsed.push('ChatGPT');
+        
+        // Get Claude's verification
+        if (this.aiStatus.claude) {
+          secondaryResult = await this.callClaude({
+            ...request,
+            context: { ...request.context, chatgptAnalysis: primaryResult }
+          });
+          servicesUsed.push('Claude');
+        }
+      }
+      // Default: Use new priority order (Perplexity first for search/verification)
+      else {
+        // Try Perplexity first for search and verification (Priority 1)
+        if (this.aiStatus.perplexity && (request.type === 'search' || request.type === 'realtime')) {
+          console.log('🔍 Using Perplexity (Primary AI - Web Search)...');
+          primaryResult = await this.callPerplexity(request);
+          servicesUsed.push('Perplexity');
+        }
+        
+        // Use Claude for analysis (Priority 2)
+        if (this.aiStatus.claude) {
+          if (!primaryResult) {
+            // Claude as primary if Perplexity not applicable
+            console.log('🧠 Using Claude (Secondary AI - Analysis)...');
+            primaryResult = await this.callClaude(request);
+            servicesUsed.push('Claude');
+          } else {
+            // Claude analyzes Perplexity results
+            console.log('🧠 Claude analyzing Perplexity results...');
+            secondaryResult = await this.callClaude({
+              ...request,
+              context: { ...request.context, perplexityResults: primaryResult }
+            });
+            servicesUsed.push('Claude');
           }
         }
-      }
-      // Fallback to paid services ONLY if explicitly enabled and Groq unavailable
-      else if (PAID_SERVICES_ENABLED) {
-        console.log('💰 Groq unavailable, falling back to paid services...');
         
-        if (this.aiStatus.perplexity && (request.requireRealTime || request.type === 'search')) {
-          primaryResult = await this.callPerplexity(request);
-          servicesUsed.push('Perplexity (PAID)');
-        } else if (this.aiStatus.claude) {
-          primaryResult = await this.callClaude(request);
-          servicesUsed.push('Claude (PAID)');
-        } else if (this.aiStatus.chatgpt) {
+        // ChatGPT as backup (Priority 3)
+        if (!primaryResult && this.aiStatus.chatgpt) {
+          console.log('🤖 Using ChatGPT (Backup AI)...');
           primaryResult = await this.callChatGPT(request);
-          servicesUsed.push('ChatGPT (PAID)');
+          servicesUsed.push('ChatGPT');
         }
-      }
-      // No AI services available
-      else {
-        console.error('❌ No AI services available - GROQ_API_KEY required');
-        primaryResult = {
-          error: 'AI services unavailable',
-          message: 'Please configure GROQ_API_KEY for free AI functionality'
-        };
       }
 
       // Calculate consensus if multiple services responded
@@ -158,45 +171,6 @@ export class AIPriorityOrchestrator {
 
     } catch (error) {
       console.error('❌ AI Priority Orchestrator error:', error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Call Groq + Llama 3.3 70B (FREE - Primary AI)
-   */
-  private async callGroq(request: AIAnalysisRequest): Promise<any> {
-    if (!groqClient) {
-      throw new Error('Groq client not initialized');
-    }
-    
-    const systemPrompt = this.getSystemPrompt(request.type);
-    const userPrompt = this.buildPrompt(request);
-    
-    try {
-      const response = await groqClient.chat.completions.create({
-        model: GROQ_MODEL,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
-        ],
-        temperature: 0.7,
-        max_tokens: 4096
-      });
-      
-      const content = response.choices[0]?.message?.content || '';
-      const usage = response.usage || { total_tokens: 0 };
-      
-      console.log(`✅ Groq response: ${usage.total_tokens} tokens (FREE)`);
-      
-      return {
-        response: content,
-        model: GROQ_MODEL,
-        tokens: usage.total_tokens,
-        cost: 0 // FREE!
-      };
-    } catch (error: any) {
-      console.error('Groq API error:', error.message);
       throw error;
     }
   }

@@ -1,9 +1,0 @@
-{
-	"id": "7f3C79mCx0zHXJg",
-	"json": "{\"id\":\"7f3C79mCx0zHXJg\",\"url\":\"https://www.seniorliving.org/assisted-living/hawaii/kapolei/\",\"loadedUrl\":\"https://www.seniorliving.org/assisted-living/hawaii/kapolei/\",\"uniqueKey\":\"https://www.seniorliving.org/assisted-living/hawaii/kapolei\",\"method\":\"GET\",\"noRetry\":false,\"retryCount\":0,\"errorMessages\":[],\"headers\":{},\"userData\":{\"__crawlee\":{\"state\":4}},\"handledAt\":\"2026-01-03T18:34:00.126Z\"}",
-	"method": "GET",
-	"orderNo": null,
-	"retryCount": 0,
-	"uniqueKey": "https://www.seniorliving.org/assisted-living/hawaii/kapolei",
-	"url": "https://www.seniorliving.org/assisted-living/hawaii/kapolei/"
-}
