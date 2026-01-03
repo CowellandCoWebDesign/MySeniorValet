@@ -474,6 +474,279 @@ export class PerplexitySearchAPI {
     console.log(`📊 Extracted ${businesses.filter(b => !b.isResource).length} businesses and ${businesses.filter(b => b.isResource).length} discovery resources`);
     return businesses;
   }
+
+  /**
+   * Verify if a city/location exists using Search API
+   * Replaces expensive sonar-pro city verification calls
+   * Cost: ~$0.005 per call vs $0.015+ for Sonar Pro
+   */
+  async verifyCityExists(city: string, state?: string): Promise<{
+    exists: boolean;
+    normalizedName: string;
+    country: string;
+    confidence: number;
+    sources: string[];
+  }> {
+    try {
+      const locationQuery = state ? `${city}, ${state}` : city;
+      const query = `"${locationQuery}" city population location information`;
+
+      const results = await this.search(query, {
+        max_results: 5,
+        max_tokens_per_page: 512
+      });
+
+      // Analyze results to determine if city exists
+      const cityMentions = results.results.filter(result => {
+        const lowerTitle = result.title.toLowerCase();
+        const lowerSnippet = result.snippet.toLowerCase();
+        const lowerCity = city.toLowerCase();
+        return lowerTitle.includes(lowerCity) || lowerSnippet.includes(lowerCity);
+      });
+
+      const exists = cityMentions.length > 0;
+      const confidence = Math.min(cityMentions.length * 25, 100);
+      
+      // Try to extract country from snippets
+      let country = 'United States';
+      const countryPatterns = [
+        { pattern: /\bcanada\b/i, country: 'Canada' },
+        { pattern: /\buk\b|\bunited kingdom\b|\bengland\b/i, country: 'United Kingdom' },
+        { pattern: /\baustralia\b/i, country: 'Australia' },
+        { pattern: /\bfrance\b/i, country: 'France' },
+        { pattern: /\bgermany\b/i, country: 'Germany' },
+        { pattern: /\buae\b|\bdubai\b|\bunited arab emirates\b/i, country: 'United Arab Emirates' },
+      ];
+
+      for (const result of cityMentions) {
+        for (const { pattern, country: c } of countryPatterns) {
+          if (pattern.test(result.snippet)) {
+            country = c;
+            break;
+          }
+        }
+      }
+
+      console.log(`🏙️ City verification: ${locationQuery} = ${exists ? 'EXISTS' : 'NOT FOUND'} (confidence: ${confidence}%)`);
+
+      return {
+        exists,
+        normalizedName: city,
+        country,
+        confidence,
+        sources: cityMentions.map(r => r.domain)
+      };
+
+    } catch (error) {
+      console.error('❌ City verification error:', error);
+      return {
+        exists: true, // Default to exists if verification fails
+        normalizedName: city,
+        country: 'United States',
+        confidence: 0,
+        sources: []
+      };
+    }
+  }
+
+  /**
+   * Discover senior living communities in a location
+   * Returns structured data for community discovery
+   * Cost: $0.005 per request vs $0.03+ for Sonar Pro with high context
+   */
+  async discoverCommunities(location: string, options: {
+    careType?: string;
+    limit?: number;
+  } = {}): Promise<{
+    communities: Array<{
+      name: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      phone?: string;
+      website?: string;
+      careTypes?: string[];
+      source: string;
+      confidence: number;
+    }>;
+    sources: string[];
+    searchQuery: string;
+  }> {
+    const careType = options.careType || '';
+    const query = careType
+      ? `${careType} senior living communities facilities in "${location}" names addresses phone numbers websites`
+      : `senior living assisted living memory care communities in "${location}" facility names addresses contact information`;
+
+    console.log(`🏠 Discovering communities in ${location}: "${query}"`);
+
+    const results = await this.search(query, {
+      max_results: options.limit || 15,
+      domain_allowlist: [
+        'caring.com',
+        'seniorhousing.net', 
+        'seniorliving.org',
+        'assistedliving.com',
+        'aplaceformom.com',
+        'seniorlivingguide.com',
+        'senioradvisor.com',
+        'medicare.gov'
+      ]
+    });
+
+    // Extract community data from search results
+    const communities: Array<{
+      name: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      phone?: string;
+      website?: string;
+      careTypes?: string[];
+      source: string;
+      confidence: number;
+    }> = [];
+
+    for (const result of results.results) {
+      // Extract potential community name from title
+      let name = result.title;
+      
+      // Skip articles and guides
+      if (/^(the\s+)?(\d+\s+)?(best|top)\s+/i.test(name)) continue;
+      if (/guide|list|tips|how\s+to/i.test(name)) continue;
+      
+      // Clean up name
+      name = name.replace(/\s*[-|]\s*.*$/, '');
+      name = name.replace(/\s*\(.*\)/, '');
+      name = name.trim();
+      
+      if (name.length < 3 || name.length > 100) continue;
+
+      // Extract phone from snippet
+      const phoneMatch = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+      const phone = phoneMatch ? phoneMatch[0] : undefined;
+
+      // Extract address from snippet
+      const addressMatch = result.snippet.match(/\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way)/i);
+      const address = addressMatch ? addressMatch[0] : undefined;
+
+      // Detect care types from snippet
+      const careTypes: string[] = [];
+      if (/assisted\s+living/i.test(result.snippet)) careTypes.push('Assisted Living');
+      if (/memory\s+care/i.test(result.snippet)) careTypes.push('Memory Care');
+      if (/independent\s+living/i.test(result.snippet)) careTypes.push('Independent Living');
+      if (/skilled\s+nursing/i.test(result.snippet)) careTypes.push('Skilled Nursing');
+
+      communities.push({
+        name,
+        address,
+        phone,
+        website: result.url,
+        careTypes: careTypes.length > 0 ? careTypes : undefined,
+        source: `search_api_${result.domain}`,
+        confidence: 75
+      });
+    }
+
+    console.log(`✅ Discovered ${communities.length} communities in ${location}`);
+
+    return {
+      communities,
+      sources: results.results.map(r => r.url),
+      searchQuery: query
+    };
+  }
+
+  /**
+   * Get enrichment data for a specific community
+   * Uses Search API to find community details
+   * Cost: $0.005 per request
+   */
+  async enrichCommunity(communityName: string, location: string): Promise<{
+    found: boolean;
+    data: {
+      description?: string;
+      phone?: string;
+      website?: string;
+      address?: string;
+      pricing?: string;
+      careTypes?: string[];
+      amenities?: string[];
+      ratings?: string;
+    };
+    sources: string[];
+  }> {
+    const query = `"${communityName}" ${location} senior living community phone address pricing reviews`;
+
+    console.log(`📋 Enriching community: ${communityName} in ${location}`);
+
+    const results = await this.search(query, {
+      max_results: 10,
+      max_tokens_per_page: 1024
+    });
+
+    // Check if we found relevant results
+    const relevantResults = results.results.filter(r => 
+      r.title.toLowerCase().includes(communityName.toLowerCase().split(' ')[0]) ||
+      r.snippet.toLowerCase().includes(communityName.toLowerCase())
+    );
+
+    if (relevantResults.length === 0) {
+      return { found: false, data: {}, sources: [] };
+    }
+
+    // Combine snippets for description
+    const description = relevantResults
+      .slice(0, 3)
+      .map(r => r.snippet)
+      .join(' ')
+      .substring(0, 1000);
+
+    // Extract phone
+    const phoneMatch = description.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+    
+    // Extract care types
+    const careTypes: string[] = [];
+    if (/assisted\s+living/i.test(description)) careTypes.push('Assisted Living');
+    if (/memory\s+care/i.test(description)) careTypes.push('Memory Care');
+    if (/independent\s+living/i.test(description)) careTypes.push('Independent Living');
+    if (/skilled\s+nursing/i.test(description)) careTypes.push('Skilled Nursing');
+
+    // Extract pricing mentions
+    const pricingMatch = description.match(/\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:per\s+)?(?:month|monthly))?/i);
+
+    // Extract ratings
+    const ratingMatch = description.match(/(\d\.?\d?)\s*(?:\/\s*5|stars?|out\s+of\s+5)/i);
+
+    return {
+      found: true,
+      data: {
+        description,
+        phone: phoneMatch ? phoneMatch[0] : undefined,
+        website: relevantResults[0]?.url,
+        pricing: pricingMatch ? pricingMatch[0] : undefined,
+        careTypes: careTypes.length > 0 ? careTypes : undefined,
+        ratings: ratingMatch ? `${ratingMatch[1]}/5` : undefined
+      },
+      sources: relevantResults.map(r => r.url)
+    };
+  }
+
+  /**
+   * Search for news and market intelligence about senior living
+   * Cost: $0.005 per request
+   */
+  async searchMarketIntelligence(topic: string, location?: string): Promise<SearchResponse> {
+    const query = location
+      ? `${topic} senior living industry news ${location} 2025`
+      : `${topic} senior living industry news trends 2025`;
+
+    return this.search(query, {
+      max_results: 10,
+      date_filter: {
+        start_date: new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Last 90 days
+      }
+    });
+  }
 }
 
 // Create singleton instance
