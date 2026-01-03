@@ -3,7 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_afuNX6AxoT",
+      "id": "session_2BcoYh8QRA",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -16,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-03T02:13:13.277Z",
-      "createdAt": "2026-01-03T01:23:13.277Z",
+      "expiresAt": "2026-01-03T19:23:48.690Z",
+      "createdAt": "2026-01-03T18:33:48.690Z",
       "usageCount": 0,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_vLuwwcQeWM",
+      "id": "session_8qhHGaVboL",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -33,132 +33,92 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "wp-wpml_current_language",
-            "value": "en",
-            "expires": "2026-01-03T02:13:20.951Z",
-            "domain": "cmcdubai.ae",
-            "path": "/",
-            "hostOnly": true,
-            "creation": "2026-01-03T01:23:20.956Z",
-            "lastAccessed": "2026-01-03T01:23:20.956Z"
-          },
-          {
-            "key": "activechatyWidgets",
-            "value": "0",
-            "expires": "2026-01-04T01:23:18.000Z",
-            "domain": "cmcdubai.ae",
-            "path": "/",
-            "hostOnly": true,
-            "creation": "2026-01-03T01:23:20.956Z",
-            "lastAccessed": "2026-01-03T01:23:20.956Z"
-          },
-          {
-            "key": "chatyWidget_0",
-            "value": "[{\"k\":\"v-widget\",\"v\":\"2026-01-03T01:23:18.859Z\"},{\"k\":\"v-Phone\",\"v\":\"2026-01-03T01:23:18.860Z\"},{\"k\":\"v-Whatsapp\",\"v\":\"2026-01-03T01:23:18.860Z\"}]",
-            "expires": "2026-01-10T01:23:18.000Z",
-            "domain": "cmcdubai.ae",
-            "path": "/",
-            "hostOnly": true,
-            "creation": "2026-01-03T01:23:20.956Z",
-            "lastAccessed": "2026-01-03T01:23:20.956Z"
-          },
-          {
-            "key": "_ga_VCLYW5GFBJ",
-            "value": "GS2.1.s1767403399$o1$g0$t1767403399$j60$l0$h0",
-            "expires": "2027-02-07T01:23:19.616Z",
-            "domain": "cmcdubai.ae",
-            "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.956Z",
-            "lastAccessed": "2026-01-03T01:23:20.956Z"
-          },
-          {
             "key": "_ga",
-            "value": "GA1.1.2112438676.1767403400",
-            "expires": "2027-02-07T01:23:19.616Z",
-            "domain": "cmcdubai.ae",
+            "value": "GA1.1.1646247543.1767465236",
+            "expires": "2027-02-07T18:33:55.589Z",
+            "domain": "seniorliving.org",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.956Z",
-            "lastAccessed": "2026-01-03T01:23:20.956Z"
+            "creation": "2026-01-03T18:33:55.778Z",
+            "lastAccessed": "2026-01-03T18:33:55.778Z"
           },
           {
-            "key": "_gcl_au",
-            "value": "1.1.153732605.1767403400",
-            "expires": "2026-04-03T01:23:20.000Z",
-            "domain": "cmcdubai.ae",
+            "key": "_fbp",
+            "value": "fb.1.1767465235687.418618967670145856",
+            "expires": "2026-04-03T18:33:55.000Z",
+            "domain": "seniorliving.org",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.957Z",
-            "lastAccessed": "2026-01-03T01:23:20.957Z"
+            "creation": "2026-01-03T18:33:55.785Z",
+            "lastAccessed": "2026-01-03T18:33:55.785Z"
           },
           {
-            "key": "_clck",
-            "value": "pfs4ur%5E2%5Eg2e%5E0%5E2194",
-            "expires": "2027-01-03T01:23:19.000Z",
-            "domain": "cmcdubai.ae",
+            "key": "CF_CLICK_TOKEN",
+            "value": "var%20cf_dg_clk_id%3D%272300438827%27%3B%20var%20ckm_request_id%3D%272007476948%27",
+            "expires": "2026-01-17T18:33:55.707Z",
+            "domain": "www.seniorliving.org",
             "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.957Z",
-            "lastAccessed": "2026-01-03T01:23:20.957Z"
+            "hostOnly": true,
+            "creation": "2026-01-03T18:33:55.786Z",
+            "lastAccessed": "2026-01-03T18:33:55.786Z"
           },
           {
-            "key": "_clsk",
-            "value": "ji5kpo%5E1767403400212%5E1%5E1%5Ea.clarity.ms%2Fcollect",
-            "expires": "2026-01-04T01:23:20.000Z",
-            "domain": "cmcdubai.ae",
+            "key": "CF_CLICK_TOKEN_EXP",
+            "value": "1768674835",
+            "expires": "2026-01-17T18:33:55.707Z",
+            "domain": "www.seniorliving.org",
             "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.957Z",
-            "lastAccessed": "2026-01-03T01:23:20.957Z"
+            "hostOnly": true,
+            "creation": "2026-01-03T18:33:55.786Z",
+            "lastAccessed": "2026-01-03T18:33:55.786Z"
           },
           {
-            "key": "_tt_enable_cookie",
-            "value": "1",
-            "expires": "2027-01-28T01:23:20.000Z",
-            "domain": "cmcdubai.ae",
+            "key": "cf_dg_clk_id",
+            "value": "2300438827",
+            "expires": "2026-01-17T18:33:55.707Z",
+            "domain": "www.seniorliving.org",
             "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.957Z",
-            "lastAccessed": "2026-01-03T01:23:20.957Z"
+            "hostOnly": true,
+            "creation": "2026-01-03T18:33:55.787Z",
+            "lastAccessed": "2026-01-03T18:33:55.787Z"
           },
           {
-            "key": "_ttp",
-            "value": "01KE0Q7B3ZNHGQ513A5VHJN336_.tt.1",
-            "expires": "2027-01-28T01:23:20.000Z",
-            "domain": "cmcdubai.ae",
+            "key": "cf_dg_clk_id_expiry",
+            "value": "1768674835",
+            "expires": "2026-01-17T18:33:55.707Z",
+            "domain": "www.seniorliving.org",
             "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.957Z",
-            "lastAccessed": "2026-01-03T01:23:20.957Z"
+            "hostOnly": true,
+            "creation": "2026-01-03T18:33:55.787Z",
+            "lastAccessed": "2026-01-03T18:33:55.787Z"
           },
           {
-            "key": "ttcsid",
-            "value": "1767403400323::A1SFhnnnX1Ob5cNwioqE.1.1767403400529.0",
-            "expires": "2027-01-28T01:23:20.000Z",
-            "domain": "cmcdubai.ae",
+            "key": "ckm_request_id",
+            "value": "2007476948",
+            "expires": "2026-01-17T18:33:55.708Z",
+            "domain": "www.seniorliving.org",
             "path": "/",
-            "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.957Z",
-            "lastAccessed": "2026-01-03T01:23:20.957Z"
+            "hostOnly": true,
+            "creation": "2026-01-03T18:33:55.787Z",
+            "lastAccessed": "2026-01-03T18:33:55.787Z"
           },
           {
-            "key": "ttcsid_CIR7T8JC77UF46MMLDBG",
-            "value": "1767403400322::uTD6yEfk5ETzQypNRdEf.1.1767403400529.0",
-            "expires": "2027-01-28T01:23:20.000Z",
-            "domain": "cmcdubai.ae",
+            "key": "_ga_G17C4Z1KHF",
+            "value": "GS2.1.s1767465235$o1$g0$t1767465235$j60$l0$h0",
+            "expires": "2027-02-07T18:33:55.735Z",
+            "domain": "seniorliving.org",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-03T01:23:20.957Z",
-            "lastAccessed": "2026-01-03T01:23:20.957Z"
+            "creation": "2026-01-03T18:33:55.787Z",
+            "lastAccessed": "2026-01-03T18:33:55.787Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-03T02:13:13.282Z",
-      "createdAt": "2026-01-03T01:23:13.282Z",
+      "expiresAt": "2026-01-03T19:23:48.694Z",
+      "createdAt": "2026-01-03T18:33:48.694Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
