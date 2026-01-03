@@ -3,7 +3,7 @@
   "retiredSessionsCount": 0,
   "sessions": [
     {
-      "id": "session_7UJXqOOoH3",
+      "id": "session_afuNX6AxoT",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -16,14 +16,14 @@
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-02T22:09:33.113Z",
-      "createdAt": "2026-01-02T21:19:33.113Z",
+      "expiresAt": "2026-01-03T02:13:13.277Z",
+      "createdAt": "2026-01-03T01:23:13.277Z",
       "usageCount": 0,
       "maxUsageCount": 50,
       "errorScore": 0
     },
     {
-      "id": "session_5bzOZRskv2",
+      "id": "session_vLuwwcQeWM",
       "cookieJar": {
         "version": "tough-cookie@6.0.0",
         "storeType": "MemoryCookieStore",
@@ -33,62 +33,132 @@
         "prefixSecurity": "silent",
         "cookies": [
           {
-            "key": "_ga",
-            "value": "GA1.1.1383818772.1767388778",
-            "expires": "2027-02-06T21:19:38.500Z",
-            "domain": "privatecare.ae",
+            "key": "wp-wpml_current_language",
+            "value": "en",
+            "expires": "2026-01-03T02:13:20.951Z",
+            "domain": "cmcdubai.ae",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2026-01-03T01:23:20.956Z",
+            "lastAccessed": "2026-01-03T01:23:20.956Z"
+          },
+          {
+            "key": "activechatyWidgets",
+            "value": "0",
+            "expires": "2026-01-04T01:23:18.000Z",
+            "domain": "cmcdubai.ae",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2026-01-03T01:23:20.956Z",
+            "lastAccessed": "2026-01-03T01:23:20.956Z"
+          },
+          {
+            "key": "chatyWidget_0",
+            "value": "[{\"k\":\"v-widget\",\"v\":\"2026-01-03T01:23:18.859Z\"},{\"k\":\"v-Phone\",\"v\":\"2026-01-03T01:23:18.860Z\"},{\"k\":\"v-Whatsapp\",\"v\":\"2026-01-03T01:23:18.860Z\"}]",
+            "expires": "2026-01-10T01:23:18.000Z",
+            "domain": "cmcdubai.ae",
+            "path": "/",
+            "hostOnly": true,
+            "creation": "2026-01-03T01:23:20.956Z",
+            "lastAccessed": "2026-01-03T01:23:20.956Z"
+          },
+          {
+            "key": "_ga_VCLYW5GFBJ",
+            "value": "GS2.1.s1767403399$o1$g0$t1767403399$j60$l0$h0",
+            "expires": "2027-02-07T01:23:19.616Z",
+            "domain": "cmcdubai.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T21:19:40.112Z",
-            "lastAccessed": "2026-01-02T21:19:40.112Z"
+            "creation": "2026-01-03T01:23:20.956Z",
+            "lastAccessed": "2026-01-03T01:23:20.956Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.1.2112438676.1767403400",
+            "expires": "2027-02-07T01:23:19.616Z",
+            "domain": "cmcdubai.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-03T01:23:20.956Z",
+            "lastAccessed": "2026-01-03T01:23:20.956Z"
           },
           {
             "key": "_gcl_au",
-            "value": "1.1.1935285756.1767388779",
-            "expires": "2026-04-02T21:19:38.000Z",
-            "domain": "privatecare.ae",
+            "value": "1.1.153732605.1767403400",
+            "expires": "2026-04-03T01:23:20.000Z",
+            "domain": "cmcdubai.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T21:19:40.119Z",
-            "lastAccessed": "2026-01-02T21:19:40.119Z"
+            "creation": "2026-01-03T01:23:20.957Z",
+            "lastAccessed": "2026-01-03T01:23:20.957Z"
           },
           {
-            "key": "_fbp",
-            "value": "fb.1.1767388778566.451130829252090953",
-            "expires": "2026-04-02T21:19:38.000Z",
-            "domain": "privatecare.ae",
+            "key": "_clck",
+            "value": "pfs4ur%5E2%5Eg2e%5E0%5E2194",
+            "expires": "2027-01-03T01:23:19.000Z",
+            "domain": "cmcdubai.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T21:19:40.121Z",
-            "lastAccessed": "2026-01-02T21:19:40.121Z"
+            "creation": "2026-01-03T01:23:20.957Z",
+            "lastAccessed": "2026-01-03T01:23:20.957Z"
           },
           {
-            "key": "_ga_4ZY9JGRXJ3",
-            "value": "GS2.1.s1767388778$o1$g0$t1767388779$j59$l0$h0",
-            "expires": "2027-02-06T21:19:39.639Z",
-            "domain": "privatecare.ae",
+            "key": "_clsk",
+            "value": "ji5kpo%5E1767403400212%5E1%5E1%5Ea.clarity.ms%2Fcollect",
+            "expires": "2026-01-04T01:23:20.000Z",
+            "domain": "cmcdubai.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T21:19:40.121Z",
-            "lastAccessed": "2026-01-02T21:19:40.121Z"
+            "creation": "2026-01-03T01:23:20.957Z",
+            "lastAccessed": "2026-01-03T01:23:20.957Z"
           },
           {
-            "key": "_ga_RKNFR08EHP",
-            "value": "GS2.1.s1767388778$o1$g0$t1767388779$j59$l0$h0",
-            "expires": "2027-02-06T21:19:39.644Z",
-            "domain": "privatecare.ae",
+            "key": "_tt_enable_cookie",
+            "value": "1",
+            "expires": "2027-01-28T01:23:20.000Z",
+            "domain": "cmcdubai.ae",
             "path": "/",
             "hostOnly": false,
-            "creation": "2026-01-02T21:19:40.122Z",
-            "lastAccessed": "2026-01-02T21:19:40.122Z"
+            "creation": "2026-01-03T01:23:20.957Z",
+            "lastAccessed": "2026-01-03T01:23:20.957Z"
+          },
+          {
+            "key": "_ttp",
+            "value": "01KE0Q7B3ZNHGQ513A5VHJN336_.tt.1",
+            "expires": "2027-01-28T01:23:20.000Z",
+            "domain": "cmcdubai.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-03T01:23:20.957Z",
+            "lastAccessed": "2026-01-03T01:23:20.957Z"
+          },
+          {
+            "key": "ttcsid",
+            "value": "1767403400323::A1SFhnnnX1Ob5cNwioqE.1.1767403400529.0",
+            "expires": "2027-01-28T01:23:20.000Z",
+            "domain": "cmcdubai.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-03T01:23:20.957Z",
+            "lastAccessed": "2026-01-03T01:23:20.957Z"
+          },
+          {
+            "key": "ttcsid_CIR7T8JC77UF46MMLDBG",
+            "value": "1767403400322::uTD6yEfk5ETzQypNRdEf.1.1767403400529.0",
+            "expires": "2027-01-28T01:23:20.000Z",
+            "domain": "cmcdubai.ae",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2026-01-03T01:23:20.957Z",
+            "lastAccessed": "2026-01-03T01:23:20.957Z"
           }
         ]
       },
       "userData": {},
       "maxErrorScore": 3,
       "errorScoreDecrement": 0.5,
-      "expiresAt": "2026-01-02T22:09:33.116Z",
-      "createdAt": "2026-01-02T21:19:33.116Z",
+      "expiresAt": "2026-01-03T02:13:13.282Z",
+      "createdAt": "2026-01-03T01:23:13.282Z",
       "usageCount": 1,
       "maxUsageCount": 50,
       "errorScore": 0
