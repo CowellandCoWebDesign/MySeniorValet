@@ -1044,61 +1044,59 @@ router.get('/api/services/:id/web-intelligence', async (req, res) => {
       }
     }
     
-    // Step 2: If no photos from website, use Perplexity as fallback
+    // Step 2: If no photos from website, use Perplexity Search API as fallback
+    // MIGRATED from sonar chat/completions to Search API ($5/1K) - Jan 2026
     if (photos.length < 3) {
       try {
-        console.log(`🔍 Using Perplexity fallback to search for service photos...`);
+        console.log(`🔍 Using Perplexity Search API fallback to search for service photos...`);
         
-        // Use Perplexity to search for the service and extract photo URLs
         const perplexityQuery = `"${name}" ${city} ${state || ''} photos images gallery`;
         const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
         
         if (perplexityApiKey) {
-          const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+          // Use Search API endpoint instead of chat/completions
+          const perplexityResponse = await fetch('https://api.perplexity.ai/search', {
             method: 'POST',
             headers: {
               'Authorization': `Bearer ${perplexityApiKey}`,
               'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-              model: 'sonar',
-              messages: [
-                {
-                  role: 'user',
-                  content: `Find photos and images of ${name} in ${city}, ${state || ''}. Include URLs to photos from review sites, social media, and the business website.`
-                }
-              ],
-              web_search_options: {
-                search_context_size: 'low'
-              },
-              max_tokens: 1000
+              query: perplexityQuery,
+              max_results: 15,
+              max_tokens_per_page: 512
             })
           });
           
           if (perplexityResponse.ok) {
             const perplexityData = await perplexityResponse.json();
-            const content = perplexityData.choices?.[0]?.message?.content || '';
+            const searchResults = perplexityData.results || [];
             
-            // Extract image URLs from the Perplexity response
+            // Extract image URLs from search result URLs and snippets
             const imageUrlPattern = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi;
-            const foundUrls = content.match(imageUrlPattern) || [];
+            const allContent = searchResults.map((r: any) => `${r.url} ${r.snippet}`).join(' ');
+            const foundUrls = allContent.match(imageUrlPattern) || [];
             
-            // Also check for images in citations
-            const citations = perplexityData.citations || [];
+            // Also check result URLs for image CDNs
+            for (const result of searchResults) {
+              if (result.url && /\.(jpg|jpeg|png|webp|gif)(?:\?|$)/i.test(result.url)) {
+                foundUrls.push(result.url);
+              }
+            }
             
             // Filter and add unique photos
-            const perplexityPhotos = foundUrls.filter((url: string) => !photos.includes(url));
-            photos.push(...perplexityPhotos.slice(0, 10)); // Limit to 10 photos from Perplexity
+            const perplexityPhotos = [...new Set(foundUrls)].filter((url: string) => !photos.includes(url));
+            photos.push(...perplexityPhotos.slice(0, 10)); // Limit to 10 photos
             
             if (perplexityPhotos.length > 0) {
               photoSources['perplexity_search'] = perplexityPhotos.length;
-              sources.push('Perplexity Search');
-              console.log(`✅ Found ${perplexityPhotos.length} photos from Perplexity search`);
+              sources.push('Perplexity Search API');
+              console.log(`✅ Found ${perplexityPhotos.length} photos from Perplexity Search API`);
             }
           }
         }
       } catch (perplexityError) {
-        console.error(`Perplexity fallback failed:`, perplexityError);
+        console.error(`Perplexity Search API fallback failed:`, perplexityError);
       }
     }
     

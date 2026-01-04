@@ -195,9 +195,9 @@ router.get('/api/ai/test-perplexity-miami', async (req, res) => {
       servicesUsed: result.servicesUsed,
       confidenceScore: result.confidenceScore,
       metadata: {
-        model: 'llama-3.1-sonar-small-128k-online',
-        searchRecency: 'month',
-        note: 'This demonstrates Perplexity\'s power for real-time web search with citations, current pricing, and verified data sources'
+        model: 'perplexity-search-api',
+        searchRecency: 'real-time',
+        note: 'Uses Perplexity Search API ($5/1K requests) for real-time web search with citations, current pricing, and verified data sources'
       }
     };
 

@@ -191,30 +191,23 @@ When answering:
 5. Include relevant information from web sources when available
 6. Focus on general senior living information without promoting specific platforms`;
 
-    // Call Perplexity Sonar API
-    let perplexityResponse: any;
+    // Call Perplexity Search API ($5/1K requests - MIGRATED from sonar Jan 2026)
+    let searchResponse: any;
     const perplexityStartTime = Date.now();
     try {
-      console.log('Calling Perplexity Sonar with query:', query);
+      console.log('Calling Perplexity Search API with query:', query);
       
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
+      // Use Search API endpoint instead of chat/completions
+      const response = await fetch('https://api.perplexity.ai/search', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'sonar',
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: query }
-          ],
-          temperature: 0.2,
-          top_p: 0.9,
-          search_recency_filter: 'month',
-          return_images: false,
-          return_related_questions: true,
-          stream: false
+          query: `${query} senior living senior care elderly`,
+          max_results: 10,
+          max_tokens_per_page: 1024
         })
       });
       
@@ -222,42 +215,65 @@ When answering:
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Perplexity API error:', response.status, errorText);
+        console.error('Perplexity Search API error:', response.status, errorText);
         
         await aiTracker.trackPerplexityCall({
           action: 'public_ai_chat',
           context: 'ai_chat_endpoint',
-          model: 'sonar',
+          model: 'search-api',
           requestDuration: perplexityDuration,
           success: false,
           errorMessage: `API error: ${response.status}`,
           prompt: query,
         });
         
-        throw new Error(`Perplexity API error: ${response.status}`);
+        throw new Error(`Perplexity Search API error: ${response.status}`);
       }
       
-      perplexityResponse = await response.json();
-      const responseContent = perplexityResponse.choices?.[0]?.message?.content || '';
+      searchResponse = await response.json();
+      const searchResults = searchResponse.results || [];
+      
+      // Format search results into a conversational response
+      const formattedAnswer = searchResults.length > 0 
+        ? searchResults.slice(0, 5).map((r: any) => 
+            `**${r.title}**\n${r.snippet}`
+          ).join('\n\n')
+        : "I couldn't find specific information for your query. Please try searching our database directly or refining your question.";
       
       await aiTracker.trackPerplexityCall({
         action: 'public_ai_chat',
         context: 'ai_chat_endpoint',
-        model: 'sonar',
+        model: 'search-api',
         requestDuration: perplexityDuration,
         success: true,
         inputTokens: Math.ceil(query.length / 4),
-        outputTokens: Math.ceil(responseContent.length / 4),
+        outputTokens: Math.ceil(formattedAnswer.length / 4),
         prompt: query,
-        response: responseContent.substring(0, 1000),
-        metadata: { citations: perplexityResponse.citations?.length || 0 },
+        response: formattedAnswer.substring(0, 1000),
+        metadata: { resultsCount: searchResults.length },
       });
       
-      console.log('Perplexity response received:', perplexityResponse.choices?.[0]?.finish_reason);
-      console.log('Citations:', perplexityResponse.citations?.length || 0, 'sources');
+      console.log('Perplexity Search API response received:', searchResults.length, 'results');
+      
+      // Extract citations from search results
+      const citations = searchResults.map((r: any) => r.url).filter(Boolean);
+      
+      // Format the final response
+      const responseData = {
+        success: true,
+        query: query,
+        answer: formattedAnswer,
+        platformResources: platformResources,
+        suggestions: ["Search by location", "Compare pricing", "Learn about care types", "View HUD properties"],
+        citations: citations,
+        model: 'perplexity-search-api',
+        timestamp: new Date().toISOString()
+      };
+
+      return res.json(responseData);
       
     } catch (perplexityError: any) {
-      console.error('Perplexity API Error:', perplexityError?.message || perplexityError);
+      console.error('Perplexity Search API Error:', perplexityError?.message || perplexityError);
       
       // Provide a fallback response if Perplexity fails
       const fallbackResponse = {
@@ -275,35 +291,6 @@ When answering:
         model: 'fallback'
       });
     }
-
-    const aiResponse = perplexityResponse?.choices?.[0]?.message?.content;
-    const citations = perplexityResponse?.citations || [];
-    
-    if (!aiResponse) {
-      console.error('Empty response from Perplexity:', perplexityResponse);
-      throw new Error('No response from AI');
-    }
-
-    // Create a structured response with citations
-    const parsedResponse = {
-      answer: aiResponse,
-      suggestions: perplexityResponse?.related_questions || ["Search by location", "Compare pricing", "Learn about care types", "View HUD properties"],
-      citations: citations
-    };
-
-    // Format the final response
-    const response = {
-      success: true,
-      query: query,
-      answer: parsedResponse.answer || aiResponse,
-      platformResources: platformResources,
-      suggestions: parsedResponse.suggestions || [],
-      citations: parsedResponse.citations || [],
-      model: 'perplexity-sonar',
-      timestamp: new Date().toISOString()
-    };
-
-    res.json(response);
     
   } catch (error) {
     console.error('AI Chat Error:', error);

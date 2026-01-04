@@ -1874,32 +1874,33 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         summary: ''
       };
       
-      // Test with Perplexity
+      // Test with Perplexity Search API ($5/1K requests - MIGRATED from sonar-pro Jan 2026)
       try {
         const perplexityStartTime = Date.now();
-        const perplexityQuery = `Find ONLY senior living communities in ${query}. List actual facility names, addresses, and contact details.`;
-        const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
+        const perplexityQuery = `senior living communities in ${query} names addresses phone numbers`;
+        
+        // Use Search API endpoint instead of chat/completions
+        const perplexityResponse = await fetch('https://api.perplexity.ai/search', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({
-            model: 'sonar-pro',
-            messages: [
-              { role: 'system', content: 'List senior living facilities with accurate details.' },
-              { role: 'user', content: perplexityQuery }
-            ],
-            web_search_options: {
-              search_context_size: 'low'
-            },
-            temperature: 0.1,
-            max_tokens: 2000
+            query: perplexityQuery,
+            max_results: 10,
+            max_tokens_per_page: 1024
           })
         });
         const perplexityDuration = Date.now() - perplexityStartTime;
         const perplexityData = await perplexityResponse.json();
-        const perplexityContent = perplexityData.choices[0]?.message?.content || '';
+        
+        // Format Search API results into readable content
+        const searchResults = perplexityData.results || [];
+        const perplexityContent = searchResults
+          .map((r: any) => `${r.title}: ${r.snippet}`)
+          .join('\n\n')
+          .substring(0, 2000);
         
         await aiTracker.trackPerplexityCall({
           action: 'ai_comparison',
@@ -1913,7 +1914,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         
         results.providers['perplexity'] = {
           response: perplexityContent.substring(0, 500),
-          sources: perplexityData.citations || []
+          sources: searchResults.map((r: any) => r.url).filter(Boolean)
         };
       } catch (e) {
         await aiTracker.trackPerplexityCall({

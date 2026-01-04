@@ -1,4 +1,5 @@
 import { PerplexityAIService } from './perplexity-ai-service';
+import { perplexitySearchAPI } from './services/perplexity-search-api';
 import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 import { communityWebsiteCrawler, DeepCrawlResult } from './services/community-website-crawler';
@@ -956,11 +957,74 @@ If you cannot find verified information from any source, say "No verified public
 `;
 
     try {
-      // Make ONE comprehensive API call (supplements deep crawl data)
-      const response = await this.perplexityService.searchRealTime(
-        comprehensiveQuery,
-        `User-requested data for ${communityName}`
-      );
+      // Make ONE comprehensive API call using Search API ($5/1K requests)
+      // MIGRATED from Sonar chat/completions to Search API - Jan 2026
+      const searchQuery = `"${communityName}" ${location} senior living pricing phone address reviews`;
+      const searchResponse = await perplexitySearchAPI.search(searchQuery, {
+        max_results: 15,
+        max_tokens_per_page: 1024
+      });
+      
+      // Convert Search API response to structured format for parseComprehensiveResponse
+      const searchResults = searchResponse.results || [];
+      const allContent = searchResults.map(r => `${r.title} ${r.snippet}`).join(' ');
+      
+      // Extract structured data directly from search results
+      const extractedPhone = allContent.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)?.[0];
+      const extractedWebsite = searchResults.find(r => 
+        r.url && !r.url.includes('aplaceformom') && !r.url.includes('caring.com') && 
+        !r.url.includes('senioradvisor') && r.domain
+      )?.url;
+      const priceMatches = allContent.match(/\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:\/|per)\s*month)?/gi) || [];
+      const addressMatch = allContent.match(/\d+[^,]+,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s*\d{5}/)?.[0];
+      const ratingMatch = allContent.match(/(\d\.?\d?)\s*(?:\/\s*5|out of 5|stars?)/i);
+      const reviewCountMatch = allContent.match(/(\d+)\s*(?:reviews?|ratings?)/i);
+      
+      // Build structured summary that parsers expect
+      const sections: string[] = [];
+      
+      // Add pricing section if found
+      if (priceMatches.length > 0) {
+        sections.push(`**PRICING:**\n${priceMatches.slice(0, 5).join('\n')}`);
+      }
+      
+      // Add contact section
+      const contactParts: string[] = [];
+      if (extractedPhone) contactParts.push(`Phone: ${extractedPhone}`);
+      if (addressMatch) contactParts.push(`Address: ${addressMatch}`);
+      if (extractedWebsite) contactParts.push(`Website: ${extractedWebsite}`);
+      if (contactParts.length > 0) {
+        sections.push(`**CONTACT INFO:**\n${contactParts.join('\n')}`);
+      }
+      
+      // Add reviews section if found
+      if (ratingMatch || reviewCountMatch) {
+        const reviewText = [
+          ratingMatch ? `Rating: ${ratingMatch[1]}/5 stars` : null,
+          reviewCountMatch ? `${reviewCountMatch[1]} reviews` : null
+        ].filter(Boolean).join(', ');
+        sections.push(`**REVIEWS:**\n${reviewText}`);
+      }
+      
+      // Add raw search results as additional context
+      sections.push(`**SEARCH RESULTS:**\n${searchResults.slice(0, 8).map(r => 
+        `• ${r.title}: ${r.snippet?.substring(0, 200) || ''}`
+      ).join('\n')}`);
+      
+      const formattedSummary = sections.join('\n\n');
+      
+      const response = {
+        summary: formattedSummary,
+        sources: searchResults.map(r => r.url).filter(Boolean),
+        images: [] as string[]
+      };
+      
+      // Extract image URLs from search results if any
+      const imagePattern = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi;
+      for (const result of searchResults) {
+        const imgMatches = result.snippet?.match(imagePattern) || [];
+        response.images.push(...imgMatches);
+      }
 
       // Parse and structure the comprehensive response
       const structuredData = await this.parseComprehensiveResponse(
@@ -1819,31 +1883,50 @@ Note: If location is uncertain, search broadly and include any businesses with t
 `;
 
     try {
-      const response = await this.perplexityService.searchRealTime(query, serviceName);
+      // Use Search API ($5/1K requests) - MIGRATED from Sonar chat/completions Jan 2026
+      const searchQuery = `"${serviceName}" ${searchLocation} business phone address website`;
+      const searchResponse = await perplexitySearchAPI.search(searchQuery, {
+        max_results: 10,
+        max_tokens_per_page: 512
+      });
+      
+      // Convert Search API response to expected format with smart extraction
+      const searchResults = searchResponse.results || [];
+      const allContent = searchResults.map(r => `${r.title} ${r.snippet}`).join(' ');
+      const sources = searchResults.map(r => r.url).filter(Boolean);
+
+      // Extract structured data directly from search results
+      const phone = allContent.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)?.[0];
+      const website = searchResults.find(r => 
+        r.url && r.domain && !r.url.includes('yelp.com') && !r.url.includes('facebook.com')
+      )?.url;
+      const address = allContent.match(/\d+[^,]+,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s*\d{5}/)?.[0];
+      
+      // Build structured summary
+      const sections: string[] = [];
+      if (website) sections.push(`**OFFICIAL WEBSITE:**\n${website}`);
+      if (phone) sections.push(`**PHONE:**\n${phone}`);
+      if (address) sections.push(`**ADDRESS:**\n${address}`);
+      sections.push(`**BUSINESS INFO:**\n${searchResults.slice(0, 5).map(r => 
+        `• ${r.title}: ${r.snippet?.substring(0, 150) || ''}`
+      ).join('\n')}`);
+      
+      const summary = sections.join('\n\n');
 
       // Extract photos from various sources
       const photos: string[] = [];
       
-      // Add images from Perplexity response
-      if (response.images && response.images.length > 0) {
-        photos.push(...response.images);
-      }
-
-      // Extract from response summary text
+      // Extract image URLs from search result snippets and URLs
       const imageUrlRegex = /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)/gi;
-      const foundUrls = (response.summary || '').match(imageUrlRegex) || [];
+      const foundUrls = allContent.match(imageUrlRegex) || [];
       photos.push(...foundUrls);
-
-      // Extract business info from the summary (parse the structured response)
-      const extractInfo = (text: string, pattern: RegExp): string | undefined => {
-        const match = text.match(pattern);
-        return match ? match[1].trim() : undefined;
-      };
-
-      const summary = response.summary || '';
-      const website = extractInfo(summary, /\*\*OFFICIAL WEBSITE:\*\*\s*\n([^\n]+)/);
-      const phone = extractInfo(summary, /phone[:\s]+([0-9-().\s]+)/i);
-      const address = extractInfo(summary, /address[:\s]+([^\n]+)/i);
+      
+      // Check result URLs for image files
+      for (const result of searchResults) {
+        if (result.url && /\.(jpg|jpeg|png|webp|gif)(?:\?|$)/i.test(result.url)) {
+          photos.push(result.url);
+        }
+      }
       
       // Try to scrape the website if found
       if (website && website !== 'Not found' && website.includes('http')) {
@@ -1868,12 +1951,12 @@ Note: If location is uncertain, search broadly and include any businesses with t
           description: summary.substring(0, 500)
         },
         photos: [...new Set(photos)].slice(0, 50), // Dedupe and limit
-        sources: response.sources || [],
+        sources: sources || [],
         timestamp: Date.now(),
         serviceId,
         serviceName,
         location: searchLocation,
-        rawPerplexityContent: response.summary
+        rawPerplexityContent: summary
       };
 
       // Cache the result in memory only (ServiceEnrichmentCache doesn't persist to database)
