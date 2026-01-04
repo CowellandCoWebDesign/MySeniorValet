@@ -747,6 +747,96 @@ export class PerplexitySearchAPI {
       }
     });
   }
+
+  /**
+   * Search for business/service intelligence (restaurants, vendors, etc.)
+   * Migrated from routes.ts Sonar Pro fallback - uses Search API instead
+   * Cost: $0.005 per request vs ~$0.02-0.10+ for Sonar Pro
+   */
+  async searchBusinessIntelligence(
+    serviceName: string,
+    location: string,
+    serviceType: string = 'business'
+  ): Promise<{
+    found: boolean;
+    data: {
+      description?: string;
+      website?: string;
+      phone?: string;
+      email?: string;
+      address?: string;
+      hours?: string;
+      rating?: string;
+      services?: string[];
+    };
+    photos: string[];
+    sources: string[];
+  }> {
+    const query = `"${serviceName}" ${location} ${serviceType} phone address website hours reviews`;
+
+    console.log(`🏪 Business intelligence search: ${serviceName} in ${location}`);
+
+    const results = await this.search(query, {
+      max_results: 15,
+      max_tokens_per_page: 1024
+    });
+
+    if (!results.results || results.results.length === 0) {
+      return { found: false, data: {}, photos: [], sources: [] };
+    }
+
+    // Combine snippets from relevant results
+    const combinedText = results.results
+      .map(r => `${r.title} ${r.snippet}`)
+      .join(' ');
+
+    // Extract phone
+    const phoneMatch = combinedText.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+
+    // Extract website - prefer the first result that's not a directory site
+    const websiteResult = results.results.find(r => 
+      !r.domain.includes('yelp.com') &&
+      !r.domain.includes('tripadvisor.com') &&
+      !r.domain.includes('facebook.com') &&
+      !r.domain.includes('google.com')
+    );
+
+    // Extract email
+    const emailMatch = combinedText.match(/[\w.+-]+@[\w.-]+\.[a-zA-Z]{2,}/);
+
+    // Extract rating
+    const ratingMatch = combinedText.match(/(\d\.?\d?)\s*(?:\/\s*5|stars?|out\s+of\s+5)/i);
+
+    // Extract hours patterns
+    const hoursMatch = combinedText.match(/(?:hours?|open)\s*:?\s*([^.]+(?:am|pm)[^.]*)/i);
+
+    // Extract photos from result URLs (image CDNs)
+    const photos: string[] = [];
+    for (const result of results.results) {
+      if (/\.(jpg|jpeg|png|webp|gif)(?:\?|$)/i.test(result.url)) {
+        photos.push(result.url);
+      }
+      // Extract image URLs from snippets
+      const imgMatches = result.snippet.match(/https?:\/\/[^\s"<>]+\.(?:jpg|jpeg|png|webp|gif)/gi);
+      if (imgMatches) {
+        photos.push(...imgMatches.filter(url => !photos.includes(url)));
+      }
+    }
+
+    return {
+      found: true,
+      data: {
+        description: results.results.slice(0, 3).map(r => r.snippet).join(' ').substring(0, 1500),
+        website: websiteResult?.url,
+        phone: phoneMatch?.[0],
+        email: emailMatch?.[0],
+        rating: ratingMatch ? `${ratingMatch[1]}/5` : undefined,
+        hours: hoursMatch?.[1]?.trim()
+      },
+      photos: photos.slice(0, 10),
+      sources: results.results.map(r => r.url)
+    };
+  }
 }
 
 // Create singleton instance
