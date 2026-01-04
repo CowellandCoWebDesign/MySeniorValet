@@ -1,3 +1,15 @@
+/**
+ * @deprecated LEGACY SERVICE - DO NOT USE FOR NEW DEVELOPMENT
+ * This service uses the old Perplexity Sonar chat API (variable pricing).
+ * 
+ * For all new implementations, use:
+ *   import { perplexitySearchAPI } from './services/perplexity-search-api';
+ * 
+ * The Search API offers fixed $5/1K pricing and is the recommended approach.
+ * This file is kept for backward compatibility with existing test routes.
+ * 
+ * Migration completed: January 2026
+ */
 import axios from 'axios';
 
 export interface PerplexityResponse {

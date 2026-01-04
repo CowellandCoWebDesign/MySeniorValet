@@ -1,14 +1,21 @@
 /**
  * AI Priority Orchestrator for MySeniorValet
  * 
+ * @deprecated PARTIAL DEPRECATION - Perplexity calls via perplexityService use legacy Sonar API
+ * For cost-optimized Perplexity calls, use perplexitySearchAPI from './services/perplexity-search-api'
+ * which uses the Search API at fixed $5/1K pricing.
+ * 
  * Priority Order (Updated August 25, 2025):
  * 1. Perplexity (Primary) - Real-time web search and verification of alternative sources
+ *    NOTE: Consider migrating to perplexitySearchAPI for new features
  * 2. ChatGPT (Secondary) - Complex reasoning, analysis, and care planning
  * 3. Claude (Backup) - Fallback when ChatGPT unavailable (credit limits affecting Claude)
  * 
  * Note: Gemini and Grok removed from orchestration per user request (Aug 8, 2025)
  * This orchestrator prioritizes Perplexity for web-based verification, 
  * ChatGPT for reliable analysis, and Claude as backup only.
+ * 
+ * Migration status: January 2026 - Legacy Perplexity calls remain for compatibility
  */
 
 import Anthropic from '@anthropic-ai/sdk';
