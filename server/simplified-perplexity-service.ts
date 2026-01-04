@@ -6,6 +6,7 @@
  */
 
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
+import { perplexitySearchAPI } from './services/perplexity-search-api';
 
 interface PerplexityResponse {
   id: string;
@@ -127,143 +128,37 @@ export class SimplifiedPerplexityService {
   ): Promise<CommunityIntelligence> {
     console.log(`🔍 Enhanced Perplexity search for: ${communityName} in ${location}`);
     
-    // Try to construct likely official website URL
-    const possibleDomain = communityName.toLowerCase()
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '')
-      .trim();
-    
-    // Enhanced query with official website targeting
-    const query = `First, check site:${possibleDomain}.com OR site:${possibleDomain}seniorliving.com
-    
-Then find information about senior living community named EXACTLY "${communityName}" in ${location}.
-
-CRITICAL ACCURACY REQUIREMENT:
-⚠️ ONLY provide information if the community name is EXACTLY "${communityName}"
-⚠️ DO NOT provide information about communities with similar but different names
-⚠️ If searching for "Hilltop Estates", DO NOT give information about "Hilltop Springs" or other variations
-⚠️ If the exact community "${communityName}" cannot be found, clearly state it was not found
-
-VERIFICATION CHECK:
-- Community name must be: "${communityName}" (exact match)
-- Location must be: ${location}
-
-PLEASE STRUCTURE YOUR RESPONSE AS FOLLOWS:
-
-=== REQUESTED COMMUNITY ===
-Community Name: [exact name found or "NOT FOUND"]
-Match Status: ["EXACT MATCH" or "NOT FOUND" or "SIMILAR BUT DIFFERENT"]
-
-IF FOUND, provide:
-1. CONTACT:
-   - Official website URL (full URL including https://)
-   - Main phone number (formatted as XXX-XXX-XXXX)
-   - Complete street address with zip code
-   - Email address if available
-
-2. PRICING (provide specific numbers when available):
-   - Assisted Living monthly cost range (e.g., $3,500-$5,000)
-   - Memory Care monthly cost range
-   - Independent Living monthly cost range
-   - Any entrance fees or deposits
-   - Note if pricing includes meals, utilities, etc.
-
-3. CARE SERVICES:
-   - All care levels offered (Assisted Living, Memory Care, Independent Living, Skilled Nursing)
-   - Specialized programs (dementia care, respite care, hospice)
-   - Medical services available on-site
-
-4. AMENITIES & FEATURES:
-   - Dining options (restaurant-style, private dining, etc.)
-   - Activities and recreation programs
-   - Transportation services
-   - Pet policy
-   - Room types (studio, 1-bedroom, 2-bedroom)
-
-5. FACILITY DETAILS:
-   - Year established
-   - Number of units/beds
-   - Accreditations or certifications
-   - Parent company or management group
-
-=== OTHER COMMUNITIES FOUND IN ${location} ===
-[List each community with clear separation]
-1. Community Name: [exact name]
-   - Phone: [XXX-XXX-XXXX format]
-   - Website: [full URL]
-   - Address: [full address]
-
-2. Community Name: [exact name]
-   - Phone: [XXX-XXX-XXXX format]
-   - Website: [full URL]
-   - Address: [full address]
-
-=== MARKET ANALYSIS ===
-- Average pricing for Assisted Living in ${location}
-- Average pricing for Memory Care in ${location}
-- Market trends and insights
-
-IMPORTANT: Each community must be clearly labeled with its EXACT name. Never mix data between communities.`;
-
     try {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar', // Standard model for cost-effective community search
-          web_search_options: {
-            search_context_size: 'low' // Low context for 70% cost reduction
-          },
-          messages: [
-            {
-              role: 'system',
-              content: `You are a comprehensive senior living market analyst providing detailed market research.
-Your goal is to provide valuable market data and analysis, not just exact matches.
+      const results = await perplexitySearchAPI.enrichCommunity(communityName, location);
 
-IMPORTANT: 
-1. Search for the requested community AND provide comprehensive market analysis
-2. If the exact community isn't found, still provide valuable market data for the area
-3. Include ALL senior living communities found in the specified location
-4. Provide actual pricing ranges, not just "Contact for pricing"
-5. Extract real data from your sources - websites, phone numbers, addresses
-6. Format phone numbers as XXX-XXX-XXXX. Include full website URLs with https://`
-            },
-            {
-              role: 'user',
-              content: query
-            }
-          ],
-          temperature: 0.1, // Lower for more consistent extraction
-          max_tokens: 2000, // Increased for more comprehensive responses
-          stream: false,
-          return_citations: true,
-          return_images: false,
-          return_related_questions: false,
-          search_recency_filter: "month",
-          search_domain_filter: [], // Remove restrictions to get more sources
-          top_k: 10, // Get more results
-          presence_penalty: 0,
-          frequency_penalty: 0.5
-        })
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error(`Perplexity API error (${response.status}):`, errorBody);
-        throw new Error(`Perplexity API error: ${response.statusText} - ${errorBody}`);
+      if (!results.found) {
+        return {
+          found: false,
+          name: communityName,
+          sources: []
+        };
       }
 
-      const data: PerplexityResponse = await response.json();
-      const content = data.choices[0]?.message?.content || '';
-      const citations = data.citations || [];
+      const data = results.data;
+      const content = data.description || '';
+      const citations = results.sources || [];
 
       console.log(`  📚 Received ${citations.length} citations from Perplexity`);
 
       // Enhanced parsing with better extraction patterns
-      return await this.parseEnhancedResponse(content, citations, communityName);
+      const parsed = await this.parseEnhancedResponse(content, citations, communityName);
+      
+      // Override or supplement with direct data from Search API if available
+      if (data.phone) parsed.phone = data.phone;
+      if (data.website) parsed.officialWebsite = data.website;
+      if (data.address) parsed.address = data.address;
+      if (data.careTypes) parsed.careLevels = data.careTypes;
+      if (data.pricing) {
+        parsed.pricing = parsed.pricing || {};
+        parsed.pricing.details = data.pricing;
+      }
+
+      return parsed;
     } catch (error) {
       console.error('Perplexity query failed:', error);
       return {
@@ -399,55 +294,21 @@ IMPORTANT:
   async findNearbyOptions(location: string): Promise<CommunityIntelligence> {
     console.log(`🗺️ Searching for communities near: ${location}`);
 
-    const query = `List ALL senior living communities in ${location}.
-
-CRITICAL: Provide a NUMBERED LIST of actual community names. Format EXACTLY like this:
-
-1. Community Name Here - Address if available
-2. Another Community Name - Address  
-3. Third Community Name - Address
-
-Include:
-- At least 20-30 communities if available
-- Focus on community NAMES, not descriptions
-- Include assisted living, independent living, memory care, nursing homes
-- Include major chains like Brookdale, Sunrise, Atria, Holiday, etc.
-- Include local communities too
-
-DO NOT provide general descriptions. ONLY list actual community names.`;
-
     try {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar', // Standard model for cost-effective nearby search
-          web_search_options: {
-            search_context_size: 'low' // Low context for 70% cost reduction
-          },
-          messages: [
-            {
-              role: 'user',
-              content: query
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 1000,
-          stream: false,
-          return_citations: true,
-          return_images: false,
-          return_related_questions: false,
-          search_recency_filter: "month"
-        })
-      });
+      const results = await perplexitySearchAPI.discoverCommunities(location);
 
-      const data: PerplexityResponse = await response.json();
-      const content = data.choices[0]?.message?.content || '';
-      
-      return this.parseNearbyOptions(content, data.citations || []);
+      const nearbyOptions = results.communities.map(c => ({
+        name: c.name,
+        address: c.address || '',
+        distance: 'Local' // Search API doesn't provide exact distance usually
+      }));
+
+      return {
+        found: nearbyOptions.length > 0,
+        name: 'Search',
+        sources: results.sources,
+        nearbyOptions: nearbyOptions
+      };
     } catch (error) {
       console.error('Nearby search failed:', error);
       return {

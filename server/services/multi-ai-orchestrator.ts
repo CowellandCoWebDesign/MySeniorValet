@@ -1,8 +1,10 @@
 import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
+import { perplexitySearchAPI } from './perplexity-search-api';
 
 // Multi-AI Orchestrator Service for AI Map Intelligence
 // Combines ChatGPT, Perplexity, and Claude for comprehensive analysis
+// MIGRATED: Uses Perplexity Search API ($5/1K) instead of Sonar chat API
 
 interface AIProvider {
   name: string;
@@ -160,49 +162,26 @@ class MultiAIOrchestrator {
   }
 
   // Perplexity Analysis - Focus on real-time web information
+  // MIGRATED: Uses Search API ($5/1K) instead of Sonar chat API
   private async analyzeWithPerplexity(context: any) {
     if (!this.perplexityApiKey) return null;
 
     try {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.perplexityApiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar', // Standard model for cost-effective analysis
-          messages: [
-            {
-              role: 'system',
-              content: 'Provide current, factual information about senior living in the specified area. Be precise and concise.'
-            },
-            {
-              role: 'user',
-              content: `What are the current senior living trends and important factors for the area at coordinates ${context.location}? Include recent developments, pricing trends, and quality indicators.`
-            }
-          ],
-          web_search_options: {
-            search_context_size: 'low' // Low context for 70% cost reduction
-          },
-          temperature: 0.2,
-          top_p: 0.9,
-          return_related_questions: false,
-          search_recency_filter: 'month',
-          stream: false
-        })
-      });
+      const results = await perplexitySearchAPI.search(
+        `senior living trends ${context.location} pricing quality market`,
+        { max_results: 10, max_tokens_per_page: 512 }
+      );
 
-      if (!response.ok) {
-        throw new Error(`Perplexity API error: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // Combine snippets for market insights
+      const marketTrends = results.results
+        .map(r => r.snippet)
+        .join(' ')
+        .substring(0, 1500);
       
       return {
         insights: {
-          market_trends: data.choices[0]?.message?.content || 'No trends available',
-          citations: data.citations || []
+          market_trends: marketTrends || 'No trends available',
+          citations: results.results.map(r => r.url)
         },
         recommendations: []
       };
@@ -310,36 +289,21 @@ class MultiAIOrchestrator {
     }
   }
 
+  // MIGRATED: Uses Search API ($5/1K) instead of Sonar chat API
   private async getPerplexitySearchEnhancement(query: string) {
     if (!this.perplexityApiKey) return null;
 
     try {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.perplexityApiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar', // Standard model for cost-effective search
-          web_search_options: {
-            search_context_size: 'low' // Low context for 70% cost reduction
-          },
-          messages: [
-            {
-              role: 'user',
-              content: `What are the current best practices for searching "${query}" in senior living? Include trending terms and important factors.`
-            }
-          ],
-          temperature: 0.3,
-          stream: false
-        })
-      });
+      const results = await perplexitySearchAPI.search(
+        `senior living ${query} best practices trending`,
+        { max_results: 5, max_tokens_per_page: 256 }
+      );
 
-      const data = await response.json();
-      const content = data.choices?.[0]?.message?.content || '';
+      // Extract key terms from result titles and snippets
+      const content = results.results
+        .map(r => `${r.title} ${r.snippet}`)
+        .join(' ');
       
-      // Extract key terms from the response
       const terms = content.match(/["']([^"']+)["']/g) || [];
       
       return {
@@ -467,33 +431,25 @@ class MultiAIOrchestrator {
     }
   }
 
+  // MIGRATED: Uses Search API ($5/1K) instead of Sonar chat API
   private async getPerplexityContext(preferences: any) {
     if (!this.perplexityApiKey) return null;
 
     try {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.perplexityApiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar', // Standard model for cost-effective matching
-          web_search_options: {
-            search_context_size: 'low' // Low context for 70% cost reduction
-          },
-          messages: [{
-            role: 'user',
-            content: `What are current best practices for matching senior living communities to these preferences: ${JSON.stringify(preferences)}?`
-          }],
-          temperature: 0.2,
-          stream: false
-        })
-      });
+      // Build a search query from preferences
+      const prefKeys = Object.keys(preferences).slice(0, 3).join(' ');
+      const results = await perplexitySearchAPI.search(
+        `senior living matching ${prefKeys} best practices`,
+        { max_results: 5, max_tokens_per_page: 256 }
+      );
 
-      const data = await response.json();
-      // Perplexity provides context, not direct matches
-      return { context: data.choices?.[0]?.message?.content || 'No additional context' };
+      // Combine snippets for context
+      const context = results.results
+        .map(r => r.snippet)
+        .join(' ')
+        .substring(0, 1000);
+      
+      return { context: context || 'No additional context' };
     } catch (error) {
       console.error('Perplexity context error:', error);
       return null;
