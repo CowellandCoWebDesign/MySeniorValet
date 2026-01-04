@@ -648,6 +648,40 @@ export class PerplexitySearchAPI {
       /\bpricing\s+(guide|information)\b/i,        // "Pricing Guide"
     ];
 
+    // ========== GENERIC LIST TITLE PATTERNS ==========
+    // These are page titles from aggregator sites, NOT actual community names
+    // Real communities have proper nouns like "Brookdale", "Sunrise at...", "The Arbors"
+    // Generic titles describe CATEGORIES, not specific facilities
+    const GENERIC_LIST_TITLE_PATTERNS = [
+      // Pattern: "[Number] [Care Type] in [Location]" - e.g., "38 Assisted Living Facilities in Tulsa County"
+      /^\d+\s+(?:assisted\s+living|senior\s+living|memory\s+care|nursing\s+home|retirement|independent\s+living|skilled\s+nursing|ccrc)s?\s+(?:facilities|communities|homes|centers?)?\s*(?:in|near)\s+/i,
+      
+      // Pattern: "[Care Type] in [Location]" - e.g., "Assisted Living Facilities in Tulsa"
+      /^(?:assisted\s+living|senior\s+living|memory\s+care|nursing\s+home|retirement|independent\s+living|skilled\s+nursing)s?\s+(?:facilities|communities|homes|centers?)?\s*(?:in|near)\s+\w/i,
+      
+      // Pattern: "[Location], [State] [Care Type]" - e.g., "Tulsa, Oklahoma Assisted Living Facilities & Senior Care"
+      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,?\s+(?:[A-Z]{2}|[A-Z][a-z]+)\s+(?:assisted\s+living|senior\s+living|memory\s+care)/i,
+      
+      // Pattern: "[Care Type] [Location] County" - e.g., "Memory care facilities in Tulsa County"
+      /^(?:memory\s+care|senior\s+living|assisted\s+living)\s+(?:facilities|communities|homes)?\s*(?:in\s+)?[A-Z][a-z]+\s+County/i,
+      
+      // Pattern: "CCRCs & Senior Living in [Location]"
+      /^CCRCs?\s*[&+]\s*(?:Senior\s+Living|Assisted\s+Living|Memory\s+Care)\s+(?:in|near)\s+/i,
+      
+      // Pattern: "[Care Type] [Location]" without "in" - e.g., "Senior Living Tulsa County"
+      /^(?:Senior\s+Living|Memory\s+Care|Assisted\s+Living)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?(?:\s+County)?$/i,
+      
+      // Pattern: "Accredited [Care Type] in [Location]" - e.g., "Accredited Independent Senior Living in Tulsa"
+      /^(?:Accredited|Certified|Licensed)\s+(?:Independent\s+)?(?:Senior\s+Living|Assisted\s+Living|Memory\s+Care)\s+(?:in|near)\s+/i,
+      
+      // Pattern: "[PDF] [anything]" - PDF documents are never community names
+      /^\[PDF\]\s+/i,
+    ];
+
+    // ========== TOLL-FREE REFERRAL SERVICE NUMBERS ==========
+    // These prefixes (800, 833, 844, 855, 866, 877, 888) indicate referral services, NOT direct community lines
+    const TOLL_FREE_PREFIXES = ['800', '833', '844', '855', '866', '877', '888'];
+
     // ========== COMMUNITY-INDICATIVE KEYWORDS ==========
     const COMMUNITY_KEYWORDS = [
       'senior living',
@@ -701,6 +735,24 @@ export class PerplexitySearchAPI {
         continue;
       }
 
+      // Check if this is a generic list title (category description, not a community name)
+      const isGenericListTitle = GENERIC_LIST_TITLE_PATTERNS.some(pattern => pattern.test(originalName));
+      if (isGenericListTitle) {
+        console.log(`📋 Skipping generic list title: "${originalName}"`);
+        continue;
+      }
+
+      // Check for toll-free referral service phone numbers in snippet
+      const snippetPhoneMatch = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+      if (snippetPhoneMatch) {
+        const phoneDigits = snippetPhoneMatch[0].replace(/\D/g, '');
+        const areaCode = phoneDigits.substring(0, 3);
+        if (TOLL_FREE_PREFIXES.includes(areaCode)) {
+          console.log(`📞 Skipping toll-free referral number (${areaCode}): "${originalName}"`);
+          continue;
+        }
+      }
+
       // ========== PHASE 2: NAME CLEANING ==========
       let name = originalName;
       name = name.replace(/\s*[-|–—]\s*.*$/, ''); // Remove everything after dash/pipe
@@ -723,14 +775,22 @@ export class PerplexitySearchAPI {
       );
       if (hasCommunityKeywords) qualityScore += 20;
 
-      // Extract contact info
-      const phoneMatch = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-      const phone = phoneMatch ? phoneMatch[0] : undefined;
+      // Extract contact info (excluding toll-free referral numbers)
+      const allPhoneMatches = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g) || [];
+      let phone: string | undefined = undefined;
+      for (const match of allPhoneMatches) {
+        const digits = match.replace(/\D/g, '');
+        const areaCode = digits.substring(0, 3);
+        if (!TOLL_FREE_PREFIXES.includes(areaCode)) {
+          phone = match;
+          break; // Use first non-toll-free number
+        }
+      }
 
       const addressMatch = result.snippet.match(/\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way|Pkwy|Parkway|Place|Pl|Circle|Cir|Court|Ct)/i);
       const address = addressMatch ? addressMatch[0] : undefined;
 
-      // +15 points: Has phone number
+      // +15 points: Has LOCAL phone number (not toll-free)
       if (phone) qualityScore += 15;
 
       // +15 points: Has address
