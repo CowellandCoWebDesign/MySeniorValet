@@ -553,6 +553,12 @@ export class PerplexitySearchAPI {
    * Discover senior living communities in a location
    * Returns structured data for community discovery
    * Cost: $0.005 per request vs $0.03+ for Sonar Pro with high context
+   * 
+   * FILTERING PIPELINE (Jan 2026):
+   * 1. Entity type detection - exclude referral services, directories, articles
+   * 2. Required fields validation - must have (phone OR website) to be actionable
+   * 3. Quality scoring - 0-100 threshold (minimum 60 to be included)
+   * 4. Location matching - bonus points for results matching queried location
    */
   async discoverCommunities(location: string, options: {
     careType?: string;
@@ -593,7 +599,75 @@ export class PerplexitySearchAPI {
       ]
     });
 
-    // Extract community data from search results
+    // ========== AGGREGATOR/REFERRAL SERVICE EXCLUSION LIST ==========
+    // These are NOT actual senior living communities - they are referral/placement services
+    // NOTE: We match against TITLES only (not snippets) to avoid blocking legitimate community listings
+    const AGGREGATOR_TITLE_PATTERNS = [
+      /\bcarepatrol\b/i,
+      /\ba\s*place\s*for\s*mom\b/i,
+      /\bseniorly\b/i,
+      /\boasis\s+senior\s+advisors?\b/i,
+      /\bsenior\s+care\s+authority\b/i,
+      /\bassisted\s+living\s+locators?\b/i,
+      /\bsenior\s+living\s+advisors?\b/i,
+      /\beldercare\s+locator\b/i,
+      /\bplacement\s+services?\b/i,
+      /\bsenior\s+placement\b/i,
+      /\bsenior\s+care\s+finder\b/i,
+      // Home care agencies (not residential communities)
+      /\bhome\s+care\s+assistance\b/i,
+      /\bcomfort\s+keepers\b/i,
+      /\bvisiting\s+angels\b/i,
+      /\bright\s+at\s+home\b/i,
+      /\bfirstlight\s+home\s+care\b/i,
+      /\bsenior\s+helpers\b/i,
+      /\bhome\s+instead\b/i,
+      /\bbrightstar\s+care\b/i,
+      /\binterim\s+healthcare\b/i,
+    ];
+
+    // ========== ARTICLE/GUIDE PATTERNS ==========
+    // Use word boundaries to avoid false positives (e.g., "Liston House" matching "list")
+    const ARTICLE_PATTERNS = [
+      /^(the\s+)?(\d+\s+)?(best|top)\s+/i,        // "The 10 Best...", "Top..."
+      /\bguide\s+(to|for)\b/i,                     // "Guide to...", "Guide for..."
+      /\bcomplete\s+guide\b/i,                     // "Complete Guide"
+      /\bhow\s+to\s+(find|choose|select)\b/i,      // "How to Find..."
+      /\btips\s+(for|on)\b/i,                      // "Tips for..."
+      /\bexplained\b/i,                            // "...Explained"
+      /\bversus\b|\bvs\.?\s+\b/i,                  // "A vs B"
+      /\bcompared\b/i,                             // "...Compared"
+      /^find\s+.*\s+(near|in)\s+/i,                // "Find X near..."
+      /^search\s+(for\s+)?/i,                      // "Search for..."
+      /^\d+\s+things?\s+/i,                        // "10 Things..."
+      /^what\s+(is|are)\s+/i,                      // "What is..."
+      /\breview(s|ed)?\s+of\b/i,                   // "Reviews of..."
+      /\bdirectory\s+of\b/i,                       // "Directory of..."
+      /\blisting(s)?\s+of\b/i,                     // "Listings of..."
+      /\bcost(s)?\s+of\b/i,                        // "Costs of..." (pricing articles)
+      /\bpricing\s+(guide|information)\b/i,        // "Pricing Guide"
+    ];
+
+    // ========== COMMUNITY-INDICATIVE KEYWORDS ==========
+    const COMMUNITY_KEYWORDS = [
+      'senior living',
+      'assisted living',
+      'memory care',
+      'independent living',
+      'skilled nursing',
+      'nursing home',
+      'retirement community',
+      'continuing care',
+      'ccrc',
+      'alzheimer',
+      'dementia care',
+      'residential care',
+      'board and care',
+      'adult family home',
+      'personal care home',
+    ];
+
+    // Extract community data from search results with smart filtering
     const communities: Array<{
       name: string;
       address?: string;
@@ -607,27 +681,89 @@ export class PerplexitySearchAPI {
     }> = [];
 
     for (const result of results.results) {
-      // Extract potential community name from title
-      let name = result.title;
+      const originalName = result.title;
+      const lowerName = originalName.toLowerCase();
+      const lowerSnippet = result.snippet.toLowerCase();
       
-      // Skip articles and guides
-      if (/^(the\s+)?(\d+\s+)?(best|top)\s+/i.test(name)) continue;
-      if (/guide|list|tips|how\s+to/i.test(name)) continue;
+      // ========== PHASE 1: ENTITY TYPE DETECTION ==========
       
-      // Clean up name
-      name = name.replace(/\s*[-|]\s*.*$/, '');
-      name = name.replace(/\s*\(.*\)/, '');
+      // Check if this is an aggregator/referral service (match title only to avoid blocking listings)
+      const isAggregator = AGGREGATOR_TITLE_PATTERNS.some(pattern => pattern.test(originalName));
+      if (isAggregator) {
+        console.log(`🚫 Skipping aggregator/referral service: "${originalName}"`);
+        continue;
+      }
+
+      // Check if this is an article/guide
+      const isArticle = ARTICLE_PATTERNS.some(pattern => pattern.test(originalName));
+      if (isArticle) {
+        console.log(`📰 Skipping article/guide: "${originalName}"`);
+        continue;
+      }
+
+      // ========== PHASE 2: NAME CLEANING ==========
+      let name = originalName;
+      name = name.replace(/\s*[-|–—]\s*.*$/, ''); // Remove everything after dash/pipe
+      name = name.replace(/\s*\(.*\)/, ''); // Remove parentheses content
+      name = name.replace(/,\s+(AL|FL|TX|CA|NY|GA|NC|AZ|PA|OH|IL|MI|WA|CO|TN|MO|IN|MA|VA|NJ|MD|MN|WI|SC|OR|KY|OK|CT|UT|LA|NV|IA|AR|MS|KS|NM|NE|WV|ID|HI|ME|NH|RI|MT|DE|SD|ND|AK|DC|VT|WY)$/i, ''); // Remove state suffix
       name = name.trim();
       
-      if (name.length < 3 || name.length > 100) continue;
+      // Skip if name is too short, too long, or generic
+      if (name.length < 5 || name.length > 80) {
+        console.log(`⚠️ Skipping invalid name length: "${name}"`);
+        continue;
+      }
 
-      // Extract phone from snippet
+      // ========== PHASE 3: QUALITY SCORING ==========
+      let qualityScore = 50; // Base score
+      
+      // +20 points: Has community-indicative keywords in title or snippet
+      const hasCommunityKeywords = COMMUNITY_KEYWORDS.some(kw => 
+        lowerName.includes(kw) || lowerSnippet.includes(kw)
+      );
+      if (hasCommunityKeywords) qualityScore += 20;
+
+      // Extract contact info
       const phoneMatch = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
       const phone = phoneMatch ? phoneMatch[0] : undefined;
 
-      // Extract address from snippet
-      const addressMatch = result.snippet.match(/\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way)/i);
+      const addressMatch = result.snippet.match(/\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way|Pkwy|Parkway|Place|Pl|Circle|Cir|Court|Ct)/i);
       const address = addressMatch ? addressMatch[0] : undefined;
+
+      // +15 points: Has phone number
+      if (phone) qualityScore += 15;
+
+      // +15 points: Has address
+      if (address) qualityScore += 15;
+
+      // +10 points: Website is from trusted domain
+      const trustedDomains = ['caring.com', 'seniorhousing.net', 'medicare.gov', 'seniorliving.org'];
+      if (trustedDomains.some(d => result.domain?.includes(d))) qualityScore += 10;
+
+      // +5 points: Location matches in snippet
+      const locationParts = location.toLowerCase().split(/[,\s]+/).filter(p => p.length > 2);
+      const locationMatch = locationParts.some(part => lowerSnippet.includes(part));
+      if (locationMatch) qualityScore += 5;
+
+      // -10 points: Name has too many words (might be an article)
+      if (name.split(/\s+/).length > 8) qualityScore -= 10;
+
+      // -15 points: No contact info at all
+      if (!phone && !address && !result.url) qualityScore -= 15;
+
+      // ========== PHASE 4: THRESHOLD FILTER ==========
+      const MINIMUM_QUALITY_SCORE = 60;
+      if (qualityScore < MINIMUM_QUALITY_SCORE) {
+        console.log(`📉 Skipping low-quality result (score: ${qualityScore}): "${name}"`);
+        continue;
+      }
+
+      // ========== PHASE 5: REQUIRED FIELDS VALIDATION ==========
+      // Must have at least (phone OR website) to be actionable
+      if (!phone && !result.url) {
+        console.log(`📋 Skipping entry without contact info: "${name}"`);
+        continue;
+      }
 
       // Detect care types from snippet
       const careTypes: string[] = [];
@@ -635,6 +771,8 @@ export class PerplexitySearchAPI {
       if (/memory\s+care/i.test(result.snippet)) careTypes.push('Memory Care');
       if (/independent\s+living/i.test(result.snippet)) careTypes.push('Independent Living');
       if (/skilled\s+nursing/i.test(result.snippet)) careTypes.push('Skilled Nursing');
+      if (/nursing\s+home/i.test(result.snippet)) careTypes.push('Skilled Nursing');
+      if (/continuing\s+care|ccrc/i.test(result.snippet)) careTypes.push('Continuing Care');
 
       communities.push({
         name,
@@ -643,11 +781,13 @@ export class PerplexitySearchAPI {
         website: result.url,
         careTypes: careTypes.length > 0 ? careTypes : undefined,
         source: `search_api_${result.domain}`,
-        confidence: 75
+        confidence: qualityScore
       });
+
+      console.log(`✅ Accepted community (score: ${qualityScore}): "${name}"${phone ? ' [has phone]' : ''}${address ? ' [has address]' : ''}`);
     }
 
-    console.log(`✅ Discovered ${communities.length} communities in ${location}`);
+    console.log(`✅ Discovered ${communities.length} verified communities in ${location} (filtered from ${results.results?.length || 0} results)`);
 
     return {
       communities,
