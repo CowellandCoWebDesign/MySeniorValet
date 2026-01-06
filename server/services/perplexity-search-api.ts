@@ -676,6 +676,35 @@ export class PerplexitySearchAPI {
       
       // Pattern: "[PDF] [anything]" - PDF documents are never community names
       /^\[PDF\]\s+/i,
+      
+      // Pattern: "Find [anything] in/for [Location]" - e.g., "Find THE BEST Assisted Living Facilities for Seniors in Glendale"
+      /^find\s+.+\s+(?:in|for|near)\s+/i,
+      
+      // Pattern: "[Care Type] and Costs in [Location]" - e.g., "Assisted Living Facilities and Costs in Jackson"
+      /(?:facilities|communities|homes)\s+and\s+(?:costs?|pricing)\s+in\s+/i,
+      
+      // Pattern: "Continuing Care Retirement Community" - generic category, not a name
+      /^Continuing\s+Care\s+Retirement\s+Community$/i,
+      
+      // Pattern: "Alzheimers, Dementia and Memory Care Facilities in" 
+      /^Alzheimers?,?\s*(?:Dementia)?\s*(?:and|&)?\s*Memory\s+Care\s+(?:Facilities|Communities)\s+(?:in|near)\s+/i,
+      
+      // Pattern: "List of [anything]" - e.g., "List of Independent Living Facilities in Jackson"
+      /^list\s+of\s+/i,
+      
+      // Pattern: "Luxury [Care Type] [City]" - e.g., "Luxury Senior Living Glendale"
+      /^Luxury\s+(?:Senior|Assisted)\s+(?:Living|Care)\s+[A-Z][a-z]+$/i,
+      
+      // Pattern: Generic tool names - "Facility Finder", "Care Locator"
+      /^(?:facility|care|senior)\s+(?:finder|locator|search|directory)$/i,
+      
+      // Pattern: Script/technical artifacts - "Draft a target schema..."
+      /^(?:draft|create|design|build|target|schema)\s+a?\s+/i,
+      
+      // Pattern: Just a US city name (single word + potential state) - NOT a community name
+      // E.g., "Glendale" is a city, not a community
+      // But allow names like "Lenbrook", "Terrace", "Wellspring" which could be legitimate
+      // This is handled below in SINGLE_CITY_NAMES list
     ];
 
     // ========== TOLL-FREE REFERRAL SERVICE NUMBERS ==========
