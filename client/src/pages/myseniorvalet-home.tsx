@@ -727,8 +727,71 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           });
         }
         
-      } else if (isResearchMode || (viewMode === 'discover' && activeTab !== 'communities' && activeTab !== 'services')) {
-        // Use Public AI Chat for research mode or non-implemented discovery categories
+      } else if (viewMode === 'discover' && (activeTab === 'healthcare' || activeTab === 'resources' || activeTab === 'vendors')) {
+        // Healthcare, Resources, and Marketplace Discovery Mode - use global discovery
+        console.log(`🌍 ${activeTab} Discovery Mode for:`, query);
+        
+        setSearchResults({ 
+          results: [],
+          metadata: {
+            isLoading: true,
+            loadingMessage: `🔍 Searching for ${activeTab === 'healthcare' ? 'healthcare providers' : activeTab === 'resources' ? 'resources' : 'vendors'} matching "${query}"...`,
+            isResearchMode: false
+          }
+        });
+        
+        try {
+          const response = await fetch('/api/global-discovery/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              query: query,
+              searchType: activeTab,
+              limit: 30,
+              discoveryMode: true
+            }),
+            signal: AbortSignal.timeout(60000)
+          });
+          
+          if (!response.ok) throw new Error(`${activeTab} discovery failed`);
+          
+          const data = await response.json();
+          
+          if (data.results && data.results.length > 0) {
+            // Show discovered results in modal
+            setIsLoading(false);
+            setSearchResults({ results: [], metadata: null });
+            setGlobalDiscoveryResults({
+              query,
+              results: data.results,
+              metadata: {...data.metadata, discoveryType: activeTab, aiNarrative: data.aiNarrative, citations: data.citations}
+            });
+            setForceClearAutocomplete(true);
+            setShowGlobalDiscoveryModal(true);
+          } else {
+            // No results found, show message
+            setSearchResults({ 
+              results: [],
+              metadata: {
+                aiResponse: `No ${activeTab === 'healthcare' ? 'healthcare providers' : activeTab === 'resources' ? 'resources' : 'vendors'} found for "${query}". Try a more specific location or different search terms.`,
+                isResearchMode: false
+              }
+            });
+          }
+        } catch (error) {
+          console.error(`${activeTab} discovery failed:`, error);
+          setSearchResults({ 
+            results: [],
+            metadata: {
+              aiResponse: `Unable to search ${activeTab} at the moment. Please try again.`,
+              error: true,
+              isResearchMode: false
+            }
+          });
+        }
+        
+      } else if (isResearchMode) {
+        // Use Public AI Chat for pure research mode (not discovery)
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

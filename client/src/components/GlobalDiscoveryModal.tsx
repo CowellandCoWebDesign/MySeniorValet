@@ -41,7 +41,9 @@ interface GlobalDiscoveryModalProps {
     sources?: string[];
     searchLocation: string;
     aiConfidence?: number;
-    discoveryType?: 'communities' | 'services' | 'healthcare' | 'resources';
+    discoveryType?: 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors';
+    aiNarrative?: string;
+    citations?: string[];
     rawPerplexityResponse?: string;
     perplexityQuery?: string;
     timeout?: boolean;
@@ -82,11 +84,24 @@ export function GlobalDiscoveryModal({
     // Navigate to the appropriate detail page based on discovery type
     setTimeout(() => {
       if (metadata?.discoveryType === 'services') {
-        // For services, use slug or ID
         const slug = community.id.toString();
         setLocation(`/service/${slug}?discovery=true`);
+      } else if (metadata?.discoveryType === 'healthcare') {
+        // Healthcare providers - show details modal or navigate to website
+        if (community.website) {
+          window.open(community.website, '_blank', 'noopener,noreferrer');
+        }
+      } else if (metadata?.discoveryType === 'resources') {
+        // Resources - navigate to website if available
+        if (community.website) {
+          window.open(community.website, '_blank', 'noopener,noreferrer');
+        }
+      } else if (metadata?.discoveryType === 'vendors') {
+        // Vendors - navigate to vendor page or website
+        if (community.website) {
+          window.open(community.website, '_blank', 'noopener,noreferrer');
+        }
       } else {
-        // For communities, use the existing community detail page
         setLocation(`/community/${community.id}?discovery=true`);
       }
       onClose();
@@ -109,7 +124,13 @@ export function GlobalDiscoveryModal({
               </span>
             ) : (
               <>
-                Found {metadata?.totalFound || results.length} {metadata?.discoveryType === 'services' ? 'service providers' : 'communities'} for "{searchQuery}"
+                Found {metadata?.totalFound || results.length} {
+                  metadata?.discoveryType === 'services' ? 'service providers' 
+                  : metadata?.discoveryType === 'healthcare' ? 'healthcare providers'
+                  : metadata?.discoveryType === 'resources' ? 'resources'
+                  : metadata?.discoveryType === 'vendors' ? 'vendors'
+                  : 'communities'
+                } for "{searchQuery}"
                 {metadata?.discoveredCount && metadata.discoveredCount > 0 && (
                   <span className="ml-2 text-green-600 dark:text-green-400">
                     ({metadata.discoveredCount} newly discovered!)
@@ -189,6 +210,34 @@ export function GlobalDiscoveryModal({
                     }
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+          
+          {/* AI Narrative Section */}
+          {metadata?.aiNarrative && (
+            <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-800 dark:text-gray-200">
+                    {metadata.aiNarrative}
+                  </p>
+                  {metadata.citations && metadata.citations.length > 0 && (
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      <span className="font-medium">Sources: </span>
+                      {metadata.citations.slice(0, 3).map((citation, idx) => (
+                        <span key={idx}>
+                          {idx > 0 && ', '}
+                          <a href={citation} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                            {new URL(citation).hostname.replace('www.', '')}
+                          </a>
+                        </span>
+                      ))}
+                      {metadata.citations.length > 3 && ` +${metadata.citations.length - 3} more`}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}

@@ -701,10 +701,21 @@ export class PerplexitySearchAPI {
       // Pattern: Script/technical artifacts - "Draft a target schema..."
       /^(?:draft|create|design|build|target|schema)\s+a?\s+/i,
       
-      // Pattern: Just a US city name (single word + potential state) - NOT a community name
-      // E.g., "Glendale" is a city, not a community
-      // But allow names like "Lenbrook", "Terrace", "Wellspring" which could be legitimate
-      // This is handled below in SINGLE_CITY_NAMES list
+      // Pattern: "55+ Communities" variations - e.g., "55+ Communities & Senior Living in Daytona Beach, Florida"
+      /^55\+\s*(?:communities|living|housing)/i,
+      /55\+\s*(?:communities|living)\s*(?:&|and)\s*(?:senior\s+living|retirement)/i,
+      
+      // Pattern: "[Age]+ [Type] in [Location]" - e.g., "55+ Active Adult Communities in Phoenix"
+      /^\d+\+\s*(?:active\s+)?(?:adult|senior)\s+(?:communities|living|housing)\s+(?:in|near)\s+/i,
+      
+      // Pattern: "Best [anything] in [Location]" - aggregator/list titles
+      /^best\s+.+\s+(?:in|near|for)\s+/i,
+      
+      // Pattern: "Top [Number] [anything]" - list titles
+      /^top\s+\d+\s+/i,
+      
+      // Pattern: "[Location] Senior Living" where location is just a city name (2-3 words max)
+      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+(?:Senior\s+Living|Assisted\s+Living|Memory\s+Care)$/i,
     ];
 
     // ========== TOLL-FREE REFERRAL SERVICE NUMBERS ==========

@@ -165,7 +165,7 @@ function parseLocationFromAddress(address: string, query: string = ''): { city: 
 // Schema for global discovery search
 const globalSearchSchema = z.object({
   query: z.string(),
-  searchType: z.enum(['location', 'service', 'services', 'community']).optional(),
+  searchType: z.enum(['location', 'service', 'services', 'community', 'healthcare', 'resources', 'vendors']).optional(),
   limit: z.number().min(1).max(100).default(30)
 });
 
@@ -622,7 +622,308 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             }
           }
         }
-      } else if (searchType !== 'services') {
+        
+        // ============ SERVICES DISCOVERY MODE ============
+        // If Discovery Mode is enabled and we have insufficient database results, call Perplexity
+        if (req.body.discoveryMode === true && existingCommunities.length < 5) {
+          console.log(`🔍 Services Discovery Mode ACTIVE: Calling Perplexity Search API for "${query}"`);
+          
+          const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+          if (perplexityApiKey) {
+            try {
+              const discoveryStartTime = Date.now();
+              
+              // Build a services-specific search query
+              // Parse location from query (e.g., "daycare in Redding California")
+              let serviceType = '';
+              let searchLocation = query;
+              
+              const queryLower = query.toLowerCase();
+              if (queryLower.includes(' in ')) {
+                const parts = query.split(/\s+in\s+/i);
+                serviceType = parts[0].trim();
+                searchLocation = parts[1].trim();
+              } else if (queryLower.includes(' near ')) {
+                const parts = query.split(/\s+near\s+/i);
+                serviceType = parts[0].trim();
+                searchLocation = parts[1].trim();
+              }
+              
+              // Construct search query for services
+              const servicesSearchQuery = serviceType 
+                ? `${serviceType} services in ${searchLocation} business name address phone website`
+                : `${query} services business name address phone website`;
+              
+              console.log(`🔍 Services Perplexity query: "${servicesSearchQuery}"`);
+              
+              // Use Perplexity Search API
+              const searchResults = await perplexitySearchAPI.discoverCommunities(servicesSearchQuery, {
+                limit: 15
+              });
+              
+              // Store citation sources for display
+              const serviceCitations = searchResults.sources || [];
+              // Generate a simple summary from the search
+              const aiNarrative = `Discovered ${searchResults.communities.length} ${serviceType || 'service'} options in ${searchLocation}.`;
+              
+              console.log(`✅ Services Discovery found ${searchResults.communities.length} potential services`);
+              
+              // Convert discovered communities to services format
+              const discoveredServices = searchResults.communities.map((item: any) => ({
+                id: 0, // Will be assigned when saved
+                name: item.name,
+                type: 'service',
+                serviceType: serviceType || 'Service',
+                description: item.description || '',
+                address: item.address || '',
+                city: item.city || '',
+                state: item.state || '',
+                phone: item.phone || '',
+                website: item.website || '',
+                isDiscovered: true,
+                isExisting: false,
+                confidence: item.confidence || 85,
+                source: item.source || 'Perplexity Discovery'
+              }));
+              
+              // Save discovered services to database
+              const savedServices: any[] = [];
+              for (const discovered of discoveredServices) {
+                try {
+                  // Check if service already exists
+                  const existing = await db.select()
+                    .from(services)
+                    .where(sql`LOWER(${services.name}) = ${discovered.name.toLowerCase()}`)
+                    .limit(1);
+                  
+                  if (existing.length === 0 && discovered.name && discovered.name.length > 3) {
+                    // Save new discovered service
+                    const [newService] = await db.insert(services)
+                      .values({
+                        name: discovered.name,
+                        description: discovered.description || `Service discovered in ${searchLocation}`,
+                        shortDescription: discovered.description ? discovered.description.substring(0, 200) : `Service in ${searchLocation}`,
+                        serviceType: 'service' as const,
+                        deliveryMethod: ['in-person'] as const,
+                        externalUrl: discovered.website || null,
+                        isActive: true,
+                        isFeatured: false,
+                        sortOrder: 0,
+                        metadata: {
+                          source: 'Perplexity Search API Discovery',
+                          lastUpdated: new Date().toISOString(),
+                          location: {
+                            city: discovered.city || '',
+                            state: discovered.state || '',
+                            address: discovered.address || '',
+                            phone: discovered.phone || ''
+                          },
+                          tags: ['discovered', 'perplexity', query.toLowerCase()]
+                        } as any
+                      })
+                      .returning();
+                    
+                    savedServices.push({
+                      ...newService,
+                      isDiscovered: true,
+                      city: discovered.city,
+                      state: discovered.state,
+                      phone: discovered.phone
+                    });
+                    console.log(`💾 Saved new service: ${discovered.name} (ID: ${newService.id})`);
+                  } else if (existing.length > 0) {
+                    savedServices.push({
+                      ...existing[0],
+                      isExisting: true,
+                      isDiscovered: false
+                    });
+                  }
+                } catch (saveError) {
+                  console.error(`⚠️ Error saving service ${discovered.name}:`, saveError);
+                }
+              }
+              
+              // Combine database results with discovered services
+              const allResults = [
+                ...existingCommunities.map((c: any) => ({ ...c, isExisting: true, isDiscovered: false })),
+                ...savedServices
+              ];
+              
+              const discoveryResponseTime = Date.now() - discoveryStartTime;
+              console.log(`✅ Services Discovery completed in ${discoveryResponseTime}ms - Found ${savedServices.length} new services`);
+              
+              return res.json({
+                success: true,
+                query: query,
+                searchType: 'services',
+                results: allResults.slice(0, limit),
+                metadata: {
+                  totalFound: allResults.length,
+                  existingCount: existingCommunities.length,
+                  discoveredCount: savedServices.length,
+                  sources: serviceCitations,
+                  searchLocation: searchLocation,
+                  timestamp: new Date().toISOString(),
+                  aiConfidence: 85,
+                  dataSource: 'Perplexity Search API Discovery',
+                  discoveryModeUsed: true,
+                  responseTime: discoveryResponseTime
+                },
+                aiNarrative: aiNarrative, // Include AI summary for display
+                citations: serviceCitations,
+                message: `Found ${allResults.length} services (${existingCommunities.length} existing, ${savedServices.length} discovered)`
+              });
+              
+            } catch (searchError) {
+              console.error('❌ Services Discovery error:', searchError);
+              // Fall through to return database results
+            }
+          }
+        }
+        
+        // If we reach here for services, return whatever database results we have
+        return res.json({
+          success: true,
+          query: query,
+          searchType: 'services',
+          results: existingCommunities.slice(0, limit),
+          metadata: {
+            totalFound: existingCommunities.length,
+            existingCount: existingCommunities.length,
+            discoveredCount: 0,
+            sources: ['Database'],
+            searchLocation: query,
+            timestamp: new Date().toISOString(),
+            aiConfidence: 100,
+            dataSource: existingCommunities.length > 0 ? 'Database' : 'No results found'
+          },
+          message: existingCommunities.length === 0 
+            ? 'No services found. Try enabling Discovery Mode to search the web.'
+            : `Found ${existingCommunities.length} services in database`
+        });
+        
+      } else if (searchType === 'healthcare' || searchType === 'resources' || searchType === 'vendors') {
+        // ============ HEALTHCARE / RESOURCES / VENDORS DISCOVERY MODE ============
+        const categoryLabel = searchType === 'healthcare' ? 'healthcare providers' 
+          : searchType === 'resources' ? 'resources' : 'vendors';
+        console.log(`🔍 ${searchType} Discovery search: "${query}"`);
+        
+        // Parse location from query
+        let searchLocation = query;
+        let categoryTerm = '';
+        const queryLower = query.toLowerCase();
+        
+        if (queryLower.includes(' in ')) {
+          const parts = query.split(/\s+in\s+/i);
+          categoryTerm = parts[0].trim();
+          searchLocation = parts[1].trim();
+        } else if (queryLower.includes(' near ')) {
+          const parts = query.split(/\s+near\s+/i);
+          categoryTerm = parts[0].trim();
+          searchLocation = parts[1].trim();
+        }
+        
+        // Discovery Mode - call Perplexity Search API
+        if (req.body.discoveryMode === true) {
+          const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+          if (perplexityApiKey) {
+            try {
+              const discoveryStartTime = Date.now();
+              
+              // Build category-specific search query
+              let discoverySearchQuery = '';
+              if (searchType === 'healthcare') {
+                discoverySearchQuery = categoryTerm 
+                  ? `${categoryTerm} healthcare providers in ${searchLocation} hospital clinic address phone`
+                  : `senior healthcare providers medical clinics hospitals in ${searchLocation} address phone website`;
+              } else if (searchType === 'resources') {
+                discoverySearchQuery = categoryTerm 
+                  ? `${categoryTerm} senior resources in ${searchLocation} organization address phone`
+                  : `senior resources support services organizations in ${searchLocation} address phone website`;
+              } else {
+                discoverySearchQuery = categoryTerm 
+                  ? `${categoryTerm} senior vendors businesses in ${searchLocation} company address phone`
+                  : `senior care vendors supplies businesses in ${searchLocation} address phone website`;
+              }
+              
+              console.log(`🔍 ${searchType} Perplexity query: "${discoverySearchQuery}"`);
+              
+              const searchResults = await perplexitySearchAPI.discoverCommunities(discoverySearchQuery, {
+                limit: 15
+              });
+              
+              const citations = searchResults.sources || [];
+              const aiNarrative = `Discovered ${searchResults.communities.length} ${categoryLabel} in ${searchLocation}.`;
+              
+              console.log(`✅ ${searchType} Discovery found ${searchResults.communities.length} results`);
+              
+              // Convert discovered items to appropriate format
+              const discoveredItems = searchResults.communities.map((item: any, idx: number) => ({
+                id: idx + 1,
+                name: item.name,
+                type: searchType,
+                description: item.description || '',
+                address: item.address || '',
+                city: item.city || '',
+                state: item.state || '',
+                phone: item.phone || '',
+                website: item.website || '',
+                isDiscovered: true,
+                isExisting: false,
+                confidence: item.confidence || 85,
+                source: item.source || 'Perplexity Discovery'
+              }));
+              
+              const discoveryResponseTime = Date.now() - discoveryStartTime;
+              console.log(`✅ ${searchType} Discovery completed in ${discoveryResponseTime}ms`);
+              
+              return res.json({
+                success: true,
+                query: query,
+                searchType: searchType,
+                results: discoveredItems.slice(0, limit),
+                metadata: {
+                  totalFound: discoveredItems.length,
+                  existingCount: 0,
+                  discoveredCount: discoveredItems.length,
+                  sources: citations,
+                  searchLocation: searchLocation,
+                  timestamp: new Date().toISOString(),
+                  aiConfidence: 85,
+                  dataSource: 'Perplexity Search API Discovery',
+                  discoveryModeUsed: true,
+                  responseTime: discoveryResponseTime
+                },
+                aiNarrative: aiNarrative,
+                citations: citations,
+                message: `Found ${discoveredItems.length} ${categoryLabel} via Discovery Mode`
+              });
+              
+            } catch (searchError) {
+              console.error(`❌ ${searchType} Discovery error:`, searchError);
+            }
+          }
+        }
+        
+        // Return empty for non-discovery mode (no database tables for these categories yet)
+        return res.json({
+          success: true,
+          query: query,
+          searchType: searchType,
+          results: [],
+          metadata: {
+            totalFound: 0,
+            existingCount: 0,
+            discoveredCount: 0,
+            sources: [],
+            searchLocation: query,
+            timestamp: new Date().toISOString()
+          },
+          message: `No ${categoryLabel} found. Enable Discovery Mode to search the web.`
+        });
+        
+      } else {
+        // Non-services search (communities, healthcare, etc.)
         // Parse location from query (e.g., "Dallas, Texas", "Eureka California", or just "France")
         // Note: citySearch and stateSearch are declared at function scope for use in broader search
         
