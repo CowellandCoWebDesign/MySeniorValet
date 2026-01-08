@@ -31,6 +31,7 @@ interface GlobalDiscoveryResult {
   hours?: string;
   entityType?: string;
   confidence?: number;
+  hasDatabaseId?: boolean;
 }
 
 interface GlobalDiscoveryModalProps {
@@ -85,27 +86,24 @@ export function GlobalDiscoveryModal({
     setSelectedCommunity(community);
     setIsLoading(true);
     
-    // Navigate to the appropriate detail page based on discovery type
+    // Navigate based on discovery type and whether result has a database ID
     setTimeout(() => {
       if (metadata?.discoveryType === 'services') {
-        const slug = community.id.toString();
-        setLocation(`/service/${slug}?discovery=true`);
-      } else if (metadata?.discoveryType === 'healthcare') {
-        // Healthcare providers - show details modal or navigate to website
-        if (community.website) {
-          window.open(community.website, '_blank', 'noopener,noreferrer');
-        }
-      } else if (metadata?.discoveryType === 'resources') {
-        // Resources - navigate to website if available
-        if (community.website) {
-          window.open(community.website, '_blank', 'noopener,noreferrer');
-        }
-      } else if (metadata?.discoveryType === 'vendors') {
-        // Vendors - navigate to vendor page or website
-        if (community.website) {
+        // Services are saved to database - navigate to service detail page
+        setLocation(`/service/${community.id}?discovery=true`);
+      } else if (metadata?.discoveryType === 'healthcare' || 
+                 metadata?.discoveryType === 'resources' || 
+                 metadata?.discoveryType === 'vendors') {
+        // Healthcare/resources/vendors use hasDatabaseId flag to determine navigation
+        if (community.hasDatabaseId !== false && community.id > 100) {
+          // Has valid database ID - navigate to service page
+          setLocation(`/service/${community.id}?discovery=true&type=${metadata.discoveryType}`);
+        } else if (community.website) {
+          // No database ID - open external website
           window.open(community.website, '_blank', 'noopener,noreferrer');
         }
       } else {
+        // Communities go to community detail page
         setLocation(`/community/${community.id}?discovery=true`);
       }
       onClose();

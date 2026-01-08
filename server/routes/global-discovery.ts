@@ -848,9 +848,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               
               console.log(`✅ ${searchType} Discovery found ${searchResults.results.length} results`);
               
-              // Convert discovered items to appropriate format with pricing
+              // Convert discovered items to response format (no persistence for healthcare/resources/vendors)
+              // Uses synthetic IDs since these aren't saved to database
               const discoveredItems = searchResults.results.map((item: any, idx: number) => ({
-                id: idx + 1,
+                id: idx + 1, // Synthetic ID
                 name: item.name,
                 type: searchType,
                 description: item.description || '',
@@ -863,9 +864,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 hours: item.hours || '',
                 isDiscovered: true,
                 isExisting: false,
+                hasDatabaseId: false, // Explicit flag for frontend navigation
                 confidence: item.confidence || 85,
                 source: item.source || 'Perplexity Discovery',
-                entityType: item.entityType || searchType
+                entityType: searchType
               }));
               
               const discoveryResponseTime = Date.now() - discoveryStartTime;

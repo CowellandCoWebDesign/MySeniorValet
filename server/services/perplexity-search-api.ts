@@ -1190,8 +1190,45 @@ export class PerplexitySearchAPI {
       /^list\s+of\s+/i,
     ];
 
+    // Generic page titles to reject (not real business names)
+    const GENERIC_TITLES = [
+      'services', 'service', 'contact', 'contact us', 'about', 'about us',
+      'home', 'welcome', 'product details', 'products', 'ratings', 'reviews',
+      'ratings & reviews', 'ratings and reviews', 'faq', 'faqs', 'help',
+      'menu', 'locations', 'our services', 'our team', 'team', 'staff',
+      'hours', 'pricing', 'prices', 'rates', 'gallery', 'photos', 'blog',
+      'news', 'events', 'calendar', 'schedule', 'book now', 'sign up',
+      'login', 'register', 'subscribe', 'newsletter', 'careers', 'jobs',
+      'privacy', 'terms', 'disclaimer', 'sitemap', 'search', 'resources'
+    ];
+
     // Toll-free prefixes (referral services, not direct lines)
     const TOLL_FREE_PREFIXES = ['800', '833', '844', '855', '866', '877', '888'];
+
+    // Helper function to sanitize description text
+    const sanitizeDescription = (text: string): string => {
+      if (!text) return '';
+      let clean = text;
+      // Remove markdown headers
+      clean = clean.replace(/^#{1,6}\s+/gm, '');
+      // Remove markdown bold/italic
+      clean = clean.replace(/\*\*([^*]+)\*\*/g, '$1');
+      clean = clean.replace(/\*([^*]+)\*/g, '$1');
+      clean = clean.replace(/__([^_]+)__/g, '$1');
+      clean = clean.replace(/_([^_]+)_/g, '$1');
+      // Remove markdown links [text](url)
+      clean = clean.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+      // Remove HTML tags
+      clean = clean.replace(/<[^>]+>/g, '');
+      // Remove placeholder/warning text
+      clean = clean.replace(/warning:?\s*please\s+provide\s+content[^.]*\.?/gi, '');
+      clean = clean.replace(/please\s+provide\s+content[^.]*\.?/gi, '');
+      clean = clean.replace(/content\s+not\s+available[^.]*\.?/gi, '');
+      clean = clean.replace(/no\s+description\s+available[^.]*\.?/gi, '');
+      // Collapse multiple whitespace
+      clean = clean.replace(/\s+/g, ' ').trim();
+      return clean;
+    };
 
     for (const result of results.results) {
       const originalTitle = result.title;
@@ -1206,10 +1243,24 @@ export class PerplexitySearchAPI {
       let name = originalTitle;
       name = name.replace(/\s*[-|–—]\s*.*$/, ''); // Remove after dash/pipe
       name = name.replace(/\s*\(.*\)/, ''); // Remove parentheses
+      name = name.replace(/\[PDF\]\s*/gi, ''); // Remove [PDF] prefix
       name = name.trim();
 
-      // Skip very short or very long names
-      if (name.length < 3 || name.length > 100) {
+      // Skip very short names (5+ chars required) or very long names
+      if (name.length < 5 || name.length > 100) {
+        console.log(`⚠️ [${discoveryType}] Skipping short/long name: "${name}" (${name.length} chars)`);
+        continue;
+      }
+
+      // Skip generic page titles
+      if (GENERIC_TITLES.includes(name.toLowerCase())) {
+        console.log(`⚠️ [${discoveryType}] Skipping generic title: "${name}"`);
+        continue;
+      }
+
+      // Skip names that look truncated (end with "...")
+      if (name.endsWith('...') && name.length < 20) {
+        console.log(`⚠️ [${discoveryType}] Skipping truncated name: "${name}"`);
         continue;
       }
 
@@ -1303,6 +1354,15 @@ export class PerplexitySearchAPI {
       if (pricing) confidence += 10;
       if (result.url) confidence += 5;
 
+      // Sanitize description to remove markdown and placeholder text
+      const cleanDescription = sanitizeDescription(result.snippet?.substring(0, 500) || '');
+      
+      // Skip results with empty or very short descriptions after sanitization
+      if (cleanDescription.length < 20) {
+        console.log(`⚠️ [${discoveryType}] Skipping result with poor description: "${name}"`);
+        continue;
+      }
+
       entities.push({
         name,
         address,
@@ -1310,7 +1370,7 @@ export class PerplexitySearchAPI {
         state,
         phone,
         website: result.url,
-        description: result.snippet?.substring(0, 500),
+        description: cleanDescription,
         pricing,
         hours,
         source: `perplexity_${result.domain}`,
