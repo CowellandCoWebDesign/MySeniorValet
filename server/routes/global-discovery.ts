@@ -625,15 +625,15 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         
         // ============ SERVICES DISCOVERY MODE ============
         // If Discovery Mode is enabled and we have insufficient database results, call Perplexity
+        // NOW USES discoverEntities() for category-specific queries with PRICING TRANSPARENCY
         if (req.body.discoveryMode === true && existingCommunities.length < 5) {
-          console.log(`🔍 Services Discovery Mode ACTIVE: Calling Perplexity Search API for "${query}"`);
+          console.log(`🔍 Services Discovery Mode ACTIVE: Using discoverEntities for "${query}"`);
           
           const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
           if (perplexityApiKey) {
             try {
               const discoveryStartTime = Date.now();
               
-              // Build a services-specific search query
               // Parse location from query (e.g., "daycare in Redding California")
               let serviceType = '';
               let searchLocation = query;
@@ -649,27 +649,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 searchLocation = parts[1].trim();
               }
               
-              // Construct search query for services
-              const servicesSearchQuery = serviceType 
-                ? `${serviceType} services in ${searchLocation} business name address phone website`
-                : `${query} services business name address phone website`;
+              console.log(`🔍 Services Discovery: type="${serviceType}", location="${searchLocation}"`);
               
-              console.log(`🔍 Services Perplexity query: "${servicesSearchQuery}"`);
-              
-              // Use Perplexity Search API
-              const searchResults = await perplexitySearchAPI.discoverCommunities(servicesSearchQuery, {
-                limit: 15
-              });
+              // Use NEW discoverEntities method with services-specific query builder
+              const searchResults = await perplexitySearchAPI.discoverEntities(
+                serviceType || query,
+                'services',
+                { limit: 15, location: searchLocation }
+              );
               
               // Store citation sources for display
               const serviceCitations = searchResults.sources || [];
-              // Generate a simple summary from the search
-              const aiNarrative = `Discovered ${searchResults.communities.length} ${serviceType || 'service'} options in ${searchLocation}.`;
+              // Use AI-generated narrative from discoverEntities
+              const aiNarrative = searchResults.aiNarrative || `Discovered ${searchResults.results.length} ${serviceType || 'service'} options in ${searchLocation}.`;
               
-              console.log(`✅ Services Discovery found ${searchResults.communities.length} potential services`);
+              console.log(`✅ Services Discovery found ${searchResults.results.length} potential services`);
               
-              // Convert discovered communities to services format
-              const discoveredServices = searchResults.communities.map((item: any) => ({
+              // Convert discovered results to services format (now includes pricing!)
+              const discoveredServices = searchResults.results.map((item: any) => ({
                 id: 0, // Will be assigned when saved
                 name: item.name,
                 type: 'service',
@@ -680,6 +677,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 state: item.state || '',
                 phone: item.phone || '',
                 website: item.website || '',
+                pricing: item.pricing || '',
+                hours: item.hours || '',
                 isDiscovered: true,
                 isExisting: false,
                 confidence: item.confidence || 85,
@@ -804,6 +803,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         
       } else if (searchType === 'healthcare' || searchType === 'resources' || searchType === 'vendors') {
         // ============ HEALTHCARE / RESOURCES / VENDORS DISCOVERY MODE ============
+        // Now uses the new discoverEntities() method with category-specific queries
         const categoryLabel = searchType === 'healthcare' ? 'healthcare providers' 
           : searchType === 'resources' ? 'resources' : 'vendors';
         console.log(`🔍 ${searchType} Discovery search: "${query}"`);
@@ -823,42 +823,33 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           searchLocation = parts[1].trim();
         }
         
-        // Discovery Mode - call Perplexity Search API
+        // Discovery Mode - call Perplexity Search API with NEW discoverEntities method
         if (req.body.discoveryMode === true) {
           const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
           if (perplexityApiKey) {
             try {
               const discoveryStartTime = Date.now();
               
-              // Build category-specific search query
-              let discoverySearchQuery = '';
-              if (searchType === 'healthcare') {
-                discoverySearchQuery = categoryTerm 
-                  ? `${categoryTerm} healthcare providers in ${searchLocation} hospital clinic address phone`
-                  : `senior healthcare providers medical clinics hospitals in ${searchLocation} address phone website`;
-              } else if (searchType === 'resources') {
-                discoverySearchQuery = categoryTerm 
-                  ? `${categoryTerm} senior resources in ${searchLocation} organization address phone`
-                  : `senior resources support services organizations in ${searchLocation} address phone website`;
-              } else {
-                discoverySearchQuery = categoryTerm 
-                  ? `${categoryTerm} senior vendors businesses in ${searchLocation} company address phone`
-                  : `senior care vendors supplies businesses in ${searchLocation} address phone website`;
-              }
+              // Map searchType to discoveryType for the new API
+              const discoveryType = searchType === 'vendors' ? 'services' : searchType as 'healthcare' | 'resources' | 'services';
+              const searchQuery = categoryTerm || query;
               
-              console.log(`🔍 ${searchType} Perplexity query: "${discoverySearchQuery}"`);
+              console.log(`🔍 [${searchType}] Using discoverEntities with type: ${discoveryType}`);
               
-              const searchResults = await perplexitySearchAPI.discoverCommunities(discoverySearchQuery, {
-                limit: 15
-              });
+              // Use the NEW category-specific discovery method
+              const searchResults = await perplexitySearchAPI.discoverEntities(
+                searchQuery,
+                discoveryType,
+                { limit: 15, location: searchLocation }
+              );
               
               const citations = searchResults.sources || [];
-              const aiNarrative = `Discovered ${searchResults.communities.length} ${categoryLabel} in ${searchLocation}.`;
+              const aiNarrative = searchResults.aiNarrative || `Discovered ${searchResults.results.length} ${categoryLabel} in ${searchLocation}.`;
               
-              console.log(`✅ ${searchType} Discovery found ${searchResults.communities.length} results`);
+              console.log(`✅ ${searchType} Discovery found ${searchResults.results.length} results`);
               
-              // Convert discovered items to appropriate format
-              const discoveredItems = searchResults.communities.map((item: any, idx: number) => ({
+              // Convert discovered items to appropriate format with pricing
+              const discoveredItems = searchResults.results.map((item: any, idx: number) => ({
                 id: idx + 1,
                 name: item.name,
                 type: searchType,
@@ -868,10 +859,13 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 state: item.state || '',
                 phone: item.phone || '',
                 website: item.website || '',
+                pricing: item.pricing || '',
+                hours: item.hours || '',
                 isDiscovered: true,
                 isExisting: false,
                 confidence: item.confidence || 85,
-                source: item.source || 'Perplexity Discovery'
+                source: item.source || 'Perplexity Discovery',
+                entityType: item.entityType || searchType
               }));
               
               const discoveryResponseTime = Date.now() - discoveryStartTime;
@@ -892,7 +886,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   aiConfidence: 85,
                   dataSource: 'Perplexity Search API Discovery',
                   discoveryModeUsed: true,
-                  responseTime: discoveryResponseTime
+                  responseTime: discoveryResponseTime,
+                  pricingFound: discoveredItems.filter((i: any) => i.pricing).length
                 },
                 aiNarrative: aiNarrative,
                 citations: citations,

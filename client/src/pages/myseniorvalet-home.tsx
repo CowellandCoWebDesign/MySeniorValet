@@ -652,90 +652,20 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           });
         }
         
-      } else if (viewMode === 'discover' && activeTab === 'services') {
-        // For services, use NLP search which searches both services and vendors tables
-        // This will find hotels, restaurants, and other discovered businesses
-        
-        // Show immediate loading feedback for services search
-        setSearchResults({ 
-          results: [],
-          metadata: {
-            isLoading: true,
-            loadingMessage: `Searching for service providers related to "${query}"...`,
-            isResearchMode: false
-          }
-        });
-        
-        // Use NLP search for services (searches both services and vendors tables)
-        try {
-          const response = await fetch('/api/nlp/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-              query: query,
-              limit: 50,
-              category: 'services'
-            }),
-            signal: AbortSignal.timeout(30000) // 30 second timeout
-          });
-
-          if (!response.ok) {
-            throw new Error(`Service search failed: ${response.status}`);
-          }
-          
-          const data = await response.json();
-          
-          // Extract the actual data from the NLP search results
-          const results = data.results?.map((r: any) => r.data || r) || [];
-          
-          // Show discovered services
-          if (results.length > 0) {
-            setSearchResults({ 
-              results: results,
-              metadata: {
-                intent: data.intent,
-                facets: data.facets,
-                suggestions: data.suggestions
-              }
-            });
-          } else {
-            // No services found, show helpful message with suggestions
-            setSearchResults({ 
-              results: [],
-              metadata: {
-                aiResponse: `No service providers found for "${query}". Try searching for:\n• A specific city (e.g., "plumbers in Dallas")\n• A service type (e.g., "home health care")\n• A business name (e.g., "Visiting Angels")`,
-                isResearchMode: false,
-                suggestions: [
-                  'home health care',
-                  'medical supplies',
-                  'senior transportation',
-                  'meal delivery services'
-                ]
-              }
-            });
-          }
-          
-        } catch (error) {
-          console.error('Service discovery search failed:', error);
-          setSearchResults({ 
-            results: [],
-            metadata: {
-              aiResponse: `Unable to search for services at the moment. Please try again in a few seconds.`,
-              error: true,
-              isResearchMode: false
-            }
-          });
-        }
-        
-      } else if (viewMode === 'discover' && (activeTab === 'healthcare' || activeTab === 'resources' || activeTab === 'vendors')) {
-        // Healthcare, Resources, and Marketplace Discovery Mode - use global discovery
+      } else if (viewMode === 'discover' && (activeTab === 'services' || activeTab === 'healthcare' || activeTab === 'resources' || activeTab === 'vendors')) {
+        // Services, Healthcare, Resources, and Marketplace Discovery Mode - unified global discovery
         console.log(`🌍 ${activeTab} Discovery Mode for:`, query);
         
+        const categoryLabel = activeTab === 'services' ? 'service providers' 
+          : activeTab === 'healthcare' ? 'healthcare providers' 
+          : activeTab === 'resources' ? 'resources' 
+          : 'vendors';
+        
         setSearchResults({ 
           results: [],
           metadata: {
             isLoading: true,
-            loadingMessage: `🔍 Searching for ${activeTab === 'healthcare' ? 'healthcare providers' : activeTab === 'resources' ? 'resources' : 'vendors'} matching "${query}"...`,
+            loadingMessage: `🔍 Searching for ${categoryLabel} matching "${query}"...`,
             isResearchMode: false
           }
         });
@@ -773,7 +703,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             setSearchResults({ 
               results: [],
               metadata: {
-                aiResponse: `No ${activeTab === 'healthcare' ? 'healthcare providers' : activeTab === 'resources' ? 'resources' : 'vendors'} found for "${query}". Try a more specific location or different search terms.`,
+                aiResponse: `No ${categoryLabel} found for "${query}". Try a more specific location or different search terms.`,
                 isResearchMode: false
               }
             });
@@ -783,7 +713,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           setSearchResults({ 
             results: [],
             metadata: {
-              aiResponse: `Unable to search ${activeTab} at the moment. Please try again.`,
+              aiResponse: `Unable to search for ${categoryLabel} at the moment. Please try again.`,
               error: true,
               isResearchMode: false
             }

@@ -1077,6 +1077,249 @@ export class PerplexitySearchAPI {
       sources: results.results.map(r => r.url)
     };
   }
+
+  /**
+   * Unified discovery method for all MySeniorValet tabs with PRICING TRANSPARENCY
+   * Supports: communities, services, healthcare, resources
+   * Each category uses its own query builder, filtering, and extraction logic
+   * Cost: $5 per 1,000 requests via Search API
+   */
+  async discoverEntities(
+    query: string,
+    discoveryType: 'communities' | 'services' | 'healthcare' | 'resources',
+    options: { limit?: number; location?: string } = {}
+  ): Promise<{
+    results: Array<{
+      name: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      phone?: string;
+      website?: string;
+      description?: string;
+      pricing?: string;
+      hours?: string;
+      services?: string[];
+      source: string;
+      confidence: number;
+      entityType: string;
+    }>;
+    sources: string[];
+    searchQuery: string;
+    aiNarrative?: string;
+  }> {
+    const location = options.location || query;
+    const limit = options.limit || 15;
+
+    // ========== CATEGORY-SPECIFIC QUERY BUILDERS ==========
+    let searchQuery = '';
+    let domainAllowlist: string[] = [];
+    
+    switch (discoveryType) {
+      case 'communities':
+        // Senior living - pricing and availability focus
+        searchQuery = `senior living assisted living memory care communities in "${location}" pricing costs monthly rates availability facility names addresses phone`;
+        domainAllowlist = [
+          'caring.com', 'seniorhousing.net', 'seniorliving.org', 
+          'assistedliving.com', 'aplaceformom.com', 'medicare.gov'
+        ];
+        break;
+        
+      case 'services':
+        // Daycare, home care, meal delivery - pricing tiers focus
+        searchQuery = `${query} senior services in ${location} pricing rates costs packages hours phone address`;
+        domainAllowlist = []; // Allow all domains for services
+        break;
+        
+      case 'healthcare':
+        // Doctors, clinics, hospitals - costs and insurance focus
+        searchQuery = `${query} healthcare providers medical doctors clinics in ${location} costs insurance accepted pricing address phone`;
+        domainAllowlist = [
+          'healthgrades.com', 'vitals.com', 'zocdoc.com', 
+          'medicare.gov', 'yelp.com', 'google.com'
+        ];
+        break;
+        
+      case 'resources':
+        // Senior centers, food programs, legal aid - programs and eligibility focus
+        searchQuery = `${query} senior resources support services in ${location} programs eligibility hours address phone`;
+        domainAllowlist = [
+          'aarp.org', 'eldercare.acl.gov', 'benefits.gov',
+          'medicare.gov', 'ssa.gov'
+        ];
+        break;
+    }
+
+    console.log(`🔍 [${discoveryType.toUpperCase()}] Discovery query: "${searchQuery}"`);
+
+    // Execute search
+    const searchOptions: any = {
+      max_results: limit,
+    };
+    if (domainAllowlist.length > 0) {
+      searchOptions.domain_allowlist = domainAllowlist;
+    }
+    
+    const results = await this.search(searchQuery, searchOptions);
+
+    // ========== CATEGORY-SPECIFIC EXTRACTION & FILTERING ==========
+    const entities: Array<{
+      name: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      phone?: string;
+      website?: string;
+      description?: string;
+      pricing?: string;
+      hours?: string;
+      services?: string[];
+      source: string;
+      confidence: number;
+      entityType: string;
+    }> = [];
+
+    // Universal exclusion patterns (aggregators, articles)
+    const EXCLUDE_PATTERNS = [
+      /^(the\s+)?(\d+\s+)?(best|top)\s+/i,
+      /\bguide\s+(to|for)\b/i,
+      /^\d+\s+(?:best|top|things?)/i,
+      /\b(a\s+place\s+for\s+mom|seniorly|caring\.com\s+reviews?)\b/i,
+      /\bdirectory\s+of\b/i,
+      /^find\s+.*\s+(near|in)\s+/i,
+      /^list\s+of\s+/i,
+    ];
+
+    // Toll-free prefixes (referral services, not direct lines)
+    const TOLL_FREE_PREFIXES = ['800', '833', '844', '855', '866', '877', '888'];
+
+    for (const result of results.results) {
+      const originalTitle = result.title;
+      
+      // Skip aggregator/article patterns
+      if (EXCLUDE_PATTERNS.some(pattern => pattern.test(originalTitle))) {
+        console.log(`📰 [${discoveryType}] Skipping article/aggregator: "${originalTitle}"`);
+        continue;
+      }
+
+      // Clean the name
+      let name = originalTitle;
+      name = name.replace(/\s*[-|–—]\s*.*$/, ''); // Remove after dash/pipe
+      name = name.replace(/\s*\(.*\)/, ''); // Remove parentheses
+      name = name.trim();
+
+      // Skip very short or very long names
+      if (name.length < 3 || name.length > 100) {
+        continue;
+      }
+
+      // Extract phone (skip toll-free for communities, allow for services)
+      const allPhones = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g) || [];
+      let phone: string | undefined;
+      for (const p of allPhones) {
+        const digits = p.replace(/\D/g, '');
+        const areaCode = digits.substring(0, 3);
+        // For communities, skip toll-free; for services/healthcare/resources, allow them
+        if (discoveryType === 'communities' && TOLL_FREE_PREFIXES.includes(areaCode)) {
+          continue;
+        }
+        phone = p;
+        break;
+      }
+
+      // Extract address
+      const addressMatch = result.snippet.match(/\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way|Pkwy|Parkway|Place|Pl|Circle|Cir|Court|Ct)/i);
+      const address = addressMatch ? addressMatch[0] : undefined;
+
+      // Extract pricing mentions (key for transparency!)
+      const pricingPatterns = [
+        /\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:per\s+)?(?:month|monthly|day|daily|hour|hourly|visit|session))?/gi,
+        /(?:starting\s+(?:at|from)\s+)?\$[\d,]+/gi,
+        /(?:costs?|rates?|pricing|fees?):\s*\$[\d,]+/gi,
+        /free|no\s+cost|sliding\s+scale/gi
+      ];
+      let pricing: string | undefined;
+      for (const pattern of pricingPatterns) {
+        const match = result.snippet.match(pattern);
+        if (match) {
+          pricing = match[0];
+          break;
+        }
+      }
+
+      // Extract hours
+      const hoursMatch = result.snippet.match(/(?:hours?|open)\s*:?\s*([^.]+(?:am|pm|AM|PM)[^.]*)/i);
+      const hours = hoursMatch ? hoursMatch[1].trim() : undefined;
+
+      // Parse city/state from location parameter
+      let city = '';
+      let state = '';
+      if (location) {
+        if (location.includes(',')) {
+          const parts = location.split(',').map(p => p.trim());
+          city = parts[0] || '';
+          state = parts[1] || '';
+        } else {
+          // Try to parse "City State" format
+          const words = location.trim().split(/\s+/);
+          if (words.length >= 2) {
+            // Last word might be state
+            const lastWord = words[words.length - 1];
+            if (lastWord.length === 2 && lastWord === lastWord.toUpperCase()) {
+              state = lastWord;
+              city = words.slice(0, -1).join(' ');
+            } else {
+              city = location;
+            }
+          } else {
+            city = location;
+          }
+        }
+      }
+
+      // Calculate confidence based on available info
+      let confidence = 50;
+      if (phone) confidence += 20;
+      if (address) confidence += 15;
+      if (pricing) confidence += 10;
+      if (result.url) confidence += 5;
+
+      entities.push({
+        name,
+        address,
+        city,
+        state,
+        phone,
+        website: result.url,
+        description: result.snippet?.substring(0, 500),
+        pricing,
+        hours,
+        source: `perplexity_${result.domain}`,
+        confidence,
+        entityType: discoveryType
+      });
+
+      console.log(`✅ [${discoveryType}] Accepted: "${name}" (confidence: ${confidence}${pricing ? `, pricing: ${pricing}` : ''})`);
+    }
+
+    // Generate AI narrative summary
+    const aiNarrative = entities.length > 0
+      ? `Found ${entities.length} ${discoveryType} options in ${location}. ${
+          entities.filter(e => e.pricing).length > 0 
+            ? `${entities.filter(e => e.pricing).length} have pricing information available.`
+            : 'Contact providers directly for pricing details.'
+        }`
+      : `No ${discoveryType} found matching your search. Try a different location or search term.`;
+
+    console.log(`✅ [${discoveryType}] Discovery complete: ${entities.length} results (from ${results.results.length} raw)`);
+
+    return {
+      results: entities,
+      sources: results.results.map(r => r.url),
+      searchQuery,
+      aiNarrative
+    };
+  }
 }
 
 // Create singleton instance

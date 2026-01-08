@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, AlertCircle, Sparkles, Search, Code, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, AlertCircle, Sparkles, Search, Code, ChevronDown, ChevronUp, DollarSign, Clock } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { useLocation } from 'wouter';
@@ -27,6 +27,10 @@ interface GlobalDiscoveryResult {
   isDiscovered?: boolean;
   needsApproval?: boolean;
   data_source?: string;
+  pricing?: string;
+  hours?: string;
+  entityType?: string;
+  confidence?: number;
 }
 
 interface GlobalDiscoveryModalProps {
@@ -345,6 +349,18 @@ export function GlobalDiscoveryModal({
                           <span className="truncate text-blue-600 dark:text-blue-400">
                             {community.website}
                           </span>
+                        </div>
+                      )}
+                      {community.pricing && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <DollarSign className="w-3 h-3 text-green-600 dark:text-green-400" />
+                          <span className="text-green-700 dark:text-green-300 font-medium">{community.pricing}</span>
+                        </div>
+                      )}
+                      {community.hours && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock className="w-3 h-3 text-blue-500" />
+                          <span>{community.hours}</span>
                         </div>
                       )}
                     </div>
