@@ -1233,23 +1233,42 @@ export class PerplexitySearchAPI {
 
       // Extract pricing mentions (key for transparency!)
       const pricingPatterns = [
-        /\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:per\s+)?(?:month|monthly|day|daily|hour|hourly|visit|session))?/gi,
+        /\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:per\s+)?(?:month|monthly|day|daily|hour|hourly|visit|session|week|weekly))?/gi,
         /(?:starting\s+(?:at|from)\s+)?\$[\d,]+/gi,
-        /(?:costs?|rates?|pricing|fees?):\s*\$[\d,]+/gi,
-        /free|no\s+cost|sliding\s+scale/gi
+        /(?:costs?|rates?|pricing|fees?|price):\s*\$[\d,]+/gi,
+        /\$[\d.]+\s*(?:\/|per)\s*(?:hour|hr|day|month|visit|session)/gi,
+        /(?:medicare|medicaid|insurance)\s+(?:accepted|covered)/gi,
+        /free(?:\s+services?)?|no\s+cost|sliding\s+scale|income[-\s]based/gi
       ];
       let pricing: string | undefined;
+      const allPricingMatches: string[] = [];
       for (const pattern of pricingPatterns) {
+        const matches = result.snippet.match(pattern);
+        if (matches) {
+          allPricingMatches.push(...matches);
+        }
+      }
+      if (allPricingMatches.length > 0) {
+        // Prefer $ amounts, then accept other price info
+        const dollarMatch = allPricingMatches.find(m => m.includes('$'));
+        pricing = dollarMatch || allPricingMatches[0];
+      }
+
+      // Extract hours - support more common formats
+      const hoursPatterns = [
+        /(?:hours?|open)\s*:?\s*([^.]+(?:am|pm|AM|PM)[^.]*)/i,
+        /((?:mon|tue|wed|thu|fri|sat|sun)[a-z]*[-–\s]*(?:mon|tue|wed|thu|fri|sat|sun)?[a-z]*\s+\d{1,2}(?::\d{2})?\s*[-–]\s*\d{1,2}(?::\d{2})?(?:\s*(?:am|pm))?)/i,
+        /(\d{1,2}(?::\d{2})?\s*(?:am|pm)\s*[-–to]+\s*\d{1,2}(?::\d{2})?\s*(?:am|pm))/gi,
+        /(24\/7|open\s+(?:daily|24\s+hours))/i
+      ];
+      let hours: string | undefined;
+      for (const pattern of hoursPatterns) {
         const match = result.snippet.match(pattern);
         if (match) {
-          pricing = match[0];
+          hours = match[1] ? match[1].trim() : match[0].trim();
           break;
         }
       }
-
-      // Extract hours
-      const hoursMatch = result.snippet.match(/(?:hours?|open)\s*:?\s*([^.]+(?:am|pm|AM|PM)[^.]*)/i);
-      const hours = hoursMatch ? hoursMatch[1].trim() : undefined;
 
       // Parse city/state from location parameter
       let city = '';

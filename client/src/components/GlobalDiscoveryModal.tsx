@@ -351,12 +351,12 @@ export function GlobalDiscoveryModal({
                           </span>
                         </div>
                       )}
-                      {community.pricing && (
-                        <div className="flex items-center gap-2 text-sm">
-                          <DollarSign className="w-3 h-3 text-green-600 dark:text-green-400" />
-                          <span className="text-green-700 dark:text-green-300 font-medium">{community.pricing}</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2 text-sm">
+                        <DollarSign className={`w-3 h-3 ${community.pricing ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
+                        <span className={community.pricing ? 'text-green-700 dark:text-green-300 font-medium' : 'text-gray-500 dark:text-gray-400 italic'}>
+                          {community.pricing || 'Contact for pricing'}
+                        </span>
+                      </div>
                       {community.hours && (
                         <div className="flex items-center gap-2 text-sm">
                           <Clock className="w-3 h-3 text-blue-500" />
