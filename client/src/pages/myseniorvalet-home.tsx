@@ -359,6 +359,238 @@ function RecentlyDiscoveredServicesCarousel() {
   );
 }
 
+// Recently Discovered Healthcare Carousel Component for Healthcare Tab
+function RecentlyDiscoveredHealthcareCarousel() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Fetch recently discovered healthcare providers - use simple key for consistent cache invalidation
+  const { data: recentHealthcare, isLoading } = useQuery({
+    queryKey: ['/api/healthcare/recently-discovered?limit=100'],
+  });
+
+  // Check scroll position
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  // Scroll handlers
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [recentHealthcare]);
+
+  return (
+    <div className="relative">
+      {/* Left Scroll Button */}
+      {canScrollLeft && (
+        <button
+          onClick={scrollLeft}
+          className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6 text-teal-600" />
+        </button>
+      )}
+
+      {/* Healthcare Carousel */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+        onScroll={checkScrollPosition}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-72">
+              <div className="bg-white rounded-lg p-4 shadow-xl animate-pulse">
+                <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : recentHealthcare && recentHealthcare.length > 0 ? (
+          recentHealthcare.map((provider: any, index: number) => (
+            <motion.div 
+              key={provider.id} 
+              className="flex-shrink-0 w-72"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+            >
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <VendorServiceCard 
+                  vendor={provider} 
+                  variant="grid"
+                  onSelect={() => {
+                    if (provider.website) {
+                      window.open(provider.website, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                />
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="text-white/80 text-center py-8 w-full">
+            No healthcare providers discovered yet. Try searching for providers above!
+          </div>
+        )}
+      </div>
+
+      {/* Right Scroll Button */}
+      {canScrollRight && (
+        <button
+          onClick={scrollRight}
+          className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6 text-teal-600" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Recently Discovered Resources Carousel Component for Resources Tab
+function RecentlyDiscoveredResourcesCarousel() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Fetch recently discovered resources - use simple key for consistent cache invalidation
+  const { data: recentResources, isLoading } = useQuery({
+    queryKey: ['/api/resources/recently-discovered?limit=100'],
+  });
+
+  // Check scroll position
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  // Scroll handlers
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [recentResources]);
+
+  return (
+    <div className="relative">
+      {/* Left Scroll Button */}
+      {canScrollLeft && (
+        <button
+          onClick={scrollLeft}
+          className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6 text-orange-600" />
+        </button>
+      )}
+
+      {/* Resources Carousel */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+        onScroll={checkScrollPosition}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-72">
+              <div className="bg-white rounded-lg p-4 shadow-xl animate-pulse">
+                <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : recentResources && recentResources.length > 0 ? (
+          recentResources.map((resource: any, index: number) => (
+            <motion.div 
+              key={resource.id} 
+              className="flex-shrink-0 w-72"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+            >
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <VendorServiceCard 
+                  vendor={resource} 
+                  variant="grid"
+                  onSelect={() => {
+                    if (resource.website) {
+                      window.open(resource.website, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                />
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="text-white/80 text-center py-8 w-full">
+            No resources discovered yet. Try searching for resources above!
+          </div>
+        )}
+      </div>
+
+      {/* Right Scroll Button */}
+      {canScrollRight && (
+        <button
+          onClick={scrollRight}
+          className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6 text-orange-600" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 // Simplified Hero Section with Fixed Search Bar
 function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
   const { theme } = useTheme();
@@ -3176,6 +3408,21 @@ export default function MySeniorValetHome() {
             </Link>
 
           </div>
+
+          {/* Recently Discovered Resources Section */}
+          <div className="mt-12">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                Recently Discovered Resources
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Real-time discoveries from across the web with verified pricing information
+              </p>
+            </div>
+            <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-xl p-6">
+              <RecentlyDiscoveredResourcesCarousel />
+            </div>
+          </div>
       </TabsContent>
 
       {/* Healthcare Tab */}
@@ -3380,6 +3627,21 @@ export default function MySeniorValetHome() {
               </CardContent>
             </Card>
           </Link>
+        </div>
+
+        {/* Recently Discovered Healthcare Section */}
+        <div className="mt-12">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">
+              Recently Discovered Healthcare Providers
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+              Real-time discoveries from across the web with verified pricing information
+            </p>
+          </div>
+          <div className="bg-gradient-to-r from-teal-500/10 to-blue-500/10 rounded-xl p-6">
+            <RecentlyDiscoveredHealthcareCarousel />
+          </div>
         </div>
       </TabsContent>
 

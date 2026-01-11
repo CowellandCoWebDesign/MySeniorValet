@@ -1,7 +1,7 @@
 import { Express } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
-import { communities, vendors, services } from '@shared/schema';
+import { communities, vendors, services, healthcareProviders, seniorResources } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
 import { perplexitySearchAPI } from '../services/perplexity-search-api';
@@ -848,40 +848,211 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               
               console.log(`✅ ${searchType} Discovery found ${searchResults.results.length} results`);
               
-              // Convert discovered items to response format (no persistence for healthcare/resources/vendors)
-              // Uses synthetic IDs since these aren't saved to database
-              const discoveredItems = searchResults.results.map((item: any, idx: number) => ({
-                id: idx + 1, // Synthetic ID
-                name: item.name,
-                type: searchType,
-                description: item.description || '',
-                address: item.address || '',
-                city: item.city || '',
-                state: item.state || '',
-                phone: item.phone || '',
-                website: item.website || '',
-                pricing: item.pricing || '',
-                hours: item.hours || '',
-                isDiscovered: true,
-                isExisting: false,
-                hasDatabaseId: false, // Explicit flag for frontend navigation
-                confidence: item.confidence || 85,
-                source: item.source || 'Perplexity Discovery',
-                entityType: searchType
-              }));
+              // Persist discovered items to appropriate table and build response
+              const savedItems: any[] = [];
+              
+              for (const item of searchResults.results) {
+                try {
+                  const normalizedName = item.name.toLowerCase().trim();
+                  
+                  if (searchType === 'healthcare') {
+                    // Check if already exists by normalized name + city + state
+                    const existing = await db.select()
+                      .from(healthcareProviders)
+                      .where(sql`LOWER(normalized_name) = ${normalizedName} AND LOWER(city) = ${(item.city || '').toLowerCase()} AND LOWER(state) = ${(item.state || '').toLowerCase()}`)
+                      .limit(1);
+                    
+                    if (existing.length === 0 && item.name && item.name.length > 4) {
+                      // Check for Medicare/Medicaid in pricing text
+                      const pricingLower = (item.pricing || '').toLowerCase();
+                      const acceptsMedicare = pricingLower.includes('medicare');
+                      const acceptsMedicaid = pricingLower.includes('medicaid');
+                      
+                      const [newProvider] = await db.insert(healthcareProviders)
+                        .values({
+                          name: item.name,
+                          normalizedName: normalizedName,
+                          description: item.description || `Healthcare provider in ${searchLocation}`,
+                          shortDescription: item.description ? item.description.substring(0, 200) : `Healthcare in ${searchLocation}`,
+                          address: item.address || null,
+                          city: item.city || '',
+                          state: item.state || '',
+                          phone: item.phone || null,
+                          website: item.website || null,
+                          providerType: categoryTerm || null,
+                          pricingSummary: item.pricing || null,
+                          pricingConfidence: item.pricing ? 70 : 0,
+                          acceptsMedicare: acceptsMedicare,
+                          acceptsMedicaid: acceptsMedicaid,
+                          hours: item.hours || null,
+                          source: 'perplexity_discovery',
+                          sourceUrl: item.website || null,
+                          confidence: item.confidence || 85,
+                          metadata: {
+                            discoveryQuery: query,
+                            tags: ['discovered', 'perplexity', 'healthcare']
+                          }
+                        })
+                        .returning();
+                      
+                      savedItems.push({
+                        id: newProvider.id,
+                        name: item.name,
+                        type: searchType,
+                        description: item.description || '',
+                        address: item.address || '',
+                        city: item.city || '',
+                        state: item.state || '',
+                        phone: item.phone || '',
+                        website: item.website || '',
+                        pricing: item.pricing || '',
+                        hours: item.hours || '',
+                        isDiscovered: true,
+                        isExisting: false,
+                        hasDatabaseId: true,
+                        confidence: item.confidence || 85,
+                        source: 'Perplexity Discovery',
+                        entityType: searchType
+                      });
+                      console.log(`💾 Saved new healthcare provider: ${item.name} (ID: ${newProvider.id})`);
+                    } else if (existing.length > 0) {
+                      savedItems.push({
+                        id: existing[0].id,
+                        name: existing[0].name,
+                        type: searchType,
+                        description: existing[0].description || '',
+                        address: existing[0].address || '',
+                        city: existing[0].city || '',
+                        state: existing[0].state || '',
+                        phone: existing[0].phone || '',
+                        website: existing[0].website || '',
+                        pricing: existing[0].pricingSummary || '',
+                        hours: existing[0].hours || '',
+                        isDiscovered: false,
+                        isExisting: true,
+                        hasDatabaseId: true,
+                        confidence: existing[0].confidence || 90,
+                        source: 'Database',
+                        entityType: searchType
+                      });
+                    }
+                  } else if (searchType === 'resources') {
+                    // Check if already exists by normalized name + city + state
+                    const existing = await db.select()
+                      .from(seniorResources)
+                      .where(sql`LOWER(normalized_name) = ${normalizedName} AND LOWER(city) = ${(item.city || '').toLowerCase()} AND LOWER(state) = ${(item.state || '').toLowerCase()}`)
+                      .limit(1);
+                    
+                    if (existing.length === 0 && item.name && item.name.length > 4) {
+                      // Detect if the resource is free
+                      const pricingLower = (item.pricing || '').toLowerCase();
+                      const isFree = pricingLower.includes('free') || pricingLower.includes('no cost') || pricingLower.includes('no charge');
+                      
+                      const [newResource] = await db.insert(seniorResources)
+                        .values({
+                          name: item.name,
+                          normalizedName: normalizedName,
+                          description: item.description || `Senior resource in ${searchLocation}`,
+                          shortDescription: item.description ? item.description.substring(0, 200) : `Resource in ${searchLocation}`,
+                          address: item.address || null,
+                          city: item.city || '',
+                          state: item.state || '',
+                          phone: item.phone || null,
+                          website: item.website || null,
+                          resourceType: categoryTerm || null,
+                          pricingSummary: item.pricing || null,
+                          isFree: isFree,
+                          hours: item.hours || null,
+                          source: 'perplexity_discovery',
+                          sourceUrl: item.website || null,
+                          confidence: item.confidence || 85,
+                          metadata: {
+                            discoveryQuery: query,
+                            tags: ['discovered', 'perplexity', 'resource']
+                          }
+                        })
+                        .returning();
+                      
+                      savedItems.push({
+                        id: newResource.id,
+                        name: item.name,
+                        type: searchType,
+                        description: item.description || '',
+                        address: item.address || '',
+                        city: item.city || '',
+                        state: item.state || '',
+                        phone: item.phone || '',
+                        website: item.website || '',
+                        pricing: item.pricing || '',
+                        hours: item.hours || '',
+                        isDiscovered: true,
+                        isExisting: false,
+                        hasDatabaseId: true,
+                        confidence: item.confidence || 85,
+                        source: 'Perplexity Discovery',
+                        entityType: searchType
+                      });
+                      console.log(`💾 Saved new senior resource: ${item.name} (ID: ${newResource.id})`);
+                    } else if (existing.length > 0) {
+                      savedItems.push({
+                        id: existing[0].id,
+                        name: existing[0].name,
+                        type: searchType,
+                        description: existing[0].description || '',
+                        address: existing[0].address || '',
+                        city: existing[0].city || '',
+                        state: existing[0].state || '',
+                        phone: existing[0].phone || '',
+                        website: existing[0].website || '',
+                        pricing: existing[0].pricingSummary || '',
+                        hours: existing[0].hours || '',
+                        isDiscovered: false,
+                        isExisting: true,
+                        hasDatabaseId: true,
+                        confidence: existing[0].confidence || 90,
+                        source: 'Database',
+                        entityType: searchType
+                      });
+                    }
+                  } else {
+                    // Vendors - return ephemeral results (no table yet)
+                    savedItems.push({
+                      id: savedItems.length + 1,
+                      name: item.name,
+                      type: searchType,
+                      description: item.description || '',
+                      address: item.address || '',
+                      city: item.city || '',
+                      state: item.state || '',
+                      phone: item.phone || '',
+                      website: item.website || '',
+                      pricing: item.pricing || '',
+                      hours: item.hours || '',
+                      isDiscovered: true,
+                      isExisting: false,
+                      hasDatabaseId: false,
+                      confidence: item.confidence || 85,
+                      source: 'Perplexity Discovery',
+                      entityType: searchType
+                    });
+                  }
+                } catch (saveError) {
+                  console.error(`⚠️ Error saving ${searchType} ${item.name}:`, saveError);
+                }
+              }
               
               const discoveryResponseTime = Date.now() - discoveryStartTime;
-              console.log(`✅ ${searchType} Discovery completed in ${discoveryResponseTime}ms`);
+              console.log(`✅ ${searchType} Discovery completed in ${discoveryResponseTime}ms - Saved ${savedItems.length} items`);
               
               return res.json({
                 success: true,
                 query: query,
                 searchType: searchType,
-                results: discoveredItems.slice(0, limit),
+                results: savedItems.slice(0, limit),
                 metadata: {
-                  totalFound: discoveredItems.length,
-                  existingCount: 0,
-                  discoveredCount: discoveredItems.length,
+                  totalFound: savedItems.length,
+                  existingCount: savedItems.filter(i => i.isExisting).length,
+                  discoveredCount: savedItems.filter(i => i.isDiscovered).length,
                   sources: citations,
                   searchLocation: searchLocation,
                   timestamp: new Date().toISOString(),
@@ -889,11 +1060,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   dataSource: 'Perplexity Search API Discovery',
                   discoveryModeUsed: true,
                   responseTime: discoveryResponseTime,
-                  pricingFound: discoveredItems.filter((i: any) => i.pricing).length
+                  pricingFound: savedItems.filter((i: any) => i.pricing).length
                 },
                 aiNarrative: aiNarrative,
                 citations: citations,
-                message: `Found ${discoveredItems.length} ${categoryLabel} via Discovery Mode`
+                message: `Found ${savedItems.length} ${categoryLabel} via Discovery Mode`
               });
               
             } catch (searchError) {

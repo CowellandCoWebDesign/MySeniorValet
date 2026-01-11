@@ -7543,3 +7543,121 @@ export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts)
   .omit({ id: true, createdAt: true });
 export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
 export type SelectPaymentReceipt = typeof paymentReceipts.$inferSelect;
+
+// ========== HEALTHCARE PROVIDERS (Discovery Mode) ==========
+// Stores discovered healthcare providers from Perplexity searches
+export const healthcareProviders = pgTable("healthcare_providers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  normalizedName: text("normalized_name").notNull(), // Lowercase, trimmed for deduplication
+  description: text("description"),
+  shortDescription: text("short_description"),
+  
+  // Location information
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  
+  // Provider details
+  providerType: text("provider_type"), // 'doctor', 'clinic', 'hospital', 'specialist', 'pharmacy', etc.
+  specialties: text("specialties").array().default([]),
+  
+  // Pricing & Insurance
+  pricingSummary: text("pricing_summary"), // Extracted pricing text
+  pricingConfidence: integer("pricing_confidence").default(0), // 0-100 confidence in pricing data
+  insuranceAccepted: text("insurance_accepted").array().default([]), // Medicare, Medicaid, etc.
+  acceptsMedicare: boolean("accepts_medicare").default(false),
+  acceptsMedicaid: boolean("accepts_medicaid").default(false),
+  
+  // Hours and availability
+  hours: text("hours"),
+  
+  // Discovery metadata
+  source: text("source").notNull(), // 'perplexity_discovery', 'user_submitted', etc.
+  sourceUrl: text("source_url"),
+  confidence: integer("confidence").default(0),
+  isVerified: boolean("is_verified").default(false),
+  
+  metadata: jsonb("metadata").$type<{
+    discoveryQuery?: string;
+    tags?: string[];
+    lastEnrichedAt?: string;
+  }>(),
+  
+  discoveredAt: timestamp("discovered_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_healthcare_providers_normalized_name").on(table.normalizedName),
+  index("idx_healthcare_providers_city_state").on(table.city, table.state),
+  index("idx_healthcare_providers_type").on(table.providerType),
+  index("idx_healthcare_providers_discovered").on(table.discoveredAt),
+]);
+
+export const insertHealthcareProviderSchema = createInsertSchema(healthcareProviders)
+  .omit({ id: true, createdAt: true, updatedAt: true, discoveredAt: true });
+export type InsertHealthcareProvider = z.infer<typeof insertHealthcareProviderSchema>;
+export type SelectHealthcareProvider = typeof healthcareProviders.$inferSelect;
+
+// ========== SENIOR RESOURCES (Discovery Mode) ==========
+// Stores discovered senior resources from Perplexity searches
+export const seniorResources = pgTable("senior_resources", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  normalizedName: text("normalized_name").notNull(), // Lowercase, trimmed for deduplication
+  description: text("description"),
+  shortDescription: text("short_description"),
+  
+  // Location information
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  
+  // Resource details
+  resourceType: text("resource_type"), // 'senior_center', 'food_program', 'legal_aid', 'transportation', etc.
+  services: text("services").array().default([]), // List of services offered
+  
+  // Pricing & Eligibility
+  pricingSummary: text("pricing_summary"), // 'free', 'sliding scale', '$X per visit', etc.
+  isFree: boolean("is_free").default(false),
+  eligibility: text("eligibility"), // Eligibility requirements text
+  incomeRestrictions: text("income_restrictions"), // Income-based eligibility
+  
+  // Hours and availability
+  hours: text("hours"),
+  
+  // Discovery metadata
+  source: text("source").notNull(), // 'perplexity_discovery', 'user_submitted', etc.
+  sourceUrl: text("source_url"),
+  confidence: integer("confidence").default(0),
+  isVerified: boolean("is_verified").default(false),
+  
+  metadata: jsonb("metadata").$type<{
+    discoveryQuery?: string;
+    tags?: string[];
+    programs?: string[]; // Government programs like SNAP, Meals on Wheels, etc.
+    lastEnrichedAt?: string;
+  }>(),
+  
+  discoveredAt: timestamp("discovered_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_senior_resources_normalized_name").on(table.normalizedName),
+  index("idx_senior_resources_city_state").on(table.city, table.state),
+  index("idx_senior_resources_type").on(table.resourceType),
+  index("idx_senior_resources_discovered").on(table.discoveredAt),
+]);
+
+export const insertSeniorResourceSchema = createInsertSchema(seniorResources)
+  .omit({ id: true, createdAt: true, updatedAt: true, discoveredAt: true });
+export type InsertSeniorResource = z.infer<typeof insertSeniorResourceSchema>;
+export type SelectSeniorResource = typeof seniorResources.$inferSelect;

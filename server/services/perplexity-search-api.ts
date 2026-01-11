@@ -1127,7 +1127,20 @@ export class PerplexitySearchAPI {
         
       case 'services':
         // Daycare, home care, meal delivery - pricing tiers focus
-        searchQuery = `${query} senior services in ${location} pricing rates costs packages hours phone address`;
+        // Don't add "senior services" to all queries - detect service type from query
+        const serviceLower = query.toLowerCase();
+        const isHospitality = /hotel|motel|lodging|inn|resort|vacation|accommodation/i.test(serviceLower);
+        const isFood = /restaurant|dining|food|meal|cafe|catering|grocery/i.test(serviceLower);
+        const isTransport = /transport|taxi|uber|lyft|ride|shuttle|car\s+service|moving|mover/i.test(serviceLower);
+        const isMedical = /pharmacy|drugstore|medical\s+equipment|hospital|clinic|doctor/i.test(serviceLower);
+        
+        if (isHospitality || isFood || isTransport || isMedical) {
+          // General services - don't force "senior" into the query
+          searchQuery = `${query} in ${location} pricing rates costs hours phone address website`;
+        } else {
+          // Senior-specific services (home care, adult daycare, etc.)
+          searchQuery = `${query} senior services in ${location} pricing rates costs packages hours phone address`;
+        }
         domainAllowlist = []; // Allow all domains for services
         break;
         
@@ -1192,6 +1205,7 @@ export class PerplexitySearchAPI {
 
     // Generic page titles to reject (not real business names)
     const GENERIC_TITLES = [
+      // Common page titles
       'services', 'service', 'contact', 'contact us', 'about', 'about us',
       'home', 'welcome', 'product details', 'products', 'ratings', 'reviews',
       'ratings & reviews', 'ratings and reviews', 'faq', 'faqs', 'help',
@@ -1199,8 +1213,29 @@ export class PerplexitySearchAPI {
       'hours', 'pricing', 'prices', 'rates', 'gallery', 'photos', 'blog',
       'news', 'events', 'calendar', 'schedule', 'book now', 'sign up',
       'login', 'register', 'subscribe', 'newsletter', 'careers', 'jobs',
-      'privacy', 'terms', 'disclaimer', 'sitemap', 'search', 'resources'
+      'privacy', 'terms', 'disclaimer', 'sitemap', 'search', 'resources',
+      // Generic service category names (not actual businesses)
+      'senior services', 'senior living', 'assisted living', 'memory care',
+      'home care', 'home health', 'healthcare', 'health care', 'medical',
+      'legal services', 'financial services', 'insurance',
+      // US State names (not valid business names)
+      'alabama', 'alaska', 'arizona', 'arkansas', 'california', 'colorado',
+      'connecticut', 'delaware', 'florida', 'georgia', 'hawaii', 'idaho',
+      'illinois', 'indiana', 'iowa', 'kansas', 'kentucky', 'louisiana',
+      'maine', 'maryland', 'massachusetts', 'michigan', 'minnesota',
+      'mississippi', 'missouri', 'montana', 'nebraska', 'nevada',
+      'new hampshire', 'new jersey', 'new mexico', 'new york', 'north carolina',
+      'north dakota', 'ohio', 'oklahoma', 'oregon', 'pennsylvania',
+      'rhode island', 'south carolina', 'south dakota', 'tennessee', 'texas',
+      'utah', 'vermont', 'virginia', 'washington', 'west virginia',
+      'wisconsin', 'wyoming', 'district of columbia', 'puerto rico'
     ];
+    
+    // Minimum 2 words for a valid business name
+    const hasMultipleWords = (name: string): boolean => {
+      const words = name.trim().split(/\s+/).filter(w => w.length > 1);
+      return words.length >= 2;
+    };
 
     // Toll-free prefixes (referral services, not direct lines)
     const TOLL_FREE_PREFIXES = ['800', '833', '844', '855', '866', '877', '888'];
@@ -1255,6 +1290,12 @@ export class PerplexitySearchAPI {
       // Skip generic page titles
       if (GENERIC_TITLES.includes(name.toLowerCase())) {
         console.log(`⚠️ [${discoveryType}] Skipping generic title: "${name}"`);
+        continue;
+      }
+      
+      // Require at least 2 words for valid business names
+      if (!hasMultipleWords(name)) {
+        console.log(`⚠️ [${discoveryType}] Skipping single-word name: "${name}"`);
         continue;
       }
 

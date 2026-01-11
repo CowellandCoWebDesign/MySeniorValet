@@ -78,7 +78,11 @@ export function GlobalDiscoveryModal({
       queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
       // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
       queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
-      console.log('🔄 GlobalDiscoveryModal: Invalidated recently-discovered cache for', results.length, 'results');
+      // Invalidate services, healthcare, and resources caches - match exact queryKey format used by components
+      queryClient.invalidateQueries({ queryKey: ['/api/services/recently-discovered'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/healthcare/recently-discovered?limit=100'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/resources/recently-discovered?limit=100'] });
+      console.log('🔄 GlobalDiscoveryModal: Invalidated recently-discovered caches for', results.length, 'results');
     }
   }, [isOpen, results]);
   

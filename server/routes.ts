@@ -24,7 +24,7 @@ import { eq, or, like, desc, and, sql } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
-import { vendors, users, services } from "../shared/schema";
+import { vendors, users, services, healthcareProviders, seniorResources } from "../shared/schema";
 import * as schema from "../shared/schema";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
@@ -309,6 +309,92 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error('Error fetching recently discovered services:', error);
       res.status(500).json({ error: 'Failed to fetch recent services' });
+    }
+  });
+
+  // Get recently discovered healthcare providers (from healthcareProviders table)
+  app.get('/api/healthcare/recently-discovered', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      // Get recent healthcare providers ordered by discovery date
+      const recentProviders = await db.select()
+        .from(healthcareProviders)
+        .orderBy(desc(healthcareProviders.discoveredAt))
+        .limit(limit);
+
+      // Transform to match the card display format
+      const transformedProviders = recentProviders.map(provider => {
+        const metadata = provider.metadata as any || {};
+
+        return {
+          id: provider.id,
+          businessName: provider.name,
+          description: provider.description,
+          shortDescription: provider.shortDescription,
+          businessCity: provider.city || '',
+          businessState: provider.state || '',
+          businessType: provider.providerType || 'Healthcare',
+          website: provider.website || '',
+          primaryContactPhone: provider.phone || '',
+          pricing: provider.pricingSummary || '',
+          hours: provider.hours || '',
+          acceptsMedicare: provider.acceptsMedicare,
+          acceptsMedicaid: provider.acceptsMedicaid,
+          logoUrl: '',
+          createdAt: provider.createdAt,
+          discoveredAt: provider.discoveredAt,
+          entityType: 'healthcare'
+        };
+      });
+
+      res.json(transformedProviders);
+    } catch (error) {
+      console.error('Error fetching recently discovered healthcare providers:', error);
+      res.status(500).json({ error: 'Failed to fetch recent healthcare providers' });
+    }
+  });
+
+  // Get recently discovered senior resources (from seniorResources table)
+  app.get('/api/resources/recently-discovered', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      // Get recent senior resources ordered by discovery date
+      const recentResources = await db.select()
+        .from(seniorResources)
+        .orderBy(desc(seniorResources.discoveredAt))
+        .limit(limit);
+
+      // Transform to match the card display format
+      const transformedResources = recentResources.map(resource => {
+        const metadata = resource.metadata as any || {};
+
+        return {
+          id: resource.id,
+          businessName: resource.name,
+          description: resource.description,
+          shortDescription: resource.shortDescription,
+          businessCity: resource.city || '',
+          businessState: resource.state || '',
+          businessType: resource.resourceType || 'Resource',
+          website: resource.website || '',
+          primaryContactPhone: resource.phone || '',
+          pricing: resource.pricingSummary || '',
+          hours: resource.hours || '',
+          isFree: resource.isFree,
+          eligibility: resource.eligibility || '',
+          logoUrl: '',
+          createdAt: resource.createdAt,
+          discoveredAt: resource.discoveredAt,
+          entityType: 'resources'
+        };
+      });
+
+      res.json(transformedResources);
+    } catch (error) {
+      console.error('Error fetching recently discovered resources:', error);
+      res.status(500).json({ error: 'Failed to fetch recent resources' });
     }
   });
 
