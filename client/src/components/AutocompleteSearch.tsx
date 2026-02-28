@@ -364,31 +364,19 @@ export function AutocompleteSearch({
                 const others = suggestions.filter(s => s.type !== 'city' && s.type !== 'location' && s.type !== 'community');
                 
                 let currentIndex = 0;
-                const allSuggestions: any[] = [];
+                const allSuggestions: Array<{ isHeader: true; headerKey: string; iconType: string; label: string } | (AutocompleteSuggestion & { index: number })> = [];
                 
-                // Add cities first with a header
+                // Add cities first with a header marker object (not JSX - avoids React key conflicts)
                 if (cities.length > 0) {
-                  allSuggestions.push(
-                    <div key="cities-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                      <MapPin className="inline h-3 w-3 mr-1" />
-                      LOCATIONS
-                    </div>
-                  );
+                  allSuggestions.push({ isHeader: true, headerKey: 'cities-header', iconType: 'location', label: 'LOCATIONS' });
                   cities.forEach(city => {
                     allSuggestions.push({ ...city, index: currentIndex++ });
                   });
                 }
                 
-                // Add communities with a header
+                // Add communities with a header marker object
                 if (communities.length > 0) {
-                  if (cities.length > 0) {
-                    allSuggestions.push(
-                      <div key="communities-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 border-t">
-                        <Home className="inline h-3 w-3 mr-1" />
-                        COMMUNITIES
-                      </div>
-                    );
-                  }
+                  allSuggestions.push({ isHeader: true, headerKey: 'communities-header', iconType: 'community', label: 'COMMUNITIES' });
                   communities.forEach(community => {
                     allSuggestions.push({ ...community, index: currentIndex++ });
                   });
@@ -396,27 +384,29 @@ export function AutocompleteSearch({
                 
                 // Add other suggestions if any
                 if (others.length > 0) {
-                  if (cities.length > 0 || communities.length > 0) {
-                    allSuggestions.push(
-                      <div key="others-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 border-t">
-                        <Search className="inline h-3 w-3 mr-1" />
-                        OTHER RESULTS
-                      </div>
-                    );
-                  }
+                  allSuggestions.push({ isHeader: true, headerKey: 'others-header', iconType: 'other', label: 'OTHER RESULTS' });
                   others.forEach(other => {
                     allSuggestions.push({ ...other, index: currentIndex++ });
                   });
                 }
                 
-                return allSuggestions.map((item, idx) => {
-                  // If it's a header, return it as-is
-                  if (typeof item === 'object' && !item.type) {
-                    return item;
+                return allSuggestions.map((item) => {
+                  // Render section header JSX for header marker objects
+                  if ('isHeader' in item && item.isHeader) {
+                    const headerIcon = item.iconType === 'location' ? <MapPin className="inline h-3 w-3 mr-1" /> :
+                                       item.iconType === 'community' ? <Home className="inline h-3 w-3 mr-1" /> :
+                                       <Search className="inline h-3 w-3 mr-1" />;
+                    const borderTop = item.headerKey !== 'cities-header' ? 'border-t' : '';
+                    return (
+                      <div key={item.headerKey} className={`px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${borderTop}`}>
+                        {headerIcon}
+                        {item.label}
+                      </div>
+                    );
                   }
                   
-                  const suggestion = item;
-                  const index = item.index;
+                  const suggestion = item as AutocompleteSuggestion & { index: number };
+                  const index = suggestion.index;
                 // Render rich card for community suggestions
                 if (suggestion.type === 'community') {
                   const careTypeBadge = getCareTypeBadge(suggestion.communitySubtype);
