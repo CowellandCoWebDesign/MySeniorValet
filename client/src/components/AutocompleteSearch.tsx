@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -66,6 +67,28 @@ export function AutocompleteSearch({
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const [location, setLocation] = useLocation();
   const justSelectedRef = useRef(false);
+  const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  // Recalculate dropdown position whenever it becomes visible or window resizes/scrolls
+  useEffect(() => {
+    const updateRect = () => {
+      if (inputRef.current && showSuggestions) {
+        const rect = inputRef.current.getBoundingClientRect();
+        setDropdownRect({
+          top: rect.bottom + window.scrollY + 4,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+        });
+      }
+    };
+    updateRect();
+    window.addEventListener('resize', updateRect);
+    window.addEventListener('scroll', updateRect, true);
+    return () => {
+      window.removeEventListener('resize', updateRect);
+      window.removeEventListener('scroll', updateRect, true);
+    };
+  }, [showSuggestions]);
   
   const debouncedValue = useDebounce(value, 300);
   
@@ -344,12 +367,18 @@ export function AutocompleteSearch({
         )}
       </div>
 
-      {/* Enhanced Autocomplete Suggestions Dropdown */}
-      {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && (
+      {/* Enhanced Autocomplete Suggestions Dropdown — rendered via Portal to escape stacking contexts */}
+      {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && dropdownRect && createPortal(
         <Card 
           ref={suggestionsRef}
-          className="absolute w-full mt-2 max-h-[400px] overflow-y-auto shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
-          style={{ zIndex: 999999, position: 'absolute', top: '100%', left: 0, right: 0 }}
+          className="max-h-[400px] overflow-y-auto shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+          style={{
+            position: 'absolute',
+            zIndex: 2147483647,
+            top: dropdownRect.top,
+            left: dropdownRect.left,
+            width: dropdownRect.width,
+          }}
         >
           {loadingSuggestions ? (
             <div className="p-4 text-center">
@@ -544,7 +573,7 @@ export function AutocompleteSearch({
             </div>
           )}
         </Card>
-      )}
+      , document.body)}
     </div>
   );
 }
