@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import heroImagePath from "@assets/generated_images/seniors_garden_celebration.png";
 import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -1142,7 +1143,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       
       <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : ''} mt-16`}
         style={{
-          background: 'linear-gradient(135deg, #7c3f2e 0%, #a0522d 25%, #8b4513 50%, #a0522d 75%, #7c3f2e 100%)',
+          background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
           minHeight: 'calc(100vh - 4rem)',
           height: isSearchActive ? 'auto' : 'calc(100vh - 4rem)'
         }}
@@ -1164,8 +1165,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           }}
         >
           <img
-            src="https://images.unsplash.com/photo-1516307365426-bea591f05011?auto=format&fit=crop&w=1920&q=80"
-            alt="Active seniors enjoying life together at a destination community celebration"
+            src={heroImagePath}
+            alt="Senior friends celebrating together at a luxury resort-style community garden"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
