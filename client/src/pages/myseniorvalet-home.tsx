@@ -1234,6 +1234,14 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </TabsList>
         </div>
         
+        <div className="w-full px-4 sm:px-8 md:px-16 pt-4 sm:pt-6 md:pt-8 text-center">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.4)' }}
+          >
+            From affordable options to luxury resorts — Find Senior Living that's right for you!
+          </h1>
+        </div>
+        
         {/* Content Container - Search pinned to bottom of hero */}
         <div className={`flex-grow flex flex-col justify-end pb-6 sm:pb-8 px-2 sm:px-4`}>
         
