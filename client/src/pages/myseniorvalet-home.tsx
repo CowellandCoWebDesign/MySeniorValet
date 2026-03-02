@@ -1140,9 +1140,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative min-h-[calc(100vh-4rem)] ${isSearchActive ? 'pb-2 md:pb-4' : ''} mt-16`}
+      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : ''} mt-16`}
         style={{
-          background: 'linear-gradient(135deg, #7c3f2e 0%, #a0522d 25%, #8b4513 50%, #a0522d 75%, #7c3f2e 100%)'
+          background: 'linear-gradient(135deg, #7c3f2e 0%, #a0522d 25%, #8b4513 50%, #a0522d 75%, #7c3f2e 100%)',
+          minHeight: 'calc(100vh - 4rem)',
+          height: isSearchActive ? 'auto' : 'calc(100vh - 4rem)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
