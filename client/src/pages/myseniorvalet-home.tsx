@@ -1164,8 +1164,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           }}
         >
           <img
-            src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1920&q=80"
-            alt="Seniors celebrating and enjoying life together at a vibrant community event"
+            src="https://images.unsplash.com/photo-1516307365426-bea591f05011?auto=format&fit=crop&w=1920&q=80"
+            alt="Active seniors enjoying life together at a destination community celebration"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
@@ -1233,8 +1233,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </TabsList>
         </div>
         
-        {/* Content Container - Search First, Then Value Props - Minimal bottom padding */}
-        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-4 px-2 sm:px-4`}>
+        {/* Content Container - Search pinned to bottom of hero */}
+        <div className={`flex-grow flex flex-col justify-end pb-6 sm:pb-8 px-2 sm:px-4`}>
         
         {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-3 sm:mb-4" style={{ isolation: 'isolate' }}>
