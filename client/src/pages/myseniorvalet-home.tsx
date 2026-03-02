@@ -1142,7 +1142,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       
       <section className={`relative ${isSearchActive ? 'min-h-[280px] sm:min-h-[300px] md:min-h-[50vh] pb-2 md:pb-4' : 'h-auto min-h-[260px] sm:min-h-[280px] md:min-h-[45vh]'} mt-16`}
         style={{
-          background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
+          background: 'linear-gradient(135deg, #7c3f2e 0%, #a0522d 25%, #8b4513 50%, #a0522d 75%, #7c3f2e 100%)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
@@ -1162,8 +1162,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           }}
         >
           <img
-            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
-            alt="Cosmic space background - Infinite possibilities in senior living"
+            src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1920&q=80"
+            alt="Seniors celebrating and enjoying life together at a vibrant community event"
             className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
               imageLoaded ? 'opacity-100' : 'opacity-0'
             }`}
@@ -1176,7 +1176,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               transform: 'translateZ(0)' // Force GPU acceleration
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 sm:via-black/10 to-black/65"></div>
         </div>
         
         <div className="relative z-10 flex flex-col h-full">
@@ -1233,43 +1233,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         {/* Content Container - Search First, Then Value Props - Minimal bottom padding */}
         <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-4 px-2 sm:px-4`}>
-        
-        {/* Search Mode Toggle Button - Higher z-index with isolation to prevent content overlap */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-1 sm:mb-2" style={{ isolation: 'isolate' }}>
-          <div className="flex justify-center">
-            <button
-              onClick={() => {
-                const newMode = searchMode === 'ai' ? 'classic' : 'ai';
-                setSearchMode(newMode);
-                window.dispatchEvent(new CustomEvent('searchModeChange', { detail: newMode }));
-              }}
-              className="group flex items-center gap-3 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-300"
-            >
-              {/* AI Assistant Icon & Label */}
-              <div className={`flex items-center gap-1.5 transition-all duration-300 ${searchMode === 'ai' ? 'opacity-100 font-semibold' : 'opacity-60'}`}>
-                <span className="text-lg">🤖</span>
-                <span className="text-sm text-white">AI Assistant</span>
-              </div>
-              
-              {/* Toggle Switch */}
-              <div className="relative w-14 h-7 bg-black/30 rounded-full border border-white/20">
-                <div 
-                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full shadow-lg transition-all duration-300 ease-in-out ${
-                    searchMode === 'ai' 
-                      ? 'translate-x-0 bg-gradient-to-r from-blue-400 to-purple-400 shadow-blue-500/50' 
-                      : 'translate-x-7 bg-gradient-to-r from-green-400 to-teal-400 shadow-green-500/50'
-                  }`}
-                />
-              </div>
-              
-              {/* Classic Search Icon & Label */}
-              <div className={`flex items-center gap-1.5 transition-all duration-300 ${searchMode === 'classic' ? 'opacity-100 font-semibold' : 'opacity-60'}`}>
-                <span className="text-sm text-white">Classic Search</span>
-                <span className="text-lg">🔍</span>
-              </div>
-            </button>
-          </div>
-        </div>
         
         {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-3 sm:mb-4" style={{ isolation: 'isolate' }}>
