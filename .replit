@@ -4,7 +4,7 @@ hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["chromium", "geckodriver", "gitFull", "glibcLocales", "jq", "libxcrypt", "playwright", "playwright-driver", "xcodebuild", "zlib", "glib", "nspr", "nss", "dbus", "atk", "at-spi2-atk", "at-spi2-core", "xorg.libX11", "xorg.libxcb", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "mesa", "libxkbcommon"]
+packages = ["gitFull", "glibcLocales", "jq", "libxcrypt", "playwright", "playwright-driver", "zlib", "glib", "nspr", "nss", "dbus", "atk", "at-spi2-atk", "at-spi2-core", "xorg.libX11", "xorg.libxcb", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "mesa", "libxkbcommon"]
 
 [deployment]
 deploymentTarget = "autoscale"
