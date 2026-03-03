@@ -191,10 +191,7 @@ export default function AISearchIntelligence() {
   const [mapZoom, setMapZoom] = useState(10);
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
-  const [activeTab, setActiveTab] = useState(() => {
-    // Default to 'simplified' tab if coming from a location search
-    return isLocationPage ? 'simplified' : 'search';
-  });
+  const [activeTab, setActiveTab] = useState('simplified');
   const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
   const [useSemanticSearch, setUseSemanticSearch] = useState(true); // Enable semantic search by default
 

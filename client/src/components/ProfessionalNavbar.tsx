@@ -158,7 +158,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
   const navigationItems = {
     main: [
       { label: "Home", icon: Home, href: "/", emoji: "🏠" },
-      { label: "Search", icon: Search, href: "/simplified-search", emoji: "🔍" },
+      { label: "Search", icon: Search, href: "/ai-search-intelligence", emoji: "🔍" },
       { label: "Map View", icon: MapPin, href: "/map-search", emoji: "🗺️" },
       { label: "Communities", icon: Building2, href: "/community-directory", emoji: "🏘️" },
     ],
