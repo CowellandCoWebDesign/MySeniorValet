@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import heroImagePath from "@assets/generated_images/seniors_garden_celebration.png";
 import { Link } from 'wouter';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -775,18 +776,17 @@ export default function AISearchIntelligence() {
         />
       )}
       
-      {/* Cosmic background image - same as hero page */}
+      {/* Background image - matching home page hero */}
       <div 
         className="fixed inset-0 z-0"
         style={{
-          backgroundImage: 'url(https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg)',
+          backgroundImage: `url(${heroImagePath})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed'
         }}
       >
-        {/* Enhanced overlay for better text readability in both modes */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/80 dark:from-black/60 dark:to-black/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/75 dark:from-black/55 dark:to-black/70" />
       </div>
       
       {/* Content */}
@@ -1304,82 +1304,8 @@ export default function AISearchIntelligence() {
             )}
           </TabsContent>
 
-          {/* Simplified Search Tab - New Layout Matching Screenshot */}
+          {/* Simplified Search Tab */}
           <TabsContent value="simplified" className="space-y-4 -mx-4">
-            {/* Header Section with Badges or Location-Specific Content */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
-              {isLocationPage && locationContent ? (
-                // Location-specific content when coming from a location search
-                <div className="space-y-4">
-                  <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <h1 className="text-3xl font-bold mb-2">{locationContent.headline}</h1>
-                      <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">{locationContent.subheadline}</p>
-                      
-                      <div className="space-y-2">
-                        {locationContent.highlights && locationContent.highlights.map((highlight, index) => (
-                          <div key={index} className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{highlight}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col gap-3">
-                      <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                        <Users className="w-4 h-4 mr-2" />
-                        Create A Profile
-                      </Button>
-                      <Button variant="outline">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        View Map
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                // Default generic content when no location is specified
-                <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold">Senior Living Research</h2>
-                    <span className="text-2xl font-bold text-blue-600">Simplified</span>
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <Shield className="w-5 h-5 text-gray-600" />
-                      <div className="text-sm">
-                        <div className="font-semibold">Privacy</div>
-                        <div className="text-xs text-gray-500">We Don't Sell Your Personal Information To Facilities</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-5 h-5 text-gray-600" />
-                      <div className="text-sm">
-                        <div className="font-semibold">Transparency</div>
-                        <div className="text-xs text-gray-500">Each Listing Has A Starting Price, Average Price, And Current Availability</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <CheckCircle className="w-5 h-5 text-gray-600" />
-                      <div className="text-sm">
-                        <div className="font-semibold">Convenience</div>
-                        <div className="text-xs text-gray-500">Have Questions? Direct Message The Facility Right From Their Listing</div>
-                      </div>
-                    </div>
-                    
-                    <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                      <Users className="w-4 h-4 mr-2" />
-                      Create A Profile
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Search Bar with Predictive Text */}
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
               <AutocompleteSearch
