@@ -1502,7 +1502,6 @@ export default function CommunityDetail() {
     if (id && id !== '-1' && !isNaN(Number(id))) {
       // Reset all component state when navigating to a new community
       console.log('Community ID changed to:', id, '- Resetting all state');
-      // Note: isFavorite is now derived from query data, no need to reset
       setIsScheduleTourOpen(false);
       setIsWaitlistOpen(false);
       setWaitlistName('');
@@ -1519,25 +1518,33 @@ export default function CommunityDetail() {
       setUpgradeFeature('');
       setHasStartedVerification(false);
       setIsVerifying(false);
+      setHasAutoScrolled(false); // T003: reset scroll state per community
     }
   }, [id]);
   
   // AUTO-LOAD MARKET DATA: Automatically fetch on page load (debugged and working)
   useEffect(() => {
     if (!community?.id || hasStartedVerification || isVerifying) return;
+
+    // T001: Guard against stale TanStack Query data — only proceed when the
+    // resolved community matches the URL param. While a new community is loading,
+    // TanStack Query briefly serves the previous community's cached data, which
+    // would cause wrong data/photos to be loaded for the new community.
+    if (Number(community.id) !== Number(id)) {
+      console.log('⏳ Waiting for community data to resolve — URL id:', id, 'community.id:', community.id);
+      return;
+    }
     
     // Force clear stale cached data for community 76372
     if (community.id === 76372) {
-      // Clear both the enrichment cache and localStorage
       enrichmentCache.clearCommunity(community.id);
       if (typeof window !== 'undefined' && window.localStorage) {
-        const verifyKey = `verify-${community.id}`;
         const storageKey = 'enrichment-cache-v1';
         try {
           const stored = localStorage.getItem(storageKey);
           if (stored) {
             const parsed = JSON.parse(stored);
-            delete parsed[verifyKey];
+            delete parsed[`verify-${community.id}`];
             delete parsed[`community-${community.id}`];
             localStorage.setItem(storageKey, JSON.stringify(parsed));
             console.log('🔄 Cleared all cached data for community 76372');
@@ -1546,7 +1553,6 @@ export default function CommunityDetail() {
           console.error('Failed to clear localStorage', e);
         }
       }
-      // Always fetch fresh for this community
       handleInitialLoad();
       return;
     }
@@ -1555,6 +1561,17 @@ export default function CommunityDetail() {
     const cachedData = enrichmentCache.get(community.id);
     
     if (cachedData && cachedData.communityId) {
+      // T002: Validate the cached entry belongs to this community, not a previous one
+      if (Number(cachedData.communityId) !== Number(community.id)) {
+        console.warn('⚠️ Cache entry communityId mismatch — discarding stale cached data', {
+          cached: cachedData.communityId,
+          current: community.id,
+        });
+        enrichmentCache.clearCommunity(community.id);
+        handleInitialLoad();
+        return;
+      }
+
       // Check if cached data is the truncated version
       const searchContent = cachedData?.verificationResults?.perplexityData?.searchContent || '';
       if (searchContent.length < 1000 && searchContent.includes("A residential care facility")) {
@@ -1573,7 +1590,7 @@ export default function CommunityDetail() {
     // Auto-trigger verification on first load - check backend cache first
     console.log('🚀 Auto-loading market data for:', community.name);
     handleInitialLoad();
-  }, [community?.id, community?.name]);
+  }, [community?.id, community?.name, id]);
 
   // INITIAL LOAD: Check backend cache first, don't force refresh
   const handleInitialLoad = async () => {
