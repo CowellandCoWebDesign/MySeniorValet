@@ -579,338 +579,152 @@ export class PerplexitySearchAPI {
     searchQuery: string;
   }> {
     const careType = options.careType || '';
-    const query = careType
-      ? `${careType} senior living communities facilities in "${location}" names addresses phone numbers websites`
-      : `senior living assisted living memory care communities in "${location}" facility names addresses contact information`;
+    const limit = options.limit || 15;
+    const userPrompt = careType
+      ? `Find ${careType} senior living facilities in ${location}. List only specific named facilities with their street address, city, state, and direct phone number. Do not include referral services, placement agencies, or generic directories.`
+      : `Find senior living communities (assisted living, memory care, independent living, skilled nursing) in ${location}. List only specific named facilities — places with a physical address that residents live in. Include the facility name, street address, city, state, direct phone number, and website where available.`;
 
-    console.log(`🏠 Discovering communities in ${location}: "${query}"`);
+    const systemPrompt = `You are a senior living facility researcher. Your job is to identify real, specific, individually-named senior living facilities at a physical address. 
 
-    const results = await this.search(query, {
-      max_results: options.limit || 15,
-      domain_allowlist: [
-        'caring.com',
-        'seniorhousing.net', 
-        'seniorliving.org',
-        'assistedliving.com',
-        'aplaceformom.com',
-        'seniorlivingguide.com',
-        'senioradvisor.com',
-        'medicare.gov'
-      ]
+Rules:
+- ONLY return actual residential care facilities where seniors live (assisted living, memory care, independent living, skilled nursing, CCRCs, board and care homes)
+- NEVER return: referral services (A Place for Mom, Caring.com, SeniorAdvisor), placement agencies, government databases, list pages, directories, home care agencies (Visiting Angels, Home Instead), or generic category descriptions
+- Extract facility-level data from whatever sources you search, even if those sources are aggregators — what matters is the individual facility name and address, not the source
+- Each entry must be a distinct named facility at a real street address
+- Return up to ${limit} results`;
+
+    const requestBody = {
+      model: 'sonar',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      web_search_options: { search_context_size: 'high' },
+      response_format: {
+        type: 'json_schema',
+        json_schema: {
+          schema: {
+            type: 'object',
+            properties: {
+              communities: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name:      { type: 'string' },
+                    address:   { type: 'string' },
+                    city:      { type: 'string' },
+                    state:     { type: 'string' },
+                    phone:     { type: 'string' },
+                    website:   { type: 'string' },
+                    careTypes: { type: 'array', items: { type: 'string' } }
+                  },
+                  required: ['name', 'city', 'state']
+                }
+              }
+            },
+            required: ['communities']
+          }
+        }
+      }
+    };
+
+    console.log(`🏠 Discovering communities in ${location} via Chat Completions + structured JSON`);
+    const startTime = Date.now();
+
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody)
     });
 
-    // ========== AGGREGATOR/REFERRAL SERVICE EXCLUSION LIST ==========
-    // These are NOT actual senior living communities - they are referral/placement services
-    // NOTE: We match against TITLES only (not snippets) to avoid blocking legitimate community listings
-    const AGGREGATOR_TITLE_PATTERNS = [
-      /\bcarepatrol\b/i,
-      /\ba\s*place\s*for\s*mom\b/i,
-      /\bseniorly\b/i,
-      /\boasis\s+senior\s+advisors?\b/i,
-      /\bsenior\s+care\s+authority\b/i,
-      /\bassisted\s+living\s+locators?\b/i,
-      /\bsenior\s+living\s+advisors?\b/i,
-      /\beldercare\s+locator\b/i,
-      /\bplacement\s+services?\b/i,
-      /\bsenior\s+placement\b/i,
-      /\bsenior\s+care\s+finder\b/i,
-      // Home care agencies (not residential communities)
-      /\bhome\s+care\s+assistance\b/i,
-      /\bcomfort\s+keepers\b/i,
-      /\bvisiting\s+angels\b/i,
-      /\bright\s+at\s+home\b/i,
-      /\bfirstlight\s+home\s+care\b/i,
-      /\bsenior\s+helpers\b/i,
-      /\bhome\s+instead\b/i,
-      /\bbrightstar\s+care\b/i,
-      /\binterim\s+healthcare\b/i,
-    ];
+    const responseTime = Date.now() - startTime;
 
-    // ========== ARTICLE/GUIDE PATTERNS ==========
-    // Use word boundaries to avoid false positives (e.g., "Liston House" matching "list")
-    const ARTICLE_PATTERNS = [
-      /^(the\s+)?(\d+\s+)?(best|top)\s+/i,        // "The 10 Best...", "Top..."
-      /\bguide\s+(to|for)\b/i,                     // "Guide to...", "Guide for..."
-      /\bcomplete\s+guide\b/i,                     // "Complete Guide"
-      /\bhow\s+to\s+(find|choose|select)\b/i,      // "How to Find..."
-      /\btips\s+(for|on)\b/i,                      // "Tips for..."
-      /\bexplained\b/i,                            // "...Explained"
-      /\bversus\b|\bvs\.?\s+\b/i,                  // "A vs B"
-      /\bcompared\b/i,                             // "...Compared"
-      /^find\s+.*\s+(near|in)\s+/i,                // "Find X near..."
-      /^search\s+(for\s+)?/i,                      // "Search for..."
-      /^\d+\s+things?\s+/i,                        // "10 Things..."
-      /^what\s+(is|are)\s+/i,                      // "What is..."
-      /\breview(s|ed)?\s+of\b/i,                   // "Reviews of..."
-      /\bdirectory\s+of\b/i,                       // "Directory of..."
-      /\blisting(s)?\s+of\b/i,                     // "Listings of..."
-      /\bcost(s)?\s+of\b/i,                        // "Costs of..." (pricing articles)
-      /\bpricing\s+(guide|information)\b/i,        // "Pricing Guide"
-    ];
-
-    // ========== GENERIC LIST TITLE PATTERNS ==========
-    // These are page titles from aggregator sites, NOT actual community names
-    // Real communities have proper nouns like "Brookdale", "Sunrise at...", "The Arbors"
-    // Generic titles describe CATEGORIES, not specific facilities
-    const GENERIC_LIST_TITLE_PATTERNS = [
-      // Pattern: "[Number] [Care Type] in [Location]" - e.g., "38 Assisted Living Facilities in Tulsa County"
-      /^\d+\s+(?:assisted\s+living|senior\s+living|memory\s+care|nursing\s+home|retirement|independent\s+living|skilled\s+nursing|ccrc)s?\s+(?:facilities|communities|homes|centers?)?\s*(?:in|near)\s+/i,
-      
-      // Pattern: "[Care Type] in [Location]" - e.g., "Assisted Living Facilities in Tulsa"
-      /^(?:assisted\s+living|senior\s+living|memory\s+care|nursing\s+home|retirement|independent\s+living|skilled\s+nursing)s?\s+(?:facilities|communities|homes|centers?)?\s*(?:in|near)\s+\w/i,
-      
-      // Pattern: "[Location], [State] [Care Type]" - e.g., "Tulsa, Oklahoma Assisted Living Facilities & Senior Care"
-      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,?\s+(?:[A-Z]{2}|[A-Z][a-z]+)\s+(?:assisted\s+living|senior\s+living|memory\s+care)/i,
-      
-      // Pattern: "[Care Type] [Location] County" - e.g., "Memory care facilities in Tulsa County"
-      /^(?:memory\s+care|senior\s+living|assisted\s+living)\s+(?:facilities|communities|homes)?\s*(?:in\s+)?[A-Z][a-z]+\s+County/i,
-      
-      // Pattern: "CCRCs & Senior Living in [Location]"
-      /^CCRCs?\s*[&+]\s*(?:Senior\s+Living|Assisted\s+Living|Memory\s+Care)\s+(?:in|near)\s+/i,
-      
-      // Pattern: "[Care Type] [Location]" without "in" - e.g., "Senior Living Tulsa County"
-      /^(?:Senior\s+Living|Memory\s+Care|Assisted\s+Living)\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?(?:\s+County)?$/i,
-      
-      // Pattern: "Accredited [Care Type] in [Location]" - e.g., "Accredited Independent Senior Living in Tulsa"
-      /^(?:Accredited|Certified|Licensed)\s+(?:Independent\s+)?(?:Senior\s+Living|Assisted\s+Living|Memory\s+Care)\s+(?:in|near)\s+/i,
-      
-      // Pattern: "[PDF] [anything]" - PDF documents are never community names
-      /^\[PDF\]\s+/i,
-      
-      // Pattern: "Find [anything] in/for [Location]" - e.g., "Find THE BEST Assisted Living Facilities for Seniors in Glendale"
-      /^find\s+.+\s+(?:in|for|near)\s+/i,
-      
-      // Pattern: "[Care Type] and Costs in [Location]" - e.g., "Assisted Living Facilities and Costs in Jackson"
-      /(?:facilities|communities|homes)\s+and\s+(?:costs?|pricing)\s+in\s+/i,
-      
-      // Pattern: "Continuing Care Retirement Community" - generic category, not a name
-      /^Continuing\s+Care\s+Retirement\s+Community$/i,
-      
-      // Pattern: "Alzheimers, Dementia and Memory Care Facilities in" 
-      /^Alzheimers?,?\s*(?:Dementia)?\s*(?:and|&)?\s*Memory\s+Care\s+(?:Facilities|Communities)\s+(?:in|near)\s+/i,
-      
-      // Pattern: "List of [anything]" - e.g., "List of Independent Living Facilities in Jackson"
-      /^list\s+of\s+/i,
-      
-      // Pattern: "Luxury [Care Type] [City]" - e.g., "Luxury Senior Living Glendale"
-      /^Luxury\s+(?:Senior|Assisted)\s+(?:Living|Care)\s+[A-Z][a-z]+$/i,
-      
-      // Pattern: Generic tool names - "Facility Finder", "Care Locator"
-      /^(?:facility|care|senior)\s+(?:finder|locator|search|directory)$/i,
-      
-      // Pattern: Script/technical artifacts - "Draft a target schema..."
-      /^(?:draft|create|design|build|target|schema)\s+a?\s+/i,
-      
-      // Pattern: "55+ Communities" variations - e.g., "55+ Communities & Senior Living in Daytona Beach, Florida"
-      /^55\+\s*(?:communities|living|housing)/i,
-      /55\+\s*(?:communities|living)\s*(?:&|and)\s*(?:senior\s+living|retirement)/i,
-      
-      // Pattern: "[Age]+ [Type] in [Location]" - e.g., "55+ Active Adult Communities in Phoenix"
-      /^\d+\+\s*(?:active\s+)?(?:adult|senior)\s+(?:communities|living|housing)\s+(?:in|near)\s+/i,
-      
-      // Pattern: "Best [anything] in [Location]" - aggregator/list titles
-      /^best\s+.+\s+(?:in|near|for)\s+/i,
-      
-      // Pattern: "Top [Number] [anything]" - list titles
-      /^top\s+\d+\s+/i,
-      
-      // Pattern: "[Location] Senior Living" where location is just a city name (2-3 words max)
-      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+(?:Senior\s+Living|Assisted\s+Living|Memory\s+Care)$/i,
-
-      // Pattern: "[Category] by [Classification]" - government/regulatory list pages
-      // e.g., "Adult Care Facilities by Provider Type", "Nursing Homes by County"
-      /^(?:adult|senior|elder|nursing|memory|assisted|skilled)\s+(?:care|living)\s+(?:facilities|communities|homes)\s+by\s+/i,
-
-      // Pattern: "[State/Location] [Care Type] [Facilities]" - state list pages
-      // e.g., "New York State List: Assisted Living Facilities"
-      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+(?:state\s+)?list\s*:/i,
-
-      // Pattern: Anything ending with "- [Location]" that looks like a listing page title
-      // e.g., "Senior Care Facilities - New York State"
-      /^(?:senior|elder|adult|nursing|memory|assisted)\s+(?:care|living)\s+(?:facilities|communities|homes)\s+-\s+/i,
-
-      // Pattern: "Find [care type] in [location]" - search tool pages
-      /^find\s+(?:senior|assisted|memory|nursing|independent)\s+/i,
-
-      // Pattern: "[Location]: [anything]" where location appears before a colon - directory pages
-      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*:\s+(?:assisted|senior|memory|nursing|independent|skilled)\s+/i,
-    ];
-
-    // ========== TOLL-FREE REFERRAL SERVICE NUMBERS ==========
-    // These prefixes (800, 833, 844, 855, 866, 877, 888) indicate referral services, NOT direct community lines
-    const TOLL_FREE_PREFIXES = ['800', '833', '844', '855', '866', '877', '888'];
-
-    // ========== COMMUNITY-INDICATIVE KEYWORDS ==========
-    const COMMUNITY_KEYWORDS = [
-      'senior living',
-      'assisted living',
-      'memory care',
-      'independent living',
-      'skilled nursing',
-      'nursing home',
-      'retirement community',
-      'continuing care',
-      'ccrc',
-      'alzheimer',
-      'dementia care',
-      'residential care',
-      'board and care',
-      'adult family home',
-      'personal care home',
-    ];
-
-    // Extract community data from search results with smart filtering
-    const communities: Array<{
-      name: string;
-      address?: string;
-      city?: string;
-      state?: string;
-      phone?: string;
-      website?: string;
-      careTypes?: string[];
-      source: string;
-      confidence: number;
-    }> = [];
-
-    for (const result of results.results) {
-      const originalName = result.title;
-      const lowerName = originalName.toLowerCase();
-      const lowerSnippet = result.snippet.toLowerCase();
-      
-      // ========== PHASE 1: ENTITY TYPE DETECTION ==========
-      
-      // Check if this is an aggregator/referral service (match title only to avoid blocking listings)
-      const isAggregator = AGGREGATOR_TITLE_PATTERNS.some(pattern => pattern.test(originalName));
-      if (isAggregator) {
-        console.log(`🚫 Skipping aggregator/referral service: "${originalName}"`);
-        continue;
-      }
-
-      // Check if this is an article/guide
-      const isArticle = ARTICLE_PATTERNS.some(pattern => pattern.test(originalName));
-      if (isArticle) {
-        console.log(`📰 Skipping article/guide: "${originalName}"`);
-        continue;
-      }
-
-      // Check if this is a generic list title (category description, not a community name)
-      const isGenericListTitle = GENERIC_LIST_TITLE_PATTERNS.some(pattern => pattern.test(originalName));
-      if (isGenericListTitle) {
-        console.log(`📋 Skipping generic list title: "${originalName}"`);
-        continue;
-      }
-
-      // Check for toll-free referral service phone numbers in snippet
-      const snippetPhoneMatch = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
-      if (snippetPhoneMatch) {
-        const phoneDigits = snippetPhoneMatch[0].replace(/\D/g, '');
-        const areaCode = phoneDigits.substring(0, 3);
-        if (TOLL_FREE_PREFIXES.includes(areaCode)) {
-          console.log(`📞 Skipping toll-free referral number (${areaCode}): "${originalName}"`);
-          continue;
-        }
-      }
-
-      // ========== PHASE 2: NAME CLEANING ==========
-      let name = originalName;
-      name = name.replace(/\s*[-|–—]\s*.*$/, ''); // Remove everything after dash/pipe
-      name = name.replace(/\s*\(.*\)/, ''); // Remove parentheses content
-      name = name.replace(/,\s+(AL|FL|TX|CA|NY|GA|NC|AZ|PA|OH|IL|MI|WA|CO|TN|MO|IN|MA|VA|NJ|MD|MN|WI|SC|OR|KY|OK|CT|UT|LA|NV|IA|AR|MS|KS|NM|NE|WV|ID|HI|ME|NH|RI|MT|DE|SD|ND|AK|DC|VT|WY)$/i, ''); // Remove state suffix
-      name = name.trim();
-      
-      // Skip if name is too short, too long, or generic
-      if (name.length < 5 || name.length > 80) {
-        console.log(`⚠️ Skipping invalid name length: "${name}"`);
-        continue;
-      }
-
-      // ========== PHASE 3: QUALITY SCORING ==========
-      let qualityScore = 50; // Base score
-      
-      // +20 points: Has community-indicative keywords in title or snippet
-      const hasCommunityKeywords = COMMUNITY_KEYWORDS.some(kw => 
-        lowerName.includes(kw) || lowerSnippet.includes(kw)
-      );
-      if (hasCommunityKeywords) qualityScore += 20;
-
-      // Extract contact info (excluding toll-free referral numbers)
-      const allPhoneMatches = result.snippet.match(/\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/g) || [];
-      let phone: string | undefined = undefined;
-      for (const match of allPhoneMatches) {
-        const digits = match.replace(/\D/g, '');
-        const areaCode = digits.substring(0, 3);
-        if (!TOLL_FREE_PREFIXES.includes(areaCode)) {
-          phone = match;
-          break; // Use first non-toll-free number
-        }
-      }
-
-      const addressMatch = result.snippet.match(/\d+\s+[A-Za-z\s]+(?:St|Street|Ave|Avenue|Blvd|Boulevard|Rd|Road|Dr|Drive|Ln|Lane|Way|Pkwy|Parkway|Place|Pl|Circle|Cir|Court|Ct)/i);
-      const address = addressMatch ? addressMatch[0] : undefined;
-
-      // +15 points: Has LOCAL phone number (not toll-free)
-      if (phone) qualityScore += 15;
-
-      // +15 points: Has address
-      if (address) qualityScore += 15;
-
-      // +10 points: Website is from trusted domain
-      const trustedDomains = ['caring.com', 'seniorhousing.net', 'medicare.gov', 'seniorliving.org'];
-      if (trustedDomains.some(d => result.domain?.includes(d))) qualityScore += 10;
-
-      // +5 points: Location matches in snippet
-      const locationParts = location.toLowerCase().split(/[,\s]+/).filter(p => p.length > 2);
-      const locationMatch = locationParts.some(part => lowerSnippet.includes(part));
-      if (locationMatch) qualityScore += 5;
-
-      // -10 points: Name has too many words (might be an article)
-      if (name.split(/\s+/).length > 8) qualityScore -= 10;
-
-      // -15 points: No contact info at all
-      if (!phone && !address && !result.url) qualityScore -= 15;
-
-      // ========== PHASE 4: THRESHOLD FILTER ==========
-      const MINIMUM_QUALITY_SCORE = 60;
-      if (qualityScore < MINIMUM_QUALITY_SCORE) {
-        console.log(`📉 Skipping low-quality result (score: ${qualityScore}): "${name}"`);
-        continue;
-      }
-
-      // ========== PHASE 5: REQUIRED FIELDS VALIDATION ==========
-      // Must have at least (phone OR website) to be actionable
-      if (!phone && !result.url) {
-        console.log(`📋 Skipping entry without contact info: "${name}"`);
-        continue;
-      }
-
-      // Detect care types from snippet
-      const careTypes: string[] = [];
-      if (/assisted\s+living/i.test(result.snippet)) careTypes.push('Assisted Living');
-      if (/memory\s+care/i.test(result.snippet)) careTypes.push('Memory Care');
-      if (/independent\s+living/i.test(result.snippet)) careTypes.push('Independent Living');
-      if (/skilled\s+nursing/i.test(result.snippet)) careTypes.push('Skilled Nursing');
-      if (/nursing\s+home/i.test(result.snippet)) careTypes.push('Skilled Nursing');
-      if (/continuing\s+care|ccrc/i.test(result.snippet)) careTypes.push('Continuing Care');
-
-      communities.push({
-        name,
-        address,
-        phone,
-        website: result.url,
-        careTypes: careTypes.length > 0 ? careTypes : undefined,
-        source: `search_api_${result.domain}`,
-        confidence: qualityScore
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Chat Completions discovery error (${response.status}):`, errorText);
+      await aiTracker.trackPerplexityCall({
+        action: 'discoverCommunities',
+        context: 'chat_completions_structured',
+        requestDuration: responseTime,
+        success: false,
+        errorMessage: `${response.status} - ${errorText}`,
+        prompt: userPrompt,
       });
-
-      console.log(`✅ Accepted community (score: ${qualityScore}): "${name}"${phone ? ' [has phone]' : ''}${address ? ' [has address]' : ''}`);
+      throw new Error(`Discovery failed: ${response.status} - ${errorText}`);
     }
 
-    console.log(`✅ Discovered ${communities.length} verified communities in ${location} (filtered from ${results.results?.length || 0} results)`);
+    const data = await response.json();
+    const rawContent = data.choices?.[0]?.message?.content || '{"communities":[]}';
+    const citations: string[] = data.citations || [];
+
+    let parsed: { communities: Array<{ name: string; address?: string; city?: string; state?: string; phone?: string; website?: string; careTypes?: string[] }> } = { communities: [] };
+    try {
+      // Strip <think>...</think> blocks that reasoning models may prepend
+      const cleaned = rawContent.replace(/<think>[\s\S]*?<\/think>/i, '').trim();
+      parsed = JSON.parse(cleaned);
+    } catch (e) {
+      console.warn('⚠️ Failed to parse structured JSON from discovery response, returning empty');
+    }
+
+    const rawCommunities = parsed.communities || [];
+
+    // Light safety net — reject anything that still looks like a generic category name
+    const GENERIC_PATTERNS = [
+      /^(?:assisted\s+living|senior\s+living|memory\s+care|nursing\s+home|retirement|independent\s+living|skilled\s+nursing)s?\s+(?:facilities|communities|homes|centers?)?\s*(?:in|near)\s+/i,
+      /^\d+\s+(?:assisted\s+living|senior\s+living|memory\s+care|nursing\s+home)/i,
+      /\bguide\s+(to|for)\b/i,
+      /^(the\s+)?(\d+\s+)?(best|top)\s+/i,
+      /^find\s+/i,
+      /^list\s+of\s+/i,
+      /\bhousing\s+options?\b/i,
+      /\bsenior\s+(resources?|services?)\b/i,
+      /\bprovider\s+(directory|search|list)\b/i,
+      /\bfacility\s+(search|finder|locator)\b/i,
+    ];
+
+    const communities = rawCommunities
+      .filter(c => {
+        if (!c.name || c.name.length < 4 || c.name.length > 90) return false;
+        if (GENERIC_PATTERNS.some(p => p.test(c.name))) {
+          console.log(`🚫 Filtered generic entry: "${c.name}"`);
+          return false;
+        }
+        return true;
+      })
+      .map(c => ({
+        name: c.name.trim(),
+        address: c.address,
+        city: c.city,
+        state: c.state,
+        phone: c.phone,
+        website: c.website,
+        careTypes: c.careTypes && c.careTypes.length > 0 ? c.careTypes : undefined,
+        source: 'chat_completions_sonar',
+        confidence: 80
+      }));
+
+    await aiTracker.trackPerplexityCall({
+      action: 'discoverCommunities',
+      context: 'chat_completions_structured',
+      requestDuration: responseTime,
+      success: true,
+      inputTokens: data.usage?.prompt_tokens,
+      outputTokens: data.usage?.completion_tokens,
+      prompt: userPrompt,
+      response: JSON.stringify(communities.slice(0, 3)),
+    });
+
+    console.log(`✅ Structured discovery returned ${communities.length} communities in ${location} (${responseTime}ms)`);
+    communities.forEach(c => console.log(`  📍 ${c.name} — ${c.city}, ${c.state}`));
 
     return {
       communities,
-      sources: results.results.map(r => r.url),
-      searchQuery: query
+      sources: citations,
+      searchQuery: userPrompt
     };
   }
 

@@ -1277,7 +1277,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       
           
       {/* Search Results - Premium Glass Design */}
-          {isSearchActive && viewMode !== 'map' && (
+          {isSearchActive && viewMode !== 'map' && activeTab !== 'communities' && (
             <div className="w-full max-w-2xl mx-auto mt-12 md:mt-16 mb-8">
               {/* Show AI Response directly in results area for Research mode */}
               {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse ? (
