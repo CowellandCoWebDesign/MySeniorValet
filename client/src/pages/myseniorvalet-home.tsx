@@ -2401,7 +2401,7 @@ export default function MySeniorValetHome() {
               {/* Simplified Map Panel - shown in Database Search mode above directory content */}
               {viewMode === 'list' && (
                 <div className="mb-8 px-2 sm:px-0">
-                  <SimplifiedMapPanel locationQuery={searchQuery || classicSearchValue} />
+                  <SimplifiedMapPanel locationQuery={searchQuery} />
                 </div>
               )}
 
