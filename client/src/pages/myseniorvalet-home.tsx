@@ -4,6 +4,7 @@ import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { SimplifiedMapPanel } from "@/components/SimplifiedMapPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -2397,6 +2398,13 @@ export default function MySeniorValetHome() {
               <div className="max-w-7xl mx-auto">
                 {/* Communities Tab */}
                 <TabsContent value="communities" className="mt-1">
+              {/* Simplified Map Panel - shown in Database Search mode above directory content */}
+              {viewMode === 'list' && (
+                <div className="mb-8 px-2 sm:px-0">
+                  <SimplifiedMapPanel locationQuery={searchQuery || classicSearchValue} />
+                </div>
+              )}
+
               {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">
                 <div className="grid grid-cols-1">
