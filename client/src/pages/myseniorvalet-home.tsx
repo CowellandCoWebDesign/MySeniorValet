@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
+import { useAuth } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi } from "lucide-react";
 import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
@@ -595,6 +596,7 @@ function RecentlyDiscoveredResourcesCarousel() {
 // Simplified Hero Section with Fixed Search Bar
 function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
   const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [classicSearchValue, setClassicSearchValue] = useState(''); // Separate state for classic search input
   const [isSearchActive, setIsSearchActive] = useState(false);
@@ -1196,14 +1198,16 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Senior Living</span>
             </TabsTrigger>
             
-            <TabsTrigger
-              value="services"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('services')}
-            >
-              <span className="text-lg sm:text-xl">👥</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Services</span>
-            </TabsTrigger>
+            {isAuthenticated && (
+              <TabsTrigger
+                value="services"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('services')}
+              >
+                <span className="text-lg sm:text-xl">👥</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Services</span>
+              </TabsTrigger>
+            )}
             
             <TabsTrigger
               value="healthcare"
@@ -1223,14 +1227,16 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
             </TabsTrigger>
             
-            <TabsTrigger
-              value="marketplace"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('marketplace')}
-            >
-              <span className="text-lg sm:text-xl">🛍️</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Marketplace</span>
-            </TabsTrigger>
+            {isAuthenticated && (
+              <TabsTrigger
+                value="marketplace"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('marketplace')}
+              >
+                <span className="text-lg sm:text-xl">🛍️</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Marketplace</span>
+              </TabsTrigger>
+            )}
           </TabsList>
         </div>
         
