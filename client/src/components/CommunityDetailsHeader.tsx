@@ -482,92 +482,6 @@ export function CommunityDetailsHeader({
                 </span>
               </div>
               
-              {/* Contact Information Section */}
-              <div className="space-y-3 mb-4">
-                {/* Phone */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xl flex-shrink-0">☎️</span>
-                  {displayPhone ? (
-                    <a 
-                      href={`tel:${displayPhone}`}
-                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
-                    >
-                      {displayPhone}
-                    </a>
-                  ) : (
-                    <span className="text-gray-500 dark:text-gray-400 italic">
-                      Contact for phone number
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              {/* Action Buttons for Contact */}
-              <div className="flex flex-wrap gap-3">
-                {displayPhone ? (
-                  <a 
-                    href={`tel:${displayPhone}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span className="font-medium">Call Now</span>
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => alert('Phone number not available. Please visit the website or check back later for updated contact information.')}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span className="font-medium">Contact for Phone</span>
-                  </button>
-                )}
-                
-                <button
-                  onClick={() => setIsMessagingOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span className="font-medium">Direct Message</span>
-                </button>
-                
-                {displayWebsite && (
-                  <ExternalLinkWarning
-                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Globe className="w-4 h-4" />
-                    <span className="font-medium">Visit Website</span>
-                  </ExternalLinkWarning>
-                )}
-              </div>
-            </div>
-          </div>
-          
-          {/* Rating, Care Type and Badges Section */}
-          <div className="px-6 pb-4">
-            <div className="flex flex-wrap items-center gap-4">
-              {/* Rating Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <span className="font-bold text-gray-900 dark:text-white">
-                  {community.googleRating || '4.2'}
-                </span>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">
-                  ({community.googleReviewCount || '47'} reviews)
-                </span>
-              </div>
-              
-              {/* Care Type Badge */}
-              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 text-sm font-bold">
-                {formatCareType ? formatCareType(community.careTypes) : "Nursing Home"}
-              </Badge>
-              
-              {/* HUD Property Badge */}
-              {community.hudPropertyId && (
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 text-sm font-bold">
-                  🏛️ HUD Property
-                </Badge>
-              )}
             </div>
           </div>
           
@@ -641,7 +555,70 @@ export function CommunityDetailsHeader({
             </div>
           </div>
           
-          {/* Removed non-functional sections (Top Amenities, Why Featured, Key Services) per user request */}
+          {/* Contact Buttons + Badges Section - below Schedule Tour */}
+          <div className="px-6 pb-6 space-y-4">
+            {/* Call Now, Direct Message, Visit Website */}
+            <div className="flex flex-wrap gap-3">
+              {displayPhone ? (
+                <a
+                  href={`tel:${displayPhone}`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span className="font-medium">Call Now</span>
+                </a>
+              ) : (
+                <button
+                  onClick={() => alert('Phone number not available. Please visit the website or check back later for updated contact information.')}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <Phone className="w-4 h-4" />
+                  <span className="font-medium">Call Now</span>
+                </button>
+              )}
+
+              <button
+                onClick={() => setIsMessagingOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <MessageSquare className="w-4 h-4" />
+                <span className="font-medium">Direct Message</span>
+              </button>
+
+              {displayWebsite && (
+                <ExternalLinkWarning
+                  href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <Globe className="w-4 h-4" />
+                  <span className="font-medium">Visit Website</span>
+                </ExternalLinkWarning>
+              )}
+            </div>
+
+            {/* Rating, Care Type and HUD Badges */}
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
+                <Star className="w-5 h-5 text-yellow-500 fill-current" />
+                <span className="font-bold text-gray-900 dark:text-white">
+                  {community.googleRating || '4.2'}
+                </span>
+                <span className="text-gray-600 dark:text-gray-400 text-sm">
+                  ({community.googleReviewCount || '47'} reviews)
+                </span>
+              </div>
+
+              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 text-sm font-bold">
+                {formatCareType ? formatCareType(community.careTypes) : "Nursing Home"}
+              </Badge>
+
+              {community.hudPropertyId && (
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 text-sm font-bold">
+                  🏛️ HUD Property
+                </Badge>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
