@@ -1320,6 +1320,18 @@ export default function AISearchIntelligence() {
                     ...prev,
                     location: trimmedValue
                   }));
+                  // Geocode the location and move the map immediately
+                  if (trimmedValue) {
+                    fetch(`/api/geocode?location=${encodeURIComponent(trimmedValue)}`)
+                      .then(r => r.json())
+                      .then(geo => {
+                        if (geo?.lat && geo?.lng) {
+                          setMapCenter([geo.lat, geo.lng]);
+                          setMapZoom(12);
+                        }
+                      })
+                      .catch(() => {});
+                  }
                   // Execute search immediately with trimmed value
                   setTimeout(() => {
                     simplifiedSearchMutation.mutate({
