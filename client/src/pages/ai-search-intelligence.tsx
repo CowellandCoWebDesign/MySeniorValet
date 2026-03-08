@@ -20,6 +20,7 @@ import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
 import { useLocationSEO } from '@/hooks/useLocationSEO';
+import { useAuth } from '@/hooks/useAuth';
 import { LocationSEOHead } from '@/components/LocationSEOHead';
 import { LocationInfo, LocationSEOService } from '@/services/locationSEO.service';
 import { 
@@ -183,6 +184,7 @@ const getCityCoordinates = (city: string, state: string): [number, number] | nul
 export default function AISearchIntelligence() {
   // Location SEO hook
   const { location, isLocationPage, locationContent } = useLocationSEO();
+  const { isAuthenticated } = useAuth();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -811,20 +813,22 @@ export default function AISearchIntelligence() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
-            <TabsTrigger value="search" className="flex items-center gap-2">
-              <Search className="w-4 h-4" />
-              AI Search
-            </TabsTrigger>
-            <TabsTrigger value="simplified" className="flex items-center gap-2">
-              <Filter className="w-4 h-4" />
-              Simplified
-            </TabsTrigger>
-            <TabsTrigger value="compare" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              AI Compare
-            </TabsTrigger>
-          </TabsList>
+          {isAuthenticated && (
+            <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
+              <TabsTrigger value="search" className="flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                AI Search
+              </TabsTrigger>
+              <TabsTrigger value="simplified" className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Simplified
+              </TabsTrigger>
+              <TabsTrigger value="compare" className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                AI Compare
+              </TabsTrigger>
+            </TabsList>
+          )}
 
           {/* Intelligent Search Tab */}
           <TabsContent value="search" className="space-y-6">
