@@ -639,7 +639,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
     // Load from localStorage or default to 'classic' (Classic Search is the primary experience)
     // Check if we're in the browser to prevent SSR errors
     if (typeof window !== 'undefined') {
-      const savedMode = localStorage.getItem('searchMode');
+      const savedMode = sessionStorage.getItem('searchMode');
       return (savedMode === 'classic' || savedMode === 'ai') ? savedMode : 'classic';
     }
     return 'classic';
@@ -648,7 +648,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   // Save search mode to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('searchMode', searchMode);
+      sessionStorage.setItem('searchMode', searchMode);
     }
   }, [searchMode]);
   

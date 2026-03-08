@@ -50,7 +50,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchMode, setSearchModeState] = useState<'ai' | 'classic'>(() => {
     if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('searchMode');
+      const saved = sessionStorage.getItem('searchMode');
       return (saved === 'ai' || saved === 'classic') ? saved : 'classic';
     }
     return 'classic';
@@ -242,7 +242,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     onClick={() => {
                       const newMode = searchMode === 'ai' ? 'classic' : 'ai';
                       setSearchModeState(newMode);
-                      localStorage.setItem('searchMode', newMode);
+                      sessionStorage.setItem('searchMode', newMode);
                       window.dispatchEvent(new CustomEvent('searchModeChange', { detail: newMode }));
                       setIsMobileMenuOpen(false);
                     }}
