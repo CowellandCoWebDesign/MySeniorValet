@@ -1278,42 +1278,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4"
               >
-                {/* Classic Search Bar with View Mode Buttons */}
-                <div className="flex flex-col gap-3">
-                  {/* View Mode Buttons */}
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        viewMode === 'list'
-                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      📋 Database Search
-                    </button>
-                    <button
-                      onClick={() => setViewMode('map')}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        viewMode === 'map'
-                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      🗺️ Map View
-                    </button>
-                    <button
-                      onClick={() => setViewMode('discover')}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        viewMode === 'discover'
-                          ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      🌍 Discovery Mode
-                    </button>
-                  </div>
-                  
+                {/* Classic Search Bar */}
+                <div className="flex flex-col gap-2">
                   {/* Search Input with Autocomplete */}
                   <AutocompleteSearch
                     value={classicSearchValue}
@@ -1326,6 +1292,25 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                     isLoading={isLoading}
                     forceClearSuggestions={forceClearAutocomplete}
                   />
+
+                  {/* Discovery Mode toggle */}
+                  <div className="flex justify-center">
+                    <button
+                      onClick={() => setViewMode(viewMode === 'discover' ? 'list' : 'discover')}
+                      className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition-all ${
+                        viewMode === 'discover'
+                          ? 'bg-purple-500/80 text-white shadow-md'
+                          : 'bg-white/10 text-white/70 hover:bg-white/20'
+                      }`}
+                    >
+                      <span className="text-sm">🌍</span>
+                      Discovery Mode
+                      {/* Toggle switch */}
+                      <span className={`relative inline-flex w-7 h-4 rounded-full transition-colors ${viewMode === 'discover' ? 'bg-purple-300' : 'bg-white/20'}`}>
+                        <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${viewMode === 'discover' ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                      </span>
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             )}
