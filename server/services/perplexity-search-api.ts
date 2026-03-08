@@ -716,6 +716,24 @@ export class PerplexitySearchAPI {
       
       // Pattern: "[Location] Senior Living" where location is just a city name (2-3 words max)
       /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+(?:Senior\s+Living|Assisted\s+Living|Memory\s+Care)$/i,
+
+      // Pattern: "[Category] by [Classification]" - government/regulatory list pages
+      // e.g., "Adult Care Facilities by Provider Type", "Nursing Homes by County"
+      /^(?:adult|senior|elder|nursing|memory|assisted|skilled)\s+(?:care|living)\s+(?:facilities|communities|homes)\s+by\s+/i,
+
+      // Pattern: "[State/Location] [Care Type] [Facilities]" - state list pages
+      // e.g., "New York State List: Assisted Living Facilities"
+      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)?\s+(?:state\s+)?list\s*:/i,
+
+      // Pattern: Anything ending with "- [Location]" that looks like a listing page title
+      // e.g., "Senior Care Facilities - New York State"
+      /^(?:senior|elder|adult|nursing|memory|assisted)\s+(?:care|living)\s+(?:facilities|communities|homes)\s+-\s+/i,
+
+      // Pattern: "Find [care type] in [location]" - search tool pages
+      /^find\s+(?:senior|assisted|memory|nursing|independent)\s+/i,
+
+      // Pattern: "[Location]: [anything]" where location appears before a colon - directory pages
+      /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*:\s+(?:assisted|senior|memory|nursing|independent|skilled)\s+/i,
     ];
 
     // ========== TOLL-FREE REFERRAL SERVICE NUMBERS ==========

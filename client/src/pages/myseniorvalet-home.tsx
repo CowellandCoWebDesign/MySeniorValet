@@ -830,66 +830,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
     setIsLoading(true);
 
     try {
-      // Discovery mode for Communities - use global discovery to find facilities
-      // This handles BOTH international and regular discovery searches
-      if (viewMode === 'discover' && activeTab === 'communities') {
-        // For international searches or explicit discovery mode, use Perplexity to search the web
-        const shouldUsePerplexity = isInternationalSearch || true; // Always use discovery in discover mode
-        
-        console.log('🌍 Discovery Mode search for:', query, 'International:', isInternationalSearch);
-        
-        // Call global discovery endpoint to find actual facilities
-        const response = await fetch('/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query,
-            searchType: 'location',
-            limit: 20,
-            discoveryMode: shouldUsePerplexity  // Set based on international or discovery mode
-          }),
-          signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
-        });
-
-        if (!response.ok) throw new Error('Discovery search failed');
-        
-        const data = await response.json();
-        
-        // CRITICAL: Invalidate recently-discovered cache after discovery search
-        // This ensures new discoveries appear immediately in the Recently Discovered section
-        if (data.results?.length > 0 || data.metadata?.discoveredCount > 0) {
-          // Use prefix matching to invalidate all recently-discovered queries regardless of params
-          queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
-          // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
-          queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
-          console.log('🔄 Invalidated recently-discovered cache after discover mode search');
-        }
-        
-        // Show discovered facilities in modal
-        if (data.results && data.results.length > 0) {
-          // Clear loading state first
-          setIsLoading(false);
-          setSearchResults({ results: [], metadata: null });
-          // Then set results and show modal
-          setGlobalDiscoveryResults({
-            query,
-            results: data.results,
-            metadata: {...data.metadata, discoveryType: 'communities'}
-          });
-          setForceClearAutocomplete(true);
-          setShowGlobalDiscoveryModal(true);
-        } else {
-          // No facilities found, show message
-          setSearchResults({ 
-            results: [],
-            metadata: {
-              aiResponse: `No senior living facilities found in ${query} yet. Try a different city or check back later as we expand our coverage.`,
-              isResearchMode: false
-            }
-          });
-        }
-        
-      } else if (viewMode === 'discover' && (activeTab === 'services' || activeTab === 'healthcare' || activeTab === 'resources' || activeTab === 'vendors')) {
+      if (false && viewMode === 'discover' && (activeTab === 'services' || activeTab === 'healthcare' || activeTab === 'resources' || activeTab === 'vendors')) {
+        // (Discovery mode for non-community tabs kept but hidden - no longer exposed in UI)
         // Services, Healthcare, Resources, and Marketplace Discovery Mode - unified global discovery
         console.log(`🌍 ${activeTab} Discovery Mode for:`, query);
         
@@ -986,31 +928,61 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         });
 
       } else {
-        // Regular search for list/map view - use comprehensive search for communities
+        // Regular search - use comprehensive search for communities, with silent background discovery
         if (activeTab === 'communities') {
-          // Use the comprehensive search endpoint for community searches
-          const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
+          // Run DB search and background discovery in parallel
+          const dbSearchPromise = fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
+          const discoveryPromise = fetch('/api/global-discovery/search', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ query, searchType: 'location', limit: 15, discoveryMode: true }),
+            signal: AbortSignal.timeout(60000)
+          }).catch(() => null); // never block on discovery failure
+
+          const dbResponse = await dbSearchPromise;
           
-          if (!response.ok) {
+          if (!dbResponse.ok) {
             // Fallback to unified search
             await handleUnifiedSearch(query);
           } else {
-            const data = await response.json();
-            const communities = data.communities || [];
-            
-            // Extract Discovery Mode data from searchMetadata
+            const data = await dbResponse.json();
+            const dbCommunities: any[] = data.communities || [];
             const metadata = data.searchMetadata || {};
-            
+
+            // Show DB results immediately
             setSearchResults({ 
-              results: communities, 
+              results: dbCommunities, 
               metadata: {
                 total: data.total,
                 searchMetadata: metadata,
                 suggestions: data.suggestions,
-                // Discovery Mode specific data
-                discoveryMode: metadata.discoveryMode,
-                discoveryMessage: metadata.discoveryMessage,
-                aiSuggestions: metadata.aiSuggestions
+              }
+            });
+            setIsLoading(false);
+
+            // When discovery finishes, merge newly found communities that aren't already in results
+            discoveryPromise.then(async (discRes) => {
+              if (!discRes || !discRes.ok) return;
+              try {
+                const discData = await discRes.json();
+                const discoveredResults: any[] = discData.results || [];
+                if (discoveredResults.length === 0) return;
+
+                // Invalidate recently-discovered cache so new finds appear in that section
+                queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+
+                // Merge: exclude any that already exist in DB results by id
+                const existingIds = new Set(dbCommunities.map((c: any) => c.id));
+                const newOnes = discoveredResults.filter((c: any) => !existingIds.has(c.id));
+                if (newOnes.length === 0) return;
+
+                setSearchResults(prev => ({
+                  ...prev,
+                  results: [...(prev.results || []), ...newOnes],
+                  metadata: { ...(prev.metadata || {}), total: (prev.metadata?.total || 0) + newOnes.length }
+                }));
+              } catch {
+                // silently ignore discovery parse errors
               }
             });
           }
@@ -1293,24 +1265,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                     forceClearSuggestions={forceClearAutocomplete}
                   />
 
-                  {/* Discovery Mode toggle */}
-                  <div className="flex justify-center">
-                    <button
-                      onClick={() => setViewMode(viewMode === 'discover' ? 'list' : 'discover')}
-                      className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium transition-all ${
-                        viewMode === 'discover'
-                          ? 'bg-purple-500/80 text-white shadow-md'
-                          : 'bg-white/10 text-white/70 hover:bg-white/20'
-                      }`}
-                    >
-                      <span className="text-sm">🌍</span>
-                      Discovery Mode
-                      {/* Toggle switch */}
-                      <span className={`relative inline-flex w-7 h-4 rounded-full transition-colors ${viewMode === 'discover' ? 'bg-purple-300' : 'bg-white/20'}`}>
-                        <span className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow transition-transform ${viewMode === 'discover' ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
-                      </span>
-                    </button>
-                  </div>
                 </div>
               </motion.div>
             )}
@@ -1323,7 +1277,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       
           
       {/* Search Results - Premium Glass Design */}
-          {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
+          {isSearchActive && viewMode !== 'map' && (
             <div className="w-full max-w-2xl mx-auto mt-12 md:mt-16 mb-8">
               {/* Show AI Response directly in results area for Research mode */}
               {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse ? (
