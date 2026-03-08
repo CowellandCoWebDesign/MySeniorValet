@@ -685,6 +685,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   // Handle search from AutoExpandingSearch component
   const handleAutoExpandingSearch = async (query: string, isResearchMode?: boolean) => {
     setSearchQuery(query);
+    window.dispatchEvent(new CustomEvent('homeSearchQuery', { detail: { query } }));
     
     // Set loading state immediately for better UX
     if (query && query.length >= 2) {
@@ -1777,6 +1778,20 @@ export default function MySeniorValetHome() {
   });
   
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Listen for search queries dispatched from HeroSectionWithTransformingSearch
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const query = (e as CustomEvent).detail?.query;
+      if (query) {
+        setSearchQuery(query);
+        setActiveTab('communities');
+      }
+    };
+    window.addEventListener('homeSearchQuery', handler);
+    return () => window.removeEventListener('homeSearchQuery', handler);
+  }, []);
+
   const [isMobile, setIsMobile] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showProtectionModal, setShowProtectionModal] = useState(false);
