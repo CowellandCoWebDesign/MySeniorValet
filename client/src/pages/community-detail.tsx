@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { HumanVerificationGate } from '@/components/HumanVerificationGate';
 import ReactMarkdown from 'react-markdown';
 import { useParams, useLocation, Link } from 'wouter';
 import { useResponsive } from '@/contexts/ResponsiveContext';
@@ -1444,6 +1445,16 @@ export default function CommunityDetail() {
     }
   };
   
+  // Human verification gate — checked once per browser session
+  const [humanVerified, setHumanVerified] = useState<boolean>(() => {
+    try { return sessionStorage.getItem('msv_human_verified') === 'true'; } catch { return false; }
+  });
+
+  const handleHumanVerified = useCallback(() => {
+    try { sessionStorage.setItem('msv_human_verified', 'true'); } catch {}
+    setHumanVerified(true);
+  }, []);
+
   // Legacy state for backward compatibility (will be removed)
   const [isFavoriteLegacy, setIsFavoriteLegacy] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
@@ -2168,6 +2179,9 @@ export default function CommunityDetail() {
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Human verification gate — shown once per session to block bots */}
+      {!humanVerified && <HumanVerificationGate onVerified={handleHumanVerified} />}
+
       {/* SEO Meta Tags - Include full Perplexity content for search engine indexing */}
       {community && (
         <SEOMetaTags
