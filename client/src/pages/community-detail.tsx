@@ -1624,8 +1624,30 @@ export default function CommunityDetail() {
         // Use getOrFetch to cache the report properly
         enrichmentCache.getOrFetch(community.id, async () => report, false);
       } else {
-        console.log('⚠️ No backend cache found, will show empty state');
-        setVerificationReport(report);
+        // No cached data — automatically escalate to a live Perplexity fetch
+        // so the user sees the full page on first visit without having to click the button
+        console.log('⚡ No cached data found — auto-fetching live data for:', community.name);
+        try {
+          const freshResponse = await fetch(`/api/communities/${community.id}/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ forceRefresh: true, websiteUrl: community.website })
+          });
+          if (freshResponse.ok) {
+            const freshReport = await freshResponse.json();
+            console.log('✅ Auto live-fetch complete for:', community.name);
+            setVerificationReport(freshReport);
+            enrichmentCache.getOrFetch(community.id, async () => freshReport, false);
+            const freshPhotos = freshReport?.verificationResults?.webIntelligence?.images?.length || 0;
+            if (freshPhotos > 0) {
+              queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+            }
+          } else {
+            setVerificationReport(report);
+          }
+        } catch {
+          setVerificationReport(report);
+        }
       }
       
       // Photos will be displayed from the verification report
@@ -3579,34 +3601,6 @@ export default function CommunityDetail() {
                       </Badge>
                     )}
                     
-                    {/* Refresh Market Data Button */}
-                    <div className="mt-4">
-                      <Button
-                        onClick={() => {
-                          console.log('🔄 User clicked Refresh Market Data for:', community.name);
-                          handleManualVerification();
-                        }}
-                        disabled={isVerifying}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors flex items-center gap-2 shadow-lg mx-auto"
-                        variant="default"
-                        size="default"
-                      >
-                        {isVerifying ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                            Refreshing...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="w-4 h-4" />
-                            Refresh Market Data & Photos
-                          </>
-                        )}
-                      </Button>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
-                        Get the latest pricing, availability, and photos from official sources
-                      </p>
-                    </div>
                   </CardHeader>
                 </Card>
 
@@ -3634,6 +3628,35 @@ export default function CommunityDetail() {
                   community={community}
                   verificationReport={verificationReport}
                 />
+
+                {/* Re-fetch button — shown after all content so it reads as "refresh again" */}
+                <div className="flex flex-col items-center gap-2 pt-4 pb-2">
+                  <Button
+                    onClick={() => {
+                      console.log('🔄 User clicked Re-fetch for:', community.name);
+                      handleManualVerification();
+                    }}
+                    disabled={isVerifying}
+                    variant="outline"
+                    size="sm"
+                    className="flex items-center gap-2 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    {isVerifying ? (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                        Refreshing...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        Re-fetch Latest Data
+                      </>
+                    )}
+                  </Button>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
+                    Pull the freshest pricing and photos from public sources
+                  </p>
+                </div>
 
               </TabsContent>
               
