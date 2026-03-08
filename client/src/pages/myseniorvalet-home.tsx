@@ -2398,12 +2398,10 @@ export default function MySeniorValetHome() {
               <div className="max-w-7xl mx-auto">
                 {/* Communities Tab */}
                 <TabsContent value="communities" className="mt-1">
-              {/* Simplified Map Panel - shown in Database Search mode above directory content */}
-              {viewMode === 'list' && (
-                <div className="mb-8 px-2 sm:px-0">
-                  <SimplifiedMapPanel locationQuery={searchQuery} />
-                </div>
-              )}
+              {/* Simplified Map Panel - shown above community directory content */}
+              <div className="mb-8 px-2 sm:px-0">
+                <SimplifiedMapPanel locationQuery={searchQuery} />
+              </div>
 
               {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">
