@@ -27,7 +27,7 @@ export class RateLimitManager {
     // Perplexity API endpoints - STRICT limits to reduce costs
     'api_competitive': { points: 5, duration: 60, blockDuration: 300 }, // 5 per minute, block 5 min
     'api_verify': { points: 5, duration: 60, blockDuration: 300 }, // 5 per minute, block 5 min
-    'api_discovery': { points: 3, duration: 60, blockDuration: 600 }, // 3 per minute, block 10 min
+    'api_discovery': { points: 20, duration: 60 }, // 20 per minute (background silent discovery)
     
     // Data endpoints - relaxed limits
     'data_map': { points: 100, duration: 60 }, // 100 per minute

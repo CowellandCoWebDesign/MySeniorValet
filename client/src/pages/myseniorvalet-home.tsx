@@ -928,18 +928,9 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         });
 
       } else {
-        // Regular search - use comprehensive search for communities, with silent background discovery
+        // Regular search - use comprehensive search for communities
         if (activeTab === 'communities') {
-          // Run DB search and background discovery in parallel
-          const dbSearchPromise = fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
-          const discoveryPromise = fetch('/api/global-discovery/search', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query, searchType: 'location', limit: 15, discoveryMode: true }),
-            signal: AbortSignal.timeout(60000)
-          }).catch(() => null); // never block on discovery failure
-
-          const dbResponse = await dbSearchPromise;
+          const dbResponse = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
           
           if (!dbResponse.ok) {
             // Fallback to unified search
@@ -949,40 +940,12 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             const dbCommunities: any[] = data.communities || [];
             const metadata = data.searchMetadata || {};
 
-            // Show DB results immediately
             setSearchResults({ 
               results: dbCommunities, 
               metadata: {
                 total: data.total,
                 searchMetadata: metadata,
                 suggestions: data.suggestions,
-              }
-            });
-            setIsLoading(false);
-
-            // When discovery finishes, merge newly found communities that aren't already in results
-            discoveryPromise.then(async (discRes) => {
-              if (!discRes || !discRes.ok) return;
-              try {
-                const discData = await discRes.json();
-                const discoveredResults: any[] = discData.results || [];
-                if (discoveredResults.length === 0) return;
-
-                // Invalidate recently-discovered cache so new finds appear in that section
-                queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
-
-                // Merge: exclude any that already exist in DB results by id
-                const existingIds = new Set(dbCommunities.map((c: any) => c.id));
-                const newOnes = discoveredResults.filter((c: any) => !existingIds.has(c.id));
-                if (newOnes.length === 0) return;
-
-                setSearchResults(prev => ({
-                  ...prev,
-                  results: [...(prev.results || []), ...newOnes],
-                  metadata: { ...(prev.metadata || {}), total: (prev.metadata?.total || 0) + newOnes.length }
-                }));
-              } catch {
-                // silently ignore discovery parse errors
               }
             });
           }
@@ -1717,15 +1680,35 @@ export default function MySeniorValetHome() {
   });
   
   const [searchQuery, setSearchQuery] = useState("");
+  const [discoveredCommunities, setDiscoveredCommunities] = useState<any[]>([]);
 
   // Listen for search queries dispatched from HeroSectionWithTransformingSearch
   useEffect(() => {
     const handler = (e: Event) => {
       const query = (e as CustomEvent).detail?.query;
-      if (query) {
-        setSearchQuery(query);
-        setActiveTab('communities');
-      }
+      if (!query) return;
+      setSearchQuery(query);
+      setActiveTab('communities');
+      setDiscoveredCommunities([]); // reset on new search
+
+      // Fire background discovery and surface results in map panel
+      fetch('/api/global-discovery/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, searchType: 'location', limit: 15, discoveryMode: true }),
+        signal: AbortSignal.timeout(90000)
+      })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data) return;
+          const found: any[] = data.results || [];
+          const newlyDiscovered = found.filter((c: any) => c.isDiscovered);
+          if (newlyDiscovered.length > 0) {
+            setDiscoveredCommunities(newlyDiscovered);
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+          }
+        })
+        .catch(() => {});
     };
     window.addEventListener('homeSearchQuery', handler);
     return () => window.removeEventListener('homeSearchQuery', handler);
@@ -2354,7 +2337,7 @@ export default function MySeniorValetHome() {
                 <TabsContent value="communities" className="mt-1">
               {/* Simplified Map Panel - shown above community directory content */}
               <div className="mb-8 px-2 sm:px-0">
-                <SimplifiedMapPanel locationQuery={searchQuery} />
+                <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} />
               </div>
 
               {/* Community Directory Card - Moved Above Featured Excellence */}

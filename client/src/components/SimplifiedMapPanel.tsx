@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import Map from "@/components/Map";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { Button } from "@/components/ui/button";
-import { Rows3, Columns2, MapPin } from "lucide-react";
+import { Rows3, Columns2, MapPin, Sparkles } from "lucide-react";
 
 interface SimplifiedMapPanelProps {
   locationQuery?: string;
+  discoveredCommunities?: any[];
 }
 
 const CARE_TYPE_FILTERS = [
@@ -17,7 +18,17 @@ const CARE_TYPE_FILTERS = [
   { label: "HUD / Subsidized", value: "hud-sponsored" },
 ];
 
-export function SimplifiedMapPanel({ locationQuery }: SimplifiedMapPanelProps) {
+const CARE_KEYWORDS: { key: string; label: string }[] = [
+  { key: "memory care", label: "Memory Care" },
+  { key: "assisted living", label: "Assisted Living" },
+  { key: "independent living", label: "Independent Living" },
+  { key: "skilled nursing", label: "Skilled Nursing" },
+  { key: "nursing home", label: "Skilled Nursing" },
+  { key: "hud", label: "hud-sponsored" },
+  { key: "subsidized", label: "hud-sponsored" },
+];
+
+export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }: SimplifiedMapPanelProps) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
   const [mapZoom, setMapZoom] = useState(10);
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
@@ -66,10 +77,22 @@ export function SimplifiedMapPanel({ locationQuery }: SimplifiedMapPanelProps) {
       .finally(() => setIsLoading(false));
   }, []);
 
-  // Filter communities by selected care type
-  const filteredCommunities = selectedCareType === "all"
-    ? mapCommunities
-    : mapCommunities.filter(c => {
+  // Detect care-type keywords in locationQuery for relevance sorting
+  const detectedCareType = useMemo(() => {
+    if (!locationQuery) return null;
+    const lower = locationQuery.toLowerCase();
+    for (const { key, label } of CARE_KEYWORDS) {
+      if (lower.includes(key)) return label;
+    }
+    return null;
+  }, [locationQuery]);
+
+  // Filter communities by selected care type dropdown
+  const filteredCommunities = useMemo(() => {
+    let list = mapCommunities;
+
+    if (selectedCareType !== "all") {
+      list = list.filter(c => {
         const types = (c.careTypes || []).map((t: string) => t.toLowerCase());
         const subtype = (c.communitySubtype || "").toLowerCase();
         if (selectedCareType === "hud-sponsored") {
@@ -78,8 +101,98 @@ export function SimplifiedMapPanel({ locationQuery }: SimplifiedMapPanelProps) {
         return types.some((t: string) => t.includes(selectedCareType.toLowerCase())) ||
                subtype.includes(selectedCareType.toLowerCase());
       });
+    }
+
+    // Keyword-aware sort: if locationQuery mentions a care type, bubble those to top
+    if (detectedCareType && selectedCareType === "all") {
+      const careKey = detectedCareType.toLowerCase();
+      list = [...list].sort((a, b) => {
+        const aMatch = (a.careTypes || []).some((t: string) => t.toLowerCase().includes(careKey)) ||
+                       (a.communitySubtype || "").toLowerCase().includes(careKey);
+        const bMatch = (b.careTypes || []).some((t: string) => t.toLowerCase().includes(careKey)) ||
+                       (b.communitySubtype || "").toLowerCase().includes(careKey);
+        if (aMatch && !bMatch) return -1;
+        if (!aMatch && bMatch) return 1;
+        return 0;
+      });
+    }
+
+    return list;
+  }, [mapCommunities, selectedCareType, detectedCareType]);
 
   const communityCount = filteredCommunities.length;
+
+  const CommunityList = ({ communities, maxHeight }: { communities: any[]; maxHeight: string }) => (
+    <div className={`overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800`} style={{ maxHeight }}>
+      {communities.length === 0 && !isLoading && (
+        <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+          {locationQuery
+            ? "No communities found in this area. Try zooming out or adjusting filters."
+            : "Search a city above to explore communities on the map."}
+        </div>
+      )}
+      {communities.map((community: any, index: number) => (
+        <div key={community.id} id={`smp-community-${community.id}`} className="p-3">
+          <FeaturedExcellenceCard
+            community={{
+              ...community,
+              name: community.name || "Community",
+              city: community.city || "City",
+              state: community.state || "State",
+              rating: community.rating || 4.5,
+              photos: community.photos || [],
+              careTypes: community.careTypes || [],
+              amenities: community.amenities || [],
+              occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+              totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+              priceRange: community.priceRange,
+              phone: community.phone,
+              website: community.website,
+            }}
+            index={index}
+            compact={true}
+            disableAutoPhotoLoad={true}
+          />
+        </div>
+      ))}
+
+      {/* AI Discovery section — shown after DB results */}
+      {discoveredCommunities.length > 0 && (
+        <>
+          <div className="px-4 py-2 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-t border-purple-200 dark:border-purple-700 flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">
+              {discoveredCommunities.length} Newly Found via AI Discovery
+            </span>
+          </div>
+          {discoveredCommunities.map((community: any, index: number) => (
+            <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="p-3 bg-purple-50/30 dark:bg-purple-900/10">
+              <FeaturedExcellenceCard
+                community={{
+                  ...community,
+                  name: community.name || "Community",
+                  city: community.city || "City",
+                  state: community.state || "State",
+                  rating: community.rating || 4.5,
+                  photos: community.photos || [],
+                  careTypes: community.careTypes || [],
+                  amenities: community.amenities || [],
+                  occupancyRate: 0,
+                  totalUnits: 100,
+                  priceRange: community.priceRange,
+                  phone: community.phone,
+                  website: community.website,
+                }}
+                index={index}
+                compact={true}
+                disableAutoPhotoLoad={true}
+              />
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
@@ -88,7 +201,9 @@ export function SimplifiedMapPanel({ locationQuery }: SimplifiedMapPanelProps) {
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
           <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-            {isLoading ? "Loading communities…" : `${communityCount} communities in view`}
+            {isLoading
+              ? "Loading communities…"
+              : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
           </span>
         </div>
 
@@ -119,28 +234,30 @@ export function SimplifiedMapPanel({ locationQuery }: SimplifiedMapPanelProps) {
         </div>
       </div>
 
-      {/* Care type filter row */}
-      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex gap-2 overflow-x-auto scrollbar-hide">
+      {/* Care type filter pills */}
+      <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 flex gap-2 overflow-x-auto scrollbar-hide">
         {CARE_TYPE_FILTERS.map(filter => (
           <button
             key={filter.value}
             onClick={() => setSelectedCareType(filter.value)}
-            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            className={`flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors ${
               selectedCareType === filter.value
-                ? "bg-blue-600 text-white shadow-sm"
+                ? "bg-blue-600 text-white"
                 : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700"
             }`}
           >
             {filter.label}
+            {detectedCareType === filter.label && selectedCareType === "all" && (
+              <span className="ml-1 text-yellow-300">★</span>
+            )}
           </button>
         ))}
       </div>
 
-      {/* Main content */}
       {layoutMode === "vertical" ? (
-        <div className="flex flex-col">
-          {/* Map */}
-          <div className="w-full">
+        /* Vertical: map on top, list below */
+        <div>
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <Map
               center={mapCenter}
               zoom={mapZoom}
@@ -152,41 +269,7 @@ export function SimplifiedMapPanel({ locationQuery }: SimplifiedMapPanelProps) {
               }}
             />
           </div>
-
-          {/* Community list */}
-          <div className="overflow-y-auto max-h-[480px] divide-y divide-gray-100 dark:divide-gray-800">
-            {filteredCommunities.length === 0 && !isLoading && (
-              <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-                {locationQuery
-                  ? "No communities found in this area. Try zooming out or adjusting filters."
-                  : "Search a city above to explore communities on the map."}
-              </div>
-            )}
-            {filteredCommunities.map((community: any, index: number) => (
-              <div key={community.id} id={`smp-community-${community.id}`} className="p-3">
-                <FeaturedExcellenceCard
-                  community={{
-                    ...community,
-                    name: community.name || "Community",
-                    city: community.city || "City",
-                    state: community.state || "State",
-                    rating: community.rating || 4.5,
-                    photos: community.photos || [],
-                    careTypes: community.careTypes || [],
-                    amenities: community.amenities || [],
-                    occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                    totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                    priceRange: community.priceRange,
-                    phone: community.phone,
-                    website: community.website,
-                  }}
-                  index={index}
-                  compact={true}
-                  disableAutoPhotoLoad={true}
-                />
-              </div>
-            ))}
-          </div>
+          <CommunityList communities={filteredCommunities} maxHeight="480px" />
         </div>
       ) : (
         /* Horizontal: map left, list right */
@@ -203,40 +286,7 @@ export function SimplifiedMapPanel({ locationQuery }: SimplifiedMapPanelProps) {
               }}
             />
           </div>
-
-          <div className="overflow-y-auto max-h-[520px] divide-y divide-gray-100 dark:divide-gray-800">
-            {filteredCommunities.length === 0 && !isLoading && (
-              <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-                {locationQuery
-                  ? "No communities found in this area."
-                  : "Search a city above to explore communities."}
-              </div>
-            )}
-            {filteredCommunities.map((community: any, index: number) => (
-              <div key={community.id} id={`smp-community-${community.id}`} className="p-3">
-                <FeaturedExcellenceCard
-                  community={{
-                    ...community,
-                    name: community.name || "Community",
-                    city: community.city || "City",
-                    state: community.state || "State",
-                    rating: community.rating || 4.5,
-                    photos: community.photos || [],
-                    careTypes: community.careTypes || [],
-                    amenities: community.amenities || [],
-                    occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                    totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                    priceRange: community.priceRange,
-                    phone: community.phone,
-                    website: community.website,
-                  }}
-                  index={index}
-                  compact={true}
-                  disableAutoPhotoLoad={true}
-                />
-              </div>
-            ))}
-          </div>
+          <CommunityList communities={filteredCommunities} maxHeight="520px" />
         </div>
       )}
     </div>
