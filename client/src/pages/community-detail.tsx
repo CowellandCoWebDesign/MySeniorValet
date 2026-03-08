@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { useParams, useLocation, Link } from 'wouter';
 import { useResponsive } from '@/contexts/ResponsiveContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -982,9 +983,44 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       {/* ALWAYS show full Perplexity search content if available - this is the primary source */}
                       {perplexityContent && (
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
-                          {/* Full unfiltered response in a structured format */}
-                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                            {perplexityContent}
+                          {/* Rendered markdown response */}
+                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            <ReactMarkdown
+                              components={{
+                                strong: ({ children }) => (
+                                  <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>
+                                ),
+                                p: ({ children }) => (
+                                  <p className="mb-2 last:mb-0">{children}</p>
+                                ),
+                                ul: ({ children }) => (
+                                  <ul className="list-disc list-inside space-y-1 mb-2">{children}</ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol className="list-decimal list-inside space-y-1 mb-2">{children}</ol>
+                                ),
+                                li: ({ children }) => (
+                                  <li className="text-gray-700 dark:text-gray-300">{children}</li>
+                                ),
+                                h1: ({ children }) => (
+                                  <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1 mt-3">{children}</h1>
+                                ),
+                                h2: ({ children }) => (
+                                  <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1 mt-3">{children}</h2>
+                                ),
+                                h3: ({ children }) => (
+                                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1 mt-2">{children}</h3>
+                                ),
+                                a: ({ href, children }) => (
+                                  <a href={href} target="_blank" rel="noopener noreferrer"
+                                    className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300">
+                                    {children}
+                                  </a>
+                                ),
+                              }}
+                            >
+                              {perplexityContent}
+                            </ReactMarkdown>
                           </div>
                           
                           {/* Show sources if available */}

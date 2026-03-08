@@ -975,7 +975,13 @@ If you cannot find verified information from any source, say "No verified public
         r.url && !r.url.includes('aplaceformom') && !r.url.includes('caring.com') && 
         !r.url.includes('senioradvisor') && r.domain
       )?.url;
-      const priceMatches = allContent.match(/\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:\/|per)\s*month)?/gi) || [];
+      const rawPriceMatches = allContent.match(/\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:\/|per)\s*month)?/gi) || [];
+      // Filter out implausibly small dollar amounts (< $500) — these are noise from page numbers,
+      // item counts, etc. No real senior living community costs less than $500/month.
+      const priceMatches = rawPriceMatches.filter(p => {
+        const firstNum = parseInt(p.replace(/[^0-9]/g, '').substring(0, 6));
+        return firstNum >= 500;
+      });
       const addressMatch = allContent.match(/\d+[^,]+,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s*\d{5}/)?.[0];
       const ratingMatch = allContent.match(/(\d\.?\d?)\s*(?:\/\s*5|out of 5|stars?)/i);
       const reviewCountMatch = allContent.match(/(\d+)\s*(?:reviews?|ratings?)/i);
