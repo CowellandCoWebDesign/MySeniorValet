@@ -175,13 +175,21 @@ router.post("/schedule", async (req, res) => {
         </div>
       `;
       
-      await sgMail.send({
-        to: tourData.contactEmail,
-        from: "hello@myseniorvalet.com",
-        bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
-        subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
-        html: userEmailHtml,
-      });
+      try {
+        await sgMail.send({
+          to: tourData.contactEmail,
+          from: "hello@myseniorvalet.com",
+          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
+          subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
+          html: userEmailHtml,
+        });
+        console.log(`✅ Tour confirmation email sent to ${tourData.contactEmail}`);
+      } catch (emailError: any) {
+        console.error(`❌ Failed to send tour confirmation to ${tourData.contactEmail}:`, emailError?.message);
+        if (emailError?.response?.body) {
+          console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+        }
+      }
       
       // Send notification to community (if they have email configured)
       if (community?.email) {
@@ -374,12 +382,20 @@ router.post("/schedule", async (req, res) => {
           </html>
         `;
         
-        await sgMail.send({
-          to: 'CowellandCoWebDesign@gmail.com',
-          from: "hello@myseniorvalet.com",
-          subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,
-          html: communityEmailHtml,
-        });
+        try {
+          await sgMail.send({
+            to: 'CowellandCoWebDesign@gmail.com',
+            from: "hello@myseniorvalet.com",
+            subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,
+            html: communityEmailHtml,
+          });
+          console.log(`✅ Community tour notification sent to CowellandCoWebDesign@gmail.com`);
+        } catch (emailError: any) {
+          console.error(`❌ Failed to send community tour notification:`, emailError?.message);
+          if (emailError?.response?.body) {
+            console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+          }
+        }
       }
       
       // Send notification to admin
@@ -429,12 +445,20 @@ router.post("/schedule", async (req, res) => {
         </div>
       `;
       
-      await sgMail.send({
-        to: 'CowellandCoWebDesign@gmail.com',
-        from: "hello@myseniorvalet.com",
-        subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
-        html: adminEmailHtml,
-      });
+      try {
+        await sgMail.send({
+          to: 'CowellandCoWebDesign@gmail.com',
+          from: "hello@myseniorvalet.com",
+          subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
+          html: adminEmailHtml,
+        });
+        console.log(`✅ Admin tour notification sent to CowellandCoWebDesign@gmail.com`);
+      } catch (emailError: any) {
+        console.error(`❌ Failed to send admin tour notification:`, emailError?.message);
+        if (emailError?.response?.body) {
+          console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+        }
+      }
     }
     
     res.json({

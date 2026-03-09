@@ -16,6 +16,7 @@ interface EmailParams {
   subject: string;
   text?: string;
   html?: string;
+  bcc?: string | string[];
 }
 
 interface MessageNotificationParams {
@@ -42,6 +43,10 @@ export async function sendEmail(params: EmailParams & { disableTracking?: boolea
       html: html
     };
     
+    if (params.bcc) {
+      msg.bcc = params.bcc;
+    }
+    
     // Disable click and open tracking for security-critical emails
     // This prevents SendGrid from rewriting URLs through tracking domains
     // which can cause SSL certificate errors if link branding isn't configured
@@ -63,9 +68,9 @@ export async function sendEmail(params: EmailParams & { disableTracking?: boolea
     return response.statusCode >= 200 && response.statusCode < 300;
 
   } catch (error: any) {
-    console.error('SendGrid email error:', error);
-    if (error.response && error.response.body) {
-      console.error('SendGrid error details:', error.response.body);
+    console.error(`❌ SendGrid email error sending to ${params.to} (subject: "${params.subject}"):`, error?.message || error);
+    if (error?.response?.body) {
+      console.error('SendGrid error details:', JSON.stringify(error.response.body));
     }
     return false;
   }
