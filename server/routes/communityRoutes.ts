@@ -25,6 +25,7 @@ import { optimizedEnrichmentService } from "../services/optimized-enrichment-ser
 import { simpleEnrichmentService } from "../services/simple-enrichment-service";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
 import { vendors } from "@shared/schema";
+import { geocodeWithNominatim } from "../nominatim-geocoding";
 
 export function registerCommunityRoutes(app: Express) {
   // IMPORTANT: Specific routes must come BEFORE the /:id route
@@ -897,6 +898,8 @@ export function registerCommunityRoutes(app: Express) {
         officialWebsite: comprehensiveData.marketData?.website || community.website || '',
         phoneNumber: comprehensiveData.marketData?.phone || community.phone || '',
         pricing: comprehensiveData.marketData?.pricing || '',
+        // Surface extracted address for address-correction logic below
+        extractedAddress: (comprehensiveData as any).extractedAddress as string | undefined,
         // CRITICAL: Prefer database photos first (most reliable), then cache
         photos: (community.photos && community.photos.length > 0) ? community.photos : (comprehensiveData.photos || []),
         searchResults: {
@@ -951,7 +954,39 @@ export function registerCommunityRoutes(app: Express) {
             hasUpdates = true;
             console.log(`✅ Updating description with FULL enriched content (${enrichmentResult.searchResults.summary.length} chars)`);
           }
-          
+
+          // Address correction: if Perplexity found a different city than what is stored, update
+          const extractedAddress = enrichmentResult.extractedAddress;
+          if (extractedAddress) {
+            const addrParts = extractedAddress.match(/^(.+),\s*([A-Za-z\s]+),\s*([A-Z]{2})\s*(\d{5})?$/);
+            if (addrParts) {
+              const [, streetAddr, extractedCity, extractedState, extractedZip] = addrParts;
+              const storedCity = (current.city || '').trim().toLowerCase();
+              const newCity = extractedCity.trim().toLowerCase();
+              if (newCity && newCity !== storedCity) {
+                console.log(`🏠 Address correction detected for "${current.name}": "${current.city}" → "${extractedCity.trim()}"`);
+                updates.address = streetAddr.trim();
+                updates.city = extractedCity.trim();
+                updates.state = extractedState.trim();
+                if (extractedZip) updates.zipCode = extractedZip;
+                hasUpdates = true;
+                // Re-geocode using the corrected address to update map coordinates
+                try {
+                  const newCoords = await geocodeWithNominatim(
+                    `${streetAddr.trim()}, ${extractedCity.trim()}, ${extractedState}`
+                  );
+                  if (newCoords) {
+                    updates.latitude = newCoords.lat;
+                    updates.longitude = newCoords.lng;
+                    console.log(`📍 Re-geocoded "${current.name}" to: ${newCoords.lat}, ${newCoords.lng}`);
+                  }
+                } catch (geoErr) {
+                  console.warn(`⚠️ Re-geocoding failed for "${current.name}":`, geoErr);
+                }
+              }
+            }
+          }
+
           // Apply updates if any
           if (hasUpdates) {
             await db.update(communities)

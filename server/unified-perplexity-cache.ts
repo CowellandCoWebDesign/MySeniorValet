@@ -1041,6 +1041,12 @@ If you cannot find verified information from any source, say "No verified public
         websiteUrl
       );
 
+      // Attach the extracted address so callers can detect and correct wrong DB city/address
+      if (addressMatch) {
+        (structuredData as any).extractedAddress = addressMatch.trim();
+        console.log(`📍 Extracted address from Perplexity results: "${addressMatch.trim()}"`);
+      }
+
       // Check if response is complete before caching
       // Reject responses that are generic/inferred rather than specific verified data
       const lowerContent = structuredData.rawPerplexityContent?.toLowerCase() || '';
