@@ -291,7 +291,7 @@ Contact them immediately to convert this opportunity!
    */
   private async sendAdminEmail(request: ReservationRequest) {
     const msg = {
-      to: 'admin@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
       subject: `[LEAD] ${request.requestType} request for ${request.communityName}`,
       html: `
@@ -325,7 +325,7 @@ Contact them immediately to convert this opportunity!
    */
   private async sendMarketingEmail(request: ReservationRequest) {
     const msg = {
-      to: 'hello@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
       subject: `🎯 Platform Engagement: ${request.communityName} Lead`,
       html: `

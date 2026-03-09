@@ -502,7 +502,7 @@ async function handleWebhookEvent(event: Stripe.Event) {
         `;
         
         await EmailService.sendEmail({
-          to: 'hello@myseniorvalet.com',
+          to: 'CowellandCoWebDesign@gmail.com',
           subject: `✅ Payment Received: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
           html: emailHtml
         });
@@ -620,7 +620,7 @@ async function handleWebhookEvent(event: Stripe.Event) {
         `;
         
         await EmailService.sendEmail({
-          to: 'hello@myseniorvalet.com',
+          to: 'CowellandCoWebDesign@gmail.com',
           subject: `⚠️ Payment Failed: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
           html: emailHtml
         });

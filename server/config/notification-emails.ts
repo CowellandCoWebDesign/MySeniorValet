@@ -1,47 +1,23 @@
 // Notification email configuration for MySeniorValet
-// This file manages email routing for different notification types
+// All admin/notification emails route exclusively to the site owner
 
 export const NOTIFICATION_EMAIL_CONFIG = {
   // Super Admin emails (private)
   superAdmin: {
-    primary: 'William.cowell01@gmail.com',
-    backup: 'CowellandCoWebDesign@gmail.com'
+    primary: 'CowellandCoWebDesign@gmail.com'
   },
   
-  // Team emails (public facing)
-  team: {
-    onboarding: 'hello@myseniorvalet.com',
-    billing: 'billing@myseniorvalet.com'
-  },
-  
-  // Notification routing rules
+  // Notification routing rules - all go to owner for now
   routing: {
-    // System alerts and critical notifications
-    systemAlerts: ['superAdmin.primary', 'superAdmin.backup'],
-    
-    // New vendor registrations
-    vendorSignups: ['team.onboarding', 'superAdmin.primary'],
-    
-    // Payment and billing issues
-    paymentIssues: ['team.billing', 'superAdmin.primary'],
-    
-    // Community updates and milestones
+    systemAlerts: ['superAdmin.primary'],
+    vendorSignups: ['superAdmin.primary'],
+    paymentIssues: ['superAdmin.primary'],
     communityMilestones: ['superAdmin.primary'],
-    
-    // User feedback and contributions
-    userContributions: ['team.onboarding', 'superAdmin.primary'],
-    
-    // Platform analytics and reports
+    userContributions: ['superAdmin.primary'],
     analyticsReports: ['superAdmin.primary'],
-    
-    // Security alerts
-    securityAlerts: ['superAdmin.primary', 'superAdmin.backup'],
-    
-    // New user registrations
-    userRegistrations: ['team.onboarding'],
-    
-    // Support requests
-    supportRequests: ['team.onboarding', 'superAdmin.primary']
+    securityAlerts: ['superAdmin.primary'],
+    userRegistrations: ['superAdmin.primary'],
+    supportRequests: ['superAdmin.primary']
   }
 };
 
@@ -57,23 +33,18 @@ export function getEmailsForNotificationType(type: keyof typeof NOTIFICATION_EMA
       const superAdminEmails = NOTIFICATION_EMAIL_CONFIG.superAdmin;
       const email = superAdminEmails[key as keyof typeof superAdminEmails];
       if (email) emails.push(email);
-    } else if (category === 'team') {
-      const teamEmails = NOTIFICATION_EMAIL_CONFIG.team;
-      const email = teamEmails[key as keyof typeof teamEmails];
-      if (email) emails.push(email);
     }
   }
   
-  return [...new Set(emails)]; // Remove duplicates
+  return [...new Set(emails)];
 }
 
 // Helper function to check if an email is a super admin email
 export function isSuperAdminEmail(email: string): boolean {
-  return email === NOTIFICATION_EMAIL_CONFIG.superAdmin.primary || 
-         email === NOTIFICATION_EMAIL_CONFIG.superAdmin.backup;
+  return email === NOTIFICATION_EMAIL_CONFIG.superAdmin.primary;
 }
 
 // Helper function to get notification sender email
 export function getNotificationSenderEmail(): string {
-  return 'admin@myseniorvalet.com';
+  return 'hello@myseniorvalet.com';
 }

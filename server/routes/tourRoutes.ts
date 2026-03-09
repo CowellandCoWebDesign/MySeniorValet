@@ -375,9 +375,8 @@ router.post("/schedule", async (req, res) => {
         `;
         
         await sgMail.send({
-          to: community.email,
+          to: 'CowellandCoWebDesign@gmail.com',
           from: "hello@myseniorvalet.com",
-          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
           subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,
           html: communityEmailHtml,
         });
@@ -431,9 +430,8 @@ router.post("/schedule", async (req, res) => {
       `;
       
       await sgMail.send({
-        to: "admin@myseniorvalet.com",
+        to: 'CowellandCoWebDesign@gmail.com',
         from: "hello@myseniorvalet.com",
-        cc: "hello@myseniorvalet.com",
         subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
         html: adminEmailHtml,
       });

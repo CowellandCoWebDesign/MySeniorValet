@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { 
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
   CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare,
   Flag, RefreshCw, TrendingUp, Info, ExternalLink, Loader2
 } from "lucide-react";
-import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { MessagingInterface } from "./MessagingInterface";
 
@@ -50,6 +51,10 @@ export function CommunityDetailsHeader({
   isRefetching = false
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+  const [showVisitWebsiteDialog, setShowVisitWebsiteDialog] = useState(false);
+  const [visitName, setVisitName] = useState('');
+  const [visitPhone, setVisitPhone] = useState('');
+  const [isSubmittingVisitLead, setIsSubmittingVisitLead] = useState(false);
   
   // Determine if community needs data quality review
   const needsDataReview = () => {
@@ -483,19 +488,29 @@ export function CommunityDetailsHeader({
                   {community.name}
                 </h1>
               </div>
-              
-              {/* Website URL with crystal ball emoji - properly spaced */}
-              {displayWebsite && (
-                <div className="flex items-start gap-2 mb-3">
-                  <span className="text-xl flex-shrink-0">🔮</span>
-                  <ExternalLinkWarning
-                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium underline decoration-purple-400/30 hover:decoration-purple-600 break-all text-sm sm:text-base"
-                  >
-                    {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                  </ExternalLinkWarning>
+
+              {/* Rating, Care Type and HUD Badges - directly below name */}
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
+                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                  <span className="font-bold text-gray-900 dark:text-white text-sm">
+                    {community.googleRating || '4.2'}
+                  </span>
+                  <span className="text-gray-600 dark:text-gray-400 text-xs">
+                    ({community.googleReviewCount || '47'} reviews)
+                  </span>
                 </div>
-              )}
+
+                <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 text-xs font-bold">
+                  {formatCareType ? formatCareType(community.careTypes) : "Nursing Home"}
+                </Badge>
+
+                {community.hudPropertyId && (
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 text-xs font-bold">
+                    🏛️ HUD Property
+                  </Badge>
+                )}
+              </div>
               
               <div className="flex items-start gap-2 mb-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">📌</span>
@@ -599,45 +614,25 @@ export function CommunityDetailsHeader({
                 </button>
               )}
 
-              <button
-                onClick={() => setIsMessagingOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
-              >
-                <MessageSquare className="w-4 h-4" />
-                <span className="font-medium">Direct Message</span>
-              </button>
+              {community.isClaimed && (
+                <button
+                  onClick={() => setIsMessagingOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="font-medium">Direct Message</span>
+                </button>
+              )}
 
               {displayWebsite && (
-                <ExternalLinkWarning
-                  href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                <button
+                  onClick={() => setShowVisitWebsiteDialog(true)}
                   className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
                 >
                   <Globe className="w-4 h-4" />
                   <span className="font-medium">Visit Website</span>
-                </ExternalLinkWarning>
-              )}
-            </div>
-
-            {/* Rating, Care Type and HUD Badges */}
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <span className="font-bold text-gray-900 dark:text-white">
-                  {community.googleRating || '4.2'}
-                </span>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">
-                  ({community.googleReviewCount || '47'} reviews)
-                </span>
-              </div>
-
-              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 text-sm font-bold">
-                {formatCareType ? formatCareType(community.careTypes) : "Nursing Home"}
-              </Badge>
-
-              {community.hudPropertyId && (
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 text-sm font-bold">
-                  🏛️ HUD Property
-                </Badge>
+                  <ExternalLink className="w-3 h-3 opacity-70" />
+                </button>
               )}
             </div>
           </div>
@@ -652,6 +647,106 @@ export function CommunityDetailsHeader({
       communityId={community.id}
       communityName={community.name}
     />
+
+    {/* Visit Website Lead Capture Dialog */}
+    <Dialog open={showVisitWebsiteDialog} onOpenChange={setShowVisitWebsiteDialog}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Globe className="w-5 h-5 text-purple-500" />
+            Before You Go
+          </DialogTitle>
+          <DialogDescription>
+            You're about to visit the official website for <strong>{community.name}</strong>.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 py-2">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            Would you like us to send you helpful information about this community? Enter your details below — it only takes a second.
+          </p>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Your Name</label>
+              <Input
+                placeholder="Jane Smith"
+                value={visitName}
+                onChange={(e) => setVisitName(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block">Phone Number</label>
+              <Input
+                type="tel"
+                placeholder="(555) 123-4567"
+                value={visitPhone}
+                onChange={(e) => setVisitPhone(e.target.value)}
+                className="w-full"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded-lg border border-amber-200 dark:border-amber-700">
+            <strong>Please Note:</strong> We expect this is the right website for this community, but we're always improving our accuracy. The link opens in a new tab.
+          </p>
+        </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            onClick={() => {
+              window.open(
+                displayWebsite?.includes('://') ? displayWebsite : `https://${displayWebsite}`,
+                '_blank',
+                'noopener,noreferrer'
+              );
+              setShowVisitWebsiteDialog(false);
+            }}
+            className="w-full sm:w-auto"
+          >
+            Skip &amp; Visit Website
+          </Button>
+          <Button
+            onClick={async () => {
+              setIsSubmittingVisitLead(true);
+              try {
+                if (visitName || visitPhone) {
+                  await fetch('/api/communities/request-info', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                      communityId: community.id,
+                      communityName: community.name,
+                      communityLocation: community.city && community.state ? `${community.city}, ${community.state}` : '',
+                      name: visitName,
+                      phone: visitPhone,
+                      email: '',
+                      source: 'visit_website'
+                    })
+                  });
+                }
+              } catch (_) {}
+              window.open(
+                displayWebsite?.includes('://') ? displayWebsite : `https://${displayWebsite}`,
+                '_blank',
+                'noopener,noreferrer'
+              );
+              setShowVisitWebsiteDialog(false);
+              setIsSubmittingVisitLead(false);
+            }}
+            disabled={isSubmittingVisitLead}
+            className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white"
+          >
+            {isSubmittingVisitLead ? (
+              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Saving...</>
+            ) : (
+              'Continue to Website'
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
     </>
   );
 }

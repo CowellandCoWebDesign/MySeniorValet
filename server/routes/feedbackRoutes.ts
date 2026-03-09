@@ -50,7 +50,7 @@ router.post('/submit', async (req: Request, res: Response) => {
 
     // Send email to hello@myseniorvalet.com
     await EmailService.sendEmail({
-      to: 'hello@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       subject: `Beta Feedback: ${type} - MySeniorValet`,
       html: emailHtml
     });

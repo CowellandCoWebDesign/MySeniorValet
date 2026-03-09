@@ -130,9 +130,8 @@ export class InfoRequestService {
     const infoLabels = this.formatRequestedInfo(request.requestedInfo || []);
     
     const msg = {
-      to: request.communityEmail!,
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
-      bcc: ['admin@myseniorvalet.com'],
       subject: `🎯 New Information Request from MySeniorValet - ${request.userName}`,
       html: `
         <!DOCTYPE html>
@@ -221,7 +220,7 @@ export class InfoRequestService {
     const infoLabels = this.formatRequestedInfo(request.requestedInfo || []);
     
     const msg = {
-      to: 'admin@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
       subject: `[INFO REQUEST] ${request.communityName} - ${request.userName}`,
       html: `
@@ -275,7 +274,7 @@ export class InfoRequestService {
    */
   private async sendMarketingEmail(request: InfoRequest) {
     const msg = {
-      to: 'hello@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
       subject: `[LEAD] Information request for ${request.communityName}`,
       html: `
