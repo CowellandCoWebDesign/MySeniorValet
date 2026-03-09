@@ -178,7 +178,7 @@ router.post("/schedule", async (req, res) => {
       try {
         await sgMail.send({
           to: tourData.contactEmail,
-          from: "hello@myseniorvalet.com",
+          from: "CowellandCoWebDesign@gmail.com",
           bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
           subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
           html: userEmailHtml,
@@ -385,7 +385,7 @@ router.post("/schedule", async (req, res) => {
         try {
           await sgMail.send({
             to: 'CowellandCoWebDesign@gmail.com',
-            from: "hello@myseniorvalet.com",
+            from: "CowellandCoWebDesign@gmail.com",
             subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,
             html: communityEmailHtml,
           });
@@ -448,7 +448,7 @@ router.post("/schedule", async (req, res) => {
       try {
         await sgMail.send({
           to: 'CowellandCoWebDesign@gmail.com',
-          from: "hello@myseniorvalet.com",
+          from: "CowellandCoWebDesign@gmail.com",
           subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
           html: adminEmailHtml,
         });
@@ -590,7 +590,7 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
         
         await sgMail.send({
           to: updatedTour.contactEmail,
-          from: "hello@myseniorvalet.com",
+          from: "CowellandCoWebDesign@gmail.com",
           bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
           subject: `Tour Confirmed - ${community?.name}`,
           html: emailHtml,

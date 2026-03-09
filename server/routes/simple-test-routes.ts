@@ -32,7 +32,7 @@ router.post('/test/email', async (req, res) => {
     // Send a simple test email with both text and html
     const success = await sendEmail({
       to: 'CowellandCoWebDesign@gmail.com',
-      from: 'hello@myseniorvalet.com',
+      from: 'CowellandCoWebDesign@gmail.com',
       subject: '[PRODUCTION TEST] MySeniorValet Email System',
       text: `Production Email Test\n\nThis is a test of the MySeniorValet production email system.\n\nTimestamp: ${new Date().toISOString()}\n\nIf you received this email, the system is working correctly.`,
       html: `
@@ -102,7 +102,7 @@ router.post('/test/comprehensive', async (req, res) => {
     try {
       const directSuccess = await sendEmail({
         to: email || 'CowellandCoWebDesign@gmail.com',
-        from: 'hello@myseniorvalet.com',
+        from: 'CowellandCoWebDesign@gmail.com',
         subject: '[TEST 1/3] Direct Email Test',
         text: 'Test 1: Direct Email\n\nTesting direct SendGrid delivery.',
         html: '<h3>Test 1: Direct Email</h3><p>Testing direct SendGrid delivery.</p>'

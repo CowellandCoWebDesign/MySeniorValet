@@ -21,7 +21,7 @@ export interface EmailOptions {
 }
 
 // Default sender email
-const DEFAULT_FROM_EMAIL = 'hello@myseniorvalet.com';
+const DEFAULT_FROM_EMAIL = 'CowellandCoWebDesign@gmail.com';
 const DEFAULT_FROM_NAME = 'MySeniorValet';
 
 export class EmailService {

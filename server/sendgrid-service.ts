@@ -84,7 +84,7 @@ export async function notifySuperAdmin(title: string, message: string, data?: an
   for (const recipient of recipients) {
     await sendEmail({
       to: recipient,
-      from: 'hello@myseniorvalet.com',
+      from: 'CowellandCoWebDesign@gmail.com',
       subject: `MySeniorValet Alert: ${title}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -108,7 +108,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
   
   return await sendEmail({
     to: email,
-    from: 'hello@myseniorvalet.com',
+    from: 'CowellandCoWebDesign@gmail.com',
     subject: 'MySeniorValet - Password Reset Request',
     disableTracking: true, // Security-critical email - prevent URL rewriting
     html: `
@@ -140,7 +140,7 @@ export async function notifyNewCustomer(customerType: 'community' | 'vendor', cu
   
   return await sendEmail({
     to: 'admin@myseniorvalet.com',
-    from: 'hello@myseniorvalet.com',
+    from: 'CowellandCoWebDesign@gmail.com',
     subject: title,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -236,7 +236,7 @@ export async function sendMessageNotification(params: MessageNotificationParams)
     
     const emailSent = await sendEmail({
       to: recipientEmail,
-      from: 'hello@myseniorvalet.com',
+      from: 'CowellandCoWebDesign@gmail.com',
       subject: `New message from ${params.senderName} on MySeniorValet`,
       text: `
 New Message on MySeniorValet

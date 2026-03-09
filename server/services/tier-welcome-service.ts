@@ -201,7 +201,7 @@ export async function sendCommunityWelcomeEmail(
 
     const msg = {
       to: customerEmail,
-      from: 'hello@myseniorvalet.com',
+      from: 'CowellandCoWebDesign@gmail.com',
       bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
       subject: `🎉 Welcome to MySeniorValet ${tierInfo.name} - ${community.name}`,
       html: `
@@ -317,7 +317,7 @@ export async function sendVendorWelcomeEmail(
 
     const msg = {
       to: customerEmail,
-      from: 'hello@myseniorvalet.com',
+      from: 'CowellandCoWebDesign@gmail.com',
       bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
       subject: `🎉 Welcome to MySeniorValet ${tierInfo.name} - ${vendor.businessName}`,
       html: `
