@@ -27,6 +27,8 @@ interface CommunityDetailsHeaderProps {
   onPhotoChange?: (index: number) => void;
   currentPhotoIndex?: number;
   onStartVerification?: () => void;
+  onRefetch?: () => void;
+  isRefetching?: boolean;
 }
 
 export function CommunityDetailsHeader({ 
@@ -43,7 +45,9 @@ export function CommunityDetailsHeader({
   onTourClick,
   onPhotoChange,
   currentPhotoIndex,
-  onStartVerification
+  onStartVerification,
+  onRefetch,
+  isRefetching = false
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   
@@ -399,6 +403,24 @@ export function CommunityDetailsHeader({
           
           {/* Action Buttons */}
           <div className="flex items-center space-x-2 ml-3">
+            {/* Re-fetch latest data — quick access */}
+            {onRefetch && (
+              <button
+                onClick={onRefetch}
+                disabled={isRefetching}
+                title="Re-fetch latest data"
+                className={`p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform transition-all duration-200 border border-gray-200 dark:border-gray-700 ${
+                  isRefetching ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
+                }`}
+              >
+                {isRefetching ? (
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                )}
+              </button>
+            )}
+
             {onFavoriteToggle && (
               <button
                 onClick={onFavoriteToggle}

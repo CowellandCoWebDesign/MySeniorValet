@@ -1637,7 +1637,7 @@ export default function CommunityDetail() {
     // Auto-trigger verification on first load - check backend cache first
     console.log('🚀 Auto-loading market data for:', community.name);
     handleInitialLoad();
-  }, [community?.id, community?.name, id]);
+  }, [community?.id, community?.name, id, hasStartedVerification]);
 
   // INITIAL LOAD: Check backend cache first, don't force refresh
   const handleInitialLoad = async () => {
@@ -1684,9 +1684,7 @@ export default function CommunityDetail() {
       if (hasPerplexityContent || foundPhotos > 0) {
         console.log('✨ Found cached data from backend');
         setVerificationReport(report);
-        
-        // Use getOrFetch to cache the report properly
-        enrichmentCache.getOrFetch(community.id, async () => report, false);
+        enrichmentCache.set(community.id, report);
       } else {
         // No cached data — automatically escalate to a live Perplexity fetch
         // so the user sees the full page on first visit without having to click the button
@@ -1701,7 +1699,7 @@ export default function CommunityDetail() {
             const freshReport = await freshResponse.json();
             console.log('✅ Auto live-fetch complete for:', community.name);
             setVerificationReport(freshReport);
-            enrichmentCache.getOrFetch(community.id, async () => freshReport, false);
+            enrichmentCache.set(community.id, freshReport);
             const freshPhotos = freshReport?.verificationResults?.webIntelligence?.images?.length || 0;
             if (freshPhotos > 0) {
               queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
@@ -1758,9 +1756,7 @@ export default function CommunityDetail() {
       const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
       console.log('✅ Fresh data fetched, photos found:', foundPhotos);
       setVerificationReport(report);
-      
-      // Use getOrFetch to cache the report properly
-      enrichmentCache.getOrFetch(community.id, async () => report, false);
+      enrichmentCache.set(community.id, report);
       
       // Photos will be displayed from the verification report
       if (foundPhotos > 0) {
@@ -2372,6 +2368,8 @@ export default function CommunityDetail() {
                 // Open tour scheduler dialog directly
                 setIsScheduleTourOpen(true);
               }}
+              onRefetch={handleManualVerification}
+              isRefetching={isVerifying}
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
             
@@ -3695,35 +3693,6 @@ export default function CommunityDetail() {
                   community={community}
                   verificationReport={verificationReport}
                 />
-
-                {/* Re-fetch button — shown after all content so it reads as "refresh again" */}
-                <div className="flex flex-col items-center gap-2 pt-4 pb-2">
-                  <Button
-                    onClick={() => {
-                      console.log('🔄 User clicked Re-fetch for:', community.name);
-                      handleManualVerification();
-                    }}
-                    disabled={isVerifying}
-                    variant="outline"
-                    size="sm"
-                    className="flex items-center gap-2 text-gray-600 dark:text-gray-400 border-gray-300 dark:border-gray-600 hover:border-blue-400 hover:text-blue-600 dark:hover:text-blue-400"
-                  >
-                    {isVerifying ? (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        Refreshing...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        Re-fetch Latest Data
-                      </>
-                    )}
-                  </Button>
-                  <p className="text-xs text-gray-400 dark:text-gray-500">
-                    Pull the freshest pricing and photos from public sources
-                  </p>
-                </div>
 
               </TabsContent>
               

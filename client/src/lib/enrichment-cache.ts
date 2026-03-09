@@ -164,6 +164,21 @@ class EnrichmentCache {
   }
 
   /**
+   * Directly set (overwrite) cached data for a community and persist to localStorage.
+   * Use this after a forced refresh so fresh data survives page reloads.
+   */
+  set(communityId: string | number, data: any) {
+    const cacheKey = `community-${communityId}`;
+    this.cache.set(cacheKey, {
+      data,
+      timestamp: Date.now(),
+      expiry: Date.now() + this.CACHE_DURATION
+    });
+    this.saveToStorage();
+    console.log(`💾 Directly cached enrichment data for community ${communityId} (7 days)`);
+  }
+
+  /**
    * Clear cache for a specific community
    */
   clearCommunity(communityId: string | number) {
