@@ -25,7 +25,7 @@ const requireSuperAdmin = async (req: Request, res: Response, next: any) => {
                          userRole === 'admin' ||
                          userEmail === 'william.cowell01@gmail.com' || 
                          userEmail === 'cowellandcowebdesign@gmail.com' ||
-                         userEmail === 'admin@myseniorvalet.com';
+                         userEmail === 'CowellandCoWebDesign@gmail.com';
   
   if (!hasAdminAccess) {
     return res.status(403).json({ error: 'Admin access required' });

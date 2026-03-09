@@ -117,7 +117,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Redirect super admins to admin dashboard server-side
     if (userRole === 'super_admin' || 
         userEmail === 'william.cowell01@gmail.com' || 
-        userEmail === 'admin@myseniorvalet.com') {
+        userEmail === 'CowellandCoWebDesign@gmail.com') {
       console.log('🚀 SERVER-SIDE REDIRECT: Super admin detected, redirecting to /admin-mega-dashboard');
       return res.redirect(307, '/admin-mega-dashboard');
     }

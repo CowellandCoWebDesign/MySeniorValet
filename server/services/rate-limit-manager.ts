@@ -66,7 +66,7 @@ export class RateLimitManager {
     isAdmin = false
   ): Promise<{ allowed: boolean; remainingPoints?: number; resetTime?: Date }> {
     // Super admins bypass rate limits
-    if (isAdmin && (identifier === 'william.cowell01@gmail.com' || identifier === 'admin@myseniorvalet.com')) {
+    if (isAdmin && (identifier === 'william.cowell01@gmail.com' || identifier === 'CowellandCoWebDesign@gmail.com')) {
       return { allowed: true, remainingPoints: 9999 };
     }
 

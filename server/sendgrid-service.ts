@@ -78,8 +78,8 @@ export async function sendEmail(params: EmailParams & { disableTracking?: boolea
 
 // Super admin notification specifically
 export async function notifySuperAdmin(title: string, message: string, data?: any) {
-  // Send to admin@myseniorvalet.com with BCC to hello
-  const recipients = ['admin@myseniorvalet.com'];
+  // Send to CowellandCoWebDesign@gmail.com with BCC to hello
+  const recipients = ['CowellandCoWebDesign@gmail.com'];
   
   for (const recipient of recipients) {
     await sendEmail({
@@ -139,7 +139,7 @@ export async function notifyNewCustomer(customerType: 'community' | 'vendor', cu
     : `A new vendor has registered on MySeniorValet!`;
   
   return await sendEmail({
-    to: 'admin@myseniorvalet.com',
+    to: 'CowellandCoWebDesign@gmail.com',
     from: 'CowellandCoWebDesign@gmail.com',
     subject: title,
     html: `

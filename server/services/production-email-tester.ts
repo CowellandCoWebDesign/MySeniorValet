@@ -15,7 +15,7 @@ interface EmailTestResult {
 export class ProductionEmailTester {
   private static testResults: EmailTestResult[] = [];
 
-  static async runProductionTest(recipientEmail: string = 'admin@myseniorvalet.com'): Promise<{
+  static async runProductionTest(recipientEmail: string = 'CowellandCoWebDesign@gmail.com'): Promise<{
     success: boolean;
     results: EmailTestResult[];
     summary: any;
@@ -194,7 +194,7 @@ export class ProductionEmailTester {
       return {
         testId,
         timestamp: new Date(),
-        recipient: 'admin@myseniorvalet.com',
+        recipient: 'CowellandCoWebDesign@gmail.com',
         type: 'emergency_contact',
         success: true,
         deliveryTime,
@@ -208,7 +208,7 @@ export class ProductionEmailTester {
       return {
         testId,
         timestamp: new Date(),
-        recipient: 'admin@myseniorvalet.com',
+        recipient: 'CowellandCoWebDesign@gmail.com',
         type: 'emergency_contact',
         success: false,
         error: error.message,

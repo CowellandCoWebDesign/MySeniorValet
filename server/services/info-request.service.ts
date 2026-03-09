@@ -45,14 +45,14 @@ export class InfoRequestService {
       }
       
       // 2. Email to Admin - ALWAYS SEND for tracking
-      console.log(`   ✉️ Sending to admin: admin@myseniorvalet.com`);
+      console.log(`   ✉️ Sending to admin: CowellandCoWebDesign@gmail.com`);
       emailPromises.push(this.sendAdminEmail(request));
-      emailTargets.push('admin@myseniorvalet.com');
+      emailTargets.push('CowellandCoWebDesign@gmail.com');
       
       // 3. Email to Marketing team
-      console.log(`   ✉️ Sending to marketing: hello@myseniorvalet.com`);
+      console.log(`   ✉️ Sending to marketing: CowellandCoWebDesign@gmail.com`);
       emailPromises.push(this.sendMarketingEmail(request));
-      emailTargets.push('hello@myseniorvalet.com');
+      emailTargets.push('CowellandCoWebDesign@gmail.com');
       
       // 4. Email confirmation to User
       console.log(`   ✉️ Sending confirmation to user: ${request.userEmail}`);
@@ -63,7 +63,7 @@ export class InfoRequestService {
       const results = await Promise.allSettled(emailPromises);
       
       // Check admin email specifically (it's always the second email in our array)
-      const adminEmailIndex = emailTargets.indexOf('admin@myseniorvalet.com');
+      const adminEmailIndex = emailTargets.indexOf('CowellandCoWebDesign@gmail.com');
       const adminEmailSent = adminEmailIndex !== -1 && results[adminEmailIndex]?.status === 'fulfilled';
       
       // Log results
@@ -80,7 +80,7 @@ export class InfoRequestService {
       
       // CRITICAL: Admin notification MUST succeed for overall success
       if (!adminEmailSent) {
-        console.error('🚨 CRITICAL: Failed to send admin notification to admin@myseniorvalet.com');
+        console.error('🚨 CRITICAL: Failed to send admin notification to CowellandCoWebDesign@gmail.com');
         
         // Retry admin email once
         console.log('🔄 Retrying admin email notification...');
@@ -203,7 +203,7 @@ export class InfoRequestService {
           
           <div class="footer">
             <p>This lead was generated through MySeniorValet - The trusted platform for senior living</p>
-            <p>Questions? Contact us at admin@myseniorvalet.com</p>
+            <p>Questions? Contact us at CowellandCoWebDesign@gmail.com</p>
           </div>
         </body>
         </html>
@@ -301,7 +301,7 @@ export class InfoRequestService {
     const msg = {
       to: request.userEmail,
       from: 'CowellandCoWebDesign@gmail.com',
-      bcc: ['admin@myseniorvalet.com'],
+      bcc: ['CowellandCoWebDesign@gmail.com'],
       subject: `Information Request Received - ${request.communityName}`,
       html: `
         <!DOCTYPE html>
@@ -367,7 +367,7 @@ export class InfoRequestService {
           
           <div class="footer">
             <p><strong>MySeniorValet</strong> - Your trusted guide to senior living</p>
-            <p>If you have any questions, please contact us at hello@myseniorvalet.com</p>
+            <p>If you have any questions, please contact us at CowellandCoWebDesign@gmail.com</p>
             <p><small>You received this email because you submitted an information request on MySeniorValet.com</small></p>
           </div>
         </body>

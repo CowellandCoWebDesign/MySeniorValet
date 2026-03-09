@@ -12771,9 +12771,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/admin/export/audit-logs', checkRole(['super_admin']), async (req, res) => {
     try {
       const csvContent = `Timestamp,Admin,Action,Target,Status
-2025-01-27 14:23:45,admin@myseniorvalet.com,Updated Rate Limits,System Config,Success
-2025-01-27 13:15:22,admin@myseniorvalet.com,Blocked IP Address,192.168.1.100,Success
-2025-01-27 12:00:00,admin@myseniorvalet.com,System Backup,Full Database,Success`;
+2025-01-27 14:23:45,CowellandCoWebDesign@gmail.com,Updated Rate Limits,System Config,Success
+2025-01-27 13:15:22,CowellandCoWebDesign@gmail.com,Blocked IP Address,192.168.1.100,Success
+2025-01-27 12:00:00,CowellandCoWebDesign@gmail.com,System Backup,Full Database,Success`;
       
       res.setHeader('Content-Type', 'text/csv');
       res.setHeader('Content-Disposition', 'attachment; filename="audit_logs_export.csv"');

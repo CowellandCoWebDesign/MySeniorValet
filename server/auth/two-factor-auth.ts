@@ -140,8 +140,8 @@ export function requires2FA(email: string): boolean {
   // TEMPORARILY DISABLED to restore admin access
   // Admin emails that will require 2FA once properly configured:
   // - william.cowell01@gmail.com
-  // - admin@myseniorvalet.com
-  // - super_admin@myseniorvalet.com
+  // - CowellandCoWebDesign@gmail.com
+  // - super_CowellandCoWebDesign@gmail.com
   
   // Return false to disable forced 2FA until proper enrollment flow is implemented
   return false;

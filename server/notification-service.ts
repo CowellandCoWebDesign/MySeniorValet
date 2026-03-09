@@ -279,7 +279,7 @@ export class NotificationService {
           
           await sgMail.send({
             to: email.emailTo,
-            from: 'admin@myseniorvalet.com',
+            from: 'CowellandCoWebDesign@gmail.com',
             subject: email.emailSubject,
             html: email.emailBody
           });

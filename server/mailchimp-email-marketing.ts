@@ -93,7 +93,7 @@ export class MailchimpEmailMarketing {
           preview_text: 'We hope your senior living tour was helpful!',
           title: `Tour Follow-up - ${tourData.communityName}`,
           from_name: 'MySeniorValet Team',
-          reply_to: process.env.MAILCHIMP_REPLY_EMAIL || 'hello@myseniorvalet.com'
+          reply_to: process.env.MAILCHIMP_REPLY_EMAIL || 'CowellandCoWebDesign@gmail.com'
         }
       });
 

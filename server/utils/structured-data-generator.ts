@@ -185,14 +185,14 @@ export function generateOrganizationSchema(): OrganizationSchema {
       {
         '@type': 'ContactPoint',
         contactType: 'customer service',
-        email: 'hello@myseniorvalet.com',
+        email: 'CowellandCoWebDesign@gmail.com',
         availableLanguage: ['English', 'French', 'Spanish'],
         areaServed: ['US', 'CA', 'AU', 'JP', 'SG', 'GB', 'MX', 'PE', 'CU', 'CR', 'PA', 'PR']
       },
       {
         '@type': 'ContactPoint',
         contactType: 'emergency',
-        email: 'admin@myseniorvalet.com',
+        email: 'CowellandCoWebDesign@gmail.com',
         availableLanguage: ['English'],
         areaServed: ['US', 'CA', 'AU', 'JP', 'SG', 'GB', 'MX', 'PE', 'CU', 'CR', 'PA', 'PR']
       }

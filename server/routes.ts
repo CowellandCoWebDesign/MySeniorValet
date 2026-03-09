@@ -873,8 +873,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `;
 
         await sgMail.default.send({
-          to: 'hello@myseniorvalet.com',
-          from: 'admin@myseniorvalet.com',
+          to: 'CowellandCoWebDesign@gmail.com',
+          from: 'CowellandCoWebDesign@gmail.com',
           subject: `Contact Form: ${subject} - from ${name}`,
           html: emailHtml
         });
@@ -1680,7 +1680,7 @@ Disallow: /`;
       // Check if user is admin
       if (!req.session?.user || 
           (req.session.user.email !== 'william.cowell01@gmail.com' && 
-           req.session.user.email !== 'admin@myseniorvalet.com')) {
+           req.session.user.email !== 'CowellandCoWebDesign@gmail.com')) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -1912,7 +1912,7 @@ Disallow: /`;
       console.log(`✅ Community #${communityId} re-verified and updated`);
 
       // Send notification to admins
-      const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
+      const adminEmails = ['CowellandCoWebDesign@gmail.com', 'William.cowell01@gmail.com'];
       adminEmails.forEach(email => {
         sendEmail({
           to: email,
@@ -2044,7 +2044,7 @@ Disallow: /`;
       }
 
       // Send notification emails to BOTH admin addresses
-      const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
+      const adminEmails = ['CowellandCoWebDesign@gmail.com', 'William.cowell01@gmail.com'];
       const emailSubject = aiFixSuccessful 
         ? '✅ Incorrect Link Auto-Fixed - MySeniorValet'
         : '🚨 Incorrect Link Reported (Manual Review Needed) - MySeniorValet';
@@ -2141,7 +2141,7 @@ Disallow: /`;
       console.error('Error processing link feedback:', error);
       res.status(500).json({ 
         error: 'Failed to process feedback',
-        message: 'Please try again later or contact hello@myseniorvalet.com' 
+        message: 'Please try again later or contact CowellandCoWebDesign@gmail.com' 
       });
     }
   });
@@ -2357,7 +2357,7 @@ Disallow: /`;
     if (req.session?.user) {
       const user = req.session.user;
       const isAdmin = user.email === 'william.cowell01@gmail.com' || 
-                      user.email === 'admin@myseniorvalet.com';
+                      user.email === 'CowellandCoWebDesign@gmail.com';
 
       return res.json({
         role: isAdmin ? 'super_admin' : (user.role || 'user'),
@@ -2374,7 +2374,7 @@ Disallow: /`;
 
       // Grant super admin to specific users
       const isAdmin = userEmail === 'william.cowell01@gmail.com' || 
-                      userEmail === 'admin@myseniorvalet.com';
+                      userEmail === 'CowellandCoWebDesign@gmail.com';
 
       return res.json({
         role: isAdmin ? 'super_admin' : 'user',

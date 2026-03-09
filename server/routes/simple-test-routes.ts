@@ -118,7 +118,7 @@ router.post('/test/comprehensive', async (req, res) => {
         communityId: 99999,
         communityName: 'Test Community',
         claimantName: 'Test User',
-        claimantEmail: email || 'admin@myseniorvalet.com',
+        claimantEmail: email || 'CowellandCoWebDesign@gmail.com',
         claimantPhone: '555-TEST',
         message: 'Comprehensive test suite'
       });
@@ -131,7 +131,7 @@ router.post('/test/comprehensive', async (req, res) => {
     try {
       await ComprehensiveNotificationService.notifyEmergencyContact({
         userName: 'Test User',
-        userEmail: email || 'admin@myseniorvalet.com',
+        userEmail: email || 'CowellandCoWebDesign@gmail.com',
         userLocation: 'Test Location',
         message: 'TEST ONLY - Not a real emergency',
         contactNumber: '555-TEST',

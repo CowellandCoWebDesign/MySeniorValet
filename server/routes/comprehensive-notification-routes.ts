@@ -241,7 +241,7 @@ export function registerComprehensiveNotificationRoutes(app: Express) {
       
       // Check if user is admin
       const userEmail = (req as any).user?.email;
-      if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+      if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
         return res.status(403).json({ 
           error: 'Unauthorized',
           _version: process.env.VERSION_TIMESTAMP,
@@ -309,7 +309,7 @@ export function registerComprehensiveNotificationRoutes(app: Express) {
     try {
       // Check if user is admin
       const userEmail = (req as any).user?.email;
-      if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+      if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
         return res.status(403).json({ 
           error: 'Unauthorized',
           _version: process.env.VERSION_TIMESTAMP,

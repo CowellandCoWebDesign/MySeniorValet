@@ -88,7 +88,7 @@ router.post('/test-subscription-success', async (req, res) => {
         features: getFeaturesByTier(tier)
       },
       emailsSent: {
-        admin: 'admin@myseniorvalet.com',
+        admin: 'CowellandCoWebDesign@gmail.com',
         billing: 'billing@myseniorvalet.com (CC)',
         backup: 'william.cowell01@gmail.com (BCC)',
         customer: customerEmail

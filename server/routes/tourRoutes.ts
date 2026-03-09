@@ -179,7 +179,7 @@ router.post("/schedule", async (req, res) => {
         await sgMail.send({
           to: tourData.contactEmail,
           from: "CowellandCoWebDesign@gmail.com",
-          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
+          bcc: ["CowellandCoWebDesign@gmail.com", "CowellandCoWebDesign@gmail.com"],
           subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
           html: userEmailHtml,
         });
@@ -367,7 +367,7 @@ router.post("/schedule", async (req, res) => {
                           This tour request was submitted through MySeniorValet's TourMate™ system
                         </p>
                         <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-                          Questions? Contact us at <a href="mailto:hello@myseniorvalet.com" style="color: #4f46e5;">hello@myseniorvalet.com</a>
+                          Questions? Contact us at <a href="mailto:CowellandCoWebDesign@gmail.com" style="color: #4f46e5;">CowellandCoWebDesign@gmail.com</a>
                         </p>
                         <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">
                           © 2025 MySeniorValet. All rights reserved.
@@ -591,7 +591,7 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
         await sgMail.send({
           to: updatedTour.contactEmail,
           from: "CowellandCoWebDesign@gmail.com",
-          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
+          bcc: ["CowellandCoWebDesign@gmail.com", "CowellandCoWebDesign@gmail.com"],
           subject: `Tour Confirmed - ${community?.name}`,
           html: emailHtml,
         });

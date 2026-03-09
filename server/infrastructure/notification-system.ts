@@ -51,7 +51,7 @@ class NotificationSystem {
         isActive: true,
         configuration: {
           provider: 'sendgrid',
-          fromEmail: 'admin@myseniorvalet.com',
+          fromEmail: 'CowellandCoWebDesign@gmail.com',
           fromName: 'MySeniorValet'
         }
       },

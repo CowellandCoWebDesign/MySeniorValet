@@ -22,7 +22,7 @@ router.post('/api/admin/quick-test/email', async (req, res) => {
       communityId: 99999,
       communityName: 'Production Test Community',
       claimantName: 'System Test',
-      claimantEmail: 'admin@myseniorvalet.com',
+      claimantEmail: 'CowellandCoWebDesign@gmail.com',
       claimantPhone: '555-TEST',
       message: 'This is a production email delivery test'
     });
@@ -87,7 +87,7 @@ router.post('/api/admin/test/comprehensive-email', async (req, res) => {
 
     console.log('🧪 Starting comprehensive email test...');
     const testResult = await ProductionEmailTester.runProductionTest(
-      recipientEmail || 'admin@myseniorvalet.com'
+      recipientEmail || 'CowellandCoWebDesign@gmail.com'
     );
 
     res.json({

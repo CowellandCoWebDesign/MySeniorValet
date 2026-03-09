@@ -45,7 +45,7 @@ export class ComprehensiveNotificationService {
         <h2>Thank you for claiming ${claimData.communityName}</h2>
         <p>We've received your claim request and will review it within 24-48 hours.</p>
         <p>You'll receive a confirmation email once your claim is verified.</p>
-        <p>Questions? Contact us at hello@myseniorvalet.com</p>
+        <p>Questions? Contact us at CowellandCoWebDesign@gmail.com</p>
       `
     });
 
@@ -536,13 +536,13 @@ export class ComprehensiveNotificationService {
     };
 
     // Send to admin email immediately
-    const recipients = ['admin@myseniorvalet.com'];
+    const recipients = ['CowellandCoWebDesign@gmail.com'];
     
     for (const recipient of recipients) {
       await sendEmail({
         to: recipient,
         from: 'CowellandCoWebDesign@gmail.com',
-        bcc: 'hello@myseniorvalet.com',
+        bcc: 'CowellandCoWebDesign@gmail.com',
         subject: `🚨 EMERGENCY CONTACT - ${emergencyData.urgency.toUpperCase()} Priority`,
         html: `
           <div style="border: 3px solid red; padding: 20px; background: #fee;">
@@ -635,7 +635,7 @@ export class ComprehensiveNotificationService {
             <li>Set your pricing and availability</li>
             <li>Respond to tour requests</li>
           </ul>
-          <p>Questions? Contact hello@myseniorvalet.com</p>
+          <p>Questions? Contact CowellandCoWebDesign@gmail.com</p>
         `
       },
       vendor: {
