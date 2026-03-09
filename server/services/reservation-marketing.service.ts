@@ -113,7 +113,8 @@ export class ReservationMarketingService {
   private async sendCommunityEmail(request: ReservationRequest) {
     const msg = {
       to: request.communityEmail!,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `🎯 New Qualified Lead from MySeniorValet - ${request.userName}`,
       html: `
@@ -292,7 +293,8 @@ Contact them immediately to convert this opportunity!
   private async sendAdminEmail(request: ReservationRequest) {
     const msg = {
       to: 'CowellandCoWebDesign@gmail.com',
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `[LEAD] ${request.requestType} request for ${request.communityName}`,
       html: `
         <h2>New ${request.requestType} Request</h2>
@@ -326,7 +328,8 @@ Contact them immediately to convert this opportunity!
   private async sendMarketingEmail(request: ReservationRequest) {
     const msg = {
       to: 'CowellandCoWebDesign@gmail.com',
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `🎯 Platform Engagement: ${request.communityName} Lead`,
       html: `
         <h2>Platform Engagement Metrics</h2>
@@ -361,7 +364,8 @@ Contact them immediately to convert this opportunity!
   private async sendUserConfirmation(request: ReservationRequest) {
     const msg = {
       to: request.userEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `Reservation Request Confirmed - ${request.communityName}`,
       html: `

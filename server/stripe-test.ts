@@ -120,7 +120,8 @@ async function sendNotificationToSuperAdmin(data: any) {
 
     const result = await sendEmail({
       to: 'William.cowell01@gmail.com',
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: subject,
       html: htmlContent,
       text: data.message

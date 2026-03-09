@@ -65,7 +65,8 @@ export class ProductionEmailTester {
     try {
       const success = await sendEmail({
         to: recipient,
-        from: 'CowellandCoWebDesign@gmail.com',
+        from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: `[TEST ${testId}] Direct SendGrid Email Test`,
         html: `
           <h2>Production Email Test - Direct SendGrid</h2>
@@ -239,7 +240,8 @@ export class ProductionEmailTester {
       try {
         const success = await sendEmail({
           to: recipients[i],
-          from: 'CowellandCoWebDesign@gmail.com',
+          from: 'hello@myseniorvalet.com',
+          replyTo: 'CowellandCoWebDesign@gmail.com',
           subject: `[BATCH TEST ${i + 1}/${batchSize}] ${testId}`,
           html: `
             <h3>Batch Email Test ${i + 1} of ${batchSize}</h3>
@@ -373,7 +375,8 @@ export class ProductionEmailTester {
     try {
       await sendEmail({
         to: recipient,
-        from: 'CowellandCoWebDesign@gmail.com',
+        from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: `[TEST REPORT] Email System ${summary.overallSuccess ? 'PASSED ✅' : 'FAILED ❌'}`,
         html: reportHtml
       });

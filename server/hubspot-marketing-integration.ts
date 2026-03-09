@@ -68,7 +68,7 @@ export class HubSpotMarketingIntegration {
       emailId: parseInt(emailTemplate.templateId),
       message: {
         to: contactId,
-        from: process.env.HUBSPOT_FROM_EMAIL || 'CowellandCoWebDesign@gmail.com',
+        from: process.env.HUBSPOT_FROM_EMAIL || 'hello@myseniorvalet.com',
         subject: emailTemplate.subject
       },
       contactProperties: emailTemplate.personalizations

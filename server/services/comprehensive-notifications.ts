@@ -39,7 +39,8 @@ export class ComprehensiveNotificationService {
     // Send confirmation to claimant
     await sendEmail({
       to: claimData.claimantEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: 'Community Claim Received - MySeniorValet',
       html: `
         <h2>Thank you for claiming ${claimData.communityName}</h2>
@@ -73,7 +74,8 @@ export class ComprehensiveNotificationService {
 
     await sendEmail({
       to: communityData.ownerEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: '✅ Your Community is Verified - MySeniorValet',
       html: `
         <h2>Congratulations! ${communityData.communityName} is now verified</h2>
@@ -140,7 +142,8 @@ export class ComprehensiveNotificationService {
     // Send confirmation to visitor
     await sendEmail({
       to: tourData.visitorEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `Tour Confirmed - ${tourData.communityName}`,
       html: `
         <h2>Your tour is confirmed!</h2>
@@ -225,7 +228,8 @@ export class ComprehensiveNotificationService {
 
     await sendEmail({
       to: vendorData.email,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: 'Welcome to MySeniorValet Marketplace',
       html: `
         <h2>Welcome ${vendorData.businessName}!</h2>
@@ -265,7 +269,8 @@ export class ComprehensiveNotificationService {
 
     await sendEmail({
       to: vendorData.email,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: '✅ Your Business is Approved - MySeniorValet Marketplace',
       html: `
         <h2>Congratulations! ${vendorData.businessName} is approved</h2>
@@ -301,7 +306,8 @@ export class ComprehensiveNotificationService {
     // Notify vendor
     await sendEmail({
       to: bookingData.vendorEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: '🎉 New Service Booking',
       html: `
         <h2>You have a new booking!</h2>
@@ -339,7 +345,8 @@ export class ComprehensiveNotificationService {
 
     await sendEmail({
       to: paymentData.customerEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: 'Payment Confirmation - MySeniorValet',
       html: `
         <h2>Payment Confirmed</h2>
@@ -374,7 +381,8 @@ export class ComprehensiveNotificationService {
 
     await sendEmail({
       to: paymentData.customerEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: 'Payment Issue - Action Required',
       html: `
         <h2>Payment Could Not Be Processed</h2>
@@ -541,7 +549,8 @@ export class ComprehensiveNotificationService {
     for (const recipient of recipients) {
       await sendEmail({
         to: recipient,
-        from: 'CowellandCoWebDesign@gmail.com',
+        from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         bcc: 'CowellandCoWebDesign@gmail.com',
         subject: `🚨 EMERGENCY CONTACT - ${emergencyData.urgency.toUpperCase()} Priority`,
         html: `
@@ -566,7 +575,8 @@ export class ComprehensiveNotificationService {
     if (emergencyData.userEmail) {
       await sendEmail({
         to: emergencyData.userEmail,
-        from: 'CowellandCoWebDesign@gmail.com',
+        from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: 'Emergency Contact Request Received',
         html: `
           <h2>We've Received Your Emergency Request</h2>
@@ -653,7 +663,8 @@ export class ComprehensiveNotificationService {
 
     await sendEmail({
       to: userData.email,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: message.subject,
       html: message.html
     });

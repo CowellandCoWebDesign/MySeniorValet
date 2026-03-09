@@ -17,6 +17,7 @@ interface EmailParams {
   text?: string;
   html?: string;
   bcc?: string | string[];
+  replyTo?: string;
 }
 
 interface MessageNotificationParams {
@@ -42,6 +43,10 @@ export async function sendEmail(params: EmailParams & { disableTracking?: boolea
       text: text,
       html: html
     };
+    
+    if (params.replyTo) {
+      msg.replyTo = params.replyTo;
+    }
     
     if (params.bcc) {
       msg.bcc = params.bcc;
@@ -84,7 +89,8 @@ export async function notifySuperAdmin(title: string, message: string, data?: an
   for (const recipient of recipients) {
     await sendEmail({
       to: recipient,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `MySeniorValet Alert: ${title}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -108,7 +114,8 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
   
   return await sendEmail({
     to: email,
-    from: 'CowellandCoWebDesign@gmail.com',
+    from: 'hello@myseniorvalet.com',
+    replyTo: 'CowellandCoWebDesign@gmail.com',
     subject: 'MySeniorValet - Password Reset Request',
     disableTracking: true, // Security-critical email - prevent URL rewriting
     html: `
@@ -140,7 +147,8 @@ export async function notifyNewCustomer(customerType: 'community' | 'vendor', cu
   
   return await sendEmail({
     to: 'CowellandCoWebDesign@gmail.com',
-    from: 'CowellandCoWebDesign@gmail.com',
+    from: 'hello@myseniorvalet.com',
+    replyTo: 'CowellandCoWebDesign@gmail.com',
     subject: title,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -236,7 +244,8 @@ export async function sendMessageNotification(params: MessageNotificationParams)
     
     const emailSent = await sendEmail({
       to: recipientEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `New message from ${params.senderName} on MySeniorValet`,
       text: `
 New Message on MySeniorValet

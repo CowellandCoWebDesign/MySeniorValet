@@ -40,7 +40,8 @@ export function registerTestRoutes(app: Express) {
       // Send email notification
       await sgMail.send({
         to: 'William.cowell01@gmail.com',
-        from: 'CowellandCoWebDesign@gmail.com',
+        from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: `✅ MySeniorValet Stripe Test Success - $${amount/100}`,
         html: `
           <h2>Stripe Payment Test Successful!</h2>
@@ -66,7 +67,8 @@ export function registerTestRoutes(app: Express) {
       try {
         await sgMail.send({
           to: 'William.cowell01@gmail.com',
-          from: 'CowellandCoWebDesign@gmail.com',
+          from: 'hello@myseniorvalet.com',
+          replyTo: 'CowellandCoWebDesign@gmail.com',
           subject: `❌ MySeniorValet Stripe Test Failed`,
           html: `<h2>Stripe Test Failed</h2><p>Error: ${error.message}</p>`
         });
@@ -88,7 +90,8 @@ export function registerTestRoutes(app: Express) {
       
       await sgMail.send({
         to: 'William.cowell01@gmail.com',
-        from: 'CowellandCoWebDesign@gmail.com',
+        from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: 'MySeniorValet System Test',
         html: `
           <h2>Email System Test</h2>

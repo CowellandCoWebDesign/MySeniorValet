@@ -131,7 +131,8 @@ export class InfoRequestService {
     
     const msg = {
       to: 'CowellandCoWebDesign@gmail.com',
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `🎯 New Information Request from MySeniorValet - ${request.userName}`,
       html: `
         <!DOCTYPE html>
@@ -221,7 +222,8 @@ export class InfoRequestService {
     
     const msg = {
       to: 'CowellandCoWebDesign@gmail.com',
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `[INFO REQUEST] ${request.communityName} - ${request.userName}`,
       html: `
         <h2>New Information Request Submitted</h2>
@@ -275,7 +277,8 @@ export class InfoRequestService {
   private async sendMarketingEmail(request: InfoRequest) {
     const msg = {
       to: 'CowellandCoWebDesign@gmail.com',
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `[LEAD] Information request for ${request.communityName}`,
       html: `
         <h2>New Information Request Lead</h2>
@@ -300,7 +303,8 @@ export class InfoRequestService {
   private async sendUserConfirmation(request: InfoRequest) {
     const msg = {
       to: request.userEmail,
-      from: 'CowellandCoWebDesign@gmail.com',
+      from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       bcc: ['CowellandCoWebDesign@gmail.com'],
       subject: `Information Request Received - ${request.communityName}`,
       html: `

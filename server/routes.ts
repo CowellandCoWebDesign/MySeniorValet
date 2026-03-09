@@ -874,7 +874,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         await sgMail.default.send({
           to: 'CowellandCoWebDesign@gmail.com',
-          from: 'CowellandCoWebDesign@gmail.com',
+          from: 'hello@myseniorvalet.com',
+          replyTo: 'CowellandCoWebDesign@gmail.com',
           subject: `Contact Form: ${subject} - from ${name}`,
           html: emailHtml
         });

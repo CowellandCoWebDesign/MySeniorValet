@@ -48,7 +48,8 @@ export async function sendVendorWelcomeEmail(data: VendorSignupEmailData) {
 
   const msg = {
     to: email,
-    from: 'CowellandCoWebDesign@gmail.com',
+    from: 'hello@myseniorvalet.com',
+    replyTo: 'CowellandCoWebDesign@gmail.com',
     subject: `Welcome to MySeniorValet Partners - ${businessName}`,
     html: `
       <!DOCTYPE html>
@@ -142,7 +143,8 @@ export async function sendVendorPaymentReceiptEmail(data: VendorSignupEmailData 
   
   const msg = {
     to: email,
-    from: 'CowellandCoWebDesign@gmail.com',
+    from: 'hello@myseniorvalet.com',
+    replyTo: 'CowellandCoWebDesign@gmail.com',
     subject: `Payment Receipt - MySeniorValet Partner Subscription`,
     html: `
       <!DOCTYPE html>
@@ -235,7 +237,8 @@ export async function sendVendorStatusChangeEmail(data: VendorStatusChangeEmailD
 
   const msg = {
     to: email,
-    from: 'CowellandCoWebDesign@gmail.com',
+    from: 'hello@myseniorvalet.com',
+    replyTo: 'CowellandCoWebDesign@gmail.com',
     subject: `Account Status Update - ${businessName}`,
     html: `
       <!DOCTYPE html>

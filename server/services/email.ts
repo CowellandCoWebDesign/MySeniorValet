@@ -21,8 +21,9 @@ export interface EmailOptions {
 }
 
 // Default sender email
-const DEFAULT_FROM_EMAIL = 'CowellandCoWebDesign@gmail.com';
+const DEFAULT_FROM_EMAIL = 'hello@myseniorvalet.com';
 const DEFAULT_FROM_NAME = 'MySeniorValet';
+const DEFAULT_REPLY_TO = 'CowellandCoWebDesign@gmail.com';
 
 export class EmailService {
   // Helper to generate unsubscribe footer
@@ -67,7 +68,7 @@ export class EmailService {
           name: DEFAULT_FROM_NAME
         },
         subject: options.subject,
-        replyTo: options.replyTo
+        replyTo: options.replyTo || DEFAULT_REPLY_TO
       };
       
       // Disable click and open tracking for transactional/security emails
