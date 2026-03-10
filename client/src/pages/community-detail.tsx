@@ -1817,15 +1817,16 @@ export default function CommunityDetail() {
   }, [community?.photos, verificationReport]);
 
   // Navigate away if invalid ID (after all hooks have been called)
+  // Skip this guard for slug-based routes where id is intentionally undefined
   React.useEffect(() => {
-    if (!id || id === '-1' || isNaN(Number(id))) {
+    if (!isSlugBased && (!id || id === '-1' || isNaN(Number(id)))) {
       console.warn('Invalid community ID:', id);
       setLocation('/map-search');
     }
-  }, [id, setLocation]);
+  }, [id, isSlugBased, setLocation]);
 
   // Now we can safely do conditional returns (after ALL hooks have been called)
-  if (!id || id === '-1' || isNaN(Number(id))) {
+  if (!isSlugBased && (!id || id === '-1' || isNaN(Number(id)))) {
     return <div className="flex justify-center items-center h-64">Invalid community ID</div>;
   }
 
