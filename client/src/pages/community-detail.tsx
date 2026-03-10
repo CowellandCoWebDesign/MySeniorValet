@@ -2519,36 +2519,13 @@ export default function CommunityDetail() {
                   className={`relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-500 text-gray-600 dark:text-gray-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-purple-400 data-[state=active]:font-bold data-[state=active]:z-10 ${liveIntelligenceReady ? 'animate-pulse-once ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''}`}
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl">📊</span>
-                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Market Data</span>
-                    <span className="text-xs sm:text-sm font-bold sm:hidden">Market</span>
-                    {liveIntelligenceLoading && !liveIntelligenceReady && (
-                      <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
-                    )}
-                    {liveIntelligenceReady && (
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] px-1 py-0">
-                          NEW
-                        </Badge>
-                      </div>
-                    )}
+                    <span className="text-lg sm:text-xl">🏥</span>
+                    <span className="text-xs sm:text-sm font-bold">Healthcare</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal">
-                    {liveIntelligenceReady ? 
-                      "🔥 Live Intelligence Ready!" : 
-                      liveIntelligenceLoading ? 
-                      "Loading Intelligence..." : 
-                      "Market Analysis"
-                    }
+                    Healthcare Partners
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  {liveIntelligenceReady && (
-                    <div className="absolute -top-2 -right-2 flex items-center justify-center">
-                      <span className="absolute inline-flex h-5 w-5 rounded-full bg-purple-400 opacity-75 animate-ping"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                    </div>
-                  )}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 
@@ -3448,49 +3425,11 @@ export default function CommunityDetail() {
                   </CardContent>
                 </Card>
 
-                {/* Healthcare Partnerships Section */}
-                <HealthcarePartnerships community={community} isAdminView={false} />
               </TabsContent>
 
-              {/* Live Market Data Tab */}
+              {/* Healthcare Tab */}
               <TabsContent value="market-data" className="space-y-6 mt-6">
-                {/* Market Data Tab Header - Centralized Hub */}
-                <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
-                      <BarChart3 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                      <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                        Market Intelligence Center
-                      </span>
-                    </CardTitle>
-                    <CardDescription className="text-lg mt-2">
-                      Complete market analysis, competitive pricing, and real-time intelligence for {community.name}
-                    </CardDescription>
-                    {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 mx-auto mt-3">
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Live Market Data Available
-                      </Badge>
-                    )}
-                    
-                  </CardHeader>
-                </Card>
-
-                {/* Competitive Analysis Component - Auto-enriches if database has no fresh data */}
-                <CommunityCompetitiveAnalysis
-                  key={`competitive-analysis-${community.id}`}
-                  community={community}
-                  onAnalysisUpdate={setMarketAnalysisData}
-                  onVerificationReport={setVerificationReport}
-                />
-
-                {/* Intelligent Pricing Prediction - Now uses data from verification report */}
-                <IntelligentPricingPrediction 
-                  key={`pricing-prediction-${community.id}`}
-                  community={community}
-                  verificationReport={verificationReport}
-                />
-
+                <HealthcarePartnerships community={community} isAdminView={false} />
               </TabsContent>
               
               {/* Reviews Tab Content - Uses shared comprehensive data */}
