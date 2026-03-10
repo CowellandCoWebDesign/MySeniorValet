@@ -122,51 +122,19 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
 
   const communityCount = filteredCommunities.length;
 
-  const CommunityList = ({ communities, maxHeight }: { communities: any[]; maxHeight: string }) => (
-    <div className={`overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800`} style={{ maxHeight }}>
-      {communities.length === 0 && !isLoading && (
-        <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-          {locationQuery
-            ? "No communities found in this area. Try zooming out or adjusting filters."
-            : "Search a city above to explore communities on the map."}
-        </div>
-      )}
-      {communities.map((community: any, index: number) => (
-        <div key={community.id} id={`smp-community-${community.id}`} className="p-3">
-          <FeaturedExcellenceCard
-            community={{
-              ...community,
-              name: community.name || "Community",
-              city: community.city || "City",
-              state: community.state || "State",
-              rating: community.rating || 4.5,
-              photos: community.photos || [],
-              careTypes: community.careTypes || [],
-              amenities: community.amenities || [],
-              occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-              totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-              priceRange: community.priceRange,
-              phone: community.phone,
-              website: community.website,
-            }}
-            index={index}
-            compact={true}
-            disableAutoPhotoLoad={true}
-          />
-        </div>
-      ))}
-
-      {/* AI Discovery section — shown after DB results */}
-      {discoveredCommunities.length > 0 && (
-        <>
-          <div className="px-4 py-2 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-t border-purple-200 dark:border-purple-700 flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-            <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">
-              {discoveredCommunities.length} Newly Found via AI Discovery
-            </span>
-          </div>
-          {discoveredCommunities.map((community: any, index: number) => (
-            <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="p-3 bg-purple-50/30 dark:bg-purple-900/10">
+  const CommunityList = ({ communities, maxHeight, horizontal = false }: { communities: any[]; maxHeight: string; horizontal?: boolean }) => {
+    if (horizontal) {
+      return (
+        <div className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-3 pt-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {communities.length === 0 && !isLoading && (
+            <div className="flex-shrink-0 w-full p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+              {locationQuery
+                ? "No communities found in this area. Try zooming out or adjusting filters."
+                : "Search a city above to explore communities on the map."}
+            </div>
+          )}
+          {communities.map((community: any, index: number) => (
+            <div key={community.id} id={`smp-community-${community.id}`} className="flex-shrink-0 w-72">
               <FeaturedExcellenceCard
                 community={{
                   ...community,
@@ -177,8 +145,8 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                   photos: community.photos || [],
                   careTypes: community.careTypes || [],
                   amenities: community.amenities || [],
-                  occupancyRate: 0,
-                  totalUnits: 100,
+                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
                   priceRange: community.priceRange,
                   phone: community.phone,
                   website: community.website,
@@ -189,10 +157,116 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
               />
             </div>
           ))}
-        </>
-      )}
-    </div>
-  );
+
+          {discoveredCommunities.length > 0 && (
+            <>
+              <div className="flex-shrink-0 self-center px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full flex items-center gap-1.5 border border-purple-200 dark:border-purple-700">
+                <Sparkles className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                <span className="text-xs font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap">
+                  {discoveredCommunities.length} via AI
+                </span>
+              </div>
+              {discoveredCommunities.map((community: any, index: number) => (
+                <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="flex-shrink-0 w-72">
+                  <FeaturedExcellenceCard
+                    community={{
+                      ...community,
+                      name: community.name || "Community",
+                      city: community.city || "City",
+                      state: community.state || "State",
+                      rating: community.rating || 4.5,
+                      photos: community.photos || [],
+                      careTypes: community.careTypes || [],
+                      amenities: community.amenities || [],
+                      occupancyRate: 0,
+                      totalUnits: 100,
+                      priceRange: community.priceRange,
+                      phone: community.phone,
+                      website: community.website,
+                    }}
+                    index={index}
+                    compact={true}
+                    disableAutoPhotoLoad={true}
+                  />
+                </div>
+              ))}
+            </>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <div className={`overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800`} style={{ maxHeight }}>
+        {communities.length === 0 && !isLoading && (
+          <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+            {locationQuery
+              ? "No communities found in this area. Try zooming out or adjusting filters."
+              : "Search a city above to explore communities on the map."}
+          </div>
+        )}
+        {communities.map((community: any, index: number) => (
+          <div key={community.id} id={`smp-community-${community.id}`} className="p-3">
+            <FeaturedExcellenceCard
+              community={{
+                ...community,
+                name: community.name || "Community",
+                city: community.city || "City",
+                state: community.state || "State",
+                rating: community.rating || 4.5,
+                photos: community.photos || [],
+                careTypes: community.careTypes || [],
+                amenities: community.amenities || [],
+                occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+                totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+                priceRange: community.priceRange,
+                phone: community.phone,
+                website: community.website,
+              }}
+              index={index}
+              compact={true}
+              disableAutoPhotoLoad={true}
+            />
+          </div>
+        ))}
+
+        {discoveredCommunities.length > 0 && (
+          <>
+            <div className="px-4 py-2 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border-t border-purple-200 dark:border-purple-700 flex items-center gap-2">
+              <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+              <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">
+                {discoveredCommunities.length} Newly Found via AI Discovery
+              </span>
+            </div>
+            {discoveredCommunities.map((community: any, index: number) => (
+              <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="p-3 bg-purple-50/30 dark:bg-purple-900/10">
+                <FeaturedExcellenceCard
+                  community={{
+                    ...community,
+                    name: community.name || "Community",
+                    city: community.city || "City",
+                    state: community.state || "State",
+                    rating: community.rating || 4.5,
+                    photos: community.photos || [],
+                    careTypes: community.careTypes || [],
+                    amenities: community.amenities || [],
+                    occupancyRate: 0,
+                    totalUnits: 100,
+                    priceRange: community.priceRange,
+                    phone: community.phone,
+                    website: community.website,
+                  }}
+                  index={index}
+                  compact={true}
+                  disableAutoPhotoLoad={true}
+                />
+              </div>
+            ))}
+          </>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
@@ -269,7 +343,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
               }}
             />
           </div>
-          <CommunityList communities={filteredCommunities} maxHeight="480px" />
+          <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
         </div>
       ) : (
         /* Horizontal: map left, list right */

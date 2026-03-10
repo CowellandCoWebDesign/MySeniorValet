@@ -235,7 +235,12 @@ function Router() {
       <Route path="/care-types/assisted-living" component={AssistedLivingPage} />
       <Route path="/care-types/independent-living" component={IndependentLivingPage} />
       
-      {/* SEO Location Landing Pages */}
+      {/* Community detail — must come BEFORE the location landing catch-all */}
+      <Route path="/senior-living/:state/:city/:slug" component={CommunityDetail} />
+      <Route path="/community/:id" component={CommunityDetail} />
+      <Route path="/communities/:id" component={CommunityDetail} />
+
+      {/* SEO Location Landing Pages — city? is optional so this matches 2-segment paths */}
       <Route path="/senior-living/:state/:city?" component={LocationLanding} />
 
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
@@ -247,9 +252,6 @@ function Router() {
           return <Component />;
         }}
       </Route>
-      <Route path="/community/:id" component={CommunityDetail} />
-      <Route path="/senior-living/:state/:city/:slug" component={CommunityDetail} />
-      <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/service/:id" component={ServiceDetail} />
       <Route path="/services/:id" component={ServiceDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
