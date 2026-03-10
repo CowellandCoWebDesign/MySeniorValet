@@ -2326,9 +2326,9 @@ export default function MySeniorValetHome() {
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
           {/* Tab Content - Peeks up into hero bottom */}
-          <div className="relative -mt-20 sm:-mt-24 z-30">
+          <div className="relative -mt-[200px] sm:-mt-[220px] z-30">
             {/* Single unified content container */}
-            <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <section className="px-4 pt-0 pb-8 rounded-t-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
               <div className="max-w-6xl mx-auto mb-4">
                 <PersonalizedBanner />
