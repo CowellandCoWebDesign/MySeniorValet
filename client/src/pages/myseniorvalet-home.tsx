@@ -2347,7 +2347,7 @@ export default function MySeniorValetHome() {
                   <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group md:hover:scale-[1.02] cursor-pointer" onClick={(e) => {
               // Only navigate if clicking on the card background, not buttons
               const target = e.target as HTMLElement;
-              if (e.target === e.currentTarget || !target.closest('button')) {
+              if (e.target === e.currentTarget || (!target.closest('button') && !target.closest('a'))) {
                 window.location.href = '/community-directory';
               }
             }}>
