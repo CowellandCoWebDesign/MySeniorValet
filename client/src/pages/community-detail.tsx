@@ -1473,7 +1473,7 @@ export default function CommunityDetail() {
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
   const [showReservationDialog, setShowReservationDialog] = useState(false);
   const [showInfoRequestDialog, setShowInfoRequestDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState('market-data');
+  const [activeTab, setActiveTab] = useState('community-info');
 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [waitlistName, setWaitlistName] = useState('');
@@ -2773,23 +2773,6 @@ export default function CommunityDetail() {
                       </button>
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      {community.phone ? (
-                        <a
-                          href={`tel:${community.phone}`}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                        >
-                          <Phone className="w-4 h-4" />
-                          <span className="font-medium">Call Now</span>
-                        </a>
-                      ) : (
-                        <button
-                          onClick={() => alert('Phone number not available. Please visit the website or check back later.')}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg transition-all duration-200 shadow-md"
-                        >
-                          <Phone className="w-4 h-4" />
-                          <span className="font-medium">Call Now</span>
-                        </button>
-                      )}
                       {community.website ? (
                         <button
                           onClick={() => window.open(community.website!.startsWith('http') ? community.website! : `https://${community.website}`, '_blank')}
@@ -3066,6 +3049,16 @@ export default function CommunityDetail() {
                   </div>
               </CardContent>
             </Card>
+
+                {/* Real-Time AI Insights - What We Found About */}
+                <RealTimeInsights 
+                  key={`real-time-insights-${community.id}`}
+                  community={community}
+                  marketAnalysisData={marketAnalysisData} 
+                  onVerificationReport={setVerificationReport}
+                  onPhotosUpdate={undefined}
+                  verificationReport={verificationReport}
+                />
 
                 {/* Community Information & Amenities */}
                 <Card>
@@ -3651,16 +3644,6 @@ export default function CommunityDetail() {
                     
                   </CardHeader>
                 </Card>
-
-                {/* Real-Time AI Insights - Uses shared comprehensive data */}
-                <RealTimeInsights 
-                  key={`real-time-insights-${community.id}`}
-                  community={community}
-                  marketAnalysisData={marketAnalysisData} 
-                  onVerificationReport={setVerificationReport}
-                  onPhotosUpdate={undefined}
-                  verificationReport={verificationReport}
-                />
 
                 {/* Competitive Analysis Component - Auto-enriches if database has no fresh data */}
                 <CommunityCompetitiveAnalysis
