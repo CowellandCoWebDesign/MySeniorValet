@@ -1083,8 +1083,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : ''} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
-          minHeight: 'calc(100vh - 4rem)',
-          height: isSearchActive ? 'auto' : 'calc(100vh - 4rem)'
+          minHeight: 'calc(80vh - 4rem)',
+          height: isSearchActive ? 'auto' : 'calc(80vh - 4rem)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
