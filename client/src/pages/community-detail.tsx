@@ -2501,19 +2501,6 @@ export default function CommunityDetail() {
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
                 <TabsTrigger 
-                  value="tours" 
-                  className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-teal-300 dark:hover:border-teal-500 text-gray-600 dark:text-gray-400 font-medium hover:text-teal-600 dark:hover:text-teal-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-teal-400 data-[state=active]:font-bold data-[state=active]:z-10"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl">🗓️</span>
-                    <span className="text-xs sm:text-sm font-bold">Tours</span>
-                  </div>
-                  <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
-                    Schedule Visit
-                  </span>
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500/10 to-cyan-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                </TabsTrigger>
-                <TabsTrigger 
                   value="availability" 
                   className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-green-300 dark:hover:border-green-500 text-gray-600 dark:text-gray-400 font-medium hover:text-green-600 dark:hover:text-green-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-green-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
@@ -2582,156 +2569,6 @@ export default function CommunityDetail() {
               </TabsList>
               </div>
 
-              {/* Tours Tab - NEW DEDICATED TAB */}
-              <TabsContent value="tours" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-                <Card className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold flex items-center">
-                      <Calendar className="w-6 h-6 mr-2 text-teal-600" />
-                      Schedule Your Visit
-                    </CardTitle>
-                    <CardDescription>
-                      Book a personalized tour and discover what makes {community.name} special
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="tour-scheduler-form">
-                        <TourScheduler
-                          communityId={community.id}
-                          communityName={community.name}
-                          communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zipCode || ''}`.trim() : `${community.city}, ${community.state}`}
-                          communityPhone={community.phone || ''}
-                          buttonText="Schedule In-Person Tour"
-                          buttonVariant="default"
-                          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
-                          onSuccess={() => {
-                            toast({
-                              title: "Tour Scheduled Successfully!",
-                              description: `Your tour at ${community.name} has been confirmed.`,
-                            });
-                          }}
-                        />
-                      </div>
-                      
-                      {/* Virtual Tour Options */}
-                      <div className="space-y-3">
-                        {(() => {
-                          // Check multiple sources for virtual tour URLs
-                          const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
-                          const virtualTourFromPerplexity = comprehensiveData?.marketData?.virtualTourUrl;
-                          // Add our enhanced virtual tour detection results
-                          const hasDetectedTour = virtualTour?.found && virtualTour?.tourUrl;
-                          const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour || virtualTourFromPerplexity || hasDetectedTour;
-                          
-                          // Show loading state while detecting tours
-                          if (isDetectingTour) {
-                            return (
-                              <>
-                                <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
-                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span>Searching for virtual tours...</span>
-                                </div>
-                              </>
-                            );
-                          }
-                          
-                          if (hasVirtualOptions) {
-                            return (
-                              <>
-                                <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
-                                
-                                {/* 3D Tour from enhanced detection (highest priority) */}
-                                {hasDetectedTour && virtualTour?.tourUrl && (
-                                  <div className="space-y-3">
-                                    <MatterportEmbed
-                                      tourId={`tour-${community.id}`}
-                                      tourUrl={virtualTour.embedUrl || virtualTour.tourUrl}
-                                      communityName={community.name}
-                                      showControls={true}
-                                      metadata={{
-                                        tourDescription: `Experience ${community.name} with an interactive ${virtualTour.platform || '3D'} virtual tour`,
-                                        features: community.amenities?.slice(0, 6)
-                                      }}
-                                    />
-                                    {virtualTour.confidence === 'low' && (
-                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        Note: Virtual tour may require navigation on the community's website
-                                      </p>
-                                    )}
-                                  </div>
-                                )}
-                                
-                                {/* 3D Tour from Perplexity (fallback if no detected tour) */}
-                                {!hasDetectedTour && virtualTourFromPerplexity && (
-                                  <div className="space-y-3">
-                                    <MatterportEmbed
-                                      tourId={`tour-${community.id}`}
-                                      tourUrl={virtualTourFromPerplexity}
-                                      communityName={community.name}
-                                      showControls={true}
-                                      metadata={{
-                                        tourDescription: `Experience ${community.name} with an interactive 3D virtual tour`,
-                                        features: community.amenities?.slice(0, 6)
-                                      }}
-                                    />
-                                  </div>
-                                )}
-                                
-                                {/* Video Tour from Web Intelligence */}
-                                {webIntel?.videoTour && !virtualTourFromPerplexity && (
-                                  <ExternalLinkWarning
-                                    href={webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`}
-                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                  >
-                                    <span>🎥</span>
-                                    <span>Watch Video Tour</span>
-                                  </ExternalLinkWarning>
-                                )}
-                                
-                                {/* Virtual Tour from Web Intelligence (as fallback) */}
-                                {webIntel?.virtualTour && !virtualTourFromPerplexity && (
-                                  <ExternalLinkWarning
-                                    href={webIntel.virtualTour.includes('://') ? webIntel.virtualTour : `https://${webIntel.virtualTour}`}
-                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                  >
-                                    <span>🏠</span>
-                                    <span>Take 3D Virtual Tour</span>
-                                  </ExternalLinkWarning>
-                                )}
-                              </>
-                            );
-                          }
-                          
-                          return (
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                              <p>Virtual tours not yet available for this community.</p>
-                              <p className="mt-2">Contact the community directly for more information.</p>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                    
-                    {/* Tour Tips */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
-                      <h4 className="font-semibold text-sm mb-2 flex items-center">
-                        <Info className="w-4 h-4 mr-2 text-blue-600" />
-                        What to Ask During Your Tour
-                      </h4>
-                      <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                        <li>• Staff-to-resident ratio and caregiver qualifications</li>
-                        <li>• Available care services and medical support</li>
-                        <li>• Activities calendar and social programs</li>
-                        <li>• Dining options and meal customization</li>
-                        <li>• Pricing details and what's included</li>
-                        <li>• Move-in process and timeline</li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
@@ -2757,13 +2594,7 @@ export default function CommunityDetail() {
                         </div>
                       </button>
                       <button
-                        onClick={() => {
-                          setActiveTab('tours');
-                          setTimeout(() => {
-                            const toursSection = document.querySelector('[value="tours"]');
-                            if (toursSection) toursSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }, 100);
-                        }}
+                        onClick={() => setIsScheduleTourOpen(true)}
                         className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
                       >
                         <div className="flex flex-col items-center justify-center gap-1">
