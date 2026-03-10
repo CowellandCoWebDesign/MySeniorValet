@@ -1123,8 +1123,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         <div className="relative z-10 flex flex-col h-full">
         
-        {/* Category Tabs at Top - Original styling preserved, centered */}
-        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
+        {/* Category Tabs at Top - Only shown when logged in */}
+        {isAuthenticated && <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
@@ -1179,7 +1179,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               </TabsTrigger>
             )}
           </TabsList>
-        </div>
+        </div>}
         
         <div className="w-full px-4 sm:px-8 md:px-16 pt-4 sm:pt-6 md:pt-8 text-center">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
