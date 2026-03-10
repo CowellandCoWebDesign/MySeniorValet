@@ -2744,57 +2744,64 @@ export default function CommunityDetail() {
                     <p className="text-responsive-base text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
                   </div>
 
-                  {/* Community Contact Info */}
-                  <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-4 sm:mb-6">
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-responsive-xl mr-3 sm:mr-4">
-                        <Phone className="w-6 h-6 sm:w-8 sm:h-8" />
-                      </div>
-                      <div className="flex-1">
-                        {/* Show live contact data if available, otherwise show community phone */}
-                        {(community as any).salesDirector?.name ? (
-                          <>
-                            <h4 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">
-                              {(community as any).salesDirector.name}
-                            </h4>
-                            <p className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                              {(community as any).salesDirector.title || 'Sales Director'}
-                            </p>
-                            <div className="flex items-center mt-2">
-                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                                {(community as any).salesDirector.phone || community.phone}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <h4 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">
-                              Community Main Office
-                            </h4>
-                            <p className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                              Call for sales and leasing information
-                            </p>
-                            <div className="flex items-center mt-2">
-                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                                {community.phone}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                              Ask to speak with a leasing manager or sales director
-                            </p>
-                          </>
-                        )}
-                      </div>
+                  {/* Action Buttons */}
+                  <div className="mb-4 sm:mb-6 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setShowInfoRequestDialog(true)}
+                        className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+                      >
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <span className="font-bold text-lg">📋 Request More Information</span>
+                          <span className="text-xs opacity-90 font-medium">Get Pricing, Availability & Details</span>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setActiveTab('tours');
+                          setTimeout(() => {
+                            const toursSection = document.querySelector('[value="tours"]');
+                            if (toursSection) toursSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }, 100);
+                        }}
+                        className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+                      >
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <span className="font-bold text-lg">📅 Schedule Tour</span>
+                          <span className="text-xs opacity-90 font-medium">🤝 Schedule with Tour Tracker & TourMate™</span>
+                        </div>
+                      </button>
                     </div>
-
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
-                      <div className="flex items-center">
-                        <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
-                        <span className="text-blue-800 dark:text-blue-200 font-medium">Usually responds within 2 hours</span>
-                      </div>
+                    <div className="flex flex-wrap gap-3">
+                      {community.phone ? (
+                        <a
+                          href={`tel:${community.phone}`}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                        >
+                          <Phone className="w-4 h-4" />
+                          <span className="font-medium">Call Now</span>
+                        </a>
+                      ) : (
+                        <button
+                          onClick={() => alert('Phone number not available. Please visit the website or check back later.')}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg transition-all duration-200 shadow-md"
+                        >
+                          <Phone className="w-4 h-4" />
+                          <span className="font-medium">Call Now</span>
+                        </button>
+                      )}
+                      {community.website ? (
+                        <button
+                          onClick={() => window.open(community.website!.startsWith('http') ? community.website! : `https://${community.website}`, '_blank')}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                        >
+                          <Globe className="w-4 h-4" />
+                          <span className="font-medium">Visit Website</span>
+                          <ExternalLink className="w-3 h-3 opacity-70" />
+                        </button>
+                      ) : null}
                     </div>
+                  </div>
 
                     {/* Enhanced Tour Section - Combined Ready to Tour & Tour Tracker */}
                     <div className="space-y-6">
@@ -2905,50 +2912,6 @@ export default function CommunityDetail() {
                             Grade each category during your visit. Your scores help future families and contribute to community transparency.
                           </p>
                         </div>
-                      </div>
-
-                      {/* Main Action Buttons - Mobile Responsive */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <Button
-                          data-testid="button-schedule-tour"
-                          className="py-3 sm:py-4 text-responsive-base font-semibold bg-teal-600 hover:bg-teal-700 text-white touch-target"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('📅 Schedule Tour button clicked');
-                            // Switch to Tours tab using setActiveTab
-                            setActiveTab('tours');
-                            setTimeout(() => {
-                              // Scroll to tours section
-                              const toursSection = document.querySelector('[value="tours"]');
-                              if (toursSection) {
-                                toursSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                              }
-                            }, 100);
-                          }}
-                        >
-                          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Schedule Tour
-                        </Button>
-                        
-                        <Button 
-                          data-testid="button-call-now"
-                          variant="outline" 
-                          className="py-3 sm:py-4 text-responsive-base font-semibold border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 touch-target"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('📞 Call Now button clicked, phone:', community.phone);
-                            if (community.phone) {
-                              window.location.href = `tel:${community.phone}`;
-                            } else {
-                              alert('Phone number not available. Please visit the website or check back later for updated contact information.');
-                            }
-                          }}
-                        >
-                          <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Call Now
-                        </Button>
                       </div>
 
                       {/* Move-In Coordination Section */}
@@ -3101,7 +3064,6 @@ export default function CommunityDetail() {
                     </div>
                   </div>
                   </div>
-                </div>
               </CardContent>
             </Card>
 
