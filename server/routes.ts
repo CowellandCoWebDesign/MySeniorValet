@@ -1837,6 +1837,30 @@ Disallow: /`;
   // Disabled to ensure zero automatic API calls on page load
   // app.get('/api/community/:id/comprehensive-data', async (req, res) => { ... })
 
+  // Public community flag endpoint — no auth required, supports anonymous reports
+  app.post('/api/community-flag', async (req, res) => {
+    try {
+      const { communityId, communityName, city, state } = req.body;
+      if (!communityId) {
+        return res.status(400).json({ error: 'communityId is required' });
+      }
+
+      await db.insert(schema.listingFlags).values({
+        communityId: Number(communityId),
+        flagType: 'Incorrect Information',
+        reason: `User reported from community page: ${communityName || communityId}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}`,
+        status: 'Pending',
+        userId: null,
+      });
+
+      console.log(`🚩 Community flagged by user: #${communityId} ${communityName || ''}`);
+      return res.json({ success: true });
+    } catch (error) {
+      console.error('Failed to save community flag:', error);
+      return res.status(500).json({ error: 'Failed to save flag' });
+    }
+  });
+
   // Re-verify community data using AI
   app.post('/api/communities/re-verify', async (req, res) => {
     try {
