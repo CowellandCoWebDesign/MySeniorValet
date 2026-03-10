@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { Home, Heart } from 'lucide-react';
 import { Link } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 export function FeaturedAndCoastalSection() {
   // Fetch trending communities for featured section
@@ -108,7 +109,7 @@ export function FeaturedAndCoastalSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Show remaining discovered communities */}
               {((featuredCommunities as any[]).slice(4, 8)).map((community: any, index: number) => (
-                <Link key={`more-featured-${community.id}-${index}`} href={`/community/${community.id}`}>
+                <Link key={`more-featured-${community.id}-${index}`} href={getCommunityUrl(community)}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm dark:bg-gray-700">
                     <div className="relative">
                       <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">

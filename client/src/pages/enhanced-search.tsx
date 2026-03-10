@@ -18,6 +18,7 @@ import {
   Filter
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 import MapView from "@/components/MapView";
 import FilterPanel from "@/components/FilterPanel";
 import BottomNavigation from "@/components/BottomNavigation";

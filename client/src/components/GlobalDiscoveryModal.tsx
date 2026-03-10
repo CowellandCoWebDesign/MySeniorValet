@@ -8,6 +8,7 @@ import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, Aler
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 import { queryClient } from '@/lib/queryClient';
 
 interface GlobalDiscoveryResult {
@@ -108,7 +109,7 @@ export function GlobalDiscoveryModal({
         }
       } else {
         // Communities go to community detail page
-        setLocation(`/community/${community.id}?discovery=true`);
+        setLocation(getCommunityUrl(community) + '?discovery=true');
       }
       onClose();
     }, 500);

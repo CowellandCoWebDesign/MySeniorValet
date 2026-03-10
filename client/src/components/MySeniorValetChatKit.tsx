@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Send, Sparkles, Bot, User, MapPin, Building, BarChart3, Globe } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface CommunityResult {
   id: number;
@@ -519,7 +520,7 @@ export function MySeniorValetChatKit({
                                       size="sm"
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        setLocation(`/community/${community.id}`);
+                                        setLocation(getCommunityUrl(community));
                                       }}
                                       className="flex-1 text-xs"
                                     >

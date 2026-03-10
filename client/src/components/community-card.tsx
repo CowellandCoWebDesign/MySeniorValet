@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { processPhotoUrls } from "@/lib/photoUtils";
+import { getCommunityUrl } from "@/lib/community-url";
 
 interface CommunityCardProps {
   community: Community;
@@ -244,7 +245,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
     if ((e.target as HTMLElement).closest('button, a')) {
       return;
     }
-    window.location.href = `/community/${community.id}`;
+    window.location.href = getCommunityUrl(community);
   };
 
   return (

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Phone, Globe, DollarSign, Languages } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 
 interface BilingualCommunityCardProps {
   id: number;
@@ -111,7 +112,7 @@ export function BilingualCommunityCard({
         )}
         
         <div className="flex gap-2">
-          <Link href={`/community/${id}`} className="flex-1">
+          <Link href={getCommunityUrl({ id, name, city, state })} className="flex-1">
             <Button 
               variant="outline" 
               className="w-full hover:bg-blue-50 dark:hover:bg-blue-900/20"

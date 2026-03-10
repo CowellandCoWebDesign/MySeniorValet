@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight } from "lucide-react";
 import { Link } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 
 interface FeaturedExcellenceCardProps {
   community: {
@@ -412,7 +413,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
               🌐 Website
             </a>
           )}
-          <Link href={`/community/${community.id}?tab=tour`} data-testid={`link-tour-${community.id}`}>
+          <Link href={`${getCommunityUrl(community)}?tab=tour`} data-testid={`link-tour-${community.id}`}>
             <span className="flex items-center gap-1 px-2 py-1 rounded bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors cursor-pointer">
               📅 Tour
             </span>
@@ -438,7 +439,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
         )}
 
         {/* CTA Button */}
-        <Link href={`/community/${community.id}`}>
+        <Link href={getCommunityUrl(community)}>
           <Button className={`w-full ${compact ? 'h-7' : 'h-8'} text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white`}>
             <Star className="w-3 h-3 mr-1.5" />
             View Community Details

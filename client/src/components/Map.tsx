@@ -18,6 +18,7 @@ import { PrioritizedCommunityCard } from './PrioritizedCommunityCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getCommunityUrl } from '@/lib/community-url';
 import { useTheme } from 'next-themes';
 
 // Extend window interface for map reference
@@ -1741,7 +1742,7 @@ export default function Map({
                       waitListLength: community.waitListLength || 0
                     }}
                     variant="list"
-                    onSelect={() => window.location.href = `/community/${community.id}`}
+                    onSelect={() => window.location.href = getCommunityUrl(community)}
                     onToggleFavorite={() => {
                       const newFavorites = new Set(favorites);
                       if (favorites.has(community.id)) {

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info, ClipboardCheck, AlertTriangle, Calendar, UserCheck, Stethoscope, Clock } from "lucide-react";
 import { Link } from "wouter";
 import { MarketIntelligenceModal } from "@/components/MarketIntelligenceModal";
+import { getCommunityUrl } from "@/lib/community-url";
 
 interface CommunityCardProps {
   community: {
@@ -1073,7 +1074,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           null);
 
     return (
-      <Link href={`/community/${community.id}`}>
+      <Link href={getCommunityUrl(community)}>
         <Card className="flex-shrink-0 w-64 hover:shadow-2xl transition-all overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl" style={{animationDelay: `${index * 0.2}s`}}>
           <div className="relative">
             {/* Image Section with Gradient Background */}

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface StructuredDataProps {
   data: any | any[];
@@ -108,10 +109,10 @@ export function createCommunitySchema(community: any) {
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': schemaType,
-    '@id': `https://www.myseniorvalet.com/community/${community.id}`,
+    '@id': `https://www.myseniorvalet.com${getCommunityUrl(community)}`,
     name: community.name,
     description: community.description || `${community.name} is a senior living community in ${community.city}, ${community.state}`,
-    url: `https://www.myseniorvalet.com/community/${community.id}/${community.name.toLowerCase().replace(/\s+/g, '-')}`,
+    url: `https://www.myseniorvalet.com${getCommunityUrl(community)}`,
     address: {
       '@type': 'PostalAddress',
       streetAddress: community.address,

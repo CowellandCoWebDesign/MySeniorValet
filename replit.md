@@ -34,6 +34,15 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - SSR middleware detects search engine crawlers and serves pre-rendered HTML while maintaining SPA experience for regular users
 - Sitemap generation includes thousands of city-specific URLs for comprehensive search coverage
 
+**SEO URL Migration (March 10, 2026)**:
+- All community links now use keyword-rich SEO URLs: `/senior-living/{state}/{city}/{community-name}` instead of `/community/{id}`
+- `getCommunityUrl()` utility in `client/src/lib/community-url.ts` generates consistent SEO URLs from community name/city/state
+- Route `/senior-living/:state/:city/:slug` renders `CommunityDetail` component (not the old `CommunitySEO` stub)
+- `CommunityDetail` supports both slug-based (`/senior-living/...`) and ID-based (`/community/:id`) URLs using `isSlugBased` flag
+- Backend API: `GET /api/communities/by-slug/:state/:city/:slug` looks up community by location + name match
+- Server-side 301 redirect registered at `GET /community/:id` — looks up community, redirects to SEO URL in production
+- Updated 20+ components and pages to use `getCommunityUrl()` including: Map, SlidePanel, community cards, search pages, chat kit, AI components, structured data, share buttons
+
 **Technical Implementations**:
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components, using Vite.
 - **Backend**: Express.js with TypeScript, using esbuild.

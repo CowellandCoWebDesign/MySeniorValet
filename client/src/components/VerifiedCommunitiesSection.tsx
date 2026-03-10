@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { Shield, Home, Heart, CheckCircle } from 'lucide-react';
 import { Link } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 export function VerifiedCommunitiesSection() {
   // Fetch verified communities
@@ -98,7 +99,7 @@ export function VerifiedCommunitiesSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Show remaining verified communities */}
             {topVerifiedCommunities.slice(8, 12).map((community: any, index: number) => (
-              <Link key={`more-verified-${community.id}-${index}`} href={`/community/${community.id}`}>
+              <Link key={`more-verified-${community.id}-${index}`} href={getCommunityUrl(community)}>
                 <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm dark:bg-gray-700">
                   <div className="relative">
                     <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">

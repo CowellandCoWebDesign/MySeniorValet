@@ -248,7 +248,7 @@ function Router() {
         }}
       </Route>
       <Route path="/community/:id" component={CommunityDetail} />
-      <Route path="/senior-living/:state/:city/:slug" component={CommunitySEO} />
+      <Route path="/senior-living/:state/:city/:slug" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/service/:id" component={ServiceDetail} />
       <Route path="/services/:id" component={ServiceDetail} />

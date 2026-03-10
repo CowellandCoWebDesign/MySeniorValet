@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { getCommunityUrl } from "@/lib/community-url";
 
 interface SEOProps {
   title?: string;
@@ -125,11 +126,11 @@ export function generateCommunityStructuredData(community: any) {
   return {
     "@context": "https://schema.org",
     "@type": ["LocalBusiness", schemaType],
-    "@id": `https://www.myseniorvalet.com/community/${community.id}#organization`,
+    "@id": `https://www.myseniorvalet.com${getCommunityUrl(community)}#organization`,
     "name": community.name,
     "alternateName": community.alternateNames || undefined,
     "description": description,
-    "url": `https://www.myseniorvalet.com/community/${community.id}`,
+    "url": `https://www.myseniorvalet.com${getCommunityUrl(community)}`,
     "image": images,
     "logo": community.logo || undefined,
     "telephone": community.phone,
@@ -190,7 +191,7 @@ export function generateCommunityStructuredData(community: any) {
       "@type": "ReserveAction",
       "target": {
         "@type": "EntryPoint",
-        "urlTemplate": `https://www.myseniorvalet.com/community/${community.id}?action=schedule-tour`,
+        "urlTemplate": `https://www.myseniorvalet.com${getCommunityUrl(community)}?action=schedule-tour`,
         "actionPlatform": ["http://schema.org/DesktopWebPlatform", "http://schema.org/MobileWebPlatform"]
       },
       "result": {
@@ -206,9 +207,9 @@ export function generateOrganizationStructuredData(community: any) {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    "@id": `https://www.myseniorvalet.com/community/${community.id}#org`,
+    "@id": `https://www.myseniorvalet.com${getCommunityUrl(community)}#org`,
     "name": community.name,
-    "url": `https://www.myseniorvalet.com/community/${community.id}`,
+    "url": `https://www.myseniorvalet.com${getCommunityUrl(community)}`,
     "logo": community.logo || community.photos?.[0],
     "contactPoint": {
       "@type": "ContactPoint",

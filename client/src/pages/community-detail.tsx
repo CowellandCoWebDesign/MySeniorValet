@@ -1399,7 +1399,9 @@ const calculateCompositeRating = (community: Community): string => {
 };
 
 export default function CommunityDetail() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id?: string; state?: string; city?: string; slug?: string }>();
+  const { id, state: stateParam, city: cityParam, slug } = params;
+  const isSlugBased = !!(stateParam && slug);
   const [, setLocation] = useLocation();
   
   // Auth state — used to gate the favorite button
@@ -1413,7 +1415,7 @@ export default function CommunityDetail() {
   
   // Check if this community is already in favorites
   // FIXED: communityId is INTEGER in database, compare as numbers
-  const existingFavorite = favorites.find(f => Number(f.communityId) === Number(id));
+  const existingFavorite = favorites.find(f => Number(f.communityId) === Number(community?.id ?? id));
   const isFavorite = !!existingFavorite;
   
   // Debug log for favorites matching
@@ -1536,9 +1538,15 @@ export default function CommunityDetail() {
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   // Always call useQuery hook regardless of ID validity to maintain consistent hook order
+  const slugQueryKey = isSlugBased ? `/api/communities/by-slug/${stateParam}/${cityParam}/${slug}` : null;
+  const idQueryKey = !isSlugBased ? `/api/communities/${id}` : null;
   const { data: community, isLoading, error } = useQuery<Community>({
-    queryKey: [`/api/communities/${id}`],
-    enabled: !!id && id !== '-1' && !isNaN(Number(id)),
+    queryKey: isSlugBased
+      ? [slugQueryKey]
+      : [idQueryKey],
+    enabled: isSlugBased
+      ? !!(stateParam && slug)
+      : (!!id && id !== '-1' && !isNaN(Number(id))),
     staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
@@ -1547,11 +1555,12 @@ export default function CommunityDetail() {
   const comprehensiveData = (community as any)?.comprehensiveData || null;
 
   // Detect virtual tour using our enhanced detection service
+  const communityId = community?.id ?? (id ? Number(id) : undefined);
   const { virtualTour, isLoading: isDetectingTour, refreshDetection } = useVirtualTourDetection({
-    communityId: Number(id),
+    communityId: Number(communityId),
     communityName: community?.name || '',
     website: community?.website || undefined,
-    enabled: !!community && !!id && id !== '-1'
+    enabled: !!community && !!communityId
   });
 
   // Reset all state when community ID changes (but don't return early)

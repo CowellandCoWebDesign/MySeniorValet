@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface SEOMetaTagsProps {
   title: string;
@@ -227,7 +228,7 @@ export function generateCommunityMetaTags(community: any) {
     description: `${community.name} - ${community.careLevel?.join(', ') || 'Senior Living'} in ${community.city}, ${community.state}. ${
       community.description || 'Find verified pricing, amenities, and care information.'
     }`,
-    url: `/community/${community.id}/${community.name.toLowerCase().replace(/\s+/g, '-')}`,
+    url: getCommunityUrl(community),
     image: community.photos?.[0]?.url || '/default-community.jpg',
     type: 'product' as const,
     communityData: {

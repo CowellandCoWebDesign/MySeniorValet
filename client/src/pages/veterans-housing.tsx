@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 import { 
   Home, Phone, Globe, MapPin, Star, Shield, Users, 
   CheckCircle, FileText, Heart, ExternalLink, ChevronRight,
@@ -207,7 +208,7 @@ export default function VeteransHousing() {
                       )}
                       
                       <div className="pt-3 flex gap-2">
-                        <Link href={`/community/${facility.id}`}>
+                        <Link href={getCommunityUrl(facility)}>
                           <Button size="sm" variant="outline" className="w-full">
                             View Details
                             <ChevronRight className="w-4 h-4 ml-1" />

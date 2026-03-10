@@ -11,6 +11,7 @@ import { useAddFavorite, useRemoveFavorite, useFavorites } from '@/hooks/useFavo
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface AutocompleteSuggestion {
   label: string;
@@ -205,7 +206,7 @@ export function AutocompleteSearch({
     if (suggestion.type === 'community' && suggestion.id) {
       setShowSuggestions(false);
       setSelectedIndex(-1);
-      setLocation(`/community/${suggestion.id}`);
+      setLocation(getCommunityUrl({ id: suggestion.id!, name: suggestion.value, city: suggestion.city || '', state: suggestion.state || '' }));
     } else {
       // For other types (city, state, care_type, etc.), perform the search
       justSelectedRef.current = true; // Prevent double-triggering autocomplete

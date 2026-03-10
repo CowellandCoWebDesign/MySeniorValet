@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { getCommunityUrl } from '@/lib/community-url';
 import { Share2, Copy, Mail, MessageSquare, Users, Check, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -59,7 +60,7 @@ export function FamilyShareButton({
   // Generate shareable link with community details
   const generateShareableLink = () => {
     const baseUrl = window.location.origin;
-    const communityUrl = `${baseUrl}/community/${community.id}`;
+    const communityUrl = `${baseUrl}${getCommunityUrl(community)}`;
     const shareParams = new URLSearchParams({
       name: community.name,
       city: community.city,

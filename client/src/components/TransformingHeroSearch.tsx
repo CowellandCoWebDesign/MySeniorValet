@@ -9,6 +9,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface SearchResult {
   id: number;
@@ -341,7 +342,7 @@ export function TransformingHeroSearch({ initialHeroContent }: TransformingHeroS
                           <PrioritizedCommunityCard
                             community={community}
                             variant="list"
-                            onSelect={() => window.location.href = `/community/${community.id}`}
+                            onSelect={() => window.location.href = getCommunityUrl(community)}
                           />
                         </motion.div>
                       ))

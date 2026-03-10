@@ -28,6 +28,26 @@ import { vendors } from "@shared/schema";
 import { geocodeWithNominatim } from "../nominatim-geocoding";
 
 export function registerCommunityRoutes(app: Express) {
+  // 301 redirect: /community/:id → SEO-friendly URL /senior-living/:state/:city/:slug
+  app.get("/community/:id", async (req, res, next) => {
+    const communityId = parseInt(req.params.id, 10);
+    if (isNaN(communityId)) return next();
+    try {
+      const [community] = await db
+        .select({ id: communities.id, name: communities.name, city: communities.city, state: communities.state })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+      if (!community) return next();
+      const statePart = community.state.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+      const cityPart = community.city.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+      const namePart = community.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || `community-${community.id}`;
+      return res.redirect(301, `/senior-living/${statePart}/${cityPart}/${namePart}`);
+    } catch {
+      return next();
+    }
+  });
+
   // IMPORTANT: Specific routes must come BEFORE the /:id route
   
   // Get community and services count (dynamic, includes discovered entities)

@@ -48,6 +48,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
 import { Link } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 
 export default function AdminCommunities() {
   const { user } = useAuth();
@@ -404,7 +405,7 @@ export default function AdminCommunities() {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <Link href={`/community/${community.id}`}>
+                            <Link href={getCommunityUrl(community)}>
                               <Button size="sm" variant="ghost">
                                 <Eye className="h-4 w-4" />
                               </Button>

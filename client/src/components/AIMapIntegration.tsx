@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Brain, MapPin, Search, Sparkles } from 'lucide-react';
 import L from 'leaflet';
 import AIAnalysisPanel from './AIAnalysisPanel';
+import { getCommunityUrl } from '@/lib/community-url';
 
 // Community interface matching our database schema
 interface Community {
@@ -224,7 +225,7 @@ export const AIMapIntegration: React.FC<AIMapIntegrationProps> = ({
 
   // Navigate to community detail page
   const navigateToCommunity = (community: Community) => {
-    window.location.href = `/community/${community.id}`;
+    window.location.href = getCommunityUrl(community);
   };
 
   return (

@@ -17,6 +17,7 @@ import {
   ArrowRight, Languages, Phone, Award, Trophy, Gem
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 import { motion } from "framer-motion";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { RedTagDeals } from "@/components/RedTagDeals";
@@ -1954,7 +1955,7 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((hawaiiCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`hawaii-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`hawaii-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
@@ -2087,7 +2088,7 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((texasCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`texas-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`texas-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
@@ -2188,7 +2189,7 @@ export default function CommunityDirectory() {
               
               <div ref={floridaSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((floridaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`florida-${community.id}-${index}`} href={`/community/${community.id}`}>
+                  <Link key={`florida-${community.id}-${index}`} href={getCommunityUrl(community)}>
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -2302,7 +2303,7 @@ export default function CommunityDirectory() {
               <>
                 {/* Display first 10 HUD properties with complete information */}
                 {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
-                  <Link key={`hud-${community.id}-${index}`} href={`/community/${community.id}`}>
+                  <Link key={`hud-${community.id}-${index}`} href={getCommunityUrl(community)}>
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -2463,7 +2464,7 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((newYorkCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`newyork-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`newyork-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
@@ -2637,7 +2638,7 @@ export default function CommunityDirectory() {
               </>
             ) : (
               ((canadianCommunities as any)?.communities || []).map((community: any, index: number) => (
-                <Link key={`canadian-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                <Link key={`canadian-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                   <FeaturedExcellenceCard community={community} index={index} compact disableAutoPhotoLoad={true} />
 
                 </Link>
@@ -2738,7 +2739,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((puertoRicoCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`pr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`pr-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -2851,7 +2852,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
                 {((peruCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`pe-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`pe-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -2968,7 +2969,7 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((cubaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`cuba-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`cuba-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
@@ -3090,7 +3091,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
                 {((costaRicaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`cr-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`cr-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -3196,7 +3197,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
                 {((panamaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`pa-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`pa-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -3291,7 +3292,7 @@ export default function CommunityDirectory() {
               </h3>
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-red-500">
                 {((ontarioCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
-                  <Link key={`on-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`on-${community.id}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -3308,7 +3309,7 @@ export default function CommunityDirectory() {
               </h3>
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-500">
                 {((quebecCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
-                  <Link key={`qc-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`qc-${community.id}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -3410,7 +3411,7 @@ export default function CommunityDirectory() {
               </h3>
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-green-500">
                 {((nswCommunities as any)?.communities || []).slice(0, 15).map((community: any, index: number) => (
-                  <Link key={`nsw-${community.id}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                  <Link key={`nsw-${community.id}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                     <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
                   </Link>
                 ))}
@@ -3571,7 +3572,7 @@ export default function CommunityDirectory() {
               ))
             ) : (
               ((mexicoCommunities as any)?.communities || []).map((community: any, index: number) => (
-                <Link key={`mexico-${community.id}-${index}`} href={`/community/${community.id}`} className="flex-shrink-0">
+                <Link key={`mexico-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
                   <FeaturedExcellenceCard community={community} index={index} compact disableAutoPhotoLoad={true} />
 
                 </Link>

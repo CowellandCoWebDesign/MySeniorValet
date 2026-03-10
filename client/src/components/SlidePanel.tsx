@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Heart, Star } from "lucide-react";
+import { getCommunityUrl } from "@/lib/community-url";
 import { PrioritizedCommunityCard } from "./PrioritizedCommunityCard";
 
 export default function SlidePanel({
@@ -169,7 +170,7 @@ export default function SlidePanel({
         <PrioritizedCommunityCard
           community={c}
           variant="list"
-          onSelect={() => window.location.href = `/community/${c.id}`}
+          onSelect={() => window.location.href = getCommunityUrl(c)}
           onToggleFavorite={() => console.log(`Toggle favorite: ${c.name}`)}
           isFavorite={false}
         />

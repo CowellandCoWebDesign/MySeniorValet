@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 import { Search, MapPin, Filter, List, MapIcon, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Button } from '@/components/ui/button';
@@ -419,7 +420,7 @@ export default function AISearchSimplified() {
                     >
                       <PrioritizedCommunityCard
                         community={community}
-                        onSelect={() => setLocation(`/community/${community.id}`)}
+                        onSelect={() => setLocation(getCommunityUrl(community))}
                       />
                     </div>
                   ))}
