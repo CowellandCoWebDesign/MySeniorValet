@@ -54,6 +54,7 @@ import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { ReservationSection } from "@/components/ReservationSection";
 import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
 import { useFavorites, useAddFavorite, useRemoveFavorite } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
 import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
@@ -1401,6 +1402,10 @@ export default function CommunityDetail() {
   const { id } = useParams<{ id: string }>();
   const [, setLocation] = useLocation();
   
+  // Auth state — used to gate the favorite button
+  const { isAuthenticated } = useAuth();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+
   // Favorites functionality - using hooks for persistence
   const { data: favorites = [], isLoading: favoritesLoading } = useFavorites();
   const addFavoriteMutation = useAddFavorite();
@@ -1425,6 +1430,12 @@ export default function CommunityDetail() {
   // Handle favorite toggle (actual API call)
   const handleFavoriteToggle = () => {
     if (!id) return;
+
+    // Prompt unauthenticated users to log in before saving
+    if (!isAuthenticated) {
+      setShowLoginDialog(true);
+      return;
+    }
     
     // Prevent double-clicks while mutation is in progress
     if (isFavoriteMutating) {
@@ -4424,6 +4435,36 @@ export default function CommunityDetail() {
       communityName={community?.name || ''}
       />
       
+      {/* Login prompt — shown when unauthenticated user clicks the heart button */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-red-500" />
+              Save this community
+            </DialogTitle>
+            <DialogDescription>
+              Create a free account or sign in to save communities to your favorites and compare them later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 pt-2">
+            <Button
+              className="w-full"
+              onClick={() => { setShowLoginDialog(false); setLocation('/login'); }}
+            >
+              Sign In
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => { setShowLoginDialog(false); setLocation('/register'); }}
+            >
+              Create Free Account
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Reservation Dialog */}
       {community && (
         <ReservationDialog 

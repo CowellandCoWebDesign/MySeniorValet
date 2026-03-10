@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,13 +74,15 @@ export function CommunityDetailsHeader({
     return false;
   };
   
-  const handleFlagCommunity = async () => {
+  const [isFlagged, setIsFlagged] = useState(false);
+
+  const handleFlagCommunity = useCallback(async () => {
+    if (isFlagged) return;
     try {
-      const response = await fetch('/api/admin/flag-community', {
+      const response = await fetch(`/api/admin/communities/${community.id}/flag`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          communityId: community.id,
           communityName: community.name,
           city: community.city,
           state: community.state,
@@ -90,17 +92,12 @@ export function CommunityDetailsHeader({
       });
       
       if (response.ok) {
-        // Show brief confirmation without reloading
-        const flagBtn = document.querySelector('.flag-button');
-        if (flagBtn) {
-          flagBtn.classList.add('text-orange-500');
-          flagBtn.setAttribute('title', 'Community flagged for admin review');
-        }
+        setIsFlagged(true);
       }
     } catch (error) {
       console.error('Failed to flag community:', error);
     }
-  };
+  }, [isFlagged, community]);
   // Get amenity icon
   const getAmenityIcon = (amenity: string) => {
     const lowerAmenity = amenity.toLowerCase();
@@ -463,16 +460,15 @@ export function CommunityDetailsHeader({
               <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
             
-            {/* Flag for Review Button */}
-            {needsDataReview() && (
-              <button
-                onClick={handleFlagCommunity}
-                className="flag-button p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700"
-                title="Flag this community for admin review"
-              >
-                <Flag className="w-5 h-5 text-orange-500 hover:text-orange-600" />
-              </button>
-            )}
+            {/* Flag for Review Button — always visible so users can report inaccurate info */}
+            <button
+              onClick={handleFlagCommunity}
+              disabled={isFlagged}
+              className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700 disabled:opacity-60 disabled:cursor-default"
+              title={isFlagged ? "Flagged for review — thank you!" : "Report incorrect information"}
+            >
+              <Flag className={`w-5 h-5 transition-colors ${isFlagged ? 'text-orange-500' : 'text-gray-500 hover:text-orange-500'}`} />
+            </button>
           </div>
         </div>
         
