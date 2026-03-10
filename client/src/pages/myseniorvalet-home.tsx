@@ -1188,12 +1188,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             From affordable options to luxury resorts — Find Senior Living that's right for you!
           </h1>
         </div>
-        
-        {/* Content Container - Search pinned to bottom of hero */}
-        <div className={`flex-grow flex flex-col justify-end pb-6 sm:pb-8 px-2 sm:px-4`}>
-        
+
+        {/* Search bar - directly below headline */}
+        <div className="w-full px-2 sm:px-4 pt-4 pb-4">
         {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-3 sm:mb-4" style={{ isolation: 'isolate' }}>
+        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50" style={{ isolation: 'isolate' }}>
           <AnimatePresence mode="wait">
             {searchMode === 'ai' ? (
               <motion.div
@@ -1237,7 +1236,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             )}
           </AnimatePresence>
         </div>
-        
         </div>
         </div>
       </section>
@@ -2327,8 +2325,8 @@ export default function MySeniorValetHome() {
         <div className="relative z-20">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
-          {/* Tab Content - Positioned below hero with proper spacing */}
-          <div className="relative mt-0">
+          {/* Tab Content - Peeks up into hero bottom */}
+          <div className="relative -mt-20 sm:-mt-24 z-30">
             {/* Single unified content container */}
             <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
