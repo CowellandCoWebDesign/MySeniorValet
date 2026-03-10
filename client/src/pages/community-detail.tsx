@@ -2491,12 +2491,12 @@ export default function CommunityDetail() {
                   className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-500 text-gray-600 dark:text-gray-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-blue-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl">🏘️</span>
-                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Community Info</span>
-                    <span className="text-xs sm:text-sm font-bold sm:hidden">Info</span>
+                    <span className="text-lg sm:text-xl">📋</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Contact/Tour</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Contact</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
-                    Details & Overview
+                    Contact & Tours
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
@@ -2506,10 +2506,11 @@ export default function CommunityDetail() {
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">🏠</span>
-                    <span className="text-xs sm:text-sm font-bold">Availability</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Floorplans & Pricing</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Floorplans</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
-                    Units & Pricing
+                    Units & Floorplans
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
@@ -2858,15 +2859,6 @@ export default function CommunityDetail() {
               </CardContent>
             </Card>
 
-                {/* Real-Time AI Insights - What We Found About */}
-                <RealTimeInsights 
-                  key={`real-time-insights-${community.id}`}
-                  community={community}
-                  marketAnalysisData={marketAnalysisData} 
-                  onVerificationReport={setVerificationReport}
-                  onPhotosUpdate={undefined}
-                  verificationReport={verificationReport}
-                />
 
                 {/* Community Information & Amenities */}
                 <Card>
@@ -3368,6 +3360,16 @@ export default function CommunityDetail() {
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Real-Time AI Insights - What We Found About */}
+                <RealTimeInsights 
+                  key={`real-time-insights-${community.id}`}
+                  community={community}
+                  marketAnalysisData={marketAnalysisData} 
+                  onVerificationReport={setVerificationReport}
+                  onPhotosUpdate={undefined}
+                  verificationReport={verificationReport}
+                />
 
                 {/* Reservation Information */}
                 <Card>
