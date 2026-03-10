@@ -69,7 +69,19 @@ export class CommunityPhotoEnrichment {
       'mt-association',
       'association-top',
       'banner-ad',
-      'advertisement'
+      'advertisement',
+      // Listing sites that serve generic template images, not community-specific photos
+      'lowincomehousing.us',
+      'mapquest.com',
+      'after55.com',
+      // Listing-site placeholder/template image filename patterns
+      'no_photo',
+      'nophoto',
+      'no-photo',
+      'divider-half',
+      '/divider',
+      'default_community_property',
+      'templates/homely'
     ];
     
     const urlLower = url.toLowerCase();

@@ -1704,17 +1704,36 @@ If you cannot find verified information from any source, say "No verified public
         console.log(`✅ Found ${photoExtractionResult.authenticPhotos.length} authentic photos via MultiAIPhotoExtractor`);
       }
       
-      // Also scrape from the discovered website URL if available
+      // Domains that serve generic listing-template images, not community-specific photos
+      const JUNK_PHOTO_DOMAINS = [
+        'lowincomehousing.us', 'mapquest.com', 'after55.com', 'loopnet.com'
+      ];
+      // URL patterns that indicate a placeholder/template image rather than a real photo
+      const JUNK_PHOTO_PATTERNS = [
+        'divider-half', '/divider', 'no_photo', 'nophoto', 'no-photo',
+        'default_community_property', 'templates/homely'
+      ];
+      // Listing/aggregator sites — never use as photo sources (they pull generic template images)
+      const LISTING_SITE_DOMAINS = [
+        'lowincomehousing.us', 'mapquest.com', 'after55.com', 'loopnet.com',
+        'senioradvisor.com', 'caring.com', 'aplaceformom.com', 'seniorly.com',
+        'whereyoulivematters.org', 'seniorhomes.com', 'assistedliving.com',
+        'payingforseniorcare.com', 'seniorhousingnet.com',
+        'yelp.com', 'facebook.com', 'google.com', 'yellowpages.com', 'bbb.org'
+      ];
+
+      // Scrape the community's own website first and track how many photos it yields
+      let ownWebsitePhotoCount = 0;
       const cleanedWebsiteUrl = websiteUrl ? this.cleanUrl(websiteUrl) : null;
       if (cleanedWebsiteUrl && !response.sources.includes(cleanedWebsiteUrl)) {
-        console.log(`🌐 Scraping photos from discovered website: ${cleanedWebsiteUrl}`);
+        console.log(`🌐 Scraping photos from community's own website: ${cleanedWebsiteUrl}`);
         try {
           const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
             cleanedWebsiteUrl,
             communityName,
             {
               maxPhotos: 10,
-              timeout: 10000 // 10 second timeout
+              timeout: 10000
             }
           );
           
@@ -1722,46 +1741,94 @@ If you cannot find verified information from any source, say "No verified public
             scrapedPhotos.forEach((photo: any) => {
               if (photo.url) {
                 extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+                ownWebsitePhotoCount++;
               }
             });
-            console.log(`📸 Found ${scrapedPhotos.length} photos from ${websiteUrl}`);
+            console.log(`📸 Found ${scrapedPhotos.length} photos from community's own website: ${websiteUrl}`);
           }
         } catch (scrapeError) {
-          console.log(`⚠️ Failed to scrape discovered website ${websiteUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+          console.log(`⚠️ Failed to scrape community website ${websiteUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
         }
       }
-      
-      // Also scrape from any sources that were provided by the original Perplexity response
-      if (response.sources && response.sources.length > 0) {
-        console.log(`🕷️ Scraping photos from ${Math.min(3, response.sources.length)} key sources...`);
-        
-        // Limit to top 3 sources to avoid excessive scraping
-        const topSources = response.sources.slice(0, 3).filter(source => {
-          const url = source.toLowerCase();
-          return !url.includes('.pdf') && !url.includes('.doc') && !url.includes('youtube.com');
-        });
-        
-        for (const sourceUrl of topSources) {
-          try {
-            const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
-              sourceUrl,
-              communityName,
-              {
-                maxPhotos: 10,
-                timeout: 10000 // 10 second timeout
+
+      // If the community's own website yielded enough photos, skip listing-site scraping entirely
+      if (ownWebsitePhotoCount >= 3) {
+        console.log(`✅ Own website has ${ownWebsitePhotoCount} photos — skipping listing-site scraping`);
+      } else {
+        // For communities without a stored website URL, try to discover the official site
+        // from the Perplexity response sources before falling back to listing sites
+        if (!websiteUrl && response.sources && response.sources.length > 0) {
+          const potentialOfficialSite = response.sources.find(source => {
+            const url = source.toLowerCase();
+            return !LISTING_SITE_DOMAINS.some(d => url.includes(d)) &&
+                   url.startsWith('http') && !url.includes('.pdf');
+          });
+
+          if (potentialOfficialSite) {
+            console.log(`🔍 No stored website — trying discovered official site: ${potentialOfficialSite}`);
+            try {
+              const discoveredPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+                potentialOfficialSite,
+                communityName,
+                { maxPhotos: 10, timeout: 10000 }
+              );
+              if (discoveredPhotos && discoveredPhotos.length > 0) {
+                discoveredPhotos.forEach((photo: any) => {
+                  if (photo.url) {
+                    const photoUrlLower = photo.url.toLowerCase();
+                    if (!JUNK_PHOTO_PATTERNS.some(p => photoUrlLower.includes(p))) {
+                      extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+                      ownWebsitePhotoCount++;
+                    }
+                  }
+                });
+                console.log(`✅ Found ${discoveredPhotos.length} photos from discovered official site`);
               }
-            );
-            
-            if (scrapedPhotos?.length > 0) {
-              console.log(`📸 Found ${scrapedPhotos.length} photos from ${sourceUrl}`);
-              scrapedPhotos.forEach(photo => {
-                if (photo.url) {
-                  extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
-                }
-              });
+            } catch (e) {
+              console.log(`⚠️ Failed to scrape discovered site ${potentialOfficialSite}`);
             }
-          } catch (scrapeError) {
-            console.log(`⚠️ Failed to scrape ${sourceUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+          }
+        }
+
+        // Fallback: scrape Perplexity sources, blocking all known junk domains
+        if (ownWebsitePhotoCount < 3 && response.sources && response.sources.length > 0) {
+          const topSources = response.sources.slice(0, 5).filter(source => {
+            const url = source.toLowerCase();
+            if (url.includes('.pdf') || url.includes('.doc') || url.includes('youtube.com')) return false;
+            if (JUNK_PHOTO_DOMAINS.some(domain => url.includes(domain))) return false;
+            return true;
+          }).slice(0, 3);
+
+          if (topSources.length > 0) {
+            console.log(`🕷️ Scraping photos from ${topSources.length} filtered sources...`);
+          }
+
+          for (const sourceUrl of topSources) {
+            try {
+              const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+                sourceUrl,
+                communityName,
+                {
+                  maxPhotos: 10,
+                  timeout: 10000
+                }
+              );
+              
+              if (scrapedPhotos?.length > 0) {
+                console.log(`📸 Found ${scrapedPhotos.length} photos from ${sourceUrl}`);
+                scrapedPhotos.forEach(photo => {
+                  if (photo.url) {
+                    const photoUrlLower = photo.url.toLowerCase();
+                    const isJunk = JUNK_PHOTO_PATTERNS.some(p => photoUrlLower.includes(p));
+                    if (!isJunk) {
+                      extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+                    }
+                  }
+                });
+              }
+            } catch (scrapeError) {
+              console.log(`⚠️ Failed to scrape ${sourceUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+            }
           }
         }
       }

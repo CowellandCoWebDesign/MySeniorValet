@@ -297,7 +297,10 @@ export class CheerioPhotoScraper {
       // Ads and banners
       'banner', 'advertisement', 'ad-', 'promo',
       // Graphics and illustrations
-      'illustration', 'cartoon', 'clipart', 'drawing'
+      'illustration', 'cartoon', 'clipart', 'drawing',
+      // Listing-site placeholder/template images shared across thousands of communities
+      'no_photo', 'nophoto', 'no-photo', 'divider-half', '/divider',
+      'default_community_property', 'templates/homely'
     ];
     
     // Check for strong rejection patterns
