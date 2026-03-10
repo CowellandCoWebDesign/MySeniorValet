@@ -942,9 +942,9 @@ export default function Map({
   };
 
   const handleLocationRequest = () => {
+    getUserLocation(); // Must be called synchronously from the click event
     setHasRequestedLocation(true);
     localStorage.setItem('map-location-requested', 'true');
-    getUserLocation();
   };
 
   const handleSkipLocation = () => {

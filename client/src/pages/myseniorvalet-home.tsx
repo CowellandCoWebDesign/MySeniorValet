@@ -1146,23 +1146,27 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               </TabsTrigger>
             )}
             
-            <TabsTrigger
-              value="healthcare"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('healthcare')}
-            >
-              <span className="text-lg sm:text-xl">🩺</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Healthcare</span>
-            </TabsTrigger>
+            {isAuthenticated && (
+              <TabsTrigger
+                value="healthcare"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('healthcare')}
+              >
+                <span className="text-lg sm:text-xl">🩺</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Healthcare</span>
+              </TabsTrigger>
+            )}
             
-            <TabsTrigger
-              value="resources"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('resources')}
-            >
-              <span className="text-lg sm:text-xl">📚</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
-            </TabsTrigger>
+            {isAuthenticated && (
+              <TabsTrigger
+                value="resources"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('resources')}
+              >
+                <span className="text-lg sm:text-xl">📚</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
+              </TabsTrigger>
+            )}
             
             {isAuthenticated && (
               <TabsTrigger
