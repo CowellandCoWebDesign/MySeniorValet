@@ -123,7 +123,6 @@ app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    console.log('🚫 Cache disabled for:', req.path);
   }
   next();
 });
@@ -331,37 +330,7 @@ app.use((req, res, next) => {
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);
     
-    console.log('🚀 ALL ENTERPRISE INFRASTRUCTURE SYSTEMS ACTIVATED:');
-    console.log('  ✅ Redis Caching System - Lightning-fast performance');
-    console.log('  ✅ Security Dashboard & Monitoring - Real-time threat detection');
-    console.log('  ✅ Performance Monitor - System health tracking');
-    console.log('  ✅ Real-time Communication (WebSockets) - Family collaboration');
-    console.log('  ✅ Document Management System - Secure file handling');
-    console.log('  ✅ Advanced Authentication (Ready) - Multi-tier user system');
-    console.log('  ✅ Business Intelligence - Revenue & analytics dashboard');
-    console.log('  ✅ Advanced Analytics - User behavior & predictive modeling');
-    console.log('  ✅ Notification System - Multi-channel messaging');
-    console.log('  ✅ Integration Manager - 10 external service connections');
-    console.log('');
-    console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 27, 2025):');
-    console.log('  1️⃣ Perplexity (Primary - Web Search) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  2️⃣ Claude (Secondary - Analysis) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  3️⃣ ChatGPT (Tertiary - Backup) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  Note: Claude provides superior analysis capabilities as secondary AI');
-    console.log('');
-    console.log('📄 DOCUMENSO DOCUMENT SIGNING:');
-    console.log('  ' + (process.env.DOCUMENSO_API_KEY ? '✅ Self-hosted document signing ready' : '⚠️ Document signing not configured'));
-    console.log('');
-    console.log('💼 ENTERPRISE FEATURES NOW AVAILABLE:');
-    console.log('  • Premium business intelligence dashboards');
-    console.log('  • Advanced user behavior analytics');
-    console.log('  • Multi-channel notification system');
-    console.log('  • 10+ external service integrations (CRM, Marketing, Healthcare)');
-    console.log('  • Predictive analytics & revenue forecasting');
-    console.log('  • Professional document management');
-    console.log('  • Real-time performance monitoring');
-    console.log('');
-    console.log('🌟 MySeniorValet now has Fortune 500-level infrastructure!');
+    console.log('🚀 MySeniorValet server ready — all systems active');
   });
   
   } catch (error) {

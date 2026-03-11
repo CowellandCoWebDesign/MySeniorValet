@@ -334,7 +334,7 @@ export function securityLogger(req: Request, res: Response, next: NextFunction) 
   const sensitiveEndpoints = ['/api/auth', '/api/admin', '/api/user'];
   const isSensitive = sensitiveEndpoints.some(endpoint => req.path.startsWith(endpoint));
   
-  if (isSensitive) {
+  if (isSensitive && process.env.NODE_ENV !== 'production') {
     console.log('Security Log:', {
       timestamp: new Date().toISOString(),
       ip: req.ip,
@@ -342,7 +342,6 @@ export function securityLogger(req: Request, res: Response, next: NextFunction) 
       path: req.path,
       userAgent: req.get('User-Agent'),
       referer: req.get('Referer'),
-      // Don't log actual body content for privacy
       hasBody: !!req.body && Object.keys(req.body).length > 0
     });
   }
