@@ -29,8 +29,8 @@ const CARE_KEYWORDS: { key: string; label: string }[] = [
 ];
 
 export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }: SimplifiedMapPanelProps) {
-  const [mapCenter, setMapCenter] = useState<[number, number]>([37.7749, -122.4194]);
-  const [mapZoom, setMapZoom] = useState(10);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([40.52, -122.1]);
+  const [mapZoom, setMapZoom] = useState(9);
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("vertical");
