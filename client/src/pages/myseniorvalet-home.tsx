@@ -1080,7 +1080,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : ''} mt-16`}
+      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : 'pb-28 sm:pb-32'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
           minHeight: 'calc(70vh - 4rem)',
@@ -2326,7 +2326,7 @@ export default function MySeniorValetHome() {
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
           {/* Tab Content - Peeks up into hero bottom */}
-          <div className="relative -mt-[200px] sm:-mt-[220px] z-30">
+          <div className="relative -mt-[80px] sm:-mt-[100px] z-30">
             {/* Single unified content container */}
             <section className="px-4 pt-0 pb-8 rounded-t-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
