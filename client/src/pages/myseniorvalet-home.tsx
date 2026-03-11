@@ -2416,6 +2416,10 @@ export default function MySeniorValetHome() {
                 <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} />
               </div>
 
+              <div className="mb-8">
+                <CareSpectrumSlider />
+              </div>
+
               <NorthernCALocalSpotlight />
 
               <div className="mt-8">
