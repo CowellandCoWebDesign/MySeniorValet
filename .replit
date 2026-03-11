@@ -10,7 +10,6 @@ packages = ["at-spi2-atk", "at-spi2-core", "atk", "dbus", "geckodriver", "gitFul
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
 run = ["npm", "run", "start"]
-publicDir = "dist/public"
 
 [[ports]]
 localPort = 5000
