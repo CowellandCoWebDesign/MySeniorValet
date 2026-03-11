@@ -235,7 +235,7 @@ function CityCarouselSection({ config }: { config: CityConfig }) {
               size="lg"
               className={`bg-gradient-to-r ${config.buttonGradient} ${config.buttonHoverGradient} text-white px-6 py-3 text-sm font-semibold shadow-xl`}
             >
-              Explore All {config.city} Communities
+              Explore All {totalCount > 0 ? `${totalCount} ` : ""}{config.city} Communities
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
@@ -286,6 +286,36 @@ export function NorthernCACitySections() {
       {NORTHERN_CA_CITIES.map((config) => (
         <CityCarouselSection key={config.city} config={config} />
       ))}
+
+      {localData && (() => {
+        const majorCityNames = NORTHERN_CA_CITIES.map(c => c.city);
+        const smallCities = localData.cities.filter(
+          c => !majorCityNames.includes(c.city) && c.count > 0
+        );
+        if (smallCities.length === 0) return null;
+        const totalSmall = smallCities.reduce((sum, c) => sum + c.count, 0);
+        return (
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-gradient-to-br from-gray-50 to-slate-50 dark:from-gray-800 dark:to-slate-800 p-5">
+            <div className="text-center mb-4">
+              <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center justify-center gap-2">
+                <MapPin className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                More Northern CA Communities
+                <Badge className="bg-gray-600 text-white text-xs">{totalSmall} Total</Badge>
+              </h3>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3">
+              {smallCities.map((item) => (
+                <Link key={item.city} to={`/map-search?city=${encodeURIComponent(item.city)}&state=CA`}>
+                  <Button variant="outline" size="sm" className="gap-1.5">
+                    <span>{item.city}</span>
+                    <Badge variant="secondary" className="text-xs px-1.5">{item.count}</Badge>
+                  </Button>
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
