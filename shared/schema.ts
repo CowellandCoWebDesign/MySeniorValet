@@ -1644,10 +1644,11 @@ export const favorites = pgTable("favorites", {
 // User Searches/History Table  
 export const searchHistory = pgTable("search_history", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  searchQuery: json("search_query").$type<SearchCommunity>().notNull(),
-  resultCount: integer("result_count").notNull(),
-  searchName: text("search_name"), // User can save and name searches
+  userId: integer("user_id").references(() => users.id),
+  searchQuery: json("search_query").$type<SearchCommunity>(),
+  searchText: text("search_text"),
+  resultCount: integer("result_count").notNull().default(0),
+  searchName: text("search_name"),
   isBookmarked: boolean("is_bookmarked").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

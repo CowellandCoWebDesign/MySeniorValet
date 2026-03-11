@@ -1,6 +1,6 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities } from "@shared/schema";
+import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities, searchHistory, analyticsEvents } from "@shared/schema";
 import { generateCommunitySlug } from "../utils/generate-slug";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
 import { insertCommunitySchema } from "@shared/schema";
@@ -429,6 +429,20 @@ export function registerCommunityRoutes(app: Express) {
       );
 
       res.json(enrichedResults);
+
+      // Fire-and-forget: record search history when meaningful filters are used
+      const hasFilters = careTypes || state || city || rating || features || subtypes || priceMin || priceMax;
+      if (hasFilters) {
+        const userId = (req as any).user?.id || null;
+        const parts = [city, state, careTypes, subtypes].filter(Boolean);
+        const searchText = parts.join(', ') || 'filtered search';
+        db.insert(searchHistory).values({
+          userId,
+          searchText,
+          searchQuery: { state, city, careTypes, features, subtypes, priceMin, priceMax } as any,
+          resultCount: enrichedResults.length,
+        }).catch(() => {});
+      }
     } catch (error) {
       console.error("Error fetching communities:", error);
       res.status(500).json({ error: "Failed to fetch communities" });
@@ -548,6 +562,15 @@ export function registerCommunityRoutes(app: Express) {
         })
       );
       res.json(enrichedLocationCommunities);
+
+      // Fire-and-forget: record location search in search history
+      const locUserId = (req as any).user?.id || null;
+      db.insert(searchHistory).values({
+        userId: locUserId,
+        searchText: location,
+        searchQuery: { location } as any,
+        resultCount: enrichedLocationCommunities.length,
+      }).catch(() => {});
     } catch (error) {
       console.error("Error fetching communities by location:", error);
       res.status(500).json({ error: "Failed to fetch communities by location" });
@@ -1963,6 +1986,24 @@ Provide specific, factual information with current pricing and availability.`;
         realTimeData: realTimeData,
         comprehensiveData: cachedComprehensiveData  // Include cached comprehensive data
       });
+
+      // Fire-and-forget: record community detail view for conversion funnel
+      const viewUserId = (req as any).user?.id || null;
+      const sessionId = req.headers['x-session-id'] as string || null;
+      db.insert(analyticsEvents).values({
+        communityId,
+        userId: viewUserId,
+        sessionId: sessionId || `anon-${Date.now()}`,
+        eventType: 'page_view',
+        eventCategory: 'community',
+        eventAction: 'view_community',
+        eventLabel: community.name,
+        pageUrl: req.headers.referer || `/communities/${communityId}`,
+        pageTitle: community.name,
+        userAgent: req.headers['user-agent'] || '',
+        ipAddress: req.ip || '',
+        timestamp: new Date(),
+      } as any).catch(() => {});
     } catch (error) {
       console.error("Error fetching community:", error);
       res.status(500).json({ error: "Failed to fetch community" });
