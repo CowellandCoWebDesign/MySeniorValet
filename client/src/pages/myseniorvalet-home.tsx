@@ -3850,77 +3850,6 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Emergency Quick Access Section - Moved above mission for better flow */}
-      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-y-2 border-red-200 dark:border-red-800">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            {/* Left side - Emergency Information */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center animate-pulse">
-                  <Phone className="h-6 w-6 text-white" />
-                </div>
-                <div>
-                  <h2 className="text-2xl font-bold text-red-900 dark:text-red-100">
-                    One-Touch Emergency Access
-                  </h2>
-                  <p className="text-sm text-red-700 dark:text-red-300">
-                    Quick access to 911 and your personal emergency contacts
-                  </p>
-                </div>
-              </div>
-              <p className="text-gray-700 dark:text-gray-300 mb-4">
-                Our emergency contact system provides instant access to critical phone numbers when you need them most. 
-                Save your family contacts, medical providers, and facility numbers for one-touch dialing.
-              </p>
-            </div>
-            
-            {/* Right side - Quick Access Numbers */}
-            <div className="flex gap-4">
-              {/* 911 Button */}
-              <a 
-                href="tel:911"
-                className="flex flex-col items-center justify-center p-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <AlertCircle className="h-8 w-8 mb-2" />
-                <span className="text-2xl font-bold">911</span>
-                <span className="text-xs">Emergency</span>
-              </a>
-              
-              {/* Poison Control */}
-              <a 
-                href="tel:18002221222"
-                className="flex flex-col items-center justify-center p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <Pill className="h-8 w-8 mb-2" />
-                <span className="text-lg font-bold">Poison</span>
-                <span className="text-xs">1-800-222-1222</span>
-              </a>
-              
-              {/* Crisis Hotline */}
-              <a 
-                href="tel:988"
-                className="flex flex-col items-center justify-center p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
-              >
-                <Heart className="h-8 w-8 mb-2" />
-                <span className="text-2xl font-bold">988</span>
-                <span className="text-xs">Crisis Line</span>
-              </a>
-            </div>
-          </div>
-          
-          {/* Notice */}
-          <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
-            <div className="flex items-start gap-2">
-              <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
-              <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                <strong>Important:</strong> Look for the red emergency button in the bottom-right corner of your screen for instant access to all emergency contacts. 
-                Create an account to save your personal emergency contacts for quick dialing.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Mission Statement Section - Moved from top */}
       <section className="px-4 py-12 bg-gradient-to-r from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
@@ -4002,27 +3931,6 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Legal Notice Section - Repositioned to Bottom */}
-      <section className="px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="p-4 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
-            <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              IMPORTANT LEGAL NOTICE
-            </p>
-            <ul className="text-sm text-red-600 dark:text-red-400 space-y-2">
-              <li>• MySeniorValet is a FREE platform for families providing transparency in senior care</li>
-              <li>• We aggregate and display public information from verified sources with citations</li>
-              <li>• We facilitate connections between families and communities - NOT a placement agency</li>
-              <li>• All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools</li>
-              <li>• Communities and vendors pay for business services (listing management, tour management, etc.)</li>
-              <li>• We may receive affiliate commissions from marketplace partners (Amazon, 1-800-Flowers)</li>
-              <li>• We do NOT charge families any fees or commissions</li>
-              <li>• Always verify information independently and consult professionals before making care decisions</li>
-            </ul>
-          </div>
-        </div>
-      </section>
 
       {/* Enhanced Footer with Dashboard Login Buttons */}
       <Footer />

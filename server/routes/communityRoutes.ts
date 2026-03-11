@@ -1265,8 +1265,8 @@ export function registerCommunityRoutes(app: Express) {
   app.get("/api/communities/local-counts", async (req, res) => {
     try {
       const northernCACities = [
-        'Redding', 'Chico', 'Red Bluff', 'Anderson', 'Paradise',
-        'Mount Shasta', 'Yreka', 'Corning', 'Cottonwood', 'Weed',
+        'Redding', 'Sacramento', 'Chico', 'Red Bluff', 'Eureka', 'Anderson',
+        'Paradise', 'Mount Shasta', 'Yreka', 'Corning', 'Cottonwood', 'Weed',
         'Oroville', 'Shasta Lake'
       ];
       const results = await db

@@ -12,6 +12,9 @@ interface CityConfig {
   title: string;
   subtitle: string;
   badge: string;
+  lat: number;
+  lng: number;
+  zoom: number;
   gradient: string;
   radialOverlay: string;
   buttonGradient: string;
@@ -28,6 +31,9 @@ const NORTHERN_CA_CITIES: CityConfig[] = [
     title: "Redding Mountain Gateway",
     subtitle: "Senior living at the base of Mt. Shasta with stunning views and outdoor recreation",
     badge: "🏔️ Mountain Living",
+    lat: 40.5865,
+    lng: -122.3917,
+    zoom: 12,
     gradient: "bg-gradient-to-br from-emerald-900 via-green-800 to-teal-900 dark:from-emerald-950 dark:via-green-900 dark:to-teal-950",
     radialOverlay: `radial-gradient(circle at 20% 50%, rgba(16, 185, 129, 0.3) 0%, transparent 50%),
                     radial-gradient(circle at 80% 80%, rgba(20, 184, 166, 0.2) 0%, transparent 50%),
@@ -39,11 +45,33 @@ const NORTHERN_CA_CITIES: CityConfig[] = [
     skeletonCardBg: "from-emerald-800/50 to-teal-800/50",
   },
   {
+    city: "Sacramento",
+    emoji: "🏛️",
+    title: "Sacramento Capital Living",
+    subtitle: "California's capital city with world-class healthcare and vibrant culture",
+    badge: "🏛️ Capital City",
+    lat: 38.5816,
+    lng: -121.4944,
+    zoom: 11,
+    gradient: "bg-gradient-to-br from-yellow-900 via-amber-800 to-teal-900 dark:from-yellow-950 dark:via-amber-900 dark:to-teal-950",
+    radialOverlay: `radial-gradient(circle at 20% 50%, rgba(234, 179, 8, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(20, 184, 166, 0.2) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 20%, rgba(250, 204, 21, 0.2) 0%, transparent 40%)`,
+    buttonGradient: "from-yellow-600 to-teal-600",
+    buttonHoverGradient: "hover:from-yellow-700 hover:to-teal-700",
+    scrollbarColor: "scrollbar-thumb-yellow-500",
+    skeletonBg: "from-yellow-900/50 to-teal-900/50",
+    skeletonCardBg: "from-yellow-800/50 to-teal-800/50",
+  },
+  {
     city: "Chico",
     emoji: "🌳",
     title: "Chico University Town Living",
     subtitle: "Vibrant college-town charm with tree-lined streets and cultural amenities",
     badge: "🌳 College Town",
+    lat: 39.7285,
+    lng: -121.8375,
+    zoom: 12,
     gradient: "bg-gradient-to-br from-amber-900 via-yellow-800 to-orange-900 dark:from-amber-950 dark:via-yellow-900 dark:to-orange-950",
     radialOverlay: `radial-gradient(circle at 20% 50%, rgba(245, 158, 11, 0.3) 0%, transparent 50%),
                     radial-gradient(circle at 80% 80%, rgba(251, 146, 60, 0.2) 0%, transparent 50%),
@@ -60,6 +88,9 @@ const NORTHERN_CA_CITIES: CityConfig[] = [
     title: "Red Bluff Valley Heritage",
     subtitle: "Affordable small-town living in the heart of the Sacramento Valley",
     badge: "🌾 Valley Living",
+    lat: 40.1785,
+    lng: -122.2358,
+    zoom: 13,
     gradient: "bg-gradient-to-br from-rose-900 via-red-800 to-orange-900 dark:from-rose-950 dark:via-red-900 dark:to-orange-950",
     radialOverlay: `radial-gradient(circle at 20% 50%, rgba(244, 63, 94, 0.3) 0%, transparent 50%),
                     radial-gradient(circle at 80% 80%, rgba(239, 68, 68, 0.2) 0%, transparent 50%),
@@ -71,11 +102,33 @@ const NORTHERN_CA_CITIES: CityConfig[] = [
     skeletonCardBg: "from-rose-800/50 to-red-800/50",
   },
   {
+    city: "Eureka",
+    emoji: "🌊",
+    title: "Eureka Coastal Living",
+    subtitle: "Scenic Humboldt Bay coastline with cool ocean breezes and redwood forests",
+    badge: "🌊 Coastal Living",
+    lat: 40.8021,
+    lng: -124.1637,
+    zoom: 12,
+    gradient: "bg-gradient-to-br from-slate-800 via-blue-900 to-gray-800 dark:from-slate-900 dark:via-blue-950 dark:to-gray-900",
+    radialOverlay: `radial-gradient(circle at 20% 50%, rgba(148, 163, 184, 0.3) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
+                    radial-gradient(circle at 40% 20%, rgba(100, 116, 139, 0.25) 0%, transparent 40%)`,
+    buttonGradient: "from-slate-600 to-blue-600",
+    buttonHoverGradient: "hover:from-slate-700 hover:to-blue-700",
+    scrollbarColor: "scrollbar-thumb-slate-500",
+    skeletonBg: "from-slate-800/50 to-blue-900/50",
+    skeletonCardBg: "from-slate-700/50 to-blue-800/50",
+  },
+  {
     city: "Anderson",
     emoji: "🏡",
     title: "Anderson Quiet Countryside",
     subtitle: "Peaceful rural setting just minutes from Redding's amenities",
     badge: "🏡 Countryside",
+    lat: 40.4482,
+    lng: -122.2978,
+    zoom: 13,
     gradient: "bg-gradient-to-br from-sky-900 via-blue-800 to-indigo-900 dark:from-sky-950 dark:via-blue-900 dark:to-indigo-950",
     radialOverlay: `radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.3) 0%, transparent 50%),
                     radial-gradient(circle at 80% 80%, rgba(59, 130, 246, 0.2) 0%, transparent 50%),
@@ -87,6 +140,10 @@ const NORTHERN_CA_CITIES: CityConfig[] = [
     skeletonCardBg: "from-sky-800/50 to-blue-800/50",
   },
 ];
+
+function getMapSearchUrl(config: CityConfig) {
+  return `/map-search?city=${encodeURIComponent(config.city)}&state=CA&lat=${config.lat}&lng=${config.lng}&zoom=${config.zoom}`;
+}
 
 function CityCarouselSection({ config }: { config: CityConfig }) {
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -156,7 +213,7 @@ function CityCarouselSection({ config }: { config: CityConfig }) {
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 text-2xl md:text-3xl font-bold mb-2">
             <span className="text-3xl">{config.emoji}</span>
-            <span className="bg-gradient-to-r from-white/90 to-white/70 bg-clip-text text-transparent">
+            <span className="text-white drop-shadow-lg">
               {config.title}
             </span>
             {totalCount > 0 && (
@@ -230,7 +287,7 @@ function CityCarouselSection({ config }: { config: CityConfig }) {
         </div>
 
         <div className="text-center mt-4">
-          <Link to={`/map-search?city=${encodeURIComponent(config.city)}&state=CA`}>
+          <Link to={getMapSearchUrl(config)}>
             <Button
               size="lg"
               className={`bg-gradient-to-r ${config.buttonGradient} ${config.buttonHoverGradient} text-white px-6 py-3 text-sm font-semibold shadow-xl`}
@@ -305,7 +362,7 @@ export function NorthernCACitySections() {
             </div>
             <div className="flex flex-wrap justify-center gap-3">
               {smallCities.map((item) => (
-                <Link key={item.city} to={`/map-search?city=${encodeURIComponent(item.city)}&state=CA`}>
+                <Link key={item.city} to={`/map-search?query=${encodeURIComponent(item.city + ', CA')}`}>
                   <Button variant="outline" size="sm" className="gap-1.5">
                     <span>{item.city}</span>
                     <Badge variant="secondary" className="text-xs px-1.5">{item.count}</Badge>
