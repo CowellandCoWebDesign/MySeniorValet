@@ -36,6 +36,7 @@ import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 import { RedTagDeals } from "@/components/RedTagDeals";
+import { NorthernCACitySections } from "@/components/NorthernCACitySections";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
@@ -1625,84 +1626,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   );
 }
 
-function NorthernCALocalSpotlight() {
-  const { data: localData, isLoading } = useQuery<{ cities: { city: string; count: number }[]; total: number }>({
-    queryKey: ['/api/communities/local-counts'],
-    staleTime: 10 * 60 * 1000,
-  });
-
-  const cityIcons: Record<string, string> = {
-    'Redding': '🏔️', 'Chico': '🌳', 'Red Bluff': '🌾', 'Anderson': '🏡',
-    'Paradise': '🌲', 'Mount Shasta': '⛰️', 'Yreka': '🦌', 'Oroville': '💧',
-    'Corning': '🫒', 'Cottonwood': '🌿', 'Weed': '🌄', 'Shasta Lake': '🚣',
-  };
-
-  return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <MapPin className="w-6 h-6 text-blue-600" />
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Serving Northern California
-          </h2>
-        </div>
-        <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
-          {isLoading ? 'Loading local communities...' : localData ? (
-            `${localData.total}+ senior living communities across the greater Redding and Northern California region`
-          ) : 'Senior living communities in the greater Redding and Northern California region'}
-        </p>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {isLoading ? (
-          Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-24" />
-          ))
-        ) : (
-          localData?.cities?.map((item) => (
-            <button
-              key={item.city}
-              onClick={() => window.location.href = `/map-search?city=${encodeURIComponent(item.city)}&state=CA`}
-              className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 hover:scale-[1.03] cursor-pointer group"
-            >
-              <span className="text-2xl mb-1">{cityIcons[item.city] || '📍'}</span>
-              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 leading-tight text-center">
-                {item.city}
-              </span>
-              <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                {item.count} {item.count === 1 ? 'community' : 'communities'}
-              </span>
-            </button>
-          ))
-        )}
-      </div>
-
-      <div className="flex items-center justify-center gap-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-        <div className="flex items-center gap-2">
-          <Shield className="w-4 h-4 text-blue-600" />
-          <span className="text-xs font-medium text-blue-800 dark:text-blue-200">
-            {localData?.total ?? '—'} Local Communities
-          </span>
-        </div>
-        <div className="w-px h-4 bg-blue-300 dark:bg-blue-600" />
-        <div className="flex items-center gap-2">
-          <Building className="w-4 h-4 text-blue-600" />
-          <span className="text-xs font-medium text-blue-800 dark:text-blue-200">
-            {localData?.cities?.length ?? '—'} Cities Covered
-          </span>
-        </div>
-        <div className="w-px h-4 bg-blue-300 dark:bg-blue-600 hidden sm:block" />
-        <div className="items-center gap-2 hidden sm:flex">
-          <MapPin className="w-4 h-4 text-blue-600" />
-          <span className="text-xs font-medium text-blue-800 dark:text-blue-200">
-            Northern California
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
@@ -2420,7 +2343,7 @@ export default function MySeniorValetHome() {
                 <CareSpectrumSlider />
               </div>
 
-              <NorthernCALocalSpotlight />
+              <NorthernCACitySections />
 
               <div className="mt-8">
                 <RedTagDeals savingsOnly={true} />
