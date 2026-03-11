@@ -36,11 +36,8 @@ import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 import { RedTagDeals } from "@/components/RedTagDeals";
-import { GeographicCommunitiesSection } from "@/components/GeographicCommunitiesSection";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
-import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
-import { HUDCommunitiesSection } from "@/components/HUDCommunitiesSection";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
@@ -70,7 +67,6 @@ import RetroMedicalSign from '@assets/generated_images/Retro_medical_clinic_neon
 import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_neon_sign_dbb6f040.png';
 import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
 import RetroFamilyLivingRoom from '@assets/generated_images/80s_Memphis_design_living_room_86518012.png';
-import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
@@ -1629,6 +1625,84 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   );
 }
 
+function NorthernCALocalSpotlight() {
+  const { data: localData, isLoading } = useQuery<{ cities: { city: string; count: number }[]; total: number }>({
+    queryKey: ['/api/communities/local-counts'],
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const cityIcons: Record<string, string> = {
+    'Redding': '🏔️', 'Chico': '🌳', 'Red Bluff': '🌾', 'Anderson': '🏡',
+    'Paradise': '🌲', 'Mount Shasta': '⛰️', 'Yreka': '🦌', 'Oroville': '💧',
+    'Corning': '🫒', 'Cottonwood': '🌿', 'Weed': '🌄', 'Shasta Lake': '🚣',
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <MapPin className="w-6 h-6 text-blue-600" />
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">
+            Serving Northern California
+          </h2>
+        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-400 max-w-xl mx-auto">
+          {isLoading ? 'Loading local communities...' : localData ? (
+            `${localData.total}+ senior living communities across the greater Redding and Northern California region`
+          ) : 'Senior living communities in the greater Redding and Northern California region'}
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        {isLoading ? (
+          Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-24" />
+          ))
+        ) : (
+          localData?.cities?.map((item) => (
+            <button
+              key={item.city}
+              onClick={() => window.location.href = `/map-search?city=${encodeURIComponent(item.city)}&state=CA`}
+              className="flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg transition-all duration-200 hover:scale-[1.03] cursor-pointer group"
+            >
+              <span className="text-2xl mb-1">{cityIcons[item.city] || '📍'}</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 leading-tight text-center">
+                {item.city}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                {item.count} {item.count === 1 ? 'community' : 'communities'}
+              </span>
+            </button>
+          ))
+        )}
+      </div>
+
+      <div className="flex items-center justify-center gap-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+        <div className="flex items-center gap-2">
+          <Shield className="w-4 h-4 text-blue-600" />
+          <span className="text-xs font-medium text-blue-800 dark:text-blue-200">
+            {localData?.total ?? '—'} Local Communities
+          </span>
+        </div>
+        <div className="w-px h-4 bg-blue-300 dark:bg-blue-600" />
+        <div className="flex items-center gap-2">
+          <Building className="w-4 h-4 text-blue-600" />
+          <span className="text-xs font-medium text-blue-800 dark:text-blue-200">
+            {localData?.cities?.length ?? '—'} Cities Covered
+          </span>
+        </div>
+        <div className="w-px h-4 bg-blue-300 dark:bg-blue-600 hidden sm:block" />
+        <div className="items-center gap-2 hidden sm:flex">
+          <MapPin className="w-4 h-4 text-blue-600" />
+          <span className="text-xs font-medium text-blue-800 dark:text-blue-200">
+            Northern California
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
@@ -2342,270 +2416,40 @@ export default function MySeniorValetHome() {
                 <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} />
               </div>
 
-              {/* Community Directory Card - Moved Above Featured Excellence */}
-              <div className="mb-12">
-                <div className="grid grid-cols-1">
-                  {/* Community Directory */}
-                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group md:hover:scale-[1.02] cursor-pointer" onClick={(e) => {
-              // Only navigate if clicking on the card background, not buttons
-              const target = e.target as HTMLElement;
-              if (e.target === e.currentTarget || (!target.closest('button') && !target.closest('a'))) {
-                window.location.href = '/community-directory';
-              }
-            }}>
-                <CardContent className="relative z-10 pt-4">
+              <NorthernCALocalSpotlight />
 
-                  {/* Recently Discovered Communities Section */}
-                  <div className="mb-6">
-                    <RecentlyDiscoveredCommunities />
-                  </div>
-
-                  {/* HUD Communities & Government Verified Section */}
-                  <div className="mb-6">
-                    <HUDCommunitiesSection />
-                  </div>
-
-                  {/* Featured Communities & Savings Tips */}
-                  <div className="mb-6">
-                    <RedTagDeals hideHeader={true} />
-                  </div>
-
-                  {/* Geographic Communities Section - Hawaii, Fort Worth, NYC, Canadian, Puerto Rico, Peru, Cuba, Costa Rica, Panama */}
-                  <div className="mb-6">
-                    <GeographicCommunitiesSection />
-                  </div>
-
-                  {/* 3D Care Spectrum Mini Carousel */}
-                  <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
-                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 20+ COMPREHENSIVE HOUSING OPTIONS</p>
-                    <div className="relative">
-                      {/* Scroll indicator - left */}
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-blue-100 to-transparent dark:from-blue-900/20 w-8 h-full pointer-events-none" />
-                      {/* Scroll indicator - right */}
-                      <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-l from-indigo-100 to-transparent dark:from-indigo-900/20 w-8 h-full pointer-events-none" />
-                      
-                      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
-                        {careTypes.map((careType, index) => {
-                          const Icon = careType.icon;
-                          return (
-                            <div
-                              key={careType.id}
-                              data-testid={`care-type-${careType.id}`}
-                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
-                              onClick={(e) => {
-                                // Stop event from bubbling to parent card
-                                e.stopPropagation();
-                                // Navigate to appropriate page based on care type
-                                if (careType.id === 'memory') {
-                                  window.location.href = '/care-types/memory-care';
-                                } else if (careType.id === 'assisted') {
-                                  window.location.href = '/care-types/assisted-living';
-                                } else if (careType.id === 'independent') {
-                                  window.location.href = '/care-types/independent-living';
-                                } else {
-                                  // For other care types, navigate to map search with filter
-                                  window.location.href = `/map-search?careType=${encodeURIComponent(careType.name)}`;
-                                }
-                              }}
-                            >
-                              <div className="flex flex-col items-center">
-                                <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-1" />
-                                <p className="text-[10px] sm:text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
-                                <p className="text-[8px] sm:text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center mt-2 italic">
-                      ← Swipe to explore all housing options →
-                    </p>
-                  </div>
-
-                  {/* Traditional Browse and Side-by-Side Buttons */}
-                  <div className="grid grid-cols-2 gap-2 mb-4">
-                    {/* Traditional Browse */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/map-search';
-                      }}
-                      className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xl mb-1">🔍</span>
-                        <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
-                        <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
-                      </div>
-                    </Button>
-
-                    {/* Side-by-Side Search */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/ai-search-intelligence?mode=simplified';
-                      }}
-                      className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xl mb-1">⚖️</span>
-                        <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
-                        <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
-                      </div>
-                    </Button>
-                  </div>
-
-                  <Button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.location.href = '/community-directory';
-                    }}
-                    className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
-                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                    <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                    <span className="font-semibold">Launch AI-Enhanced Directory</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-                </div>
+              <div className="mt-8">
+                <RedTagDeals savingsOnly={true} />
               </div>
-              
-              {/* Community Portal & Dashboard Section */}
-              <section className="py-12 px-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
-                <div className="max-w-4xl mx-auto">
-                  <Link to="/community-portal">
-                    <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-[1.02]">
-                      {/* Full-size Retro Real Estate Sign Image at top of card */}
-                      <div className="relative h-64 w-full">
-                        <img 
-                          src={RetroGrandHotelMarquee} 
-                          alt="Retro grand hotel marquee sign" 
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                        {/* Overlay elements on the image */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                        <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
-                          <span className="text-3xl">🏢</span>
-                        </div>
-                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
-                          COMMUNITIES
-                        </Badge>
-                      </div>
-                      <CardHeader className="relative z-10">
-                        <CardTitle className="text-2xl mb-2">Community Portal & Dashboard</CardTitle>
-                        <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                          Your Complete Community Management Experience
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="relative z-10">
-                        <p className="text-gray-600 dark:text-gray-400 mb-6">
-                          {isLoading ? (
-                            <span className="animate-pulse">Loading community count...</span>
-                          ) : (
-                            `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
-                          )} - Reach qualified families actively searching for senior care.
-                        </p>
-                        
-                        {/* Flex container for side-by-side layout - stacks on mobile */}
-                        <div className="flex flex-col md:flex-row gap-4 mb-6">
-                          {/* Left side - Pricing and Checkmarks */}
-                          <div className="space-y-2 md:flex-shrink-0 md:min-w-fit">
-                            <div className="flex items-center gap-2 mb-3">
-                              <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
-                              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $399+/mo</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">TourMate™ Scheduler</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">AI Lease Generation</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Resident Management</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Reservations</span>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                              <span className="text-sm text-gray-700 dark:text-gray-300">Insurance Tracking</span>
-                            </div>
-                          </div>
-                          
-                          {/* Right side - Pricing Tiers Preview */}
-                          <div className="flex-1 md:ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
-                            <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                              <span>💰</span> 5 Tier Options
-                            </p>
-                            <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
-                              <div className="p-2 bg-gradient-to-r from-gray-50/70 to-green-50/70 dark:from-gray-900/20 dark:to-green-900/20 rounded border-2 border-green-400 dark:border-green-600">
-                                <div className="flex justify-between items-center">
-                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">✅ Free</p>
-                                  <p className="text-xs font-bold text-green-600 dark:text-green-400">$0/mo</p>
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic unverified listing, AI photos (10), contact info, TourTracker™ access</p>
-                              </div>
-                              <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
-                                <div className="flex justify-between items-center">
-                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🚀 Starter</p>
-                                  <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$149/mo</p>
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Verified badge, payment processing, reservations, 20 photos, email support</p>
-                              </div>
-                              <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded border border-green-300 dark:border-green-700">
-                                <div className="flex justify-between items-center">
-                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">📈 Growth</p>
-                                  <p className="text-xs font-bold text-green-600 dark:text-green-400">$249/mo</p>
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tour scheduling, messaging, 2 AI docs/mo (+$45 ea), analytics, priority support</p>
-                              </div>
-                              <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border-2 border-purple-400 dark:border-purple-600">
-                                <div className="flex justify-between items-center">
-                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">💼 Premium ⭐</p>
-                                  <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$399/mo</p>
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Advanced analytics, 4 AI docs/mo (+$45 ea), custom branding, multi-property</p>
-                              </div>
-                              <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
-                                <div className="flex justify-between items-center">
-                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🏢 Enterprise</p>
-                                  <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Coming Soon</p>
-                                </div>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Custom toolset, API access, dedicated support, unlimited AI docs</p>
-                              </div>
-                              <div className="mt-3 p-2 bg-gradient-to-r from-yellow-500/20 to-orange-600/20 dark:from-yellow-500/10 dark:to-orange-600/10 rounded border border-yellow-300 dark:border-yellow-700">
-                                <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-300 text-center">💡 SAVE 20% WITH ANNUAL BILLING</p>
-                                <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center mt-1">All plans include annual discount!</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
 
-                        <div className="space-y-2">
-                          <Button 
-                            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              window.location.href = '/community-claim';
-                            }}
-                          >
-                            <Gift className="mr-2 h-4 w-4" />
-                            <span className="font-semibold">Claim Your Free Listing</span>
-                          </Button>
-                          <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                            <span className="font-semibold">Access Portal & Dashboard</span>
-                            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </div>
-              </section>
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                <Button 
+                  onClick={() => window.location.href = '/map-search'}
+                  className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-3 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+                  <div className="flex flex-col items-center">
+                    <span className="text-xl mb-1">🔍</span>
+                    <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                    <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+                  </div>
+                </Button>
+                <Button 
+                  onClick={() => window.location.href = '/ai-search-intelligence?mode=simplified'}
+                  className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                  <div className="flex flex-col items-center">
+                    <span className="text-xl mb-1">⚖️</span>
+                    <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
+                    <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
+                  </div>
+                </Button>
+              </div>
+
+              <Button 
+                onClick={() => window.location.href = '/community-directory'}
+                className="w-full mt-4 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 shadow-lg transition-all relative overflow-hidden">
+                <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                <span className="font-semibold">Explore Full National Directory</span>
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
             </TabsContent>
 
       {/* Services Tab */}

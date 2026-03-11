@@ -25,16 +25,18 @@ interface RedTagDeal {
 interface RedTagDealsProps {
   communityCount?: string;
   hideHeader?: boolean;
+  savingsOnly?: boolean;
 }
 
-export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsProps) {
+export function RedTagDeals({ communityCount, hideHeader = false, savingsOnly = false }: RedTagDealsProps) {
   const [fallbackDeals, setFallbackDeals] = useState<RedTagDeal[]>([]);
   
-  // Fetch featured communities from API
+  // Fetch featured communities from API (skip when only showing savings tips)
   const { data: featuredCommunities, isLoading, error } = useQuery({
     queryKey: ['/api/featured-communities'],
     retry: 1,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
+    enabled: !savingsOnly,
   });
   
   // Set up fallback deals on mount
@@ -161,7 +163,62 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
     return <CheckCircle className="w-2.5 h-2.5 text-green-600" />;
   };
 
-  // Show loading skeleton while fetching
+  if (savingsOnly) {
+    return (
+      <Card>
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950">
+          <CardTitle className="flex items-center gap-2">
+            <TrendingDown className="w-6 h-6 text-blue-600" />
+            How to Maximize Your Savings
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-6">
+          <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-700 rounded-lg">
+            <p className="text-xs text-amber-800 dark:text-amber-200">
+              <strong>Authentic Tips:</strong> The savings strategies below are based on real industry data and proven negotiation techniques used by senior living experts.
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-3">
+              <h4 className="font-semibold">Best Times to Move</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <Percent className="w-4 h-4 text-green-600 mt-0.5" />
+                  <span><strong>Off-season moves (Nov-Feb):</strong> Up to 25% savings</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Calendar className="w-4 h-4 text-blue-600 mt-0.5" />
+                  <span><strong>End of month specials:</strong> Many communities offer deals</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <Tag className="w-4 h-4 text-purple-600 mt-0.5" />
+                  <span><strong>Holiday promotions:</strong> Special rates during holidays</span>
+                </li>
+              </ul>
+            </div>
+            <div className="space-y-3">
+              <h4 className="font-semibold">Negotiation Tips</h4>
+              <ul className="space-y-2 text-sm">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                  <span>Ask about unpublished specials and discounts</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                  <span>Compare multiple communities for leverage</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
+                  <span>Inquire about waived fees and deposits</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="space-y-4">
@@ -184,7 +241,7 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
       </div>
     );
   }
-  
+
   return (
     <div className="space-y-4">
       {/* Section Title - Always visible */}

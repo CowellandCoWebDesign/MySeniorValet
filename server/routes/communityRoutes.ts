@@ -1262,6 +1262,39 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  app.get("/api/communities/local-counts", async (req, res) => {
+    try {
+      const northernCACities = [
+        'Redding', 'Chico', 'Red Bluff', 'Anderson', 'Paradise',
+        'Mount Shasta', 'Yreka', 'Corning', 'Cottonwood', 'Weed',
+        'Oroville', 'Shasta Lake'
+      ];
+      const results = await db
+        .select({
+          city: communities.city,
+          count: sql<number>`COUNT(*)::int`
+        })
+        .from(communities)
+        .where(
+          sql`${communities.state} = 'CA' AND ${communities.city} IN (${sql.join(northernCACities.map(c => sql`${c}`), sql`, `)})`
+        )
+        .groupBy(communities.city)
+        .orderBy(sql`COUNT(*) DESC`);
+
+      const resultMap = new Map(results.map(r => [r.city, r.count]));
+      const allCities = northernCACities.map(city => ({
+        city,
+        count: resultMap.get(city) || 0
+      })).sort((a, b) => b.count - a.count);
+
+      const total = allCities.reduce((sum, r) => sum + r.count, 0);
+      res.json({ cities: allCities, total });
+    } catch (error) {
+      console.error("Error fetching local counts:", error);
+      res.status(500).json({ error: "Failed to fetch local counts" });
+    }
+  });
+
   // Get community statistics - COMPREHENSIVE REAL DATA
   app.get("/api/communities/stats", async (req, res) => {
     try {
