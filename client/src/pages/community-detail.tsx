@@ -2492,11 +2492,11 @@ export default function CommunityDetail() {
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">📋</span>
-                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Contact/Tour</span>
-                    <span className="text-xs sm:text-sm font-bold sm:hidden">Contact</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Info & Tours</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Info & Tours</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
-                    Contact & Tours
+                    Info and Tours
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
@@ -2705,60 +2705,6 @@ export default function CommunityDetail() {
                           </p>
                         </div>
                       </div>
-
-                      {/* Move-In Coordination Section */}
-                      <Card className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center mb-2">
-                                <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" />
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                  Moving Soon? We'll Help Coordinate Everything
-                                </h3>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                Our Move-In Coordination Center helps you manage every aspect of the transition - from hiring movers to setting up healthcare providers and utilities.
-                              </p>
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                <Badge variant="outline" className="text-xs">
-                                  <Package className="w-3 h-3 mr-1" />
-                                  Moving Services
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <Stethoscope className="w-3 h-3 mr-1" />
-                                  Healthcare Setup
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <Home className="w-3 h-3 mr-1" />
-                                  Utilities Transfer
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  Checklist Tracking
-                                </Badge>
-                              </div>
-                              <Button 
-                                variant="default"
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                onClick={() => {
-                                  // Save community info to localStorage for Move-In Coordination
-                                  localStorage.setItem('moveInCommunity', JSON.stringify({
-                                    id: community.id,
-                                    name: community.name,
-                                    address: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
-                                    phone: community.phone
-                                  }));
-                                  window.location.href = '/move-in-coordination';
-                                }}
-                              >
-                                <Truck className="w-4 h-4 mr-2" />
-                                Start Move-In Planning
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
 
                       {/* Waitlist Dialog */}
                       <Dialog open={isWaitlistOpen} onOpenChange={setIsWaitlistOpen}>
@@ -3054,6 +3000,59 @@ export default function CommunityDetail() {
                         </div>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+
+                {/* Move-In Coordination Section */}
+                <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            Moving Soon? We'll Help Coordinate Everything
+                          </h3>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                          Our Move-In Coordination Center helps you manage every aspect of the transition - from hiring movers to setting up healthcare providers and utilities.
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          <Badge variant="outline" className="text-xs">
+                            <Package className="w-3 h-3 mr-1" />
+                            Moving Services
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            <Stethoscope className="w-3 h-3 mr-1" />
+                            Healthcare Setup
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            <Home className="w-3 h-3 mr-1" />
+                            Utilities Transfer
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Checklist Tracking
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="default"
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={() => {
+                            localStorage.setItem('moveInCommunity', JSON.stringify({
+                              id: community.id,
+                              name: community.name,
+                              address: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
+                              phone: community.phone
+                            }));
+                            window.location.href = '/move-in-coordination';
+                          }}
+                        >
+                          <Truck className="w-4 h-4 mr-2" />
+                          Start Move-In Planning
+                        </Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
