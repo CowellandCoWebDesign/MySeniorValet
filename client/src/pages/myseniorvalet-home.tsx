@@ -2336,10 +2336,6 @@ export default function MySeniorValetHome() {
                 <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} />
               </div>
 
-              <div className="mb-8">
-                <CareSpectrumSlider />
-              </div>
-
               <NorthernCACitySections />
 
               <div className="mt-8">
@@ -2374,6 +2370,10 @@ export default function MySeniorValetHome() {
                 <span className="font-semibold">Explore Full National Directory</span>
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
+
+              <div className="mt-8">
+                <CareSpectrumSlider />
+              </div>
             </TabsContent>
 
       {/* Services Tab */}
