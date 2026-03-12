@@ -341,7 +341,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
-            <div className="absolute bottom-2 left-2 z-[500] pointer-events-none">
+            <div className="absolute bottom-2 left-2 right-2 z-[500] pointer-events-none">
               <div className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-800 dark:text-gray-200">
                 <MapPin className="w-3.5 h-3.5 text-blue-600" />
                 {isLoading ? "Loading…" : `${communityCount} communities in view`}
@@ -363,7 +363,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
-            <div className="absolute bottom-2 left-2 z-[500] pointer-events-none">
+            <div className="absolute bottom-2 left-2 right-2 z-[500] pointer-events-none">
               <div className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-800 dark:text-gray-200">
                 <MapPin className="w-3.5 h-3.5 text-blue-600" />
                 {isLoading ? "Loading…" : `${communityCount} communities in view`}
