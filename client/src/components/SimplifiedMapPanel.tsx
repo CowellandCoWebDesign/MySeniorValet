@@ -129,7 +129,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
   const communityCount = filteredCommunities.length;
 
   const CountBar = () => (
-    <div className="px-3 py-2 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-between gap-2">
+    <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-between gap-2">
       <div className="flex items-center gap-1.5">
         <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
         <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
