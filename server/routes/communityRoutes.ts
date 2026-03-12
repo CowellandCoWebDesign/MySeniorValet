@@ -1540,29 +1540,22 @@ export function registerCommunityRoutes(app: Express) {
     const { state, city, slug } = req.params;
     
     try {
-      // Convert URL params back to searchable format
       const stateUpper = state.toUpperCase();
-      const cityName = city.split('-').map(w => 
-        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-      ).join(' ');
+      const cityNormalized = city.replace(/-/g, ' ').toLowerCase();
+      const nameNormalized = slug.replace(/-/g, ' ').toLowerCase();
       
-      // Find community by location and name (since we don't have slug column yet)
-      // Try exact match first
       let [community] = await db
         .select()
         .from(communities)
         .where(
           and(
             eq(communities.state, stateUpper),
-            eq(communities.city, cityName),
-            eq(communities.name, slug.split('-').map((w: string) => 
-              w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-            ).join(' '))
+            sql`lower(regexp_replace(${communities.city}, '[^a-zA-Z0-9 ]', '', 'g')) = ${cityNormalized}`,
+            sql`lower(regexp_replace(${communities.name}, '[^a-zA-Z0-9 ]', '', 'g')) = ${nameNormalized}`
           )
         )
         .limit(1);
       
-      // If no exact match, try to find by partial match
       if (!community) {
         const results = await db
           .select()
@@ -1570,15 +1563,14 @@ export function registerCommunityRoutes(app: Express) {
           .where(
             and(
               eq(communities.state, stateUpper),
-              eq(communities.city, cityName)
+              sql`lower(regexp_replace(${communities.city}, '[^a-zA-Z0-9 ]', '', 'g')) = ${cityNormalized}`
             )
           );
         
-        // Find best match based on slug similarity
         community = results.find(c => {
           const communitySlug = generateCommunitySlug(c);
           return communitySlug === slug;
-        }) || results[0]; // Fallback to first result if no perfect match
+        }) || results[0];
       }
 
       if (!community) {
