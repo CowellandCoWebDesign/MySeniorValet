@@ -270,18 +270,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-            {isLoading
-              ? "Loading communities…"
-              : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
-          </span>
-        </div>
-
-        {/* Layout toggle */}
+      <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700 flex items-center justify-end">
         <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           <button
             onClick={() => setLayoutMode("vertical")}
@@ -330,7 +319,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
 
       {layoutMode === "vertical" ? (
         <div>
-          <div className="relative border-b border-gray-200 dark:border-gray-700">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <Map
               center={mapCenter}
               zoom={mapZoom}
@@ -341,33 +330,39 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
-            <div className="absolute bottom-2 left-2 right-2 z-[500] pointer-events-none">
-              <div className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-800 dark:text-gray-200">
-                <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                {isLoading ? "Loading…" : `${communityCount} communities in view`}
-              </div>
-            </div>
+          </div>
+          <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50">
+            <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {isLoading
+                ? "Loading communities…"
+                : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
+            </span>
           </div>
           <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="relative md:border-r border-gray-200 dark:border-gray-700">
-            <Map
-              center={mapCenter}
-              zoom={mapZoom}
-              height="520px"
-              onBoundsChange={handleBoundsChange}
-              onCommunityClick={(community: any) => {
-                const el = document.getElementById(`smp-community-${community.id}`);
-                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-              }}
-            />
-            <div className="absolute bottom-2 left-2 right-2 z-[500] pointer-events-none">
-              <div className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-800 dark:text-gray-200">
-                <MapPin className="w-3.5 h-3.5 text-blue-600" />
-                {isLoading ? "Loading…" : `${communityCount} communities in view`}
-              </div>
+          <div className="md:border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <div className="border-b border-gray-200 dark:border-gray-700 flex-1">
+              <Map
+                center={mapCenter}
+                zoom={mapZoom}
+                height="480px"
+                onBoundsChange={handleBoundsChange}
+                onCommunityClick={(community: any) => {
+                  const el = document.getElementById(`smp-community-${community.id}`);
+                  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                }}
+              />
+            </div>
+            <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50">
+              <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {isLoading
+                  ? "Loading communities…"
+                  : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
+              </span>
             </div>
           </div>
           <CommunityList communities={filteredCommunities} maxHeight="520px" />
