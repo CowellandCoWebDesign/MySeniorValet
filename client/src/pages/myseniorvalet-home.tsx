@@ -1188,7 +1188,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
 
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 z-30 transform translate-y-1/2 px-2 sm:px-4">
+        <div className="absolute bottom-0 left-0 right-0 z-50 transform translate-y-1/2 px-2 sm:px-4">
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50" style={{ isolation: 'isolate' }}>
           <AnimatePresence mode="wait">
             {searchMode === 'ai' ? (

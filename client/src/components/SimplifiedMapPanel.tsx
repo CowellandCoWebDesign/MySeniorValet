@@ -296,7 +296,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
             <Map
               center={mapCenter}
               zoom={mapZoom}
-              height="360px"
+              height="180px"
               onBoundsChange={handleBoundsChange}
               onCommunityClick={(community: any) => {
                 const el = document.getElementById(`smp-community-${community.id}`);
@@ -347,7 +347,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
               <Map
                 center={mapCenter}
                 zoom={mapZoom}
-                height="480px"
+                height="240px"
                 onBoundsChange={handleBoundsChange}
                 onCommunityClick={(community: any) => {
                   const el = document.getElementById(`smp-community-${community.id}`);
