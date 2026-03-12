@@ -331,7 +331,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
               }}
             />
           </div>
-          <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50">
+          <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50">
             <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               {isLoading
@@ -356,7 +356,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 }}
               />
             </div>
-            <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-800 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50">
+            <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center gap-2 bg-gray-50 dark:bg-gray-800/50">
               <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {isLoading
