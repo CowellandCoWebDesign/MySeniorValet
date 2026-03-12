@@ -1541,8 +1541,8 @@ export function registerCommunityRoutes(app: Express) {
     
     try {
       const stateUpper = state.toUpperCase();
-      const cityNormalized = city.replace(/-/g, ' ').toLowerCase();
-      const nameNormalized = slug.replace(/-/g, ' ').toLowerCase();
+      const cityNormalized = city.replace(/-/g, ' ').replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
+      const nameNormalized = slug.replace(/-/g, ' ').replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
       
       let [community] = await db
         .select()
