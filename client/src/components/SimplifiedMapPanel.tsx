@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Map from "@/components/Map";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
-import { AutocompleteSearch } from "@/components/AutocompleteSearch";
+import { Button } from "@/components/ui/button";
 import { Rows3, Columns2, MapPin, Sparkles } from "lucide-react";
 
 interface SimplifiedMapPanelProps {
@@ -36,11 +36,11 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
   const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("vertical");
   const [selectedCareType, setSelectedCareType] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
-  const [mapSearchQuery, setMapSearchQuery] = useState("");
 
-  const flyToLocation = (val: string) => {
-    const trimmed = val.trim();
-    if (trimmed.length < 2) return;
+  // Geocode locationQuery whenever it changes and fly the map there
+  useEffect(() => {
+    if (!locationQuery || locationQuery.trim().length < 2) return;
+    const trimmed = locationQuery.trim();
     fetch(`/api/geocode?location=${encodeURIComponent(trimmed)}`)
       .then(r => r.json())
       .then(geo => {
@@ -50,12 +50,6 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
         }
       })
       .catch(() => {});
-  };
-
-  // Geocode locationQuery whenever it changes and fly the map there
-  useEffect(() => {
-    if (!locationQuery || locationQuery.trim().length < 2) return;
-    flyToLocation(locationQuery);
   }, [locationQuery]);
 
   // Fetch communities for current map bounds
@@ -127,35 +121,6 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
   }, [mapCommunities, selectedCareType, detectedCareType]);
 
   const communityCount = filteredCommunities.length;
-
-  const CountBar = () => (
-    <div className="px-3 py-2 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex items-center justify-between gap-2">
-      <div className="flex items-center gap-1.5">
-        <MapPin className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-        <span className="text-xs font-medium text-gray-700 dark:text-gray-300">
-          {isLoading
-            ? "Loading communities…"
-            : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
-        </span>
-      </div>
-      <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 flex-shrink-0">
-        <button
-          onClick={() => setLayoutMode("vertical")}
-          className={`p-1 rounded-md transition-colors ${layoutMode === "vertical" ? "bg-white dark:bg-gray-700 text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}
-          title="Stacked layout"
-        >
-          <Rows3 className="w-3.5 h-3.5" />
-        </button>
-        <button
-          onClick={() => setLayoutMode("horizontal")}
-          className={`p-1 rounded-md transition-colors ${layoutMode === "horizontal" ? "bg-white dark:bg-gray-700 text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"}`}
-          title="Side-by-side layout"
-        >
-          <Columns2 className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
-  );
 
   const CommunityList = ({ communities, maxHeight, horizontal = false }: { communities: any[]; maxHeight: string; horizontal?: boolean }) => {
     if (horizontal) {
@@ -305,17 +270,42 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
-      {/* AutocompleteSearch — same component as hero */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-        <AutocompleteSearch
-          value={mapSearchQuery}
-          onChange={setMapSearchQuery}
-          onSubmit={(val) => {
-            setMapSearchQuery(val);
-            flyToLocation(val);
-          }}
-          placeholder="Search a city, zip code, or address…"
-        />
+      {/* Header */}
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+          <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
+            {isLoading
+              ? "Loading communities…"
+              : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
+          </span>
+        </div>
+
+        {/* Layout toggle */}
+        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+          <button
+            onClick={() => setLayoutMode("vertical")}
+            className={`p-1.5 rounded-md transition-colors ${
+              layoutMode === "vertical"
+                ? "bg-white dark:bg-gray-700 text-blue-600 shadow-sm"
+                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+            title="Stacked layout"
+          >
+            <Rows3 className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setLayoutMode("horizontal")}
+            className={`p-1.5 rounded-md transition-colors ${
+              layoutMode === "horizontal"
+                ? "bg-white dark:bg-gray-700 text-blue-600 shadow-sm"
+                : "text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+            title="Side-by-side layout"
+          >
+            <Columns2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Care type filter pills */}
@@ -339,36 +329,38 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
       </div>
 
       {layoutMode === "vertical" ? (
+        /* Vertical: map on top, list below */
         <div>
-          <Map
-            center={mapCenter}
-            zoom={mapZoom}
-            height="288px"
-            onBoundsChange={handleBoundsChange}
-            onCommunityClick={(community: any) => {
-              const el = document.getElementById(`smp-community-${community.id}`);
-              if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-            }}
-          />
-          <CountBar />
-          <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="md:border-r border-gray-200 dark:border-gray-700 flex flex-col">
+          <div className="border-b border-gray-200 dark:border-gray-700">
             <Map
               center={mapCenter}
               zoom={mapZoom}
-              height="416px"
+              height="360px"
               onBoundsChange={handleBoundsChange}
               onCommunityClick={(community: any) => {
                 const el = document.getElementById(`smp-community-${community.id}`);
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
-            <CountBar />
           </div>
-          <CommunityList communities={filteredCommunities} maxHeight="416px" />
+          <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
+        </div>
+      ) : (
+        /* Horizontal: map left, list right */
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="md:border-r border-gray-200 dark:border-gray-700">
+            <Map
+              center={mapCenter}
+              zoom={mapZoom}
+              height="520px"
+              onBoundsChange={handleBoundsChange}
+              onCommunityClick={(community: any) => {
+                const el = document.getElementById(`smp-community-${community.id}`);
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+            />
+          </div>
+          <CommunityList communities={filteredCommunities} maxHeight="520px" />
         </div>
       )}
     </div>

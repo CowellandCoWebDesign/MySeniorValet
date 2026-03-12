@@ -1077,7 +1077,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : 'pb-4'} mt-16`}
+      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : 'pb-28 sm:pb-32'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
           minHeight: 'calc(70vh - 4rem)',
@@ -1178,7 +1178,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </TabsList>
         </div>}
         
-        <div className="flex-1 flex items-center justify-center w-full px-4 sm:px-8 md:px-16 text-center">
+        <div className="w-full px-4 sm:px-8 md:px-16 pt-4 sm:pt-6 md:pt-8 text-center">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.4)' }}
           >
@@ -1186,8 +1186,8 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </h1>
         </div>
 
-        {/* Search bar - pushed to bottom of hero */}
-        <div className="w-full px-2 sm:px-4 pb-4">
+        {/* Search bar - directly below headline */}
+        <div className="w-full px-2 sm:px-4 pt-4 pb-4">
         {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50" style={{ isolation: 'isolate' }}>
           <AnimatePresence mode="wait">
@@ -2322,8 +2322,8 @@ export default function MySeniorValetHome() {
         <div className="relative z-20">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
-          {/* Tab Content - Slightly overlaps hero bottom for rounded top effect */}
-          <div className="relative -mt-[16px] sm:-mt-[20px] z-30">
+          {/* Tab Content - Peeks up into hero bottom */}
+          <div className="relative -mt-[80px] sm:-mt-[100px] z-30">
             {/* Single unified content container */}
             <section className="px-4 pt-0 pb-8 rounded-t-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
@@ -2339,11 +2339,11 @@ export default function MySeniorValetHome() {
                 <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} />
               </div>
 
-              <NorthernCACitySections />
-
-              <div className="mt-8">
+              <div className="mb-8">
                 <CareSpectrumSlider />
               </div>
+
+              <NorthernCACitySections />
 
               <div className="mt-8">
                 <RedTagDeals savingsOnly={true} />
