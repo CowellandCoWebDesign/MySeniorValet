@@ -1077,11 +1077,12 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : 'pb-28 sm:pb-32'} mt-16`}
+      <section className={`relative mt-16 overflow-visible`}
         style={{
           background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
           minHeight: 'calc(70vh - 4rem)',
-          height: isSearchActive ? 'auto' : 'calc(70vh - 4rem)'
+          height: isSearchActive ? 'auto' : 'calc(70vh - 4rem)',
+          paddingBottom: isSearchActive ? '0.5rem' : '2rem',
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
@@ -1120,7 +1121,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         <div className="relative z-10 flex flex-col h-full">
         
-        {/* Category Tabs at Top - Only shown when logged in */}
         {isAuthenticated && <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
@@ -1178,17 +1178,17 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </TabsList>
         </div>}
         
-        <div className="w-full px-4 sm:px-8 md:px-16 pt-4 sm:pt-6 md:pt-8 text-center">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-8 md:px-16">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight text-center"
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.4)' }}
           >
             From affordable options to luxury resorts — Find Senior Living that's right for you!
           </h1>
         </div>
 
-        {/* Search bar - directly below headline */}
-        <div className="w-full px-2 sm:px-4 pt-4 pb-4">
-        {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
+        </div>
+
+        <div className="absolute bottom-0 left-0 right-0 z-30 transform translate-y-1/2 px-2 sm:px-4">
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50" style={{ isolation: 'isolate' }}>
           <AnimatePresence mode="wait">
             {searchMode === 'ai' ? (
@@ -1211,11 +1211,9 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4"
+                className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 shadow-2xl"
               >
-                {/* Classic Search Bar */}
                 <div className="flex flex-col gap-2">
-                  {/* Search Input with Autocomplete */}
                   <AutocompleteSearch
                     value={classicSearchValue}
                     onChange={setClassicSearchValue}
@@ -1227,16 +1225,15 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                     isLoading={isLoading}
                     forceClearSuggestions={forceClearAutocomplete}
                   />
-
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
         </div>
-        </div>
       </section>
-      
+
+      <div className="pt-12 sm:pt-14 md:pt-16"></div>
           
       {/* Search Results - Premium Glass Design */}
           {isSearchActive && viewMode !== 'map' && activeTab !== 'communities' && (

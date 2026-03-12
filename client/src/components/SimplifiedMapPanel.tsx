@@ -329,9 +329,8 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
       </div>
 
       {layoutMode === "vertical" ? (
-        /* Vertical: map on top, list below */
         <div>
-          <div className="border-b border-gray-200 dark:border-gray-700">
+          <div className="relative border-b border-gray-200 dark:border-gray-700">
             <Map
               center={mapCenter}
               zoom={mapZoom}
@@ -342,13 +341,18 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
+            <div className="absolute bottom-2 left-2 z-[500] pointer-events-none">
+              <div className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-800 dark:text-gray-200">
+                <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                {isLoading ? "Loading…" : `${communityCount} communities in view`}
+              </div>
+            </div>
           </div>
           <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
         </div>
       ) : (
-        /* Horizontal: map left, list right */
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="md:border-r border-gray-200 dark:border-gray-700">
+          <div className="relative md:border-r border-gray-200 dark:border-gray-700">
             <Map
               center={mapCenter}
               zoom={mapZoom}
@@ -359,6 +363,12 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
+            <div className="absolute bottom-2 left-2 z-[500] pointer-events-none">
+              <div className="inline-flex items-center gap-1.5 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-md border border-gray-200 dark:border-gray-700 text-sm font-medium text-gray-800 dark:text-gray-200">
+                <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                {isLoading ? "Loading…" : `${communityCount} communities in view`}
+              </div>
+            </div>
           </div>
           <CommunityList communities={filteredCommunities} maxHeight="520px" />
         </div>
