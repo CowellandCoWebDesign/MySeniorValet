@@ -1262,39 +1262,6 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  app.get("/api/communities/local-counts", async (req, res) => {
-    try {
-      const northernCACities = [
-        'Redding', 'Sacramento', 'Chico', 'Red Bluff', 'Eureka', 'Anderson',
-        'Paradise', 'Mount Shasta', 'Yreka', 'Corning', 'Cottonwood', 'Weed',
-        'Oroville', 'Shasta Lake'
-      ];
-      const results = await db
-        .select({
-          city: communities.city,
-          count: sql<number>`COUNT(*)::int`
-        })
-        .from(communities)
-        .where(
-          sql`${communities.state} = 'CA' AND ${communities.city} IN (${sql.join(northernCACities.map(c => sql`${c}`), sql`, `)})`
-        )
-        .groupBy(communities.city)
-        .orderBy(sql`COUNT(*) DESC`);
-
-      const resultMap = new Map(results.map(r => [r.city, r.count]));
-      const allCities = northernCACities.map(city => ({
-        city,
-        count: resultMap.get(city) || 0
-      })).sort((a, b) => b.count - a.count);
-
-      const total = allCities.reduce((sum, r) => sum + r.count, 0);
-      res.json({ cities: allCities, total });
-    } catch (error) {
-      console.error("Error fetching local counts:", error);
-      res.status(500).json({ error: "Failed to fetch local counts" });
-    }
-  });
-
   // Get community statistics - COMPREHENSIVE REAL DATA
   app.get("/api/communities/stats", async (req, res) => {
     try {
@@ -1540,22 +1507,29 @@ export function registerCommunityRoutes(app: Express) {
     const { state, city, slug } = req.params;
     
     try {
+      // Convert URL params back to searchable format
       const stateUpper = state.toUpperCase();
-      const cityNormalized = city.replace(/-/g, ' ').replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
-      const nameNormalized = slug.replace(/-/g, ' ').replace(/[^a-zA-Z0-9 ]/g, '').toLowerCase();
+      const cityName = city.split('-').map(w => 
+        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+      ).join(' ');
       
+      // Find community by location and name (since we don't have slug column yet)
+      // Try exact match first
       let [community] = await db
         .select()
         .from(communities)
         .where(
           and(
             eq(communities.state, stateUpper),
-            sql`lower(regexp_replace(${communities.city}, '[^a-zA-Z0-9 ]', '', 'g')) = ${cityNormalized}`,
-            sql`lower(regexp_replace(${communities.name}, '[^a-zA-Z0-9 ]', '', 'g')) = ${nameNormalized}`
+            eq(communities.city, cityName),
+            eq(communities.name, slug.split('-').map((w: string) => 
+              w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
+            ).join(' '))
           )
         )
         .limit(1);
       
+      // If no exact match, try to find by partial match
       if (!community) {
         const results = await db
           .select()
@@ -1563,14 +1537,15 @@ export function registerCommunityRoutes(app: Express) {
           .where(
             and(
               eq(communities.state, stateUpper),
-              sql`lower(regexp_replace(${communities.city}, '[^a-zA-Z0-9 ]', '', 'g')) = ${cityNormalized}`
+              eq(communities.city, cityName)
             )
           );
         
+        // Find best match based on slug similarity
         community = results.find(c => {
           const communitySlug = generateCommunitySlug(c);
           return communitySlug === slug;
-        }) || results[0];
+        }) || results[0]; // Fallback to first result if no perfect match
       }
 
       if (!community) {

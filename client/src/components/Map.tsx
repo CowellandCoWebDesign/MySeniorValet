@@ -1279,11 +1279,11 @@ export default function Map({
   const mapHeight = height === '100%' ? '600px' : height;
 
   return (
-    <div className="w-full flex" style={{ height: mapHeight, minHeight: mapHeight }}>
+    <div className="w-full flex" style={{ height: mapHeight, minHeight: '600px' }}>
       {/* Performance monitor removed per user request */}
 
       {/* Map Container */}
-      <div className="flex-1 relative" style={{ minHeight: mapHeight }}>
+      <div className="flex-1 relative" style={{ minHeight: '400px' }}>
 
         {/* Compact Location Button - Moved to bottom-left */}
         <div className="absolute bottom-4 left-4 z-[1000]">
@@ -1347,7 +1347,7 @@ export default function Map({
           minZoom={2}  // World-level zoom
           maxZoom={18} // Street-level detail
           // No maxBounds - allow worldwide viewing
-          style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: mapHeight }}
+          style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
           className="rounded-lg"
         >
         <MapEvents 

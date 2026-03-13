@@ -48,12 +48,68 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
   const showSeparateCityState = !addressContainsCityState && cityState;
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [enrichedPhotos, setEnrichedPhotos] = useState<string[]>(community.photos || []);
+  const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
   
   // Default amenities if none provided
   const amenities = community.amenities && community.amenities.length > 0 
     ? community.amenities.slice(0, 3)
     : ["24-Hour Care", "Dining Services", "Activities"];
   
+  // Fetch enriched photos for the community
+  useEffect(() => {
+    const fetchEnrichedPhotos = async () => {
+      // Skip if automatic photo loading is disabled (for directory views)
+      if (disableAutoPhotoLoad) return;
+      
+      // Skip if we already have multiple photos
+      if (enrichedPhotos.length > 1) return;
+      
+      // Fetch verification data which includes photos
+      try {
+        setIsLoadingPhotos(true);
+        const response = await fetch(`/api/communities/${community.id}/verify`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ forceRefresh: false })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`Failed to fetch photos: ${response.status}`);
+        }
+        
+        const verifyData = await response.json();
+        
+        // Extract photos from verification data
+        const webPhotos = verifyData?.verificationResults?.webIntelligence?.images || [];
+        if (webPhotos.length > 0) {
+          // Filter out obvious logos and icons
+          const filteredPhotos = webPhotos.filter((url: string) => {
+            const urlLower = url.toLowerCase();
+            // Skip if URL contains logo/icon indicators
+            if (urlLower.includes('logo') || urlLower.includes('icon') || 
+                urlLower.includes('badge') || urlLower.includes('button') ||
+                urlLower.includes('sprite') || urlLower.includes('.svg')) {
+              return false;
+            }
+            return true;
+          });
+          
+          if (filteredPhotos.length > 0) {
+            setEnrichedPhotos(filteredPhotos.slice(0, 10)); // Limit to 10 photos
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching enriched photos:', error);
+      } finally {
+        setIsLoadingPhotos(false);
+      }
+    };
+    
+    // Only fetch if we have a community ID and limited photos
+    if (community.id && (!enrichedPhotos || enrichedPhotos.length <= 1)) {
+      fetchEnrichedPhotos();
+    }
+  }, [community.id]);
   
   // Auto-advance carousel
   useEffect(() => {
@@ -101,6 +157,22 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
     return reasons.slice(0, 3);
   };
 
+  // Get availability status
+  const getAvailability = () => {
+    if (!community.occupancyRate) return "Contact for availability";
+    if (community.occupancyRate < 85) return "Available Now";
+    if (community.occupancyRate < 95) return "Limited Spots";
+    return "Waitlist";
+  };
+
+  // Get availability badge color
+  const getAvailabilityColor = () => {
+    const availability = getAvailability();
+    if (availability === "Available Now") return "bg-green-600 text-white";
+    if (availability === "Limited Spots") return "bg-orange-600 text-white";
+    if (availability === "Waitlist") return "bg-red-600 text-white";
+    return "bg-gray-600 text-white";
+  };
 
   // Get amenity icon
   const getAmenityIcon = (amenity: string) => {
@@ -199,12 +271,37 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
               </>
             )}
           </>
+        ) : isLoadingPhotos ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-600 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Loading photos...</p>
+            </div>
+          </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="text-center px-4">
-              <Home className="w-10 h-10 text-orange-400/80 dark:text-orange-300/60 mx-auto mb-1.5" />
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 line-clamp-2">{community.name}</p>
+            <div className="text-center">
+              <Home className="w-12 h-12 text-orange-600 dark:text-orange-400 mx-auto mb-2" />
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Professional Photos Coming Soon</p>
             </div>
+          </div>
+        )}
+        
+        {/* Excellence Badge - moved below photo count when carousel is active */}
+        {(!enrichedPhotos || enrichedPhotos.length <= 1) && (
+          <div className="absolute top-2 left-2">
+            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-2 py-1">
+              <Star className="w-3 h-3 mr-1" />
+              FEATURED
+            </Badge>
+          </div>
+        )}
+        {enrichedPhotos && enrichedPhotos.length > 1 && (
+          <div className="absolute top-9 left-2">
+            <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white text-xs font-semibold px-2 py-1">
+              <Star className="w-3 h-3 mr-1" />
+              FEATURED
+            </Badge>
           </div>
         )}
         
@@ -213,6 +310,13 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           {community.careTypes && community.careTypes.length > 0 
             ? community.careTypes[0] 
             : "Senior Living"}
+        </div>
+        
+        {/* Availability Badge */}
+        <div className="absolute bottom-2 right-2">
+          <Badge className={`text-xs font-medium px-2 py-1 ${getAvailabilityColor()}`}>
+            {getAvailability()}
+          </Badge>
         </div>
       </div>
 

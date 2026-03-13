@@ -36,9 +36,11 @@ import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
 import { RedTagDeals } from "@/components/RedTagDeals";
-import { NorthernCACitySections } from "@/components/NorthernCACitySections";
+import { GeographicCommunitiesSection } from "@/components/GeographicCommunitiesSection";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
+import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
+import { HUDCommunitiesSection } from "@/components/HUDCommunitiesSection";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
@@ -68,6 +70,7 @@ import RetroMedicalSign from '@assets/generated_images/Retro_medical_clinic_neon
 import RetroShoppingSign from '@assets/generated_images/Retro_shopping_center_neon_sign_dbb6f040.png';
 import RetroLibrarySign from '@assets/generated_images/Retro_library_resource_center_sign_c0d548ed.png';
 import RetroFamilyLivingRoom from '@assets/generated_images/80s_Memphis_design_living_room_86518012.png';
+import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_marquee_51bb7e27.png';
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
@@ -1077,12 +1080,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative mt-16 overflow-visible`}
+      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : 'pb-28 sm:pb-32'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
           minHeight: 'calc(70vh - 4rem)',
-          height: isSearchActive ? 'auto' : 'calc(70vh - 4rem)',
-          paddingBottom: isSearchActive ? '0.5rem' : '2rem',
+          height: isSearchActive ? 'auto' : 'calc(70vh - 4rem)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
@@ -1121,6 +1123,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         <div className="relative z-10 flex flex-col h-full">
         
+        {/* Category Tabs at Top - Only shown when logged in */}
         {isAuthenticated && <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
@@ -1186,9 +1189,9 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </h1>
         </div>
 
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 z-50 transform translate-y-1/2 px-2 sm:px-4">
+        {/* Search bar - directly below headline */}
+        <div className="w-full px-2 sm:px-4 pt-4 pb-4">
+        {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
         <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50" style={{ isolation: 'isolate' }}>
           <AnimatePresence mode="wait">
             {searchMode === 'ai' ? (
@@ -1211,9 +1214,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4 shadow-2xl"
+                className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4"
               >
+                {/* Classic Search Bar */}
                 <div className="flex flex-col gap-2">
+                  {/* Search Input with Autocomplete */}
                   <AutocompleteSearch
                     value={classicSearchValue}
                     onChange={setClassicSearchValue}
@@ -1225,15 +1230,16 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                     isLoading={isLoading}
                     forceClearSuggestions={forceClearAutocomplete}
                   />
+
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
         </div>
         </div>
+        </div>
       </section>
-
-      <div className="pt-12 sm:pt-14 md:pt-16"></div>
+      
           
       {/* Search Results - Premium Glass Design */}
           {isSearchActive && viewMode !== 'map' && activeTab !== 'communities' && (
@@ -2336,44 +2342,270 @@ export default function MySeniorValetHome() {
                 <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} />
               </div>
 
-              <NorthernCACitySections />
+              {/* Community Directory Card - Moved Above Featured Excellence */}
+              <div className="mb-12">
+                <div className="grid grid-cols-1">
+                  {/* Community Directory */}
+                  <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group md:hover:scale-[1.02] cursor-pointer" onClick={(e) => {
+              // Only navigate if clicking on the card background, not buttons
+              const target = e.target as HTMLElement;
+              if (e.target === e.currentTarget || (!target.closest('button') && !target.closest('a'))) {
+                window.location.href = '/community-directory';
+              }
+            }}>
+                <CardContent className="relative z-10 pt-4">
 
-              <div className="mt-8">
-                <RedTagDeals savingsOnly={true} />
-              </div>
-
-              <div className="mt-8 grid grid-cols-2 gap-3">
-                <Button 
-                  onClick={() => window.location.href = '/map-search'}
-                  className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-3 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-                  <div className="flex flex-col items-center">
-                    <span className="text-xl mb-1">🔍</span>
-                    <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
-                    <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+                  {/* Recently Discovered Communities Section */}
+                  <div className="mb-6">
+                    <RecentlyDiscoveredCommunities />
                   </div>
-                </Button>
-                <Button 
-                  onClick={() => window.location.href = '/ai-search-intelligence?mode=simplified'}
-                  className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-3 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                  <div className="flex flex-col items-center">
-                    <span className="text-xl mb-1">⚖️</span>
-                    <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
-                    <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
+
+                  {/* HUD Communities & Government Verified Section */}
+                  <div className="mb-6">
+                    <HUDCommunitiesSection />
                   </div>
-                </Button>
-              </div>
 
-              <Button 
-                onClick={() => window.location.href = '/community-directory'}
-                className="w-full mt-4 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 shadow-lg transition-all relative overflow-hidden">
-                <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                <span className="font-semibold">Explore Full National Directory</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
+                  {/* Featured Communities & Savings Tips */}
+                  <div className="mb-6">
+                    <RedTagDeals hideHeader={true} />
+                  </div>
 
-              <div className="mt-8">
-                <CareSpectrumSlider />
+                  {/* Geographic Communities Section - Hawaii, Fort Worth, NYC, Canadian, Puerto Rico, Peru, Cuba, Costa Rica, Panama */}
+                  <div className="mb-6">
+                    <GeographicCommunitiesSection />
+                  </div>
+
+                  {/* 3D Care Spectrum Mini Carousel */}
+                  <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-3 text-center">EXPLORE 20+ COMPREHENSIVE HOUSING OPTIONS</p>
+                    <div className="relative">
+                      {/* Scroll indicator - left */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-r from-blue-100 to-transparent dark:from-blue-900/20 w-8 h-full pointer-events-none" />
+                      {/* Scroll indicator - right */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-gradient-to-l from-indigo-100 to-transparent dark:from-indigo-900/20 w-8 h-full pointer-events-none" />
+                      
+                      <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
+                        {careTypes.map((careType, index) => {
+                          const Icon = careType.icon;
+                          return (
+                            <div
+                              key={careType.id}
+                              data-testid={`care-type-${careType.id}`}
+                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
+                              onClick={(e) => {
+                                // Stop event from bubbling to parent card
+                                e.stopPropagation();
+                                // Navigate to appropriate page based on care type
+                                if (careType.id === 'memory') {
+                                  window.location.href = '/care-types/memory-care';
+                                } else if (careType.id === 'assisted') {
+                                  window.location.href = '/care-types/assisted-living';
+                                } else if (careType.id === 'independent') {
+                                  window.location.href = '/care-types/independent-living';
+                                } else {
+                                  // For other care types, navigate to map search with filter
+                                  window.location.href = `/map-search?careType=${encodeURIComponent(careType.name)}`;
+                                }
+                              }}
+                            >
+                              <div className="flex flex-col items-center">
+                                <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-1" />
+                                <p className="text-[10px] sm:text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
+                                <p className="text-[8px] sm:text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-gray-500 dark:text-gray-400 text-center mt-2 italic">
+                      ← Swipe to explore all housing options →
+                    </p>
+                  </div>
+
+                  {/* Traditional Browse and Side-by-Side Buttons */}
+                  <div className="grid grid-cols-2 gap-2 mb-4">
+                    {/* Traditional Browse */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/map-search';
+                      }}
+                      className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
+                      <div className="flex flex-col items-center">
+                        <span className="text-xl mb-1">🔍</span>
+                        <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                        <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+                      </div>
+                    </Button>
+
+                    {/* Side-by-Side Search */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.location.href = '/ai-search-intelligence?mode=simplified';
+                      }}
+                      className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <span className="text-xl mb-1">⚖️</span>
+                        <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
+                        <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
+                      </div>
+                    </Button>
+                  </div>
+
+                  <Button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.location.href = '/community-directory';
+                    }}
+                    className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                    <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                    <span className="font-semibold">Launch AI-Enhanced Directory</span>
+                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </CardContent>
+              </Card>
+                </div>
               </div>
+              
+              {/* Community Portal & Dashboard Section */}
+              <section className="py-12 px-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+                <div className="max-w-4xl mx-auto">
+                  <Link to="/community-portal">
+                    <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-[1.02]">
+                      {/* Full-size Retro Real Estate Sign Image at top of card */}
+                      <div className="relative h-64 w-full">
+                        <img 
+                          src={RetroGrandHotelMarquee} 
+                          alt="Retro grand hotel marquee sign" 
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        {/* Overlay elements on the image */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                        <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
+                          <span className="text-3xl">🏢</span>
+                        </div>
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
+                          COMMUNITIES
+                        </Badge>
+                      </div>
+                      <CardHeader className="relative z-10">
+                        <CardTitle className="text-2xl mb-2">Community Portal & Dashboard</CardTitle>
+                        <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          Your Complete Community Management Experience
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="relative z-10">
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
+                          {isLoading ? (
+                            <span className="animate-pulse">Loading community count...</span>
+                          ) : (
+                            `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
+                          )} - Reach qualified families actively searching for senior care.
+                        </p>
+                        
+                        {/* Flex container for side-by-side layout - stacks on mobile */}
+                        <div className="flex flex-col md:flex-row gap-4 mb-6">
+                          {/* Left side - Pricing and Checkmarks */}
+                          <div className="space-y-2 md:flex-shrink-0 md:min-w-fit">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
+                              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $399+/mo</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">TourMate™ Scheduler</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">AI Lease Generation</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">Resident Management</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Reservations</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">Insurance Tracking</span>
+                            </div>
+                          </div>
+                          
+                          {/* Right side - Pricing Tiers Preview */}
+                          <div className="flex-1 md:ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
+                            <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                              <span>💰</span> 5 Tier Options
+                            </p>
+                            <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
+                              <div className="p-2 bg-gradient-to-r from-gray-50/70 to-green-50/70 dark:from-gray-900/20 dark:to-green-900/20 rounded border-2 border-green-400 dark:border-green-600">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">✅ Free</p>
+                                  <p className="text-xs font-bold text-green-600 dark:text-green-400">$0/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic unverified listing, AI photos (10), contact info, TourTracker™ access</p>
+                              </div>
+                              <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🚀 Starter</p>
+                                  <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$149/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Verified badge, payment processing, reservations, 20 photos, email support</p>
+                              </div>
+                              <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded border border-green-300 dark:border-green-700">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">📈 Growth</p>
+                                  <p className="text-xs font-bold text-green-600 dark:text-green-400">$249/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tour scheduling, messaging, 2 AI docs/mo (+$45 ea), analytics, priority support</p>
+                              </div>
+                              <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border-2 border-purple-400 dark:border-purple-600">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">💼 Premium ⭐</p>
+                                  <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$399/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Advanced analytics, 4 AI docs/mo (+$45 ea), custom branding, multi-property</p>
+                              </div>
+                              <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🏢 Enterprise</p>
+                                  <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Coming Soon</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Custom toolset, API access, dedicated support, unlimited AI docs</p>
+                              </div>
+                              <div className="mt-3 p-2 bg-gradient-to-r from-yellow-500/20 to-orange-600/20 dark:from-yellow-500/10 dark:to-orange-600/10 rounded border border-yellow-300 dark:border-yellow-700">
+                                <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-300 text-center">💡 SAVE 20% WITH ANNUAL BILLING</p>
+                                <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center mt-1">All plans include annual discount!</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Button 
+                            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = '/community-claim';
+                            }}
+                          >
+                            <Gift className="mr-2 h-4 w-4" />
+                            <span className="font-semibold">Claim Your Free Listing</span>
+                          </Button>
+                          <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                            <span className="font-semibold">Access Portal & Dashboard</span>
+                            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </div>
+              </section>
             </TabsContent>
 
       {/* Services Tab */}
@@ -3847,6 +4079,77 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Emergency Quick Access Section - Moved above mission for better flow */}
+      <section className="px-4 py-8 bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950 dark:to-orange-950 border-y-2 border-red-200 dark:border-red-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            {/* Left side - Emergency Information */}
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="h-12 w-12 rounded-full bg-red-600 flex items-center justify-center animate-pulse">
+                  <Phone className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-red-900 dark:text-red-100">
+                    One-Touch Emergency Access
+                  </h2>
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    Quick access to 911 and your personal emergency contacts
+                  </p>
+                </div>
+              </div>
+              <p className="text-gray-700 dark:text-gray-300 mb-4">
+                Our emergency contact system provides instant access to critical phone numbers when you need them most. 
+                Save your family contacts, medical providers, and facility numbers for one-touch dialing.
+              </p>
+            </div>
+            
+            {/* Right side - Quick Access Numbers */}
+            <div className="flex gap-4">
+              {/* 911 Button */}
+              <a 
+                href="tel:911"
+                className="flex flex-col items-center justify-center p-4 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <AlertCircle className="h-8 w-8 mb-2" />
+                <span className="text-2xl font-bold">911</span>
+                <span className="text-xs">Emergency</span>
+              </a>
+              
+              {/* Poison Control */}
+              <a 
+                href="tel:18002221222"
+                className="flex flex-col items-center justify-center p-4 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <Pill className="h-8 w-8 mb-2" />
+                <span className="text-lg font-bold">Poison</span>
+                <span className="text-xs">1-800-222-1222</span>
+              </a>
+              
+              {/* Crisis Hotline */}
+              <a 
+                href="tel:988"
+                className="flex flex-col items-center justify-center p-4 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-all transform hover:scale-105 shadow-lg"
+              >
+                <Heart className="h-8 w-8 mb-2" />
+                <span className="text-2xl font-bold">988</span>
+                <span className="text-xs">Crisis Line</span>
+              </a>
+            </div>
+          </div>
+          
+          {/* Notice */}
+          <div className="mt-6 p-3 bg-yellow-50 dark:bg-yellow-950 rounded-lg border border-yellow-200 dark:border-yellow-800">
+            <div className="flex items-start gap-2">
+              <Info className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5" />
+              <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                <strong>Important:</strong> Look for the red emergency button in the bottom-right corner of your screen for instant access to all emergency contacts. 
+                Create an account to save your personal emergency contacts for quick dialing.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Mission Statement Section - Moved from top */}
       <section className="px-4 py-12 bg-gradient-to-r from-white to-blue-50 dark:from-gray-900 dark:to-gray-800">
@@ -3928,6 +4231,27 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      {/* Legal Notice Section - Repositioned to Bottom */}
+      <section className="px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="p-4 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
+            <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              IMPORTANT LEGAL NOTICE
+            </p>
+            <ul className="text-sm text-red-600 dark:text-red-400 space-y-2">
+              <li>• MySeniorValet is a FREE platform for families providing transparency in senior care</li>
+              <li>• We aggregate and display public information from verified sources with citations</li>
+              <li>• We facilitate connections between families and communities - NOT a placement agency</li>
+              <li>• All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools</li>
+              <li>• Communities and vendors pay for business services (listing management, tour management, etc.)</li>
+              <li>• We may receive affiliate commissions from marketplace partners (Amazon, 1-800-Flowers)</li>
+              <li>• We do NOT charge families any fees or commissions</li>
+              <li>• Always verify information independently and consult professionals before making care decisions</li>
+            </ul>
+          </div>
+        </div>
+      </section>
 
       {/* Enhanced Footer with Dashboard Login Buttons */}
       <Footer />

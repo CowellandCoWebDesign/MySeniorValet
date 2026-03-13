@@ -2506,7 +2506,8 @@ export default function CommunityDetail() {
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">🏠</span>
-                    <span className="text-xs sm:text-sm font-bold">Floorplans & Pricing</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Floorplans & Pricing</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Floorplans</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
                     Units & Floorplans
@@ -3227,7 +3228,7 @@ export default function CommunityDetail() {
                                        verificationReport?.verificationResults?.pricing?.studio || 
                                        (community.communitySubtype === 'hud_senior_housing' ? '$0-500' : 
                                         (comprehensiveData?.marketData?.pricing?.general || verificationReport?.webIntelligence?.pricing ? 
-                                         '__MARKET_DATA_TAB__' : 'See below for pricing')),
+                                         '__MARKET_DATA_TAB__' : 'Contact for pricing')),
                                 features: '400-600 sq ft',
                                 floorPlanImage: null, // No stock photos
                                 amenities: ['Kitchenette', 'Private Bath', 'Emergency Call System']
@@ -3238,7 +3239,7 @@ export default function CommunityDetail() {
                                        verificationReport?.verificationResults?.pricing?.oneBedroom || 
                                        (community.communitySubtype === 'hud_senior_housing' ? '$100-600' : 
                                         (comprehensiveData?.marketData?.pricing?.general || verificationReport?.webIntelligence?.pricing ? 
-                                         '__MARKET_DATA_TAB__' : 'See below for pricing')),
+                                         '__MARKET_DATA_TAB__' : 'Contact for pricing')),
                                 features: '600-800 sq ft',
                                 floorPlanImage: null, // No stock photos
                                 amenities: ['Full Kitchen', 'Living Area', 'Walk-in Closet']
@@ -3249,7 +3250,7 @@ export default function CommunityDetail() {
                                        verificationReport?.verificationResults?.pricing?.twoBedroom || 
                                        (community.communitySubtype === 'hud_senior_housing' ? '$200-800' : 
                                         (comprehensiveData?.marketData?.pricing?.general || verificationReport?.webIntelligence?.pricing ? 
-                                         '__MARKET_DATA_TAB__' : 'See below for pricing')),
+                                         '__MARKET_DATA_TAB__' : 'Contact for pricing')),
                                 features: '800-1200 sq ft',
                                 floorPlanImage: null, // No stock photos
                                 amenities: ['Full Kitchen', '2 Bathrooms', 'Washer/Dryer Hookups']

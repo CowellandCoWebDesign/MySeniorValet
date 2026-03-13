@@ -40,8 +40,8 @@ export class SecurityMonitor {
     /(';|";|--|\/\*|\*\/|xp_|sp_)/i,
     // XSS patterns
     /(<script|<\/script>|javascript:|vbscript:|onload=|onerror=|eval\(|setTimeout\()/i,
-    // Command injection (word boundaries on exec/system to avoid false positives like "executive")
-    /(`|\$\(|\bexec\b|\bsystem\b|shell_exec|passthru)/i,
+    // Command injection
+    /(\||;|&|`|\$\(|exec|system|shell_exec|passthru)/i,
     // Path traversal
     /(\.\.\/|\.\.\\|\.\.\%2f|\.\.\%5c)/i,
     // LDAP injection
@@ -86,9 +86,8 @@ export class SecurityMonitor {
     this.userAgents.set(userAgent, (this.userAgents.get(userAgent) || 0) + 1);
     this.endpoints.set(endpoint, (this.endpoints.get(endpoint) || 0) + 1);
 
-    // Skip injection checks for endpoints that legitimately handle external URLs/content
+    // Skip injection checks for image proxy URL parameters
     const isImageProxy = endpoint.startsWith('/api/image-proxy');
-    const isWebIntelligence = endpoint.startsWith('/api/web-intelligence/');
     let requestDataToCheck = JSON.stringify({ body: req.body, query: req.query, params: req.params });
     
     // If it's image proxy, exclude the URL parameter from injection checks
@@ -96,11 +95,6 @@ export class SecurityMonitor {
       const queryWithoutUrl = { ...req.query };
       delete queryWithoutUrl.url;
       requestDataToCheck = JSON.stringify({ body: req.body, query: queryWithoutUrl, params: req.params });
-    }
-    
-    // Skip injection scanning entirely for web-intelligence endpoints (they process community names/URLs)
-    if (isWebIntelligence) {
-      requestDataToCheck = JSON.stringify({ query: req.query, params: req.params });
     }
 
     // Check for SQL injection patterns
