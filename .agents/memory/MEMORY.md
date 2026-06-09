@@ -1,0 +1,1 @@
+- [Free enrichment scraping](free-enrichment-scraping.md) — community enrichment is paid-AI-free by mandate; reject SPA boilerplate/og-junk + keep SSRF guard, else Golden Data violations.
