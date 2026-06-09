@@ -53,7 +53,7 @@ export const organizationSchema = {
     {
       '@type': 'ContactPoint',
       contactType: 'emergency',
-      email: 'admin@myseniorvalet.com',
+      email: 'hello@myseniorvalet.com',
       availableLanguage: ['English'],
       areaServed: ['US', 'CA', 'AU', 'JP', 'SG', 'GB', 'MX', 'PE', 'CU', 'CR', 'PA', 'PR']
     }

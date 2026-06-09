@@ -1329,7 +1329,7 @@ export default function AdminMegaDashboard() {
   // In production, only allow explicitly authorized users
   const isSuperAdmin = userRole === 'super_admin' || 
                        userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com';
+                       userEmail === 'hello@myseniorvalet.com';
   
   // Now we can safely return early if user doesn't have permission
   if (!user || !isSuperAdmin) {

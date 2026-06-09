@@ -2,14 +2,14 @@
 MySeniorValet is an AI-powered "Google of Senior Care" platform designed to bring transparency to senior living. It features a "Learn Mode" and a unified AI search engine. The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. The business model provides free platform access to families, with revenue generated from B2B clients.
 
 ## User Preferences
-- **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
+- **Authentication Priority**: William.cowell01@gmail.com and hello@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
-  - Primary Admin Notifications: admin@myseniorvalet.com (system events, emergency alerts, privacy inquiries)
+  - Primary Admin Notifications: hello@myseniorvalet.com (system events, emergency alerts, privacy inquiries)
   - Personal Emergency/Backup Access: William.cowell01@gmail.com (private, secondary notifications, security concerns)
   - Technical Support: CowellandCoWebDesign@gmail.com (private, technical issues)
   - General Inquiries: hello@myseniorvalet.com (public, press inquiries, community onboarding)
   - Billing & Reservations: billing@myseniorvalet.com (public, payments, reservation confirmations)
-  - Emergency button alerts sent to both admin@myseniorvalet.com (primary) and William.cowell01@gmail.com (backup)
+  - Emergency button alerts sent to both hello@myseniorvalet.com (primary) and William.cowell01@gmail.com (backup)
   - NOTE: ALL emails standardized across entire platform - no legacy addresses remain
 - **Data Integrity Standards**: Maintain strict Golden Data Rule enforcement. HUD properties show verified government pricing only. Communities without verified pricing display "Contact for pricing." Multi-AI verification system for absolute accuracy. Never claim partnerships, verifications, or certifications unless legally verified and documented. Service recommendations must be clearly labeled as such, not as partnerships.
 - **Accurate Platform Messaging**: Use "Complete Care Spectrum & Live Market Intelligence" to describe our national pricing insights and verified HUD data system. Avoid claiming "live pricing from all communities" as this is our goal, not current capability. Market Intelligence fills gaps with national reported averages while building toward full live pricing coverage. Be cautious with analytics claims during launch phase.

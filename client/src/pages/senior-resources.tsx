@@ -247,7 +247,7 @@ export default function SeniorResources() {
                     <CardContent className="py-4">
                       <p className="text-blue-800 dark:text-blue-200">{foodBanksData.message}</p>
                       <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
-                        Call 211 for local resources or contact admin@myseniorvalet.com to help us add data for your area.
+                        Call 211 for local resources or contact hello@myseniorvalet.com to help us add data for your area.
                       </p>
                     </CardContent>
                   </Card>

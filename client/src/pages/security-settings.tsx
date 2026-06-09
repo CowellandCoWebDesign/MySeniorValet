@@ -83,7 +83,7 @@ export default function SecuritySettingsPage() {
     }
   };
 
-  const isAdminAccount = user?.email === "admin@myseniorvalet.com" || 
+  const isAdminAccount = user?.email === "hello@myseniorvalet.com" || 
                          user?.email === "William.cowell01@gmail.com";
 
   return (

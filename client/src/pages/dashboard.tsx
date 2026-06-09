@@ -97,7 +97,7 @@ export default function Dashboard() {
   const userEmail = (user as any)?.email;
   const isSuperAdmin = userRole === 'super_admin' || 
                        userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com';
+                       userEmail === 'hello@myseniorvalet.com';
   
   // Log for debugging
   console.log('Dashboard immediate check:', {

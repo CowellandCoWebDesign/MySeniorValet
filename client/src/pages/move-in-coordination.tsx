@@ -410,7 +410,7 @@ export default function MoveInCoordination() {
       
       await apiRequest("POST", "/api/send-notification", {
         type: 'move-in-checklist',
-        email: 'admin@myseniorvalet.com',
+        email: 'hello@myseniorvalet.com',
         community: selectedCommunityName || 'Not selected',
         moveDate: moveDate || 'Not set',
         checklist: checklistText
@@ -1006,7 +1006,7 @@ export default function MoveInCoordination() {
                   Email Your Checklist
                 </Button>
                 <p className="text-xs text-gray-600 text-center">
-                  Send your progress to admin@myseniorvalet.com
+                  Send your progress to hello@myseniorvalet.com
                 </p>
               </motion.div>
               
