@@ -243,13 +243,7 @@ export default function Privacy() {
                   <strong>Email:</strong> hello@myseniorvalet.com
                 </div>
                 <div>
-                  <strong>Phone:</strong> 1-855-MY-VALET (1-855-698-2538)
-                </div>
-                <div>
-                  <strong>Mail:</strong><br />
-                  MySeniorValet Privacy Team<br />
-                  123 Technology Way<br />
-                  San Francisco, CA 94105
+                  <strong>Phone:</strong> 530-776-4220
                 </div>
               </div>
 

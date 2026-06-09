@@ -227,9 +227,8 @@ export default function LegalNotice() {
                 For legal inquiries or concerns, please contact us:
               </p>
               <ul className="text-gray-700 dark:text-gray-300 space-y-2">
-                <li><strong>Email:</strong> admin@myseniorvalet.com</li>
-                <li><strong>Legal Team:</strong> admin@myseniorvalet.com</li>
-                <li><strong>Data Accuracy:</strong> admin@myseniorvalet.com</li>
+                <li><strong>Email:</strong> hello@myseniorvalet.com</li>
+                <li><strong>Phone:</strong> 530-776-4220</li>
               </ul>
             </div>
           </section>

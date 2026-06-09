@@ -62,7 +62,7 @@ class NotificationSystem {
         isActive: true,
         configuration: {
           provider: 'twilio',
-          fromNumber: '+1-855-MY-VALET'
+          fromNumber: '530-776-4220'
         }
       },
       {
