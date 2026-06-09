@@ -43,6 +43,7 @@ import {
 import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
@@ -84,6 +85,7 @@ interface TourRequest {
 export default function Dashboard() {
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
+  const { setShowOnboarding } = useOnboarding();
   const [location, setLocation] = useLocation();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
@@ -143,6 +145,19 @@ export default function Dashboard() {
     phone: '',
     preferredLocation: ''
   });
+
+  // Fire the onboarding wizard immediately after a brand-new family signup
+  useEffect(() => {
+    if (sessionStorage.getItem('newSignup') === 'true') {
+      sessionStorage.removeItem('newSignup');
+      const pendingZip = sessionStorage.getItem('pendingZipCode');
+      if (pendingZip) {
+        localStorage.setItem('myseniorvalet_onboarding_pending_zip', pendingZip);
+        sessionStorage.removeItem('pendingZipCode');
+      }
+      setShowOnboarding(true);
+    }
+  }, [setShowOnboarding]);
 
   // Parse URL query parameters
   useEffect(() => {

@@ -49,13 +49,10 @@ export function OnboardingProvider({ children }: OnboardingProviderProps) {
         console.error('Error parsing onboarding data:', error);
         localStorage.removeItem('myseniorvalet_onboarding');
       }
-    } else {
-      // Show onboarding for new users after a short delay
-      const timer = setTimeout(() => {
-        setShowOnboarding(true);
-      }, 2000);
-      return () => clearTimeout(timer);
     }
+    // Note: the wizard is no longer auto-shown on a timer. It opens only on an
+    // explicit trigger (new signup flow or the "Update preferences" banner button),
+    // so existing/anonymous visitors are never interrupted by it.
   }, []);
 
   const completeOnboarding = (data: OnboardingData) => {

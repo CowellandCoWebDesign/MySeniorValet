@@ -126,6 +126,15 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     preferredContact: 'email'
   });
 
+  // Pre-populate the location field with the ZIP code captured at signup (if any)
+  useEffect(() => {
+    const pendingZip = localStorage.getItem('myseniorvalet_onboarding_pending_zip');
+    if (pendingZip) {
+      setUserData(prev => ({ ...prev, location: prev.location || pendingZip }));
+      localStorage.removeItem('myseniorvalet_onboarding_pending_zip');
+    }
+  }, []);
+
   const step = steps[currentStep];
   const character = characters[step.character as keyof typeof characters];
   const progress = ((currentStep + 1) / steps.length) * 100;

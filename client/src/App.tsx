@@ -1,4 +1,4 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { useEffect, lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -8,6 +8,7 @@ import { MascotProvider } from "@/components/mascot";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
+import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
 import NostalgicErrorBoundary from "@/components/NostalgicErrorBoundary";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -120,7 +121,6 @@ import AIMapShowcase from "@/pages/ai-map-showcase";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
 import SimplifiedSearch from "@/pages/simplified-search";
 import VendorSignup from "@/pages/vendor-signup";
-import FamilySignup from "@/pages/family-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import VendorWelcome from "@/pages/vendor-welcome";
 import VendorMobilePayment from "@/pages/vendor-mobile-payment";
@@ -409,8 +409,9 @@ function Router() {
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
       <Route path="/vendor-signup" component={VendorSignup} />
       <Route path="/vendor/signup" component={VendorSignup} />
-      <Route path="/family-signup" component={FamilySignup} />
-      <Route path="/family/signup" component={FamilySignup} />
+      {/* /family-signup retired — unified into the canonical /signup flow */}
+      <Route path="/family-signup"><Redirect to="/signup" /></Route>
+      <Route path="/family/signup"><Redirect to="/signup" /></Route>
       <Route path="/vendor-welcome" component={VendorWelcome} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/vendor-mobile-payment/:productId" component={VendorMobilePayment} />
@@ -476,6 +477,8 @@ function AppContent() {
                 <MascotProvider>
                   <Toaster />
                   <Router />
+                  {/* Onboarding wizard — fires after a new family signup (see dashboard trigger) */}
+                  <OnboardingWrapper />
                   {/* Cookie Banner temporarily disabled - was blocking search on mobile */}
                   {/* <CookieConsentBanner /> */}
                   {/* Emergency Button disabled - causes React rendering failure */}
