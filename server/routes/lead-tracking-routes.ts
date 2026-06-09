@@ -46,8 +46,9 @@ async function incrementProfileViewStats(communityId: number, revealedField?: st
 }
 
 /**
- * Best-effort "this person just viewed your profile" email to the community.
- * Golden Data Rule: only send to a REAL, verified community email. Never fabricate.
+ * Best-effort referral notification email.
+ * All referrals are sent to hello@myseniorvalet.com for manual review and forwarding.
+ * The email includes full community contact details so the admin can forward directly.
  */
 async function notifyCommunityOfProfileView(
   communityId: number,
@@ -67,8 +68,8 @@ async function notifyCommunityOfProfileView(
       .where(eq(communities.id, communityId))
       .limit(1);
 
-    // Only contact a verified community with a real email on file
-    if (!community || !community.email || !community.isVerified) {
+    // Still require a valid community record — no point sending without context.
+    if (!community) {
       return;
     }
 
@@ -78,26 +79,42 @@ async function notifyCommunityOfProfileView(
         ? `<p style="margin:4px 0;">📞 Phone: <strong>${family.phone}</strong></p>`
         : `<p style="margin:4px 0;color:#92400e;">📵 This family prefers email/text contact only — please do not call.</p>`;
 
+    const communityContactLines = [
+      community.email ? `<p style="margin:4px 0;">✉️ Community email: <strong>${community.email}</strong></p>` : `<p style="margin:4px 0;color:#92400e;">⚠️ No community email on file — forward manually.</p>`,
+      community.phone ? `<p style="margin:4px 0;">📞 Community phone: <strong>${community.phone}</strong></p>` : "",
+    ].join("");
+
     const html = `
       <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
-        <h2 style="color:#4f46e5;">${familyName} just viewed your profile!</h2>
-        <p>A family is researching senior living on <strong>MySeniorValet</strong> and just viewed
-        <strong>${community.name}</strong>${community.city ? ` in ${community.city}, ${community.state}` : ""}.</p>
-        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:16px 0;">
+        <h2 style="color:#4f46e5;">New Referral — Forward to Community</h2>
+        <p style="background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:10px 14px;font-size:13px;">
+          ⚠️ <strong>Action needed:</strong> Forward this lead to the community below from hello@myseniorvalet.com.
+        </p>
+
+        <h3 style="color:#1e3a5f;margin-top:20px;">Family interested</h3>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:8px 0;">
           <p style="margin:4px 0;">👤 Name: <strong>${familyName}</strong></p>
           <p style="margin:4px 0;">✉️ Email: <strong>${family.email}</strong></p>
           ${phoneLine}
+          <p style="margin:4px 0;color:#64748b;font-size:12px;">Revealed: ${family.revealedField || "contact info"}</p>
         </div>
-        <p style="color:#475569;font-size:13px;">The trusted platform for authentic senior living community information.
-        Helping families make informed decisions with verified data and transparent pricing.</p>
+
+        <h3 style="color:#1e3a5f;margin-top:20px;">Community to forward to</h3>
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:16px;margin:8px 0;">
+          <p style="margin:4px 0;">🏠 Name: <strong>${community.name}</strong></p>
+          ${community.city ? `<p style="margin:4px 0;">📍 Location: <strong>${community.city}, ${community.state || ""}</strong></p>` : ""}
+          ${communityContactLines}
+        </div>
+
+        <p style="color:#475569;font-size:12px;margin-top:20px;">MySeniorValet — The trusted platform for authentic senior living community information.</p>
       </div>
     `;
 
     await sendEmail({
-      to: community.email,
+      to: "hello@myseniorvalet.com",
       from: "hello@myseniorvalet.com",
       replyTo: family.email || undefined,
-      subject: `${familyName} just viewed your profile on MySeniorValet`,
+      subject: `[Referral] ${familyName} → ${community.name}${community.city ? ` (${community.city}, ${community.state})` : ""} — Forward needed`,
       html,
     });
   } catch (error) {
