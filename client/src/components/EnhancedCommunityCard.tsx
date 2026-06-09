@@ -606,22 +606,23 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               {/* Quick Actions */}
               <div className="flex items-center gap-1">
                 {community.phone && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    aria-label={isRevealed('phone') ? 'Call community' : 'Reveal phone number'}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (isRevealed('phone')) {
-                        window.location.href = `tel:${community.phone}`;
-                      } else {
-                        reveal('phone');
-                      }
-                    }}
-                  >
-                    {isRevealed('phone') ? <Phone className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-                  </Button>
+                  isRevealed('phone') ? (
+                    <a
+                      href={`tel:${community.phone}`}
+                      className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400 hover:underline font-medium"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Phone className="h-3 w-3" />
+                      {community.phone}
+                    </a>
+                  ) : (
+                    <button
+                      className="flex items-center gap-1 text-xs text-blue-500 hover:underline"
+                      onClick={(e) => { e.stopPropagation(); reveal('phone'); }}
+                    >
+                      <Lock className="h-3 w-3" /> Tap to reveal phone
+                    </button>
+                  )
                 )}
                 <Button 
                   variant="ghost" 
@@ -711,12 +712,21 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                   
                   {/* Phone Number */}
                   {community.phone && (
-                    <div className="flex items-center text-gray-700 dark:text-gray-300">
-                      <Phone className="h-3 w-3 mr-1" />
-                      <a href={`tel:${community.phone}`} className="hover:text-blue-600 dark:hover:text-blue-400" onClick={(e) => e.stopPropagation()}>
-                        {community.phone}
-                      </a>
-                    </div>
+                    isRevealed('phone') ? (
+                      <div className="flex items-center text-gray-700 dark:text-gray-300">
+                        <Phone className="h-3 w-3 mr-1" />
+                        <a href={`tel:${community.phone}`} className="hover:text-blue-600 dark:hover:text-blue-400" onClick={(e) => e.stopPropagation()}>
+                          {community.phone}
+                        </a>
+                      </div>
+                    ) : (
+                      <button
+                        className="flex items-center gap-1 text-xs text-blue-500 hover:underline"
+                        onClick={(e) => { e.stopPropagation(); reveal('phone'); }}
+                      >
+                        <Lock className="h-3 w-3" /> Tap to reveal phone
+                      </button>
+                    )
                   )}
                 </div>
               </div>

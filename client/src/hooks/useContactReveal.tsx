@@ -71,7 +71,10 @@ export function useContactReveal(communityId: number | string, communityName?: s
     [communityId]
   );
 
-  const isRevealed = useCallback((field: RevealField) => revealed.has(field), [revealed]);
+  const isRevealed = useCallback(
+    (field: RevealField) => isAuthenticated || revealed.has(field),
+    [isAuthenticated, revealed]
+  );
 
   const reveal = useCallback(
     (field: RevealField) => {
