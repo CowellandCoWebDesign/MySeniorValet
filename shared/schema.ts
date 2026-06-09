@@ -3141,6 +3141,10 @@ export const leads = pgTable("leads", {
     budget?: string;
     careNeeds?: string[];
     notes?: string;
+    // Profile-view referral consent fields (Task: contact gating)
+    allowDirectContact?: boolean; // family agreed to be contacted at all
+    allowPhoneContact?: boolean; // false = email/text only, no phone
+    revealedField?: string; // 'phone' | 'website' | 'pricing' | 'overview'
   }>().default({}),
   lastContactedAt: timestamp("last_contacted_at"),
   nextFollowUpAt: timestamp("next_follow_up_at"),

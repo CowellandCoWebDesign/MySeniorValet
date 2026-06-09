@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info, ClipboardCheck, AlertTriangle, Calendar, UserCheck, Stethoscope, Clock } from "lucide-react";
+import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, CheckCircle, Award, Sparkles, Phone, ExternalLink, Languages, Activity, MessageCircle, Share2, Mail, Info, ClipboardCheck, AlertTriangle, Calendar, UserCheck, Stethoscope, Clock, Lock } from "lucide-react";
 import { Link } from "wouter";
 import { MarketIntelligenceModal } from "@/components/MarketIntelligenceModal";
 import { getCommunityUrl } from "@/lib/community-url";
+import { useContactReveal } from "@/hooks/useContactReveal";
 
 interface CommunityCardProps {
   community: {
@@ -94,6 +95,8 @@ interface CommunityCardProps {
 }
 
 function CommunityCard({ community, index = 0, variant = 'standard', onSelect }: CommunityCardProps) {
+  // Contact gating: blur phone until the family logs in or shares consent.
+  const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
   // Only properties with actual HUD property IDs are HUD properties
   const isHudProperty = !!community.hudPropertyId;
   const hasAuthenticPricing = !!(community.hudPropertyId && community.rentPerMonth) || 
@@ -452,6 +455,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     const priceDisplay = formatPriceDisplay();
     
     return (
+      <>
       <Card 
         className="group cursor-pointer hover:shadow-2xl transition-all duration-300 overflow-hidden bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl w-full"
         onClick={onSelect}
@@ -606,12 +610,17 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                     variant="ghost" 
                     size="sm"
                     className="h-8 w-8 p-0"
+                    aria-label={isRevealed('phone') ? 'Call community' : 'Reveal phone number'}
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.location.href = `tel:${community.phone}`;
+                      if (isRevealed('phone')) {
+                        window.location.href = `tel:${community.phone}`;
+                      } else {
+                        reveal('phone');
+                      }
                     }}
                   >
-                    <Phone className="h-4 w-4" />
+                    {isRevealed('phone') ? <Phone className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
                   </Button>
                 )}
                 <Button 
@@ -631,6 +640,8 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
         </CardContent>
       </Card>
+      {consentDialog}
+      </>
     );
   }
 
@@ -824,6 +835,7 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
     const hasWaitlist = occupancyRate >= 95;
     
     return (
+      <>
       <Card 
         className="group cursor-pointer hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 bg-white dark:bg-gray-800 border-2 border-gray-200 hover:border-blue-400 dark:border-gray-700 dark:hover:border-blue-600 overflow-hidden"
         onClick={onSelect}
@@ -964,14 +976,27 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
               {/* CONTACT - HIGH PRIORITY */}
               <div className="space-y-3">
                 {community.phone ? (
-                  <a
-                    href={`tel:${community.phone}`}
-                    className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Phone className="h-5 w-5 mr-2" />
-                    {community.phone}
-                  </a>
+                  isRevealed('phone') ? (
+                    <a
+                      href={`tel:${community.phone}`}
+                      className="flex items-center justify-center w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Phone className="h-5 w-5 mr-2" />
+                      {community.phone}
+                    </a>
+                  ) : (
+                    <Button
+                      className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        reveal('phone');
+                      }}
+                    >
+                      <Lock className="h-5 w-5 mr-2" />
+                      Reveal Phone Number
+                    </Button>
+                  )
                 ) : (
                   <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3">
                     <Phone className="h-5 w-5 mr-2" />
@@ -1007,6 +1032,8 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
           </div>
         </CardContent>
       </Card>
+      {consentDialog}
+      </>
     );
   }
 

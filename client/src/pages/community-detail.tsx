@@ -55,6 +55,8 @@ import { ReservationSection } from "@/components/ReservationSection";
 import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
 import { useFavorites, useAddFavorite, useRemoveFavorite } from "@/hooks/useFavorites";
 import { useAuth } from "@/hooks/useAuth";
+import { useContactReveal } from "@/hooks/useContactReveal";
+import { LockedField } from "@/components/LockedField";
 import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
@@ -709,7 +711,13 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
                     <div>
                       <p className="font-medium text-green-800 dark:text-green-200">Pricing Information Found:</p>
-                      <p className="text-lg font-bold text-green-900 dark:text-green-100">{validPricing}</p>
+                      <LockedField
+                        revealed={isDetailRevealed('pricing')}
+                        onReveal={() => revealDetail('pricing')}
+                        label="Unlock pricing"
+                      >
+                        <p className="text-lg font-bold text-green-900 dark:text-green-100">{validPricing}</p>
+                      </LockedField>
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Contact community to verify current pricing
                       </p>
@@ -1550,6 +1558,13 @@ export default function CommunityDetail() {
     staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
+
+  // Contact gating: blur detailed pricing & overview until login/consent (reveal + referral lead).
+  const {
+    isRevealed: isDetailRevealed,
+    reveal: revealDetail,
+    consentDialog: detailConsentDialog,
+  } = useContactReveal(community?.id ?? 0, community?.name);
 
   // Get comprehensive data from the community response (no longer a separate endpoint)
   const comprehensiveData = (community as any)?.comprehensiveData || null;
@@ -2825,10 +2840,30 @@ export default function CommunityDetail() {
                       const displayDescription = enrichedDescription || community.description;
                       
                       if (displayDescription) {
+                        const overviewRevealed = isDetailRevealed('overview');
                         return (
                           <div className="mb-6">
                             <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
-                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
+                            {overviewRevealed ? (
+                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
+                            ) : (
+                              <div className="relative">
+                                {/* Show the first ~6 lines free, blur the rest until revealed */}
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-6">
+                                  {displayDescription}
+                                </p>
+                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white dark:from-gray-800 to-transparent" />
+                                <button
+                                  type="button"
+                                  onClick={() => revealDetail('overview')}
+                                  className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                                  data-testid="button-reveal-overview"
+                                >
+                                  <Lock className="w-3.5 h-3.5" />
+                                  See full details
+                                </button>
+                              </div>
+                            )}
                           </div>
                         );
                       }
@@ -4229,6 +4264,7 @@ export default function CommunityDetail() {
           }}
         />
       )}
+      {detailConsentDialog}
       </div>
     </div>
   );
