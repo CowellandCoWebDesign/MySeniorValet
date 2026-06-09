@@ -2,10 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Send, Sparkles, Bot, User, MapPin, Building, BarChart3, Globe } from 'lucide-react';
+import { Loader2, Send, Sparkles, Bot, User, MapPin, Building, BarChart3, Globe, Lock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
 import { getCommunityUrl } from '@/lib/community-url';
+import { useContactReveal } from '@/hooks/useContactReveal';
 
 interface CommunityResult {
   id: number;
@@ -20,6 +21,131 @@ interface CommunityResult {
   pricing?: number;
   availability?: string;
   photos?: string[];
+}
+
+/**
+ * Renders a single community result card inside the chat. Extracted so the
+ * contact-reveal hook is instantiated once per community (hooks can't run in a loop).
+ */
+function ChatCommunityCard({
+  community,
+  setLocation,
+}: {
+  community: CommunityResult;
+  setLocation: (path: string) => void;
+}) {
+  const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
+
+  return (
+    <div
+      className="w-full bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all hover:shadow-lg overflow-hidden"
+      data-testid={`community-card-${community.id}`}
+    >
+      {/* Photo section if available */}
+      {community.photos && community.photos.length > 0 && (
+        <div className="h-32 overflow-hidden bg-gray-100 dark:bg-gray-800">
+          <img
+            src={community.photos[0]}
+            alt={community.name}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+
+      {/* Content section */}
+      <div className="p-3">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Building className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
+              {community.name}
+            </h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              📍 {community.city}, {community.state}
+            </p>
+
+            {/* Pricing if available */}
+            {community.pricing && (
+              <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
+                💰 From ${community.pricing}/month
+              </p>
+            )}
+
+            {/* Care types */}
+            <div className="flex flex-wrap gap-1 mt-2">
+              {community.careTypes?.slice(0, 3).map((type, idx) => (
+                <span key={idx} className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
+                  {type}
+                </span>
+              ))}
+              {community.careTypes && community.careTypes.length > 3 && (
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  +{community.careTypes.length - 3} more
+                </span>
+              )}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex gap-2 mt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLocation(getCommunityUrl(community));
+                }}
+                className="flex-1 text-xs"
+              >
+                View Details
+              </Button>
+              {community.phone && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isRevealed('phone')) {
+                      window.location.href = `tel:${community.phone}`;
+                    } else {
+                      reveal('phone');
+                    }
+                  }}
+                  className="flex-1 text-xs"
+                  data-testid={`button-call-${community.id}`}
+                >
+                  {isRevealed('phone') ? '📞 Call' : <><Lock className="w-3 h-3 mr-1" /> Call</>}
+                </Button>
+              )}
+              {community.website && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (isRevealed('website')) {
+                      window.open(community.website, '_blank');
+                    } else {
+                      reveal('website');
+                    }
+                  }}
+                  className="flex-1 text-xs"
+                  data-testid={`button-website-${community.id}`}
+                >
+                  {isRevealed('website') ? '🌐 Visit' : <><Lock className="w-3 h-3 mr-1" /> Visit</>}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      {consentDialog}
+    </div>
+  );
 }
 
 interface Message {
@@ -459,104 +585,11 @@ export function MySeniorValetChatKit({
                       {/* Enhanced scrollable community list with rich cards */}
                       <div className="max-h-[500px] overflow-y-auto space-y-3 pr-1">
                         {message.communities.map((community) => (
-                          <div
+                          <ChatCommunityCard
                             key={community.id}
-                            className="w-full bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-purple-500 dark:hover:border-purple-400 transition-all hover:shadow-lg overflow-hidden"
-                            data-testid={`community-card-${community.id}`}
-                          >
-                            {/* Photo section if available */}
-                            {community.photos && community.photos.length > 0 && (
-                              <div className="h-32 overflow-hidden bg-gray-100 dark:bg-gray-800">
-                                <img 
-                                  src={community.photos[0]} 
-                                  alt={community.name}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                  }}
-                                />
-                              </div>
-                            )}
-                            
-                            {/* Content section */}
-                            <div className="p-3">
-                              <div className="flex items-start gap-3">
-                                <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-900 dark:to-pink-900 rounded-lg flex items-center justify-center flex-shrink-0">
-                                  <Building className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-sm text-gray-900 dark:text-gray-100 line-clamp-2">
-                                    {community.name}
-                                  </h4>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                    📍 {community.city}, {community.state}
-                                  </p>
-                                  
-                                  {/* Pricing if available */}
-                                  {community.pricing && (
-                                    <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
-                                      💰 From ${community.pricing}/month
-                                    </p>
-                                  )}
-                                  
-                                  {/* Care types */}
-                                  <div className="flex flex-wrap gap-1 mt-2">
-                                    {community.careTypes?.slice(0, 3).map((type, idx) => (
-                                      <span key={idx} className="text-xs bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
-                                        {type}
-                                      </span>
-                                    ))}
-                                    {community.careTypes && community.careTypes.length > 3 && (
-                                      <span className="text-xs text-gray-500 dark:text-gray-400">
-                                        +{community.careTypes.length - 3} more
-                                      </span>
-                                    )}
-                                  </div>
-                                  
-                                  {/* Action buttons */}
-                                  <div className="flex gap-2 mt-3">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setLocation(getCommunityUrl(community));
-                                      }}
-                                      className="flex-1 text-xs"
-                                    >
-                                      View Details
-                                    </Button>
-                                    {community.phone && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          window.location.href = `tel:${community.phone}`;
-                                        }}
-                                        className="flex-1 text-xs"
-                                      >
-                                        📞 Call
-                                      </Button>
-                                    )}
-                                    {community.website && (
-                                      <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          window.open(community.website, '_blank');
-                                        }}
-                                        className="flex-1 text-xs"
-                                      >
-                                        🌐 Visit
-                                      </Button>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                            community={community}
+                            setLocation={setLocation}
+                          />
                         ))}
                       </div>
                     </div>

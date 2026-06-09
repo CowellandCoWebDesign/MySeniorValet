@@ -1,10 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Globe, DollarSign, Languages } from "lucide-react";
+import { MapPin, Phone, Globe, DollarSign, Languages, Lock } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Link } from "wouter";
 import { getCommunityUrl } from "@/lib/community-url";
+import { useContactReveal } from "@/hooks/useContactReveal";
 
 interface BilingualCommunityCardProps {
   id: number;
@@ -44,6 +45,7 @@ export function BilingualCommunityCard({
   longitude
 }: BilingualCommunityCardProps) {
   const { language, t } = useLanguage();
+  const { isRevealed, reveal, consentDialog } = useContactReveal(id, name);
   
   // Select appropriate language content
   const displayName = language === 'fr' && nameFr ? nameFr : (nameEn || name);
@@ -77,23 +79,45 @@ export function BilingualCommunityCard({
           {phone && (
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <Phone className="w-4 h-4" />
-              <a href={`tel:${phone}`} className="hover:text-blue-600 dark:hover:text-blue-400">
-                {phone}
-              </a>
+              {isRevealed('phone') ? (
+                <a href={`tel:${phone}`} className="hover:text-blue-600 dark:hover:text-blue-400">
+                  {phone}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('phone'); }}
+                  className="flex items-center gap-1 text-blue-500 hover:underline"
+                  data-testid={`button-reveal-phone-${id}`}
+                >
+                  <Lock className="w-3 h-3" /> {t('community.callNow')}
+                </button>
+              )}
             </div>
           )}
           
           {website && (
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
               <Globe className="w-4 h-4" />
-              <a 
-                href={website} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="hover:text-blue-600 dark:hover:text-blue-400 truncate"
-              >
-                {t('community.website')}
-              </a>
+              {isRevealed('website') ? (
+                <a 
+                  href={website} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-600 dark:hover:text-blue-400 truncate"
+                >
+                  {t('community.website')}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('website'); }}
+                  className="flex items-center gap-1 text-blue-500 hover:underline"
+                  data-testid={`button-reveal-website-${id}`}
+                >
+                  <Lock className="w-3 h-3" /> {t('community.website')}
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -125,8 +149,16 @@ export function BilingualCommunityCard({
             <Button 
               variant="default"
               className="bg-blue-600 hover:bg-blue-700"
-              onClick={() => window.location.href = `tel:${phone}`}
+              onClick={() => {
+                if (isRevealed('phone')) {
+                  window.location.href = `tel:${phone}`;
+                } else {
+                  reveal('phone');
+                }
+              }}
+              data-testid={`button-call-${id}`}
             >
+              {!isRevealed('phone') && <Lock className="w-3 h-3 mr-1" />}
               {t('community.callNow')}
             </Button>
           )}
@@ -138,6 +170,7 @@ export function BilingualCommunityCard({
           </div>
         )}
       </CardContent>
+      {consentDialog}
     </Card>
   );
 }

@@ -3,12 +3,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FamilyShareButton } from './family-share-button';
-import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck } from "lucide-react";
+import { Star, Shield, AlertTriangle, DollarSign, MapPin, Heart, Share, Users, Calendar, CheckCircle, ExternalLink, Clock, Home, Wifi, Car, Utensils, Activity, Phone, Camera, Video, UserCheck, Stethoscope, Bed, ShowerHead, ChevronDown, ChevronUp, ImageIcon, ShieldCheck, Lock } from "lucide-react";
 import { Link } from "wouter";
 import type { Community } from "@shared/schema";
 import { PhotoCarousel } from "@/components/photo-carousel";
 import { processPhotoUrls } from "@/lib/photoUtils";
 import { getCommunityUrl } from "@/lib/community-url";
+import { useContactReveal } from "@/hooks/useContactReveal";
 
 interface CommunityCardProps {
   community: Community;
@@ -54,6 +55,7 @@ const getCommunitySubtypeLabel = (subtype: string): { label: string; badge: stri
 };
 
 export function CommunityCard({ community }: CommunityCardProps) {
+  const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
   const [expandedSections, setExpandedSections] = useState({
     amenities: false,
     services: false,
@@ -450,25 +452,58 @@ export function CommunityCard({ community }: CommunityCardProps) {
             {community.phone && (
               <div className="flex items-center space-x-2 hover:bg-blue-200 p-2 rounded transition-colors duration-200">
                 <Phone className="h-4 w-4 text-blue-600 hover:text-blue-700 transition-colors duration-200" />
-                <a href={`tel:${community.phone}`} className="text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                  {community.phone}
-                </a>
+                {isRevealed('phone') ? (
+                  <a href={`tel:${community.phone}`} className="text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200">
+                    {community.phone}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('phone'); }}
+                    className="flex items-center gap-1 text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200"
+                    data-testid={`button-reveal-phone-${community.id}`}
+                  >
+                    <Lock className="h-3 w-3" /> Tap to reveal phone
+                  </button>
+                )}
               </div>
             )}
             {community.email && (
               <div className="flex items-center space-x-2 hover:bg-blue-200 p-2 rounded transition-colors duration-200">
                 <ExternalLink className="h-4 w-4 text-blue-600 hover:text-blue-700 transition-colors duration-200" />
-                <a href={`mailto:${community.email}`} className="text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200">
-                  {community.email}
-                </a>
+                {isRevealed('email') ? (
+                  <a href={`mailto:${community.email}`} className="text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200">
+                    {community.email}
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('email'); }}
+                    className="flex items-center gap-1 text-blue-700 hover:text-blue-900 font-medium transition-colors duration-200"
+                    data-testid={`button-reveal-email-${community.id}`}
+                  >
+                    <Lock className="h-3 w-3" /> Tap to reveal email
+                  </button>
+                )}
               </div>
             )}
           </div>
           {community.website && (
             <div className="mt-2">
-              <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-medium text-sm transition-colors duration-200 hover:underline">
-                Visit Website →
-              </a>
+              {isRevealed('website') ? (
+                <a href={community.website} target="_blank" rel="noopener noreferrer" className="text-blue-700 hover:text-blue-900 font-medium text-sm transition-colors duration-200 hover:underline">
+                  Visit Website →
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('website'); }}
+                  className="flex items-center gap-1 text-blue-700 hover:text-blue-900 font-medium text-sm transition-colors duration-200 hover:underline"
+                  data-testid={`button-reveal-website-${community.id}`}
+                >
+                  <Lock className="h-3 w-3" /> Tap to reveal website
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -1044,10 +1079,15 @@ export function CommunityCard({ community }: CommunityCardProps) {
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  window.open(`tel:${community.phone}`, '_self');
+                  if (isRevealed('phone')) {
+                    window.open(`tel:${community.phone}`, '_self');
+                  } else {
+                    reveal('phone');
+                  }
                 }}
+                data-testid={`button-call-${community.id}`}
               >
-                <Phone className="h-4 w-4 mr-2" />
+                {isRevealed('phone') ? <Phone className="h-4 w-4 mr-2" /> : <Lock className="h-4 w-4 mr-2" />}
                 Call Now
               </Button>
             )}
@@ -1064,6 +1104,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
           </div>
         </div>
       </CardContent>
+      {consentDialog}
     </Card>
   );
 }

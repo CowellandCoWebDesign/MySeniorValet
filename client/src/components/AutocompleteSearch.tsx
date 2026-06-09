@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { Search, MapPin, Building2, Heart, Users, Loader2, Phone, Star, Shield, DollarSign, Home, Brain, CheckCircle } from 'lucide-react';
+import { Search, MapPin, Building2, Heart, Users, Loader2, Phone, Star, Shield, DollarSign, Home, Brain, CheckCircle, Lock } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { apiRequest } from '@/lib/queryClient';
 import { useAddFavorite, useRemoveFavorite, useFavorites } from '@/hooks/useFavorites';
@@ -12,6 +12,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
 import { getCommunityUrl } from '@/lib/community-url';
+import { useContactReveal } from '@/hooks/useContactReveal';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AutocompleteSuggestion {
   label: string;
@@ -37,6 +39,59 @@ interface AutocompleteSuggestion {
   rentPerMonth?: number;
   availabilityStatus?: string;
   photos?: string[];
+}
+
+/**
+ * Phone line for a community suggestion in the autocomplete dropdown.
+ * Gated behind the contact-reveal flow when the suggestion has a community id;
+ * if there is no id (can't fire a referral), the raw number is hidden from
+ * logged-out visitors instead of being exposed.
+ */
+function SuggestionPhoneReveal({
+  communityId,
+  communityName,
+  phone,
+}: {
+  communityId?: number;
+  communityName?: string;
+  phone: string;
+}) {
+  const { isAuthenticated } = useAuth();
+  const { isRevealed, reveal, consentDialog } = useContactReveal(communityId ?? 0, communityName);
+
+  // No community id → can't gate/track a referral; only show to logged-in users.
+  if (!communityId) {
+    if (!isAuthenticated) return null;
+    return (
+      <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+        <Phone className="h-3 w-3 mr-1" />
+        <a href={`tel:${phone}`} onClick={(e) => e.stopPropagation()} className="font-medium">
+          {phone}
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+      <Phone className="h-3 w-3 mr-1" />
+      {isRevealed('phone') ? (
+        <a href={`tel:${phone}`} onClick={(e) => e.stopPropagation()} className="font-medium">
+          {phone}
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('phone'); }}
+          className="flex items-center gap-1 font-medium hover:underline"
+          data-testid={`button-reveal-phone-${communityId}`}
+        >
+          <Lock className="h-3 w-3" /> Tap to reveal phone
+        </button>
+      )}
+      {consentDialog}
+    </div>
+  );
 }
 
 interface AutocompleteSearchProps {
@@ -528,16 +583,11 @@ export function AutocompleteSearch({
                       
                       {/* Contact Information */}
                       {suggestion.phone && (
-                        <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
-                          <Phone className="h-3 w-3 mr-1" />
-                          <a 
-                            href={`tel:${suggestion.phone}`} 
-                            onClick={(e) => e.stopPropagation()}
-                            className="font-medium"
-                          >
-                            {suggestion.phone}
-                          </a>
-                        </div>
+                        <SuggestionPhoneReveal
+                          communityId={suggestion.id}
+                          communityName={suggestion.label}
+                          phone={suggestion.phone}
+                        />
                       )}
                     </div>
                   );

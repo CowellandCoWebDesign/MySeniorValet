@@ -2,9 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import { Link } from "wouter";
 import { getCommunityUrl } from "@/lib/community-url";
+import { useContactReveal } from "@/hooks/useContactReveal";
 
 interface FeaturedExcellenceCardProps {
   community: {
@@ -39,6 +40,12 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
   const normalizedAddress = community.address || community.streetAddress;
   const normalizedPhone = community.phone || community.phoneNumber;
   const normalizedWebsite = community.website || community.url;
+
+  // Contact gating: blur phone/website until the family logs in or shares consent.
+  const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
+  const normalizedWebsiteHref = normalizedWebsite
+    ? (normalizedWebsite.startsWith('http') ? normalizedWebsite : `https://${normalizedWebsite}`)
+    : '';
   
   // Check if address already contains city/state to avoid duplication
   const cityState = community.city && community.state ? `${community.city}, ${community.state}` : '';
@@ -369,9 +376,20 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           {normalizedPhone && (
             <div className="flex items-center gap-1.5" data-testid={`phone-${community.id}`}>
               <span className="w-3 text-center flex-shrink-0">📞</span>
-              <a href={`tel:${normalizedPhone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
-                {normalizedPhone}
-              </a>
+              {isRevealed('phone') ? (
+                <a href={`tel:${normalizedPhone}`} className="text-blue-600 dark:text-blue-400 hover:underline">
+                  {normalizedPhone}
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('phone'); }}
+                  className="flex items-center gap-1 text-blue-500 hover:underline"
+                  data-testid={`button-reveal-phone-${community.id}`}
+                >
+                  <Lock className="w-3 h-3" /> Tap to reveal phone
+                </button>
+              )}
             </div>
           )}
           
@@ -379,14 +397,25 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           {normalizedWebsite && (
             <div className="flex items-center gap-1.5" data-testid={`website-${community.id}`}>
               <span className="w-3 text-center flex-shrink-0">🌐</span>
-              <a 
-                href={normalizedWebsite.startsWith('http') ? normalizedWebsite : `https://${normalizedWebsite}`} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="text-blue-600 dark:text-blue-400 hover:underline truncate"
-              >
-                Website
-              </a>
+              {isRevealed('website') ? (
+                <a 
+                  href={normalizedWebsiteHref} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-blue-600 dark:text-blue-400 hover:underline truncate"
+                >
+                  Website
+                </a>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('website'); }}
+                  className="flex items-center gap-1 text-blue-500 hover:underline"
+                  data-testid={`button-reveal-website-${community.id}`}
+                >
+                  <Lock className="w-3 h-3" /> Tap to reveal website
+                </button>
+              )}
             </div>
           )}
         </div>
@@ -394,24 +423,46 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
         {/* Action buttons row */}
         <div className="flex items-center gap-2 text-xs mb-2">
           {normalizedPhone && (
-            <a 
-              href={`tel:${normalizedPhone}`} 
-              className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" 
-              data-testid={`link-call-${community.id}`}
-            >
-              📞 Call
-            </a>
+            isRevealed('phone') ? (
+              <a 
+                href={`tel:${normalizedPhone}`} 
+                className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" 
+                data-testid={`link-call-${community.id}`}
+              >
+                📞 Call
+              </a>
+            ) : (
+              <button 
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('phone'); }}
+                className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors" 
+                data-testid={`button-call-${community.id}`}
+              >
+                <Lock className="w-3 h-3" /> Call
+              </button>
+            )
           )}
           {normalizedWebsite && (
-            <a 
-              href={normalizedWebsite.startsWith('http') ? normalizedWebsite : `https://${normalizedWebsite}`} 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center gap-1 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors" 
-              data-testid={`link-website-${community.id}`}
-            >
-              🌐 Website
-            </a>
+            isRevealed('website') ? (
+              <a 
+                href={normalizedWebsiteHref} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex items-center gap-1 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors" 
+                data-testid={`link-website-${community.id}`}
+              >
+                🌐 Website
+              </a>
+            ) : (
+              <button 
+                type="button"
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('website'); }}
+                className="flex items-center gap-1 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors" 
+                data-testid={`button-website-${community.id}`}
+              >
+                <Lock className="w-3 h-3" /> Website
+              </button>
+            )
           )}
           <Link href={`${getCommunityUrl(community)}?tab=tour`} data-testid={`link-tour-${community.id}`}>
             <span className="flex items-center gap-1 px-2 py-1 rounded bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-colors cursor-pointer">
@@ -446,6 +497,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           </Button>
         </Link>
       </CardContent>
+      {consentDialog}
     </Card>
   );
 }
