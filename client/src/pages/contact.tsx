@@ -243,6 +243,16 @@ export default function Contact() {
                 
                 <div className="space-y-4">
                   <div className="flex items-center">
+                    <Phone className="w-5 h-5 text-blue-600 mr-3" />
+                    <div>
+                      <div className="font-medium">Phone</div>
+                      <a href="tel:+15307764220" className="text-blue-600 hover:text-blue-700">
+                        (530) 776-4220
+                      </a>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center">
                     <Mail className="w-5 h-5 text-blue-600 mr-3" />
                     <div>
                       <div className="font-medium">General Inquiries</div>
