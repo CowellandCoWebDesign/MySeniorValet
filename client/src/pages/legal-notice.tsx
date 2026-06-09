@@ -48,15 +48,18 @@ export default function LegalNotice() {
               </ul>
             </div>
 
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
-              <h3 className="text-xl font-semibold text-red-900 dark:text-red-200 mb-3">
-                🚫 Not a Placement Agency
+            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
+              <h3 className="text-xl font-semibold text-blue-900 dark:text-blue-200 mb-3">
+                🤝 Referral Partnership & Placement Services
               </h3>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
-                We facilitate connections between families and communities but are <strong>NOT</strong> 
-                a placement agency. We do not make recommendations or receive referral fees from 
-                communities. All family features are completely FREE including research, tour scheduling, 
-                emergency contacts, and collaboration tools.
+                MySeniorValet and its affiliate <strong>NorCal Senior Placement Services</strong> (
+                <a href="https://norcalseniorplacementservices.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 underline">norcalseniorplacementservices.com</a>
+                ) connect families with senior living communities. We may receive referral fees from 
+                participating communities when a family chooses a community through our platform. 
+                This is always disclosed. <strong>Family research tools are completely FREE</strong> — 
+                including search, tour scheduling, emergency contacts, and collaboration tools. 
+                We never charge families directly.
               </p>
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
                 <strong>Important:</strong> Always verify information independently, visit facilities 
@@ -107,10 +110,21 @@ export default function LegalNotice() {
 
                 <div>
                   <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                    Referral Fees
+                  </h4>
+                  <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    MySeniorValet and its affiliate <strong>NorCal Senior Placement Services</strong> may 
+                    receive referral fees from participating communities when a family selects a community 
+                    through our platform. This relationship is always disclosed at the point of connection.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
                     B2B Subscriptions
                   </h4>
                   <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our primary revenue comes from B2B subscriptions:
+                    Additional revenue comes from B2B subscriptions:
                   </p>
                   <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300 space-y-1 mt-2">
                     <li>Communities: Analytics and management tools</li>
@@ -118,7 +132,7 @@ export default function LegalNotice() {
                     <li>Vendors: Marketplace access and tools</li>
                   </ul>
                   <p className="text-green-700 dark:text-green-400 font-semibold mt-3">
-                    ✅ We do NOT charge families any fees or commissions - ever
+                    ✅ We never charge families directly — family research tools are always free
                   </p>
                 </div>
               </div>

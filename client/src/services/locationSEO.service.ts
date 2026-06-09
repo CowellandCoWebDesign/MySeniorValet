@@ -138,7 +138,7 @@ export class LocationSEOService {
         <li>Verified HUD rates for qualifying properties</li>
         <li>Real-time availability updates</li>
         <li>Comprehensive community profiles</li>
-        <li>No referral fees or markups</li>
+        <li>Transparent referral fee disclosures — family tools always free</li>
       </ul>
     `;
     

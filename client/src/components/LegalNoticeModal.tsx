@@ -92,10 +92,9 @@ export function LegalNoticeModal() {
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-900 dark:text-gray-100">Not a Placement Agency</p>
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">Referral Partnership & Placement Services</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      We facilitate connections between families and communities but are NOT a placement agency. 
-                      We do NOT charge families any fees or commissions - all revenue comes from B2B services.
+                      MySeniorValet and its affiliate NorCal Senior Placement Services connect families with senior living communities. We may receive referral fees from participating communities — always disclosed. Family research tools are free. We never charge families directly.
                     </p>
                   </div>
                 </div>
@@ -158,11 +157,7 @@ export function LegalNoticeModal() {
               {/* Disclaimer */}
               <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-4">
                 <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-                  <strong className="text-red-700 dark:text-red-400">DISCLAIMER:</strong> MySeniorValet is not a placement agency, 
-                  referral service, or care advisor. We may earn affiliate commissions from select partnerships (such as Amazon and floral services), 
-                  which are clearly marked. These relationships do not influence the neutrality of our research platform. 
-                  Information provided is for research purposes only and should not be considered professional advice. 
-                  Always consult qualified professionals for legal, medical, financial, or care-related decisions.
+                  <strong className="text-red-700 dark:text-red-400">DISCLAIMER:</strong> MySeniorValet and its affiliate NorCal Senior Placement Services connect families with senior living communities. We may receive referral fees from participating communities when a family selects a community through our platform — this is always disclosed. We may also earn affiliate commissions from clearly marked partnerships (such as Amazon and floral services). Family research tools are free. We never charge families directly. Information provided is for research purposes only and should not be considered professional advice. Always consult qualified professionals for legal, medical, financial, or care-related decisions.
                 </p>
               </div>
             </div>

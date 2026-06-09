@@ -34,7 +34,7 @@ export default function Mission() {
           </CardHeader>
           <CardContent>
             <p className="text-lg text-gray-700 leading-relaxed">
-              At MySeniorValet, we believe every family deserves complete transparency and authentic guidance when making senior living decisions. We're committed to eliminating the confusion, hidden fees, and referral-driven advice that has plagued this industry for too long.
+              At MySeniorValet, we believe every family deserves complete transparency and authentic guidance when making senior living decisions. We're committed to eliminating the confusion and hidden fees that have plagued this industry. Where referral partnerships exist, we disclose them fully — families always know exactly how our platform works and how we're compensated.
             </p>
           </CardContent>
         </Card>
@@ -50,7 +50,7 @@ export default function Mission() {
             </CardHeader>
             <CardContent>
               <p className="text-gray-700">
-                We provide real pricing, authentic reviews, and verified information. No hidden fees, no referral commissions, no misleading information.
+                We provide real pricing, authentic reviews, and verified information. Any referral fee relationships are fully disclosed. No misleading information, no hidden steering.
               </p>
             </CardContent>
           </Card>
@@ -107,7 +107,7 @@ export default function Mission() {
             <div className="space-y-3">
               <div className="flex items-center space-x-2">
                 <Badge variant="destructive">❌</Badge>
-                <span>Referral fees and hidden commissions</span>
+                <span>Hidden commissions and undisclosed referral fees</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Badge variant="destructive">❌</Badge>
@@ -152,8 +152,8 @@ export default function Mission() {
               <div className="flex items-start space-x-3">
                 <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
                 <div>
-                  <h4 className="font-semibold">No Referral Fees Ever</h4>
-                  <p className="text-gray-700">We never accept money from communities to influence our recommendations. Your best interests come first.</p>
+                  <h4 className="font-semibold">Transparent Referral Partnerships</h4>
+                  <p className="text-gray-700">When we receive referral fees from participating communities, we disclose it fully. We never let compensation influence which communities we surface or recommend. Your best interests come first.</p>
                 </div>
               </div>
               <div className="flex items-start space-x-3">

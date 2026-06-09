@@ -28,12 +28,10 @@ export function DisclaimerBanner() {
             <Info className="h-5 w-5 text-blue-300 mt-0.5 flex-shrink-0" aria-hidden="true" />
             <div className="text-sm">
               <p className="font-medium mb-1">
-                Information Only - No Referral Fees
+                Information Platform - Referral Fees Disclosed
               </p>
               <p className="text-blue-200 leading-relaxed">
-                MySeniorValet provides publicly available information only and does not collect 
-                referral fees. We are not a licensed placement agency. Always verify 
-                information directly with communities before making decisions.
+                MySeniorValet connects families with senior living communities and may receive referral fees from participating communities — always disclosed. Family research tools are free. Always verify information directly with communities before making decisions.
               </p>
             </div>
           </div>

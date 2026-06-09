@@ -4819,7 +4819,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         totalCommunities: communities.length,
         requestId: Math.random().toString(36).substr(2, 9),
         timestamp: new Date().toISOString(),
-        disclaimer: "This ranking is informational. MySeniorValet receives no referral fees and is not a licensed placement agency. Verify suitability directly with each community."
+        disclaimer: "This ranking is informational. MySeniorValet and its affiliate NorCal Senior Placement Services connect families with communities. Referral fees from participating communities are always transparently disclosed. Verify suitability directly with each community."
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -12790,7 +12790,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // =============================================
   // COMPREHENSIVE MULTI-AI INTELLIGENCE SYSTEM
   // =============================================
-  // Truth in Senior Living - NOT a placement agency
+  // Truth in Senior Living - Transparent referral partnerships, fully disclosed
   // World-changing transparency through AI collaboration
   
   const { EnhancedMultiAIOrchestrator } = await import('./enhanced-multi-ai-orchestrator');
@@ -12944,7 +12944,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         ...result,
         timestamp: new Date().toISOString(),
-        disclaimer: 'MySeniorValet provides transparency only - we are not a placement agency'
+        disclaimer: 'MySeniorValet provides transparency in senior living. We and our affiliate NorCal Senior Placement Services connect families with communities. Any referral fees from participating communities are always transparently disclosed. Family research tools are free.'
       });
     } catch (error) {
       console.error('AI analysis error:', error);

@@ -16,7 +16,7 @@ export default function SeniorLivingSanFranciscoPage() {
   // Critical SEO optimization for Google rankings
   useSEO({
     title: 'Best Senior Living San Francisco 2025 - 287 Communities | Real Pricing $7,800-$12,500',
-    description: 'Complete guide to San Francisco senior living facilities. Compare 287 verified communities with real pricing from $7,800-$12,500/month. HUD affordable options, memory care, assisted living. No referral fees.',
+    description: 'Complete guide to San Francisco senior living facilities. Compare 287 verified communities with real pricing from $7,800-$12,500/month. HUD affordable options, memory care, assisted living. Family research tools free.',
     keywords: 'senior living San Francisco, assisted living San Francisco, memory care San Francisco, retirement homes San Francisco, nursing homes San Francisco, affordable senior housing San Francisco, HUD senior housing San Francisco, best senior living San Francisco',
     canonicalUrl: 'https://www.myseniorvalet.com/senior-living-san-francisco'
   });
@@ -85,7 +85,7 @@ export default function SeniorLivingSanFranciscoPage() {
             </div>
             <div>
               <div className="text-3xl font-bold">100% Free</div>
-              <div className="text-sm opacity-90">No Referral Fees</div>
+              <div className="text-sm opacity-90">Free for Families</div>
             </div>
           </div>
         </div>
@@ -389,7 +389,7 @@ export default function SeniorLivingSanFranciscoPage() {
             </Button>
           </div>
           <p className="mt-8 text-sm opacity-75">
-            100% Free • No Referral Fees • Independent Platform
+            100% Free for Families • Transparent Referral Disclosures • Independent Platform
           </p>
         </div>
       </section>

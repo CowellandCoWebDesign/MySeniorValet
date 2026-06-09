@@ -1326,7 +1326,7 @@ export function registerAIRoutes(app: Express) {
       res.json({
         ...result,
         timestamp: new Date().toISOString(),
-        disclaimer: 'MySeniorValet provides transparency only - we are not a placement agency'
+        disclaimer: 'MySeniorValet provides transparency in senior living. We and our affiliate NorCal Senior Placement Services connect families with communities. Any referral fees from participating communities are always transparently disclosed. Family research tools are free.'
       });
     } catch (error) {
       console.error('AI analysis error:', error);

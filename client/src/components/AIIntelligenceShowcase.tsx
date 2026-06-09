@@ -8,7 +8,7 @@ import { Brain, Eye, TrendingUp, Shield, BookOpen, Calculator, Rocket } from 'lu
 COMPREHENSIVE MULTI-AI INTELLIGENCE SHOWCASE
 World-changing transparency through 3-AI collaboration:
 Claude (Complex Reasoning) + Gemini (Visual Intelligence) + ChatGPT (Financial Transparency)
-Truth in Senior Living - NOT a placement agency
+Truth in Senior Living - Transparent referral partnerships, fully disclosed
 */
 
 interface AICapability {
@@ -36,7 +36,7 @@ const aiCapabilities: AICapability[] = [
       'Exposing hidden information through AI collaboration',
       'World-changing transparency in senior living',
       'Eliminating decades of industry opacity',
-      'Truth in Senior Living - NOT placement services'
+      'Truth in Senior Living - Transparent partnerships, always disclosed'
     ],
     confidence: 98,
     color: 'from-purple-600 to-pink-600'

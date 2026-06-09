@@ -451,7 +451,7 @@ export default function SeniorLivingSanDiegoPage() {
             </Button>
           </div>
           <p className="mt-8 text-sm opacity-75">
-            100% Free • No Referral Fees • Independent Platform
+            100% Free for Families • Transparent Referral Disclosures • Independent Platform
           </p>
         </div>
       </section>

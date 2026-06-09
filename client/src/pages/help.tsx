@@ -362,7 +362,7 @@ export default function Help() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Badge variant="secondary">🛡️</Badge>
-                  <span>No referral fees or commissions</span>
+                  <span>Referral partnerships always transparently disclosed</span>
                 </div>
               </div>
             </div>

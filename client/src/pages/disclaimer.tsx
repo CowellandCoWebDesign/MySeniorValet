@@ -42,9 +42,7 @@ export default function Disclaimer() {
                 Important Notice
               </h2>
               <p className="text-yellow-700">
-                MySeniorValet provides publicly available information only and does not collect referral fees. 
-                The information provided is for educational and informational purposes only and should not 
-                be considered as professional advice.
+                MySeniorValet provides publicly available information and connects families with senior living communities. We may receive referral fees from participating communities — this is always disclosed. The information provided is for educational and informational purposes only and should not be considered as professional advice.
               </p>
             </div>
           </div>
@@ -67,7 +65,7 @@ export default function Disclaimer() {
                   <li><strong>Medical advice</strong> - Consult healthcare professionals for medical decisions</li>
                   <li><strong>Legal advice</strong> - Contact qualified attorneys for legal matters</li>
                   <li><strong>Financial advice</strong> - Seek certified financial advisors for financial planning</li>
-                  <li><strong>Placement services</strong> - We are not a licensed placement agency</li>
+                  <li><strong>Placement decisions</strong> - All placement decisions are yours; we connect you with options through our platform and affiliate NorCal Senior Placement Services</li>
                 </ul>
               </div>
               
@@ -129,12 +127,12 @@ export default function Disclaimer() {
                 </div>
                 
                 <div className="p-4 bg-red-50 rounded-lg border border-red-200">
-                  <h3 className="font-semibold text-red-800 mb-2">We Are Not:</h3>
+                  <h3 className="font-semibold text-red-800 mb-2">Important Disclosures:</h3>
                   <ul className="list-disc list-inside space-y-1 text-red-700 text-sm">
-                    <li>A licensed placement agency</li>
-                    <li>Receiving referral fees</li>
-                    <li>Endorsed by any communities</li>
-                    <li>Responsible for placement decisions</li>
+                    <li>We may receive referral fees from participating communities — always disclosed</li>
+                    <li>Our affiliate NorCal Senior Placement Services is a licensed placement service</li>
+                    <li>Not endorsed by or responsible for any specific community</li>
+                    <li>Not responsible for your final placement decisions</li>
                   </ul>
                 </div>
               </div>

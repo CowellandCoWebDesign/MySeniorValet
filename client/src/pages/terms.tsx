@@ -77,8 +77,7 @@ export default function Terms() {
               <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
                 <p className="text-blue-800 font-medium">Important:</p>
                 <p className="text-blue-700 text-sm mt-1">
-                  MySeniorValet is not a licensed placement agency and does not receive referral fees. 
-                  We provide information only - all placement decisions are between you and the communities.
+                  MySeniorValet and its affiliate NorCal Senior Placement Services connect families with senior living communities. We may receive referral fees from participating communities when a family selects a community through our platform. This is always disclosed. Family research tools are free. We never charge families directly.
                 </p>
               </div>
             </CardContent>
