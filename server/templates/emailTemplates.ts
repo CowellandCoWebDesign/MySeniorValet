@@ -1146,3 +1146,36 @@ export async function sendTemplatedEmail(
     ...options
   });
 }
+
+// ============= CONTACT FORM CONFIRMATION TEMPLATE =============
+
+export const contactConfirmationEmail: EmailTemplate = {
+  subject: 'We received your message — MySeniorValet',
+  html: (data: { name: string; subject: string; message: string }) => baseTemplate(`
+    <h2 style="color: ${BRAND_PRIMARY}; margin: 0 0 20px 0;">Thank you, ${data.name}!</h2>
+
+    <p style="color: #374151; line-height: 1.6; font-size: 16px;">
+      We've received your message and a member of our team will get back to you 
+      <strong>within 24 hours</strong>.
+    </p>
+
+    <div style="background-color: #f0f9ff; border-left: 4px solid ${BRAND_PRIMARY}; border-radius: 4px; padding: 20px; margin: 25px 0;">
+      <p style="color: #6b7280; font-size: 13px; margin: 0 0 8px 0; text-transform: uppercase; letter-spacing: 0.05em;">Your submission</p>
+      <p style="color: #1e293b; font-size: 15px; margin: 0 0 6px 0;"><strong>Subject:</strong> ${data.subject}</p>
+      <p style="color: #374151; font-size: 14px; line-height: 1.6; margin: 0; white-space: pre-wrap;">${data.message.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</p>
+    </div>
+
+    <p style="color: #374151; line-height: 1.6; font-size: 15px;">
+      In the meantime, feel free to explore our platform — search communities, review pricing, 
+      and find resources across our growing database of 34,000+ senior living options nationwide.
+    </p>
+
+    <p style="color: #6b7280; font-size: 13px; margin: 30px 0 0 0; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+      <em>The trusted platform for authentic senior living community information. Helping families make 
+      informed decisions with verified data and transparent pricing.</em>
+    </p>
+  `, 'Questions? Reply to this email or contact us at <a href="mailto:hello@myseniorvalet.com" style="color: ' + BRAND_PRIMARY + ';">hello@myseniorvalet.com</a>'),
+
+  text: (data: { name: string; subject: string; message: string }) =>
+    `Thank you, ${data.name}!\n\nWe've received your message and will respond within 24 hours.\n\nYour submission:\nSubject: ${data.subject}\n\n${data.message}\n\n---\nMySeniorValet — The trusted platform for authentic senior living community information.\nhello@myseniorvalet.com`
+};

@@ -858,11 +858,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userAgent
       });
 
-      // Send email notification to admin
+      // Send email notification to admin + confirmation to visitor
       try {
         const sgMail = await import('@sendgrid/mail');
         sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!);
-        const emailHtml = `
+        const adminEmailHtml = `
           <h2>New Contact Form Submission</h2>
           <p><strong>From:</strong> ${name} (${email})</p>
           <p><strong>Subject:</strong> ${subject}</p>
@@ -872,12 +872,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           <p><small>Submitted at ${new Date().toISOString()}</small></p>
         `;
 
+        // Admin notification
         await sgMail.default.send({
           to: 'hello@myseniorvalet.com',
           from: 'hello@myseniorvalet.com',
           replyTo: email,
           subject: `Contact Form: ${subject} - from ${name}`,
-          html: emailHtml
+          html: adminEmailHtml
+        });
+
+        // Visitor confirmation email
+        const { contactConfirmationEmail } = await import('./templates/emailTemplates');
+        await sgMail.default.send({
+          to: email,
+          from: 'hello@myseniorvalet.com',
+          subject: contactConfirmationEmail.subject,
+          html: contactConfirmationEmail.html({ name, subject, message }),
+          text: contactConfirmationEmail.text ? contactConfirmationEmail.text({ name, subject, message }) : undefined
         });
       } catch (emailError) {
         console.error('Error sending contact form email notification:', emailError);
