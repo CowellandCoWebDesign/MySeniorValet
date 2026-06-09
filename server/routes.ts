@@ -906,6 +906,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin endpoints for contact form submissions
+  app.get('/api/admin/contact-submissions', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { status, limit } = req.query;
+      const submissions = await storage.getContactSubmissions({
+        status: status as string | undefined,
+        limit: limit ? parseInt(limit as string) : undefined,
+      });
+      res.json(submissions);
+    } catch (error) {
+      console.error('Error fetching contact submissions:', error);
+      res.status(500).json({ error: 'Failed to fetch contact submissions' });
+    }
+  });
+
+  app.patch('/api/admin/contact-submissions/:id/status', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const validStatuses = ['pending', 'read', 'responded', 'archived'];
+      if (!status || !validStatuses.includes(status)) {
+        return res.status(400).json({ error: `Status must be one of: ${validStatuses.join(', ')}` });
+      }
+      const updated = await storage.updateContactSubmissionStatus(id, status);
+      if (!updated) {
+        return res.status(404).json({ error: 'Submission not found' });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating contact submission status:', error);
+      res.status(500).json({ error: 'Failed to update submission status' });
+    }
+  });
+
   // Admin endpoints for managing featured communities
   app.post('/api/admin/featured-communities', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
     try {

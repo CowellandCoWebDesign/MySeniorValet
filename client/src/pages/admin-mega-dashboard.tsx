@@ -200,6 +200,173 @@ interface SubscriptionPlan {
 // Color palette for charts
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#14B8A6', '#F97316'];
 
+const STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  pending: { label: 'Pending', variant: 'destructive' },
+  read: { label: 'Read', variant: 'secondary' },
+  responded: { label: 'Responded', variant: 'default' },
+  archived: { label: 'Archived', variant: 'outline' },
+};
+
+function ContactSubmissionsTab() {
+  const { toast } = useToast();
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const { data: submissions = [], isLoading, refetch } = useQuery<any[]>({
+    queryKey: ['/api/admin/contact-submissions', statusFilter],
+    queryFn: async () => {
+      const params = statusFilter !== 'all' ? `?status=${statusFilter}` : '';
+      const res = await fetch(`/api/admin/contact-submissions${params}`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load submissions');
+      return res.json();
+    },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const res = await apiRequest('PATCH', `/api/admin/contact-submissions/${id}/status`, { status });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/contact-submissions'] });
+      toast({ title: 'Status updated' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to update status', variant: 'destructive' });
+    },
+  });
+
+  const counts = submissions.reduce((acc: Record<string, number>, s: any) => {
+    acc[s.status] = (acc[s.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-blue-500" />
+                Contact Form Inbox
+              </CardTitle>
+              <CardDescription>Manage and triage incoming contact form submissions</CardDescription>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => refetch()}>
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Refresh
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {['all', 'pending', 'read', 'responded', 'archived'].map(s => (
+              <Button
+                key={s}
+                variant={statusFilter === s ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setStatusFilter(s)}
+              >
+                {s === 'all' ? 'All' : STATUS_CONFIG[s]?.label}
+                {s === 'all'
+                  ? ` (${submissions.length})`
+                  : counts[s]
+                  ? ` (${counts[s]})`
+                  : ''}
+              </Button>
+            ))}
+          </div>
+
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <Loader2 className="w-6 h-6 animate-spin" />
+            </div>
+          ) : submissions.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Mail className="h-10 w-10 mx-auto mb-3 opacity-30" />
+              <p>No submissions found</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {submissions.map((sub: any) => {
+                const isExpanded = expandedId === sub.id;
+                const cfg = STATUS_CONFIG[sub.status] || STATUS_CONFIG.pending;
+                return (
+                  <div
+                    key={sub.id}
+                    className={`border rounded-lg transition-all ${sub.status === 'pending' ? 'border-orange-400/50 bg-orange-50/5' : ''}`}
+                  >
+                    <div
+                      className="flex items-start gap-3 p-4 cursor-pointer hover:bg-muted/30"
+                      onClick={() => {
+                        setExpandedId(isExpanded ? null : sub.id);
+                        if (sub.status === 'pending') {
+                          updateStatus.mutate({ id: sub.id, status: 'read' });
+                        }
+                      }}
+                    >
+                      <div className={`mt-1 h-2 w-2 rounded-full flex-shrink-0 ${sub.status === 'pending' ? 'bg-orange-400 animate-pulse' : 'bg-muted-foreground/40'}`} />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-sm">{sub.name}</span>
+                          <span className="text-muted-foreground text-xs">{sub.email}</span>
+                          <Badge variant={cfg.variant} className="text-xs">{cfg.label}</Badge>
+                          <Badge variant="outline" className="text-xs capitalize">{sub.subject}</Badge>
+                        </div>
+                        <p className="text-sm mt-0.5 truncate text-muted-foreground">{sub.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {sub.createdAt ? format(new Date(sub.createdAt), 'MMM d, yyyy h:mm a') : ''}
+                        </p>
+                      </div>
+                      <ChevronRight className={`h-4 w-4 text-muted-foreground flex-shrink-0 mt-1 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                    </div>
+
+                    {isExpanded && (
+                      <div className="px-4 pb-4 pt-0 border-t ml-9">
+                        <p className="text-sm mt-3 whitespace-pre-wrap">{sub.message}</p>
+                        <div className="flex flex-wrap gap-2 mt-4">
+                          {(['read', 'responded', 'archived'] as const).map(s => (
+                            <Button
+                              key={s}
+                              size="sm"
+                              variant={sub.status === s ? 'default' : 'outline'}
+                              disabled={updateStatus.isPending}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                updateStatus.mutate({ id: sub.id, status: s });
+                              }}
+                            >
+                              {s === 'read' && <Eye className="h-3 w-3 mr-1" />}
+                              {s === 'responded' && <CheckCircle className="h-3 w-3 mr-1" />}
+                              {s === 'archived' && <X className="h-3 w-3 mr-1" />}
+                              Mark {STATUS_CONFIG[s].label}
+                            </Button>
+                          ))}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            asChild
+                          >
+                            <a href={`mailto:${sub.email}?subject=Re: ${sub.subject}`}>
+                              <Mail className="h-3 w-3 mr-1" />
+                              Reply via Email
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 export default function AdminMegaDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -2871,7 +3038,8 @@ Communities Created: ${details.stats.communitiesCreated}`;
                      activeTab === 'competitors' ? 'Competitors' :
                      activeTab === 'system' ? 'System' :
                      activeTab === 'discovery' ? 'Discovery' :
-                     activeTab === 'activity' ? 'Live Activity' : 'Overview' 
+                     activeTab === 'activity' ? 'Live Activity' :
+                     activeTab === 'contacts' ? 'Contact Inbox' : 'Overview' 
             }
           ]}
         />
@@ -3020,6 +3188,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
             <TabsTrigger value="verification">
               <Database className="h-4 w-4 mr-2" />
               DB Verification
+            </TabsTrigger>
+            <TabsTrigger value="contacts">
+              <Mail className="h-4 w-4 mr-2" />
+              Contact Inbox
             </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
@@ -3516,6 +3688,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
             }>
               <VerificationDashboard />
             </Suspense>
+          </TabsContent>
+
+          <TabsContent value="contacts" className="space-y-4">
+            <ContactSubmissionsTab />
           </TabsContent>
         </Tabs>
       </div>
