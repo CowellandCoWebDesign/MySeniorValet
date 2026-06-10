@@ -27,13 +27,32 @@ const SENIOR_LIVING_KEYWORDS = [
   'dementia care', 'alzheimer', 'respite care', 'continuing care', 'ccrc'
 ];
 
+/**
+ * Aggregator/directory sites that list many facilities.
+ * Fetching them inflates candidate count without adding actionable community data.
+ */
+const AGGREGATOR_DOMAINS = [
+  'seniorly.com', 'caring.com', 'aplaceformom.com', 'senioradvisor.com',
+  'seniorhomes.com', 'assistedliving.com', 'memorycare.com', 'retirementliving.com',
+  'seniorcare.com', 'wheretocare.com', 'findcontinuingcare.com', 'assistedlivinginfo.com',
+  'theseniorlist.com', 'seniorliving.org', 'alzheimers.net', 'helpguide.org',
+  'medicalnewstoday.com', 'healthline.com', 'familyassets.com', 'payingforseniorcare.com',
+  'seniorplanet.org', 'agingcare.com', 'brightfocus.org'
+];
+
 const SKIP_DOMAINS = [
   'wikipedia.org', 'facebook.com', 'twitter.com', 'instagram.com', 'reddit.com',
   'youtube.com', 'linkedin.com', 'pinterest.com', 'google.com', 'bing.com',
-  'yahoo.com', 'duckduckgo.com', 'amazon.com', 'yelp.com'
+  'yahoo.com', 'duckduckgo.com', 'amazon.com', 'yelp.com',
+  ...AGGREGATOR_DOMAINS
 ];
 
 const ALLOWED_SSRF_PATTERN = /^https?:\/\/[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+/;
+
+/**
+ * Minimum confidence threshold — candidates with no phone AND no address are excluded.
+ */
+const MIN_CONFIDENCE = 40;
 
 /**
  * Main entry point: Discover communities via DuckDuckGo + Jina Reader
@@ -81,8 +100,9 @@ export async function discoverCommunitiesViaWeb(
   }
 
   const deduped = deduplicateCommunities(communities);
-  console.log(`✨ Free Discovery: extracted ${deduped.length} candidate communities`);
-  return deduped;
+  const filtered = deduped.filter(c => c.confidence >= MIN_CONFIDENCE);
+  console.log(`✨ Free Discovery: extracted ${filtered.length} candidate communities (${deduped.length - filtered.length} low-confidence discarded)`);
+  return filtered;
 }
 
 async function searchDuckDuckGo(query: string): Promise<string[]> {
@@ -177,7 +197,127 @@ async function fetchViaJina(url: string): Promise<{ content: string; url: string
   }
 }
 
-function extractCommunitiesFromText(
+// ---------------------------------------------------------------------------
+// Extraction helpers — exported so unit tests can exercise them directly
+// ---------------------------------------------------------------------------
+
+/**
+ * Attempt to parse JSON-LD LocalBusiness structured data embedded in the content.
+ * Jina reader sometimes preserves <script type="application/ld+json"> blocks as
+ * fenced code blocks or inline JSON.  We try both forms.
+ */
+export function extractJsonLdData(content: string): {
+  name?: string;
+  address?: string;
+  phone?: string;
+} {
+  const LOCAL_BUSINESS_TYPES = new Set([
+    'LocalBusiness', 'SeniorLivingFacility', 'MedicalBusiness',
+    'Organization', 'ResidentialCommunity', 'NursingHome', 'LodgingBusiness'
+  ]);
+
+  // Patterns to find JSON blobs — fenced code blocks first, then inline raw JSON
+  const jsonCandidates: string[] = [];
+
+  // 1. Fenced code blocks (```json ... ```)
+  const fencedRe = /```(?:json)?\s*(\{[\s\S]*?\})\s*```/g;
+  let m: RegExpExecArray | null;
+  while ((m = fencedRe.exec(content)) !== null) {
+    jsonCandidates.push(m[1]);
+  }
+
+  // 2. Inline JSON-LD anchored by @context / @type
+  const inlineRe = /(\{"@(?:context|type)"[\s\S]*?\})\s*(?=\n|$)/g;
+  while ((m = inlineRe.exec(content)) !== null) {
+    jsonCandidates.push(m[1]);
+  }
+
+  for (const candidate of jsonCandidates) {
+    try {
+      const obj = JSON.parse(candidate);
+      const items: any[] = Array.isArray(obj['@graph']) ? obj['@graph'] : [obj];
+      for (const item of items) {
+        const type = item['@type'];
+        const matchesType =
+          (typeof type === 'string' && LOCAL_BUSINESS_TYPES.has(type)) ||
+          (Array.isArray(type) && type.some((t: string) => LOCAL_BUSINESS_TYPES.has(t)));
+        if (!matchesType) continue;
+
+        const result: { name?: string; address?: string; phone?: string } = {};
+
+        if (typeof item.name === 'string' && item.name.trim()) {
+          result.name = item.name.trim();
+        }
+        if (typeof item.telephone === 'string' && item.telephone.trim()) {
+          result.phone = item.telephone.trim();
+        }
+        if (item.address) {
+          const addr = item.address;
+          if (typeof addr === 'string' && addr.trim()) {
+            result.address = addr.trim();
+          } else if (typeof addr === 'object' && addr !== null) {
+            const parts = [
+              addr.streetAddress,
+              addr.addressLocality,
+              addr.addressRegion,
+              addr.postalCode
+            ].filter(Boolean).map((p: string) => String(p).trim());
+            if (parts.length > 0) result.address = parts.join(', ');
+          }
+        }
+
+        if (result.name || result.address) return result;
+      }
+    } catch {
+      /* skip invalid JSON — try next candidate */
+    }
+  }
+
+  return {};
+}
+
+/**
+ * Extract a street address from vCard ADR fields or common meta/structured text
+ * patterns before falling back to the inline street-number regex.
+ */
+export function extractStructuredAddress(content: string): string | undefined {
+  // vCard ADR field: ADR;TYPE=work:;;123 Main St;Springfield;IL;62701;USA
+  const vcardMatch = content.match(/\bADR[^:\n]*:(.*)/i);
+  if (vcardMatch) {
+    const cleaned = vcardMatch[1]
+      .replace(/;+/g, ', ')
+      .replace(/^,\s*/, '')
+      .replace(/,\s*,/g, ',')
+      .trim();
+    if (cleaned.length > 5) return cleaned;
+  }
+
+  // Meta / structured-text key-value pairs
+  const kvPatterns: RegExp[] = [
+    /street[_\s-]?address["'\s]*[:=]["'\s]*([^\n"'<]{5,80})/i,
+    /address["'\s]*[:=]["'\s]*(\d+[^\n"'<]{5,80})/i,
+  ];
+  for (const p of kvPatterns) {
+    const mm = content.match(p);
+    if (mm) {
+      const val = mm[1].trim().replace(/\*\*/g, '');
+      if (val.length >= 5) return val;
+    }
+  }
+
+  return undefined;
+}
+
+/**
+ * Check whether a URL belongs to a known aggregator / directory domain that
+ * lists many facilities.  These pages inflate candidate count without adding
+ * actionable individual-community data.
+ */
+export function isAggregatorUrl(url: string): boolean {
+  return AGGREGATOR_DOMAINS.some(d => url.includes(d));
+}
+
+export function extractCommunitiesFromText(
   content: string,
   sourceUrl: string,
   city?: string,
@@ -192,30 +332,50 @@ function extractCommunitiesFromText(
     domain = sourceUrl;
   }
 
+  // Skip aggregator pages even if they slipped past the DuckDuckGo filter
+  if (isAggregatorUrl(sourceUrl)) {
+    return communities;
+  }
+
   const lowerContent = content.toLowerCase();
   const isSeniorRelated = SENIOR_LIVING_KEYWORDS.some(kw => lowerContent.includes(kw));
   if (!isSeniorRelated) return communities;
 
-  let name = '';
+  // ------------------------------------------------------------------
+  // 1. Try JSON-LD structured data first — most accurate source
+  // ------------------------------------------------------------------
+  const jsonLd = extractJsonLdData(content);
 
-  const titlePatterns = [
-    /^#\s+(.+)$/m,
-    /^Title:\s*(.+)$/im,
-    /^=+\s*\n(.+)\n=+/m
-  ];
-  for (const p of titlePatterns) {
-    const m = content.match(p);
-    if (m) {
-      name = m[1].trim()
-        .replace(/\s*[-|–]\s*.+$/, '')
-        .replace(/\*\*/g, '')
-        .replace(/\s+/g, ' ')
-        .trim();
-      if (name.length > 3 && name.length < 100) break;
-      name = '';
+  let name = jsonLd.name || '';
+  let phone: string | undefined = jsonLd.phone;
+  let address: string | undefined = jsonLd.address;
+
+  // ------------------------------------------------------------------
+  // 2. Fall back to title-based name extraction
+  // ------------------------------------------------------------------
+  if (!name || name.length < 4) {
+    const titlePatterns = [
+      /^#\s+(.+)$/m,
+      /^Title:\s*(.+)$/im,
+      /^=+\s*\n(.+)\n=+/m
+    ];
+    for (const p of titlePatterns) {
+      const m = content.match(p);
+      if (m) {
+        const candidate = m[1].trim()
+          .replace(/\s*[-|–]\s*.+$/, '')
+          .replace(/\*\*/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (candidate.length > 3 && candidate.length < 100) {
+          name = candidate;
+          break;
+        }
+      }
     }
   }
 
+  // Last resort: derive from domain name
   if (!name || name.length < 4) {
     name = domain
       .split('.')[0]
@@ -239,14 +399,30 @@ function extractCommunitiesFromText(
     return communities;
   }
 
-  const phoneMatch = content.match(/(?:\+?1[-.\s]?)?\(?([2-9]\d{2})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/);
-  const phone = phoneMatch ? phoneMatch[0].replace(/\s+/g, '') : undefined;
+  // ------------------------------------------------------------------
+  // 3. Phone — use JSON-LD result or fall back to regex
+  // ------------------------------------------------------------------
+  if (!phone) {
+    const phoneMatch = content.match(/(?:\+?1[-.\s]?)?\(?([2-9]\d{2})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/);
+    phone = phoneMatch ? phoneMatch[0].replace(/\s+/g, '') : undefined;
+  }
 
-  const addressMatch = content.match(
-    /\d{1,5}\s+[A-Za-z0-9][A-Za-z0-9\s,.-]+(?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Drive|Dr\.?|Lane|Ln\.?|Boulevard|Blvd\.?|Way|Circle|Cir\.?|Court|Ct\.?|Place|Pl\.?|Parkway|Pkwy|Highway|Hwy)\b[^,\n]{0,50}/i
-  );
-  const address = addressMatch ? addressMatch[0].trim().replace(/\*\*/g, '') : undefined;
+  // ------------------------------------------------------------------
+  // 4. Address — try structured sources before inline regex
+  // ------------------------------------------------------------------
+  if (!address) {
+    address = extractStructuredAddress(content);
+  }
+  if (!address) {
+    const addressMatch = content.match(
+      /\d{1,5}\s+[A-Za-z0-9][A-Za-z0-9\s,.-]+(?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Drive|Dr\.?|Lane|Ln\.?|Boulevard|Blvd\.?|Way|Circle|Cir\.?|Court|Ct\.?|Place|Pl\.?|Parkway|Pkwy|Highway|Hwy)\b[^,\n]{0,50}/i
+    );
+    address = addressMatch ? addressMatch[0].trim().replace(/\*\*/g, '') : undefined;
+  }
 
+  // ------------------------------------------------------------------
+  // 5. Care types
+  // ------------------------------------------------------------------
   const careTypes: string[] = [];
   if (lowerContent.includes('independent living')) careTypes.push('Independent Living');
   if (lowerContent.includes('assisted living')) careTypes.push('Assisted Living');
@@ -259,16 +435,32 @@ function extractCommunitiesFromText(
   if (lowerContent.includes('respite care')) careTypes.push('Respite Care');
   if (careTypes.length === 0) careTypes.push('Senior Living');
 
+  // ------------------------------------------------------------------
+  // 6. Description snippet
+  // ------------------------------------------------------------------
   let description = '';
   const descMatch = content.match(/(?:^|\n)([A-Z][^.\n]{40,200}\.)/m);
   if (descMatch) description = descMatch[1].trim();
 
+  // ------------------------------------------------------------------
+  // 7. Require at least one piece of actionable contact data.
+  //    Candidates with neither phone nor address are not usable by families
+  //    and must be dropped regardless of any other score bonuses.
+  // ------------------------------------------------------------------
+  if (!phone && !address) {
+    return communities; // empty — skip this candidate
+  }
+
+  // ------------------------------------------------------------------
+  // 8. Confidence score
+  // ------------------------------------------------------------------
   let confidence = 35;
   if (phone) confidence += 20;
   if (address) confidence += 20;
   if (careTypes.length > 1) confidence += 10;
   if (city && lowerContent.includes(city.toLowerCase())) confidence += 10;
   if (looksLikeCommunityName) confidence += 5;
+  if (jsonLd.name) confidence += 5;   // bonus for structured-data name
 
   communities.push({
     name,
