@@ -109,6 +109,12 @@ router.post("/schedule", async (req, res) => {
       .from(communities)
       .where(eq(communities.id, tourData.communityId));
     
+    // Track delivery so the response can report when a tour saved but the
+    // confirmation/admin email failed, instead of silently claiming success.
+    // Declared at handler scope so res.json can always reference them safely.
+    let userEmailDelivered = false;
+    let adminEmailDelivered = false;
+
     // Send confirmation email to user
     if (process.env.SENDGRID_API_KEY) {
       const userEmailHtml = `
@@ -175,16 +181,12 @@ router.post("/schedule", async (req, res) => {
         </div>
       `;
       
-      // Track delivery so the response can report when a tour saved but the
-      // confirmation/admin email failed, instead of silently claiming success.
-      let userEmailDelivered = false;
-      let adminEmailDelivered = false;
       try {
         await sgMail.send({
           to: tourData.contactEmail,
           from: "hello@myseniorvalet.com",
           replyTo: "CowellandCoWebDesign@gmail.com",
-          bcc: ["CowellandCoWebDesign@gmail.com", "CowellandCoWebDesign@gmail.com"],
+          bcc: ["CowellandCoWebDesign@gmail.com"],
           subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
           html: userEmailHtml,
         });

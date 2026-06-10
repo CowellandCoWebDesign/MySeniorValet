@@ -127,6 +127,71 @@ async function notifyCommunityOfProfileView(
   }
 }
 
+/**
+ * Confirmation email to a family after they reveal a community's contact info.
+ * Only sent when the family explicitly provided their email in the consent
+ * dialog (logged-out flow) — logged-in one-tap reveals are intentionally not
+ * emailed to avoid spamming members on every tap.
+ */
+async function sendFamilyRevealConfirmation(
+  communityId: number,
+  family: { firstName: string; email: string; revealedField?: string }
+): Promise<boolean> {
+  try {
+    if (!family.email) return false;
+
+    const [community] = await db
+      .select()
+      .from(communities)
+      .where(eq(communities.id, communityId))
+      .limit(1);
+
+    if (!community) return false;
+
+    const firstName = family.firstName?.trim() || "there";
+    const locationLine = community.city
+      ? `${community.city}${community.state ? `, ${community.state}` : ""}`
+      : "";
+
+    const html = `
+      <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;">
+        <h2 style="color:#4f46e5;">Your request has been received</h2>
+        <p>Hi ${firstName},</p>
+        <p>
+          Thanks for your interest in <strong>${community.name}</strong>${locationLine ? ` in ${locationLine}` : ""}.
+          We've shared your interest with our team so the community can follow up with you.
+        </p>
+        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:16px;margin:16px 0;">
+          <p style="margin:4px 0;">🏠 Community: <strong>${community.name}</strong></p>
+          ${locationLine ? `<p style="margin:4px 0;">📍 Location: <strong>${locationLine}</strong></p>` : ""}
+          ${community.phone ? `<p style="margin:4px 0;">📞 Phone: <strong>${community.phone}</strong></p>` : ""}
+        </div>
+        <p style="color:#475569;font-size:13px;">
+          MySeniorValet is always free for families. We never sell your data.
+        </p>
+        <p style="color:#475569;font-size:12px;margin-top:20px;">
+          MySeniorValet — The trusted platform for authentic senior living community information.
+          Helping families make informed decisions with verified data and transparent pricing.
+        </p>
+      </div>
+    `;
+
+    const sent = await sendEmail({
+      to: family.email,
+      from: "hello@myseniorvalet.com",
+      subject: `Your interest in ${community.name} — MySeniorValet`,
+      html,
+    });
+    if (!sent) {
+      console.error(`referral-view: family confirmation email failed to send to ${family.email} for community ${communityId}`);
+    }
+    return sent;
+  } catch (error) {
+    console.error("Failed to send family reveal confirmation email:", error);
+    return false;
+  }
+}
+
 export function registerLeadTrackingRoutes(app: Express) {
   const leadService = leadTrackingService;
 
@@ -204,6 +269,10 @@ export function registerLeadTrackingRoutes(app: Express) {
       let phone: string | undefined;
       let allowDirectContact = false;
       let allowPhoneContact = false;
+      // True only when the family explicitly typed their email into the consent
+      // dialog (logged-out flow). Drives whether we send a family confirmation —
+      // logged-in one-tap reveals are intentionally not emailed.
+      let emailFromDialog = false;
 
       // Authenticated family: pull identity from their account; signup consent applies.
       const sessionUser = (req as any).user;
@@ -234,6 +303,7 @@ export function registerLeadTrackingRoutes(app: Express) {
         firstName = parts[0] || "MySeniorValet";
         lastName = parts.slice(1).join(" ") || "Visitor";
         email = (contact?.email || "").trim();
+        emailFromDialog = !!email;
         phone = (contact?.phone || "").trim() || undefined;
         allowDirectContact = consent?.allowDirectContact ?? true;
         allowPhoneContact = consent?.allowPhoneContact ?? false;
@@ -267,7 +337,9 @@ export function registerLeadTrackingRoutes(app: Express) {
       // Best-effort side effects (never block the response).
       await incrementProfileViewStats(communityId, revealedField);
       let emailDelivered = false;
+      let familyEmailDelivered = false;
       if (email) {
+        // Platform/admin notification (always, when we have an email to act on).
         emailDelivered = await notifyCommunityOfProfileView(communityId, {
           firstName,
           lastName,
@@ -276,11 +348,21 @@ export function registerLeadTrackingRoutes(app: Express) {
           allowPhoneContact,
           revealedField,
         });
+
+        // Family confirmation — only when they explicitly entered their email in
+        // the consent dialog (per product decision: don't email one-tap reveals).
+        if (emailFromDialog) {
+          familyEmailDelivered = await sendFamilyRevealConfirmation(communityId, {
+            firstName,
+            email,
+            revealedField,
+          });
+        }
       }
 
       // Surface delivery status (non-blocking) so a saved-but-not-emailed
       // referral is observable instead of silently reporting success.
-      res.json({ ok: true, emailDelivered });
+      res.json({ ok: true, emailDelivered, familyEmailDelivered });
     } catch (error) {
       console.error("Error recording referral view:", error);
       res.status(500).json({ error: "Failed to record referral view" });

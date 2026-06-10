@@ -1,1 +1,2 @@
 - [Free enrichment scraping](free-enrichment-scraping.md) — community enrichment is paid-AI-free by mandate; reject SPA boilerplate/og-junk + keep SSRF guard, else Golden Data violations.
+- [SendGrid silent email failures](sendgrid-silent-failures.md) — thread emailDelivered flags + log err.response.body; dedupe recipients (dup bcc → 400); validate enum fields before send (DB 23514 → opaque 500).
