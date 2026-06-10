@@ -296,7 +296,7 @@ function RecentlyDiscoveredServicesCarousel() {
       {canScrollLeft && (
         <button
           onClick={scrollLeft}
-          className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          className="hidden md:flex items-center justify-center absolute md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-6 h-6 text-purple-600" />
@@ -352,7 +352,7 @@ function RecentlyDiscoveredServicesCarousel() {
       {canScrollRight && (
         <button
           onClick={scrollRight}
-          className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          className="hidden md:flex items-center justify-center absolute md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
           aria-label="Scroll right"
         >
           <ChevronRight className="w-6 h-6 text-purple-600" />
@@ -410,7 +410,7 @@ function RecentlyDiscoveredHealthcareCarousel() {
       {canScrollLeft && (
         <button
           onClick={scrollLeft}
-          className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          className="hidden md:flex items-center justify-center absolute md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-6 h-6 text-teal-600" />
@@ -468,7 +468,7 @@ function RecentlyDiscoveredHealthcareCarousel() {
       {canScrollRight && (
         <button
           onClick={scrollRight}
-          className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          className="hidden md:flex items-center justify-center absolute md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
           aria-label="Scroll right"
         >
           <ChevronRight className="w-6 h-6 text-teal-600" />
@@ -526,7 +526,7 @@ function RecentlyDiscoveredResourcesCarousel() {
       {canScrollLeft && (
         <button
           onClick={scrollLeft}
-          className="absolute -left-4 md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          className="hidden md:flex items-center justify-center absolute md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-6 h-6 text-orange-600" />
@@ -584,7 +584,7 @@ function RecentlyDiscoveredResourcesCarousel() {
       {canScrollRight && (
         <button
           onClick={scrollRight}
-          className="absolute -right-4 md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          className="hidden md:flex items-center justify-center absolute md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
           aria-label="Scroll right"
         >
           <ChevronRight className="w-6 h-6 text-orange-600" />

@@ -78,7 +78,7 @@ export function RecentlyDiscoveredCommunities() {
           <button
             onClick={scrollLeft}
             data-testid="button-scroll-left-recently-discovered"
-            className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
+            className="hidden md:flex items-center justify-center absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -138,7 +138,7 @@ export function RecentlyDiscoveredCommunities() {
           <button
             onClick={scrollRight}
             data-testid="button-scroll-right-recently-discovered"
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
+            className="hidden md:flex items-center justify-center absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />

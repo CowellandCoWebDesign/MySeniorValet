@@ -971,7 +971,7 @@ export default function CommunityDirectory() {
               {canScrollLeft && (
                 <button
                   onClick={scrollLeft}
-                  className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl md:opacity-100 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white"
+                  className="hidden md:flex items-center justify-center absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white"
                   aria-label="Scroll left"
                 >
                   <ChevronLeft className="w-6 h-6 text-indigo-600" />
@@ -1041,7 +1041,7 @@ export default function CommunityDirectory() {
               {canScrollRight && (
                 <button
                   onClick={scrollRight}
-                  className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl md:opacity-100 opacity-0 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white"
+                  className="hidden md:flex items-center justify-center absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white"
                   aria-label="Scroll right"
                 >
                   <ChevronRight className="w-6 h-6 text-indigo-600" />

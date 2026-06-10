@@ -61,7 +61,7 @@ export function HUDCommunitiesSection() {
           variant="ghost"
           size="icon"
           data-testid="button-scroll-left-hud"
-          className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
+          className="hidden md:inline-flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
           onClick={() => scrollSlider('left')}
         >
           <ChevronLeft className="h-6 w-6 text-green-600 dark:text-green-400" />
@@ -70,7 +70,7 @@ export function HUDCommunitiesSection() {
           variant="ghost"
           size="icon"
           data-testid="button-scroll-right-hud"
-          className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
+          className="hidden md:inline-flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
           onClick={() => scrollSlider('right')}
         >
           <ChevronRight className="h-6 w-6 text-green-600 dark:text-green-400" />

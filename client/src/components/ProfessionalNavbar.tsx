@@ -514,19 +514,21 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     size="sm" 
                     className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium px-3 py-2 rounded-lg transition-all duration-200 text-sm"
                   >
-                    <LogIn className="h-4 w-4 mr-1.5" />
-                    Sign In
+                    <LogIn className="h-4 w-4 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Sign In</span>
                   </Button>
                 </Link>
-                <Link href="/signup">
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-md hover:shadow-lg px-3 py-2 rounded-lg transition-all duration-200 text-sm"
-                  >
-                    <UserPlus className="h-4 w-4 mr-1.5" />
-                    Get Started
-                  </Button>
-                </Link>
+                <div className="hidden sm:block">
+                  <Link href="/signup">
+                    <Button 
+                      size="sm" 
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-md hover:shadow-lg px-3 py-2 rounded-lg transition-all duration-200 text-sm"
+                    >
+                      <UserPlus className="h-4 w-4 mr-1.5" />
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
 
