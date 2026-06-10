@@ -1848,11 +1848,59 @@ export default function CommunityDetail() {
   // CRITICAL SEO FIX: Don't block rendering with full-page loading screen
   // Crawlers were indexing the loading screen instead of actual content
   // Now render content immediately, even if still loading enrichment in background
-  if (error) return <div className="text-red-500">Error loading community</div>;
+  if (error) return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="max-w-md w-full text-center shadow-lg">
+        <CardHeader>
+          <div className="flex justify-center mb-2">
+            <AlertCircle className="h-10 w-10 text-amber-500" />
+          </div>
+          <CardTitle className="text-xl">Community Not Available</CardTitle>
+          <CardDescription className="text-base">
+            We couldn't load this community — it may have moved or been removed.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <Button variant="default" onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> Go Back
+          </Button>
+          <Link href="/">
+            <Button variant="outline" className="w-full">
+              <Home className="h-4 w-4 mr-2" /> Return Home
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
   
   // Only show "not found" if we've finished loading and there's truly no community
   // Don't show it during initial load (prevents flash of "not found" message)
-  if (!isLoading && !community) return <div>Community not found</div>;
+  if (!isLoading && !community) return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="max-w-md w-full text-center shadow-lg">
+        <CardHeader>
+          <div className="flex justify-center mb-2">
+            <AlertCircle className="h-10 w-10 text-amber-500" />
+          </div>
+          <CardTitle className="text-xl">Community Not Found</CardTitle>
+          <CardDescription className="text-base">
+            This community listing doesn't exist or may have been removed from our directory.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <Button variant="default" onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> Go Back
+          </Button>
+          <Link href="/">
+            <Button variant="outline" className="w-full">
+              <Home className="h-4 w-4 mr-2" /> Return Home
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
   
   // CRITICAL SEO FIX: If still loading, render minimal skeleton with SEO metadata
   // This prevents TypeErrors while still allowing crawlers to index basic content

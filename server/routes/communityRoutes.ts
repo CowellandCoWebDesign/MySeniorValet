@@ -1507,37 +1507,36 @@ export function registerCommunityRoutes(app: Express) {
     const { state, city, slug } = req.params;
     
     try {
-      // Convert URL params back to searchable format
-      const stateUpper = state.toUpperCase();
-      const cityName = city.split('-').map(w => 
-        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-      ).join(' ');
+      // Normalise URL params for case-insensitive matching.
+      // US states are stored as "CA", "TX" etc., international locations as
+      // title-case province/region names ("Heredia", "British Columbia").
+      // Using lower() on both sides handles all cases without separate paths.
+      const stateLower = state.replace(/-/g, ' ').toLowerCase();
+      const cityLower = city.replace(/-/g, ' ').toLowerCase();
       
       // Find community by location and name (since we don't have slug column yet)
-      // Try exact match first
+      // Try exact slug-name match first using case-insensitive state + city comparison
       let [community] = await db
         .select()
         .from(communities)
         .where(
           and(
-            eq(communities.state, stateUpper),
-            eq(communities.city, cityName),
-            eq(communities.name, slug.split('-').map((w: string) => 
-              w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-            ).join(' '))
+            sql`lower(${communities.state}) = ${stateLower}`,
+            sql`lower(${communities.city}) = ${cityLower}`,
+            sql`lower(${communities.name}) = ${slug.replace(/-/g, ' ').toLowerCase()}`
           )
         )
         .limit(1);
       
-      // If no exact match, try to find by partial match
+      // If no exact match, try to find by slug similarity within same state+city
       if (!community) {
         const results = await db
           .select()
           .from(communities)
           .where(
             and(
-              eq(communities.state, stateUpper),
-              eq(communities.city, cityName)
+              sql`lower(${communities.state}) = ${stateLower}`,
+              sql`lower(${communities.city}) = ${cityLower}`
             )
           );
         
