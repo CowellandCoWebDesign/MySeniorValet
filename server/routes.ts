@@ -844,6 +844,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: 'All fields are required' });
       }
 
+      // Validate subject against the allowed values (mirrors the DB check
+      // constraint on contact_submissions.subject). Without this, an out-of-enum
+      // subject throws a Postgres check-constraint violation that surfaces as an
+      // opaque 500 with no lead saved and no email sent.
+      const ALLOWED_SUBJECTS = ['general', 'support', 'community', 'partnership', 'feedback'];
+      if (!ALLOWED_SUBJECTS.includes(subject)) {
+        return res.status(400).json({
+          error: `Invalid subject. Must be one of: ${ALLOWED_SUBJECTS.join(', ')}.`,
+        });
+      }
+
       // Get IP address and user agent for tracking
       const ipAddress = req.ip || req.connection.remoteAddress || '';
       const userAgent = req.headers['user-agent'] || '';
@@ -858,7 +869,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         userAgent
       });
 
-      // Send email notification to admin + confirmation to visitor
+      // Send email notification to admin + confirmation to visitor.
+      // Track delivery so the client can tell when the lead was saved but the
+      // email failed, instead of silently returning success.
+      let emailDelivered = false;
       try {
         const sgMail = await import('@sendgrid/mail');
         sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!);
@@ -890,15 +904,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           html: contactConfirmationEmail.html({ name, subject, message }),
           text: contactConfirmationEmail.text ? contactConfirmationEmail.text({ name, subject, message }) : undefined
         });
-      } catch (emailError) {
-        console.error('Error sending contact form email notification:', emailError);
-        // Don't fail the request if email fails
+        emailDelivered = true;
+      } catch (emailError: any) {
+        // Log the FULL SendGrid error (not just the message) so failures are
+        // diagnosable instead of silent. Do NOT fail the request — lead is saved.
+        console.error('Error sending contact form email notification:', emailError?.message || emailError);
+        if (emailError?.response?.body) {
+          console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+        }
       }
 
-      res.json({ 
-        success: true, 
-        message: 'Thank you for contacting us! We will respond within 24 hours.',
-        submissionId: submission.id 
+      res.json({
+        success: true,
+        emailDelivered,
+        message: emailDelivered
+          ? 'Thank you for contacting us! We will respond within 24 hours.'
+          : 'Thank you for contacting us! Your message was received — our email confirmation is delayed but our team has your request.',
+        submissionId: submission.id
       });
     } catch (error) {
       console.error('Error processing contact form submission:', error);

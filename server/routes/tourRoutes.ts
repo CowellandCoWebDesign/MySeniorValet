@@ -175,6 +175,10 @@ router.post("/schedule", async (req, res) => {
         </div>
       `;
       
+      // Track delivery so the response can report when a tour saved but the
+      // confirmation/admin email failed, instead of silently claiming success.
+      let userEmailDelivered = false;
+      let adminEmailDelivered = false;
       try {
         await sgMail.send({
           to: tourData.contactEmail,
@@ -184,6 +188,7 @@ router.post("/schedule", async (req, res) => {
           subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
           html: userEmailHtml,
         });
+        userEmailDelivered = true;
         console.log(`✅ Tour confirmation email sent to ${tourData.contactEmail}`);
       } catch (emailError: any) {
         console.error(`❌ Failed to send tour confirmation to ${tourData.contactEmail}:`, emailError?.message);
@@ -455,6 +460,7 @@ router.post("/schedule", async (req, res) => {
           subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
           html: adminEmailHtml,
         });
+        adminEmailDelivered = true;
         console.log(`✅ Admin tour notification sent to CowellandCoWebDesign@gmail.com`);
       } catch (emailError: any) {
         console.error(`❌ Failed to send admin tour notification:`, emailError?.message);
@@ -466,9 +472,13 @@ router.post("/schedule", async (req, res) => {
     
     res.json({
       success: true,
+      emailDelivered: userEmailDelivered,
+      adminNotified: adminEmailDelivered,
       tour: newTour,
       confirmationCode,
-      message: "Tour scheduled successfully! Check your email for confirmation.",
+      message: userEmailDelivered
+        ? "Tour scheduled successfully! Check your email for confirmation."
+        : "Tour scheduled successfully! Your confirmation email is delayed, but your tour request is saved.",
     });
   } catch (error: any) {
     console.error("Error scheduling tour:", error);

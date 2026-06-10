@@ -60,7 +60,7 @@ async function notifyCommunityOfProfileView(
     allowPhoneContact: boolean;
     revealedField?: string;
   }
-) {
+): Promise<boolean> {
   try {
     const [community] = await db
       .select()
@@ -70,7 +70,7 @@ async function notifyCommunityOfProfileView(
 
     // Still require a valid community record — no point sending without context.
     if (!community) {
-      return;
+      return false;
     }
 
     const familyName = `${family.firstName} ${family.lastName}`.trim() || "A family";
@@ -110,15 +110,20 @@ async function notifyCommunityOfProfileView(
       </div>
     `;
 
-    await sendEmail({
+    const sent = await sendEmail({
       to: "hello@myseniorvalet.com",
       from: "hello@myseniorvalet.com",
       replyTo: family.email || undefined,
       subject: `[Referral] ${familyName} → ${community.name}${community.city ? ` (${community.city}, ${community.state})` : ""} — Forward needed`,
       html,
     });
+    if (!sent) {
+      console.error(`referral-view: platform notification email failed to send for community ${communityId} (${community.name})`);
+    }
+    return sent;
   } catch (error) {
     console.error("Failed to send profile-view notification email:", error);
+    return false;
   }
 }
 
@@ -261,8 +266,9 @@ export function registerLeadTrackingRoutes(app: Express) {
 
       // Best-effort side effects (never block the response).
       await incrementProfileViewStats(communityId, revealedField);
+      let emailDelivered = false;
       if (email) {
-        await notifyCommunityOfProfileView(communityId, {
+        emailDelivered = await notifyCommunityOfProfileView(communityId, {
           firstName,
           lastName,
           email,
@@ -272,7 +278,9 @@ export function registerLeadTrackingRoutes(app: Express) {
         });
       }
 
-      res.json({ ok: true });
+      // Surface delivery status (non-blocking) so a saved-but-not-emailed
+      // referral is observable instead of silently reporting success.
+      res.json({ ok: true, emailDelivered });
     } catch (error) {
       console.error("Error recording referral view:", error);
       res.status(500).json({ error: "Failed to record referral view" });
