@@ -997,7 +997,7 @@ export default function CommunityDirectory() {
                 {isLoadingRecent ? (
                   // Loading skeleton - Updated to match FeaturedExcellenceCard size
                   Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex-shrink-0 w-[400px]">
+                    <div key={i} className="flex-shrink-0 w-[calc(100vw-3rem)] sm:w-[400px]">
                       <div className="bg-white/10 backdrop-blur rounded-xl p-5 animate-pulse border border-white/20">
                         <div className="h-40 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg mb-4"></div>
                         <div className="h-6 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-3/4 mb-3"></div>

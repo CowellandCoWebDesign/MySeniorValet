@@ -85,7 +85,7 @@ export function HUDCommunitiesSection() {
           {(!hudProperties || (hudProperties as any[]).length === 0) ? (
             // Loading skeleton cards - matching FeaturedExcellenceCard dimensions
             Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="flex-shrink-0 w-[280px] min-w-[280px] max-w-[280px] h-[380px] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div key={index} className="flex-shrink-0 w-[calc(100vw-3rem)] sm:w-[280px] min-w-[calc(100vw-3rem)] sm:min-w-[280px] max-w-[calc(100vw-3rem)] sm:max-w-[280px] h-[380px] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="h-36 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700"></div>
                 <div className="p-3 space-y-3">
                   <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4"></div>
@@ -115,7 +115,7 @@ export function HUDCommunitiesSection() {
               {/* View More Card - matching card dimensions */}
               <div className="flex-shrink-0">
                 <Link to="/search?certified=hud" data-testid="link-view-all-hud">
-                  <div className="w-[280px] min-w-[280px] max-w-[280px] h-full border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl overflow-hidden flex flex-col">
+                  <div className="w-[calc(100vw-3rem)] sm:w-[280px] min-w-[calc(100vw-3rem)] sm:min-w-[280px] max-w-[calc(100vw-3rem)] sm:max-w-[280px] h-full border-2 border-green-300 dark:border-green-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl overflow-hidden flex flex-col">
                     <div className="h-36 bg-gradient-to-br from-green-100 to-emerald-100 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center flex-shrink-0">
                       <div className="text-center p-4">
                         <div className="text-4xl mb-2">🏠</div>
