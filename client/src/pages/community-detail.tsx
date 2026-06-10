@@ -849,7 +849,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                  🔍 Verified by Perplexity AI from {realTimeData?.sources.length} trusted sources
+                  🔍 Verified from {realTimeData?.sources.length} trusted web sources
                 </p>
                 <div className="flex items-center text-xs text-gray-500">
                   <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
@@ -2876,8 +2876,38 @@ export default function CommunityDetail() {
                       <Building className="w-5 h-5 mr-2 text-blue-600" />
                       About {community.name}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="flex items-center gap-2">
                       Community details, amenities, and services available
+                      {(() => {
+                        const sources: Array<{source: string}> = (community as any).enrichmentSources || [];
+                        const lastSource = sources.length > 0 ? sources[sources.length - 1].source : null;
+                        const enriched = (community as any).enrichmentCompleted;
+                        if (lastSource === 'jina_official_website') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-700">
+                              <Globe className="w-3 h-3" />
+                              Enriched from official website
+                            </span>
+                          );
+                        }
+                        if (lastSource === 'jina_web_search') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-700">
+                              <Search className="w-3 h-3" />
+                              Enriched from web search
+                            </span>
+                          );
+                        }
+                        if (!enriched || lastSource === 'no_source' || !lastSource) {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700">
+                              <Info className="w-3 h-3" />
+                              Contact for details
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>

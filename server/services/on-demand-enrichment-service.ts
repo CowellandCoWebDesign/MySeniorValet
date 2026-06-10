@@ -4,6 +4,7 @@ import { eq, sql } from "drizzle-orm";
 import * as cheerio from "cheerio";
 import { lookup } from "dns/promises";
 import { isIP } from "net";
+import { enrichCommunityFree, findCommunityWebsite } from "./free-enrichment-service";
 
 interface EnrichmentResult {
   success: boolean;
@@ -81,9 +82,6 @@ export class OnDemandEnrichmentService {
 
     if (!community) return false;
 
-    // Free mode only works when there is a website to scrape.
-    if (!community.website || community.website.length < 5) return false;
-
     // Never enrich if recently enriched (within minimum refresh window)
     if (community.lastSuccessfulEnrichment) {
       const hoursSinceEnrichment =
@@ -138,7 +136,13 @@ export class OnDemandEnrichmentService {
   }
 
   /**
-   * Enrich a community using FREE website scraping only (no paid AI).
+   * Enrich a community using the free pipeline:
+   *   1. Jina AI Reader (primary — handles JS SPAs, returns clean markdown)
+   *   2. DuckDuckGo website finder (when no website URL is stored)
+   *   3. Optional Groq Llama 3.3 70B structuring (if GROQ_API_KEY is set)
+   *   4. Cheerio scrape (photo extraction from HTML as complementary step)
+   *
+   * No paid AI (Perplexity / Claude / OpenAI) is called here.
    */
   async enrichCommunity(communityId: number): Promise<EnrichmentResult> {
     const result: EnrichmentResult = {
@@ -167,16 +171,27 @@ export class OnDemandEnrichmentService {
         })
         .where(eq(communities.id, communityId));
 
-      // FREE website scrape (single fetch, parsed with cheerio)
+      // ── Step 1: Free pipeline (Jina + DuckDuckGo + optional Groq) ───────────
+      const freeName = community.name || "Community";
+      const freeResult = await enrichCommunityFree({
+        name: freeName,
+        city: community.city || "",
+        state: community.state || "",
+        websiteUrl: community.websiteProtected ? null : (community.website || null),
+      });
+
+      console.log(
+        `🆓 Free enrichment for ${freeName}: source=${freeResult.sourceType}, ` +
+          `about=${freeResult.about ? freeResult.about.length : 0} chars, ` +
+          `amenities=${freeResult.amenities?.length ?? 0}, ` +
+          `careTypes=${freeResult.careTypes?.length ?? 0}`,
+      );
+
+      // ── Step 2: Cheerio scrape for photos (complementary) ───────────────────
       let scraped: ScrapedData = { photos: [], amenities: [], careTypes: [] };
-      if (community.website && !community.websiteProtected) {
-        scraped = await this.scrapeWebsiteFree(community.website, community.name || "Community");
-        console.log(
-          `🌐 Free scrape for ${community.name}: ` +
-            `${scraped.description ? `desc(${scraped.description.length})` : "no-desc"}, ` +
-            `${scraped.photos.length} photos, ${scraped.careTypes.length} care types, ` +
-            `${scraped.amenities.length} amenities from ${community.website}`,
-        );
+      const targetUrl = freeResult.sourceUrl || (community.website && !community.websiteProtected ? community.website : null);
+      if (targetUrl) {
+        scraped = await this.scrapeWebsiteFree(targetUrl, freeName);
       }
 
       const updates: any = {};
@@ -188,17 +203,16 @@ export class OnDemandEnrichmentService {
         result.fieldsUpdated.push("photos");
       }
 
-      // Description — only set authentic scraped text; never invent.
-      // Only fill when the current description is empty or a short auto stub
-      // (e.g. "City, ST - assisted living"); never clobber richer existing text.
+      // Description — Jina/Groq text wins over basic cheerio if better
       const existingDesc = community.description?.trim() || "";
       const isStub = existingDesc.length < 100;
-      if (scraped.description && scraped.description.length >= 80 && isStub) {
-        updates.description = scraped.description;
+      const bestDescription = freeResult.about || scraped.description;
+      if (bestDescription && bestDescription.length >= 80 && isStub) {
+        updates.description = bestDescription;
         result.fieldsUpdated.push("description");
       }
 
-      // Phone — protected-field aware
+      // Phone — cheerio extraction; protected-field aware
       if (scraped.phone && !community.phoneProtected) {
         updates.phone = scraped.phone;
         updates.phoneVerificationCount = sql`COALESCE(phone_verification_count, 0) + 1`;
@@ -210,7 +224,7 @@ export class OnDemandEnrichmentService {
         result.protectedFieldsSkipped.push("phone");
       }
 
-      // Email — protected-field aware
+      // Email — cheerio extraction; protected-field aware
       if (scraped.email && !community.emailProtected) {
         updates.email = scraped.email;
         updates.emailVerificationCount = sql`COALESCE(email_verification_count, 0) + 1`;
@@ -222,15 +236,17 @@ export class OnDemandEnrichmentService {
         result.protectedFieldsSkipped.push("email");
       }
 
-      // Care types — fill only when currently empty (don't overwrite curated data)
-      if (scraped.careTypes.length > 0 && (!community.careTypes || community.careTypes.length === 0)) {
-        updates.careTypes = scraped.careTypes;
+      // Care types — Groq/keyword extraction wins; fill only when currently empty
+      const bestCareTypes = freeResult.careTypes?.length ? freeResult.careTypes : scraped.careTypes;
+      if (bestCareTypes.length > 0 && (!community.careTypes || community.careTypes.length === 0)) {
+        updates.careTypes = bestCareTypes;
         result.fieldsUpdated.push("careTypes");
       }
 
-      // Amenities — fill only when currently empty
-      if (scraped.amenities.length > 0 && (!community.amenities || community.amenities.length === 0)) {
-        updates.amenities = scraped.amenities;
+      // Amenities — Groq/keyword extraction wins; fill only when currently empty
+      const bestAmenities = freeResult.amenities?.length ? freeResult.amenities : scraped.amenities;
+      if (bestAmenities.length > 0 && (!community.amenities || community.amenities.length === 0)) {
+        updates.amenities = bestAmenities;
         result.fieldsUpdated.push("amenities");
       }
 
@@ -240,15 +256,45 @@ export class OnDemandEnrichmentService {
         result.fieldsUpdated.push("rating");
       }
 
-      // Mark as completed so we don't retry endlessly; record success time.
-      updates.enrichmentStatus = "completed";
-      updates.lastSuccessfulEnrichment = new Date();
-      updates.enrichmentCompleted = true;
+      // If DuckDuckGo found a website URL and community had none, save it
+      if (freeResult.sourceUrl && !community.website && freeResult.sourceType === "web_search") {
+        updates.website = freeResult.sourceUrl;
+        result.fieldsUpdated.push("website");
+      }
+
+      // Track enrichment source in enrichmentSources JSONB array
+      const sourceEntry = {
+        source: freeResult.sourceType === "official_website"
+          ? "jina_official_website"
+          : freeResult.sourceType === "web_search"
+          ? "jina_web_search"
+          : "no_source",
+        timestamp: new Date().toISOString(),
+        fieldsEnriched: result.fieldsUpdated,
+        confidence: freeResult.structured ? 0.9 : 0.6,
+      };
+      updates.enrichmentSources = sql`
+        COALESCE(enrichment_sources, '[]'::jsonb) || ${JSON.stringify([sourceEntry])}::jsonb
+      `;
+
+      // Only mark as fully completed when content was actually extracted.
+      // When no source was found, mark the attempt but leave enrichmentCompleted
+      // false so the UI can show "Contact for details" honestly.
+      if (freeResult.sourceType !== "none") {
+        updates.enrichmentStatus = "completed";
+        updates.lastSuccessfulEnrichment = new Date();
+        updates.enrichmentCompleted = true;
+      } else {
+        updates.enrichmentStatus = "failed";
+        updates.lastEnrichmentAttempt = new Date();
+        // enrichmentCompleted stays false / unchanged
+      }
 
       await db.update(communities).set(updates).where(eq(communities.id, communityId));
 
       result.success = true;
       console.log(`✅ Free enrichment completed for community ${communityId}:`, {
+        sourceType: freeResult.sourceType,
         fieldsUpdated: result.fieldsUpdated,
         protectedFieldsSkipped: result.protectedFieldsSkipped,
       });

@@ -1218,7 +1218,7 @@ export default function AdminMegaDashboard() {
     onSuccess: () => {
       toast({
         title: "Data Enriched",
-        description: "Community data has been enriched with AI.",
+        description: "Community enriched via free web pipeline (Jina Reader + optional Groq).",
       });
     },
   });
