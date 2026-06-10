@@ -211,7 +211,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
     : community.rating || 4.5;
 
   return (
-    <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 flex flex-col ${compact ? 'w-[calc(100vw-3rem)] sm:w-[280px] min-w-[calc(100vw-3rem)] sm:min-w-[280px] max-w-[calc(100vw-3rem)] sm:max-w-[280px]' : 'w-[calc(100vw-3rem)] sm:w-[300px] min-w-[calc(100vw-3rem)] sm:min-w-[300px] max-w-[calc(100vw-3rem)] sm:max-w-[300px]'} h-full`}>
+    <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 flex flex-col ${compact ? 'w-[85%] sm:w-[280px] min-w-[85%] sm:min-w-[280px]' : 'w-[85%] sm:w-[300px] min-w-[85%] sm:min-w-[300px]'} h-full`}>
       {/* Hero Image with Carousel */}
       <div className={`relative ${compact ? 'h-36' : 'h-40'} overflow-hidden bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900 dark:to-amber-900 flex-shrink-0`}>
         {enrichedPhotos && enrichedPhotos.length > 0 ? (

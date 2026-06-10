@@ -95,7 +95,7 @@ export function RecentlyDiscoveredCommunities() {
           {isLoading ? (
             // Loading skeleton - matching FeaturedExcellenceCard dimensions
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[calc(100vw-3rem)] sm:w-[280px] min-w-[calc(100vw-3rem)] sm:min-w-[280px] max-w-[calc(100vw-3rem)] sm:max-w-[280px] h-[380px] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse border border-gray-200 dark:border-gray-700 overflow-hidden">
+              <div key={i} className="flex-shrink-0 w-[85%] sm:w-[280px] min-w-[85%] sm:min-w-[280px] h-[380px] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse border border-gray-200 dark:border-gray-700 overflow-hidden">
                 <div className="h-36 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700"></div>
                 <div className="p-3 space-y-3">
                   <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4"></div>
@@ -112,12 +112,12 @@ export function RecentlyDiscoveredCommunities() {
             recentCommunities.map((community: any, index: number) => (
               <motion.div 
                 key={community.id} 
-                className="flex-shrink-0"
+                className="flex-shrink-0 h-full"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
               >
-                <div className="hover:scale-[1.02] transition-transform duration-300">
+                <div className="hover:scale-[1.02] transition-transform duration-300 h-full">
                   <FeaturedExcellenceCard 
                     community={community}
                     compact={true}
