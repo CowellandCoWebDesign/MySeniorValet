@@ -1202,10 +1202,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
-                <MySeniorValetChatKit 
+                {false && <MySeniorValetChatKit 
                   category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
                   onCategoryChange={(cat) => onTabChange(cat)}
-                />
+                />}
               </motion.div>
             ) : (
               <motion.div
