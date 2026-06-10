@@ -16,9 +16,12 @@ export function getCommunityUrl(community: {
   name: string;
   city: string;
   state: string;
+  slug?: string | null;
+  citySlug?: string | null;
+  stateSlug?: string | null;
 }): string {
-  const state = slugify(community.state);
-  const city = slugify(community.city);
-  const name = getCommunitySlug(community.name);
-  return `/senior-living/${state}/${city}/${name}`;
+  const stateSegment = community.stateSlug || slugify(community.state);
+  const citySegment = community.citySlug || slugify(community.city);
+  const nameSegment = community.slug || getCommunitySlug(community.name);
+  return `/senior-living/${stateSegment}/${citySegment}/${nameSegment}`;
 }

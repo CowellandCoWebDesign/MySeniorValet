@@ -1507,44 +1507,49 @@ export function registerCommunityRoutes(app: Express) {
     const { state, city, slug } = req.params;
     
     try {
-      // Normalise URL params for case-insensitive matching.
-      // US states are stored as "CA", "TX" etc., international locations as
-      // title-case province/region names ("Heredia", "British Columbia").
-      // Using lower() on both sides handles all cases without separate paths.
-      const stateLower = state.replace(/-/g, ' ').toLowerCase();
-      const cityLower = city.replace(/-/g, ' ').toLowerCase();
-      
-      // Find community by location and name (since we don't have slug column yet)
-      // Try exact slug-name match first using case-insensitive state + city comparison
+      // 1. Fast O(1) indexed lookup using dedicated slug columns (primary path)
       let [community] = await db
         .select()
         .from(communities)
         .where(
           and(
-            sql`lower(${communities.state}) = ${stateLower}`,
-            sql`lower(${communities.city}) = ${cityLower}`,
-            sql`lower(${communities.name}) = ${slug.replace(/-/g, ' ').toLowerCase()}`
+            eq(communities.stateSlug, state),
+            eq(communities.citySlug, city),
+            eq(communities.slug, slug)
           )
         )
         .limit(1);
       
-      // If no exact match, try to find by slug similarity within same state+city
+      // 2. Fallback: lower() fuzzy match for rows not yet backfilled with slugs
       if (!community) {
-        const results = await db
+        const stateLower = state.replace(/-/g, ' ').toLowerCase();
+        const cityLower = city.replace(/-/g, ' ').toLowerCase();
+
+        let [exactMatch] = await db
           .select()
           .from(communities)
           .where(
             and(
               sql`lower(${communities.state}) = ${stateLower}`,
-              sql`lower(${communities.city}) = ${cityLower}`
+              sql`lower(${communities.city}) = ${cityLower}`,
+              sql`lower(${communities.name}) = ${slug.replace(/-/g, ' ').toLowerCase()}`
             )
-          );
-        
-        // Find best match based on slug similarity
-        community = results.find(c => {
-          const communitySlug = generateCommunitySlug(c);
-          return communitySlug === slug;
-        }) || results[0]; // Fallback to first result if no perfect match
+          )
+          .limit(1);
+
+        if (!exactMatch) {
+          const results = await db
+            .select()
+            .from(communities)
+            .where(
+              and(
+                sql`lower(${communities.state}) = ${stateLower}`,
+                sql`lower(${communities.city}) = ${cityLower}`
+              )
+            );
+          exactMatch = results.find(c => generateCommunitySlug(c) === slug) || results[0];
+        }
+        community = exactMatch;
       }
 
       if (!community) {

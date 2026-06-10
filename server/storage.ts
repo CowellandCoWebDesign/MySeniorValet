@@ -1512,6 +1512,19 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
+    // Auto-populate slug columns if not already provided.
+    // safeCommunitySlugs() checks the DB and appends -2/-3/… on collision,
+    // so inserts never violate the communities_slug_lookup_idx unique constraint.
+    if (!insertCommunity.slug || !insertCommunity.citySlug || !insertCommunity.stateSlug) {
+      const { safeCommunitySlugs } = await import('./utils/generate-slug');
+      const slugs = await safeCommunitySlugs({
+        name: insertCommunity.name,
+        city: insertCommunity.city,
+        state: insertCommunity.state,
+      });
+      insertCommunity = { ...insertCommunity, ...slugs };
+    }
+
     const [community] = await db
       .insert(communities)
       .values(insertCommunity)

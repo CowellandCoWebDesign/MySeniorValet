@@ -1533,6 +1533,11 @@ export const communities = pgTable("communities", {
     };
   }>(), // Nullable to support gradual migration
   enrichedAt: timestamp("enriched_at"), // When content was last enriched from Perplexity
+
+  // SEO slug columns for O(1) URL resolution (replaces fragile lower() fuzzy matching)
+  slug: text("slug"),       // slugified community name, e.g. "sunrise-senior-living"
+  citySlug: text("city_slug"),   // slugified city,  e.g. "san-francisco"
+  stateSlug: text("state_slug"), // slugified state, e.g. "california" or "ca"
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),
@@ -1545,6 +1550,8 @@ export const communities = pgTable("communities", {
   index("communities_trending_score_idx").on(table.trendingScore),
   // PostGIS spatial index for efficient geo queries (created manually in SQL)
   // index("communities_location_gist_idx").on(table.location).using("gist"),
+  // Slug-based URL lookup index — powers /api/communities/by-slug/:state/:city/:slug
+  uniqueIndex("communities_slug_lookup_idx").on(table.stateSlug, table.citySlug, table.slug),
 ]);
 
 export const inspections = pgTable("inspections", {

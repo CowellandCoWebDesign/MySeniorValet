@@ -96,6 +96,12 @@ export class DiscoveredCommunityService {
 
       // Insert new discovered community with all available contact information
       // CRITICAL FIX: Default careTypes to empty array to prevent NOT NULL constraint failure
+      const { safeCommunitySlugs } = await import('../utils/generate-slug');
+      const slugs = await safeCommunitySlugs({
+        name: cleanedCommunity.name,
+        city: cleanedCommunity.city || '',
+        state: cleanedCommunity.state || '',
+      });
       const result = await db
         .insert(communities)
         .values({
@@ -124,7 +130,8 @@ export class DiscoveredCommunityService {
           isActive: true,
           isVerified: false,
           createdAt: new Date(),
-          updatedAt: new Date()
+          updatedAt: new Date(),
+          ...slugs,
         })
         .returning({ id: communities.id });
 
