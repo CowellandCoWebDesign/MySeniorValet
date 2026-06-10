@@ -1,4 +1,9 @@
 import 'dotenv/config';
+// Route all outbound email through the connected Gmail account (Replit
+// google-mail connector). This import self-installs the transport at
+// module-evaluation time — before any mail-sending modules load — replacing
+// the @sendgrid/mail singleton's send so every existing caller uses Gmail.
+import "./services/gmail-sender";
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import { registerRoutes } from "./routes";
