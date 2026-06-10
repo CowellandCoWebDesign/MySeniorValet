@@ -1,3 +1,4 @@
 - [Free enrichment scraping](free-enrichment-scraping.md) — community enrichment is paid-AI-free by mandate; reject SPA boilerplate/og-junk + keep SSRF guard, else Golden Data violations.
 - [Email via Gmail connector](email-gmail-transport.md) — all mail routes through Replit google-mail (hello@myseniorvalet.com), not SendGrid; @sendgrid/mail.send is monkeypatched.
 - [SendGrid silent email failures](sendgrid-silent-failures.md) — thread emailDelivered flags + log err.response.body; dedupe recipients (dup bcc → 400); validate enum fields before send (DB 23514 → opaque 500).
+- [Free Discovery pipeline](free-discovery-pipeline.md) — DuckDuckGo+Jina replaces Perplexity in all discovery paths; auto-triggers on zero DB results; healthcare/vendors stubs left as dead code.

@@ -23,6 +23,8 @@ import { useLocationSEO } from '@/hooks/useLocationSEO';
 import { useAuth } from '@/hooks/useAuth';
 import { LocationSEOHead } from '@/components/LocationSEOHead';
 import { LocationInfo, LocationSEOService } from '@/services/locationSEO.service';
+import { MascotLoadingDisplay } from '@/components/MascotLoadingDisplay';
+import { GracefulFallbackMessage } from '@/components/GracefulFallbackMessage';
 import { 
   Brain, 
   MapPin, 
@@ -1407,8 +1409,20 @@ export default function AISearchIntelligence() {
                   
                   <div className="flex-1 overflow-y-auto">
                     {simplifiedSearchMutation.isPending ? (
-                      <div className="flex items-center justify-center h-full">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                      <div className="flex items-center justify-center h-full py-8">
+                        <MascotLoadingDisplay
+                          title="Searching..."
+                          subtitle={`Finding senior communities${simplifiedFilters.location ? ` in ${simplifiedFilters.location}` : ' across our database and the web'}`}
+                          showProgress={true}
+                          progressDuration={10}
+                          compact={true}
+                          processStages={[
+                            "Searching our database of 32,970+ communities",
+                            "Scanning web sources for new communities",
+                            "Verifying addresses and contact details",
+                            "Ranking results by relevance"
+                          ]}
+                        />
                       </div>
                     ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
                       <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -1469,13 +1483,13 @@ export default function AISearchIntelligence() {
                         })()}
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                      <MapPin className="w-12 h-12 text-gray-400 mb-4" />
-                      <h3 className="font-semibold text-lg mb-2">No Results Found</h3>
-                      <p className="text-sm text-gray-500">
-                        Try adjusting your filters, search in a different location, or navigate the map to see available communities
-                      </p>
-                    </div>
+                    <GracefulFallbackMessage
+                      message="We searched our entire database and the web but couldn't find senior communities matching this location. Try a nearby city, the full state name, or contact us for personal assistance."
+                      originalResultCount={0}
+                      totalFallbackResults={0}
+                      searchQuery={simplifiedFilters.location || ''}
+                      location={simplifiedFilters.location}
+                    />
                   )}
                   </div>
                 </div>
@@ -2641,8 +2655,20 @@ export default function AISearchIntelligence() {
                 
                 <div className="flex-1 overflow-y-auto">
                   {simplifiedSearchMutation.isPending ? (
-                    <div className="flex items-center justify-center h-full">
-                      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    <div className="flex items-center justify-center h-full py-8">
+                      <MascotLoadingDisplay
+                        title="Searching..."
+                        subtitle={`Finding senior communities${simplifiedFilters.location ? ` in ${simplifiedFilters.location}` : ' across our database and the web'}`}
+                        showProgress={true}
+                        progressDuration={10}
+                        compact={true}
+                        processStages={[
+                          "Searching our database of 32,970+ communities",
+                          "Scanning web sources for new communities",
+                          "Verifying addresses and contact details",
+                          "Ranking results by relevance"
+                        ]}
+                      />
                     </div>
                   ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -2760,13 +2786,13 @@ export default function AISearchIntelligence() {
                       })()}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                    <MapPin className="w-12 h-12 text-gray-400 mb-4" />
-                    <h3 className="font-semibold text-lg mb-2">No Results Found</h3>
-                    <p className="text-sm text-gray-500">
-                      Try adjusting your filters, search in a different location, or navigate the map to see available communities
-                    </p>
-                  </div>
+                  <GracefulFallbackMessage
+                    message="We searched our entire database and the web but couldn't find senior communities matching this location. Try a nearby city, the full state name, or contact us for personal assistance."
+                    originalResultCount={0}
+                    totalFallbackResults={0}
+                    searchQuery={simplifiedFilters.location || ''}
+                    location={simplifiedFilters.location}
+                  />
                 )}
                 </div>
               </div>

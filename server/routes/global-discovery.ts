@@ -4,7 +4,7 @@ import { db } from '../db';
 import { communities, vendors, services, healthcareProviders, seniorResources } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
-import { perplexitySearchAPI } from '../services/perplexity-search-api';
+import { discoverCommunitiesViaWeb } from '../services/free-discovery-service';
 import { aiTracker } from '../services/ai-tracker.service';
 
 // US State name to abbreviation mapping for search normalization
@@ -624,161 +624,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         }
         
         // ============ SERVICES DISCOVERY MODE ============
-        // If Discovery Mode is enabled and we have insufficient database results, call Perplexity
-        // NOW USES discoverEntities() for category-specific queries with PRICING TRANSPARENCY
-        if (req.body.discoveryMode === true && existingCommunities.length < 5) {
-          console.log(`🔍 Services Discovery Mode ACTIVE: Using discoverEntities for "${query}"`);
-          
-          const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
-          if (perplexityApiKey) {
-            try {
-              const discoveryStartTime = Date.now();
-              
-              // Parse location from query (e.g., "daycare in Redding California")
-              let serviceType = '';
-              let searchLocation = query;
-              
-              const queryLower = query.toLowerCase();
-              if (queryLower.includes(' in ')) {
-                const parts = query.split(/\s+in\s+/i);
-                serviceType = parts[0].trim();
-                searchLocation = parts[1].trim();
-              } else if (queryLower.includes(' near ')) {
-                const parts = query.split(/\s+near\s+/i);
-                serviceType = parts[0].trim();
-                searchLocation = parts[1].trim();
-              }
-              
-              console.log(`🔍 Services Discovery: type="${serviceType}", location="${searchLocation}"`);
-              
-              // Use NEW discoverEntities method with services-specific query builder
-              const searchResults = await perplexitySearchAPI.discoverEntities(
-                serviceType || query,
-                'services',
-                { limit: 15, location: searchLocation }
-              );
-              
-              // Store citation sources for display
-              const serviceCitations = searchResults.sources || [];
-              // Use AI-generated narrative from discoverEntities
-              const aiNarrative = searchResults.aiNarrative || `Discovered ${searchResults.results.length} ${serviceType || 'service'} options in ${searchLocation}.`;
-              
-              console.log(`✅ Services Discovery found ${searchResults.results.length} potential services`);
-              
-              // Convert discovered results to services format (now includes pricing!)
-              const discoveredServices = searchResults.results.map((item: any) => ({
-                id: 0, // Will be assigned when saved
-                name: item.name,
-                type: 'service',
-                serviceType: serviceType || 'Service',
-                description: item.description || '',
-                address: item.address || '',
-                city: item.city || '',
-                state: item.state || '',
-                phone: item.phone || '',
-                website: item.website || '',
-                pricing: item.pricing || '',
-                hours: item.hours || '',
-                isDiscovered: true,
-                isExisting: false,
-                confidence: item.confidence || 85,
-                source: item.source || 'Perplexity Discovery'
-              }));
-              
-              // Save discovered services to database
-              const savedServices: any[] = [];
-              for (const discovered of discoveredServices) {
-                try {
-                  // Check if service already exists
-                  const existing = await db.select()
-                    .from(services)
-                    .where(sql`LOWER(${services.name}) = ${discovered.name.toLowerCase()}`)
-                    .limit(1);
-                  
-                  if (existing.length === 0 && discovered.name && discovered.name.length > 3) {
-                    // Save new discovered service
-                    const [newService] = await db.insert(services)
-                      .values({
-                        name: discovered.name,
-                        description: discovered.description || `Service discovered in ${searchLocation}`,
-                        shortDescription: discovered.description ? discovered.description.substring(0, 200) : `Service in ${searchLocation}`,
-                        serviceType: 'service' as const,
-                        deliveryMethod: ['in-person'] as const,
-                        externalUrl: discovered.website || null,
-                        isActive: true,
-                        isFeatured: false,
-                        sortOrder: 0,
-                        metadata: {
-                          source: 'Perplexity Search API Discovery',
-                          lastUpdated: new Date().toISOString(),
-                          location: {
-                            city: discovered.city || '',
-                            state: discovered.state || '',
-                            address: discovered.address || '',
-                            phone: discovered.phone || ''
-                          },
-                          tags: ['discovered', 'perplexity', query.toLowerCase()]
-                        } as any
-                      })
-                      .returning();
-                    
-                    savedServices.push({
-                      ...newService,
-                      isDiscovered: true,
-                      city: discovered.city,
-                      state: discovered.state,
-                      phone: discovered.phone
-                    });
-                    console.log(`💾 Saved new service: ${discovered.name} (ID: ${newService.id})`);
-                  } else if (existing.length > 0) {
-                    savedServices.push({
-                      ...existing[0],
-                      isExisting: true,
-                      isDiscovered: false
-                    });
-                  }
-                } catch (saveError) {
-                  console.error(`⚠️ Error saving service ${discovered.name}:`, saveError);
-                }
-              }
-              
-              // Combine database results with discovered services
-              const allResults = [
-                ...existingCommunities.map((c: any) => ({ ...c, isExisting: true, isDiscovered: false })),
-                ...savedServices
-              ];
-              
-              const discoveryResponseTime = Date.now() - discoveryStartTime;
-              console.log(`✅ Services Discovery completed in ${discoveryResponseTime}ms - Found ${savedServices.length} new services`);
-              
-              return res.json({
-                success: true,
-                query: query,
-                searchType: 'services',
-                results: allResults.slice(0, limit),
-                metadata: {
-                  totalFound: allResults.length,
-                  existingCount: existingCommunities.length,
-                  discoveredCount: savedServices.length,
-                  sources: serviceCitations,
-                  searchLocation: searchLocation,
-                  timestamp: new Date().toISOString(),
-                  aiConfidence: 85,
-                  dataSource: 'Perplexity Search API Discovery',
-                  discoveryModeUsed: true,
-                  responseTime: discoveryResponseTime
-                },
-                aiNarrative: aiNarrative, // Include AI summary for display
-                citations: serviceCitations,
-                message: `Found ${allResults.length} services (${existingCommunities.length} existing, ${savedServices.length} discovered)`
-              });
-              
-            } catch (searchError) {
-              console.error('❌ Services Discovery error:', searchError);
-              // Fall through to return database results
-            }
-          }
-        }
+        // Discovery for services returns database results only (no paid AI)
+        // Full free-web discovery is reserved for community searches
         
         // If we reach here for services, return whatever database results we have
         return res.json({
@@ -823,25 +670,16 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           searchLocation = parts[1].trim();
         }
         
-        // Discovery Mode - call Perplexity Search API with NEW discoverEntities method
-        if (req.body.discoveryMode === true) {
-          const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
+        // Discovery Mode for healthcare/resources/vendors returns database results only (no paid AI)
+        if (false && req.body.discoveryMode === true) {
+          const perplexityApiKey = '';
           if (perplexityApiKey) {
             try {
               const discoveryStartTime = Date.now();
-              
-              // Map searchType to discoveryType for the new API
-              const discoveryType = searchType === 'vendors' ? 'services' : searchType as 'healthcare' | 'resources' | 'services';
+              const discoveryType = searchType as 'healthcare' | 'resources' | 'services';
               const searchQuery = categoryTerm || query;
-              
-              console.log(`🔍 [${searchType}] Using discoverEntities with type: ${discoveryType}`);
-              
-              // Use the NEW category-specific discovery method
-              const searchResults = await perplexitySearchAPI.discoverEntities(
-                searchQuery,
-                discoveryType,
-                { limit: 15, location: searchLocation }
-              );
+              console.log(`🔍 [${searchType}] Discovery stub`);
+              const searchResults: any = { results: [], sources: [], aiNarrative: '' };
               
               const citations = searchResults.sources || [];
               const aiNarrative = searchResults.aiNarrative || `Discovered ${searchResults.results.length} ${categoryLabel} in ${searchLocation}.`;
@@ -1057,9 +895,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   searchLocation: searchLocation,
                   timestamp: new Date().toISOString(),
                   aiConfidence: 85,
-                  dataSource: 'Perplexity Search API Discovery',
-                  discoveryModeUsed: true,
-                  responseTime: discoveryResponseTime,
+                  dataSource: 'Database Only',
+                  discoveryModeUsed: false,
+                  responseTime: 0,
                   pricingFound: savedItems.filter((i: any) => i.pricing).length
                 },
                 aiNarrative: aiNarrative,
@@ -1240,7 +1078,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       console.log(`💾 Found ${existingCommunities.length} existing communities in database`);
       
       // Check if we're in Discovery Mode or searching for services
-      const isDiscoveryMode = req.body.discoveryMode === true;
+      // Auto-trigger discovery when zero results exist, even without explicit discoveryMode flag
+      const isDiscoveryMode = req.body.discoveryMode === true || 
+        (existingCommunities.length === 0 && query && query.trim().length > 2);
       
       // If NOT in Discovery Mode and we have enough database results (skip for services)
       if (!isDiscoveryMode && searchType !== 'services' && existingCommunities.length >= 15) {
@@ -1272,8 +1112,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // If NOT in Discovery Mode and we have some database results, return them
       if (!isDiscoveryMode) {
-        // Return database results without calling Perplexity
-        console.log(`✅ Returning ${existingCommunities.length} database results without Perplexity (Discovery Mode: false)`);
+        console.log(`✅ Returning ${existingCommunities.length} database results (Discovery Mode: false)`);
         
         // Mark all database results as existing/verified
         const markedResults = existingCommunities.slice(0, limit || 30).map(community => ({
@@ -1304,167 +1143,83 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         });
       }
       
-      // ============ DISCOVERY MODE ACTIVE ============
-      // When Discovery Mode is TRUE, ALWAYS search the web to find ALL options,
-      // then compare to database to identify which ones we already have
-      // 🚀 USING NEW SEARCH API (Sept 25, 2025) - $5/1K requests vs higher Sonar costs
-      
-      const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
-      if (!perplexityApiKey) {
-        console.error('❌ Perplexity API key not configured');
-        return res.status(500).json({ error: 'Search service not configured for Discovery Mode' });
-      }
-      
-      console.log(`🔍 Discovery Mode ACTIVE: Using Sonar API for comprehensive discovery in ${query}, then comparing to database`);
-      
-      // Construct an intelligent search query for Perplexity - optimized for international searches
-      let searchQuery = '';
-      
-      // List of known country names for detection - comprehensive global coverage
-      const countryNames = [
-        // Americas
-        'usa', 'united states', 'canada', 'mexico', 'brazil', 'argentina', 'chile', 'colombia', 'peru',
-        // Europe
-        'uk', 'united kingdom', 'england', 'scotland', 'wales', 'ireland', 'france', 'germany', 'italy', 
-        'spain', 'portugal', 'netherlands', 'belgium', 'switzerland', 'sweden', 'norway', 'denmark', 
-        'finland', 'poland', 'czech republic', 'austria', 'greece', 'turkey',
-        // Middle East
-        'uae', 'united arab emirates', 'dubai', 'abu dhabi', 'saudi arabia', 'qatar', 'kuwait', 
-        'bahrain', 'oman', 'jordan', 'lebanon', 'israel', 'egypt', 'iran', 'iraq',
-        // Asia Pacific
-        'japan', 'china', 'india', 'south korea', 'korea', 'singapore', 'thailand', 'vietnam', 
-        'philippines', 'indonesia', 'malaysia', 'hong kong', 'taiwan', 'pakistan', 'bangladesh',
-        // Oceania
-        'australia', 'new zealand',
-        // Africa
-        'south africa', 'nigeria', 'kenya', 'morocco', 'tunisia'
-      ];
-      
-      // Detect if query contains a country name
-      const queryLower = query.toLowerCase();
-      const isCountrySearch = countryNames.some(country => queryLower.includes(country));
-      const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
-      
-      let discoveredCommunities: any[] = [];
-      let citations: any[] = []; // Initialize citations for both Search API and Sonar API paths
-      let aiResponse = ''; // Initialize for both paths
-      // searchQuery already declared earlier in the function
+      // ============ DISCOVERY MODE ACTIVE: Free DuckDuckGo + Jina Web Discovery ============
+      // Triggered when discoveryMode=true OR when zero database results exist for this query
 
       // Helper function to detect country from query - comprehensive global coverage
       const detectCountry = (query: string): string => {
         const lowerQuery = query.toLowerCase();
-        // Middle East
-        if (lowerQuery.includes('dubai') || lowerQuery.includes('abu dhabi') || lowerQuery.includes('uae') || lowerQuery.includes('united arab emirates') || lowerQuery.includes('sharjah') || lowerQuery.includes('ajman')) return 'United Arab Emirates';
-        if (lowerQuery.includes('saudi') || lowerQuery.includes('riyadh') || lowerQuery.includes('jeddah') || lowerQuery.includes('mecca') || lowerQuery.includes('medina')) return 'Saudi Arabia';
+        if (lowerQuery.includes('dubai') || lowerQuery.includes('uae') || lowerQuery.includes('united arab emirates')) return 'United Arab Emirates';
+        if (lowerQuery.includes('saudi') || lowerQuery.includes('riyadh') || lowerQuery.includes('jeddah')) return 'Saudi Arabia';
         if (lowerQuery.includes('qatar') || lowerQuery.includes('doha')) return 'Qatar';
         if (lowerQuery.includes('kuwait')) return 'Kuwait';
-        if (lowerQuery.includes('bahrain') || lowerQuery.includes('manama')) return 'Bahrain';
+        if (lowerQuery.includes('bahrain')) return 'Bahrain';
         if (lowerQuery.includes('oman') || lowerQuery.includes('muscat')) return 'Oman';
         if (lowerQuery.includes('jordan') || lowerQuery.includes('amman')) return 'Jordan';
-        if (lowerQuery.includes('lebanon') || lowerQuery.includes('beirut')) return 'Lebanon';
         if (lowerQuery.includes('israel') || lowerQuery.includes('tel aviv') || lowerQuery.includes('jerusalem')) return 'Israel';
         if (lowerQuery.includes('egypt') || lowerQuery.includes('cairo')) return 'Egypt';
-        // Asia Pacific
         if (lowerQuery.includes('singapore')) return 'Singapore';
         if (lowerQuery.includes('hong kong')) return 'Hong Kong';
         if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo') || lowerQuery.includes('osaka')) return 'Japan';
         if (lowerQuery.includes('china') || lowerQuery.includes('beijing') || lowerQuery.includes('shanghai')) return 'China';
-        if (lowerQuery.includes('india') || lowerQuery.includes('mumbai') || lowerQuery.includes('delhi') || lowerQuery.includes('bangalore')) return 'India';
+        if (lowerQuery.includes('india') || lowerQuery.includes('mumbai') || lowerQuery.includes('delhi')) return 'India';
         if (lowerQuery.includes('thailand') || lowerQuery.includes('bangkok')) return 'Thailand';
         if (lowerQuery.includes('malaysia') || lowerQuery.includes('kuala lumpur')) return 'Malaysia';
         if (lowerQuery.includes('indonesia') || lowerQuery.includes('jakarta') || lowerQuery.includes('bali')) return 'Indonesia';
         if (lowerQuery.includes('philippines') || lowerQuery.includes('manila')) return 'Philippines';
         if (lowerQuery.includes('vietnam') || lowerQuery.includes('hanoi') || lowerQuery.includes('ho chi minh')) return 'Vietnam';
         if (lowerQuery.includes('south korea') || lowerQuery.includes('korea') || lowerQuery.includes('seoul')) return 'South Korea';
-        if (lowerQuery.includes('taiwan') || lowerQuery.includes('taipei')) return 'Taiwan';
-        // Oceania
-        if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
-        if (lowerQuery.includes('new zealand') || lowerQuery.includes('auckland') || lowerQuery.includes('wellington')) return 'New Zealand';
-        // Europe
-        if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
-        if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
-        if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
-        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
+        if (lowerQuery.includes('australia') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne')) return 'Australia';
+        if (lowerQuery.includes('new zealand') || lowerQuery.includes('auckland')) return 'New Zealand';
+        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom') || lowerQuery.includes('london') || lowerQuery.includes('england')) return 'United Kingdom';
         if (lowerQuery.includes('ireland') || lowerQuery.includes('dublin')) return 'Ireland';
         if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
-        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin') || lowerQuery.includes('munich')) return 'Germany';
+        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
         if (lowerQuery.includes('italy') || lowerQuery.includes('rome') || lowerQuery.includes('milan')) return 'Italy';
         if (lowerQuery.includes('spain') || lowerQuery.includes('madrid') || lowerQuery.includes('barcelona')) return 'Spain';
-        if (lowerQuery.includes('portugal') || lowerQuery.includes('lisbon')) return 'Portugal';
-        if (lowerQuery.includes('netherlands') || lowerQuery.includes('amsterdam')) return 'Netherlands';
-        if (lowerQuery.includes('switzerland') || lowerQuery.includes('zurich') || lowerQuery.includes('geneva')) return 'Switzerland';
-        // Americas
         if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver') || lowerQuery.includes('montreal')) return 'Canada';
         if (lowerQuery.includes('mexico') || lowerQuery.includes('mexico city')) return 'Mexico';
         if (lowerQuery.includes('brazil') || lowerQuery.includes('sao paulo') || lowerQuery.includes('rio')) return 'Brazil';
-        // Africa
         if (lowerQuery.includes('south africa') || lowerQuery.includes('johannesburg') || lowerQuery.includes('cape town')) return 'South Africa';
-        if (lowerQuery.includes('nigeria') || lowerQuery.includes('lagos')) return 'Nigeria';
-        if (lowerQuery.includes('kenya') || lowerQuery.includes('nairobi')) return 'Kenya';
-        if (lowerQuery.includes('morocco') || lowerQuery.includes('casablanca')) return 'Morocco';
-        return 'United States'; // Default only if no match
+        return 'United States';
       };
 
-      // ============ USE NEW SEARCH API (Jan 2026) ============
-      // Migrated from sonar-pro ($3/$15 per 1M tokens) to Search API ($5/1K requests)
-      // Search API is significantly cheaper for community discovery operations
-      console.log(`🔍 Discovery Mode: Using cost-effective Search API ($5/1K requests)`);
-      
-      // Use the detectCountry function already defined above
       const defaultCountry = detectCountry(query);
-      
+
+      let discoveredCommunities: any[] = [];
+      const citations: any[] = [];
+
+      console.log(`🦆 Discovery Mode ACTIVE: Using free web search for "${query}"`);
+
       try {
-        // Track discovery start time
-        const discoveryStartTime = Date.now();
-        
-        // Use Search API for community discovery - much cheaper than Sonar Pro
-        const searchResults = await perplexitySearchAPI.discoverCommunities(query, {
-          careType: searchType === 'services' ? undefined : undefined,
-          limit: 20
-        });
-        
-        console.log(`✅ Search API returned ${searchResults.communities.length} potential communities`);
-        console.log(`📚 Sources: ${searchResults.sources.length} URLs searched`);
-        
-        // Convert Search API results to the format expected by the rest of the code
-        discoveredCommunities = searchResults.communities.map(community => ({
+        const webDiscovered = await discoverCommunitiesViaWeb(
+          query,
+          citySearch || undefined,
+          stateSearch || undefined
+        );
+
+        discoveredCommunities = webDiscovered.map(community => ({
           name: community.name,
           address: community.address || '',
-          city: community.city || '',
-          state: community.state || '',
-          country: defaultCountry,
+          city: community.city || citySearch || '',
+          state: community.state || stateSearch || '',
+          country: community.country || defaultCountry,
           phone: community.phone || '',
           website: community.website || '',
           email: '',
           zipCode: '',
-          description: `Senior living facility in ${query}`,
-          careTypes: community.careTypes || [],
+          description: community.description || `Senior living facility found via web search for "${query}"`,
+          careTypes: community.careTypes || ['Senior Living'],
           photoSources: [],
           source: community.source,
           confidence: community.confidence,
           isDiscovered: true
         }));
-        
-        // Log discovery results
+
         const withContact = discoveredCommunities.filter((c: any) => c.phone || c.website).length;
-        console.log(`📊 Contact Info Summary: ${withContact} with contact info, ${discoveredCommunities.length - withContact} missing contact info`);
-        
-        // Track the API call for analytics
-        const discoveryResponseTime = Date.now() - discoveryStartTime;
-        await aiTracker.trackPerplexityCall({
-          action: 'global_discovery',
-          context: 'search_api_discovery',
-          requestDuration: discoveryResponseTime,
-          success: true,
-          inputTokens: Math.ceil(query.length / 4),
-          outputTokens: Math.ceil(JSON.stringify(searchResults).length / 4),
-          prompt: query,
-          response: `Found ${discoveredCommunities.length} communities`,
-          metadata: { sources: searchResults.sources.length, api: 'search_api' },
-        });
-        
+        console.log(`✅ Free Discovery found ${discoveredCommunities.length} candidates (${withContact} with contact info)`);
       } catch (searchError) {
-        console.error('❌ Search API error, falling back to database only:', searchError);
+        console.error('❌ Free Discovery error, falling back to database only:', searchError);
         discoveredCommunities = [];
       }
 
@@ -1501,9 +1256,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   isFeatured: false,
                   sortOrder: 0,
                   metadata: {
-                    source: 'Perplexity Search API Discovery',
+                    source: 'Free Discovery (DuckDuckGo+Jina)',
                     lastUpdated: new Date().toISOString(),
-                    tags: ['discovered', 'perplexity', query.toLowerCase()]
+                    tags: ['discovered', 'free_discovery', query.toLowerCase()]
                   } as any
                 })
                 .returning();
@@ -1731,14 +1486,14 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   medicalRestrictions: [],
                   photos: [],
                   photoAttributions: [],
-                  data_source: 'AI Discovery (Perplexity Global Search)',
+                  data_source: 'Free Discovery (DuckDuckGo+Jina)',
                   discoverySource: 'Global Discovery Search',
                   discoveryDate: new Date(),
                   enrichmentStatus: enrichmentStatus,
                   enrichmentCompleted: verificationResult.autoApproved,
                   enrichmentHistory: [{
                     timestamp: new Date().toISOString(),
-                    source: 'Perplexity Global Search',
+                    source: 'Free Web Discovery',
                     fieldsUpdated: ['initial_discovery'],
                     autoApproved: verificationResult.autoApproved,
                     confidenceScore: verificationResult.confidenceScore,
@@ -1765,7 +1520,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   city: discovered.city || citySearch || 'Unknown',
                   state: discovered.state || stateSearch || 'Unknown',
                   country: discovered.country || defaultCountry,
-                  data_source: 'AI Discovery (Perplexity Global Search)'
+                  data_source: 'Free Discovery (DuckDuckGo+Jina)'
                 }
               });
               // Create a fallback object if insert fails
@@ -1960,7 +1715,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           isExisting: !isTrulyNew, // Mark as existing if it was an update
           confidence: originalData?.confidence || 90,
           verificationStatus: isTrulyNew ? 'pending' : 'verified',
-          citations: citations, // Include Perplexity citations
+          citations: citations,
           // Add fields needed for community details view
           photos: saved.photos || [],
           amenities: (saved as any).amenities || [],
@@ -2004,10 +1759,9 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         allWebResults.push(webCommunity);
       });
       
-      // CRITICAL FIX: If Perplexity failed or returned no results, add ALL database communities
-      // This ensures users ALWAYS see database results even when web search fails
+      // If web discovery returned no results, add ALL database communities as fallback
       if (discoveredWithRealIds.length === 0 && existingCommunities.length > 0) {
-        console.log(`📋 Perplexity returned no results. Adding ${existingCommunities.length} database communities to results.`);
+        console.log(`📋 Web discovery returned no results. Adding ${existingCommunities.length} database communities to results.`);
         
         // Add all database communities as "existing" results
         existingCommunities.forEach(dbCommunity => {
@@ -2063,13 +1817,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           totalFound: displayResults.length,
           existingCount: existingInWebResults,
           discoveredCount: newlyDiscovered,
-          sources: citations.length > 0 ? [...citations, 'Database'] : ['Perplexity Web Search', 'Database'],
+          sources: citations.length > 0 ? [...citations, 'Database'] : ['DuckDuckGo+Jina Web Search', 'Database'],
           searchLocation: query,
           timestamp: new Date().toISOString(),
-          aiConfidence: discoveredCommunities.length > 0 ? 85 : 50,
-          rawPerplexityResponse: aiResponse, // Include raw AI response for display
-          perplexityQuery: searchQuery, // Include the actual query sent to Perplexity
-          articlesFound: allResults.length - displayResults.length // Track how many articles were filtered
+          aiConfidence: discoveredCommunities.length > 0 ? 75 : 50,
+          dataSource: 'Free Discovery (DuckDuckGo+Jina)',
+          articlesFound: allResults.length - displayResults.length
         },
         message: displayResults.length === 0 
           ? `No businesses found for "${query}". Try a different location or search term.`
@@ -2343,57 +2096,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         summary: ''
       };
       
-      // Test with Perplexity Search API ($5/1K requests - MIGRATED from sonar-pro Jan 2026)
+      // Free web discovery via DuckDuckGo + Jina Reader
       try {
-        const perplexityStartTime = Date.now();
-        const perplexityQuery = `senior living communities in ${query} names addresses phone numbers`;
-        
-        // Use Search API endpoint instead of chat/completions
-        const perplexityResponse = await fetch('https://api.perplexity.ai/search', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            query: perplexityQuery,
-            max_results: 10,
-            max_tokens_per_page: 1024
-          })
-        });
-        const perplexityDuration = Date.now() - perplexityStartTime;
-        const perplexityData = await perplexityResponse.json();
-        
-        // Format Search API results into readable content
-        const searchResults = perplexityData.results || [];
-        const perplexityContent = searchResults
-          .map((r: any) => `${r.title}: ${r.snippet}`)
-          .join('\n\n')
-          .substring(0, 2000);
-        
-        await aiTracker.trackPerplexityCall({
-          action: 'ai_comparison',
-          context: 'compare_endpoint',
-          requestDuration: perplexityDuration,
-          success: perplexityResponse.ok,
-          inputTokens: Math.ceil(perplexityQuery.length / 4),
-          outputTokens: Math.ceil(perplexityContent.length / 4),
-          prompt: perplexityQuery,
-        });
-        
-        results.providers['perplexity'] = {
-          response: perplexityContent.substring(0, 500),
-          sources: searchResults.map((r: any) => r.url).filter(Boolean)
+        const freeStartTime = Date.now();
+        const discovered = await discoverCommunitiesViaWeb(query);
+        const freeDuration = Date.now() - freeStartTime;
+        const summary = discovered.length > 0
+          ? discovered.map(c => `${c.name} — ${c.city || ''} ${c.state || ''} ${c.phone ? `(${c.phone})` : ''}`.trim()).join('\n')
+          : 'No communities found via free web search.';
+
+        results.providers['free_discovery'] = {
+          response: summary.substring(0, 500),
+          sources: discovered.map(c => c.website).filter(Boolean),
+          count: discovered.length,
+          durationMs: freeDuration,
+          method: 'DuckDuckGo + Jina Reader (free)'
         };
       } catch (e) {
-        await aiTracker.trackPerplexityCall({
-          action: 'ai_comparison',
-          context: 'compare_endpoint',
-          requestDuration: 0,
-          success: false,
-          errorMessage: String(e),
-        });
-        results.providers['perplexity'] = { error: 'Failed to query Perplexity' };
+        results.providers['free_discovery'] = { error: 'Free discovery failed: ' + String(e) };
       }
       
       // Test with Claude

@@ -143,50 +143,66 @@ export class ComprehensiveSearchEngine {
       healthcareTypeFacets = healthcareResults.facets;
     }
     
-    // DISCOVERY MODE AI INTEGRATION
+    // DISCOVERY MODE: Free web discovery via DuckDuckGo + Jina Reader
     if (discoveryMode) {
       try {
-        // Import Perplexity service for Discovery Mode
-        const { perplexityService } = await import('../perplexity-ai-service');
-        
-        // Construct intelligent search query for AI
-        let aiQuery = `Find senior living communities `;
-        if (query.includes(',')) {
-          aiQuery += `in ${query}`;
+        const { discoverCommunitiesViaWeb } = await import('./free-discovery-service');
+
+        // Parse city/state from query for better discovery targeting
+        let discoveryCity = filters.city || '';
+        let discoveryState = filters.state || '';
+        if (!discoveryCity && query.includes(',')) {
+          const [part1, part2] = query.split(',').map(s => s.trim());
+          discoveryCity = part1;
+          discoveryState = part2;
+        }
+
+        console.log(`🦆 Discovery Mode: searching web for "${query}"`);
+        const discoveredResults = await discoverCommunitiesViaWeb(query, discoveryCity || undefined, discoveryState || undefined);
+
+        if (discoveredResults.length > 0) {
+          // Format discovered communities to match expected shape
+          const formattedDiscovered = discoveredResults.map((d, idx) => ({
+            id: -(idx + 1), // Negative IDs indicate discovered (not in DB)
+            name: d.name,
+            address: d.address || '',
+            city: d.city || discoveryCity || '',
+            state: d.state || discoveryState || '',
+            country: d.country || 'US',
+            phone: d.phone || null,
+            website: d.website || null,
+            description: d.description || `Senior living community found via web discovery`,
+            careTypes: d.careTypes || ['Senior Living'],
+            photos: [],
+            latitude: null,
+            longitude: null,
+            isVerified: false,
+            isActive: true,
+            data_source: d.source,
+            isDiscovered: true,
+            confidence: d.confidence
+          }));
+
+          results = [...formattedDiscovered];
+          totalResults = formattedDiscovered.length;
+
+          aiSuggestions = {
+            summary: `Found ${discoveredResults.length} senior living communities via web search.`,
+            sources: discoveredResults.map(d => d.website).filter(Boolean),
+            images: []
+          };
+
+          console.log(`✨ Discovery Mode: added ${discoveredResults.length} web-discovered communities`);
         } else {
-          aiQuery += `matching "${query}"`;
+          aiSuggestions = {
+            summary: 'No additional communities found via web search for this location.',
+            sources: [],
+            images: []
+          };
+          console.log(`⚠️ Discovery Mode: no results from web search for "${query}"`);
         }
-        
-        // Add filter context to AI query
-        if (filters.careTypes && filters.careTypes.length > 0) {
-          aiQuery += ` offering ${filters.careTypes.join(' or ')}`;
-        }
-        if (filters.priceMin || filters.priceMax) {
-          if (filters.priceMin && filters.priceMax) {
-            aiQuery += ` with pricing between $${filters.priceMin} and $${filters.priceMax} per month`;
-          } else if (filters.priceMin) {
-            aiQuery += ` starting from $${filters.priceMin} per month`;
-          } else {
-            aiQuery += ` under $${filters.priceMax} per month`;
-          }
-        }
-        
-        aiQuery += '. 🌍 Search worldwide - include communities from any country (USA, Canada, Australia, UK, Europe, Asia, etc.). Include contact information, websites, and specify the country/location for each community found.';
-        
-        console.log(`🤖 Discovery Mode Query: ${aiQuery}`);
-        
-        // Get AI-powered suggestions
-        const aiResponse = await perplexityService.searchRealTime(aiQuery);
-        aiSuggestions = {
-          summary: aiResponse.summary,
-          sources: aiResponse.sources,
-          images: aiResponse.images
-        };
-        
-        console.log(`✨ Discovery Mode found additional information from ${aiResponse.sources.length} sources`);
       } catch (error) {
         console.error('Discovery Mode error:', error);
-        // Continue without AI suggestions if there's an error
       }
     }
     
