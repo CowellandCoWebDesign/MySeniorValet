@@ -487,3 +487,269 @@ function deduplicateCommunities(communities: DiscoveredCommunity[]): DiscoveredC
     return true;
   });
 }
+
+// ---------------------------------------------------------------------------
+// Healthcare & Senior Resources Discovery
+// ---------------------------------------------------------------------------
+
+export interface DiscoveredEntity {
+  name: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  phone?: string;
+  website?: string;
+  description?: string;
+  entityType: string;
+  services: string[];
+  source: string;
+  confidence: number;
+}
+
+const HEALTHCARE_KEYWORDS = [
+  'doctor', 'physician', 'clinic', 'hospital', 'medical', 'health', 'specialist',
+  'pharmacy', 'therapist', 'nurse', 'care', 'geriatric', 'senior health',
+  'home health', 'hospice', 'palliative', 'rehabilitation', 'physical therapy',
+  'occupational therapy', 'speech therapy', 'dental', 'optometrist', 'cardiology',
+  'neurology', 'orthopedic', 'podiatry', 'urology', 'dermatology', 'psychiatry'
+];
+
+const RESOURCE_KEYWORDS = [
+  'senior center', 'area agency on aging', 'meals on wheels', 'food bank',
+  'transportation', 'legal aid', 'elder law', 'social services', 'benefit',
+  'caregiver support', 'respite', 'adult day', 'senior services', 'aging',
+  'nutrition program', 'wellness program', 'volunteer', 'community center',
+  'support group', 'home modification', 'utility assistance', 'medicaid'
+];
+
+const ENTITY_SKIP_DOMAINS = [
+  'wikipedia.org', 'facebook.com', 'twitter.com', 'instagram.com', 'reddit.com',
+  'youtube.com', 'linkedin.com', 'pinterest.com', 'google.com', 'bing.com',
+  'yahoo.com', 'duckduckgo.com', 'amazon.com', 'yelp.com',
+  'healthgrades.com', 'vitals.com', 'zocdoc.com', 'webmd.com', 'mayoclinic.org',
+  'medlineplus.gov', 'nih.gov', 'cdc.gov', 'cms.gov'
+];
+
+/**
+ * Discover healthcare providers via DuckDuckGo + Jina Reader
+ */
+export async function discoverHealthcareViaWeb(
+  query: string,
+  city?: string,
+  state?: string
+): Promise<DiscoveredEntity[]> {
+  const locationPart = city && state ? `${city} ${state}` : city || state || query;
+  const searchQueries = [
+    `${locationPart} senior healthcare provider geriatric doctor clinic`,
+    `${locationPart} home health hospice palliative care senior`
+  ];
+  return _discoverEntitiesViaWeb(searchQueries, locationPart, HEALTHCARE_KEYWORDS, 'healthcare', city, state);
+}
+
+/**
+ * Discover senior resources via DuckDuckGo + Jina Reader
+ */
+export async function discoverResourcesViaWeb(
+  query: string,
+  city?: string,
+  state?: string
+): Promise<DiscoveredEntity[]> {
+  const locationPart = city && state ? `${city} ${state}` : city || state || query;
+  const searchQueries = [
+    `${locationPart} senior center area agency on aging services`,
+    `${locationPart} senior resources meals on wheels caregiver support`
+  ];
+  return _discoverEntitiesViaWeb(searchQueries, locationPart, RESOURCE_KEYWORDS, 'resource', city, state);
+}
+
+async function _discoverEntitiesViaWeb(
+  searchQueries: string[],
+  locationPart: string,
+  keywords: string[],
+  category: string,
+  city?: string,
+  state?: string
+): Promise<DiscoveredEntity[]> {
+  let allUrls: string[] = [];
+
+  for (const q of searchQueries) {
+    const urls = await searchDuckDuckGoForEntities(q, keywords);
+    allUrls.push(...urls);
+  }
+
+  allUrls = [...new Set(allUrls)].slice(0, 6);
+  console.log(`🦆 Entity Discovery (${category}): found ${allUrls.length} candidate URLs for "${locationPart}"`);
+
+  const jinaResults = await Promise.allSettled(allUrls.map(url => fetchViaJina(url)));
+
+  const entities: DiscoveredEntity[] = [];
+  for (const result of jinaResults) {
+    if (result.status === 'fulfilled' && result.value) {
+      const extracted = extractEntityFromText(result.value.content, result.value.url, keywords, category, city, state);
+      if (extracted) entities.push(extracted);
+    }
+  }
+
+  const deduped = deduplicateEntities(entities);
+  console.log(`✨ Entity Discovery (${category}): extracted ${deduped.length} candidates`);
+  return deduped;
+}
+
+async function searchDuckDuckGoForEntities(query: string, keywords: string[]): Promise<string[]> {
+  const urls: string[] = [];
+  try {
+    const searchUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
+    const response = await axios.get(searchUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5'
+      },
+      timeout: 12000
+    });
+
+    const $ = cheerio.load(response.data);
+
+    $('.result').each((i, element) => {
+      if (i >= 12) return false;
+      const $el = $(element);
+      const titleEl = $el.find('.result__title a');
+      let rawHref = titleEl.attr('href') || '';
+      const title = titleEl.text().trim();
+      const snippet = $el.find('.result__snippet').text().trim();
+
+      let resolvedUrl = rawHref;
+      if (rawHref.includes('duckduckgo.com/l/') || rawHref.includes('/l/?uddg=')) {
+        try {
+          const fullHref = rawHref.startsWith('//') ? `https:${rawHref}` : rawHref;
+          const parsed = new URL(fullHref);
+          const uddg = parsed.searchParams.get('uddg');
+          if (uddg) resolvedUrl = decodeURIComponent(uddg);
+        } catch { /* keep rawHref */ }
+      }
+      if (resolvedUrl.startsWith('//')) resolvedUrl = `https:${resolvedUrl}`;
+
+      const combined = (title + ' ' + snippet + ' ' + resolvedUrl).toLowerCase();
+      const isRelevant = keywords.some(kw => combined.includes(kw));
+      const isSkipped = ENTITY_SKIP_DOMAINS.some(d => resolvedUrl.includes(d));
+      const isValidUrl = resolvedUrl.startsWith('http') && ALLOWED_SSRF_PATTERN.test(resolvedUrl);
+
+      if (isValidUrl && isRelevant && !isSkipped) {
+        urls.push(resolvedUrl);
+      }
+    });
+  } catch (error: any) {
+    console.warn(`⚠️ DuckDuckGo entity search error: ${error.message}`);
+  }
+  return urls;
+}
+
+function extractEntityFromText(
+  content: string,
+  sourceUrl: string,
+  keywords: string[],
+  category: string,
+  city?: string,
+  state?: string
+): DiscoveredEntity | null {
+  let domain = '';
+  try {
+    domain = new URL(sourceUrl).hostname.replace('www.', '');
+  } catch {
+    domain = sourceUrl;
+  }
+
+  if (ENTITY_SKIP_DOMAINS.some(d => sourceUrl.includes(d))) return null;
+
+  const lowerContent = content.toLowerCase();
+  const isRelevant = keywords.some(kw => lowerContent.includes(kw));
+  if (!isRelevant) return null;
+
+  const jsonLd = extractJsonLdData(content);
+
+  let name = jsonLd.name || '';
+  let phone: string | undefined = jsonLd.phone;
+  let address: string | undefined = jsonLd.address;
+
+  if (!name || name.length < 4) {
+    const titlePatterns = [/^#\s+(.+)$/m, /^Title:\s*(.+)$/im, /^=+\s*\n(.+)\n=+/m];
+    for (const p of titlePatterns) {
+      const m = content.match(p);
+      if (m) {
+        const candidate = m[1].trim()
+          .replace(/\s*[-|–]\s*.+$/, '')
+          .replace(/\*\*/g, '')
+          .replace(/\s+/g, ' ')
+          .trim();
+        if (candidate.length > 3 && candidate.length < 100) {
+          name = candidate;
+          break;
+        }
+      }
+    }
+  }
+
+  if (!name || name.length < 4) {
+    name = domain.split('.')[0].replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  if (name.length < 4) return null;
+
+  if (!phone) {
+    const phoneMatch = content.match(/(?:\+?1[-.\s]?)?\(?([2-9]\d{2})\)?[-.\s]?(\d{3})[-.\s]?(\d{4})/);
+    phone = phoneMatch ? phoneMatch[0].replace(/\s+/g, '') : undefined;
+  }
+
+  if (!address) address = extractStructuredAddress(content);
+  if (!address) {
+    const addressMatch = content.match(
+      /\d{1,5}\s+[A-Za-z0-9][A-Za-z0-9\s,.-]+(?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Drive|Dr\.?|Lane|Ln\.?|Boulevard|Blvd\.?|Way|Circle|Cir\.?|Court|Ct\.?|Place|Pl\.?|Parkway|Pkwy|Highway|Hwy)\b[^,\n]{0,50}/i
+    );
+    address = addressMatch ? addressMatch[0].trim().replace(/\*\*/g, '') : undefined;
+  }
+
+  if (!phone && !address) return null;
+
+  const services: string[] = [];
+  keywords.forEach(kw => {
+    if (lowerContent.includes(kw) && kw.length > 4) {
+      const label = kw.replace(/\b\w/g, c => c.toUpperCase());
+      if (!services.includes(label)) services.push(label);
+    }
+  });
+
+  let description = '';
+  const descMatch = content.match(/(?:^|\n)([A-Z][^.\n]{40,200}\.)/m);
+  if (descMatch) description = descMatch[1].trim();
+
+  let confidence = 35;
+  if (phone) confidence += 20;
+  if (address) confidence += 20;
+  if (services.length > 1) confidence += 10;
+  if (city && lowerContent.includes(city.toLowerCase())) confidence += 10;
+  if (jsonLd.name) confidence += 5;
+
+  return {
+    name,
+    address,
+    city: city || '',
+    state: state || '',
+    phone,
+    website: sourceUrl,
+    description: description || undefined,
+    entityType: category,
+    services: services.slice(0, 5),
+    source: `Free Discovery (${domain})`,
+    confidence
+  };
+}
+
+function deduplicateEntities(entities: DiscoveredEntity[]): DiscoveredEntity[] {
+  const seen = new Set<string>();
+  return entities.filter(e => {
+    const key = e.name.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}

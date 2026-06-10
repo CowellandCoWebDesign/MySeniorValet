@@ -1,10 +1,10 @@
 import { Express } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
-import { communities, vendors, services } from '@shared/schema';
+import { communities, vendors, services, healthcareProviders, seniorResources } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
-import { discoverCommunitiesViaWeb } from '../services/free-discovery-service';
+import { discoverCommunitiesViaWeb, discoverHealthcareViaWeb, discoverResourcesViaWeb } from '../services/free-discovery-service';
 import { aiTracker } from '../services/ai-tracker.service';
 
 // US State name to abbreviation mapping for search normalization
@@ -650,42 +650,145 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         
       } else if (searchType === 'healthcare' || searchType === 'resources' || searchType === 'vendors') {
         // ============ HEALTHCARE / RESOURCES / VENDORS DISCOVERY MODE ============
-        // Now uses the new discoverEntities() method with category-specific queries
-        const categoryLabel = searchType === 'healthcare' ? 'healthcare providers' 
-          : searchType === 'resources' ? 'resources' : 'vendors';
+        const categoryLabel = searchType === 'healthcare' ? 'healthcare providers'
+          : searchType === 'resources' ? 'senior resources' : 'vendors';
         console.log(`🔍 ${searchType} Discovery search: "${query}"`);
-        
+
         // Parse location from query
+        let entityCity = '';
+        let entityState = '';
         let searchLocation = query;
-        let categoryTerm = '';
-        const queryLower = query.toLowerCase();
-        
-        if (queryLower.includes(' in ')) {
+        const queryLowerE = query.toLowerCase();
+
+        if (queryLowerE.includes(' in ')) {
           const parts = query.split(/\s+in\s+/i);
-          categoryTerm = parts[0].trim();
-          searchLocation = parts[1].trim();
-        } else if (queryLower.includes(' near ')) {
+          searchLocation = parts[1]?.trim() || query;
+        } else if (queryLowerE.includes(' near ')) {
           const parts = query.split(/\s+near\s+/i);
-          categoryTerm = parts[0].trim();
-          searchLocation = parts[1].trim();
+          searchLocation = parts[1]?.trim() || query;
         }
-        
-        // Web discovery is not available for healthcare/resources/vendors yet.
-        // Return DB-only results (currently empty) until a free alternative is built.
+
+        // Attempt to split city/state from searchLocation
+        if (searchLocation.includes(',')) {
+          const locParts = searchLocation.split(',').map(p => p.trim());
+          entityCity = locParts[0] || '';
+          entityState = locParts[1] || '';
+        } else {
+          const words = searchLocation.trim().split(/\s+/);
+          if (words.length >= 2) {
+            const lastWord = words[words.length - 1];
+            const stateNorm = normalizeState(lastWord);
+            if (stateNorm !== lastWord && stateNorm.length === 2) {
+              entityState = stateNorm;
+              entityCity = words.slice(0, -1).join(' ');
+            } else {
+              entityCity = searchLocation;
+            }
+          } else {
+            entityCity = searchLocation;
+          }
+        }
+
+        let discoveredEntities: any[] = [];
+
+        if (searchType === 'healthcare' || searchType === 'resources') {
+          try {
+            const webDiscovered = searchType === 'healthcare'
+              ? await discoverHealthcareViaWeb(query, entityCity || undefined, entityState || undefined)
+              : await discoverResourcesViaWeb(query, entityCity || undefined, entityState || undefined);
+
+            discoveredEntities = webDiscovered.map(e => ({
+              name: e.name,
+              address: e.address || '',
+              city: e.city || entityCity || '',
+              state: e.state || entityState || '',
+              phone: e.phone || '',
+              website: e.website || '',
+              description: e.description || `${categoryLabel} found via web search for "${query}"`,
+              services: e.services || [],
+              source: e.source,
+              confidence: e.confidence,
+              isDiscovered: true
+            }));
+
+            console.log(`✅ Free Entity Discovery (${searchType}): found ${discoveredEntities.length} candidates`);
+          } catch (searchErr) {
+            console.error(`❌ Entity Discovery error for ${searchType}:`, searchErr);
+            discoveredEntities = [];
+          }
+        }
+
+        // Save discovered entities to appropriate DB tables
+        const savedEntities: any[] = [];
+        const table = searchType === 'healthcare' ? healthcareProviders : seniorResources;
+
+        for (const entity of discoveredEntities) {
+          if (!entity.name) continue;
+          try {
+            const normalizedName = entity.name.toLowerCase().trim();
+            const existing = await db.select()
+              .from(table)
+              .where(sql`LOWER(${table.normalizedName}) = ${normalizedName}`)
+              .limit(1);
+
+            if (existing.length === 0) {
+              const baseValues = {
+                name: entity.name,
+                normalizedName,
+                description: entity.description || null,
+                shortDescription: entity.description ? entity.description.substring(0, 200) : null,
+                address: entity.address || null,
+                city: entity.city || entityCity || null,
+                state: entity.state || entityState || null,
+                phone: entity.phone || null,
+                website: entity.website || null,
+                source: 'free_discovery',
+                sourceUrl: entity.website || null,
+                confidence: entity.confidence || 40,
+                isVerified: false,
+                metadata: { discoveryQuery: query }
+              };
+
+              let inserted: any;
+              if (searchType === 'healthcare') {
+                [inserted] = await db.insert(healthcareProviders)
+                  .values({ ...baseValues, providerType: 'clinic', specialties: entity.services || [] })
+                  .returning();
+              } else {
+                [inserted] = await db.insert(seniorResources)
+                  .values({ ...baseValues, resourceType: 'senior_services', services: entity.services || [] })
+                  .returning();
+              }
+
+              console.log(`✅ SAVED ${searchType}: ${entity.name} (ID: ${inserted.id})`);
+              savedEntities.push({ ...inserted, isDiscovered: true });
+            } else {
+              savedEntities.push({ ...existing[0], isDiscovered: false });
+            }
+          } catch (insertErr) {
+            console.error(`❌ Failed to save ${searchType} entity "${entity.name}":`, insertErr);
+            savedEntities.push({ ...entity, id: 0, isDiscovered: true });
+          }
+        }
+
         return res.json({
           success: true,
           query: query,
           searchType: searchType,
-          results: [],
+          results: savedEntities.slice(0, limit),
           metadata: {
-            totalFound: 0,
-            existingCount: 0,
-            discoveredCount: 0,
-            sources: [],
+            totalFound: savedEntities.length,
+            existingCount: savedEntities.filter((e: any) => !e.isDiscovered).length,
+            discoveredCount: savedEntities.filter((e: any) => e.isDiscovered).length,
+            sources: ['DuckDuckGo+Jina Web Search'],
             searchLocation: searchLocation,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            aiConfidence: discoveredEntities.length > 0 ? 70 : 50,
+            dataSource: 'Free Discovery (DuckDuckGo+Jina)'
           },
-          message: `Web discovery not available for this category yet`
+          message: savedEntities.length === 0
+            ? `No ${categoryLabel} found for "${query}". Try a different location or search term.`
+            : `Discovery Mode found ${savedEntities.length} ${categoryLabel} via web search`
         });
         
       } else {
