@@ -147,6 +147,19 @@ function normalizeDdgUrl(raw: string, keepPath = false): string | null {
 }
 
 /**
+ * A single public directory listing page found for a community, carrying the
+ * search-result metadata (title + snippet) alongside the URL so callers can
+ * confirm the listing is actually about THIS community before scraping/accepting
+ * its photos. `rank` is the photo-reliability rank (lower = preferred).
+ */
+export interface DirectoryListing {
+  url: string;
+  title: string;
+  snippet: string;
+  rank: number;
+}
+
+/**
  * Result from a DuckDuckGo HTML search — includes both the best website URL
  * found (if any) and up to 3 search-result snippets that can be used as a
  * text-only fallback when no official website is available.
@@ -159,8 +172,10 @@ export interface DdgSearchResult {
    * SeniorLiving.com, etc.) found for this community, ranked by how reliably
    * they host real community photos. Used ONLY as a photo fallback — never as a
    * source for description text (directory marketing copy must not leak in).
+   * Each entry carries its search title/snippet so the caller can confirm the
+   * listing belongs to this community before accepting its images.
    */
-  directoryUrls: string[];
+  directoryListings: DirectoryListing[];
 }
 
 /**
@@ -168,7 +183,7 @@ export interface DdgSearchResult {
  * primary, Bing fallback — see `search-provider.ts`). Returns:
  *   - `website`: the first non-directory result URL that passes the SSRF guard, or null
  *   - `snippets`: up to 3 result snippets, a free text-only fallback
- *   - `directoryUrls`: ranked public directory listing pages (photo fallback only)
+ *   - `directoryListings`: ranked public directory listing pages with title/snippet (photo fallback only)
  *
  * The provider layer hardens the DuckDuckGo path (no more `duckduckgo.com/html/`
  * scraping that triggers the 202 bot challenge) and automatically fails over to
@@ -184,19 +199,15 @@ export async function searchDuckDuckGo(
     const { results } = await webSearch(query);
 
     if (results.length === 0) {
-      return { website: null, snippets: [], directoryUrls: [] };
+      return { website: null, snippets: [], directoryListings: [] };
     }
-
-    // Result URLs from the provider layer are already absolute and (for Bing)
-    // have their redirect wrappers decoded.
-    const resultUrls = results.map((r) => r.url);
 
     // Official website: first non-directory result (homepage origin) that is
     // safe to fetch. Directory sites are skipped here so directory marketing
     // copy never becomes the community's "About" text.
     let website: string | null = null;
-    for (const raw of resultUrls) {
-      const normalized = normalizeDdgUrl(raw);
+    for (const r of results) {
+      const normalized = normalizeDdgUrl(r.url);
       if (!normalized) continue;
       if (isDirectorySite(normalized)) continue;
       if (await isSafePublicUrl(normalized)) {
@@ -206,12 +217,14 @@ export async function searchDuckDuckGo(
     }
 
     // Directory photo sources: collect public directory listing pages (full
-    // path) ranked by photo reliability. SSRF validation is deferred to the
-    // image scraper (which checks every hop), so we don't DNS-resolve here.
+    // path) ranked by photo reliability, preserving each result's title/snippet
+    // so the caller can confirm the listing is about THIS community before
+    // accepting its images. SSRF validation is deferred to the image scraper
+    // (which checks every hop), so we don't DNS-resolve here.
     const directorySeen = new Set<string>();
-    const directoryRanked: Array<{ url: string; rank: number }> = [];
-    for (const raw of resultUrls) {
-      const normalized = normalizeDdgUrl(raw, true);
+    const directoryRanked: DirectoryListing[] = [];
+    for (const r of results) {
+      const normalized = normalizeDdgUrl(r.url, true);
       if (!normalized) continue;
       const rank = photoDirectoryRank(normalized);
       if (rank < 0) continue;
@@ -229,10 +242,15 @@ export async function searchDuckDuckGo(
       if (!pathname || pathname === "/") continue;
       if (directorySeen.has(key)) continue;
       directorySeen.add(key);
-      directoryRanked.push({ url: normalized, rank });
+      directoryRanked.push({
+        url: normalized,
+        title: (r.title || "").trim(),
+        snippet: (r.snippet || "").trim(),
+        rank,
+      });
     }
     directoryRanked.sort((a, b) => a.rank - b.rank);
-    const directoryUrls = directoryRanked.map((d) => d.url).slice(0, 5);
+    const directoryListings = directoryRanked.slice(0, 6);
 
     // ── Snippets (text-only fallback) ─────────────────────────────────────────
     const snippets: string[] = [];
@@ -241,10 +259,10 @@ export async function searchDuckDuckGo(
       if (text && text.length > 30) snippets.push(text);
     }
 
-    return { website, snippets: snippets.slice(0, 3), directoryUrls };
+    return { website, snippets: snippets.slice(0, 3), directoryListings };
   } catch (err: any) {
     console.log(`⚠️ Web search failed for "${name}": ${err?.message}`);
-    return { website: null, snippets: [], directoryUrls: [] };
+    return { website: null, snippets: [], directoryListings: [] };
   }
 }
 
@@ -309,6 +327,73 @@ function photoDirectoryRank(url: string): number {
   return -1;
 }
 
+// ── Community source confirmation ────────────────────────────────────────────
+
+/**
+ * Generic senior-living words that appear in almost every community name and so
+ * carry no signal for confirming a specific community. Stripped before matching
+ * so "River Commons" is matched on "river"/"commons", not on "senior"/"living".
+ */
+const NAME_STOPWORDS = new Set([
+  "senior", "seniors", "living", "care", "assisted", "memory", "independent",
+  "nursing", "skilled", "community", "communities", "center", "centre", "home",
+  "homes", "house", "housing", "retirement", "village", "villas", "place",
+  "places", "health", "healthcare", "rehabilitation", "rehab", "facility",
+  "the", "of", "at", "and", "for", "llc", "inc", "co", "group", "residence",
+  "residences", "estates", "manor", "gardens", "court", "courts", "lodge",
+]);
+
+/**
+ * Tokenize a community name into distinctive lowercase tokens, dropping generic
+ * senior-living stopwords and short fragments. These tokens are what we look for
+ * when confirming a candidate page is about THIS community.
+ */
+export function communityNameTokens(name: string): string[] {
+  return (name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length >= 3 && !NAME_STOPWORDS.has(t));
+}
+
+/**
+ * Decide whether a chunk of text (a candidate page's URL + title + snippet +
+ * body) actually references a specific community. Used to reject wrong-source
+ * photos: a directory listing for a *different* community will not contain this
+ * community's distinctive name tokens (and, when required, its city).
+ *
+ *  - Distinctive name tokens: at least 60% present, or (for multi-token names)
+ *    at least two present. This tolerates minor naming differences ("River
+ *    Commons" vs "River Commons Senior Living") without matching unrelated
+ *    listings.
+ *  - City: when `requireCity` is true the city must also appear. Directory
+ *    listings (the wrong-source risk) require the city; the community's own
+ *    official site does not (a homepage may omit the city in matchable text).
+ *  - When the name is entirely generic (no distinctive tokens), fall back to
+ *    requiring the full verbatim name to appear.
+ */
+export function textReferencesCommunity(
+  text: string,
+  name: string,
+  city: string,
+  opts: { requireCity?: boolean } = {},
+): boolean {
+  if (!text) return false;
+  const hay = text.toLowerCase();
+  const cityNorm = (city || "").toLowerCase().trim();
+  const cityOk = !opts.requireCity || cityNorm.length === 0 || hay.includes(cityNorm);
+  if (!cityOk) return false;
+
+  const tokens = communityNameTokens(name);
+  if (tokens.length === 0) {
+    const full = (name || "").toLowerCase().trim();
+    return full.length > 0 && hay.includes(full);
+  }
+  const matched = tokens.filter((t) => hay.includes(t)).length;
+  const ratio = matched / tokens.length;
+  return ratio >= 0.6 || (tokens.length >= 3 && matched >= 2);
+}
+
 // ── Jina AI Reader ────────────────────────────────────────────────────────────
 
 /**
@@ -362,17 +447,30 @@ export async function extractContentFromUrl(rawUrl: string): Promise<string | nu
 const IMG_FETCH_TIMEOUT_MS = 12_000;
 
 /**
- * Scrape real photos from a community's website by fetching the raw HTML and
- * extracting og:image / twitter:image meta tags plus inline <img> sources.
+ * A scraped page: deduplicated absolute image URLs plus a lowercased text blob
+ * (title + meta description + visible body text) used to confirm the page is
+ * about a specific community before its images are accepted.
+ */
+export interface ScrapedPage {
+  images: string[];
+  text: string;
+}
+
+/**
+ * Fetch a page and extract both its images and a confirmation-text blob.
  *
  * Jina Reader returns markdown that strips image URLs, so we fetch the raw HTML
  * directly here. og:image meta tags are present even on JS-heavy SPAs because
  * they live in the static <head> for social sharing.
  *
- * Returns absolute, deduplicated image URLs (up to 30). The caller is expected
- * to filter out stock/placeholder/icon assets and trim to its display limit.
+ * `images` are absolute, deduplicated URLs (up to 30) — the caller filters out
+ * stock/placeholder/icon assets and trims to its display limit. `text` is the
+ * page <title>, meta description, og:title/description and visible body text,
+ * lowercased and capped, so the caller can corroborate the page belongs to a
+ * given community (rejecting wrong-source / multi-community directory listings).
  */
-export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
+export async function scrapeWebsitePage(rawUrl: string): Promise<ScrapedPage> {
+  const empty: ScrapedPage = { images: [], text: "" };
   try {
     // SSRF-safe fetch: validate every hop (redirects can point at private/internal
     // hosts or cloud metadata endpoints, so a single up-front check is not enough).
@@ -383,7 +481,7 @@ export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
     for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
       if (!(await isSafePublicUrl(currentUrl))) {
         console.log(`🚫 Image scrape blocked: unsafe URL ${currentUrl}`);
-        return [];
+        return empty;
       }
 
       const resp = await fetch(currentUrl, {
@@ -404,7 +502,7 @@ export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
         const next = new URL(location, currentUrl);
         if (next.protocol !== "http:" && next.protocol !== "https:") {
           console.log(`🚫 Image scrape blocked: non-http redirect ${next.href}`);
-          return [];
+          return empty;
         }
         currentUrl = next.href;
         continue;
@@ -416,12 +514,12 @@ export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
 
     if (!response) {
       console.log(`⚠️ Image scrape: too many redirects from ${rawUrl}`);
-      return [];
+      return empty;
     }
 
     if (!response.ok) {
       console.log(`⚠️ Image scrape: ${response.status} for ${currentUrl}`);
-      return [];
+      return empty;
     }
 
     const html = await response.text();
@@ -457,12 +555,32 @@ export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
       );
     });
 
+    // Confirmation text: title + meta/og description + visible body text. Strip
+    // scripts/styles so JSON blobs don't pollute the match. Capped for bounded work.
+    $("script, style, noscript").remove();
+    const metaBits = [
+      $("title").text(),
+      $('meta[name="description"]').attr("content") || "",
+      $('meta[property="og:title"]').attr("content") || "",
+      $('meta[property="og:description"]').attr("content") || "",
+    ].join(" ");
+    const bodyText = $("body").text().replace(/\s+/g, " ").trim();
+    const text = `${metaBits} ${bodyText}`.toLowerCase().slice(0, 6000);
+
     // Dedupe, preserve order (og:image first), cap at 30 — caller filters & trims
-    return Array.from(new Set(found)).slice(0, 30);
+    return { images: Array.from(new Set(found)).slice(0, 30), text };
   } catch (err: any) {
     console.log(`⚠️ Image scrape failed for ${rawUrl}: ${err?.message}`);
-    return [];
+    return empty;
   }
+}
+
+/**
+ * Backwards-compatible thin wrapper: scrape just the image URLs from a page.
+ * Prefer scrapeWebsitePage() when you also need the confirmation text.
+ */
+export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
+  return (await scrapeWebsitePage(rawUrl)).images;
 }
 
 // ── Groq structuring (optional) ───────────────────────────────────────────────

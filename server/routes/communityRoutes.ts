@@ -18,7 +18,7 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
-import { enrichCommunityFree, scrapeWebsiteImages, searchDuckDuckGo, type DdgSearchResult } from "../services/free-enrichment-service";
+import { enrichCommunityFree, scrapeWebsitePage, searchDuckDuckGo, textReferencesCommunity, type DdgSearchResult } from "../services/free-enrichment-service";
 import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
 import { cleanCitationArtifacts, isReachableWebsite } from "../utils/data-quality";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
@@ -881,6 +881,8 @@ export function registerCommunityRoutes(app: Express) {
           verificationResults: {
             webIntelligence: {
               images: community.photos || [],
+              // Stored per-photo attributions (index-aligned with `images`).
+              imageAttributions: community.photoAttributions || [],
               sources: community.website ? [community.website] : []
             },
             perplexityData: {
@@ -947,20 +949,49 @@ export function registerCommunityRoutes(app: Express) {
       // were never scraped show zero photos. Recover them for free from the site.
       // Filter stored photos through the blocklist so previously-persisted junk
       // (map graphics, placeholders, icons) is never served as a community photo.
-      const cleanDbPhotos: string[] = (community.photos || []).filter(
-        (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
-      );
+      // Keep stored photos and their attributions aligned while filtering junk,
+      // so a blocklist hit drops the photo AND its stale attribution together.
+      const dbPhotoPairs: Array<{ url: string; attr: string }> = (community.photos || [])
+        .map((u: string, i: number) => ({
+          url: u,
+          attr: (community.photoAttributions || [])[i] || community.website || "",
+        }))
+        .filter((p: { url: string }) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(p.url));
+      const cleanDbPhotos: string[] = dbPhotoPairs.map((p) => p.url);
+      const cleanDbAttributions: string[] = dbPhotoPairs.map((p) => p.attr);
       let discoveredPhotos: string[] = [];
-      // Page each discovered photo was scraped from, for auditable attribution.
-      let discoveredPhotoSource: string | null = null;
+      // Per-photo source attribution, index-aligned with discoveredPhotos.
+      let discoveredPhotoAttributions: string[] = [];
       const hasDbPhotos = cleanDbPhotos.length > 0;
       if (!hasDbPhotos) {
-        const scrapeUsable = async (url: string): Promise<string[]> => {
-          const scraped = await scrapeWebsiteImages(url);
-          return scraped
-            .filter((u) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u))
-            .slice(0, 15);
+        // Scrape a page and return its usable (non-blocklisted) images + the page
+        // text we use to confirm the page is actually about THIS community.
+        const scrapeUsablePage = async (
+          url: string,
+        ): Promise<{ images: string[]; text: string }> => {
+          const page = await scrapeWebsitePage(url);
+          return {
+            images: page.images
+              .filter((u) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u))
+              .slice(0, 15),
+            text: page.text,
+          };
         };
+
+        // Normalize an image URL for cross-source corroboration: drop the query
+        // string and lowercase host+path so the same asset served by two listings
+        // (or with tracking params) collapses to a single key.
+        const normalizeImageKey = (u: string): string => {
+          try {
+            const p = new URL(u);
+            return (p.hostname + p.pathname).toLowerCase();
+          } catch {
+            return u.toLowerCase();
+          }
+        };
+
+        type PhotoSource = { url: string; official: boolean; images: string[] };
+        const confirmedSources: PhotoSource[] = [];
 
         const primaryUrl =
           (freeEnrichment as any).website ||
@@ -969,46 +1000,109 @@ export function registerCommunityRoutes(app: Express) {
           community.website ||
           undefined;
 
-        if (primaryUrl) {
-          console.log(`📸 No stored photos for "${community.name}" — scraping ${primaryUrl}`);
-          discoveredPhotos = await scrapeUsable(primaryUrl);
-          if (discoveredPhotos.length > 0) discoveredPhotoSource = primaryUrl;
-        }
+        // One DuckDuckGo search gives us the real official site (text-preferred)
+        // plus ranked public directory listing pages (with title/snippet so each
+        // can be confirmed as belonging to this community before we trust it).
+        const ddg = await searchDuckDuckGo(community.name, community.city, community.state);
 
-        // Gemini sometimes guesses URLs that 404, and many official sites are
-        // JS-heavy SPAs with no static images. Run one DuckDuckGo search to get
-        // both the real official site (text-preferred) and ranked public
-        // directory listing pages (photo fallback only).
-        let ddg: DdgSearchResult | null = null;
-        if (discoveredPhotos.length === 0) {
-          ddg = await searchDuckDuckGo(community.name, community.city, community.state);
-          if (ddg.website && ddg.website !== primaryUrl) {
-            console.log(`📸 Primary URL had no photos — trying discovered site ${ddg.website}`);
-            discoveredPhotos = await scrapeUsable(ddg.website);
-            if (discoveredPhotos.length > 0) discoveredPhotoSource = ddg.website;
+        // 1. Official / discovered-official site(s). The community's own site is
+        //    authoritative for itself, so we confirm only the name tokens (the
+        //    city is optional — a homepage may not surface it in matchable text).
+        const officialCandidates: string[] = [];
+        if (primaryUrl) officialCandidates.push(primaryUrl);
+        if (ddg.website && !officialCandidates.includes(ddg.website)) {
+          officialCandidates.push(ddg.website);
+        }
+        for (const url of officialCandidates) {
+          const { images, text } = await scrapeUsablePage(url);
+          if (images.length === 0) continue;
+          if (!textReferencesCommunity(`${url} ${text}`, community.name, community.city)) {
+            console.log(`📸 Skipping unconfirmed official source ${url} (no community match)`);
+            continue;
           }
+          confirmedSources.push({ url, official: true, images });
+          console.log(`📸 Official source ${url} → ${images.length} confirmed photo(s)`);
         }
 
-        // Directory fallback: official site yielded no usable photos. Senior
-        // living directories (A Place for Mom, Caring.com, etc.) host abundant
-        // public community photos. Scrape the top-ranked directory pages until
-        // one yields real images. scrapeWebsiteImages enforces SSRF + redirect
-        // safety; the blocklist strips directory placeholder/template junk.
-        if (discoveredPhotos.length === 0 && ddg && ddg.directoryUrls.length > 0) {
-          for (const dirUrl of ddg.directoryUrls) {
-            console.log(`📸 Official site had no photos — trying directory source ${dirUrl}`);
-            const dirPhotos = await scrapeUsable(dirUrl);
-            if (dirPhotos.length > 0) {
-              discoveredPhotos = dirPhotos;
-              discoveredPhotoSource = dirUrl;
-              console.log(`📸 Directory ${dirUrl} yielded ${dirPhotos.length} usable photo(s)`);
-              break;
+        // 2. Public directory listings (photo fallback). These are the wrong-source
+        //    risk, so each must reference this community by name AND city — first via
+        //    the cheap search title/snippet (pre-fetch), then via the scraped body.
+        const MAX_DIRECTORY_SOURCES = 4;
+        let directoriesScraped = 0;
+        for (const listing of ddg.directoryListings) {
+          if (directoriesScraped >= MAX_DIRECTORY_SOURCES) break;
+          const meta = `${listing.url} ${listing.title} ${listing.snippet}`;
+          if (!textReferencesCommunity(meta, community.name, community.city, { requireCity: true })) {
+            console.log(`📸 Skipping directory listing (metadata mismatch): ${listing.url}`);
+            continue;
+          }
+          directoriesScraped++;
+          const { images, text } = await scrapeUsablePage(listing.url);
+          if (images.length === 0) continue;
+          if (!textReferencesCommunity(`${meta} ${text}`, community.name, community.city, { requireCity: true })) {
+            console.log(`📸 Skipping directory listing (body mismatch): ${listing.url}`);
+            continue;
+          }
+          confirmedSources.push({ url: listing.url, official: false, images });
+          console.log(`📸 Directory ${listing.url} → ${images.length} confirmed photo(s)`);
+        }
+
+        // 3. Corroborate & rank across the confirmed sources:
+        //    - official-site photos are always trusted (the site is the community's own)
+        //    - directory photos appearing across ≥2 confirmed sources are corroborated
+        //    - a directory singleton is kept ONLY when it is the sole confirmed source
+        //      (no official photos and a single directory) so a lone, possibly
+        //      mismatched image never wins when better evidence exists.
+        const photoMap = new Map<
+          string,
+          { url: string; official: boolean; sources: string[]; order: number }
+        >();
+        let order = 0;
+        for (const src of confirmedSources) {
+          for (const img of src.images) {
+            const key = normalizeImageKey(img);
+            const existing = photoMap.get(key);
+            if (existing) {
+              if (!existing.sources.includes(src.url)) existing.sources.push(src.url);
+              if (src.official) existing.official = true;
+            } else {
+              photoMap.set(key, { url: img, official: src.official, sources: [src.url], order: order++ });
             }
           }
         }
+
+        const officialExists = Array.from(photoMap.values()).some((e) => e.official);
+        const directorySourceCount = confirmedSources.filter((s) => !s.official).length;
+
+        const ranked = Array.from(photoMap.values())
+          .filter((e) => {
+            if (e.official) return true;
+            if (e.sources.length >= 2) return true; // corroborated across sources
+            return !officialExists && directorySourceCount <= 1; // sole confirmed source
+          })
+          .sort((a, b) => {
+            if (a.official !== b.official) return a.official ? -1 : 1;
+            if (b.sources.length !== a.sources.length) return b.sources.length - a.sources.length;
+            return a.order - b.order;
+          });
+
+        discoveredPhotos = ranked.map((e) => e.url).slice(0, 15);
+        // Attribution per photo: prefer an official source that carries it, else
+        // the first confirmed source. Index-aligned with discoveredPhotos.
+        discoveredPhotoAttributions = ranked.slice(0, 15).map((e) => {
+          if (e.official) {
+            const officialSrc = confirmedSources.find(
+              (s) => s.official && s.images.some((i) => normalizeImageKey(i) === normalizeImageKey(e.url)),
+            );
+            if (officialSrc) return officialSrc.url;
+          }
+          return e.sources[0];
+        });
+
         console.log(
-          `📸 Discovered ${discoveredPhotos.length} usable photos for "${community.name}"` +
-            (discoveredPhotoSource ? ` from ${discoveredPhotoSource}` : ""),
+          `📸 Corroborated ${discoveredPhotos.length} photo(s) for "${community.name}" from ` +
+            `${confirmedSources.length} confirmed source(s)` +
+            (officialExists ? " (official photos present)" : ""),
         );
       }
 
@@ -1027,6 +1121,12 @@ export function registerCommunityRoutes(app: Express) {
         photos: hasDbPhotos
           ? cleanDbPhotos
           : (discoveredPhotos.length > 0 ? discoveredPhotos : (freeEnrichment.photos || [])),
+        // Per-photo source attribution, index-aligned with `photos`, so the UI
+        // can show each image's true origin instead of mislabeling directory
+        // photos as the official website.
+        photoAttributions: hasDbPhotos
+          ? cleanDbAttributions
+          : (discoveredPhotos.length > 0 ? discoveredPhotoAttributions : []),
         careTypes: freeEnrichment.careTypes || [],
         amenities: freeEnrichment.amenities || [],
         searchResults: {
@@ -1086,34 +1186,26 @@ export function registerCommunityRoutes(app: Express) {
             console.log(`✅ Updating description with FULL enriched content (${candidateDescription.length} chars)`);
           }
 
-          // Photo persistence (only when no clean DB photos already exist):
-          //  - persist freshly scraped photos, OR
-          //  - clear stored photos that were entirely junk/placeholders
-          if (!hasDbPhotos) {
-            if (discoveredPhotos.length > 0) {
-              updates.photos = discoveredPhotos;
-              // Persist source attribution (one entry per photo) so the origin
-              // of each image — official site or a public directory — is auditable.
-              if (discoveredPhotoSource) {
-                updates.photoAttributions = discoveredPhotos.map(() => discoveredPhotoSource as string);
-              }
-              hasUpdates = true;
-              console.log(
-                `✅ Updating photos with ${discoveredPhotos.length} scraped images` +
-                  (discoveredPhotoSource ? ` (source: ${discoveredPhotoSource})` : ""),
-              );
-            } else if (
-              current.photos &&
-              current.photos.length > 0 &&
-              current.photos.every((u: string) =>
-                CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
-              )
-            ) {
-              // Only clear when EVERY stored photo is junk — never wipe valid ones
-              updates.photos = [];
-              hasUpdates = true;
-              console.log(`🧹 Clearing ${current.photos.length} junk/placeholder photo(s) from DB`);
-            }
+          // Photo persistence — NON-DESTRUCTIVE.
+          // Stored photos are only ever REPLACED when we have verified replacement
+          // photos (corroborated, confirmed-for-community images discovered above).
+          // We never wipe the column based on the blocklist alone: a blocklist
+          // false positive must not permanently erase real community photos. When
+          // discovery finds nothing, existing stored photos are left untouched.
+          if (!hasDbPhotos && discoveredPhotos.length > 0) {
+            updates.photos = discoveredPhotos;
+            // Persist per-photo source attribution (index-aligned) so each image's
+            // true origin — official site or a specific public directory — is
+            // auditable and the UI never mislabels a directory photo's source.
+            updates.photoAttributions =
+              discoveredPhotoAttributions.length === discoveredPhotos.length
+                ? discoveredPhotoAttributions
+                : discoveredPhotos.map((_, i) => discoveredPhotoAttributions[i] || "");
+            hasUpdates = true;
+            console.log(
+              `✅ Updating photos with ${discoveredPhotos.length} corroborated images ` +
+                `(attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
+            );
           }
 
           // Always stamp lastSuccessfulEnrichment when the pipeline produced real data
@@ -1180,6 +1272,10 @@ export function registerCommunityRoutes(app: Express) {
         verificationResults: {
           webIntelligence: {
             images: enrichmentResult.photos,
+            // Per-photo source attribution (index-aligned with `images`) so the
+            // UI can show where each photo actually came from — never mislabeling
+            // a directory photo as the official website.
+            imageAttributions: enrichmentResult.photoAttributions || [],
             sources: enrichmentResult.searchResults?.sources || [],
             careTypes: enrichmentResult.careTypes,
             amenities: enrichmentResult.amenities

@@ -61,7 +61,9 @@ export class CommunityPhotoEnrichment {
       'analytics',
       '1x1',
       'spacer',
-      'blank',
+      // 'blank.' (not bare 'blank') so tracking pixels like blank.gif/blank.png
+      // are blocked without false-positiving real photos such as "blanket-room.jpg".
+      'blank.',
       'loading.gif',
       'loading.png',
       'spinner',

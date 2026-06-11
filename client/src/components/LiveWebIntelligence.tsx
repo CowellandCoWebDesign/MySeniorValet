@@ -353,15 +353,32 @@ export function LiveWebIntelligence({
                 <span className="font-medium">{verificationData.images.length} Photos Available</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
-                {verificationData.images.slice(0, 6).map((photo: string, idx: number) => (
-                  <img
-                    key={idx}
-                    src={photo}
-                    alt={`${communityName} photo ${idx + 1}`}
-                    className="rounded-lg object-cover h-24 w-full"
-                    loading="lazy"
-                  />
-                ))}
+                {verificationData.images.slice(0, 6).map((photo: string, idx: number) => {
+                  const attribution = verificationData?.imageAttributions?.[idx];
+                  let sourceHost = "";
+                  if (attribution) {
+                    try {
+                      sourceHost = new URL(attribution).hostname.replace(/^www\./, "");
+                    } catch {
+                      sourceHost = "";
+                    }
+                  }
+                  return (
+                    <div key={idx} className="space-y-1">
+                      <img
+                        src={photo}
+                        alt={`${communityName} photo ${idx + 1}`}
+                        className="rounded-lg object-cover h-24 w-full"
+                        loading="lazy"
+                      />
+                      {sourceHost && (
+                        <p className="text-[10px] text-muted-foreground truncate" title={attribution}>
+                          Source: {sourceHost}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
