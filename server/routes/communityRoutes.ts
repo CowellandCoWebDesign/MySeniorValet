@@ -20,6 +20,7 @@ import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { enrichCommunityFree, scrapeWebsiteImages, searchDuckDuckGo, type DdgSearchResult } from "../services/free-enrichment-service";
 import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
+import { cleanCitationArtifacts, isReachableWebsite } from "../utils/data-quality";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
@@ -1051,28 +1052,38 @@ export function registerCommunityRoutes(app: Express) {
         const [current] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
         
         if (current) {
-          // Update website if found and different
-          if (enrichmentResult.officialWebsite && current.website !== enrichmentResult.officialWebsite) {
-            updates.website = enrichmentResult.officialWebsite;
-            hasUpdates = true;
-            console.log(`✅ Updating website to: ${enrichmentResult.officialWebsite}`);
+          // Update website if found and different — but ONLY persist a website that
+          // actually resolves. AI-guessed / 404 domains are dropped, never saved
+          // (Golden Data Rule). Citation artifacts are stripped before comparison.
+          const candidateWebsite = cleanCitationArtifacts(enrichmentResult.officialWebsite);
+          if (candidateWebsite && current.website !== candidateWebsite) {
+            if (await isReachableWebsite(candidateWebsite)) {
+              updates.website = candidateWebsite;
+              hasUpdates = true;
+              console.log(`✅ Updating website to: ${candidateWebsite}`);
+            } else {
+              console.log(`🚫 Skipped unreachable website for "${current.name}": ${candidateWebsite}`);
+            }
           }
           
-          // Update phone if found and different
-          if (enrichmentResult.phoneNumber && current.phone !== enrichmentResult.phoneNumber) {
-            updates.phone = enrichmentResult.phoneNumber;
+          // Update phone if found and different (citation artifacts stripped)
+          const candidatePhone = cleanCitationArtifacts(enrichmentResult.phoneNumber);
+          if (candidatePhone && current.phone !== candidatePhone) {
+            updates.phone = candidatePhone;
             hasUpdates = true;
-            console.log(`✅ Updating phone to: ${enrichmentResult.phoneNumber}`);
+            console.log(`✅ Updating phone to: ${candidatePhone}`);
           }
           
           // Update description with FULL content for SEO - no truncation
           // Allow overwrite on forceRefresh even when a description already exists
-          if (enrichmentResult.searchResults?.summary && 
-              enrichmentResult.searchResults.summary.length > 100 &&
+          // (citation artifacts stripped before persisting)
+          const candidateDescription = cleanCitationArtifacts(enrichmentResult.searchResults?.summary);
+          if (candidateDescription &&
+              candidateDescription.length > 100 &&
               (!current.description || current.description.length < 50 || forceRefresh)) {
-            updates.description = enrichmentResult.searchResults.summary; // Full content, no substring!
+            updates.description = candidateDescription; // Full content, no substring!
             hasUpdates = true;
-            console.log(`✅ Updating description with FULL enriched content (${enrichmentResult.searchResults.summary.length} chars)`);
+            console.log(`✅ Updating description with FULL enriched content (${candidateDescription.length} chars)`);
           }
 
           // Photo persistence (only when no clean DB photos already exist):

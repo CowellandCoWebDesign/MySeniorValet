@@ -1,37 +1,30 @@
 import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, and, sql } from "drizzle-orm";
+import {
+  cleanCitationArtifacts,
+  isIncompleteAddress,
+  looksLikeGuessedName,
+  isReachableWebsite,
+} from "../utils/data-quality";
 
 /**
- * Clean Perplexity AI citation markers from data
- * Removes patterns like [1], [2][3], *(verify)*, etc.
- */
-function cleanPerplexityCitations(text: string | undefined): string | undefined {
-  if (!text) return text;
-  return text
-    .replace(/\s*\*\(verify\)\*/gi, '')  // Remove *(verify)*
-    .replace(/\s*\[\d+\]/g, '')          // Remove [1], [2], etc.
-    .replace(/\[\d+\]\[\d+\]/g, '')      // Remove [1][2] patterns
-    .replace(/\s+/g, ' ')                // Normalize whitespace
-    .trim();
-}
-
-/**
- * Clean all fields that might have citation markers
+ * Clean all fields that might have citation markers, using the centralized
+ * citation cleaner shared across every community write path.
  */
 function cleanDiscoveredCommunity(community: DiscoveredCommunity): DiscoveredCommunity {
   return {
     ...community,
-    name: cleanPerplexityCitations(community.name) || community.name,
-    address: cleanPerplexityCitations(community.address),
-    city: cleanPerplexityCitations(community.city),
-    state: cleanPerplexityCitations(community.state),
-    zip: cleanPerplexityCitations(community.zip),
-    website: cleanPerplexityCitations(community.website),
-    phone: cleanPerplexityCitations(community.phone),
-    email: cleanPerplexityCitations(community.email),
-    fax: cleanPerplexityCitations(community.fax),
-    description: cleanPerplexityCitations(community.description),
+    name: cleanCitationArtifacts(community.name) ?? "",
+    address: cleanCitationArtifacts(community.address),
+    city: cleanCitationArtifacts(community.city),
+    state: cleanCitationArtifacts(community.state),
+    zip: cleanCitationArtifacts(community.zip),
+    website: cleanCitationArtifacts(community.website),
+    phone: cleanCitationArtifacts(community.phone),
+    email: cleanCitationArtifacts(community.email),
+    fax: cleanCitationArtifacts(community.fax),
+    description: cleanCitationArtifacts(community.description),
   };
 }
 
@@ -102,16 +95,42 @@ export class DiscoveredCommunityService {
         city: cleanedCommunity.city || '',
         state: cleanedCommunity.state || '',
       });
+
+      // Golden Data Rule: only persist a website that actually resolves. AI-guessed
+      // or 404 domains are dropped rather than saved.
+      let validatedWebsite: string | undefined = undefined;
+      if (cleanedCommunity.website) {
+        if (await isReachableWebsite(cleanedCommunity.website)) {
+          validatedWebsite = cleanedCommunity.website;
+        } else {
+          console.log(`🚫 Dropped unreachable website for "${cleanedCommunity.name}": ${cleanedCommunity.website}`);
+        }
+      }
+
+      // Non-destructive data-quality markers so suspect records can be reviewed.
+      const dataQualityFlags: string[] = [];
+      const hasRealAddress = !!cleanedCommunity.address && !isIncompleteAddress(
+        cleanedCommunity.address,
+        cleanedCommunity.city,
+        cleanedCommunity.state,
+      );
+      if (!hasRealAddress) dataQualityFlags.push('incomplete_address');
+      if (looksLikeGuessedName(cleanedCommunity.name)) dataQualityFlags.push('guessed_name');
+
       const result = await db
         .insert(communities)
         .values({
           name: cleanedCommunity.name,
-          address: cleanedCommunity.address || `${cleanedCommunity.city}, ${cleanedCommunity.state}`,
+          // Golden Data Rule: never write a "City, State" pseudo-address. The
+          // address column is NOT NULL, so when no real street-level address is
+          // known we store an empty string (not an invented placeholder) and
+          // rely on city/state + the incomplete_address flag for review.
+          address: hasRealAddress ? cleanedCommunity.address! : '',
           city: cleanedCommunity.city || '',
           state: cleanedCommunity.state || '',
           zipCode: cleanedCommunity.zip || '',
           country: cleanedCommunity.country || null,
-          website: cleanedCommunity.website,
+          website: validatedWebsite,
           phone: cleanedCommunity.phone,
           email: cleanedCommunity.email,
           fax: cleanedCommunity.fax,
@@ -129,6 +148,8 @@ export class DiscoveredCommunityService {
           data_source: `ai_discovered_${cleanedCommunity.discoverySource}`,
           isActive: true,
           isVerified: false,
+          dataQualityFlags,
+          dataQualityCheckedAt: new Date(),
           createdAt: new Date(),
           updatedAt: new Date(),
           ...slugs,
@@ -172,13 +193,22 @@ export class DiscoveredCommunityService {
         updatedAt: new Date()
       };
 
-      // Add all available contact fields
-      if (enrichedData.address) updateData.address = enrichedData.address;
-      if (enrichedData.website) updateData.website = enrichedData.website;
-      if (enrichedData.phone) updateData.phone = enrichedData.phone;
-      if (enrichedData.email) updateData.email = enrichedData.email;
-      if (enrichedData.fax) updateData.fax = enrichedData.fax;
-      if (enrichedData.description) updateData.description = enrichedData.description;
+      // Add all available contact fields — clean citation artifacts from every
+      // text field before persisting (centralized cleaner shared across writes).
+      if (enrichedData.address) updateData.address = cleanCitationArtifacts(enrichedData.address);
+      // Golden Data Rule: only persist a website that actually resolves.
+      if (enrichedData.website) {
+        const cleanedWebsite = cleanCitationArtifacts(enrichedData.website);
+        if (cleanedWebsite && (await isReachableWebsite(cleanedWebsite))) {
+          updateData.website = cleanedWebsite;
+        } else {
+          console.log(`🚫 Skipped unreachable website on enrich for community ${communityId}: ${enrichedData.website}`);
+        }
+      }
+      if (enrichedData.phone) updateData.phone = cleanCitationArtifacts(enrichedData.phone);
+      if (enrichedData.email) updateData.email = cleanCitationArtifacts(enrichedData.email);
+      if (enrichedData.fax) updateData.fax = cleanCitationArtifacts(enrichedData.fax);
+      if (enrichedData.description) updateData.description = cleanCitationArtifacts(enrichedData.description);
       if (enrichedData.careTypes) updateData.careTypes = enrichedData.careTypes;
       if (enrichedData.latitude) updateData.latitude = enrichedData.latitude;
       if (enrichedData.longitude) updateData.longitude = enrichedData.longitude;

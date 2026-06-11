@@ -1538,6 +1538,12 @@ export const communities = pgTable("communities", {
   slug: text("slug"),       // slugified community name, e.g. "sunrise-senior-living"
   citySlug: text("city_slug"),   // slugified city,  e.g. "san-francisco"
   stateSlug: text("state_slug"), // slugified state, e.g. "california" or "ca"
+
+  // Data-quality flags — non-destructive markers for suspect/guessed AI data.
+  // Values: 'citation_artifact', 'incomplete_address', 'guessed_name',
+  // 'unreachable_website'. Records are FLAGGED for review, never auto-deleted.
+  dataQualityFlags: text("data_quality_flags").array().default([]),
+  dataQualityCheckedAt: timestamp("data_quality_checked_at"), // last scan timestamp
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),

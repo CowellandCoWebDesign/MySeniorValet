@@ -6,6 +6,7 @@ import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { DiscoveredCommunityService } from '../services/discovered-community-service';
 import { unifiedPerplexityCache } from '../unified-perplexity-cache';
+import { cleanCitationArtifactsDeep } from '../utils/data-quality';
 
 const router = express.Router();
 const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
@@ -179,12 +180,14 @@ router.post('/api/competitive-analysis', async (req, res) => {
           
           console.log(`✅ Using ${isInternational ? 'international discovery' : 'unified cache'} data for ${community.name}`);
           
-          // Save to enrichmentData for backward compatibility
+          // Save to enrichmentData for backward compatibility — strip any AI
+          // citation artifacts from every string in the structured blob first
+          // so markers like [2]/*(verify)* never get persisted.
           const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
           await db
             .update(communities)
             .set({
-              enrichmentData: intelligence,
+              enrichmentData: cleanCitationArtifactsDeep(intelligence),
               enrichmentDataExpiry: expiryDate,
               lastEnrichmentDate: new Date(),
               enrichmentStatus: 'completed' as any,

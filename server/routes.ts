@@ -1164,6 +1164,10 @@ Disallow: /`;
   const adminCommunityRoutes = await import('./routes/adminCommunityRoutes');
   app.use('/api', adminCommunityRoutes.default);
 
+  // Register data-quality detection/flagging/cleanup routes (admin-only)
+  const dataQualityRoutes = await import('./routes/dataQualityRoutes');
+  app.use('/api', dataQualityRoutes.default);
+
   const adminHeatmapRoutes = await import('./routes/adminHeatmapRoutes');
   app.use('/api', adminHeatmapRoutes.default);
 

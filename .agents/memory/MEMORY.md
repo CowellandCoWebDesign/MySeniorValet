@@ -3,3 +3,5 @@
 - [SendGrid silent email failures](sendgrid-silent-failures.md) — thread emailDelivered flags + log err.response.body; dedupe recipients (dup bcc → 400); validate enum fields before send (DB 23514 → opaque 500).
 - [Free Discovery pipeline](free-discovery-pipeline.md) — DuckDuckGo+Jina replaces Perplexity in all discovery paths; auto-triggers on zero DB results; healthcare/vendors stubs left as dead code.
 - [Gemini free-tier integration](gemini-free-tier.md) — use native fetch() to v1 REST + gemini-2.5-flash; library uses v1beta (wrong models); city in prompt causes truncating correction tangents.
+- [db push schema drift](db-push-schema-drift.md) — `db:push` prompts destructive table renames due to drift; use idempotent `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` for additive changes.
+- [admin API global guard](admin-api-global-guard.md) — `/api/admin/*` returns 401 even for no-auth routes; smoke-test admin logic via psql/tsx, not curl.

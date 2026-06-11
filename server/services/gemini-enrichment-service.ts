@@ -10,6 +10,8 @@
  * Falls back gracefully (sourceType: "none") when key is absent or quota is hit.
  */
 
+import { cleanCitationArtifacts } from "../utils/data-quality";
+
 const GEMINI_MODEL = "gemini-2.5-flash";
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1/models";
 
@@ -40,6 +42,8 @@ State: ${params.state}
 
 Required JSON (use null for unknown fields, keep "about" to 1 sentence):
 {"about":"one sentence description","website":null,"phone":null,"careTypes":["e.g. Assisted Living"],"amenities":["e.g. Dining"],"pricing":null}
+
+CRITICAL: NEVER guess or invent a website URL or phone number. Always return null for "website" and "phone" — they are verified separately from real sources. Do NOT add citation markers like [1] or "(verify)".
 
 Output ONLY the JSON. No other text.`;
 
@@ -104,9 +108,11 @@ Output ONLY the JSON. No other text.`;
     }
 
     const enriched: GeminiEnrichmentResult = {
-      about: parsed.about && parsed.about !== "null" ? String(parsed.about) : undefined,
-      website: parsed.website && parsed.website !== "null" ? String(parsed.website) : undefined,
-      phone: parsed.phone && parsed.phone !== "null" ? String(parsed.phone) : undefined,
+      about: parsed.about && parsed.about !== "null" ? cleanCitationArtifacts(String(parsed.about)) : undefined,
+      // NOTE: website is intentionally NOT taken from the model — AI memory cannot
+      // be trusted for URLs. Websites are verified from real search results elsewhere.
+      website: undefined,
+      phone: parsed.phone && parsed.phone !== "null" ? cleanCitationArtifacts(String(parsed.phone)) : undefined,
       careTypes: Array.isArray(parsed.careTypes) && parsed.careTypes.length ? parsed.careTypes : undefined,
       amenities: Array.isArray(parsed.amenities) && parsed.amenities.length ? parsed.amenities : undefined,
       pricing: parsed.pricing && parsed.pricing !== "null" ? String(parsed.pricing) : undefined,
