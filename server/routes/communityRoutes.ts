@@ -865,6 +865,43 @@ export function registerCommunityRoutes(app: Express) {
         }
       }
       
+      // 7-day cache: skip Jina fetch if we have recent enrichment and caller did not force a refresh
+      const ENRICHMENT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+      const lastEnriched = community.lastSuccessfulEnrichment;
+      if (!forceRefresh && lastEnriched && (Date.now() - new Date(lastEnriched).getTime()) < ENRICHMENT_CACHE_TTL_MS) {
+        const ageDays = Math.round((Date.now() - new Date(lastEnriched).getTime()) / 86_400_000);
+        console.log(`⚡ Cache hit for "${community.name}" — enriched ${ageDays}d ago, serving DB data`);
+        return res.json({
+          communityId: communityId,
+          communityName: community.name,
+          timestamp: lastEnriched.toISOString(),
+          cached: true,
+          verificationResults: {
+            webIntelligence: {
+              images: community.photos || [],
+              sources: community.website ? [community.website] : []
+            },
+            perplexityData: {
+              lastUpdated: lastEnriched.toISOString(),
+              searchContent: community.description || 'Contact for details.',
+              sources: community.website ? [community.website] : []
+            }
+          },
+          consensus: {
+            agreementLevel: 'strong',
+            verifiedFacts: [],
+            disputedFacts: [],
+            confidenceScore: 75,
+            transparencyNotes: 'Served from cached enrichment data'
+          },
+          pricing: '',
+          contactInfo: {
+            phone: community.phone || '',
+            website: community.website || ''
+          }
+        });
+      }
+
       // Run free enrichment pipeline (Jina + DuckDuckGo, zero Perplexity calls)
       console.log(`🔍 Running free enrichment for ${community.name} (${community.city}, ${community.state})`);
       const freeEnrichment = await enrichCommunityFree({
@@ -929,12 +966,19 @@ export function registerCommunityRoutes(app: Express) {
           }
           
           // Update description with FULL content for SEO - no truncation
+          // Allow overwrite on forceRefresh even when a description already exists
           if (enrichmentResult.searchResults?.summary && 
               enrichmentResult.searchResults.summary.length > 100 &&
-              (!current.description || current.description.length < 50)) {
+              (!current.description || current.description.length < 50 || forceRefresh)) {
             updates.description = enrichmentResult.searchResults.summary; // Full content, no substring!
             hasUpdates = true;
             console.log(`✅ Updating description with FULL enriched content (${enrichmentResult.searchResults.summary.length} chars)`);
+          }
+
+          // Always stamp lastSuccessfulEnrichment when the pipeline produced real data
+          if (freeEnrichment.sourceType !== 'none') {
+            updates.lastSuccessfulEnrichment = new Date();
+            hasUpdates = true;
           }
 
           // Address correction: if Perplexity found a different city than what is stored, update
