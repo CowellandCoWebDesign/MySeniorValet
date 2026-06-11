@@ -288,12 +288,17 @@ export function LiveWebIntelligence({
   }
 
   // Check if we have verification data even if competitive analysis didn't find it
+  // Also check searchContent so description-only results render correctly
+  const searchContent = verificationReport?.verificationResults?.searchResults?.summary ||
+                        verificationReport?.verificationResults?.perplexityData?.searchContent ||
+                        verificationReport?.perplexityData?.searchContent;
   const hasVerificationData = verificationReport?.webIntelligence?.images?.length > 0 || 
                               verificationReport?.webIntelligence?.website ||
                               verificationReport?.webIntelligence?.phone ||
                               verificationReport?.verificationResults?.webIntelligence?.images?.length > 0 ||
                               verificationReport?.verificationResults?.webIntelligence?.website ||
-                              verificationReport?.verificationResults?.webIntelligence?.phone;
+                              verificationReport?.verificationResults?.webIntelligence?.phone ||
+                              !!(searchContent && searchContent.length > 50);
   
   // If competitive analysis didn't find it but we have verification data, show that instead
   if (!intelligence?.found && hasVerificationData) {
@@ -361,8 +366,21 @@ export function LiveWebIntelligence({
             </div>
           )}
           
+          {/* Description from search content */}
+          {searchContent && searchContent.length > 50 && (
+            <div className="p-3 rounded-lg bg-muted/50">
+              <h4 className="font-medium text-sm mb-1 flex items-center gap-1">
+                <Sparkles className="h-3 w-3 text-blue-600" />
+                Community Overview
+              </h4>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {searchContent.slice(0, 600)}{searchContent.length > 600 ? "…" : ""}
+              </p>
+            </div>
+          )}
+
           {/* Additional info from verification */}
-          {verificationData?.description && (
+          {verificationData?.description && !searchContent && (
             <div className="p-3 rounded-lg bg-muted/50">
               <p className="text-sm">{verificationData.description}</p>
             </div>
@@ -486,7 +504,7 @@ export function LiveWebIntelligence({
               AI Generated Community Overview
             </CardTitle>
             <CardDescription className="text-sm">
-              Verified information from web sources • Powered by Perplexity AI
+              Verified information from web sources • Free Web Intelligence
             </CardDescription>
           </div>
           <Button 
@@ -727,7 +745,7 @@ export function LiveWebIntelligence({
               </div>
               <p className="text-xs text-muted-foreground mt-2">
                 Data from {intelligence?.sources?.length || 0} verified sources • 
-                Powered by AI-driven research
+                via Web Search
               </p>
             </div>
           )}

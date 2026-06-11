@@ -19,6 +19,7 @@ import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { enrichCommunityFree } from "../services/free-enrichment-service";
+import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
@@ -902,16 +903,42 @@ export function registerCommunityRoutes(app: Express) {
         });
       }
 
-      // Run free enrichment pipeline (Jina + DuckDuckGo, zero Perplexity calls)
-      console.log(`🔍 Running free enrichment for ${community.name} (${community.city}, ${community.state})`);
-      const freeEnrichment = await enrichCommunityFree({
+      // ── Primary: Gemini 2.0 Flash + Search Grounding ──────────────────────────
+      console.log(`🤖 Trying Gemini enrichment for "${community.name}" (${community.city}, ${community.state})`);
+      const geminiResult = await enrichCommunityWithGemini({
         name: community.name,
         city: community.city,
         state: community.state,
-        websiteUrl: communityWebsite,
       });
 
-      console.log(`✅ Free enrichment complete for ${community.name}: sourceType=${freeEnrichment.sourceType}, structured=${freeEnrichment.structured}`);
+      let freeEnrichment: Awaited<ReturnType<typeof enrichCommunityFree>> | null = null;
+
+      if (geminiResult.sourceType === "gemini_search" && geminiResult.about) {
+        console.log(`🤖 Gemini enrichment: ${geminiResult.about.length} chars for "${community.name}"`);
+        // Map Gemini result into the FreeEnrichmentResult shape
+        freeEnrichment = {
+          about: geminiResult.about,
+          website: geminiResult.website,
+          phone: geminiResult.phone,
+          careTypes: geminiResult.careTypes,
+          amenities: geminiResult.amenities,
+          pricingContext: geminiResult.pricing,
+          sourceUrl: geminiResult.website || communityWebsite || community.website || undefined,
+          sourceType: "web_search",
+          structured: true,
+        } as any;
+      } else {
+        // ── Fallback: DuckDuckGo + Jina pipeline ────────────────────────────────
+        console.log(`🔍 Gemini unavailable — running DuckDuckGo/Jina enrichment for "${community.name}"`);
+        freeEnrichment = await enrichCommunityFree({
+          name: community.name,
+          city: community.city,
+          state: community.state,
+          websiteUrl: communityWebsite,
+        });
+      }
+
+      console.log(`✅ Enrichment complete for "${community.name}": sourceType=${freeEnrichment.sourceType}, structured=${freeEnrichment.structured}`);
 
       // Build enrichmentResult in the same shape the downstream code expects
       const enrichmentResult = {
@@ -928,6 +955,8 @@ export function registerCommunityRoutes(app: Express) {
         photos: (community.photos && community.photos.length > 0)
           ? community.photos
           : (freeEnrichment.photos || []),
+        careTypes: freeEnrichment.careTypes || [],
+        amenities: freeEnrichment.amenities || [],
         searchResults: {
           summary: freeEnrichment.about || community.description ||
             'Contact for details — information for this community was not found online.',
@@ -1039,6 +1068,12 @@ export function registerCommunityRoutes(app: Express) {
         verificationResults: {
           webIntelligence: {
             images: enrichmentResult.photos,
+            sources: enrichmentResult.searchResults?.sources || [],
+            careTypes: enrichmentResult.careTypes,
+            amenities: enrichmentResult.amenities
+          },
+          searchResults: {
+            summary: enrichmentResult.searchResults?.summary,
             sources: enrichmentResult.searchResults?.sources || []
           },
           perplexityData: {
@@ -1047,6 +1082,10 @@ export function registerCommunityRoutes(app: Express) {
             sources: enrichmentResult.searchResults?.sources || []
           }
         },
+        
+        // Care types and amenities at top level for easy UI access
+        careTypes: enrichmentResult.careTypes,
+        amenities: enrichmentResult.amenities,
         
         // Consensus data
         consensus: {

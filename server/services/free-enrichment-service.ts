@@ -142,14 +142,28 @@ function normalizeDdgUrl(raw: string): string | null {
 }
 
 /**
- * Search DuckDuckGo for a community's official website.
- * Returns the first plausible result URL, or null if none found.
+ * Result from a DuckDuckGo HTML search — includes both the best website URL
+ * found (if any) and up to 3 search-result snippets that can be used as a
+ * text-only fallback when no official website is available.
  */
-export async function findCommunityWebsite(
+export interface DdgSearchResult {
+  website: string | null;
+  snippets: string[];
+}
+
+/**
+ * Search DuckDuckGo for a community.  Returns:
+ *   - `website`: the first non-directory result URL that passes the SSRF guard, or null
+ *   - `snippets`: up to 3 `.result__snippet` texts from the search results page
+ *
+ * Snippets give us a free text-only fallback for communities whose official
+ * website is behind Cloudflare or similar blockers that Jina cannot penetrate.
+ */
+export async function searchDuckDuckGo(
   name: string,
   city: string,
   state: string,
-): Promise<string | null> {
+): Promise<DdgSearchResult> {
   try {
     const query = encodeURIComponent(`"${name}" senior living ${city} ${state} official website`);
     const url = `https://duckduckgo.com/html/?q=${query}`;
@@ -163,15 +177,14 @@ export async function findCommunityWebsite(
       signal: AbortSignal.timeout(DDG_TIMEOUT_MS),
     });
 
-    if (!response.ok) return null;
+    if (!response.ok) return { website: null, snippets: [] };
 
     const html = await response.text();
     const $ = cheerio.load(html);
 
+    // ── Website candidates ────────────────────────────────────────────────────
     const rawCandidates: string[] = [];
 
-    // .result__a  — the title link, href is often a DDG redirect wrapper
-    // .result__url — the display URL text (bare domain or scheme-less)
     $(".result__a, .result__url").each((_, el) => {
       const href = $(el).attr("href");
       const text = $(el).text().trim();
@@ -179,26 +192,51 @@ export async function findCommunityWebsite(
       if (text && text.includes(".")) rawCandidates.push(text);
     });
 
-    // Also collect any absolute hrefs from result title links
     $(".result .result__title a").each((_, el) => {
       const href = $(el).attr("href") || "";
       if (href) rawCandidates.push(href);
     });
 
+    let website: string | null = null;
     for (const raw of rawCandidates) {
       const normalized = normalizeDdgUrl(raw);
       if (!normalized) continue;
       if (isDirectorySite(normalized)) continue;
       if (await isSafePublicUrl(normalized)) {
-        return normalized;
+        website = normalized;
+        break;
       }
     }
 
-    return null;
+    // ── Snippets (text-only fallback) ─────────────────────────────────────────
+    const snippets: string[] = [];
+    $(".result__snippet").each((_, el) => {
+      const text = $(el).text().trim();
+      if (text && text.length > 30) {
+        snippets.push(text);
+      }
+    });
+
+    return { website, snippets: snippets.slice(0, 3) };
   } catch (err: any) {
-    console.log(`⚠️ DuckDuckGo website finder failed for "${name}": ${err?.message}`);
-    return null;
+    console.log(`⚠️ DuckDuckGo search failed for "${name}": ${err?.message}`);
+    return { website: null, snippets: [] };
   }
+}
+
+/**
+ * Search DuckDuckGo for a community's official website.
+ * Returns the first plausible result URL, or null if none found.
+ *
+ * @deprecated Use searchDuckDuckGo() for snippet support.
+ */
+export async function findCommunityWebsite(
+  name: string,
+  city: string,
+  state: string,
+): Promise<string | null> {
+  const result = await searchDuckDuckGo(name, city, state);
+  return result.website;
 }
 
 function isDirectorySite(url: string): boolean {
@@ -432,19 +470,39 @@ export async function enrichCommunityFree(params: {
   let sourceType: FreeEnrichmentResult["sourceType"] = "none";
 
   // Step 1: Use stored URL or fall back to DuckDuckGo search
+  let ddgSnippets: string[] = [];
   if (!targetUrl) {
-    console.log(`🔍 DuckDuckGo: finding website for "${name}" in ${city}, ${state}`);
-    targetUrl = await findCommunityWebsite(name, city, state);
+    console.log(`🔍 DuckDuckGo: searching for "${name}" in ${city}, ${state}`);
+    const ddgResult = await searchDuckDuckGo(name, city, state);
+    targetUrl = ddgResult.website;
+    ddgSnippets = ddgResult.snippets;
     if (targetUrl) {
       sourceType = "web_search";
       console.log(`✅ Found via DuckDuckGo: ${targetUrl}`);
+    } else if (ddgSnippets.length > 0) {
+      console.log(`📝 DuckDuckGo: no website found but got ${ddgSnippets.length} snippets for "${name}"`);
     }
   } else {
     sourceType = "official_website";
   }
 
+  // Snippet-only fallback: no website found but we have search result snippets
+  if (!targetUrl && ddgSnippets.length > 0) {
+    const snippetText = ddgSnippets.join(" ").slice(0, 600);
+    const careTypes = extractKeywordCareTypes(snippetText);
+    const amenities = extractKeywordAmenities(snippetText);
+    console.log(`📄 Using DuckDuckGo snippets as text-only fallback for "${name}" (${snippetText.length} chars)`);
+    return {
+      about: snippetText,
+      careTypes: careTypes.length > 0 ? careTypes : undefined,
+      amenities: amenities.length > 0 ? amenities : undefined,
+      sourceType: "web_search",
+      structured: false,
+    };
+  }
+
   if (!targetUrl) {
-    console.log(`📭 No website found for "${name}" — returning empty enrichment`);
+    console.log(`📭 No website or snippets found for "${name}" — returning empty enrichment`);
     return { sourceType: "none", structured: false };
   }
 

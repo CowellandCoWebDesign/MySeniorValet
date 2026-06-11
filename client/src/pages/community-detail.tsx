@@ -633,11 +633,11 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
   return (
     <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
-      {/* Perplexity AI Badge */}
+      {/* Web Intelligence Badge */}
       <div className="absolute top-4 right-4 z-10">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
           <Sparkles className="w-3 h-3 mr-1" />
-          Powered by Perplexity AI
+          Free Web Intelligence
         </div>
       </div>
 
@@ -806,7 +806,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 <h4 className="font-semibold text-lg mb-3 flex items-center">
                   <Info className="w-5 h-5 mr-2 text-blue-600" />
                   Recent News & Updates
-                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Web Search</span>
                 </h4>
                 <div className="space-y-2">
                   {news.map((item: string, idx: number) => (
@@ -829,7 +829,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 <h4 className="font-semibold text-lg mb-3 flex items-center">
                   <CalendarIcon className="w-5 h-5 mr-2 text-orange-600" />
                   Upcoming Events
-                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Web Search</span>
                 </h4>
                 <div className="space-y-2">
                   {events.map((item: string, idx: number) => (
@@ -898,7 +898,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <Globe className="w-5 h-5 mr-2 text-indigo-600" />
                     What We Found About {community?.name}
                   </h4>
-                  <p className="text-xs text-muted-foreground">Powered by Perplexity AI</p>
+                  <p className="text-xs text-muted-foreground">Powered by Free Web Intelligence</p>
                 </div>
                 <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                   Live Web Search
