@@ -20,3 +20,11 @@ safety AND apply the column directly with idempotent SQL instead of `db:push`:
 `psql "$DATABASE_URL" -c "ALTER TABLE x ADD COLUMN IF NOT EXISTS ..."`.
 Verify with `psql "$DATABASE_URL" -c "\d communities"`. Never edit
 `drizzle.config.ts` or `package.json`.
+
+**Merge/deploy guard:** columns added only in a task's isolated sandbox DB do NOT
+carry over on merge — merged code that SELECTs them throws `column ... does not
+exist` (42703) and breaks every full-row query (e.g. all community endpoints).
+Durable fix: add idempotent `ADD COLUMN IF NOT EXISTS` statements to
+`scripts/post-merge-migrations.mjs`, which runs from both `scripts/post-merge.sh`
+(after each merge, dev DB) and `scripts/deploy-build.sh` (each publish, prod DB).
+`data_quality_flags text[]` and `data_quality_checked_at timestamp` are managed there.
