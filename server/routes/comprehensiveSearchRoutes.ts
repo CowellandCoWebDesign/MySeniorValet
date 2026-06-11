@@ -184,7 +184,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   try {
     const { db } = await import('../db');
     const { communities } = await import('@shared/schema');
-    const { ilike, sql, or, and, ne } = await import('drizzle-orm');
+    const { ilike, sql, or, and, ne, eq } = await import('drizzle-orm');
     
     // 1. EXACT & PREFIX COMMUNITY NAME MATCHES (highest priority)
     const exactMatches = await db
@@ -197,6 +197,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       .from(communities)
       .where(
         and(
+          eq(communities.isActive, true),
           ilike(communities.name, `${normalizedQuery}%`),  // Starts with (highest priority)
           // Filter out bad data - require valid state and exclude "Unknown"
           ne(communities.state, 'Unknown'),
@@ -231,6 +232,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
+            eq(communities.isActive, true),
             ilike(communities.name, `%${normalizedQuery}%`),  // Contains
             // Filter out bad data
             ne(communities.state, 'Unknown'),
@@ -268,7 +270,10 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         })
         .from(communities)
         .where(
-          ilike(communities.city, `${normalizedQuery}%`)   // Starts with only for cities
+          and(
+            eq(communities.isActive, true),
+            ilike(communities.city, `${normalizedQuery}%`)   // Starts with only for cities
+          )
         )
         .groupBy(communities.city, communities.state)
         .orderBy(sql`count DESC`)
@@ -314,6 +319,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
+            eq(communities.isActive, true),
             ilike(communities.managementCompany, `${normalizedQuery}%`),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`

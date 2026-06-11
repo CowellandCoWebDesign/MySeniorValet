@@ -360,7 +360,9 @@ export class UnifiedSearchEngine {
         );
       }
       
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      // Always filter to active communities only (is_active = true)
+      conditions.push(sql`${communities.isActive} = true`);
+      const whereClause = and(...conditions);
       
       const results = await db
         .select()
@@ -385,10 +387,11 @@ export class UnifiedSearchEngine {
       const fuzzyResults = await db
         .select()
         .from(communities)
+        .where(sql`${communities.isActive} = true`)
         .limit(1000); // Get larger set for fuzzy matching
       
-      // Calculate similarity scores
-      const scoredResults = fuzzyResults.map(community => {
+      // Calculate similarity scores — only active communities
+      const scoredResults = fuzzyResults.filter(c => c.isActive !== false).map(community => {
         const nameScore = this.calculateSimilarity(query.toLowerCase(), community.name.toLowerCase());
         const cityScore = community.city ? 
           this.calculateSimilarity(query.toLowerCase(), community.city.toLowerCase()) : 0;

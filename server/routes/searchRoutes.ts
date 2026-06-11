@@ -938,7 +938,8 @@ export function registerSearchRoutes(app: Express) {
       } = req.query;
 
       const startTime = Date.now();
-      let whereConditions = [];
+      // Always start with active communities filter
+      let whereConditions: any[] = [sql`${communities.isActive} = true`];
       
       // DUAL-MODE FILTERING: Support both bounds and radius searches
       if (radius && centerLat && centerLng) {
@@ -953,6 +954,7 @@ export function registerSearchRoutes(app: Express) {
         const milesToDegrees = radiusMiles / 69.0;
         
         whereConditions = [
+          sql`${communities.isActive} = true`,
           sql`${communities.latitude}::float >= ${center.lat - milesToDegrees}`,
           sql`${communities.latitude}::float <= ${center.lat + milesToDegrees}`,
           sql`${communities.longitude}::float >= ${center.lng - milesToDegrees}`,
@@ -968,6 +970,7 @@ export function registerSearchRoutes(app: Express) {
         const neLngFloat = parseFloat(neLng as string);
         
         whereConditions = [
+          sql`${communities.isActive} = true`,
           sql`${communities.latitude}::float >= ${swLatFloat}`,
           sql`${communities.latitude}::float <= ${neLatFloat}`,
           sql`${communities.longitude}::float >= ${swLngFloat}`,
@@ -1221,6 +1224,7 @@ export function registerSearchRoutes(app: Express) {
         .from(communities)
         .where(
           and(
+            sql`${communities.isActive} = true`,
             sql`${communities.latitude}::float BETWEEN ${centerLat - kmToDegrees} AND ${centerLat + kmToDegrees}`,
             sql`${communities.longitude}::float BETWEEN ${centerLng - kmToDegrees} AND ${centerLng + kmToDegrees}`
           )
@@ -1308,25 +1312,25 @@ export function registerSearchRoutes(app: Express) {
 
       const searchTerm = (query as string).toLowerCase();
       
-      // Get city suggestions
+      // Get city suggestions (active communities only)
       const citySuggestions = await db
         .selectDistinct({ city: communities.city, state: communities.state })
         .from(communities)
-        .where(sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`)
+        .where(and(sql`${communities.isActive} = true`, sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`))
         .limit(5);
 
-      // Get state suggestions
+      // Get state suggestions (active communities only)
       const stateSuggestions = await db
         .selectDistinct({ state: communities.state })
         .from(communities)
-        .where(sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`)
+        .where(and(sql`${communities.isActive} = true`, sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`))
         .limit(3);
 
-      // Get community name suggestions
+      // Get community name suggestions (active communities only)
       const communitySuggestions = await db
         .select({ id: communities.id, name: communities.name, city: communities.city, state: communities.state })
         .from(communities)
-        .where(sql`LOWER(${communities.name}) LIKE ${'%' + (searchTerm || '') + '%'}`)
+        .where(and(sql`${communities.isActive} = true`, sql`LOWER(${communities.name}) LIKE ${'%' + (searchTerm || '') + '%'}`))
         .limit(5);
 
       const suggestions = [

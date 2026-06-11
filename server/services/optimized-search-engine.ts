@@ -6,7 +6,7 @@
 
 import { db } from '../db';
 import { communities } from '@shared/schema';
-import { eq, ilike, and, or, sql } from 'drizzle-orm';
+import { eq, ilike, and, or, sql, isNull } from 'drizzle-orm';
 import { cache } from '../cache';
 import type { Community } from '@shared/schema';
 
@@ -135,8 +135,11 @@ export class OptimizedSearchEngine {
       }
     }
     
-    // Build and execute the query
-    const whereClause = conditions.length > 0 ? or(...conditions) : undefined;
+    // Build and execute the query — always filter to active communities only
+    const activeFilter = sql`${communities.isActive} = true`;
+    const whereClause = conditions.length > 0
+      ? and(activeFilter, or(...conditions))
+      : activeFilter;
     
     const results = await db
       .select()

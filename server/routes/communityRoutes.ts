@@ -102,6 +102,7 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
+            eq(communities.isActive, true),
             isNotNull(communities.hudPropertyId),
             sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 150`
           )
@@ -131,7 +132,7 @@ export function registerCommunityRoutes(app: Express) {
       const trending = await db
         .select()
         .from(communities)
-        .where(sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`)
+        .where(and(eq(communities.isActive, true), sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(20);
 
@@ -307,11 +308,14 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(
-          or(
-            eq(communities.state, 'CA'),
-            eq(communities.state, 'FL'),
-            eq(communities.state, 'OR'),
-            eq(communities.state, 'WA')
+          and(
+            eq(communities.isActive, true),
+            or(
+              eq(communities.state, 'CA'),
+              eq(communities.state, 'FL'),
+              eq(communities.state, 'OR'),
+              eq(communities.state, 'WA')
+            )
           )
         )
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -358,8 +362,8 @@ export function registerCommunityRoutes(app: Express) {
       let query = db.select().from(communities);
       const conditions = [];
 
-      // Exclude pending communities - status field doesn't exist
-      // All communities are considered active
+      // Always filter to active communities only
+      conditions.push(eq(communities.isActive, true));
 
       // Care type filter
       if (careTypes) {
@@ -1818,6 +1822,16 @@ export function registerCommunityRoutes(app: Express) {
   app.post("/api/communities", requireAuth, isAdmin, async (req, res) => {
     try {
       const validatedData = insertCommunitySchema.parse(req.body);
+
+      // Prevent non-senior-living properties from entering the database
+      const { isSeniorLivingFacility } = await import('./global-discovery');
+      if (!isSeniorLivingFacility(validatedData.name, validatedData.careTypes || [])) {
+        return res.status(422).json({
+          error: 'Non-senior-living facility rejected',
+          message: `"${validatedData.name}" does not appear to be a senior living facility. ` +
+            'Add a senior-specific care type or update the name to include a senior indicator.'
+        });
+      }
       
       const [newCommunity] = await db
         .insert(communities)

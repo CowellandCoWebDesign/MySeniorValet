@@ -1512,6 +1512,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
+    // Prevent non-senior-living properties from entering the database.
+    // This guard runs on ALL insert paths (discovery, admin API, bulk import).
+    const { isSeniorLivingFacility } = await import('./routes/global-discovery');
+    if (!isSeniorLivingFacility(insertCommunity.name, insertCommunity.careTypes || [])) {
+      throw new Error(
+        `Non-senior-living facility rejected: "${insertCommunity.name}" has no senior-living ` +
+        'qualifiers. Provide a senior care type or rename to include a senior indicator.'
+      );
+    }
+
     // Auto-populate slug columns if not already provided.
     // safeCommunitySlugs() checks the DB and appends -2/-3/… on collision,
     // so inserts never violate the communities_slug_lookup_idx unique constraint.

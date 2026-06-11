@@ -379,11 +379,12 @@ class SuperclusterService {
     }
 
     try {
-      // Query only communities within viewport
+      // Query only active communities within viewport
       const viewportCommunities = await db.select()
         .from(communities)
         .where(
           and(
+            sql`${communities.isActive} = true`,
             isNotNull(communities.latitude),
             isNotNull(communities.longitude),
             sql`CAST(${communities.latitude} AS float) >= ${bbox[1]}`,
