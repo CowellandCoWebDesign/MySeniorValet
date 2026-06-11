@@ -46,8 +46,9 @@ async function getPageMetadata(url: string): Promise<{
   const defaultImage = 'https://www.myseniorvalet.com/og-image.jpg';
   const baseUrl = 'https://www.myseniorvalet.com';
   
-  // Parse the URL
-  const urlParts = url.split('/').filter(Boolean);
+  // Parse the URL — separate path from query string before splitting segments
+  const pathOnly = url.split('?')[0];
+  const urlParts = pathOnly.split('/').filter(Boolean);
   const [section, id, ...rest] = urlParts;
   
   // Community detail pages
@@ -70,12 +71,17 @@ async function getPageMetadata(url: string): Promise<{
           
           // Generate structured data for this community
           const structuredData = generateStructuredData(community, 'community');
+          const stateSlug = (community as any).stateSlug || community.state.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+          const citySlugVal = (community as any).citySlug || community.city.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+          const nameSlug = (community as any).slug || community.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || `community-${community.id}`;
+          const seoUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
+
           const breadcrumbs = generateBreadcrumbSchema([
             { name: 'Home', url: '/' },
             { name: 'Senior Housing Directory', url: '/community-directory' },
             { name: community.state, url: `/search?location=${community.state}` },
             { name: community.city, url: `/search?location=${community.city},${community.state}` },
-            { name: community.name, url: `/community/${community.id}` }
+            { name: community.name, url: seoUrl }
           ], baseUrl);
           
           return {
@@ -86,12 +92,12 @@ async function getPageMetadata(url: string): Promise<{
             keywords: `${community.name}, ${community.city} senior living, ${community.state} ${careTypes.toLowerCase()}, ${community.zipCode}`,
             structuredData,
             breadcrumbs,
-            canonicalUrl: `${baseUrl}/community/${community.id}`,
+            canonicalUrl: seoUrl,
             robots: 'index, follow',
             hreflang: [
-              { lang: 'en', url: `${baseUrl}/community/${community.id}` },
-              { lang: 'es', url: `${baseUrl}/es/community/${community.id}` },
-              { lang: 'fr', url: `${baseUrl}/fr/community/${community.id}` }
+              { lang: 'en', url: seoUrl },
+              { lang: 'es', url: `${baseUrl}/es/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}` },
+              { lang: 'fr', url: `${baseUrl}/fr/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}` }
             ]
           };
         }
@@ -196,7 +202,7 @@ async function getPageMetadata(url: string): Promise<{
         keywords: locationMeta[location].keywords,
         structuredData: generateDirectorySchema(baseUrl),
         breadcrumbs,
-        canonicalUrl: `/directory/${location}`, // Future canonical URL
+        canonicalUrl: `${baseUrl}/community-directory?location=${location}`,
         robots: 'index, follow',
         hreflang: [
           { lang: 'en', url: `${baseUrl}/community-directory?location=${location}` },
@@ -351,8 +357,8 @@ export async function injectMetaTags(req: Request, res: Response, next: NextFunc
     // Read the HTML file
     let html = await fs.promises.readFile(indexPath, 'utf-8');
     
-    // Get page-specific metadata
-    const metadata = await getPageMetadata(req.path);
+    // Get page-specific metadata (pass originalUrl so query params reach location-specific branches)
+    const metadata = await getPageMetadata(req.originalUrl);
     
     // Build the full URL
     const protocol = req.get('x-forwarded-proto') || req.protocol || 'https';

@@ -262,13 +262,18 @@ export function generateCommunitySchema(community: any): LocalBusinessSchema {
     schemaType = 'RetirementCommunity';
   }
 
+  const stateSlug = (community.stateSlug as string | undefined) || community.state.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  const citySlug = (community.citySlug as string | undefined) || community.city.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  const nameSlug = (community.slug as string | undefined) || community.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || `community-${community.id}`;
+  const seoUrl = `https://www.myseniorvalet.com/senior-living/${stateSlug}/${citySlug}/${nameSlug}`;
+
   const schema: LocalBusinessSchema = {
     '@context': 'https://schema.org',
     '@type': schemaType,
-    '@id': `https://www.myseniorvalet.com/community/${community.id}`,
+    '@id': seoUrl,
     name: community.name,
     description: community.description || `${community.name} is a senior living community in ${community.city}, ${community.state}`,
-    url: `https://www.myseniorvalet.com/community/${community.id}/${community.name.toLowerCase().replace(/\s+/g, '-')}`,
+    url: seoUrl,
     address: {
       '@type': 'PostalAddress',
       streetAddress: community.address,

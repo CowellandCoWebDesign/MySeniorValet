@@ -73,7 +73,7 @@ import { Request, Response, NextFunction } from 'express';
 import { db } from './db';
 import { communities, reviews, perplexityCache } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
-import { generateCommunitySlug } from './utils/generate-slug';
+import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
 import { communityEnrichmentService } from './services/community-enrichment-service';
 import { 
@@ -239,7 +239,10 @@ export async function generateCommunityHTMLById(
       .where(eq(reviews.communityId, communityId))
       .limit(5);
     
-    const canonicalUrl = `${baseUrl}/community/${communityId}`;
+    const stateSlug = community.stateSlug || generateSlug(community.state);
+    const citySlugVal = community.citySlug || generateSlug(community.city);
+    const nameSlug = community.slug || generateCommunitySlug(community);
+    const canonicalUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
     
     // Generate price display
     const priceDisplay = community.rentPerMonth 

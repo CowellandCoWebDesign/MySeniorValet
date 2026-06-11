@@ -897,6 +897,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // SEO Location Pages (hybrid approach - real content for bots, redirect for users)
   const seoLocationPages = await import('./routes/seo-location-pages');
   app.get('/senior-living/:state/:city?', seoLocationPages.renderSEOLocationPage);
+
+  // /directory/:location is a legacy URL that was published as a canonical target.
+  // It has no standalone content (only a JS redirect shell on the client).
+  // Issue a permanent server-side redirect to the real serving URL so crawlers
+  // never land on the empty shell.
+  app.get('/directory/:location', (req, res) => {
+    const location = req.params.location;
+    return res.redirect(301, `/community-directory?location=${encodeURIComponent(location)}`);
+  });
   
   // SEO Location Data APIs
   const seoLocationApi = await import('./routes/seo-location-api');

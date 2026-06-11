@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { db } from './db';
 import { communities } from '../shared/schema';
 import { sql } from 'drizzle-orm';
+import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -351,6 +352,11 @@ export async function generateCommunitiesSitemap(req: Request, res: Response) {
       .select({
         id: communities.id,
         name: communities.name,
+        state: communities.state,
+        city: communities.city,
+        slug: communities.slug,
+        citySlug: communities.citySlug,
+        stateSlug: communities.stateSlug,
         updatedAt: communities.updatedAt,
       })
       .from(communities)
@@ -366,8 +372,12 @@ export async function generateCommunitiesSitemap(req: Request, res: Response) {
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
     
     for (const community of communitiesData) {
+      const stateSlug = community.stateSlug || generateSlug(community.state);
+      const citySlug = community.citySlug || generateSlug(community.city);
+      const nameSlug = community.slug || generateCommunitySlug(community);
+      const seoPath = `/senior-living/${stateSlug}/${citySlug}/${nameSlug}`;
       xml += '  <url>\n';
-      xml += '    <loc>' + BASE_URL + '/community/' + community.id + '</loc>\n';
+      xml += '    <loc>' + BASE_URL + seoPath + '</loc>\n';
       xml += '    <lastmod>' + (community.updatedAt ? 
         new Date(community.updatedAt).toISOString().split('T')[0] : 
         new Date().toISOString().split('T')[0]) + '</lastmod>\n';

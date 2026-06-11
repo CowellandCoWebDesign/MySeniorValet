@@ -642,18 +642,18 @@ export default function CommunityDirectory() {
         <meta property="og:title" content="Assisted Living, Memory Care & Nursing Homes Directory | MySeniorValet" />
         <meta property="og:description" content="Search assisted living, memory care, independent living & nursing homes worldwide. Verified pricing across USA, Canada, Australia, Japan & Mexico. Compare care options 24/7." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://myseniorvalet.com/community-directory" />
-        <meta property="og:image" content="https://myseniorvalet.com/images/community-directory-og.jpg" />
+        <meta property="og:url" content="https://www.myseniorvalet.com/community-directory" />
+        <meta property="og:image" content="https://www.myseniorvalet.com/images/community-directory-og.jpg" />
         <meta property="og:site_name" content="MySeniorValet" />
         
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Assisted Living, Memory Care & Nursing Homes Directory" />
         <meta name="twitter:description" content="Search assisted living, memory care, independent living & nursing homes worldwide. Verified pricing, real availability, 24/7 support across USA, Canada, Australia, Japan." />
-        <meta name="twitter:image" content="https://myseniorvalet.com/images/community-directory-twitter.jpg" />
+        <meta name="twitter:image" content="https://www.myseniorvalet.com/images/community-directory-twitter.jpg" />
         
         {/* Additional SEO tags */}
-        <link rel="canonical" href="https://myseniorvalet.com/community-directory" />
+        <link rel="canonical" href="https://www.myseniorvalet.com/community-directory" />
         <meta name="robots" content="index, follow" />
         <meta name="author" content="MySeniorValet" />
         

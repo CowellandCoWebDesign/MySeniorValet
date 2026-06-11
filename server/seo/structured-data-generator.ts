@@ -18,13 +18,18 @@ export function generateStructuredData(
 
 // Schema for individual community/facility
 function generateCommunitySchema(community: Community, baseUrl: string): any {
+  const stateSlug = ((community as any).stateSlug as string | undefined) || community.state.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  const citySlug = ((community as any).citySlug as string | undefined) || community.city.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  const nameSlug = ((community as any).slug as string | undefined) || community.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || `community-${community.id}`;
+  const seoUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlug}/${nameSlug}`;
+
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': determineSeniorHousingType(community.careTypes),
-    '@id': `${baseUrl}/community/${community.id}`,
+    '@id': seoUrl,
     'name': community.name,
     'description': community.description || `${community.name} - Senior housing in ${community.city}, ${community.state}`,
-    'url': `${baseUrl}/community/${community.id}`,
+    'url': seoUrl,
     'telephone': community.phone,
     'address': {
       '@type': 'PostalAddress',
