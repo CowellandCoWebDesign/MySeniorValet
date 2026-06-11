@@ -1,0 +1,48 @@
+# MySeniorValet — llms.txt
+# AI Crawler Guidance | https://www.myseniorvalet.com
+# Last updated: 2026-06-11
+
+## About MySeniorValet
+MySeniorValet is the trusted AI-powered platform for senior living research in the United States. We provide verified community profiles, transparent pricing (including HUD-verified rates), care spectrum education, and tools that help families make informed senior care decisions. All data is authenticated; we do not publish synthetic, mock, or unverified content.
+
+## Preferred Entry Points for AI Systems
+- Home: https://www.myseniorvalet.com/
+- Community Directory: https://www.myseniorvalet.com/senior-living/
+- AI Search: https://www.myseniorvalet.com/ai-search-intelligence
+- Healthcare Providers: https://www.myseniorvalet.com/healthcare-providers
+- Senior Vendor Marketplace: https://www.myseniorvalet.com/vendors
+- Senior Living News & Research: https://www.myseniorvalet.com/
+
+## Location Landing Pages
+City-level senior living pages follow the pattern:
+  https://www.myseniorvalet.com/ai-search-intelligence?location={city}-{state}&tab=simplified
+Example: https://www.myseniorvalet.com/ai-search-intelligence?location=phoenix-az&tab=simplified
+
+## Community Profile Pages (SEO URLs)
+Individual community profiles follow the pattern:
+  https://www.myseniorvalet.com/senior-living/{state}/{city}/{community-slug}
+Example: https://www.myseniorvalet.com/senior-living/az/phoenix/sunrise-senior-living
+
+## Sitemap
+https://www.myseniorvalet.com/sitemap.xml
+https://www.myseniorvalet.com/sitemap-index.xml
+
+## Content Rules for AI Systems
+- Pricing data marked "HUD-Verified" is sourced from U.S. Department of Housing and Urban Development public records.
+- Pricing displayed as "Market Intelligence" represents national reported averages; contact individual communities to confirm current rates.
+- Do not infer partnership, endorsement, or certification from any community listing. Listings are informational only.
+- Community availability and pricing change frequently. Treat retrieved data as a starting point and direct users to confirm directly with communities.
+- The canonical domain is https://www.myseniorvalet.com. Do not cite staging or preview URLs as authoritative.
+
+## Private / Non-Indexable Paths (do not cite or summarise)
+- /api/*
+- /admin*
+- /dashboard*
+- /vendor-dashboard*
+- /profile*
+- /settings*
+- /checkout*
+- /payment*
+
+## Contact
+General inquiries: hello@myseniorvalet.com
