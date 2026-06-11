@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
-import { communities, users } from '../../shared/schema';
-import { eq, like, and, or, sql, desc, asc } from 'drizzle-orm';
+import { communities, users, listingFlags } from '../../shared/schema';
+import { eq, like, and, or, sql, desc, asc, ne } from 'drizzle-orm';
 import cookieParser from 'cookie-parser';
 import { DataIntegrityValidator } from '../services/data-integrity-validator';
 // ScheduledAuditService removed - was causing deployment issues
@@ -93,16 +93,16 @@ router.get('/admin/communities', requireAdmin, async (req, res) => {
       conditions.push(eq(communities.state, state));
     }
 
-    // Type filter
+    // Type filter (care_types is an array column — use @> array-contains operator)
     if (type !== 'all') {
-      conditions.push(eq(communities.care_type, type));
+      conditions.push(sql`${communities.careTypes} @> ARRAY[${type}]::text[]`);
     }
 
     // Verification filter
     if (verification === 'verified') {
-      conditions.push(eq(communities.is_verified, true));
+      conditions.push(eq(communities.isVerified, true));
     } else if (verification === 'unverified') {
-      conditions.push(eq(communities.is_verified, false));
+      conditions.push(eq(communities.isVerified, false));
     }
 
     // Build where clause
@@ -136,59 +136,188 @@ router.get('/admin/communities', requireAdmin, async (req, res) => {
   }
 });
 
-// Get community statistics
+// Get community statistics — uses aggregate SQL (no full table scan)
 router.get('/admin/communities/stats', requireAdmin, async (req, res) => {
   try {
-    // Get total count of all communities
-    const allCommunities = await db.select().from(communities);
-    const totalCount = allCommunities.length;
-    
-    // Calculate stats from the fetched communities
-    const stats = {
-      total: totalCount,
-      licensed: 0,
-      withPricing: 0,
-      byState: {} as Record<string, number>
-    };
-    
-    // Process each community for stats
-    allCommunities.forEach(community => {
-      // Count licensed communities
-      if (community.license_number && community.license_number.trim() !== '') {
-        stats.licensed++;
-      }
-      
-      // Count communities with pricing
-      if (community.price_range) {
-        stats.withPricing++;
-      }
-      
-      // Count by state
-      if (community.state) {
-        stats.byState[community.state] = (stats.byState[community.state] || 0) + 1;
-      }
-    });
-    
-    // Get top 5 states
-    const topStates = Object.entries(stats.byState)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
-      .map(([state, count]) => ({ state, count }));
+    const [[totalRow], [verifiedRow], [withPhotosRow], [withPricingRow], [hiddenRow], [flaggedRow], topStatesRows] = await Promise.all([
+      db.select({ count: sql<number>`count(*)` }).from(communities),
+      db.select({ count: sql<number>`count(*)` }).from(communities).where(eq(communities.isVerified, true)),
+      db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`array_length(${communities.photos}, 1) > 0`),
+      db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`${communities.rentPerMonth} IS NOT NULL`),
+      db.select({ count: sql<number>`count(*)` }).from(communities).where(eq(communities.isHidden, true)),
+      db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`${communities.flagStatus} IS NOT NULL`),
+      db.select({
+        state: communities.state,
+        count: sql<number>`count(*)`
+      }).from(communities).groupBy(communities.state).orderBy(sql`count(*) DESC`).limit(5),
+    ]);
 
     res.json({
-      total: stats.total,
-      licensed: stats.licensed,
-      withPricing: stats.withPricing,
-      topStates,
-      // Placeholder values until tier system is implemented in database
+      total: Number(totalRow.count),
+      verified: Number(verifiedRow.count),
+      withPhotos: Number(withPhotosRow.count),
+      withPricing: Number(withPricingRow.count),
+      hidden: Number(hiddenRow.count),
+      flagged: Number(flaggedRow.count),
+      topStates: topStatesRows.map(r => ({ state: r.state, count: Number(r.count) })),
       featured: 0,
       platinum: 0,
       standard: 0,
-      premium: 0
+      premium: 0,
     });
   } catch (error) {
     console.error('Error fetching community stats:', error);
     res.status(500).json({ message: 'Failed to fetch statistics' });
+  }
+});
+
+// Hide a community (reversible soft-hide)
+router.post('/admin/communities/:id/hide', requireAdmin, async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    const [updated] = await db.update(communities)
+      .set({ isHidden: true, updatedAt: new Date() })
+      .where(eq(communities.id, communityId))
+      .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
+    if (!updated) return res.status(404).json({ message: 'Community not found' });
+    res.json({ message: 'Community hidden', community: updated });
+  } catch (error) {
+    console.error('Error hiding community:', error);
+    res.status(500).json({ message: 'Failed to hide community' });
+  }
+});
+
+// Unhide a community
+router.post('/admin/communities/:id/unhide', requireAdmin, async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    const [updated] = await db.update(communities)
+      .set({ isHidden: false, updatedAt: new Date() })
+      .where(eq(communities.id, communityId))
+      .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
+    if (!updated) return res.status(404).json({ message: 'Community not found' });
+    res.json({ message: 'Community unhidden', community: updated });
+  } catch (error) {
+    console.error('Error unhiding community:', error);
+    res.status(500).json({ message: 'Failed to unhide community' });
+  }
+});
+
+// Get pending listing flags for admin moderation
+router.get('/admin/listing-flags', requireAdmin, async (req, res) => {
+  try {
+    const { status = 'Pending', page = '1', limit = '20' } = req.query;
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const offset = (pageNum - 1) * limitNum;
+
+    const [flags, [countRow]] = await Promise.all([
+      db.select({
+        id: listingFlags.id,
+        communityId: listingFlags.communityId,
+        communityName: communities.name,
+        communityCity: communities.city,
+        communityState: communities.state,
+        flagType: listingFlags.flagType,
+        reason: listingFlags.reason,
+        details: listingFlags.details,
+        status: listingFlags.status,
+        reporterEmail: listingFlags.reporterEmail,
+        reporterName: listingFlags.reporterName,
+        createdAt: listingFlags.createdAt,
+      })
+        .from(listingFlags)
+        .innerJoin(communities, eq(listingFlags.communityId, communities.id))
+        .where(status === 'all' ? undefined : eq(listingFlags.status, status as string))
+        .orderBy(desc(listingFlags.createdAt))
+        .limit(limitNum)
+        .offset(offset),
+      db.select({ count: sql<number>`count(*)` })
+        .from(listingFlags)
+        .where(status === 'all' ? undefined : eq(listingFlags.status, status as string)),
+    ]);
+
+    res.json({ flags, total: Number(countRow.count), page: pageNum, totalPages: Math.ceil(Number(countRow.count) / limitNum) });
+  } catch (error) {
+    console.error('Error fetching listing flags:', error);
+    res.status(500).json({ message: 'Failed to fetch listing flags' });
+  }
+});
+
+// Dismiss a flag (no action on community)
+router.post('/admin/listing-flags/:id/dismiss', requireAdmin, async (req, res) => {
+  try {
+    const flagId = parseInt(req.params.id);
+    const [updated] = await db.update(listingFlags)
+      .set({ status: 'Dismissed', reviewedAt: new Date(), updatedAt: new Date() })
+      .where(eq(listingFlags.id, flagId))
+      .returning({ id: listingFlags.id, communityId: listingFlags.communityId });
+    if (!updated) return res.status(404).json({ message: 'Flag not found' });
+
+    // Clear communities.flagStatus if no active (Pending) flags remain for this community
+    const [remaining] = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(listingFlags)
+      .where(and(
+        eq(listingFlags.communityId, updated.communityId),
+        sql`${listingFlags.status} IN ('Pending', 'Under Review')`
+      ));
+    if (Number(remaining.count) === 0) {
+      await db.update(communities)
+        .set({ flagStatus: null } as any)
+        .where(eq(communities.id, updated.communityId));
+    }
+
+    res.json({ message: 'Flag dismissed' });
+  } catch (error) {
+    console.error('Error dismissing flag:', error);
+    res.status(500).json({ message: 'Failed to dismiss flag' });
+  }
+});
+
+// Confirm a flag: mark flag Resolved + set community flagStatus = 'confirmed'
+router.post('/admin/listing-flags/:id/confirm', requireAdmin, async (req, res) => {
+  try {
+    const flagId = parseInt(req.params.id);
+    const { hideListingAlso = false } = req.body;
+
+    const [flag] = await db.update(listingFlags)
+      .set({ status: 'Resolved', reviewedAt: new Date(), updatedAt: new Date() })
+      .where(eq(listingFlags.id, flagId))
+      .returning({ id: listingFlags.id, communityId: listingFlags.communityId });
+
+    if (!flag) return res.status(404).json({ message: 'Flag not found' });
+
+    const communityUpdates: Record<string, any> = {
+      flagStatus: 'confirmed',
+      updatedAt: new Date(),
+    };
+    if (hideListingAlso) {
+      communityUpdates.isHidden = true;
+    }
+
+    await db.update(communities).set(communityUpdates).where(eq(communities.id, flag.communityId));
+
+    res.json({ message: hideListingAlso ? 'Flag confirmed and listing hidden' : 'Flag confirmed' });
+  } catch (error) {
+    console.error('Error confirming flag:', error);
+    res.status(500).json({ message: 'Failed to confirm flag' });
+  }
+});
+
+// Get single community by ID — admin bypass (no visibility filter, sees hidden/fake records)
+router.get('/admin/communities/:id', requireAdmin, async (req, res) => {
+  try {
+    const communityId = parseInt(req.params.id);
+    if (isNaN(communityId)) return res.status(400).json({ message: 'Invalid community ID' });
+
+    const [community] = await db.select().from(communities).where(eq(communities.id, communityId));
+    if (!community) return res.status(404).json({ message: 'Community not found' });
+
+    res.json(community);
+  } catch (error) {
+    console.error('Error fetching community for admin:', error);
+    res.status(500).json({ message: 'Failed to fetch community' });
   }
 });
 

@@ -1544,6 +1544,10 @@ export const communities = pgTable("communities", {
   // 'unreachable_website'. Records are FLAGGED for review, never auto-deleted.
   dataQualityFlags: text("data_quality_flags").array().default([]),
   dataQualityCheckedAt: timestamp("data_quality_checked_at"), // last scan timestamp
+
+  // Moderation fields — reversible hide + two-stage flag status
+  isHidden: boolean("is_hidden").default(false).notNull(), // Soft-hide; does NOT delete the record
+  flagStatus: text("flag_status", { enum: ["pending", "confirmed"] }), // null = no active flag
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),

@@ -1392,17 +1392,20 @@ const calculateCompositeRating = (community: Community): string => {
     yelpScore: 0.2       // 20% weight for Yelp reviews
   };
 
-  // Get individual scores - tour properties will be added to schema
-  const tourScore = parseFloat((community as any).tourAverageRating || '4.5');
-  const googleScore = parseFloat(community.googleRating?.toString() || '4.2');
-  const yelpScore = parseFloat((community as any).yelpRating || '4.0');
+  // Only use scores from verified real sources — no fabricated fallbacks
+  const realTour = (community as any).tourAverageRating ? parseFloat((community as any).tourAverageRating) : null;
+  const realGoogle = community.googleRating ? parseFloat(community.googleRating.toString()) : null;
+  const realYelp = (community as any).yelpRating ? parseFloat((community as any).yelpRating) : null;
 
-  // Calculate weighted average
-  const compositeScore = 
-    (tourScore * weights.tourScore) +
-    (googleScore * weights.googleScore) +
-    (yelpScore * weights.yelpScore);
+  if (!realTour && !realGoogle && !realYelp) return '';
 
+  let totalWeight = 0;
+  let weightedSum = 0;
+  if (realTour !== null) { weightedSum += realTour * weights.tourScore; totalWeight += weights.tourScore; }
+  if (realGoogle !== null) { weightedSum += realGoogle * weights.googleScore; totalWeight += weights.googleScore; }
+  if (realYelp !== null) { weightedSum += realYelp * weights.yelpScore; totalWeight += weights.yelpScore; }
+
+  const compositeScore = weightedSum / totalWeight;
   return compositeScore.toFixed(1);
 };
 
@@ -1415,6 +1418,20 @@ export default function CommunityDetail() {
   // Auth state — used to gate the favorite button
   const { isAuthenticated } = useAuth();
   const [showLoginDialog, setShowLoginDialog] = useState(false);
+
+  // Always call useQuery hook regardless of ID validity to maintain consistent hook order
+  const slugQueryKey = isSlugBased ? `/api/communities/by-slug/${stateParam}/${cityParam}/${slug}` : null;
+  const idQueryKey = !isSlugBased ? `/api/communities/${id}` : null;
+  const { data: community, isLoading, error } = useQuery<Community>({
+    queryKey: isSlugBased
+      ? [slugQueryKey]
+      : [idQueryKey],
+    enabled: isSlugBased
+      ? !!(stateParam && slug)
+      : (!!id && id !== '-1' && !isNaN(Number(id))),
+    staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
+  });
 
   // Favorites functionality - using hooks for persistence
   const { data: favorites = [], isLoading: favoritesLoading } = useFavorites();
@@ -1544,20 +1561,6 @@ export default function CommunityDetail() {
   const { isMobile, isTablet, isDesktop } = useResponsive();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
-
-  // Always call useQuery hook regardless of ID validity to maintain consistent hook order
-  const slugQueryKey = isSlugBased ? `/api/communities/by-slug/${stateParam}/${cityParam}/${slug}` : null;
-  const idQueryKey = !isSlugBased ? `/api/communities/${id}` : null;
-  const { data: community, isLoading, error } = useQuery<Community>({
-    queryKey: isSlugBased
-      ? [slugQueryKey]
-      : [idQueryKey],
-    enabled: isSlugBased
-      ? !!(stateParam && slug)
-      : (!!id && id !== '-1' && !isNaN(Number(id))),
-    staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
-  });
 
   // Contact gating: blur detailed pricing & overview until login/consent (reveal + referral lead).
   const {

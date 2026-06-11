@@ -22,6 +22,7 @@ import Claim from "@/pages/claim";
 import SuperAdminAnalytics from "@/pages/super-admin-analytics";
 import AdminSubscriptionManagement from "@/pages/admin-subscription-management";
 import AdminMegaDashboard from "@/pages/admin-mega-dashboard";
+import AdminCommunityEdit from "@/pages/admin-community-edit";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
@@ -261,6 +262,7 @@ function Router() {
       <Route path="/community-claim" component={CommunityClaim} />
       {/* ALL ADMIN ROUTES NOW REDIRECT TO UNIFIED SUPER ADMIN DASHBOARD */}
       <Route path="/admin" component={SuperAdminAnalytics} />
+      <Route path="/admin/community/:id/edit" component={AdminCommunityEdit} />
       <Route path="/admin/featured-communities" component={AdminFeaturedCommunitiesPage} />
       <Route path="/admin-creative" component={SuperAdminAnalytics} />
       <Route path="/admin-unified" component={SuperAdminAnalytics} />

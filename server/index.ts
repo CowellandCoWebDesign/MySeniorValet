@@ -7,6 +7,7 @@ import "./services/gmail-sender";
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import { registerRoutes } from "./routes";
+import { runStartupMigrations } from "./run-migration";
 import { setupVite, serveStatic, log } from "./vite";
 import { seoSSRMiddleware } from "./seo-ssr-middleware";
 import { seedDatabase } from "./seed";
@@ -169,6 +170,9 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
+    // Run idempotent schema migrations (adds community trust columns if absent)
+    await runStartupMigrations();
+
     const server = await registerRoutes(app);
 
   // NO SEEDING - GOLDEN DATA RULE ENFORCED

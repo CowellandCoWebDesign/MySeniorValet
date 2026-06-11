@@ -937,6 +937,18 @@ export default function AdminMegaDashboard() {
   const { data: communityStats } = useQuery({
     queryKey: ['/api/admin/communities/stats'],
   });
+
+  // Listing flags for moderation
+  const [flagStatusFilter, setFlagStatusFilter] = useState<string>('Pending');
+  const [communitySubTab, setCommunitySubTab] = useState<'listings' | 'flags'>('listings');
+  const { data: listingFlagsData, isLoading: flagsLoading } = useQuery({
+    queryKey: ['/api/admin/listing-flags', flagStatusFilter],
+    queryFn: async () => {
+      const params = new URLSearchParams({ status: flagStatusFilter, limit: '30' });
+      return await apiRequest('GET', `/api/admin/listing-flags?${params}`);
+    },
+    enabled: communitySubTab === 'flags',
+  });
   
   const { data: filteredCommunities } = useQuery({
     queryKey: ['/api/admin/communities', currentPage, searchQuery, stateFilter, typeFilter, verificationFilter],
@@ -1107,6 +1119,60 @@ export default function AdminMegaDashboard() {
         title: "Community Deleted",
         description: "The community has been deleted successfully.",
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+    },
+  });
+
+  const hideCommunityMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest('POST', `/api/admin/communities/${id}/hide`);
+    },
+    onSuccess: () => {
+      toast({ title: "Community Hidden", description: "The listing is no longer visible to the public." });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+    },
+  });
+
+  const unhideCommunityMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest('POST', `/api/admin/communities/${id}/unhide`);
+    },
+    onSuccess: () => {
+      toast({ title: "Community Restored", description: "The listing is now visible to the public." });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+    },
+  });
+
+  const verifyCommunityMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest('POST', `/api/admin/communities/${id}/verify`);
+    },
+    onSuccess: () => {
+      toast({ title: "Community Verified", description: "The listing has been marked as verified." });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+    },
+  });
+
+  const dismissFlagMutation = useMutation({
+    mutationFn: async (flagId: number) => {
+      return await apiRequest('POST', `/api/admin/listing-flags/${flagId}/dismiss`);
+    },
+    onSuccess: () => {
+      toast({ title: "Flag Dismissed" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+    },
+  });
+
+  const confirmFlagMutation = useMutation({
+    mutationFn: async ({ flagId, hideAlso }: { flagId: number; hideAlso: boolean }) => {
+      return await apiRequest('POST', `/api/admin/listing-flags/${flagId}/confirm`, { hideListingAlso: hideAlso });
+    },
+    onSuccess: () => {
+      toast({ title: "Flag Confirmed", description: "The listing has been marked as flagged." });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
     },
   });
@@ -2101,175 +2167,370 @@ Communities Created: ${details.stats.communitiesCreated}`;
 
   // Community Management (from admin-communities)
   const renderCommunityManagement = () => (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Building2 className="h-5 w-5 text-blue-600" />
-          Community Management
-        </CardTitle>
-        <CardDescription>Manage and monitor all communities</CardDescription>
-      </CardHeader>
-      <CardContent>
-        {/* Filters */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
-          <Select value={stateFilter} onValueChange={setStateFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="State" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All States</SelectItem>
-              <SelectItem value="CA">California</SelectItem>
-              <SelectItem value="FL">Florida</SelectItem>
-              <SelectItem value="TX">Texas</SelectItem>
-              <SelectItem value="NY">New York</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={typeFilter} onValueChange={setTypeFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="assisted_living">Assisted Living</SelectItem>
-              <SelectItem value="memory_care">Memory Care</SelectItem>
-              <SelectItem value="independent_living">Independent Living</SelectItem>
-              <SelectItem value="skilled_nursing">Skilled Nursing</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={verificationFilter} onValueChange={setVerificationFilter}>
-            <SelectTrigger>
-              <SelectValue placeholder="Verification" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="verified">Verified</SelectItem>
-              <SelectItem value="unverified">Unverified</SelectItem>
-              <SelectItem value="pending">Pending</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Button onClick={() => updateAllPricingMutation.mutate()}>
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Update All Pricing
-          </Button>
-        </div>
-        
-        {/* Community Stats */}
-        <div className="grid grid-cols-4 gap-4 mb-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Total Communities</CardTitle>
+    <div className="space-y-4">
+      {/* Stats row */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+        {[
+          { label: 'Total', value: (communityStats as any)?.total, color: 'text-foreground' },
+          { label: 'Verified', value: (communityStats as any)?.verified, color: 'text-green-600' },
+          { label: 'With Photos', value: (communityStats as any)?.withPhotos, color: 'text-blue-600' },
+          { label: 'With Pricing', value: (communityStats as any)?.withPricing, color: 'text-purple-600' },
+          { label: 'Hidden', value: (communityStats as any)?.hidden, color: 'text-orange-500' },
+          { label: 'Flagged', value: (communityStats as any)?.flagged, color: 'text-red-500' },
+        ].map(stat => (
+          <Card key={stat.label}>
+            <CardHeader className="pb-1 pt-3 px-3">
+              <CardTitle className="text-xs text-muted-foreground">{stat.label}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(communityStats as any)?.total || 0}</div>
+            <CardContent className="px-3 pb-3">
+              <div className={`text-xl font-bold ${stat.color}`}>{stat.value?.toLocaleString() ?? '…'}</div>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Verified</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{(communityStats as any)?.verified || 0}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">With Photos</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(communityStats as any)?.withPhotos || 0}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm">With Pricing</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{(communityStats as any)?.withPricing || 0}</div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        {/* Communities Table */}
-        <ScrollArea className="h-[400px]">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Community</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Photos</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {Array.isArray((filteredCommunities as any)?.communities) && (filteredCommunities as any).communities.slice(0, 10).map((community: any) => (
-                <TableRow key={community.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{community.name}</div>
-                      <div className="text-sm text-muted-foreground">{community.phone}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {community.city}, {community.state}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{community.type}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={community.verified ? "default" : "secondary"}>
-                      {community.verified ? "Verified" : "Unverified"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Camera className="h-3 w-3" />
-                      {community.photos?.length || 0}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1">
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => refreshCommunityMutation.mutate(community.id)}
-                      >
-                        <RefreshCw className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => enrichCommunityMutation.mutate(community.id)}
-                      >
-                        <Sparkles className="h-3 w-3" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => {
-                          if (confirm('Are you sure you want to delete this community?')) {
-                            deleteCommunityMutation.mutate(community.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
+        ))}
+      </div>
+
+      {/* Sub-tab switcher */}
+      <div className="flex gap-2">
+        <Button
+          size="sm"
+          variant={communitySubTab === 'listings' ? 'default' : 'outline'}
+          onClick={() => setCommunitySubTab('listings')}
+        >
+          <Building2 className="h-4 w-4 mr-2" />
+          Listings
+        </Button>
+        <Button
+          size="sm"
+          variant={communitySubTab === 'flags' ? 'default' : 'outline'}
+          onClick={() => setCommunitySubTab('flags')}
+        >
+          <Flag className="h-4 w-4 mr-2" />
+          Flag Queue
+          {(communityStats as any)?.flagged > 0 && (
+            <Badge className="ml-2 bg-red-500 text-white text-xs h-5 px-1.5">{(communityStats as any).flagged}</Badge>
+          )}
+        </Button>
+      </div>
+
+      {communitySubTab === 'listings' && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Building2 className="h-4 w-4 text-blue-600" />
+              Community Listings
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Filters */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              <div className="relative flex-1 min-w-[180px]">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, city, or ID…"
+                  value={searchQuery}
+                  onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                  className="pl-8"
+                />
+              </div>
+              <Select value={stateFilter} onValueChange={v => { setStateFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="State" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All States</SelectItem>
+                  <SelectItem value="CA">California</SelectItem>
+                  <SelectItem value="FL">Florida</SelectItem>
+                  <SelectItem value="TX">Texas</SelectItem>
+                  <SelectItem value="NY">New York</SelectItem>
+                  <SelectItem value="AZ">Arizona</SelectItem>
+                  <SelectItem value="PA">Pennsylvania</SelectItem>
+                  <SelectItem value="OH">Ohio</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="w-36">
+                  <SelectValue placeholder="Care Type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Assisted Living">Assisted Living</SelectItem>
+                  <SelectItem value="Memory Care">Memory Care</SelectItem>
+                  <SelectItem value="Independent Living">Independent Living</SelectItem>
+                  <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
+                  <SelectItem value="55+ Active">55+ Active</SelectItem>
+                  <SelectItem value="HUD Housing">HUD Housing</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select value={verificationFilter} onValueChange={v => { setVerificationFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Status</SelectItem>
+                  <SelectItem value="verified">Verified</SelectItem>
+                  <SelectItem value="unverified">Unverified</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button variant="outline" size="sm" onClick={() => updateAllPricingMutation.mutate()}>
+                <RefreshCw className="h-3 w-3 mr-1" /> Update Pricing
+              </Button>
+            </div>
+
+            {/* Table */}
+            <ScrollArea className="h-[420px]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Community</TableHead>
+                    <TableHead>Location</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Photos</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.isArray((filteredCommunities as any)?.communities) && (filteredCommunities as any).communities.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                        No communities match your filters
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {Array.isArray((filteredCommunities as any)?.communities) && (filteredCommunities as any).communities.map((community: any) => (
+                    <TableRow key={community.id} className={community.isHidden ? 'opacity-50' : ''}>
+                      <TableCell className="max-w-[220px]">
+                        <div>
+                          <div className="font-medium truncate">{community.name}</div>
+                          <div className="text-xs text-muted-foreground flex gap-1 mt-0.5">
+                            {community.isVerified && <Badge variant="outline" className="text-green-600 border-green-300 text-[10px] px-1 py-0 h-4">✓ Verified</Badge>}
+                            {community.isHidden && <Badge variant="outline" className="text-orange-500 border-orange-300 text-[10px] px-1 py-0 h-4">Hidden</Badge>}
+                            {community.flagStatus && <Badge variant="outline" className="text-red-500 border-red-300 text-[10px] px-1 py-0 h-4">🚩 Flagged</Badge>}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm">
+                          <MapPin className="h-3 w-3 text-muted-foreground" />
+                          {community.city}, {community.state}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={community.isVerified ? "default" : "secondary"} className="text-xs">
+                          {community.isVerified ? "Verified" : "Unverified"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 text-sm">
+                          <Camera className="h-3 w-3" />
+                          {community.photos?.length || 0}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex gap-1 justify-end">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            title="View public listing"
+                            onClick={() => window.open(`/senior-living/${encodeURIComponent(community.state?.toLowerCase() || '')}/${encodeURIComponent(community.city?.toLowerCase().replace(/\s+/g, '-') || '')}/${encodeURIComponent(community.name?.toLowerCase().replace(/\s+/g, '-') || '')}`, '_blank')}
+                          >
+                            <Eye className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-blue-500"
+                            title="Edit community"
+                            onClick={() => window.open(`/admin/community/${community.id}/edit`, '_blank')}
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          {!community.isVerified && (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-green-600"
+                              title="Mark verified"
+                              onClick={() => verifyCommunityMutation.mutate(community.id)}
+                            >
+                              <CheckCircle2 className="h-3 w-3" />
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0"
+                            title="Enrich data"
+                            onClick={() => enrichCommunityMutation.mutate(community.id)}
+                          >
+                            <Sparkles className="h-3 w-3" />
+                          </Button>
+                          {community.isHidden ? (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-orange-500"
+                              title="Restore (make public)"
+                              onClick={() => unhideCommunityMutation.mutate(community.id)}
+                            >
+                              <Eye className="h-3 w-3" />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-muted-foreground"
+                              title="Hide from public"
+                              onClick={() => hideCommunityMutation.mutate(community.id)}
+                            >
+                              <XCircle className="h-3 w-3" />
+                            </Button>
+                          )}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 w-7 p-0 text-destructive"
+                            title="Delete permanently"
+                            onClick={() => {
+                              if (confirm(`Delete "${community.name}"? This cannot be undone.`)) {
+                                deleteCommunityMutation.mutate(community.id);
+                              }
+                            }}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+
+            {/* Pagination */}
+            {(filteredCommunities as any)?.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                <div className="text-sm text-muted-foreground">
+                  Page {currentPage} of {(filteredCommunities as any)?.totalPages} · {(filteredCommunities as any)?.total?.toLocaleString()} total
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  >
+                    ← Prev
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage >= (filteredCommunities as any)?.totalPages}
+                    onClick={() => setCurrentPage(p => p + 1)}
+                  >
+                    Next →
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {communitySubTab === 'flags' && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Flag className="h-4 w-4 text-red-500" />
+              Listing Flag Queue
+            </CardTitle>
+            <CardDescription>Review and act on community reports submitted by users</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2 mb-4">
+              {['Pending', 'Under Review', 'Resolved', 'Dismissed', 'all'].map(s => (
+                <Button
+                  key={s}
+                  size="sm"
+                  variant={flagStatusFilter === s ? 'default' : 'outline'}
+                  onClick={() => setFlagStatusFilter(s)}
+                >
+                  {s === 'all' ? 'All' : s}
+                </Button>
               ))}
-            </TableBody>
-          </Table>
-        </ScrollArea>
-      </CardContent>
-    </Card>
+            </div>
+
+            {flagsLoading ? (
+              <div className="flex items-center justify-center h-32">
+                <Loader2 className="w-6 h-6 animate-spin" />
+              </div>
+            ) : !(listingFlagsData as any)?.flags?.length ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <Flag className="h-8 w-8 mx-auto mb-2 opacity-30" />
+                <p>No flags in this queue</p>
+              </div>
+            ) : (
+              <ScrollArea className="h-[480px]">
+                <div className="space-y-3">
+                  {(listingFlagsData as any).flags.map((flag: any) => (
+                    <div key={flag.id} className="border rounded-lg p-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="destructive" className="text-xs">{flag.flagType}</Badge>
+                            <Badge variant="outline" className="text-xs">{flag.status}</Badge>
+                          </div>
+                          <div className="font-medium text-sm">
+                            {flag.communityName} — {flag.communityCity}, {flag.communityState}
+                          </div>
+                          <div className="text-sm text-muted-foreground mt-1">{flag.reason}</div>
+                          {flag.details && <div className="text-xs text-muted-foreground mt-1 italic">{flag.details}</div>}
+                          {flag.reporterName && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              Reported by: {flag.reporterName} {flag.reporterEmail ? `(${flag.reporterEmail})` : ''}
+                            </div>
+                          )}
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {flag.createdAt ? new Date(flag.createdAt).toLocaleDateString() : ''}
+                          </div>
+                        </div>
+                        {(flag.status === 'Pending' || flag.status === 'Under Review') && (
+                          <div className="flex flex-col gap-2 shrink-0">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-700 border-green-300"
+                              onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false })}
+                            >
+                              Confirm
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="text-xs"
+                              onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true })}
+                            >
+                              Confirm + Hide
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => dismissFlagMutation.mutate(flag.id)}
+                            >
+                              Dismiss
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
   
   // Data Protection System (from admin.tsx)

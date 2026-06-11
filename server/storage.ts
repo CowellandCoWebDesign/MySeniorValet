@@ -978,7 +978,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllCommunities(): Promise<Community[]> {
-    return await db.select().from(communities);
+    return await db.select().from(communities).where(eq(communities.isHidden, false));
   }
 
 
@@ -990,10 +990,13 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(communities)
       .where(
-        or(
-          ilike(communities.name, searchPattern),
-          ilike(communities.city, searchPattern),
-          ilike(communities.state, searchPattern)
+        and(
+          eq(communities.isHidden, false),
+          or(
+            ilike(communities.name, searchPattern),
+            ilike(communities.city, searchPattern),
+            ilike(communities.state, searchPattern)
+          )
         )
       )
       .limit(50);

@@ -1800,22 +1800,29 @@ Disallow: /`;
   // app.get('/api/community/:id/comprehensive-data', async (req, res) => { ... })
 
   // Public community flag endpoint — no auth required, supports anonymous reports
+  // Legacy route — kept for backwards compatibility; all new UI uses /api/communities/:id/flag
   app.post('/api/community-flag', async (req, res) => {
     try {
       const { communityId, communityName, city, state } = req.body;
       if (!communityId) {
         return res.status(400).json({ error: 'communityId is required' });
       }
+      const id = Number(communityId);
 
       await db.insert(schema.listingFlags).values({
-        communityId: Number(communityId),
+        communityId: id,
         flagType: 'Incorrect Information',
-        reason: `User reported from community page: ${communityName || communityId}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}`,
+        reason: `User reported from community page: ${communityName || id}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}`,
         status: 'Pending',
         userId: null,
       });
 
-      console.log(`🚩 Community flagged by user: #${communityId} ${communityName || ''}`);
+      // Also set flagStatus on the community so it shows "Under Review" on its detail page
+      await db.update(schema.communities)
+        .set({ flagStatus: 'pending' } as any)
+        .where(eq(schema.communities.id, id));
+
+      console.log(`🚩 Community flagged by user: #${id} ${communityName || ''}`);
       return res.json({ success: true });
     } catch (error) {
       console.error('Failed to save community flag:', error);

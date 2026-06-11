@@ -75,15 +75,14 @@ export function CommunityDetailsHeader({
   const handleFlagCommunity = useCallback(async () => {
     if (isFlagged) return;
     try {
-      const response = await fetch(`/api/community-flag`, {
+      const response = await fetch(`/api/communities/${community.id}/flag`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          communityName: community.name,
-          city: community.city,
-          state: community.state,
-          reason: 'needs_review',
-          flaggedAt: new Date().toISOString()
+          communityId: community.id,
+          flagType: 'Incorrect Information',
+          reason: 'User reported inaccurate or outdated information',
+          details: `Flagged from community page: ${community.name}, ${community.city}, ${community.state}`,
         })
       });
       
@@ -483,15 +482,30 @@ export function CommunityDetailsHeader({
 
               {/* Rating, Care Type and HUD Badges - directly below name */}
               <div className="flex flex-wrap items-center gap-3 mb-3">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
-                  <Star className="w-4 h-4 text-yellow-500 fill-current" />
-                  <span className="font-bold text-gray-900 dark:text-white text-sm">
-                    {community.googleRating || '4.2'}
-                  </span>
-                  <span className="text-gray-600 dark:text-gray-400 text-xs">
-                    ({community.googleReviewCount || '47'} reviews)
-                  </span>
-                </div>
+                {community.googleRating && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="font-bold text-gray-900 dark:text-white text-sm">
+                      {community.googleRating}
+                    </span>
+                    {community.googleReviewCount > 0 && (
+                      <span className="text-gray-600 dark:text-gray-400 text-xs">
+                        ({community.googleReviewCount} reviews)
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {community.flagStatus === 'confirmed' && (
+                  <Badge className="bg-orange-100 text-orange-800 border border-orange-300 px-3 py-1.5 text-xs font-medium">
+                    ⚠️ Listing Flagged
+                  </Badge>
+                )}
+                {(isFlagged || community.flagStatus === 'pending') && (
+                  <Badge variant="outline" className="border-yellow-400 text-yellow-700 dark:text-yellow-400 px-3 py-1.5 text-xs font-medium">
+                    🔍 Under Review
+                  </Badge>
+                )}
 
                 <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 text-xs font-bold">
                   {formatCareType ? formatCareType(community.careTypes) : "Nursing Home"}

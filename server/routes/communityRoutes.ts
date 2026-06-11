@@ -1,8 +1,9 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities, searchHistory, analyticsEvents } from "@shared/schema";
+import { isClearlyFake } from "../../shared/community-classification";
 import { generateCommunitySlug } from "../utils/generate-slug";
-import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
+import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull, isNull, not } from "drizzle-orm";
 import { insertCommunitySchema, insertListingFlagSchema } from "@shared/schema";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { storage } from "../storage";
@@ -28,6 +29,35 @@ import { simpleEnrichmentService } from "../services/simple-enrichment-service";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
 import { vendors } from "@shared/schema";
 import { geocodeWithNominatim } from "../nominatim-geocoding";
+
+/**
+ * Single shared predicate for ALL public community queries.
+ *
+ * Hides records that are:
+ *  a) manually hidden by an admin (is_hidden = true), OR
+ *  b) "clearly fake" — is_verified = false AND none of {phone, website,
+ *     description, meaningful data_source} is present.
+ *
+ * Because this is evaluated at query time against live column values, the
+ * filter is auto-reversible: a record re-appears the moment real data
+ * (phone, website, description, or a verified status) is added.
+ */
+function publicVisibleFilter() {
+  return sql`(
+    "communities"."is_hidden" IS NOT TRUE
+    AND NOT (
+      ("communities"."is_verified" IS NOT TRUE OR "communities"."is_verified" IS NULL)
+      AND ("communities"."phone" IS NULL OR trim("communities"."phone") = '')
+      AND ("communities"."website" IS NULL OR trim("communities"."website") = '')
+      AND ("communities"."description" IS NULL OR trim("communities"."description") = '')
+      AND (
+        "communities"."data_source" IS NULL
+        OR trim(lower("communities"."data_source")) = ''
+        OR trim(lower("communities"."data_source")) IN ('government database', 'placeholder', 'unknown')
+      )
+    )
+  )`;
+}
 
 export function registerCommunityRoutes(app: Express) {
   // Public listing flag: families report inaccurate / fake / closed listings.
@@ -71,6 +101,11 @@ export function registerCommunityRoutes(app: Express) {
       }
 
       const flag = await storage.createListingFlag(parsed.data);
+
+      // Set community flagStatus to 'pending' so it shows an "Under review" note publicly
+      await db.update(communities)
+        .set({ flagStatus: 'pending' } as any)
+        .where(eq(communities.id, communityId));
 
       if (parsed.data.userId) {
         try {
@@ -167,6 +202,7 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           and(
             eq(communities.isActive, true),
+            publicVisibleFilter(),
             isNotNull(communities.hudPropertyId),
             sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 150`
           )
@@ -196,7 +232,7 @@ export function registerCommunityRoutes(app: Express) {
       const trending = await db
         .select()
         .from(communities)
-        .where(and(eq(communities.isActive, true), sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`))
+        .where(and(eq(communities.isActive, true), publicVisibleFilter(), sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(20);
 
@@ -232,7 +268,7 @@ export function registerCommunityRoutes(app: Express) {
       const featuredCommunities = await db
         .select()
         .from(communities)
-        .where(inArray(communities.id, featuredIds));
+        .where(and(publicVisibleFilter(), inArray(communities.id, featuredIds)));
 
       // Enrich each community with photos and use database metadata
       const enrichedFeatured = await Promise.all(
@@ -374,6 +410,7 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           and(
             eq(communities.isActive, true),
+            publicVisibleFilter(),
             or(
               eq(communities.state, 'CA'),
               eq(communities.state, 'FL'),
@@ -426,8 +463,9 @@ export function registerCommunityRoutes(app: Express) {
       let query = db.select().from(communities);
       const conditions = [];
 
-      // Always filter to active communities only
+      // Always filter to active + publicly visible communities
       conditions.push(eq(communities.isActive, true));
+      conditions.push(publicVisibleFilter());
 
       // Care type filter
       if (careTypes) {
@@ -538,10 +576,13 @@ export function registerCommunityRoutes(app: Express) {
           .select()
           .from(communities)
           .where(
-            or(
-              eq(communities.state, searchTerm),
-              eq(communities.city, location),
-              sql`LOWER(${communities.name}) LIKE '%hawaii%'`
+            and(
+              publicVisibleFilter(),
+              or(
+                eq(communities.state, searchTerm),
+                eq(communities.city, location),
+                sql`LOWER(${communities.name}) LIKE '%hawaii%'`
+              )
             )
           )
           .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -552,19 +593,22 @@ export function registerCommunityRoutes(app: Express) {
           .select()
           .from(communities)
           .where(
-            or(
-              sql`LOWER(${communities.name}) LIKE '%mexico%'`,
-              sql`LOWER(${communities.city}) LIKE '%mexico%'`,
-              sql`LOWER(${communities.name}) LIKE '%tijuana%'`,
-              sql`LOWER(${communities.name}) LIKE '%guadalajara%'`,
-              sql`LOWER(${communities.name}) LIKE '%puerto vallarta%'`,
-              sql`LOWER(${communities.name}) LIKE '%cancun%'`,
-              sql`LOWER(${communities.name}) LIKE '%playa del carmen%'`,
-              sql`LOWER(${communities.city}) LIKE '%tijuana%'`,
-              sql`LOWER(${communities.city}) LIKE '%guadalajara%'`,
-              sql`LOWER(${communities.city}) LIKE '%puerto vallarta%'`,
-              sql`LOWER(${communities.city}) LIKE '%cancun%'`,
-              sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`
+            and(
+              publicVisibleFilter(),
+              or(
+                sql`LOWER(${communities.name}) LIKE '%mexico%'`,
+                sql`LOWER(${communities.city}) LIKE '%mexico%'`,
+                sql`LOWER(${communities.name}) LIKE '%tijuana%'`,
+                sql`LOWER(${communities.name}) LIKE '%guadalajara%'`,
+                sql`LOWER(${communities.name}) LIKE '%puerto vallarta%'`,
+                sql`LOWER(${communities.name}) LIKE '%cancun%'`,
+                sql`LOWER(${communities.name}) LIKE '%playa del carmen%'`,
+                sql`LOWER(${communities.city}) LIKE '%tijuana%'`,
+                sql`LOWER(${communities.city}) LIKE '%guadalajara%'`,
+                sql`LOWER(${communities.city}) LIKE '%puerto vallarta%'`,
+                sql`LOWER(${communities.city}) LIKE '%cancun%'`,
+                sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`
+              )
             )
           )
           .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -578,9 +622,12 @@ export function registerCommunityRoutes(app: Express) {
           .select()
           .from(communities)
           .where(
-            or(
-              eq(communities.state, searchTerm),
-              eq(communities.city, location)
+            and(
+              publicVisibleFilter(),
+              or(
+                eq(communities.state, searchTerm),
+                eq(communities.city, location)
+              )
             )
           )
           .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -640,6 +687,7 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
+            publicVisibleFilter(),
             gte(communities.latitude, south),
             lte(communities.latitude, north),
             gte(communities.longitude, west),
@@ -680,7 +728,7 @@ export function registerCommunityRoutes(app: Express) {
           hudPropertyId: communities.hudPropertyId
         })
         .from(communities)
-        .where(eq(communities.country, 'MX'))
+        .where(and(publicVisibleFilter(), eq(communities.country, 'MX')))
         .limit(100);
       
       // Transform data for frontend compatibility
@@ -1399,7 +1447,7 @@ export function registerCommunityRoutes(app: Express) {
       const stateCommunities = await db
         .select()
         .from(communities)
-        .where(eq(communities.state, state as string))
+        .where(and(publicVisibleFilter(), eq(communities.state, state as string)))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1424,12 +1472,13 @@ export function registerCommunityRoutes(app: Express) {
       if (city && state) {
         query = query.where(
           and(
+            publicVisibleFilter(),
             eq(communities.city, city as string),
             eq(communities.state, state as string)
           )
         );
       } else {
-        query = query.where(eq(communities.city, city as string));
+        query = query.where(and(publicVisibleFilter(), eq(communities.city, city as string)));
       }
       
       const cityCommunities = await query
@@ -1455,7 +1504,7 @@ export function registerCommunityRoutes(app: Express) {
       const countryCommunities = await db
         .select()
         .from(communities)
-        .where(eq(communities.country, country as string))
+        .where(and(publicVisibleFilter(), eq(communities.country, country as string)))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1472,7 +1521,7 @@ export function registerCommunityRoutes(app: Express) {
       const hudProperties = await db
         .select()
         .from(communities)
-        .where(isNotNull(communities.hudPropertyId))
+        .where(and(publicVisibleFilter(), isNotNull(communities.hudPropertyId)))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1490,20 +1539,23 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(
-          or(
-            eq(communities.state, 'ON'),
-            eq(communities.state, 'QC'),
-            eq(communities.state, 'BC'),
-            eq(communities.state, 'AB'),
-            eq(communities.state, 'MB'),
-            eq(communities.state, 'SK'),
-            eq(communities.state, 'NS'),
-            eq(communities.state, 'NB'),
-            eq(communities.state, 'NL'),
-            eq(communities.state, 'PE'),
-            eq(communities.state, 'NT'),
-            eq(communities.state, 'YT'),
-            eq(communities.state, 'NU')
+          and(
+            publicVisibleFilter(),
+            or(
+              eq(communities.state, 'ON'),
+              eq(communities.state, 'QC'),
+              eq(communities.state, 'BC'),
+              eq(communities.state, 'AB'),
+              eq(communities.state, 'MB'),
+              eq(communities.state, 'SK'),
+              eq(communities.state, 'NS'),
+              eq(communities.state, 'NB'),
+              eq(communities.state, 'NL'),
+              eq(communities.state, 'PE'),
+              eq(communities.state, 'NT'),
+              eq(communities.state, 'YT'),
+              eq(communities.state, 'NU')
+            )
           )
         )
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -1522,9 +1574,7 @@ export function registerCommunityRoutes(app: Express) {
       const puertoRicoCommunities = await db
         .select()
         .from(communities)
-        .where(
-          eq(communities.state, 'PR')
-        )
+        .where(and(publicVisibleFilter(), eq(communities.state, 'PR')))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1541,9 +1591,7 @@ export function registerCommunityRoutes(app: Express) {
       const mexicanCommunities = await db
         .select()
         .from(communities)
-        .where(
-          eq(communities.country, 'Mexico')
-        )
+        .where(and(publicVisibleFilter(), eq(communities.country, 'Mexico')))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1653,13 +1701,16 @@ export function registerCommunityRoutes(app: Express) {
       const recentCommunities = await db.select()
         .from(communities)
         .where(
-          or(
-            sql`${communities.data_source} LIKE 'AI Discovery%'`,
-            sql`${communities.data_source} LIKE 'ai_discovered_%'`,
-            sql`${communities.data_source} LIKE 'Verified via Global Discovery%'`,
-            eq(communities.data_source, 'discovered_community'),
-            eq(communities.data_source, 'global_discovery'),
-            eq(communities.data_source, 'ai_discovered_global_search')
+          and(
+            publicVisibleFilter(),
+            or(
+              sql`${communities.data_source} LIKE 'AI Discovery%'`,
+              sql`${communities.data_source} LIKE 'ai_discovered_%'`,
+              sql`${communities.data_source} LIKE 'Verified via Global Discovery%'`,
+              eq(communities.data_source, 'discovered_community'),
+              eq(communities.data_source, 'global_discovery'),
+              eq(communities.data_source, 'ai_discovered_global_search')
+            )
           )
         )
         .orderBy(desc(communities.createdAt), desc(communities.id))
@@ -1848,6 +1899,11 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
+      // Block publicly-hidden communities from the public detail page
+      if (community.isHidden || isClearlyFake(community)) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
       // Get existing enrichment data from cache (skip for now - table doesn't exist yet)
       let enrichedData = null;
 
@@ -2020,6 +2076,11 @@ export function registerCommunityRoutes(app: Express) {
         .limit(1);
 
       if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Block publicly-hidden communities and clearly-fake listings from the public by-ID detail page
+      if (community.isHidden || isClearlyFake(community)) {
         return res.status(404).json({ error: "Community not found" });
       }
 
