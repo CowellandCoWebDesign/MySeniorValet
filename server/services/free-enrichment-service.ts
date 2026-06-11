@@ -96,7 +96,7 @@ function isPrivateIp(ip: string): boolean {
  *   4. Already absolute:  https://www.example.com
  * Returns null when the input cannot be resolved to a usable absolute URL.
  */
-function normalizeDdgUrl(raw: string): string | null {
+function normalizeDdgUrl(raw: string, keepPath = false): string | null {
   if (!raw || !raw.includes(".")) return null;
 
   // Strip leading/trailing whitespace
@@ -108,7 +108,7 @@ function normalizeDdgUrl(raw: string): string | null {
       const absolute = raw.startsWith("//") ? `https:${raw}` : raw;
       const parsed = new URL(absolute);
       const uddg = parsed.searchParams.get("uddg");
-      if (uddg) return normalizeDdgUrl(decodeURIComponent(uddg));
+      if (uddg) return normalizeDdgUrl(decodeURIComponent(uddg), keepPath);
     } catch {
       return null;
     }
@@ -117,13 +117,17 @@ function normalizeDdgUrl(raw: string): string | null {
 
   // Case 2: Protocol-relative  //www.example.com
   if (raw.startsWith("//")) {
-    return normalizeDdgUrl(`https:${raw}`);
+    return normalizeDdgUrl(`https:${raw}`, keepPath);
   }
 
   // Case 3: Already absolute http(s)
   if (raw.startsWith("http://") || raw.startsWith("https://")) {
     try {
-      return new URL(raw).origin;
+      const u = new URL(raw);
+      // For directory listing pages we keep the full path (the specific
+      // community page lives at a deep path); for official websites the
+      // homepage origin is all we need.
+      return keepPath ? u.origin + u.pathname : u.origin;
     } catch {
       return null;
     }
@@ -132,7 +136,8 @@ function normalizeDdgUrl(raw: string): string | null {
   // Case 4: Bare domain like www.example.com or example.com
   if (!raw.includes(" ") && raw.includes(".")) {
     try {
-      return new URL(`https://${raw}`).origin;
+      const u = new URL(`https://${raw}`);
+      return keepPath ? u.origin + u.pathname : u.origin;
     } catch {
       return null;
     }
@@ -149,6 +154,13 @@ function normalizeDdgUrl(raw: string): string | null {
 export interface DdgSearchResult {
   website: string | null;
   snippets: string[];
+  /**
+   * Public senior-living directory listing pages (A Place for Mom, Caring.com,
+   * SeniorLiving.com, etc.) found for this community, ranked by how reliably
+   * they host real community photos. Used ONLY as a photo fallback — never as a
+   * source for description text (directory marketing copy must not leak in).
+   */
+  directoryUrls: string[];
 }
 
 /**
@@ -177,28 +189,34 @@ export async function searchDuckDuckGo(
       signal: AbortSignal.timeout(DDG_TIMEOUT_MS),
     });
 
-    if (!response.ok) return { website: null, snippets: [] };
+    if (!response.ok) return { website: null, snippets: [], directoryUrls: [] };
 
     const html = await response.text();
     const $ = cheerio.load(html);
 
-    // ── Website candidates ────────────────────────────────────────────────────
-    const rawCandidates: string[] = [];
+    // ── Candidates ────────────────────────────────────────────────────────────
+    // Anchor hrefs carry the full result URL (DDG wraps it in a uddg= param), so
+    // they preserve the deep path we need for directory listing pages. The
+    // `.result__url` text is only the display domain, so it's used solely as a
+    // last-resort website fallback.
+    const anchorHrefs: string[] = [];
+    const textCandidates: string[] = [];
 
-    $(".result__a, .result__url").each((_, el) => {
+    $(".result__a, .result .result__title a").each((_, el) => {
       const href = $(el).attr("href");
+      if (href) anchorHrefs.push(href);
+    });
+
+    $(".result__url").each((_, el) => {
       const text = $(el).text().trim();
-      if (href) rawCandidates.push(href);
-      if (text && text.includes(".")) rawCandidates.push(text);
+      if (text && text.includes(".")) textCandidates.push(text);
     });
 
-    $(".result .result__title a").each((_, el) => {
-      const href = $(el).attr("href") || "";
-      if (href) rawCandidates.push(href);
-    });
-
+    // Official website: first non-directory result (homepage origin) that is
+    // safe to fetch. Directory sites are skipped here so directory marketing
+    // copy never becomes the community's "About" text.
     let website: string | null = null;
-    for (const raw of rawCandidates) {
+    for (const raw of [...anchorHrefs, ...textCandidates]) {
       const normalized = normalizeDdgUrl(raw);
       if (!normalized) continue;
       if (isDirectorySite(normalized)) continue;
@@ -207,6 +225,35 @@ export async function searchDuckDuckGo(
         break;
       }
     }
+
+    // Directory photo sources: collect public directory listing pages (full
+    // path) ranked by photo reliability. SSRF validation is deferred to the
+    // image scraper (which checks every hop), so we don't DNS-resolve here.
+    const directorySeen = new Set<string>();
+    const directoryRanked: Array<{ url: string; rank: number }> = [];
+    for (const href of anchorHrefs) {
+      const normalized = normalizeDdgUrl(href, true);
+      if (!normalized) continue;
+      const rank = photoDirectoryRank(normalized);
+      if (rank < 0) continue;
+      let key: string;
+      let pathname: string;
+      try {
+        const u = new URL(normalized);
+        pathname = u.pathname;
+        key = u.hostname + u.pathname;
+      } catch {
+        continue;
+      }
+      // Skip directory homepages / index pages — only deep listing pages have
+      // a specific community's photos.
+      if (!pathname || pathname === "/") continue;
+      if (directorySeen.has(key)) continue;
+      directorySeen.add(key);
+      directoryRanked.push({ url: normalized, rank });
+    }
+    directoryRanked.sort((a, b) => a.rank - b.rank);
+    const directoryUrls = directoryRanked.map((d) => d.url).slice(0, 5);
 
     // ── Snippets (text-only fallback) ─────────────────────────────────────────
     const snippets: string[] = [];
@@ -217,10 +264,10 @@ export async function searchDuckDuckGo(
       }
     });
 
-    return { website, snippets: snippets.slice(0, 3) };
+    return { website, snippets: snippets.slice(0, 3), directoryUrls };
   } catch (err: any) {
     console.log(`⚠️ DuckDuckGo search failed for "${name}": ${err?.message}`);
-    return { website: null, snippets: [] };
+    return { website: null, snippets: [], directoryUrls: [] };
   }
 }
 
@@ -257,6 +304,32 @@ function isDirectorySite(url: string): boolean {
     "linkedin.com",
     "indeed.com",
   ].some((d) => lower.includes(d));
+}
+
+/**
+ * Senior-living directory domains that reliably host real, community-specific
+ * photos, ranked best-first. Returns the rank index (lower = preferred) or -1
+ * if the URL is not a usable photo directory.
+ *
+ * Note this is intentionally narrower than isDirectorySite(): generic listing
+ * sites (yellowpages, medicare.gov) and social/search domains (facebook,
+ * google) are excluded because they don't serve usable community photos.
+ */
+function photoDirectoryRank(url: string): number {
+  const lower = url.toLowerCase();
+  const ranked = [
+    "aplaceformom",
+    "caring.com",
+    "seniorliving.com",
+    "senioradvisor",
+    "seniorhousingnet",
+    "seniorhousin",
+    "yelp.com",
+  ];
+  for (let i = 0; i < ranked.length; i++) {
+    if (lower.includes(ranked[i])) return i;
+  }
+  return -1;
 }
 
 // ── Jina AI Reader ────────────────────────────────────────────────────────────

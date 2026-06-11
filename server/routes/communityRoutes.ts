@@ -18,7 +18,7 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
-import { enrichCommunityFree, scrapeWebsiteImages, findCommunityWebsite } from "../services/free-enrichment-service";
+import { enrichCommunityFree, scrapeWebsiteImages, searchDuckDuckGo, type DdgSearchResult } from "../services/free-enrichment-service";
 import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
@@ -950,6 +950,8 @@ export function registerCommunityRoutes(app: Express) {
         (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
       );
       let discoveredPhotos: string[] = [];
+      // Page each discovered photo was scraped from, for auditable attribution.
+      let discoveredPhotoSource: string | null = null;
       const hasDbPhotos = cleanDbPhotos.length > 0;
       if (!hasDbPhotos) {
         const scrapeUsable = async (url: string): Promise<string[]> => {
@@ -969,18 +971,44 @@ export function registerCommunityRoutes(app: Express) {
         if (primaryUrl) {
           console.log(`📸 No stored photos for "${community.name}" — scraping ${primaryUrl}`);
           discoveredPhotos = await scrapeUsable(primaryUrl);
+          if (discoveredPhotos.length > 0) discoveredPhotoSource = primaryUrl;
         }
 
-        // Gemini sometimes guesses URLs that 404. If the primary URL yielded no
-        // photos, discover the real official site via DuckDuckGo and scrape that.
+        // Gemini sometimes guesses URLs that 404, and many official sites are
+        // JS-heavy SPAs with no static images. Run one DuckDuckGo search to get
+        // both the real official site (text-preferred) and ranked public
+        // directory listing pages (photo fallback only).
+        let ddg: DdgSearchResult | null = null;
         if (discoveredPhotos.length === 0) {
-          const realSite = await findCommunityWebsite(community.name, community.city, community.state);
-          if (realSite && realSite !== primaryUrl) {
-            console.log(`📸 Primary URL had no photos — trying discovered site ${realSite}`);
-            discoveredPhotos = await scrapeUsable(realSite);
+          ddg = await searchDuckDuckGo(community.name, community.city, community.state);
+          if (ddg.website && ddg.website !== primaryUrl) {
+            console.log(`📸 Primary URL had no photos — trying discovered site ${ddg.website}`);
+            discoveredPhotos = await scrapeUsable(ddg.website);
+            if (discoveredPhotos.length > 0) discoveredPhotoSource = ddg.website;
           }
         }
-        console.log(`📸 Discovered ${discoveredPhotos.length} usable photos for "${community.name}"`);
+
+        // Directory fallback: official site yielded no usable photos. Senior
+        // living directories (A Place for Mom, Caring.com, etc.) host abundant
+        // public community photos. Scrape the top-ranked directory pages until
+        // one yields real images. scrapeWebsiteImages enforces SSRF + redirect
+        // safety; the blocklist strips directory placeholder/template junk.
+        if (discoveredPhotos.length === 0 && ddg && ddg.directoryUrls.length > 0) {
+          for (const dirUrl of ddg.directoryUrls) {
+            console.log(`📸 Official site had no photos — trying directory source ${dirUrl}`);
+            const dirPhotos = await scrapeUsable(dirUrl);
+            if (dirPhotos.length > 0) {
+              discoveredPhotos = dirPhotos;
+              discoveredPhotoSource = dirUrl;
+              console.log(`📸 Directory ${dirUrl} yielded ${dirPhotos.length} usable photo(s)`);
+              break;
+            }
+          }
+        }
+        console.log(
+          `📸 Discovered ${discoveredPhotos.length} usable photos for "${community.name}"` +
+            (discoveredPhotoSource ? ` from ${discoveredPhotoSource}` : ""),
+        );
       }
 
       // Build enrichmentResult in the same shape the downstream code expects
@@ -1053,8 +1081,16 @@ export function registerCommunityRoutes(app: Express) {
           if (!hasDbPhotos) {
             if (discoveredPhotos.length > 0) {
               updates.photos = discoveredPhotos;
+              // Persist source attribution (one entry per photo) so the origin
+              // of each image — official site or a public directory — is auditable.
+              if (discoveredPhotoSource) {
+                updates.photoAttributions = discoveredPhotos.map(() => discoveredPhotoSource as string);
+              }
               hasUpdates = true;
-              console.log(`✅ Updating photos with ${discoveredPhotos.length} scraped images`);
+              console.log(
+                `✅ Updating photos with ${discoveredPhotos.length} scraped images` +
+                  (discoveredPhotoSource ? ` (source: ${discoveredPhotoSource})` : ""),
+              );
             } else if (
               current.photos &&
               current.photos.length > 0 &&
