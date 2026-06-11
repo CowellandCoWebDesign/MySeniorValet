@@ -392,6 +392,7 @@ export default function AdminMegaDashboard() {
   
   // Community management states (from admin-communities)
   const [stateFilter, setStateFilter] = useState("all");
+  const [countryFilter, setCountryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState("all");
   
@@ -951,18 +952,25 @@ export default function AdminMegaDashboard() {
   });
   
   const { data: filteredCommunities } = useQuery({
-    queryKey: ['/api/admin/communities', currentPage, searchQuery, stateFilter, typeFilter, verificationFilter],
+    queryKey: ['/api/admin/communities', currentPage, searchQuery, stateFilter, countryFilter, typeFilter, verificationFilter],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: currentPage.toString(),
         limit: itemsPerPage.toString(),
         search: searchQuery,
         state: stateFilter,
+        country: countryFilter,
         type: typeFilter,
         verification: verificationFilter
       });
       return await apiRequest('GET', `/api/admin/communities?${params}`);
     },
+  });
+
+  // Distinct state/country filter options populated from real DB data
+  const { data: communityFilterOptions } = useQuery({
+    queryKey: ['/api/admin/communities/filters'],
+    queryFn: async () => await apiRequest('GET', '/api/admin/communities/filters'),
   });
   
   // Data protection queries (from admin.tsx)
@@ -2232,19 +2240,30 @@ Communities Created: ${details.stats.communitiesCreated}`;
                   className="pl-8"
                 />
               </div>
+              <Select value={countryFilter} onValueChange={v => { setCountryFilter(v); setCurrentPage(1); }}>
+                <SelectTrigger className="w-32">
+                  <SelectValue placeholder="Country" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Countries</SelectItem>
+                  {((communityFilterOptions as any)?.countries || []).map((c: any) => (
+                    <SelectItem key={c.value} value={c.value}>
+                      {c.value} ({c.count.toLocaleString()})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <Select value={stateFilter} onValueChange={v => { setStateFilter(v); setCurrentPage(1); }}>
                 <SelectTrigger className="w-32">
                   <SelectValue placeholder="State" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All States</SelectItem>
-                  <SelectItem value="CA">California</SelectItem>
-                  <SelectItem value="FL">Florida</SelectItem>
-                  <SelectItem value="TX">Texas</SelectItem>
-                  <SelectItem value="NY">New York</SelectItem>
-                  <SelectItem value="AZ">Arizona</SelectItem>
-                  <SelectItem value="PA">Pennsylvania</SelectItem>
-                  <SelectItem value="OH">Ohio</SelectItem>
+                  {((communityFilterOptions as any)?.states || []).map((s: any) => (
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.value} ({s.count.toLocaleString()})
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setCurrentPage(1); }}>
@@ -2494,33 +2513,69 @@ Communities Created: ${details.stats.communitiesCreated}`;
                             {flag.createdAt ? new Date(flag.createdAt).toLocaleDateString() : ''}
                           </div>
                         </div>
-                        {(flag.status === 'Pending' || flag.status === 'Under Review') && (
-                          <div className="flex flex-col gap-2 shrink-0">
+                        <div className="flex flex-col gap-2 shrink-0">
+                          {(flag.status === 'Pending' || flag.status === 'Under Review') && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="text-green-700 border-green-300"
+                                onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false })}
+                              >
+                                Confirm
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                className="text-xs"
+                                onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true })}
+                              >
+                                Confirm + Hide
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => dismissFlagMutation.mutate(flag.id)}
+                              >
+                                Dismiss
+                              </Button>
+                            </>
+                          )}
+                          {/* Direct actions against the flagged community */}
+                          <div className="flex gap-1 pt-1 border-t mt-1">
                             <Button
                               size="sm"
-                              variant="outline"
-                              className="text-green-700 border-green-300"
-                              onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false })}
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-blue-500"
+                              title="Edit community"
+                              onClick={() => window.open(`/admin/community/${flag.communityId}/edit`, '_blank')}
                             >
-                              Confirm
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              className="text-xs"
-                              onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true })}
-                            >
-                              Confirm + Hide
+                              <Edit className="h-3 w-3" />
                             </Button>
                             <Button
                               size="sm"
                               variant="ghost"
-                              onClick={() => dismissFlagMutation.mutate(flag.id)}
+                              className="h-7 w-7 p-0 text-muted-foreground"
+                              title="Hide from public"
+                              onClick={() => hideCommunityMutation.mutate(flag.communityId)}
                             >
-                              Dismiss
+                              <XCircle className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-7 w-7 p-0 text-destructive"
+                              title="Delete community permanently"
+                              onClick={() => {
+                                if (confirm(`Delete "${flag.communityName}"? This cannot be undone.`)) {
+                                  deleteCommunityMutation.mutate(flag.communityId);
+                                }
+                              }}
+                            >
+                              <Trash2 className="h-3 w-3" />
                             </Button>
                           </div>
-                        )}
+                        </div>
                       </div>
                     </div>
                   ))}

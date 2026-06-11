@@ -267,7 +267,7 @@ export function sqlInjectionProtection(req: Request, res: Response, next: NextFu
     // Command injection patterns (exclude standalone & for business names)
     /(\||;|&&|`|\$\(|exec|system|shell_exec|passthru)/i,
     // LDAP injection patterns
-    /(\*\)|&\(|\|\(|\)|\(cn=|\(uid=|\(mail=)/i,
+    /(\*\)|&\(|\|\(|\(cn=|\(uid=|\(mail=)/i,
     // NoSQL injection patterns
     /(\$where|\$ne|\$in|\$nin|\$or|\$and|\$not|\$nor|\$exists|\$type|\$mod|\$regex|\$text|\$search)/i
   ];

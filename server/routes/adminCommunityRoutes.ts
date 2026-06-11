@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { db } from '../db';
 import { communities, users, listingFlags } from '../../shared/schema';
-import { eq, like, and, or, sql, desc, asc, ne } from 'drizzle-orm';
+import { eq, like, ilike, and, or, sql, desc, asc, ne } from 'drizzle-orm';
 import cookieParser from 'cookie-parser';
 import { DataIntegrityValidator } from '../services/data-integrity-validator';
 // ScheduledAuditService removed - was causing deployment issues
@@ -43,6 +43,7 @@ router.get('/admin/communities', requireAdmin, async (req, res) => {
       limit = '20',
       search = '',
       state = 'all',
+      country = 'all',
       type = 'all',
       verification = 'all'
     } = req.query;
@@ -53,12 +54,12 @@ router.get('/admin/communities', requireAdmin, async (req, res) => {
 
     let conditions = [];
 
-    // Search filter
+    // Search filter (case-insensitive ILIKE so lowercase queries match)
     if (search) {
       conditions.push(
         or(
-          like(communities.name, `%${search}%`),
-          like(communities.city, `%${search}%`),
+          ilike(communities.name, `%${search}%`),
+          ilike(communities.city, `%${search}%`),
           eq(communities.id, isNaN(Number(search)) ? -1 : Number(search))
         )
       );
@@ -66,7 +67,12 @@ router.get('/admin/communities', requireAdmin, async (req, res) => {
 
     // State filter
     if (state !== 'all') {
-      conditions.push(eq(communities.state, state));
+      conditions.push(eq(communities.state, state as string));
+    }
+
+    // Country filter
+    if (country !== 'all') {
+      conditions.push(eq(communities.country, country as string));
     }
 
     // Type filter (care_types is an array column — use @> array-contains operator)
@@ -144,6 +150,32 @@ router.get('/admin/communities/stats', requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Error fetching community stats:', error);
     res.status(500).json({ message: 'Failed to fetch statistics' });
+  }
+});
+
+// Get distinct filter options (states + countries) populated from real data
+router.get('/admin/communities/filters', requireAdmin, async (req, res) => {
+  try {
+    const [stateRows, countryRows] = await Promise.all([
+      db.select({ value: communities.state, count: sql<number>`count(*)` })
+        .from(communities)
+        .where(sql`${communities.state} IS NOT NULL AND ${communities.state} <> ''`)
+        .groupBy(communities.state)
+        .orderBy(sql`count(*) DESC`),
+      db.select({ value: communities.country, count: sql<number>`count(*)` })
+        .from(communities)
+        .where(sql`${communities.country} IS NOT NULL AND ${communities.country} <> ''`)
+        .groupBy(communities.country)
+        .orderBy(sql`count(*) DESC`),
+    ]);
+
+    res.json({
+      states: stateRows.map(r => ({ value: r.value, count: Number(r.count) })),
+      countries: countryRows.map(r => ({ value: r.value, count: Number(r.count) })),
+    });
+  } catch (error) {
+    console.error('Error fetching community filters:', error);
+    res.status(500).json({ message: 'Failed to fetch filter options' });
   }
 });
 
