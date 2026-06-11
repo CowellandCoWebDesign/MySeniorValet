@@ -11,7 +11,7 @@ import {
   claimedCommunities,
   featuredCommunities
 } from "@shared/schema";
-import { eq, desc, sql, and, or, gte } from "drizzle-orm";
+import { eq, desc, sql, and, or, gte, ilike } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { 
   getSecurityDashboard, 
@@ -356,30 +356,64 @@ export function registerAdminRoutes(app: Express) {
   // Community management endpoints
   adminRouter.get('/communities', async (req, res) => {
     try {
-      const { page = 1, limit = 50, tier, search } = req.query;
+      const {
+        page = 1,
+        limit = 50,
+        search = '',
+        state = 'all',
+        country = 'all',
+        type = 'all',
+        verification = 'all'
+      } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
-      // Get communities with their details
+      // Build filter conditions
+      const conditions = [];
+
+      // Case-insensitive search across name, city, or numeric id
+      if (search) {
+        conditions.push(
+          or(
+            ilike(communities.name, `%${search}%`),
+            ilike(communities.city, `%${search}%`),
+            eq(communities.id, isNaN(Number(search)) ? -1 : Number(search))
+          )
+        );
+      }
+      if (state !== 'all') {
+        conditions.push(eq(communities.state, state as string));
+      }
+      if (country !== 'all') {
+        conditions.push(eq(communities.country, country as string));
+      }
+      if (type !== 'all') {
+        conditions.push(sql`${communities.careTypes} @> ARRAY[${type}]::text[]`);
+      }
+      if (verification === 'verified') {
+        conditions.push(eq(communities.isVerified, true));
+      } else if (verification === 'unverified') {
+        conditions.push(eq(communities.isVerified, false));
+      }
+
+      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+      // Get communities matching the filters
       const communitiesList = await db.select().from(communities)
+        .where(whereClause)
         .orderBy(desc(communities.createdAt))
         .limit(parseInt(limit as string))
         .offset(offset);
 
-      // Get total count
+      // Get total count of matching rows (so pagination reflects filters)
       const [{ count }] = await db
         .select({ count: sql<number>`COUNT(*)::integer` })
-        .from(communities);
-
-      // Note: communities don't have a tier field, using placeholder
-      const tierCounts: { tier: string; count: number }[] = [];
+        .from(communities)
+        .where(whereClause);
 
       res.json({
         communities: communitiesList,
         total: count,
-        tierCounts: tierCounts.reduce((acc, { tier, count }) => {
-          acc[tier || 'verified'] = count;
-          return acc;
-        }, {} as Record<string, number>),
+        tierCounts: {},
         page: parseInt(page as string),
         limit: parseInt(limit as string)
       });
@@ -407,7 +441,21 @@ export function registerAdminRoutes(app: Express) {
   adminRouter.put('/communities/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const updates = req.body;
+      const updates = { ...req.body };
+
+      // Never allow these to be overwritten directly
+      delete updates.id;
+      delete updates.createdAt;
+      delete updates.created_at;
+
+      // Coerce empty-string fields to null so blank numeric inputs
+      // (e.g. an empty Monthly Rent) don't crash the numeric columns
+      for (const key of Object.keys(updates)) {
+        if (updates[key] === '') {
+          updates[key] = null;
+        }
+      }
+
       const [updated] = await db.update(communities)
         .set(updates)
         .where(eq(communities.id, parseInt(id)))
