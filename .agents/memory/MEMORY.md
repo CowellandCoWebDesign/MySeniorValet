@@ -2,6 +2,7 @@
 - [Email via Gmail connector](email-gmail-transport.md) — all mail routes through Replit google-mail (hello@myseniorvalet.com), not SendGrid; @sendgrid/mail.send is monkeypatched.
 - [SendGrid silent email failures](sendgrid-silent-failures.md) — thread emailDelivered flags + log err.response.body; dedupe recipients (dup bcc → 400); validate enum fields before send (DB 23514 → opaque 500).
 - [Free Discovery pipeline](free-discovery-pipeline.md) — DuckDuckGo+Jina replaces Perplexity in all discovery paths; auto-triggers on zero DB results; healthcare/vendors stubs left as dead code.
+- [Search provider failover](search-provider-failover.md) — all free search routes through webSearch(): DDG vqd/JSON primary + Bing HTML fallback; never scrape duckduckgo.com/html (202 challenge).
 - [Sitemap cache staleness](sitemap-cache-staleness.md) — sitemaps file-cached 24h in .cache/sitemaps; clear after URL-format changes or live serves stale URLs; prod has own cache.
 - [Gemini free-tier integration](gemini-free-tier.md) — use native fetch() to v1 REST + gemini-2.5-flash; library uses v1beta (wrong models); city in prompt causes truncating correction tangents.
 - [db push schema drift](db-push-schema-drift.md) — `db:push` prompts destructive table renames due to drift; use idempotent `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` for additive changes.

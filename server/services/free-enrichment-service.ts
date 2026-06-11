@@ -12,6 +12,7 @@
 import * as cheerio from "cheerio";
 import { lookup } from "dns/promises";
 import { isIP } from "net";
+import { webSearch } from "./search-provider";
 
 export interface FreeEnrichmentResult {
   about?: string;
@@ -27,7 +28,6 @@ export interface FreeEnrichmentResult {
 }
 
 const JINA_TIMEOUT_MS = 15_000;
-const DDG_TIMEOUT_MS = 10_000;
 const GROQ_TIMEOUT_MS = 20_000;
 
 // ── SSRF guard (same logic as on-demand-enrichment-service) ──────────────────
@@ -164,12 +164,15 @@ export interface DdgSearchResult {
 }
 
 /**
- * Search DuckDuckGo for a community.  Returns:
+ * Search the web for a community via the shared search-provider layer (DuckDuckGo
+ * primary, Bing fallback — see `search-provider.ts`). Returns:
  *   - `website`: the first non-directory result URL that passes the SSRF guard, or null
- *   - `snippets`: up to 3 `.result__snippet` texts from the search results page
+ *   - `snippets`: up to 3 result snippets, a free text-only fallback
+ *   - `directoryUrls`: ranked public directory listing pages (photo fallback only)
  *
- * Snippets give us a free text-only fallback for communities whose official
- * website is behind Cloudflare or similar blockers that Jina cannot penetrate.
+ * The provider layer hardens the DuckDuckGo path (no more `duckduckgo.com/html/`
+ * scraping that triggers the 202 bot challenge) and automatically fails over to
+ * Bing when DuckDuckGo is throttled, so photo discovery keeps working.
  */
 export async function searchDuckDuckGo(
   name: string,
@@ -177,46 +180,22 @@ export async function searchDuckDuckGo(
   state: string,
 ): Promise<DdgSearchResult> {
   try {
-    const query = encodeURIComponent(`"${name}" senior living ${city} ${state} official website`);
-    const url = `https://duckduckgo.com/html/?q=${query}`;
+    const query = `"${name}" senior living ${city} ${state} official website`;
+    const { results } = await webSearch(query);
 
-    const response = await fetch(url, {
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (compatible; MySeniorValetBot/1.0; +https://myseniorvalet.com/about)",
-        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-      },
-      signal: AbortSignal.timeout(DDG_TIMEOUT_MS),
-    });
+    if (results.length === 0) {
+      return { website: null, snippets: [], directoryUrls: [] };
+    }
 
-    if (!response.ok) return { website: null, snippets: [], directoryUrls: [] };
-
-    const html = await response.text();
-    const $ = cheerio.load(html);
-
-    // ── Candidates ────────────────────────────────────────────────────────────
-    // Anchor hrefs carry the full result URL (DDG wraps it in a uddg= param), so
-    // they preserve the deep path we need for directory listing pages. The
-    // `.result__url` text is only the display domain, so it's used solely as a
-    // last-resort website fallback.
-    const anchorHrefs: string[] = [];
-    const textCandidates: string[] = [];
-
-    $(".result__a, .result .result__title a").each((_, el) => {
-      const href = $(el).attr("href");
-      if (href) anchorHrefs.push(href);
-    });
-
-    $(".result__url").each((_, el) => {
-      const text = $(el).text().trim();
-      if (text && text.includes(".")) textCandidates.push(text);
-    });
+    // Result URLs from the provider layer are already absolute and (for Bing)
+    // have their redirect wrappers decoded.
+    const resultUrls = results.map((r) => r.url);
 
     // Official website: first non-directory result (homepage origin) that is
     // safe to fetch. Directory sites are skipped here so directory marketing
     // copy never becomes the community's "About" text.
     let website: string | null = null;
-    for (const raw of [...anchorHrefs, ...textCandidates]) {
+    for (const raw of resultUrls) {
       const normalized = normalizeDdgUrl(raw);
       if (!normalized) continue;
       if (isDirectorySite(normalized)) continue;
@@ -231,8 +210,8 @@ export async function searchDuckDuckGo(
     // image scraper (which checks every hop), so we don't DNS-resolve here.
     const directorySeen = new Set<string>();
     const directoryRanked: Array<{ url: string; rank: number }> = [];
-    for (const href of anchorHrefs) {
-      const normalized = normalizeDdgUrl(href, true);
+    for (const raw of resultUrls) {
+      const normalized = normalizeDdgUrl(raw, true);
       if (!normalized) continue;
       const rank = photoDirectoryRank(normalized);
       if (rank < 0) continue;
@@ -257,16 +236,14 @@ export async function searchDuckDuckGo(
 
     // ── Snippets (text-only fallback) ─────────────────────────────────────────
     const snippets: string[] = [];
-    $(".result__snippet").each((_, el) => {
-      const text = $(el).text().trim();
-      if (text && text.length > 30) {
-        snippets.push(text);
-      }
-    });
+    for (const r of results) {
+      const text = (r.snippet || "").trim();
+      if (text && text.length > 30) snippets.push(text);
+    }
 
     return { website, snippets: snippets.slice(0, 3), directoryUrls };
   } catch (err: any) {
-    console.log(`⚠️ DuckDuckGo search failed for "${name}": ${err?.message}`);
+    console.log(`⚠️ Web search failed for "${name}": ${err?.message}`);
     return { website: null, snippets: [], directoryUrls: [] };
   }
 }

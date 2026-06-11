@@ -1,11 +1,12 @@
 /**
  * FREE DISCOVERY SERVICE
- * Uses DuckDuckGo HTML search + Jina AI Reader to find senior living communities
- * with zero API costs.  No paid AI required.
+ * Uses the shared web search-provider layer (DuckDuckGo vqd/JSON primary, Bing
+ * fallback) + Jina AI Reader to find senior living communities with zero API
+ * costs.  No paid AI required.
  */
 
 import axios from 'axios';
-import * as cheerio from 'cheerio';
+import { webSearch } from './search-provider';
 
 export interface DiscoveredCommunity {
   name: string;
@@ -108,43 +109,13 @@ export async function discoverCommunitiesViaWeb(
 async function searchDuckDuckGo(query: string): Promise<string[]> {
   const urls: string[] = [];
   try {
-    const searchUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-    const response = await axios.get(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5'
-      },
-      timeout: 12000
-    });
+    // Shared provider layer: DuckDuckGo (vqd/JSON) primary, Bing fallback. URLs
+    // returned here are already absolute with redirect wrappers decoded.
+    const { results } = await webSearch(query);
 
-    const $ = cheerio.load(response.data);
-
-    $('.result').each((i, element) => {
-      if (i >= 12) return false;
-      const $el = $(element);
-      const titleEl = $el.find('.result__title a');
-      let rawHref = titleEl.attr('href') || '';
-      const title = titleEl.text().trim();
-      const snippet = $el.find('.result__snippet').text().trim();
-
-      // DuckDuckGo wraps real URLs as //duckduckgo.com/l/?uddg=<encoded-url>
-      // Decode the redirect to get the actual destination URL
-      let resolvedUrl = rawHref;
-      if (rawHref.includes('duckduckgo.com/l/') || rawHref.includes('/l/?uddg=')) {
-        try {
-          const fullHref = rawHref.startsWith('//') ? `https:${rawHref}` : rawHref;
-          const parsed = new URL(fullHref);
-          const uddg = parsed.searchParams.get('uddg');
-          if (uddg) resolvedUrl = decodeURIComponent(uddg);
-        } catch { /* keep rawHref if parsing fails */ }
-      }
-      // Normalize protocol-relative links
-      if (resolvedUrl.startsWith('//')) {
-        resolvedUrl = `https:${resolvedUrl}`;
-      }
-
-      const combined = (title + ' ' + snippet + ' ' + resolvedUrl).toLowerCase();
+    for (const result of results.slice(0, 12)) {
+      const resolvedUrl = result.url;
+      const combined = (result.title + ' ' + result.snippet + ' ' + resolvedUrl).toLowerCase();
       const isSeniorRelated = SENIOR_LIVING_KEYWORDS.some(kw => combined.includes(kw));
       const isSkipped = SKIP_DOMAINS.some(d => resolvedUrl.includes(d));
       const isValidUrl = resolvedUrl.startsWith('http') && ALLOWED_SSRF_PATTERN.test(resolvedUrl);
@@ -152,9 +123,9 @@ async function searchDuckDuckGo(query: string): Promise<string[]> {
       if (isValidUrl && isSeniorRelated && !isSkipped) {
         urls.push(resolvedUrl);
       }
-    });
+    }
   } catch (error: any) {
-    console.warn(`⚠️ DuckDuckGo search error: ${error.message}`);
+    console.warn(`⚠️ Community discovery search error: ${error.message}`);
   }
   return urls;
 }
@@ -598,38 +569,13 @@ async function _discoverEntitiesViaWeb(
 async function searchDuckDuckGoForEntities(query: string, keywords: string[]): Promise<string[]> {
   const urls: string[] = [];
   try {
-    const searchUrl = `https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`;
-    const response = await axios.get(searchUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5'
-      },
-      timeout: 12000
-    });
+    // Shared provider layer: DuckDuckGo (vqd/JSON) primary, Bing fallback. URLs
+    // returned here are already absolute with redirect wrappers decoded.
+    const { results } = await webSearch(query);
 
-    const $ = cheerio.load(response.data);
-
-    $('.result').each((i, element) => {
-      if (i >= 12) return false;
-      const $el = $(element);
-      const titleEl = $el.find('.result__title a');
-      let rawHref = titleEl.attr('href') || '';
-      const title = titleEl.text().trim();
-      const snippet = $el.find('.result__snippet').text().trim();
-
-      let resolvedUrl = rawHref;
-      if (rawHref.includes('duckduckgo.com/l/') || rawHref.includes('/l/?uddg=')) {
-        try {
-          const fullHref = rawHref.startsWith('//') ? `https:${rawHref}` : rawHref;
-          const parsed = new URL(fullHref);
-          const uddg = parsed.searchParams.get('uddg');
-          if (uddg) resolvedUrl = decodeURIComponent(uddg);
-        } catch { /* keep rawHref */ }
-      }
-      if (resolvedUrl.startsWith('//')) resolvedUrl = `https:${resolvedUrl}`;
-
-      const combined = (title + ' ' + snippet + ' ' + resolvedUrl).toLowerCase();
+    for (const result of results.slice(0, 12)) {
+      const resolvedUrl = result.url;
+      const combined = (result.title + ' ' + result.snippet + ' ' + resolvedUrl).toLowerCase();
       const isRelevant = keywords.some(kw => combined.includes(kw));
       const isSkipped = ENTITY_SKIP_DOMAINS.some(d => resolvedUrl.includes(d));
       const isValidUrl = resolvedUrl.startsWith('http') && ALLOWED_SSRF_PATTERN.test(resolvedUrl);
@@ -637,9 +583,9 @@ async function searchDuckDuckGoForEntities(query: string, keywords: string[]): P
       if (isValidUrl && isRelevant && !isSkipped) {
         urls.push(resolvedUrl);
       }
-    });
+    }
   } catch (error: any) {
-    console.warn(`⚠️ DuckDuckGo entity search error: ${error.message}`);
+    console.warn(`⚠️ Entity discovery search error: ${error.message}`);
   }
   return urls;
 }

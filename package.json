@@ -103,6 +103,7 @@
     "docusign-esign": "^8.3.0",
     "drizzle-orm": "^0.39.1",
     "drizzle-zod": "^0.7.0",
+    "duck-duck-scrape": "^2.2.7",
     "embla-carousel-react": "^8.6.0",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
