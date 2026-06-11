@@ -2,11 +2,43 @@
 // Notifies Google, Bing, and other search engines when content changes
 
 import axios from 'axios';
+import { inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { clearSitemapCache } from '../sitemap-generator';
+import { computeCommunitySlugs } from './generate-slug';
 
 const BASE_URL = process.env.SITE_URL || 'https://www.myseniorvalet.com';
+
+// Build canonical /senior-living/{state}/{city}/{slug} URLs for the given
+// community ids, falling back to computed slugs when the stored ones are missing.
+async function buildCommunityUrls(ids: number[]): Promise<string[]> {
+  if (ids.length === 0) return [];
+  const rows = await db
+    .select({
+      id: communities.id,
+      name: communities.name,
+      city: communities.city,
+      state: communities.state,
+      slug: communities.slug,
+      citySlug: communities.citySlug,
+      stateSlug: communities.stateSlug,
+    })
+    .from(communities)
+    .where(inArray(communities.id, ids));
+
+  return rows.map((c) => {
+    const computed = computeCommunitySlugs({
+      name: c.name || '',
+      city: c.city || '',
+      state: c.state || '',
+    });
+    const stateSlug = c.stateSlug || computed.stateSlug;
+    const citySlug = c.citySlug || computed.citySlug;
+    const slug = c.slug || computed.slug;
+    return `${BASE_URL}/senior-living/${stateSlug}/${citySlug}/${slug}`;
+  });
+}
 
 // Search engine ping endpoints
 const PING_ENDPOINTS = {
@@ -202,8 +234,8 @@ export async function onCommunityAdded(communityId: number) {
     await pingAllSearchEngines('high');
     
     // Use IndexNow for immediate indexing
-    const communityUrl = `${BASE_URL}/community/${communityId}`;
-    await pingIndexNow([communityUrl]);
+    const [communityUrl] = await buildCommunityUrls([communityId]);
+    if (communityUrl) await pingIndexNow([communityUrl]);
     
     console.log(`[SEO] Notified search engines about new community ${communityId}`);
   } catch (error) {
@@ -214,8 +246,8 @@ export async function onCommunityAdded(communityId: number) {
 export async function onCommunityUpdated(communityId: number) {
   try {
     // Use IndexNow for quick update notification
-    const communityUrl = `${BASE_URL}/community/${communityId}`;
-    await pingIndexNow([communityUrl]);
+    const [communityUrl] = await buildCommunityUrls([communityId]);
+    if (communityUrl) await pingIndexNow([communityUrl]);
     
     console.log(`[SEO] Notified search engines about updated community ${communityId}`);
   } catch (error) {
@@ -232,7 +264,7 @@ export async function onBulkCommunitiesAdded(communityIds: number[]) {
     await pingAllSearchEngines('normal');
     
     // Use IndexNow for bulk URLs
-    const urls = communityIds.map(id => `${BASE_URL}/community/${id}`);
+    const urls = await buildCommunityUrls(communityIds);
     await pingIndexNow(urls);
     
     console.log(`[SEO] Notified search engines about ${communityIds.length} new communities`);
@@ -260,7 +292,7 @@ export async function scheduledSitemapPing() {
       .limit(100); // Simplified query to avoid syntax issues
     
     if (recentlyUpdated.length > 0) {
-      const urls = recentlyUpdated.map(c => `${BASE_URL}/community/${c.id}`);
+      const urls = await buildCommunityUrls(recentlyUpdated.map(c => c.id));
       await pingIndexNow(urls);
       console.log(`[SEO] Submitted ${urls.length} recently updated communities to IndexNow`);
     }
