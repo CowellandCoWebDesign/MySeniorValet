@@ -1,15 +1,17 @@
 /**
- * Gemini 2.0 Flash Web-Search Enrichment Service
- * ================================================
- * Uses Google Gemini 2.0 Flash with Search Grounding to enrich community detail
- * pages with live web data. Free tier: 1,500 req/day, 15 req/min.
+ * Gemini 2.5 Flash Enrichment Service
+ * =====================================
+ * Uses Google Gemini 2.5 Flash via the v1 REST API (free tier).
+ * The @google/generative-ai library uses v1beta which doesn't expose
+ * the same model set, so we call the REST API directly with fetch().
  *
+ * Free tier limits: 1,500 req/day, 15 req/min (gemini-2.5-flash).
  * Requires GEMINI_API_KEY (free from https://aistudio.google.com/app/apikey).
- * Falls back gracefully (returns sourceType: "none") when key is absent or
- * quota/rate-limits are hit.
+ * Falls back gracefully (sourceType: "none") when key is absent or quota is hit.
  */
 
-import { GoogleGenerativeAI } from "@google/generative-ai";
+const GEMINI_MODEL = "gemini-2.5-flash";
+const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1/models";
 
 export interface GeminiEnrichmentResult {
   about?: string;
@@ -31,70 +33,109 @@ export async function enrichCommunityWithGemini(params: {
     return { sourceType: "none" };
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    tools: [{ googleSearch: {} } as any],
-  });
+  const prompt = `Return a JSON object for this senior living community. Output ONLY valid JSON — no explanation, no corrections, no markdown.
 
-  const prompt = `Find current factual information about this senior living community:
+Community name: ${params.name}
+State: ${params.state}
 
-Community: ${params.name}
-Location: ${params.city}, ${params.state}
+Required JSON (use null for unknown fields, keep "about" to 1 sentence):
+{"about":"one sentence description","website":null,"phone":null,"careTypes":["e.g. Assisted Living"],"amenities":["e.g. Dining"],"pricing":null}
 
-Provide a JSON response with these fields (use null for anything not found):
-{
-  "about": "2-4 sentence description of the community from their own sources",
-  "website": "official website URL",
-  "phone": "phone number",
-  "careTypes": ["array of care types offered, e.g. Assisted Living, Memory Care"],
-  "amenities": ["up to 5 key amenities"],
-  "pricing": "monthly pricing range if publicly available, otherwise null"
-}
-
-Only include verified information from official or reputable sources. Return ONLY the JSON object.`;
+Output ONLY the JSON. No other text.`;
 
   try {
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
+    const url = `${GEMINI_API_BASE}/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+    const body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 2048,
+      },
+    };
 
-    // Extract JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) {
-      console.log(`⚠️ Gemini returned no JSON for "${params.name}"`);
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    if (!ok(res)) {
+      const errBody = await res.json().catch(() => ({})) as any;
+      const status = res.status;
+      const message = errBody?.error?.message ?? res.statusText;
+
+      if (status === 429 || /quota|rate.?limit|resource.?exhausted/i.test(message)) {
+        console.warn(`⚠️ Gemini quota/rate-limit [${status}] for "${params.name}" — falling back to DuckDuckGo`);
+      } else {
+        console.error(`❌ Gemini API error [${status}] for "${params.name}": ${message}`);
+      }
       return { sourceType: "none" };
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    const data = await res.json() as any;
+    const text: string = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+
+    if (!text) {
+      console.log(`⚠️ Gemini returned empty text for "${params.name}"`);
+      return { sourceType: "none" };
+    }
+
+    // responseMimeType: "application/json" guarantees clean JSON — try direct parse first
+    const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/i, "").trim();
+
+    let parsed: any;
+    try {
+      // Try direct parse (works when responseMimeType=application/json)
+      parsed = JSON.parse(cleaned);
+    } catch {
+      // Fall back to regex extraction
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        console.log(`⚠️ Gemini returned no parseable JSON for "${params.name}" — raw: ${text.slice(0, 300)}`);
+        return { sourceType: "none" };
+      }
+      try {
+        parsed = JSON.parse(jsonMatch[0]);
+      } catch {
+        console.warn(`⚠️ Gemini JSON parse failed for "${params.name}" — raw: ${text.slice(0, 300)}`);
+        return { sourceType: "none" };
+      }
+    }
+
     const enriched: GeminiEnrichmentResult = {
-      about: parsed.about || undefined,
-      website: parsed.website || undefined,
-      phone: parsed.phone || undefined,
-      careTypes: Array.isArray(parsed.careTypes) ? parsed.careTypes : undefined,
-      amenities: Array.isArray(parsed.amenities) ? parsed.amenities : undefined,
-      pricing: parsed.pricing || undefined,
+      about: parsed.about && parsed.about !== "null" ? String(parsed.about) : undefined,
+      website: parsed.website && parsed.website !== "null" ? String(parsed.website) : undefined,
+      phone: parsed.phone && parsed.phone !== "null" ? String(parsed.phone) : undefined,
+      careTypes: Array.isArray(parsed.careTypes) && parsed.careTypes.length ? parsed.careTypes : undefined,
+      amenities: Array.isArray(parsed.amenities) && parsed.amenities.length ? parsed.amenities : undefined,
+      pricing: parsed.pricing && parsed.pricing !== "null" ? String(parsed.pricing) : undefined,
       sourceType: "gemini_search",
     };
 
+    if (!enriched.about && !enriched.careTypes && !enriched.website) {
+      console.log(`⚠️ Gemini returned all-null data for "${params.name}"`);
+      return { sourceType: "none" };
+    }
+
     console.log(
-      `🤖 Gemini enrichment: ${enriched.about?.length ?? 0} chars for "${params.name}"` +
-        (enriched.website ? `, website: ${enriched.website}` : "") +
-        (enriched.phone ? `, phone: ${enriched.phone}` : ""),
+      `🤖 Gemini enriched "${params.name}": ${enriched.about?.length ?? 0} chars` +
+        (enriched.website ? `, site: ${enriched.website}` : "") +
+        (enriched.careTypes?.length ? `, care: ${enriched.careTypes.join(", ")}` : ""),
     );
 
     return enriched;
   } catch (err: any) {
-    // Detect rate-limit (429) and quota errors — fall through silently
-    const status: number | undefined =
-      err?.status ?? err?.statusCode ?? err?.response?.status;
-    const message: string = String(err?.message ?? "");
-
-    if (status === 429 || /quota|rate.?limit|resource.?exhausted/i.test(message)) {
-      console.warn(`⚠️ Gemini rate limited — using DuckDuckGo fallback for "${params.name}"`);
+    const message = String(err?.message ?? err ?? "");
+    if (/timeout|abort/i.test(message)) {
+      console.warn(`⏱️ Gemini timeout for "${params.name}"`);
     } else {
-      console.error(`❌ Gemini enrichment failed for "${params.name}":`, err);
+      console.error(`❌ Gemini fetch error for "${params.name}":`, message.slice(0, 200));
     }
-
     return { sourceType: "none" };
   }
+}
+
+function ok(res: Response): boolean {
+  return res.status >= 200 && res.status < 300;
 }
