@@ -21,6 +21,14 @@ export class CommunityPhotoEnrichment {
       'pexels.com',
       'pixabay.com',
       'shutterstock.com',
+      // Stock images served from directory CDNs (filename / path patterns):
+      // e.g. seniorliving.org/.../listing-stock-images/shutterstock_123.jpg —
+      // generic placeholders a directory shows when it has no real photo.
+      'shutterstock',
+      'listing-stock-images',
+      '/stock-images/',
+      'stock-photo',
+      'stockphoto',
       'gettyimages.com',
       'istockphoto.com',
       'depositphotos.com',

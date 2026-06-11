@@ -3,7 +3,7 @@ import { db } from "../db";
 import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities, searchHistory, analyticsEvents } from "@shared/schema";
 import { generateCommunitySlug } from "../utils/generate-slug";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
-import { insertCommunitySchema } from "@shared/schema";
+import { insertCommunitySchema, insertListingFlagSchema } from "@shared/schema";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { storage } from "../storage";
 import { enhancedSearchService } from "../enhanced-search-service";
@@ -30,6 +30,68 @@ import { vendors } from "@shared/schema";
 import { geocodeWithNominatim } from "../nominatim-geocoding";
 
 export function registerCommunityRoutes(app: Express) {
+  // Public listing flag: families report inaccurate / fake / closed listings.
+  // Persists to listing_flags for admin review. Anonymous reports allowed
+  // (reporterEmail/Name optional); userId attached when signed in.
+  app.post("/api/communities/:id/flag", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id, 10);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      const [community] = await db
+        .select({ id: communities.id })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Identity is derived from the authenticated session only — never trust a
+      // client-supplied userId (prevents impersonation in moderation records).
+      const sessionUserId = (req.user as any)?.id ?? null;
+
+      const parsed = insertListingFlagSchema.safeParse({
+        communityId,
+        userId: sessionUserId,
+        flagType: req.body.flagType,
+        reason: req.body.reason,
+        details: req.body.details || null,
+        reporterEmail: req.body.reporterEmail || null,
+        reporterName: req.body.reporterName || null,
+      });
+
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: "Invalid flag submission",
+          details: parsed.error.flatten().fieldErrors,
+        });
+      }
+
+      const flag = await storage.createListingFlag(parsed.data);
+
+      if (parsed.data.userId) {
+        try {
+          await storage.trackUserActivity({
+            userId: parsed.data.userId,
+            activityType: "Flag Listing",
+            details: { communityId, flagType: parsed.data.flagType, reason: parsed.data.reason },
+          });
+        } catch (activityErr) {
+          console.warn("⚠️ Failed to track flag activity:", activityErr);
+        }
+      }
+
+      console.log(`🚩 Community ${communityId} flagged (${parsed.data.flagType})`);
+      return res.status(201).json({ message: "Flag submitted successfully", flagId: flag.id });
+    } catch (error) {
+      console.error("Flag submission error:", error);
+      return res.status(500).json({ error: "Failed to submit flag" });
+    }
+  });
+
   // 301 redirect: /community/:id → SEO-friendly URL /senior-living/:state/:city/:slug
   app.get("/community/:id", async (req, res, next) => {
     const communityId = parseInt(req.params.id, 10);

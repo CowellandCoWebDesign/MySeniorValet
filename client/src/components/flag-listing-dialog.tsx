@@ -134,12 +134,13 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
                       <SelectItem value="Incorrect Information">Incorrect Information</SelectItem>
-                      <SelectItem value="Spam/Duplicate">Spam/Duplicate Listing</SelectItem>
-                      <SelectItem value="Closed/No Longer Operating">Closed/No Longer Operating</SelectItem>
-                      <SelectItem value="Safety Concerns">Safety Concerns</SelectItem>
-                      <SelectItem value="Pricing Issues">Pricing Issues</SelectItem>
+                      <SelectItem value="Duplicate Listing">Duplicate Listing</SelectItem>
+                      <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
+                      <SelectItem value="Spam">Spam</SelectItem>
+                      <SelectItem value="Closed/Out of Business">Closed/Out of Business</SelectItem>
+                      <SelectItem value="Wrong Location">Wrong Location</SelectItem>
+                      <SelectItem value="Pricing Error">Pricing Error</SelectItem>
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>

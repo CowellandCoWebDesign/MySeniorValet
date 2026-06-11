@@ -27,6 +27,13 @@ no-op stub — never re-introduce invented content.
   never clobber richer existing text.
 - Real, server-rendered independent community sites scrape well (genuine
   description + multiple real photos) — that's the target case.
+- Photo stock-blocklist must match by filename/path substring, not just the
+  stock-photo *domain*. Directories (e.g. seniorliving.org) serve generic
+  placeholders from their own CDN like `/listing-stock-images/shutterstock_*.jpg`;
+  blocking only `shutterstock.com` lets them through, so they persist and show on
+  the detail carousel while `community-card` filters them — an inconsistency users
+  notice. Block `shutterstock`, `listing-stock-images`, `/stock-images/`, etc.
+  (avoid bare `stock` — false-positives like "Stockton"/"Woodstock").
 
 ## SSRF: server-side fetch of community-provided URLs
 Enrichment fetches DB-stored community website URLs server-side and is reachable
