@@ -761,7 +761,7 @@ export default function CommunityDirectory() {
         </script>
       </Helmet>
       <NavigationHeader />
-      
+      <main>
       {/* Hero Section with Stats */}
       <section className="relative py-16 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 overflow-hidden">
         <div className="absolute inset-0">
@@ -889,46 +889,26 @@ export default function CommunityDirectory() {
 
             {/* Quick Filters & Database Features */}
             <div className="flex flex-wrap gap-2 mt-6 justify-center">
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors border-green-300 dark:border-green-600"
-                onClick={() => setLocation('/map-search?filter=hud')}
-              >
+              <Link href="/map-search?filter=hud" className="inline-flex items-center rounded-md border border-green-300 dark:border-green-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer">
                 <Shield className="h-3 w-3 mr-1 text-green-600" />
                 <span className="text-gray-700 dark:text-gray-300">HUD Verified</span>
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors border-blue-300 dark:border-blue-600"
-                onClick={() => setLocation('/map-search?filter=pricing')}
-              >
+              </Link>
+              <Link href="/map-search?filter=pricing" className="inline-flex items-center rounded-md border border-blue-300 dark:border-blue-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer">
                 <DollarSign className="h-3 w-3 mr-1 text-blue-600" />
                 <span className="text-gray-700 dark:text-gray-300">With Pricing</span>
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-yellow-50 dark:hover:bg-yellow-900/20 transition-colors border-yellow-300 dark:border-yellow-600"
-                onClick={() => setLocation('/map-search?filter=5star')}
-              >
+              </Link>
+              <Link href="/map-search?filter=5star" className="inline-flex items-center rounded-md border border-yellow-300 dark:border-yellow-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
                 <Star className="h-3 w-3 mr-1 text-yellow-600" />
                 <span className="text-gray-700 dark:text-gray-300">5-Star Rated</span>
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-colors border-purple-300 dark:border-purple-600"
-                onClick={() => setLocation('/map-search?filter=memory')}
-              >
+              </Link>
+              <Link href="/map-search?filter=memory" className="inline-flex items-center rounded-md border border-purple-300 dark:border-purple-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer">
                 <Brain className="h-3 w-3 mr-1 text-purple-600" />
                 <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
-              </Badge>
-              <Badge 
-                variant="outline" 
-                className="cursor-pointer hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-red-300 dark:border-red-600"
-                onClick={() => setLocation('/map-search?filter=assisted')}
-              >
+              </Link>
+              <Link href="/map-search?filter=assisted" className="inline-flex items-center rounded-md border border-red-300 dark:border-red-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer">
                 <HeartHandshake className="h-3 w-3 mr-1 text-red-600" />
                 <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
-              </Badge>
+              </Link>
             </div>
           </div>
         </div>
@@ -3871,6 +3851,7 @@ export default function CommunityDirectory() {
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }

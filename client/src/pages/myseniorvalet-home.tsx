@@ -2319,6 +2319,7 @@ export default function MySeniorValetHome() {
       
       {/* Old header removed - using ProfessionalNavbar */}
       {/* Unified Tab System for Hero and Content */}
+      <main>
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Transforming Hero Section with Search - Mobile optimized */}
         {/* Hero section needs higher z-index so search dropdown appears above content */}
@@ -2387,33 +2388,24 @@ export default function MySeniorValetHome() {
                       <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
                         {careTypes.map((careType, index) => {
                           const Icon = careType.icon;
+                          const careTypeHref =
+                            careType.id === 'memory' ? '/care-types/memory-care' :
+                            careType.id === 'assisted' ? '/care-types/assisted-living' :
+                            careType.id === 'independent' ? '/care-types/independent-living' :
+                            `/map-search?careType=${encodeURIComponent(careType.name)}`;
                           return (
-                            <div
+                            <a
                               key={careType.id}
+                              href={careTypeHref}
                               data-testid={`care-type-${careType.id}`}
-                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
-                              onClick={(e) => {
-                                // Stop event from bubbling to parent card
-                                e.stopPropagation();
-                                // Navigate to appropriate page based on care type
-                                if (careType.id === 'memory') {
-                                  window.location.href = '/care-types/memory-care';
-                                } else if (careType.id === 'assisted') {
-                                  window.location.href = '/care-types/assisted-living';
-                                } else if (careType.id === 'independent') {
-                                  window.location.href = '/care-types/independent-living';
-                                } else {
-                                  // For other care types, navigate to map search with filter
-                                  window.location.href = `/map-search?careType=${encodeURIComponent(careType.name)}`;
-                                }
-                              }}
+                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform no-underline`}
                             >
                               <div className="flex flex-col items-center">
                                 <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-1" />
                                 <p className="text-[10px] sm:text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
                                 <p className="text-[8px] sm:text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
                               </div>
-                            </div>
+                            </a>
                           );
                         })}
                       </div>
@@ -2426,44 +2418,38 @@ export default function MySeniorValetHome() {
                   {/* Traditional Browse and Side-by-Side Buttons */}
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     {/* Traditional Browse */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/map-search';
-                      }}
+                    <Button asChild
                       className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xl mb-1">🔍</span>
-                        <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
-                        <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
-                      </div>
+                      <Link to="/map-search">
+                        <div className="flex flex-col items-center">
+                          <span className="text-xl mb-1">🔍</span>
+                          <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                          <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+                        </div>
+                      </Link>
                     </Button>
 
                     {/* Side-by-Side Search */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/ai-search-intelligence?mode=simplified';
-                      }}
+                    <Button asChild
                       className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xl mb-1">⚖️</span>
-                        <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
-                        <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
-                      </div>
+                      <Link to="/ai-search-intelligence?mode=simplified">
+                        <div className="flex flex-col items-center">
+                          <span className="text-xl mb-1">⚖️</span>
+                          <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
+                          <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
+                        </div>
+                      </Link>
                     </Button>
                   </div>
 
-                  <Button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.location.href = '/community-directory';
-                    }}
+                  <Button asChild
                     className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
-                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                    <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                    <span className="font-semibold">Launch AI-Enhanced Directory</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    <Link to="/community-directory">
+                      <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                      <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                      <span className="font-semibold">Launch AI-Enhanced Directory</span>
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -2940,19 +2926,19 @@ export default function MySeniorValetHome() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
-            <Link to="/vendor-partner">
-              <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+            <Button asChild size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <Link to="/vendor-signup">
                 <Briefcase className="w-5 h-5 mr-2" />
                 Become a Vendor Partner
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             
-            <Link to="/vendor-login">
-              <Button size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+            <Button asChild size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <Link to="/vendor-marketplace">
                 <LogIn className="w-5 h-5 mr-2" />
                 Vendor Login Portal
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </motion.div>
         </div>
       </section>
@@ -4193,37 +4179,29 @@ export default function MySeniorValetHome() {
                 Quick Access Tools
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/emergency-contacts')}
-                >
-                  <AlertCircle className="h-6 w-6 text-red-500" />
-                  <span className="text-xs">Emergency</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/emergency-contacts">
+                    <AlertCircle className="h-6 w-6 text-red-500" />
+                    <span className="text-xs">Emergency</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/tours')}
-                >
-                  <Calendar className="h-6 w-6 text-blue-500" />
-                  <span className="text-xs">Schedule Tour</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/tours">
+                    <Calendar className="h-6 w-6 text-blue-500" />
+                    <span className="text-xs">Schedule Tour</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/senior-healthcare-directory')}
-                >
-                  <Brain className="h-6 w-6 text-purple-500" />
-                  <span className="text-xs">Care Guide</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/senior-healthcare-directory">
+                    <Brain className="h-6 w-6 text-purple-500" />
+                    <span className="text-xs">Care Guide</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/ai-support')}
-                >
-                  <HeartHandshake className="h-6 w-6 text-green-500" />
-                  <span className="text-xs">AI Support</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/ai-support">
+                    <HeartHandshake className="h-6 w-6 text-green-500" />
+                    <span className="text-xs">AI Support</span>
+                  </Link>
                 </Button>
               </div>
             </CardContent>
@@ -4231,6 +4209,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
+      </main>
       {/* Enhanced Footer with Dashboard Login Buttons */}
       <Footer />
       

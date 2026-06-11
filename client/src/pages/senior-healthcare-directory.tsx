@@ -533,7 +533,7 @@ export default function SeniorHealthcareDirectory() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <NavigationHeader />
-      
+      <main>
       {/* Page Header */}
       <section className="px-4 py-12 bg-gradient-to-r from-teal-600 via-blue-600 to-indigo-600">
         <div className="max-w-6xl mx-auto text-center">
@@ -2795,37 +2795,29 @@ export default function SeniorHealthcareDirectory() {
                 Quick Access Tools
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/emergency-contacts')}
-                >
-                  <AlertCircle className="h-6 w-6 text-red-500" />
-                  <span className="text-xs">Emergency</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link href="/emergency-contacts">
+                    <AlertCircle className="h-6 w-6 text-red-500" />
+                    <span className="text-xs">Emergency</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/tours')}
-                >
-                  <Calendar className="h-6 w-6 text-blue-500" />
-                  <span className="text-xs">Schedule Tour</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link href="/tours">
+                    <Calendar className="h-6 w-6 text-blue-500" />
+                    <span className="text-xs">Schedule Tour</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/community-directory')}
-                >
-                  <Brain className="h-6 w-6 text-purple-500" />
-                  <span className="text-xs">Care Guide</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link href="/community-directory">
+                    <Brain className="h-6 w-6 text-purple-500" />
+                    <span className="text-xs">Care Guide</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/ai-support')}
-                >
-                  <HeartHandshake className="h-6 w-6 text-green-500" />
-                  <span className="text-xs">AI Support</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link href="/ai-support">
+                    <HeartHandshake className="h-6 w-6 text-green-500" />
+                    <span className="text-xs">AI Support</span>
+                  </Link>
                 </Button>
               </div>
             </CardContent>
@@ -2843,26 +2835,22 @@ export default function SeniorHealthcareDirectory() {
             Our AI-powered matching system can help you find the perfect healthcare providers
           </p>
           <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg"
-              className="bg-white text-blue-600 hover:bg-gray-100 font-semibold shadow-xl"
-              onClick={() => setLocation('/ai-matching-assistant')}
-            >
-              <Brain className="mr-2 h-5 w-5" />
-              Get Personalized Matches
+            <Button asChild size="lg" className="bg-white text-blue-600 hover:bg-gray-100 font-semibold shadow-xl">
+              <Link href="/ai-matching-assistant">
+                <Brain className="mr-2 h-5 w-5" />
+                Get Personalized Matches
+              </Link>
             </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="text-white border-white hover:bg-white/20"
-              onClick={() => setLocation('/contact')}
-            >
-              <Phone className="mr-2 h-5 w-5" />
-              Contact Support
+            <Button asChild size="lg" variant="outline" className="text-white border-white hover:bg-white/20">
+              <Link href="/contact">
+                <Phone className="mr-2 h-5 w-5" />
+                Contact Support
+              </Link>
             </Button>
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }

@@ -222,6 +222,7 @@ export default function Contact() {
         title="Contact Us" 
         subtitle="Get in touch with MySeniorValet"
       />
+      <main>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -534,6 +535,7 @@ export default function Contact() {
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }
