@@ -32,6 +32,7 @@ export const organizationSchema = {
   name: 'MySeniorValet',
   url: 'https://www.myseniorvalet.com',
   logo: 'https://www.myseniorvalet.com/logo.png',
+  image: 'https://www.myseniorvalet.com/og-image.jpg',
   description: 'The trusted platform for authentic senior living community information. Helping families make informed decisions with verified data and transparent pricing.',
   foundingDate: '2024',
   founder: {

@@ -22,7 +22,7 @@ export function SEO({
   title = "MySeniorValet - Find Senior Living Communities Near You | 35,264+ Verified Locations",
   description = "Search 35,264+ senior living communities across USA, Canada, Mexico, Peru, Cuba, Costa Rica & Panama with transparent pricing, verified HUD rates, real availability. Compare assisted living, memory care, nursing homes near you. No hidden fees, no referral markups.",
   keywords = "senior living near me, assisted living costs, memory care facilities, HUD senior housing, nursing home prices, independent living communities, retirement homes, elder care, senior apartments",
-  image = "/og-image.jpg",
+  image = "https://www.myseniorvalet.com/og-image.jpg",
   url = "https://www.myseniorvalet.com",
   type = "website",
   canonicalUrl,

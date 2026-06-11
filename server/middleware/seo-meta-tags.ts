@@ -44,6 +44,7 @@ async function getPageMetadata(url: string): Promise<{
   hreflang?: Array<{ lang: string; url: string }>;
 }> {
   const defaultImage = 'https://www.myseniorvalet.com/og-image.jpg';
+  const logoImage = 'https://www.myseniorvalet.com/logo.png';
   const baseUrl = 'https://www.myseniorvalet.com';
   
   // Parse the URL — separate path from query string before splitting segments
@@ -315,7 +316,391 @@ async function getPageMetadata(url: string): Promise<{
       type: 'website'
     };
   }
-  
+
+  // Pricing page
+  if (section === 'pricing') {
+    return {
+      title: 'Pricing & Plans | MySeniorValet',
+      description: 'MySeniorValet is always free for families. Explore professional plans for senior living communities and care providers. Transparent pricing, no hidden fees.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'MySeniorValet pricing, senior living platform cost, senior care directory plans, free family plan',
+      canonicalUrl: `${baseUrl}/pricing`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Pricing & Plans | MySeniorValet',
+        url: `${baseUrl}/pricing`,
+        description: 'MySeniorValet is always free for families. Professional plans available for communities and providers.',
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // About page
+  if (section === 'about') {
+    return {
+      title: 'About MySeniorValet | Transparent Senior Living Search',
+      description: 'MySeniorValet was built to eliminate the "call for pricing" problem in senior care. Founded by William Cowell in Shasta Lake, California. Learn our story and mission.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'about MySeniorValet, senior living transparency, William Cowell, senior care platform story',
+      canonicalUrl: `${baseUrl}/about`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'AboutPage',
+        name: 'About MySeniorValet',
+        url: `${baseUrl}/about`,
+        description: 'MySeniorValet was built to bring full pricing transparency to senior living. FREE for families. Founded in Shasta Lake, California.',
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Contact page
+  if (section === 'contact') {
+    return {
+      title: 'Contact MySeniorValet | Get Help & Support',
+      description: 'Contact the MySeniorValet team for help finding senior living communities, technical support, media inquiries, or community listing requests. We respond quickly.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'contact MySeniorValet, senior care support, help senior living search',
+      canonicalUrl: `${baseUrl}/contact`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'ContactPage',
+        name: 'Contact MySeniorValet',
+        url: `${baseUrl}/contact`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, email: 'hello@myseniorvalet.com', logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Privacy Policy pages
+  if (section === 'privacy-policy' || section === 'privacy') {
+    const canonical = `${baseUrl}/privacy-policy`;
+    return {
+      title: 'Privacy Policy | MySeniorValet',
+      description: "MySeniorValet's privacy policy. We NEVER sell your personal information. Learn how we collect, use, and protect your data when you use our free senior living platform.",
+      image: defaultImage,
+      type: 'website',
+      keywords: 'MySeniorValet privacy policy, senior care data privacy, no data selling',
+      canonicalUrl: canonical,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Privacy Policy | MySeniorValet',
+        url: canonical,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Terms pages
+  if (section === 'terms' || section === 'terms-of-service') {
+    const canonical = `${baseUrl}/terms-of-service`;
+    return {
+      title: 'Terms of Service | MySeniorValet',
+      description: 'Terms of service for MySeniorValet. Read our user agreement for using the free senior living search platform. Applies to families, communities, and providers.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'MySeniorValet terms of service, user agreement, senior care platform terms',
+      canonicalUrl: canonical,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Terms of Service | MySeniorValet',
+        url: canonical,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Cookie Policy
+  if (section === 'cookie-policy') {
+    return {
+      title: 'Cookie Policy | MySeniorValet',
+      description: 'Cookie policy for MySeniorValet. Learn which cookies we use, why we use them, and how you can manage your cookie preferences on our senior living platform.',
+      image: defaultImage,
+      type: 'website',
+      canonicalUrl: `${baseUrl}/cookie-policy`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Cookie Policy | MySeniorValet',
+        url: `${baseUrl}/cookie-policy`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Legal Notice
+  if (section === 'legal-notice') {
+    return {
+      title: 'Legal Notice | MySeniorValet',
+      description: 'Legal notice and disclaimers for MySeniorValet. Information about our legal obligations, intellectual property, and platform liability.',
+      image: defaultImage,
+      type: 'website',
+      canonicalUrl: `${baseUrl}/legal-notice`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Legal Notice | MySeniorValet',
+        url: `${baseUrl}/legal-notice`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // DMCA Notice
+  if (section === 'dmca-notice') {
+    return {
+      title: 'DMCA Notice | MySeniorValet',
+      description: 'DMCA copyright notice and takedown policy for MySeniorValet. Learn how to submit a copyright infringement claim or counter-notice.',
+      image: defaultImage,
+      type: 'website',
+      canonicalUrl: `${baseUrl}/dmca-notice`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'DMCA Notice | MySeniorValet',
+        url: `${baseUrl}/dmca-notice`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Disclaimer
+  if (section === 'disclaimer') {
+    return {
+      title: 'Disclaimer | MySeniorValet',
+      description: 'Disclaimer for MySeniorValet. Our platform provides senior living information for research purposes. Always verify community details and consult qualified advisors.',
+      image: defaultImage,
+      type: 'website',
+      canonicalUrl: `${baseUrl}/disclaimer`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Disclaimer | MySeniorValet',
+        url: `${baseUrl}/disclaimer`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Accessibility
+  if (section === 'accessibility') {
+    return {
+      title: 'Accessibility Statement | MySeniorValet',
+      description: "MySeniorValet's commitment to web accessibility. We strive to make our senior living search platform usable by everyone, including people with disabilities.",
+      image: defaultImage,
+      type: 'website',
+      canonicalUrl: `${baseUrl}/accessibility`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Accessibility Statement | MySeniorValet',
+        url: `${baseUrl}/accessibility`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Mission page
+  if (section === 'mission') {
+    return {
+      title: 'Our Mission | MySeniorValet',
+      description: 'MySeniorValet is on a mission to bring full transparency to senior living. No hidden pricing, no referral fees, no data selling. Empowering families with honest information.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'MySeniorValet mission, senior care transparency, family first senior living, honest senior care platform',
+      canonicalUrl: `${baseUrl}/mission`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Our Mission | MySeniorValet',
+        url: `${baseUrl}/mission`,
+        description: 'Empowering families with transparent, authentic senior living guidance.',
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Team page
+  if (section === 'team') {
+    return {
+      title: 'Our Team | MySeniorValet',
+      description: 'Meet the MySeniorValet team dedicated to making senior care research transparent and accessible to all families. Founded and led by William Scott Cowell.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'MySeniorValet team, senior living experts, William Cowell',
+      canonicalUrl: `${baseUrl}/team`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Our Team | MySeniorValet',
+        url: `${baseUrl}/team`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Testimonials page
+  if (section === 'testimonials') {
+    return {
+      title: 'Family Testimonials | MySeniorValet',
+      description: 'Read real stories from families who found the right senior living community using MySeniorValet. Honest reviews and experiences from families across the country.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'MySeniorValet reviews, senior living testimonials, family stories senior care',
+      canonicalUrl: `${baseUrl}/testimonials`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Family Testimonials | MySeniorValet',
+        url: `${baseUrl}/testimonials`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Help page
+  if (section === 'help') {
+    return {
+      title: 'Help Center | MySeniorValet',
+      description: 'Get help with MySeniorValet. Find answers about searching for senior communities, understanding pricing, using the platform, and navigating your senior care options.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'MySeniorValet help, senior living platform guide, how to find senior care',
+      canonicalUrl: `${baseUrl}/help`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        name: 'Help Center | MySeniorValet',
+        url: `${baseUrl}/help`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Senior Resources pages
+  if (section === 'senior-resources' || section === 'senior-resources-center') {
+    const canonical = `${baseUrl}/senior-resources-center`;
+    return {
+      title: 'Senior Resources Center | Medicare, Medicaid & Care Guides | MySeniorValet',
+      description: 'Free senior care resources: Medicare & Medicaid guides, caregiver support, financial planning tools, legal documents, and local services. Everything families need in one place.',
+      image: defaultImage,
+      type: 'website',
+      keywords: 'senior resources, Medicare guide, Medicaid eligibility, caregiver support, elder care planning, VA benefits seniors',
+      canonicalUrl: canonical,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Senior Resources Center | MySeniorValet',
+        url: canonical,
+        description: 'Comprehensive senior care resources for families navigating assisted living, Medicare, Medicaid, and elder care planning.',
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Resources sub-pages (e.g., /resources/medicare-guide)
+  if (section === 'resources') {
+    const subPage = id || '';
+    const subPageTitles: Record<string, { title: string; description: string; keywords: string }> = {
+      'medicare-guide': {
+        title: 'Medicare Guide for Seniors | What\'s Covered & How to Enroll | MySeniorValet',
+        description: 'Complete Medicare guide: Parts A, B, C, D explained. Enrollment periods, coverage details, costs, and how Medicare applies to assisted living and nursing homes.',
+        keywords: 'Medicare guide, Medicare Parts A B C D, Medicare enrollment, Medicare assisted living coverage, Medicare nursing home'
+      }
+    };
+    const meta = subPageTitles[subPage] || {
+      title: 'Senior Care Resources & Guides | MySeniorValet',
+      description: 'Expert senior care guides covering Medicare, Medicaid, assisted living options, financial planning, and caregiver resources.',
+      keywords: 'senior care guides, Medicare, Medicaid, assisted living resources'
+    };
+    return {
+      ...meta,
+      image: defaultImage,
+      type: 'article',
+      canonicalUrl: `${baseUrl}/resources/${subPage}`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: meta.title,
+        url: `${baseUrl}/resources/${subPage}`,
+        image: defaultImage,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Provider profile pages (e.g., /providers/mayo-clinic)
+  if (section === 'providers') {
+    const providerSlug = id || '';
+    const providerNames: Record<string, string> = {
+      'mayo-clinic': 'Mayo Clinic'
+    };
+    const providerName = providerNames[providerSlug] || providerSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return {
+      title: `${providerName} | Senior Care Provider | MySeniorValet`,
+      description: `Learn about ${providerName} on MySeniorValet. Explore services, locations, and how ${providerName} serves seniors and their families.`,
+      image: defaultImage,
+      type: 'website',
+      keywords: `${providerName}, senior care provider, healthcare seniors`,
+      canonicalUrl: `${baseUrl}/providers/${providerSlug}`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'MedicalOrganization',
+        name: providerName,
+        url: `${baseUrl}/providers/${providerSlug}`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
+  // Vendor profile pages (e.g., /vendors/walgreens)
+  if (section === 'vendors') {
+    const vendorSlug = id || '';
+    const vendorNames: Record<string, string> = {
+      'walgreens': 'Walgreens'
+    };
+    const vendorName = vendorNames[vendorSlug] || vendorSlug.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return {
+      title: `${vendorName} | Senior Living Vendor | MySeniorValet`,
+      description: `${vendorName} on MySeniorValet marketplace. Products and services for seniors and their families including health supplies, medications, and wellness products.`,
+      image: defaultImage,
+      type: 'website',
+      keywords: `${vendorName}, senior care vendor, senior health products`,
+      canonicalUrl: `${baseUrl}/vendors/${vendorSlug}`,
+      robots: 'index, follow',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'Store',
+        name: vendorName,
+        url: `${baseUrl}/vendors/${vendorSlug}`,
+        publisher: { '@type': 'Organization', name: 'MySeniorValet', url: baseUrl, logo: { '@type': 'ImageObject', url: logoImage } }
+      }
+    };
+  }
+
   // Default home page
   return {
     title: 'MySeniorValet - Find Senior Living Communities | 35,264+ Verified Locations',

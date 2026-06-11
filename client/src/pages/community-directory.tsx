@@ -643,14 +643,14 @@ export default function CommunityDirectory() {
         <meta property="og:description" content="Search assisted living, memory care, independent living & nursing homes worldwide. Verified pricing across USA, Canada, Australia, Japan & Mexico. Compare care options 24/7." />
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://www.myseniorvalet.com/community-directory" />
-        <meta property="og:image" content="https://www.myseniorvalet.com/images/community-directory-og.jpg" />
+        <meta property="og:image" content="https://www.myseniorvalet.com/og-image.jpg" />
         <meta property="og:site_name" content="MySeniorValet" />
         
         {/* Twitter Card tags */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Assisted Living, Memory Care & Nursing Homes Directory" />
         <meta name="twitter:description" content="Search assisted living, memory care, independent living & nursing homes worldwide. Verified pricing, real availability, 24/7 support across USA, Canada, Australia, Japan." />
-        <meta name="twitter:image" content="https://www.myseniorvalet.com/images/community-directory-twitter.jpg" />
+        <meta name="twitter:image" content="https://www.myseniorvalet.com/og-image.jpg" />
         
         {/* Additional SEO tags */}
         <link rel="canonical" href="https://www.myseniorvalet.com/community-directory" />
@@ -741,7 +741,7 @@ export default function CommunityDirectory() {
               "name": "MySeniorValet",
               "logo": {
                 "@type": "ImageObject",
-                "url": "https://myseniorvalet.com/logo.png"
+                "url": "https://www.myseniorvalet.com/logo.png"
               }
             },
             "spatialCoverage": [
