@@ -307,6 +307,114 @@ export async function extractContentFromUrl(rawUrl: string): Promise<string | nu
   }
 }
 
+// ── Website image scraper ─────────────────────────────────────────────────────
+
+const IMG_FETCH_TIMEOUT_MS = 12_000;
+
+/**
+ * Scrape real photos from a community's website by fetching the raw HTML and
+ * extracting og:image / twitter:image meta tags plus inline <img> sources.
+ *
+ * Jina Reader returns markdown that strips image URLs, so we fetch the raw HTML
+ * directly here. og:image meta tags are present even on JS-heavy SPAs because
+ * they live in the static <head> for social sharing.
+ *
+ * Returns absolute, deduplicated image URLs (up to 30). The caller is expected
+ * to filter out stock/placeholder/icon assets and trim to its display limit.
+ */
+export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
+  try {
+    // SSRF-safe fetch: validate every hop (redirects can point at private/internal
+    // hosts or cloud metadata endpoints, so a single up-front check is not enough).
+    const MAX_REDIRECTS = 5;
+    let currentUrl = rawUrl;
+    let response: Response | null = null;
+
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+      if (!(await isSafePublicUrl(currentUrl))) {
+        console.log(`🚫 Image scrape blocked: unsafe URL ${currentUrl}`);
+        return [];
+      }
+
+      const resp = await fetch(currentUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (compatible; MySeniorValetBot/1.0; +https://myseniorvalet.com/about)",
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+        redirect: "manual",
+        signal: AbortSignal.timeout(IMG_FETCH_TIMEOUT_MS),
+      });
+
+      // Manual redirect: revalidate the target before following it
+      if (resp.status >= 300 && resp.status < 400) {
+        const location = resp.headers.get("location");
+        if (!location) break;
+        const next = new URL(location, currentUrl);
+        if (next.protocol !== "http:" && next.protocol !== "https:") {
+          console.log(`🚫 Image scrape blocked: non-http redirect ${next.href}`);
+          return [];
+        }
+        currentUrl = next.href;
+        continue;
+      }
+
+      response = resp;
+      break;
+    }
+
+    if (!response) {
+      console.log(`⚠️ Image scrape: too many redirects from ${rawUrl}`);
+      return [];
+    }
+
+    if (!response.ok) {
+      console.log(`⚠️ Image scrape: ${response.status} for ${currentUrl}`);
+      return [];
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    const base = new URL(currentUrl);
+    const found: string[] = [];
+
+    const pushAbsolute = (src?: string | null) => {
+      if (!src) return;
+      const trimmed = src.trim();
+      if (!trimmed || trimmed.startsWith("data:")) return;
+      try {
+        const abs = new URL(trimmed, base).href;
+        if (abs.startsWith("http")) found.push(abs);
+      } catch {
+        /* ignore malformed src */
+      }
+    };
+
+    // 1. Social/share meta images (reliable hero image, present even on SPAs)
+    $(
+      'meta[property="og:image"], meta[property="og:image:url"], meta[name="twitter:image"], meta[name="twitter:image:src"]',
+    ).each((_, el) => pushAbsolute($(el).attr("content")));
+
+    // 2. Inline images, including common lazy-loaded variants
+    $("img").each((_, el) => {
+      const $el = $(el);
+      pushAbsolute(
+        $el.attr("src") ||
+          $el.attr("data-src") ||
+          $el.attr("data-lazy-src") ||
+          $el.attr("data-original"),
+      );
+    });
+
+    // Dedupe, preserve order (og:image first), cap at 30 — caller filters & trims
+    return Array.from(new Set(found)).slice(0, 30);
+  } catch (err: any) {
+    console.log(`⚠️ Image scrape failed for ${rawUrl}: ${err?.message}`);
+    return [];
+  }
+}
+
 // ── Groq structuring (optional) ───────────────────────────────────────────────
 
 export interface StructuredEnrichment {

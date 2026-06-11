@@ -18,7 +18,7 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
-import { enrichCommunityFree } from "../services/free-enrichment-service";
+import { enrichCommunityFree, scrapeWebsiteImages, findCommunityWebsite } from "../services/free-enrichment-service";
 import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
@@ -940,6 +940,49 @@ export function registerCommunityRoutes(app: Express) {
 
       console.log(`✅ Enrichment complete for "${community.name}": sourceType=${freeEnrichment.sourceType}, structured=${freeEnrichment.structured}`);
 
+      // ── Photo discovery: scrape the community website when no DB photos exist ──
+      // CommunityPhotoEnrichment only filters existing photos; it never fetches
+      // new ones. Live photo discovery died with Perplexity, so communities that
+      // were never scraped show zero photos. Recover them for free from the site.
+      // Filter stored photos through the blocklist so previously-persisted junk
+      // (map graphics, placeholders, icons) is never served as a community photo.
+      const cleanDbPhotos: string[] = (community.photos || []).filter(
+        (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
+      );
+      let discoveredPhotos: string[] = [];
+      const hasDbPhotos = cleanDbPhotos.length > 0;
+      if (!hasDbPhotos) {
+        const scrapeUsable = async (url: string): Promise<string[]> => {
+          const scraped = await scrapeWebsiteImages(url);
+          return scraped
+            .filter((u) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u))
+            .slice(0, 15);
+        };
+
+        const primaryUrl =
+          (freeEnrichment as any).website ||
+          freeEnrichment.sourceUrl ||
+          communityWebsite ||
+          community.website ||
+          undefined;
+
+        if (primaryUrl) {
+          console.log(`📸 No stored photos for "${community.name}" — scraping ${primaryUrl}`);
+          discoveredPhotos = await scrapeUsable(primaryUrl);
+        }
+
+        // Gemini sometimes guesses URLs that 404. If the primary URL yielded no
+        // photos, discover the real official site via DuckDuckGo and scrape that.
+        if (discoveredPhotos.length === 0) {
+          const realSite = await findCommunityWebsite(community.name, community.city, community.state);
+          if (realSite && realSite !== primaryUrl) {
+            console.log(`📸 Primary URL had no photos — trying discovered site ${realSite}`);
+            discoveredPhotos = await scrapeUsable(realSite);
+          }
+        }
+        console.log(`📸 Discovered ${discoveredPhotos.length} usable photos for "${community.name}"`);
+      }
+
       // Build enrichmentResult in the same shape the downstream code expects
       const enrichmentResult = {
         communityId: communityId,
@@ -951,10 +994,10 @@ export function registerCommunityRoutes(app: Express) {
         phoneNumber: freeEnrichment.phone || community.phone || '',
         pricing: freeEnrichment.pricingContext || '',
         extractedAddress: undefined as string | undefined,
-        // Prefer existing DB photos; supplement with any found by enrichment
-        photos: (community.photos && community.photos.length > 0)
-          ? community.photos
-          : (freeEnrichment.photos || []),
+        // Prefer existing (clean) DB photos; otherwise use freshly scraped website photos
+        photos: hasDbPhotos
+          ? cleanDbPhotos
+          : (discoveredPhotos.length > 0 ? discoveredPhotos : (freeEnrichment.photos || [])),
         careTypes: freeEnrichment.careTypes || [],
         amenities: freeEnrichment.amenities || [],
         searchResults: {
@@ -1002,6 +1045,28 @@ export function registerCommunityRoutes(app: Express) {
             updates.description = enrichmentResult.searchResults.summary; // Full content, no substring!
             hasUpdates = true;
             console.log(`✅ Updating description with FULL enriched content (${enrichmentResult.searchResults.summary.length} chars)`);
+          }
+
+          // Photo persistence (only when no clean DB photos already exist):
+          //  - persist freshly scraped photos, OR
+          //  - clear stored photos that were entirely junk/placeholders
+          if (!hasDbPhotos) {
+            if (discoveredPhotos.length > 0) {
+              updates.photos = discoveredPhotos;
+              hasUpdates = true;
+              console.log(`✅ Updating photos with ${discoveredPhotos.length} scraped images`);
+            } else if (
+              current.photos &&
+              current.photos.length > 0 &&
+              current.photos.every((u: string) =>
+                CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
+              )
+            ) {
+              // Only clear when EVERY stored photo is junk — never wipe valid ones
+              updates.photos = [];
+              hasUpdates = true;
+              console.log(`🧹 Clearing ${current.photos.length} junk/placeholder photo(s) from DB`);
+            }
           }
 
           // Always stamp lastSuccessfulEnrichment when the pipeline produced real data

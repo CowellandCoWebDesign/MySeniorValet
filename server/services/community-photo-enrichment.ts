@@ -11,7 +11,7 @@ export class CommunityPhotoEnrichment {
   /**
    * Check if a photo URL is a placeholder, stock photo, or non-photo asset
    */
-  private static isStockOrPlaceholderPhoto(url: string): boolean {
+  static isStockOrPlaceholderPhoto(url: string): boolean {
     if (!url) return true;
     
     // Block ALL stock photo services, placeholders, and non-photo assets
@@ -78,10 +78,29 @@ export class CommunityPhotoEnrichment {
       'no_photo',
       'nophoto',
       'no-photo',
+      'placeholder',
       'divider-half',
       '/divider',
       'default_community_property',
-      'templates/homely'
+      'templates/homely',
+      // Maps and non-photo graphics (not real community photos)
+      'road-map',
+      'roadmap',
+      'road_map',
+      'map-image',
+      'map_image',
+      'street-image',
+      'street_image',
+      'static-map',
+      'staticmap',
+      'maps.google',
+      'maps.googleapis',
+      'mapbox',
+      '/map/',
+      '-map.',
+      '_map.',
+      'sprite',
+      'favicon'
     ];
     
     const urlLower = url.toLowerCase();
