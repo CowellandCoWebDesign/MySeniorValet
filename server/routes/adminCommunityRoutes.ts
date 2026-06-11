@@ -23,40 +23,16 @@ router.get('/admin/test', (req, res) => {
   });
 });
 
-// Middleware to check admin access
+// Middleware to check admin access — uses the same express-session auth as the rest of the app
 const requireAdmin = async (req: any, res: any, next: any) => {
-  // Check for demo mode in development (no session required)
-  const sessionId = req.cookies?.sessionId;
-  
-  if (!sessionId && process.env.NODE_ENV === 'development') {
-    // Demo super admin user for testing
-    req.adminUser = {
-      id: 'test-user-123',
-      email: 'William.cowell01@gmail.com',
-      username: 'William Cowell',
-      role: 'super_admin'
-    };
+  const user = (req.session as any)?.user;
+
+  if (user && (user.role === 'admin' || user.role === 'super_admin')) {
+    req.adminUser = { id: user.id, email: user.email, role: user.role };
     return next();
   }
-  
-  // Check for active session
-  if (!sessionId || !global.activeSessions?.[sessionId]) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
-  
-  const session = global.activeSessions[sessionId];
-  
-  // Check if user has admin or super_admin role
-  if (session.role !== 'admin' && session.role !== 'super_admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
-  
-  req.adminUser = {
-    id: session.userId,
-    email: session.email,
-    role: session.role
-  };
-  next();
+
+  return res.status(403).json({ message: 'Admin access required' });
 };
 
 // Get all communities with filters and pagination
