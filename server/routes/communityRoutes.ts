@@ -18,7 +18,7 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
-import { PerplexityAIService, perplexityService } from "../perplexity-ai-service";
+import { enrichCommunityFree } from "../services/free-enrichment-service";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
@@ -449,13 +449,9 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Get communities by location with Perplexity AI real-time enhancement
+  // Get communities by location
   app.get("/api/communities/by-location/:location", async (req, res) => {
     try {
-      // Import Perplexity service
-      const { PerplexityAIService } = await import('../perplexity-ai-service');
-      const perplexityService = new PerplexityAIService();
-      
       // Add caching headers for better performance
       res.set({
         'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
@@ -523,37 +519,6 @@ export function registerCommunityRoutes(app: Express) {
           .limit(20);
       }
       
-      // Enhance with Perplexity real-time data if available
-      if (perplexityService.isConfigured() && locationCommunities.length > 0) {
-        const enhancedCommunities = await Promise.all(
-          locationCommunities.slice(0, 5).map(async (community) => {
-            try {
-              const enhancedData = await perplexityService.enhanceCommunityData(
-                community.name,
-                `${community.city}, ${community.state}`
-              );
-              
-              return {
-                ...community,
-                realTimeData: {
-                  currentPricing: enhancedData.currentPricing || community.rentPerMonth,
-                  availability: enhancedData.availability || 'Contact for availability',
-                  recentReviews: enhancedData.recentReviews,
-                  marketComparison: enhancedData.marketComparison,
-                  lastUpdated: new Date().toISOString()
-                }
-              };
-            } catch (error) {
-              return community;
-            }
-          })
-        );
-        
-        // Combine enhanced and non-enhanced communities
-        const remainingCommunities = locationCommunities.slice(5);
-        locationCommunities = [...enhancedCommunities, ...remainingCommunities];
-      }
-
       // Enrich communities with stock photos if needed
       const enrichedLocationCommunities = await Promise.all(
         locationCommunities.map(async community => {
@@ -896,74 +861,44 @@ export function registerCommunityRoutes(app: Express) {
         }
       }
       
-      // Use unified cache with improved auto-fetch logic
-      // The cache layer now automatically fetches when data quality is poor
-      const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
-      
-      // Get comprehensive data - cache layer handles quality assessment and auto-fetch
-      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
-        communityId.toString(),
-        community.name,
-        `${community.city}, ${community.state}`,
-        isFeatured,
-        forceRefresh,  // Pass through to allow manual photo search from button
-        communityWebsite  // Pass website URL for better photo discovery
-      );
-      
-      // Log the result for debugging
-      console.log(`📝 Verify endpoint for ${community.name}: {`);
-      console.log(`  forceRefresh: ${forceRefresh},`);
-      console.log(`  cacheSource: '${comprehensiveData.source}',`);
-      console.log(`  hasRawContent: ${!!comprehensiveData.rawPerplexityContent},`);
-      console.log(`  rawContentLength: ${comprehensiveData.rawPerplexityContent?.length || 0},`);
-      console.log(`  photosCount: ${comprehensiveData.photos?.length || 0}`);
-      console.log(`}`);
-      
-      // Note: The cache layer now automatically:
-      // 1. Fetches when data is completely missing
-      // 2. Fetches when data quality score is below 60% (missing photos, pricing, description)
-      // 3. Respects forceRefresh for manual updates
-      
-      // No need for additional save - getComprehensiveCommunityData already saves to both cache and communities table
-      // The saveCacheToDatabase function in unified-perplexity-cache.ts handles all persistence
-      
-      // Create enrichmentResult from unified cache data
-      // Always include basic community data even if cache is empty
-      // CRITICAL FIX: Use actual database timestamp, not new Date()
-      // CRITICAL FIX: Merge photos and description from BOTH cache AND database
+      // Run free enrichment pipeline (Jina + DuckDuckGo, zero Perplexity calls)
+      console.log(`🔍 Running free enrichment for ${community.name} (${community.city}, ${community.state})`);
+      const freeEnrichment = await enrichCommunityFree({
+        name: community.name,
+        city: community.city,
+        state: community.state,
+        websiteUrl: communityWebsite,
+      });
+
+      console.log(`✅ Free enrichment complete for ${community.name}: sourceType=${freeEnrichment.sourceType}, structured=${freeEnrichment.structured}`);
+
+      // Build enrichmentResult in the same shape the downstream code expects
       const enrichmentResult = {
         communityId: communityId,
         communityName: community.name,
-        lastUpdated: community.lastSuccessfulEnrichment?.toISOString() || 
-                     (comprehensiveData.timestamp ? new Date(comprehensiveData.timestamp).toISOString() : null),
+        lastUpdated: new Date().toISOString(),
         verificationStatus: 'verified' as const,
-        confidence: 85,
-        officialWebsite: comprehensiveData.marketData?.website || community.website || '',
-        phoneNumber: comprehensiveData.marketData?.phone || community.phone || '',
-        pricing: comprehensiveData.marketData?.pricing || '',
-        // Surface extracted address for address-correction logic below
-        extractedAddress: (comprehensiveData as any).extractedAddress as string | undefined,
-        // CRITICAL: Prefer database photos first (most reliable), then cache
-        photos: (community.photos && community.photos.length > 0) ? community.photos : (comprehensiveData.photos || []),
+        confidence: freeEnrichment.sourceType === 'none' ? 30 : 75,
+        officialWebsite: freeEnrichment.sourceUrl || community.website || '',
+        phoneNumber: freeEnrichment.phone || community.phone || '',
+        pricing: freeEnrichment.pricingContext || '',
+        extractedAddress: undefined as string | undefined,
+        // Prefer existing DB photos; supplement with any found by enrichment
+        photos: (community.photos && community.photos.length > 0)
+          ? community.photos
+          : (freeEnrichment.photos || []),
         searchResults: {
-          // CRITICAL FIX: Prioritize fresh cached data over stale database description
-          // Use rawPerplexityContent FIRST (most current, comprehensive data)
-          // Only fall back to database description if cache is truly empty
-          summary: comprehensiveData.rawPerplexityContent || 
-                   comprehensiveData.marketData?.description ||
-                   community.description || 
-                   '',
-          sources: comprehensiveData.sources || []
+          summary: freeEnrichment.about || community.description ||
+            'Contact for details — information for this community was not found online.',
+          sources: freeEnrichment.sourceUrl ? [freeEnrichment.sourceUrl] : []
         }
       };
-      
-      // Debug logging to trace the issue
+
       console.log(`📝 Verify endpoint for ${community.name}:`, {
         forceRefresh,
-        cacheSource: comprehensiveData.source,
-        hasRawContent: !!comprehensiveData.rawPerplexityContent,
-        rawContentLength: comprehensiveData.rawPerplexityContent ? comprehensiveData.rawPerplexityContent.length : 0,
-        photosCount: comprehensiveData.photos ? comprehensiveData.photos.length : 0
+        sourceType: freeEnrichment.sourceType,
+        hasAbout: !!freeEnrichment.about,
+        photosCount: enrichmentResult.photos.length
       });
       
       // Update database with discovered information
@@ -1745,8 +1680,9 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
-      // Initialize Perplexity real-time data
-      let realTimeData = {
+      // Realtime Perplexity enrichment is disabled — serve enriched content from DB column
+      console.log(`📖 Community detail GET for ${community.name}: serving data from database`);
+      const realTimeData = {
         lastUpdated: new Date().toISOString(),
         currentAvailability: null as string | null,
         recentNews: [] as string[],
@@ -1756,239 +1692,40 @@ export function registerCommunityRoutes(app: Express) {
         upcomingEvents: [] as string[],
         staffUpdates: [] as string[],
         sources: [] as string[],
-        photos: [] as string[]  // Add photos from Perplexity search
+        photos: [] as string[]
       };
 
-      // Only fetch real-time data if explicitly requested (to prevent 39-second delays)
-      const fetchRealtime = req.query.realtime === 'true';
-      
-      // Use Perplexity to get real-time information about the community (only when requested)
-      const perplexityService = new PerplexityAIService();
-      if (fetchRealtime && perplexityService.isConfigured()) {
-        try {
-          // Define sentence splitting function that handles abbreviations
-          const splitSentences = (text: string): string[] => {
-            // Replace common abbreviations with placeholders to prevent splitting
-            const abbrevs = [
-              ['St.', '__ST__'],
-              ['Dr.', '__DR__'],
-              ['Mr.', '__MR__'],
-              ['Mrs.', '__MRS__'],
-              ['Ms.', '__MS__'],
-              ['Sr.', '__SR__'],
-              ['Jr.', '__JR__'],
-              ['Ave.', '__AVE__'],
-              ['Blvd.', '__BLVD__'],
-              ['Co.', '__CO__'],
-              ['Inc.', '__INC__'],
-              ['Ltd.', '__LTD__'],
-              ['vs.', '__VS__'],
-              ['U.S.', '__US__'],
-              ['U.K.', '__UK__'],
-              ['Ph.D.', '__PHD__'],
-              ['M.D.', '__MD__'],
-              ['R.N.', '__RN__'],
-              ['B.A.', '__BA__'],
-              ['M.A.', '__MA__'],
-              ['D.C.', '__DC__'],
-              ['Ph.D', '__PHD__'],
-              ['M.D', '__MD__'],
-              ['CA.', '__CA__'],
-              ['CA,', '__CACOMMA__']
-            ];
-            
-            let processedText = text;
-            for (const [abbrev, placeholder] of abbrevs) {
-              processedText = processedText.replace(new RegExp(abbrev.replace('.', '\\.'), 'gi'), placeholder);
-            }
-            
-            // Split by sentence-ending punctuation followed by space and capital letter
-            const rawSentences = processedText.split(/(?<=[.!?])\s+(?=[A-Z])/);
-            
-            // Restore abbreviations and clean up
-            return rawSentences.map(sentence => {
-              let restored = sentence;
-              for (const [abbrev, placeholder] of abbrevs) {
-                restored = restored.replace(new RegExp(placeholder, 'g'), abbrev);
-              }
-              return restored.trim();
-            }).filter(s => s.length > 10);
-          };
+      // Filter photos through enrichment service to remove non-photo content
+      const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
 
-          // CONSOLIDATED SINGLE QUERY - Reduced from 3 calls to 1 for cost optimization
-          const careTypesStr = community.careTypes?.join(', ') || 'senior living';
-          const communityDetails = `${community.name} ${community.communitySubtype || 'senior living'} community offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zipCode || ''}`;
-          
-          const comprehensiveQuery = `Provide comprehensive real-time information for ${communityDetails}:
-
-**PRICING & AVAILABILITY (2024-2025):**
-- Current monthly pricing ranges for ${careTypesStr}
-- Any waitlist information or room availability
-- Market rates for similar communities in ${community.city}
-- Pricing for different care levels if available
-
-**RECENT UPDATES & NEWS:**
-- Recent pricing changes or promotions
-- Any events, staff changes, or renovations from 2024-2025
-- Awards, recognitions, or certifications
-- Upcoming events or activities
-
-**VISUAL CONTENT:**
-- Photo gallery URLs from their website
-- Virtual tour links if available
-- Interior photos (rooms, dining, common areas)
-- Exterior photos (building and grounds)
-- Activity and amenity photos
-
-Provide specific, factual information with current pricing and availability.`;
-          
-          // SINGLE API CALL instead of 3 separate calls
-          const comprehensiveResult = await perplexityService.searchRealTime(
-            comprehensiveQuery,
-            `Comprehensive real-time data for ${community.name}`
-          );
-
-          // Parse the SINGLE comprehensive response
-          if (comprehensiveResult.summary) {
-            const fullContent = comprehensiveResult.summary;
-            const sentences = splitSentences(fullContent);
-            
-            // Extract pricing information
-            const priceMatch = fullContent.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi);
-            if (priceMatch) {
-              realTimeData.currentPricing = priceMatch[0];
-            }
-
-            // Extract availability status
-            if (fullContent.toLowerCase().includes('available') || 
-                fullContent.toLowerCase().includes('availability')) {
-              const availSentences = sentences.filter(s => 
-                s.toLowerCase().includes('available') || s.toLowerCase().includes('availability')
-              );
-              if (availSentences.length > 0) {
-                realTimeData.currentAvailability = availSentences[0];
-              }
-            }
-
-            // Extract waitlist information
-            if (fullContent.toLowerCase().includes('waitlist') || 
-                fullContent.toLowerCase().includes('waiting list')) {
-              const waitlistSentences = sentences.filter(s => 
-                s.toLowerCase().includes('waitlist') || s.toLowerCase().includes('waiting')
-              );
-              if (waitlistSentences.length > 0) {
-                realTimeData.waitlistStatus = waitlistSentences[0];
-              }
-            }
-            
-            // Extract recent news (sentences mentioning dates, events, updates)
-            const newsSentences = sentences.filter(s => 
-              s.match(/202[4-5]/) || 
-              s.toLowerCase().includes('recent') ||
-              s.toLowerCase().includes('update') ||
-              s.toLowerCase().includes('new')
-            );
-            realTimeData.recentNews = newsSentences.slice(0, 3);
-            
-            // Extract highlights (awards, recognitions)
-            if (fullContent.toLowerCase().includes('award') || 
-                fullContent.toLowerCase().includes('recognition') ||
-                fullContent.toLowerCase().includes('certified')) {
-              const highlightSentences = sentences.filter(s => 
-                s.toLowerCase().includes('award') || 
-                s.toLowerCase().includes('recognition') ||
-                s.toLowerCase().includes('certified')
-              );
-              realTimeData.communityHighlights = highlightSentences.slice(0, 2);
-            }
-
-            // Extract upcoming events
-            if (fullContent.toLowerCase().includes('event') || 
-                fullContent.toLowerCase().includes('upcoming')) {
-              const eventSentences = sentences.filter(s => 
-                s.toLowerCase().includes('event') || 
-                s.toLowerCase().includes('upcoming')
-              );
-              realTimeData.upcomingEvents = eventSentences.slice(0, 2);
-            }
+      // Build comprehensiveData from the persisted enrichedContent column so the
+      // frontend can still read structured enrichment data without Perplexity.
+      const enrichedCol = (community as any).enrichedContent;
+      const comprehensiveData = enrichedCol
+        ? {
+            rawPerplexityContent: enrichedCol.content || null,
+            photos: (enrichedCommunity.photos && enrichedCommunity.photos.length > 0)
+              ? enrichedCommunity.photos
+              : [],
+            sources: enrichedCol.metadata?.sources?.map((s: any) => s.url) || [],
+            marketData: {
+              description: enrichedCol.content || null,
+              website: community.website || null,
+              phone: community.phone || null,
+            },
+            source: 'database-content' as const,
           }
+        : null;
 
-          // Use images from the single comprehensive result
-          const allImages = comprehensiveResult.images || [];
-          
-          // Filter out placeholder images and deduplicate
-          realTimeData.photos = [...new Set(allImages)].filter(url => {
-            if (!url || typeof url !== 'string') return false;
-            const placeholderPatterns = [
-              '/api/placeholder/',
-              'placeholder.com',
-              'via.placeholder.com',
-              'placehold.it',
-              'placeimg.com',
-              'dummyimage.com',
-              'lorempixel.com'
-            ];
-            return !placeholderPatterns.some(pattern => url.toLowerCase().includes(pattern));
-          });
-
-          // Use sources from the single comprehensive result
-          realTimeData.sources = comprehensiveResult.sources.slice(0, 6).filter(Boolean);
-
-        } catch (perplexityError) {
-          console.log("Perplexity enrichment skipped:", perplexityError);
-          // Continue without real-time data if Perplexity fails
-        }
-      }
-
-      // ALWAYS filter photos through enrichment service to remove non-photo content
-      // This is the ONLY enrichment that should happen to avoid duplicate Perplexity calls
-      let enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
-      
-      // If we have real-time photos, combine them with filtered community photos
-      if (realTimeData.photos && realTimeData.photos.length > 0) {
-        // Combine and deduplicate photos
-        const allPhotos = [...(enrichedCommunity.photos || []), ...realTimeData.photos];
-        enrichedCommunity.photos = [...new Set(allPhotos)].slice(0, 15); // Limit to 15 photos
-      }
-      
-      // Check for cached comprehensive data from unified_perplexity_cache
-      let cachedComprehensiveData = null;
-      if (!fetchRealtime) {  // Only check cache if not doing real-time fetch
-        try {
-          const UnifiedPerplexityCache = (await import('../unified-perplexity-cache')).default;
-          const cacheService = UnifiedPerplexityCache.getInstance();
-          
-          // Get cached data without forcing a refresh
-          cachedComprehensiveData = await cacheService.getComprehensiveCommunityData(
-            String(communityId),
-            community.name,
-            `${community.city}, ${community.state}`,
-            false,  // isFeatured
-            false,  // forceRefresh
-            community.website
-          );
-          
-          // If we have cached photos, add them to the enriched community
-          if (cachedComprehensiveData && cachedComprehensiveData.photos && cachedComprehensiveData.photos.length > 0) {
-            console.log(`📸 Found ${cachedComprehensiveData.photos.length} cached photos for community ${communityId}`);
-            // Combine cached photos with existing photos (deduplicate)
-            const allPhotos = [...(enrichedCommunity.photos || []), ...cachedComprehensiveData.photos];
-            enrichedCommunity.photos = [...new Set(allPhotos)].slice(0, 30); // Allow more photos from cache
-          }
-        } catch (error) {
-          console.error(`Failed to retrieve cached data for community ${communityId}:`, error);
-        }
-      }
-      
       // Skip claimed community check for now - table doesn't exist
-      
+
       res.json({
         ...enrichedCommunity,
         reviews: communityReviews,
         isClaimed: false,
         claimInfo: null,
         realTimeData: realTimeData,
-        comprehensiveData: cachedComprehensiveData  // Include cached comprehensive data
+        comprehensiveData,
       });
 
       // Fire-and-forget: record community detail view for conversion funnel
@@ -2073,84 +1810,8 @@ Provide specific, factual information with current pricing and availability.`;
   });
 
   // Perplexity AI Community Insights endpoint
-  app.post("/api/perplexity/community-insights", async (req, res) => {
-    try {
-      const { communityName, city, state } = req.body;
-      
-      if (!communityName || !city || !state) {
-        return res.status(400).json({ 
-          error: "Missing required fields: communityName, city, and state are required" 
-        });
-      }
-
-      const perplexityService = new PerplexityAIService();
-      
-      if (!perplexityService.isConfigured()) {
-        return res.status(200).json({
-          recentNews: [],
-          reputation: "Real-time web search is currently unavailable. Please check back later.",
-          areaInsights: "Unable to fetch current area information. Contact the community directly for the latest updates."
-        });
-      }
-
-      try {
-        // Construct search query for web search
-        const searchQuery = `"${communityName}" senior living community ${city} ${state} recent news updates reviews 2024 2025`;
-        
-        // Fetch real-time insights
-        const searchResults = await perplexityService.searchRealTime(searchQuery, 
-          `Finding current information about ${communityName} in ${city}, ${state}`
-        );
-        
-        // Parse the results into structured format
-        const insights = {
-          recentNews: [],
-          reputation: "",
-          areaInsights: ""
-        };
-
-        // Extract key information from search results
-        if (searchResults && searchResults.summary) {
-          // Simple parsing - in production this would be more sophisticated
-          const lines = searchResults.summary.split('\n').filter((line: string) => line.trim());
-          
-          // Try to identify news items
-          const newsItems = lines.slice(0, 2).map((line: any) => ({
-            summary: line.trim(),
-            source: "Web Search"
-          }));
-          
-          if (newsItems.length > 0) {
-            insights.recentNews = newsItems;
-          }
-
-          // Extract reputation and area insights
-          insights.reputation = lines.find((line: any) => 
-            line.toLowerCase().includes('rating') || 
-            line.toLowerCase().includes('review') || 
-            line.toLowerCase().includes('reputation')
-          ) || `${communityName} is a senior living community in ${city}, ${state}. Contact them directly for the most current information.`;
-
-          insights.areaInsights = lines.find((line: any) => 
-            line.toLowerCase().includes('area') || 
-            line.toLowerCase().includes('location') || 
-            line.toLowerCase().includes('neighborhood')
-          ) || `Located in ${city}, ${state}, this community offers senior living services. Visit or call for detailed area information.`;
-        }
-
-        res.json(insights);
-      } catch (perplexityError) {
-        console.error('Perplexity search error:', perplexityError);
-        res.json({
-          recentNews: [],
-          reputation: `${communityName} is located in ${city}, ${state}. For current information, please contact the community directly.`,
-          areaInsights: `This community serves the ${city} area. Contact them for detailed local information and availability.`
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching community insights:", error);
-      res.status(500).json({ error: "Failed to fetch community insights" });
-    }
+  app.post("/api/perplexity/community-insights", async (_req, res) => {
+    res.status(503).json({ status: "disabled", message: "AI insights temporarily unavailable" });
   });
 
   // Create new community (admin only)
@@ -2497,80 +2158,9 @@ Provide specific, factual information with current pricing and availability.`;
     }
   });
 
-  // Verify service endpoint - uses same photo loading as communities
-  app.post('/api/verify-service', async (req, res) => {
-    try {
-      const { serviceId, serviceName, city, state, serviceType, website } = req.body;
-      
-      if (!serviceName) {
-        return res.status(400).json({ error: 'Service name is required' });
-      }
-
-      console.log(`🔍 Verifying service: ${serviceName} (ID: ${serviceId})`);
-      
-      // Construct location string
-      const location = city && state ? `${city}, ${state}` : city || state || 'Unknown Location';
-      
-      // Use the unified cache with the same logic as communities
-      const UnifiedPerplexityCache = (await import('../unified-perplexity-cache')).default;
-      const unifiedCache = UnifiedPerplexityCache.getInstance();
-      
-      // Check if this is a manual refresh (user clicked button)
-      const forceRefresh = req.query.forceRefresh === 'true';
-      
-      // Get comprehensive data from cache or fetch if needed
-      const comprehensiveData = await unifiedCache.getComprehensiveCommunityData(
-        serviceId || `service_${serviceName.replace(/\s+/g, '_').toLowerCase()}`, // Create ID if not provided
-        serviceName,
-        location,
-        false, // Not featured
-        forceRefresh, // Use force refresh flag
-        website // Pass website URL if available
-      );
-      
-      // Format response for service detail page
-      const response = {
-        serviceName,
-        timestamp: new Date().toISOString(),
-        verificationResults: {
-          webIntelligence: {
-            images: comprehensiveData.photos || [],
-            sources: comprehensiveData.sources || []
-          },
-          perplexityData: {
-            lastUpdated: new Date().toISOString(),
-            searchContent: comprehensiveData.rawPerplexityContent || '',
-            sources: comprehensiveData.sources || []
-          }
-        },
-        photos: comprehensiveData.photos || [],
-        photoSources: {}, // Could be enhanced later
-        citations: comprehensiveData.sources || [],
-        sources: comprehensiveData.sources || [],
-        contactInfo: {
-          phone: comprehensiveData.marketData?.phone || null,
-          website: comprehensiveData.marketData?.website || website || null,
-          address: comprehensiveData.marketData?.address || null
-        },
-        consensus: {
-          agreementLevel: 'strong',
-          verifiedFacts: [],
-          disputedFacts: [],
-          confidenceScore: 85,
-          transparencyNotes: 'Service verification complete'
-        }
-      };
-      
-      console.log(`✅ Service verification complete for ${serviceName} - Found ${response.photos.length} photos`);
-      res.json(response);
-      
-    } catch (error) {
-      console.error('Service verification error:', error);
-      res.status(500).json({ 
-        error: 'Failed to verify service information',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+  // Verify service endpoint - AI enrichment disabled
+  app.post('/api/verify-service', async (_req, res) => {
+    res.status(503).json({ status: "disabled", message: "AI insights temporarily unavailable" });
   });
 
 
