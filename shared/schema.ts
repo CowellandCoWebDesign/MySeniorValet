@@ -1545,6 +1545,9 @@ export const communities = pgTable("communities", {
   dataQualityFlags: text("data_quality_flags").array().default([]),
   dataQualityCheckedAt: timestamp("data_quality_checked_at"), // last scan timestamp
 
+  // Lifecycle flag — deactivated records are excluded from public listings/search
+  isActive: boolean("is_active").default(true),
+
   // Moderation fields — reversible hide + two-stage flag status
   isHidden: boolean("is_hidden").default(false).notNull(), // Soft-hide; does NOT delete the record
   flagStatus: text("flag_status", { enum: ["pending", "confirmed"] }), // null = no active flag
