@@ -1420,19 +1420,22 @@ export function registerAdminRoutes(app: Express) {
   adminRouter.post('/communities/:id/verify', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { verified, notes } = req.body;
-      
+      // Default to verifying when no explicit value is provided (the verify
+      // button sends an empty body). `is_verified` is the authoritative
+      // verification column used by stats and filters across the platform.
+      const verified = req.body?.verified === undefined ? true : Boolean(req.body.verified);
+      const { notes } = req.body ?? {};
+
       await db
         .update(communities)
         .set({
-          verified,
-          verifiedAt: verified ? new Date() : null,
+          isVerified: verified,
           updatedAt: new Date()
         })
         .where(eq(communities.id, communityId));
       
       // Log admin action
-      console.log(`Admin action: Community ${communityId} ${verified ? 'verified' : 'unverified'} by ${req.user?.email}. Notes: ${notes}`);
+      console.log(`Admin action: Community ${communityId} ${verified ? 'verified' : 'unverified'} by ${req.user?.email}. Notes: ${notes ?? ''}`);
       
       res.json({ success: true, communityId, verified });
     } catch (error) {

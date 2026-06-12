@@ -870,7 +870,7 @@ export default function AdminMegaDashboard() {
 
   const verifyCommunityMutation = useMutation({
     mutationFn: async (id: number) => {
-      return await apiRequest('POST', `/api/admin/communities/${id}/verify`);
+      return await apiRequest('POST', `/api/admin/communities/${id}/verify`, { verified: true });
     },
     onSuccess: () => {
       toast({ title: "Community Verified", description: "The listing has been marked as verified." });
