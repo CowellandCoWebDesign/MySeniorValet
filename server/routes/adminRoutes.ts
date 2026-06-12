@@ -1445,23 +1445,62 @@ export function registerAdminRoutes(app: Express) {
   });
 
   // Community flagging endpoint
+  // Unified with the listing-flags moderation flow: flagging creates a Pending
+  // listing_flags record and sets communities.flagStatus = 'pending'.
+  // Unflagging dismisses any open flags and clears communities.flagStatus.
   adminRouter.post('/communities/:id/flag', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { flagged, reason, severity } = req.body;
-      
-      await db
-        .update(communities)
-        .set({
-          flagged,
-          flagReason: flagged ? reason : null,
-          updatedAt: new Date()
-        })
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: 'Invalid community id' });
+      }
+
+      const { flagged = true, reason, severity } = req.body ?? {};
+
+      // Ensure the community exists before mutating state
+      const [community] = await db
+        .select({ id: communities.id })
+        .from(communities)
         .where(eq(communities.id, communityId));
-      
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
+      if (flagged) {
+        // Record the flag via the existing listing-flags mechanism
+        await db.insert(listingFlags).values({
+          communityId,
+          userId: req.user?.id ?? null,
+          flagType: 'Other',
+          reason: reason || 'Flagged by admin',
+          details: severity ? `Severity: ${severity}` : null,
+          status: 'Pending',
+          reporterEmail: req.user?.email ?? null,
+        });
+
+        await db
+          .update(communities)
+          .set({ flagStatus: 'pending', updatedAt: new Date() } as any)
+          .where(eq(communities.id, communityId));
+      } else {
+        // Unflag: dismiss any open flags and clear the community flag status
+        await db
+          .update(listingFlags)
+          .set({ status: 'Dismissed', reviewedBy: req.user?.id ?? null, reviewedAt: new Date(), updatedAt: new Date() })
+          .where(and(
+            eq(listingFlags.communityId, communityId),
+            sql`${listingFlags.status} IN ('Pending', 'Under Review')`
+          ));
+
+        await db
+          .update(communities)
+          .set({ flagStatus: null, updatedAt: new Date() } as any)
+          .where(eq(communities.id, communityId));
+      }
+
       // Log admin action
       console.log(`Admin action: Community ${communityId} ${flagged ? 'flagged' : 'unflagged'} by ${req.user?.email}. Reason: ${reason}, Severity: ${severity}`);
-      
+
       res.json({ success: true, communityId, flagged, reason, severity });
     } catch (error) {
       console.error('Error flagging community:', error);
