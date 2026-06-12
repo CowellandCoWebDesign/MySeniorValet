@@ -23,7 +23,17 @@ export interface FreeEnrichmentResult {
   email?: string;
   photos?: string[];
   sourceUrl?: string;
-  sourceType: "official_website" | "web_search" | "none";
+  /**
+   * Where the text/About content came from:
+   *   - `official_website`: the stored/admin website was scraped.
+   *   - `web_search`: a community-confirmed official site found via search was scraped.
+   *   - `web_snippet`: NO verified official site was found — only loose search-result
+   *     snippets (or a reference/social page) are available, surfaced as a clearly
+   *     labeled text fallback. A `web_snippet` result NEVER carries a `sourceUrl` to
+   *     be saved as the community's website (Golden Data Rule).
+   *   - `none`: nothing usable was found.
+   */
+  sourceType: "official_website" | "web_search" | "web_snippet" | "none";
   structured: boolean;
 }
 
@@ -195,25 +205,71 @@ export async function searchDuckDuckGo(
   state: string,
 ): Promise<DdgSearchResult> {
   try {
-    const query = `"${name}" senior living ${city} ${state} official website`;
-    const { results } = await webSearch(query);
+    // Multi-pass search: a strict quoted query first (precise, but misses
+    // communities whose stored name differs slightly from their online listing),
+    // then a looser unquoted query with fewer keywords as a fallback. The loose
+    // pass runs only when the strict pass yields no ACCEPTED website (see below),
+    // so slight name mismatches still resolve without doubling work every search.
+    const strictQuery = `"${name}" senior living ${city} ${state} official website`;
+    const looseQuery = `${name} senior living ${city} ${state}`.replace(/\s+/g, " ").trim();
+
+    const seenResultUrls = new Set<string>();
+    const results: { title: string; url: string; snippet: string }[] = [];
+    const addResults = (rs: { title: string; url: string; snippet: string }[]) => {
+      for (const r of rs) {
+        if (!r.url || seenResultUrls.has(r.url)) continue;
+        seenResultUrls.add(r.url);
+        results.push(r);
+      }
+    };
+
+    // Official website pick: first non-directory result (homepage origin) that is
+    // safe to fetch AND verified to actually reference THIS community. Directory,
+    // reference (Wikipedia, etc.) and social domains are excluded so they never
+    // become the community's "About"/official-website source — Wikipedia would
+    // otherwise get scraped as the community's own description (Golden Data Rule).
+    //
+    // Validation uses the result's TITLE + SNIPPET (the page's own description of
+    // itself), NOT the URL: matching against the URL string lets an unrelated
+    // domain whose host happens to contain a generic name token slip through
+    // (e.g. "sunrise-sunset.org" matching "Sunrise Senior Living"). For names
+    // with fewer than two distinctive tokens (after stripping generic
+    // senior-living words) we additionally require the city to appear, since a
+    // lone generic token is too weak on its own.
+    const distinctiveTokenCount = communityNameTokens(name).length;
+    const requireCityForPick = distinctiveTokenCount < 2;
+    const pickOfficialWebsite = async (): Promise<string | null> => {
+      for (const r of results) {
+        const normalized = normalizeDdgUrl(r.url);
+        if (!normalized) continue;
+        if (isDirectorySite(normalized)) continue;
+        if (isReferenceOrSocialDomain(normalized)) continue;
+        const meta = `${r.title || ""} ${r.snippet || ""}`;
+        if (!textReferencesCommunity(meta, name, city, { requireCity: requireCityForPick })) continue;
+        if (await isSafePublicUrl(normalized)) {
+          return normalized;
+        }
+      }
+      return null;
+    };
+
+    // Multi-pass: run the strict query, then broaden to the loose query whenever
+    // the strict pass did not yield an ACCEPTED website (i.e. one that passes the
+    // name-match + SSRF-safety checks above) — not merely when a plausible-looking
+    // domain was present. This guarantees the looser fallback actually runs before
+    // we give up on a verified website for name-variant communities.
+    const firstPass = await webSearch(strictQuery);
+    addResults(firstPass.results);
+
+    let website: string | null = await pickOfficialWebsite();
+    if (!website) {
+      const secondPass = await webSearch(looseQuery);
+      addResults(secondPass.results);
+      website = await pickOfficialWebsite();
+    }
 
     if (results.length === 0) {
       return { website: null, snippets: [], directoryListings: [] };
-    }
-
-    // Official website: first non-directory result (homepage origin) that is
-    // safe to fetch. Directory sites are skipped here so directory marketing
-    // copy never becomes the community's "About" text.
-    let website: string | null = null;
-    for (const r of results) {
-      const normalized = normalizeDdgUrl(r.url);
-      if (!normalized) continue;
-      if (isDirectorySite(normalized)) continue;
-      if (await isSafePublicUrl(normalized)) {
-        website = normalized;
-        break;
-      }
     }
 
     // Directory photo sources: collect public directory listing pages (full
@@ -298,6 +354,52 @@ function isDirectorySite(url: string): boolean {
     "facebook.com",
     "linkedin.com",
     "indeed.com",
+    // Senior-care referral / advisory aggregators — their pages are marketing
+    // copy ABOUT a community, not the community's own site, so they must never
+    // become the verified official-website / About-text source. Only low-collision
+    // BRANDED names are listed here; generic phrases (e.g. "assistedliving",
+    // "retirementhomes") are deliberately excluded because they appear inside
+    // legitimate community domains (parkviewassistedliving.com) and would
+    // wrongly suppress a real official site.
+    "seniorcareauthority",
+    "seniorly.com",
+    "seniorguidance",
+    "seniorliving.org",
+    "agingcare.com",
+  ].some((d) => lower.includes(d));
+}
+
+/**
+ * Reference encyclopedias, news/wiki aggregators and social platforms that are
+ * NOT a community's official website. These rank well for community-name
+ * queries (Wikipedia especially) but must never be adopted as the verified
+ * official-website / About-text source — scraping a Wikipedia article as the
+ * community's own description violates the Golden Data Rule.
+ *
+ * Scope: this is used ONLY in the official-website/About selection loop. It is
+ * intentionally separate from the photo-directory path, which stays open so
+ * photo reach is not reduced (Wikipedia & social may still contribute PHOTOS).
+ */
+function isReferenceOrSocialDomain(url: string): boolean {
+  const lower = url.toLowerCase();
+  return [
+    "wikipedia.org",
+    "wikimedia.org",
+    "wikidata.org",
+    "fandom.com",
+    "britannica.com",
+    "twitter.com",
+    "x.com",
+    "instagram.com",
+    "youtube.com",
+    "youtu.be",
+    "pinterest.com",
+    "reddit.com",
+    "tiktok.com",
+    "crunchbase.com",
+    "bloomberg.com",
+    "glassdoor.com",
+    "wikitree.com",
   ].some((d) => lower.includes(d));
 }
 
@@ -739,8 +841,12 @@ export async function enrichCommunityFree(params: {
   city: string;
   state: string;
   websiteUrl?: string | null;
+  // When true, websiteUrl is admin-authoritative (websiteProtected): it is the
+  // ONLY allowed scrape target. We never re-search/substitute a discovered URL,
+  // even if extraction fails — admin intent must not be silently overridden.
+  authoritativeWebsite?: boolean;
 }): Promise<FreeEnrichmentResult> {
-  const { name, city, state, websiteUrl } = params;
+  const { name, city, state, websiteUrl, authoritativeWebsite = false } = params;
 
   let targetUrl: string | null = websiteUrl || null;
   let sourceType: FreeEnrichmentResult["sourceType"] = "none";
@@ -768,11 +874,15 @@ export async function enrichCommunityFree(params: {
     const careTypes = extractKeywordCareTypes(snippetText);
     const amenities = extractKeywordAmenities(snippetText);
     console.log(`📄 Using DuckDuckGo snippets as text-only fallback for "${name}" (${snippetText.length} chars)`);
+    // Labeled fallback ONLY: no verified official site was found. sourceType is
+    // "web_snippet" (not "web_search") and we deliberately omit sourceUrl so this
+    // loose text is never saved as the community's official website (Golden Data
+    // Rule — a Wikipedia/reference/snippet page must never become the website).
     return {
       about: snippetText,
       careTypes: careTypes.length > 0 ? careTypes : undefined,
       amenities: amenities.length > 0 ? amenities : undefined,
-      sourceType: "web_search",
+      sourceType: "web_snippet",
       structured: false,
     };
   }
@@ -787,7 +897,10 @@ export async function enrichCommunityFree(params: {
   console.log(`📄 Jina Reader: extracting content from ${targetUrl}`);
   let rawMarkdown = await extractContentFromUrl(targetUrl);
 
-  if (!rawMarkdown && sourceType === "official_website") {
+  // Discovery fallback ONLY when the stored website is NOT admin-authoritative.
+  // A protected (websiteProtected) website is the only permitted scrape target —
+  // if Jina fails on it we return empty rather than substituting a discovered URL.
+  if (!rawMarkdown && sourceType === "official_website" && !authoritativeWebsite) {
     console.log(`⚠️ Jina failed on stored website — trying DuckDuckGo fallback for "${name}"`);
     const discoveredUrl = await findCommunityWebsite(name, city, state);
     if (discoveredUrl && discoveredUrl !== targetUrl) {

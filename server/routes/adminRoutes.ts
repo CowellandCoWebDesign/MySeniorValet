@@ -488,6 +488,16 @@ export function registerAdminRoutes(app: Express) {
       // Strip test phone/website patterns before persisting
       const sanitizedUpdates = DataIntegrityValidator.sanitizeCommunityData(updates as any);
 
+      // Admin-entered website is authoritative: when an admin sets/edits the
+      // website, mark it protected so on-demand discovery never overwrites it and
+      // always uses this exact URL as the scrape target. (Clearing the website
+      // releases the protection.) Only acts when `website` was actually part of
+      // the submitted update so other field edits don't toggle protection.
+      if (Object.prototype.hasOwnProperty.call(updates, 'website')) {
+        const w = sanitizedUpdates.website;
+        sanitizedUpdates.websiteProtected = typeof w === 'string' && w.trim().length > 0;
+      }
+
       const [updated] = await db.update(communities)
         .set(sanitizedUpdates as any)
         .where(eq(communities.id, communityId))

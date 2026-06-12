@@ -49,6 +49,7 @@ export class CommunityEnrichmentService {
           description: communities.description,
           careTypes: communities.careTypes,
           website: communities.website,
+          websiteProtected: communities.websiteProtected,
         })
         .from(communities)
         .where(eq(communities.id, communityId))
@@ -100,6 +101,7 @@ export class CommunityEnrichmentService {
       city: communityData.city || '',
       state: communityData.state || '',
       websiteUrl: communityData.website,
+      authoritativeWebsite: !!communityData.websiteProtected && !!communityData.website,
     });
 
     const about = result.about || communityData.description || '';

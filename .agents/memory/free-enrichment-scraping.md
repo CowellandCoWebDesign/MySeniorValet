@@ -35,6 +35,28 @@ no-op stub — never re-introduce invented content.
   notice. Block `shutterstock`, `listing-stock-images`, `/stock-images/`, etc.
   (avoid bare `stock` — false-positives like "Stockton"/"Woodstock").
 
+## Picking the official-website / About source (not photos)
+The website/About selection loop in `searchDuckDuckGo` is separate from photo
+discovery — only it gets name/source filtering; photo reach must stay wide.
+- Reject reference/social (Wikipedia, Britannica, Fandom, X, etc. via
+  `isReferenceOrSocialDomain`) AND referral/advisory aggregators (`isDirectorySite`)
+  so neither becomes the verified website or About text (Golden Data).
+- Validate the pick against the result's TITLE+SNIPPET, NOT the URL — a URL host
+  containing a generic name token (sunrise-sunset.org ↔ "Sunrise Senior Living")
+  is a false positive. For names with <2 distinctive tokens
+  (`communityNameTokens`), also require the city.
+- `isDirectorySite` matches by substring, so only list LOW-COLLISION branded
+  aggregator names (seniorcareauthority, seniorly.com, seniorguidance,
+  seniorliving.org, agingcare.com). Generic phrases ("assistedliving",
+  "nursinghomes", "retirementhomes") appear inside real community domains
+  (parkviewassistedliving.com) and would wrongly suppress the real official site.
+- Admin-entered website is authoritative: `community.website` is always the scrape
+  target, and `websiteProtected` blocks discovery/verify from overwriting it. Pass
+  `enrichCommunityFree({ authoritativeWebsite: websiteProtected && website })` so the
+  Jina-failure discovery fallback is DISABLED for protected URLs — never silently
+  substitute a discovered URL for an admin's. All 3 callers (on-demand, verify,
+  community-enrichment-service) must thread this flag.
+
 ## SSRF: server-side fetch of community-provided URLs
 Enrichment fetches DB-stored community website URLs server-side and is reachable
 from the normal view flow (`onCommunityView`). Any such fetch MUST go through the

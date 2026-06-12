@@ -958,7 +958,12 @@ export function registerCommunityRoutes(app: Express) {
       
       // Use the website URL from the request (from discovery) or fall back to community's stored website
       // CRITICAL FIX: Filter out invalid website values like "No", "Not", "N/A", etc.
-      let communityWebsite = websiteUrl || community.website;
+      // When the community's website is admin-protected, it is authoritative: ignore
+      // any request-supplied websiteUrl override and force the stored website as the
+      // scrape target so a discovery override can never bypass the admin's choice.
+      let communityWebsite = (community.websiteProtected && community.website)
+        ? community.website
+        : (websiteUrl || community.website);
       if (communityWebsite) {
         // Check if it's a valid URL (must start with http or https or www)
         const isValidUrl = communityWebsite.startsWith('http://') || 
@@ -1048,6 +1053,7 @@ export function registerCommunityRoutes(app: Express) {
           city: community.city,
           state: community.state,
           websiteUrl: communityWebsite,
+          authoritativeWebsite: !!community.websiteProtected && !!communityWebsite,
         });
       }
 
@@ -1266,7 +1272,10 @@ export function registerCommunityRoutes(app: Express) {
           // actually resolves. AI-guessed / 404 domains are dropped, never saved
           // (Golden Data Rule). Citation artifacts are stripped before comparison.
           const candidateWebsite = cleanCitationArtifacts(enrichmentResult.officialWebsite);
-          if (candidateWebsite && current.website !== candidateWebsite) {
+          if (current.websiteProtected && candidateWebsite && current.website !== candidateWebsite) {
+            // Admin-set website is authoritative — discovery never overwrites it.
+            console.log(`🔒 Keeping admin-protected website for "${current.name}": ${current.website}`);
+          } else if (candidateWebsite && current.website !== candidateWebsite) {
             if (await isReachableWebsite(candidateWebsite)) {
               updates.website = candidateWebsite;
               hasUpdates = true;

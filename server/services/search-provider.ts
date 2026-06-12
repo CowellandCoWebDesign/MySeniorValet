@@ -42,6 +42,17 @@ export interface WebSearchResponse {
 
 const PROVIDER_TIMEOUT_MS = 12_000;
 
+/**
+ * Per-provider retry policy. Free engines (DuckDuckGo's token endpoint, Bing
+ * HTML) throttle intermittently — a momentary throttle surfaces as a thrown
+ * error OR a zero-result response. A single short retry with backoff recovers
+ * many of these so a transient blip doesn't immediately become "no results".
+ */
+const PROVIDER_RETRIES = 1; // one extra attempt after the first
+const PROVIDER_RETRY_BACKOFF_MS = 600;
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
 const BING_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15";
 
@@ -165,27 +176,51 @@ const PROVIDERS: Provider[] = [
 export async function webSearch(query: string): Promise<WebSearchResponse> {
   for (let i = 0; i < PROVIDERS.length; i++) {
     const provider = PROVIDERS[i];
-    try {
-      const results = await withTimeout(
-        provider.fn(query),
-        PROVIDER_TIMEOUT_MS,
-        `search:${provider.name}`,
-      );
-      if (results.length > 0) {
-        if (i === 0) {
-          console.log(`🔍 Search: "${provider.name}" answered (${results.length} results)`);
-        } else {
-          console.log(
-            `🔁 Search failover → "${provider.name}" answered (${results.length} results) for "${query.slice(0, 60)}"`,
-          );
+
+    // Retry each provider a few times with backoff before failing over. A thrown
+    // error OR a zero-result response is treated as a transient throttle worth
+    // one short retry; only after exhausting retries do we move to the next
+    // engine. This keeps a momentary DuckDuckGo/Bing throttle from instantly
+    // collapsing to "no results".
+    for (let attempt = 0; attempt <= PROVIDER_RETRIES; attempt++) {
+      try {
+        const results = await withTimeout(
+          provider.fn(query),
+          PROVIDER_TIMEOUT_MS,
+          `search:${provider.name}`,
+        );
+        if (results.length > 0) {
+          if (i === 0 && attempt === 0) {
+            console.log(`🔍 Search: "${provider.name}" answered (${results.length} results)`);
+          } else {
+            console.log(
+              `🔁 Search ${i === 0 ? "retry" : "failover"} → "${provider.name}" answered ` +
+                `(${results.length} results, attempt ${attempt + 1}) for "${query.slice(0, 60)}"`,
+            );
+          }
+          return { provider: provider.name, results };
         }
-        return { provider: provider.name, results };
+        if (attempt < PROVIDER_RETRIES) {
+          console.log(
+            `⚠️ Search provider "${provider.name}" returned 0 results — retrying in ${PROVIDER_RETRY_BACKOFF_MS}ms`,
+          );
+          await sleep(PROVIDER_RETRY_BACKOFF_MS);
+          continue;
+        }
+        console.log(`⚠️ Search provider "${provider.name}" returned 0 results — trying next`);
+      } catch (err: any) {
+        if (attempt < PROVIDER_RETRIES) {
+          console.log(
+            `⚠️ Search provider "${provider.name}" failed (${err?.message || err}) — ` +
+              `retrying in ${PROVIDER_RETRY_BACKOFF_MS}ms`,
+          );
+          await sleep(PROVIDER_RETRY_BACKOFF_MS);
+          continue;
+        }
+        console.log(
+          `⚠️ Search provider "${provider.name}" failed (${err?.message || err}) — trying next`,
+        );
       }
-      console.log(`⚠️ Search provider "${provider.name}" returned 0 results — trying next`);
-    } catch (err: any) {
-      console.log(
-        `⚠️ Search provider "${provider.name}" failed (${err?.message || err}) — trying next`,
-      );
     }
   }
   console.log(`❌ Search: all providers exhausted, no results for "${query.slice(0, 60)}"`);

@@ -172,12 +172,17 @@ export class OnDemandEnrichmentService {
         .where(eq(communities.id, communityId));
 
       // ── Step 1: Free pipeline (Jina + DuckDuckGo + optional Groq) ───────────
+      // A stored website (admin-entered or previously discovered) is ALWAYS the
+      // authoritative scrape target. websiteProtected means "always use this exact
+      // URL", so we pass it through regardless — it must NOT cause us to ignore the
+      // admin's URL and re-search (the previous behavior had this inverted).
       const freeName = community.name || "Community";
       const freeResult = await enrichCommunityFree({
         name: freeName,
         city: community.city || "",
         state: community.state || "",
-        websiteUrl: community.websiteProtected ? null : (community.website || null),
+        websiteUrl: community.website || null,
+        authoritativeWebsite: !!community.websiteProtected && !!community.website,
       });
 
       console.log(
@@ -188,8 +193,11 @@ export class OnDemandEnrichmentService {
       );
 
       // ── Step 2: Cheerio scrape for photos (complementary) ───────────────────
+      // Prefer the source the free pipeline actually scraped; otherwise fall back
+      // to the stored website. A protected (admin) website is still used as the
+      // scrape target — protected means "always use this URL", not "skip it".
       let scraped: ScrapedData = { photos: [], amenities: [], careTypes: [] };
-      const targetUrl = freeResult.sourceUrl || (community.website && !community.websiteProtected ? community.website : null);
+      const targetUrl = freeResult.sourceUrl || community.website || null;
       if (targetUrl) {
         scraped = await this.scrapeWebsiteFree(targetUrl, freeName);
       }
@@ -256,8 +264,22 @@ export class OnDemandEnrichmentService {
         result.fieldsUpdated.push("rating");
       }
 
-      // If DuckDuckGo found a website URL and community had none, save it
-      if (freeResult.sourceUrl && !community.website && freeResult.sourceType === "web_search") {
+      // Persist a discovered official website so future enrichments reuse the
+      // exact URL instead of re-searching (and re-rolling the dice). ONLY a
+      // community-confirmed official site found via search ("web_search" with a
+      // sourceUrl) is saved — never a Wikipedia/reference/snippet fallback
+      // ("web_snippet" carries no sourceUrl). Never overwrite an admin-set
+      // (protected) website. A "web_search" source here means either the
+      // community had no stored website, or its non-protected stored website
+      // failed extraction and discovery found a better, name-validated URL — in
+      // BOTH cases we save the discovered URL (when it differs) so a stale/wrong
+      // non-protected website is corrected instead of re-searched every view.
+      if (
+        freeResult.sourceUrl &&
+        freeResult.sourceType === "web_search" &&
+        !community.websiteProtected &&
+        freeResult.sourceUrl !== community.website
+      ) {
         updates.website = freeResult.sourceUrl;
         result.fieldsUpdated.push("website");
       }
@@ -268,10 +290,15 @@ export class OnDemandEnrichmentService {
           ? "jina_official_website"
           : freeResult.sourceType === "web_search"
           ? "jina_web_search"
+          : freeResult.sourceType === "web_snippet"
+          ? "web_snippet_fallback"
           : "no_source",
         timestamp: new Date().toISOString(),
         fieldsEnriched: result.fieldsUpdated,
-        confidence: freeResult.structured ? 0.9 : 0.6,
+        // Snippet fallback is the weakest evidence (loose search text, no verified
+        // site) — flag it with the lowest confidence so it's clearly labeled.
+        confidence:
+          freeResult.sourceType === "web_snippet" ? 0.4 : freeResult.structured ? 0.9 : 0.6,
       };
       updates.enrichmentSources = sql`
         COALESCE(enrichment_sources, '[]'::jsonb) || ${JSON.stringify([sourceEntry])}::jsonb
