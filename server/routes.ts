@@ -1169,10 +1169,6 @@ Disallow: /`;
   const { registerResidentPaymentRoutes } = await import('./routes/resident-payments');
   registerResidentPaymentRoutes(app);
 
-  // Register admin community management routes
-  const adminCommunityRoutes = await import('./routes/adminCommunityRoutes');
-  app.use('/api', adminCommunityRoutes.default);
-
   // Register data-quality detection/flagging/cleanup routes (admin-only)
   const dataQualityRoutes = await import('./routes/dataQualityRoutes');
   app.use('/api', dataQualityRoutes.default);

@@ -7,3 +7,4 @@
 - [Gemini free-tier integration](gemini-free-tier.md) — use native fetch() to v1 REST + gemini-2.5-flash; library uses v1beta (wrong models); city in prompt causes truncating correction tangents.
 - [db push schema drift](db-push-schema-drift.md) — `db:push` prompts destructive table renames due to drift; use idempotent `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` for additive changes.
 - [admin API global guard](admin-api-global-guard.md) — `/api/admin/*` returns 401 even for no-auth routes; smoke-test admin logic via psql/tsx, not curl.
+- [Admin route shadowing](admin-router-shadowing.md) — main adminRouter (routes/adminRoutes.ts) registers first & wins overlapping /api/admin/communities paths; add new endpoints there, literals before :id.

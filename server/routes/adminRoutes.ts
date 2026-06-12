@@ -9,7 +9,8 @@ import {
   vendors,
   communityClaims,
   claimedCommunities,
-  featuredCommunities
+  featuredCommunities,
+  listingFlags
 } from "@shared/schema";
 import { eq, desc, sql, and, or, gte, ilike } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
@@ -24,6 +25,9 @@ import {
 import { enhancedPlatformStats } from "../enhanced-platform-stats";
 import { communityStatsCache } from "../community-stats-cache";
 import { storage } from "../storage";
+import { DataIntegrityValidator } from "../services/data-integrity-validator";
+import { batchVerifier } from "../services/batch-perplexity-verifier";
+import { cityBatchVerifier } from "../services/city-batch-verifier";
 
 export function registerAdminRoutes(app: Express) {
   // Create a separate router for admin routes
@@ -441,6 +445,7 @@ export function registerAdminRoutes(app: Express) {
   adminRouter.put('/communities/:id', async (req, res) => {
     try {
       const { id } = req.params;
+      const communityId = parseInt(id);
       const updates = { ...req.body };
 
       // Never allow these to be overwritten directly
@@ -456,9 +461,36 @@ export function registerAdminRoutes(app: Express) {
         }
       }
 
+      // Golden Data Rule: reject test/fake patterns and duplicates before persisting
+      const validationResult = await DataIntegrityValidator.performFullValidation({
+        id: communityId,
+        name: updates.name || '',
+        address: updates.address,
+        city: updates.city,
+        state: updates.state,
+        phone: updates.phone,
+        website: updates.website,
+        description: updates.description
+      });
+
+      if (!validationResult.isValid) {
+        return res.status(400).json({
+          message: 'Validation failed',
+          errors: validationResult.errors,
+          warnings: validationResult.warnings
+        });
+      }
+
+      if (validationResult.warnings.length > 0) {
+        console.warn('Community update warnings:', validationResult.warnings);
+      }
+
+      // Strip test phone/website patterns before persisting
+      const sanitizedUpdates = DataIntegrityValidator.sanitizeCommunityData(updates as any);
+
       const [updated] = await db.update(communities)
-        .set(updates)
-        .where(eq(communities.id, parseInt(id)))
+        .set(sanitizedUpdates as any)
+        .where(eq(communities.id, communityId))
         .returning();
       res.json(updated);
     } catch (error) {
@@ -1899,6 +1931,313 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error('Error fetching enrichment stats:', error);
       res.status(500).json({ error: 'Failed to fetch enrichment stats' });
+    }
+  });
+
+  // ============================================================
+  // Consolidated community-management endpoints
+  // (merged from former adminCommunityRoutes.ts)
+  // ============================================================
+
+  // Get community statistics — uses aggregate SQL (no full table scan)
+  adminRouter.get('/communities/stats', async (req, res) => {
+    try {
+      const [[totalRow], [verifiedRow], [withPhotosRow], [withPricingRow], [hiddenRow], [flaggedRow], topStatesRows] = await Promise.all([
+        db.select({ count: sql<number>`count(*)` }).from(communities),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(eq(communities.isVerified, true)),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`array_length(${communities.photos}, 1) > 0`),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`${communities.rentPerMonth} IS NOT NULL`),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(eq(communities.isHidden, true)),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`${communities.flagStatus} IS NOT NULL`),
+        db.select({
+          state: communities.state,
+          count: sql<number>`count(*)`
+        }).from(communities).groupBy(communities.state).orderBy(sql`count(*) DESC`).limit(5),
+      ]);
+
+      res.json({
+        total: Number(totalRow.count),
+        verified: Number(verifiedRow.count),
+        withPhotos: Number(withPhotosRow.count),
+        withPricing: Number(withPricingRow.count),
+        hidden: Number(hiddenRow.count),
+        flagged: Number(flaggedRow.count),
+        topStates: topStatesRows.map(r => ({ state: r.state, count: Number(r.count) })),
+        featured: 0,
+        platinum: 0,
+        standard: 0,
+        premium: 0,
+      });
+    } catch (error) {
+      console.error('Error fetching community stats:', error);
+      res.status(500).json({ message: 'Failed to fetch statistics' });
+    }
+  });
+
+  // Get distinct filter options (states + countries) populated from real data
+  adminRouter.get('/communities/filters', async (req, res) => {
+    try {
+      const [stateRows, countryRows] = await Promise.all([
+        db.select({ value: communities.state, count: sql<number>`count(*)` })
+          .from(communities)
+          .where(sql`${communities.state} IS NOT NULL AND ${communities.state} <> ''`)
+          .groupBy(communities.state)
+          .orderBy(sql`count(*) DESC`),
+        db.select({ value: communities.country, count: sql<number>`count(*)` })
+          .from(communities)
+          .where(sql`${communities.country} IS NOT NULL AND ${communities.country} <> ''`)
+          .groupBy(communities.country)
+          .orderBy(sql`count(*) DESC`),
+      ]);
+
+      res.json({
+        states: stateRows.map(r => ({ value: r.value, count: Number(r.count) })),
+        countries: countryRows.map(r => ({ value: r.value, count: Number(r.count) })),
+      });
+    } catch (error) {
+      console.error('Error fetching community filters:', error);
+      res.status(500).json({ message: 'Failed to fetch filter options' });
+    }
+  });
+
+  // Hide a community (reversible soft-hide)
+  adminRouter.post('/communities/:id/hide', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const [updated] = await db.update(communities)
+        .set({ isHidden: true, updatedAt: new Date() })
+        .where(eq(communities.id, communityId))
+        .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
+      if (!updated) return res.status(404).json({ message: 'Community not found' });
+      res.json({ message: 'Community hidden', community: updated });
+    } catch (error) {
+      console.error('Error hiding community:', error);
+      res.status(500).json({ message: 'Failed to hide community' });
+    }
+  });
+
+  // Unhide a community
+  adminRouter.post('/communities/:id/unhide', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const [updated] = await db.update(communities)
+        .set({ isHidden: false, updatedAt: new Date() })
+        .where(eq(communities.id, communityId))
+        .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
+      if (!updated) return res.status(404).json({ message: 'Community not found' });
+      res.json({ message: 'Community unhidden', community: updated });
+    } catch (error) {
+      console.error('Error unhiding community:', error);
+      res.status(500).json({ message: 'Failed to unhide community' });
+    }
+  });
+
+  // Get pending listing flags for admin moderation
+  adminRouter.get('/listing-flags', async (req, res) => {
+    try {
+      const { status = 'Pending', page = '1', limit = '20' } = req.query;
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const offset = (pageNum - 1) * limitNum;
+
+      const [flags, [countRow]] = await Promise.all([
+        db.select({
+          id: listingFlags.id,
+          communityId: listingFlags.communityId,
+          communityName: communities.name,
+          communityCity: communities.city,
+          communityState: communities.state,
+          flagType: listingFlags.flagType,
+          reason: listingFlags.reason,
+          details: listingFlags.details,
+          status: listingFlags.status,
+          reporterEmail: listingFlags.reporterEmail,
+          reporterName: listingFlags.reporterName,
+          createdAt: listingFlags.createdAt,
+        })
+          .from(listingFlags)
+          .innerJoin(communities, eq(listingFlags.communityId, communities.id))
+          .where(status === 'all' ? undefined : eq(listingFlags.status, status as string))
+          .orderBy(desc(listingFlags.createdAt))
+          .limit(limitNum)
+          .offset(offset),
+        db.select({ count: sql<number>`count(*)` })
+          .from(listingFlags)
+          .where(status === 'all' ? undefined : eq(listingFlags.status, status as string)),
+      ]);
+
+      res.json({ flags, total: Number(countRow.count), page: pageNum, totalPages: Math.ceil(Number(countRow.count) / limitNum) });
+    } catch (error) {
+      console.error('Error fetching listing flags:', error);
+      res.status(500).json({ message: 'Failed to fetch listing flags' });
+    }
+  });
+
+  // Dismiss a flag (no action on community)
+  adminRouter.post('/listing-flags/:id/dismiss', async (req, res) => {
+    try {
+      const flagId = parseInt(req.params.id);
+      const [updated] = await db.update(listingFlags)
+        .set({ status: 'Dismissed', reviewedAt: new Date(), updatedAt: new Date() })
+        .where(eq(listingFlags.id, flagId))
+        .returning({ id: listingFlags.id, communityId: listingFlags.communityId });
+      if (!updated) return res.status(404).json({ message: 'Flag not found' });
+
+      // Clear communities.flagStatus if no active (Pending) flags remain for this community
+      const [remaining] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(listingFlags)
+        .where(and(
+          eq(listingFlags.communityId, updated.communityId),
+          sql`${listingFlags.status} IN ('Pending', 'Under Review')`
+        ));
+      if (Number(remaining.count) === 0) {
+        await db.update(communities)
+          .set({ flagStatus: null } as any)
+          .where(eq(communities.id, updated.communityId));
+      }
+
+      res.json({ message: 'Flag dismissed' });
+    } catch (error) {
+      console.error('Error dismissing flag:', error);
+      res.status(500).json({ message: 'Failed to dismiss flag' });
+    }
+  });
+
+  // Confirm a flag: mark flag Resolved + set community flagStatus = 'confirmed'
+  adminRouter.post('/listing-flags/:id/confirm', async (req, res) => {
+    try {
+      const flagId = parseInt(req.params.id);
+      const { hideListingAlso = false } = req.body;
+
+      const [flag] = await db.update(listingFlags)
+        .set({ status: 'Resolved', reviewedAt: new Date(), updatedAt: new Date() })
+        .where(eq(listingFlags.id, flagId))
+        .returning({ id: listingFlags.id, communityId: listingFlags.communityId });
+
+      if (!flag) return res.status(404).json({ message: 'Flag not found' });
+
+      const communityUpdates: Record<string, any> = {
+        flagStatus: 'confirmed',
+        updatedAt: new Date(),
+      };
+      if (hideListingAlso) {
+        communityUpdates.isHidden = true;
+      }
+
+      await db.update(communities).set(communityUpdates).where(eq(communities.id, flag.communityId));
+
+      res.json({ message: hideListingAlso ? 'Flag confirmed and listing hidden' : 'Flag confirmed' });
+    } catch (error) {
+      console.error('Error confirming flag:', error);
+      res.status(500).json({ message: 'Failed to confirm flag' });
+    }
+  });
+
+  // Run batch Perplexity verification
+  adminRouter.post('/verify/batch', async (req, res) => {
+    try {
+      const { limit = 50 } = req.body;
+
+      console.log(`🚀 Starting batch verification for ${limit} communities...`);
+
+      // Start the verification process in the background
+      batchVerifier.runVerificationProcess(limit).catch(error => {
+        console.error('Batch verification failed:', error);
+      });
+
+      res.json({
+        message: `Batch verification started for up to ${limit} communities`,
+        status: 'processing',
+        note: 'Check server logs for progress'
+      });
+    } catch (error) {
+      console.error('Error starting batch verification:', error);
+      res.status(500).json({ message: 'Failed to start batch verification' });
+    }
+  });
+
+  // Get verification statistics
+  adminRouter.get('/verify/stats', async (req, res) => {
+    try {
+      const stats = await batchVerifier.getVerificationStats();
+
+      res.json({
+        total: stats.total,
+        verified: stats.verified || 0,
+        needsVerification: stats.needs_verification || 0,
+        fake: stats.fake || 0,
+        international: stats.international || 0,
+        percentVerified: stats.total > 0 ?
+          Math.round((stats.verified || 0) / stats.total * 100) : 0
+      });
+    } catch (error) {
+      console.error('Error fetching verification stats:', error);
+      res.status(500).json({ message: 'Failed to fetch verification stats' });
+    }
+  });
+
+  // City-based batch verification - MUCH MORE EFFICIENT!
+  adminRouter.post('/verify/cities', async (req, res) => {
+    try {
+      const { cities, limit = 100 } = req.body;
+
+      let targetCities = cities;
+
+      // If no cities provided, get top unverified cities
+      if (!targetCities || targetCities.length === 0) {
+        targetCities = await cityBatchVerifier.getTopUnverifiedCities(10);
+        console.log(`🏙️ Auto-selected top ${targetCities.length} cities with unverified communities`);
+      }
+
+      console.log(`🚀 Starting city-based verification for ${targetCities.length} cities...`);
+
+      // Start verification in background
+      cityBatchVerifier.verifyCitiesBatch(targetCities, limit).catch(error => {
+        console.error('City batch verification failed:', error);
+      });
+
+      res.json({
+        message: `City-based verification started for ${targetCities.length} cities`,
+        cities: targetCities,
+        status: 'processing'
+      });
+    } catch (error) {
+      console.error('Error starting city verification:', error);
+      res.status(500).json({ message: 'Failed to start city verification' });
+    }
+  });
+
+  // Get cities with most unverified communities
+  adminRouter.get('/verify/top-cities', async (req, res) => {
+    try {
+      const { limit = 20 } = req.query;
+      const topCities = await cityBatchVerifier.getTopUnverifiedCities(Number(limit));
+
+      res.json({
+        cities: topCities,
+        total: topCities.reduce((sum, c) => sum + c.count, 0)
+      });
+    } catch (error) {
+      console.error('Error fetching top cities:', error);
+      res.status(500).json({ message: 'Failed to fetch top cities' });
+    }
+  });
+
+  // Get single community by ID — admin bypass (sees hidden/fake records).
+  // Defined AFTER all literal /communities/* GET routes so it never shadows them.
+  adminRouter.get('/communities/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ message: 'Invalid community ID' });
+
+      const [community] = await db.select().from(communities).where(eq(communities.id, communityId));
+      if (!community) return res.status(404).json({ message: 'Community not found' });
+
+      res.json(community);
+    } catch (error) {
+      console.error('Error fetching community for admin:', error);
+      res.status(500).json({ message: 'Failed to fetch community' });
     }
   });
 
