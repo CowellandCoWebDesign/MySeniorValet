@@ -3976,6 +3976,9 @@ function SectionConfigFields({ sectionType, config, onChange }: {
 interface SortableSectionRowProps {
   section: any;
   idx: number;
+  isFirst: boolean;
+  isLast: boolean;
+  isBusy: boolean;
   editingId: number | null;
   editDraft: any;
   setEditDraft: (d: any) => void;
@@ -3983,11 +3986,15 @@ interface SortableSectionRowProps {
   handleToggle: (s: any) => void;
   handleDelete: (id: number) => void;
   handleSaveEdit: (s: any) => void;
+  handleMove: (id: number, direction: -1 | 1) => void;
 }
 
 function SortableSectionRow({
   section,
   idx,
+  isFirst,
+  isLast,
+  isBusy,
   editingId,
   editDraft,
   setEditDraft,
@@ -3995,6 +4002,7 @@ function SortableSectionRow({
   handleToggle,
   handleDelete,
   handleSaveEdit,
+  handleMove,
 }: SortableSectionRowProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
   const style: React.CSSProperties = {
@@ -4072,6 +4080,28 @@ function SortableSectionRow({
             </Badge>
           </div>
           <div className="flex items-center gap-1 flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleMove(section.id, -1)}
+              disabled={isFirst || isBusy}
+              className="h-7 px-2"
+              aria-label="Move up"
+              title="Move up"
+            >
+              <ArrowUp className="h-3 w-3" />
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleMove(section.id, 1)}
+              disabled={isLast || isBusy}
+              className="h-7 px-2"
+              aria-label="Move down"
+              title="Move down"
+            >
+              <ArrowDown className="h-3 w-3" />
+            </Button>
             <Button variant="outline" size="sm" onClick={() => { setEditingId(section.id); setEditDraft({}); }} className="h-7 px-2">
               <Edit3 className="h-3 w-3" />
             </Button>
@@ -4415,6 +4445,8 @@ function HomeSectionsAdmin() {
   const [showAddForm, setShowAddForm] = useState(false);
   // Local order for optimistic reorder while PATCH calls are in-flight
   const [localOrder, setLocalOrder] = useState<any[] | null>(null);
+  // Guard so only one reorder persists at a time (prevents racing position writes)
+  const [isReordering, setIsReordering] = useState(false);
 
   const { data: sections = [], isLoading, refetch } = useQuery<any[]>({
     queryKey: ['/api/admin/home-sections'],
@@ -4488,13 +4520,12 @@ function HomeSectionsAdmin() {
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
 
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const current = localOrder ?? sorted;
-    const oldIndex = current.findIndex((s: any) => s.id === active.id);
-    const newIndex = current.findIndex((s: any) => s.id === over.id);
-    const reordered = arrayMove(current, oldIndex, newIndex);
+  // Shared persistence path for any reorder (drag OR up/down buttons).
+  // Re-entrancy guard: ignore new reorders while one is still persisting so
+  // concurrent position writes can't race and clobber the latest intended order.
+  const persistOrder = async (reordered: any[]) => {
+    if (isReordering) return;
+    setIsReordering(true);
     setLocalOrder(reordered);
     try {
       await Promise.all(reordered.map((s: any, i: number) => patchSection(s.id, { position: i + 1 })));
@@ -4508,7 +4539,27 @@ function HomeSectionsAdmin() {
     } finally {
       // Always drop the optimistic order so the list reflects authoritative server data.
       setLocalOrder(null);
+      setIsReordering(false);
     }
+  };
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const current = localOrder ?? sorted;
+    const oldIndex = current.findIndex((s: any) => s.id === active.id);
+    const newIndex = current.findIndex((s: any) => s.id === over.id);
+    await persistOrder(arrayMove(current, oldIndex, newIndex));
+  };
+
+  // Move a section one position up (-1) or down (+1). Works everywhere, including
+  // the embedded preview iframe where pointer drag is unreliable.
+  const handleMove = async (id: number, direction: -1 | 1) => {
+    const current = localOrder ?? sorted;
+    const index = current.findIndex((s: any) => s.id === id);
+    const target = index + direction;
+    if (index === -1 || target < 0 || target >= current.length) return;
+    await persistOrder(arrayMove(current, index, target));
   };
 
   const handleSaveEdit = async (section: any) => {
@@ -4595,6 +4646,9 @@ function HomeSectionsAdmin() {
                       key={section.id}
                       section={section}
                       idx={idx}
+                      isFirst={idx === 0}
+                      isLast={idx === sorted.length - 1}
+                      isBusy={isReordering}
                       editingId={editingId}
                       editDraft={editDraft}
                       setEditDraft={setEditDraft}
@@ -4602,6 +4656,7 @@ function HomeSectionsAdmin() {
                       handleToggle={handleToggle}
                       handleDelete={handleDelete}
                       handleSaveEdit={handleSaveEdit}
+                      handleMove={handleMove}
                     />
                   ))}
                 </div>
