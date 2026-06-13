@@ -53,6 +53,8 @@ APP_URL = "https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway
 [userenv.shared]
 PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true"
 PLAYWRIGHT_BROWSERS_PATH = "0"
+PUBLIC_OBJECT_SEARCH_PATHS = "community-photos/"
+PRIVATE_OBJECT_DIR = ".private"
 
 [postMerge]
 path = "scripts/post-merge.sh"

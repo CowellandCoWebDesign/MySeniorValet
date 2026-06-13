@@ -28,6 +28,35 @@ import { storage } from "../storage";
 import { DataIntegrityValidator } from "../services/data-integrity-validator";
 import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+
+// Community photos are stored on disk under public/uploads/community-photos/<id>/
+// and served publicly via the existing express.static('public') middleware in server/index.ts.
+// Filenames are generated as <timestamp>.<ext> by multer, ensuring no user-controlled names.
+const PHOTO_UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'community-photos');
+
+const photoStorage = multer.diskStorage({
+  destination: (req, _file, cb) => {
+    const dir = path.join(PHOTO_UPLOAD_DIR, req.params?.id ?? 'unknown');
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (_req, file, cb) => {
+    const ext = (file.mimetype.split('/')[1] ?? 'jpg').replace('jpeg', 'jpg');
+    cb(null, `${Date.now()}.${ext}`);
+  },
+});
+
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const upload = multer({
+  storage: photoStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    cb(null, ALLOWED_MIME.has(file.mimetype));
+  },
+});
 
 export function registerAdminRoutes(app: Express) {
   // Create a separate router for admin routes
@@ -2288,6 +2317,133 @@ export function registerAdminRoutes(app: Express) {
       res.status(500).json({ message: 'Failed to fetch top cities' });
     }
   });
+
+  // ─── Photo management endpoints ───────────────────────────────────────────
+  // Helper: fetch community photos array
+  async function getCommunityPhotos(communityId: number): Promise<string[]> {
+    const [c] = await db.select({ photos: communities.photos }).from(communities).where(eq(communities.id, communityId));
+    return c?.photos ?? [];
+  }
+
+  // Helper: assert community exists, return 404 if not
+  async function assertCommunity(communityId: number, res: any): Promise<boolean> {
+    const [c] = await db.select({ id: communities.id }).from(communities).where(eq(communities.id, communityId));
+    if (!c) { res.status(404).json({ error: 'Community not found' }); return false; }
+    return true;
+  }
+
+  // Upload a photo file → disk, add public URL to community.photos
+  // Files are served by the existing express.static('public') middleware in server/index.ts
+  adminRouter.post('/communities/:id/photos/upload', upload.single('photo'), async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!req.file) return res.status(400).json({ error: 'No file provided or unsupported type' });
+      if (!(await assertCommunity(communityId, res))) return;
+
+      // multer diskStorage already wrote the file with a safe timestamp filename
+      const publicUrl = `/uploads/community-photos/${communityId}/${req.file.filename}`;
+      const photos = await getCommunityPhotos(communityId);
+      photos.push(publicUrl);
+      await db.update(communities).set({ photos, updatedAt: new Date() }).where(eq(communities.id, communityId));
+
+      res.json({ success: true, url: publicUrl, photos });
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      res.status(500).json({ error: 'Failed to upload photo' });
+    }
+  });
+
+  // Add a photo URL directly (no file upload)
+  adminRouter.post('/communities/:id/photos/add', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { url } = req.body;
+      if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
+      if (url.startsWith('/attached_assets/')) return res.status(400).json({ error: 'attached_assets URLs are not allowed. Provide a real hosted photo URL.' });
+
+      const photos = await getCommunityPhotos(communityId);
+      if (photos.includes(url)) return res.status(400).json({ error: 'Photo already exists' });
+      photos.push(url);
+      await db.update(communities).set({ photos, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      res.json({ success: true, photos });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to add photo' });
+    }
+  });
+
+  // Remove a photo by URL
+  adminRouter.delete('/communities/:id/photos', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { url } = req.body;
+      if (!url) return res.status(400).json({ error: 'url is required' });
+
+      const photos = await getCommunityPhotos(communityId);
+      const next = photos.filter(p => p !== url);
+      await db.update(communities).set({ photos: next, updatedAt: new Date() }).where(eq(communities.id, communityId));
+
+      // If the photo was stored on disk, delete the file.
+      // Strict regex ensures only safe timestamp-based filenames are touched — no path traversal.
+      try {
+        const diskMatch = (url as string).match(/^\/uploads\/community-photos\/(\d+)\/(\d+\.(jpg|png|webp|gif))$/i);
+        if (diskMatch) {
+          const filePath = path.join(PHOTO_UPLOAD_DIR, diskMatch[1], diskMatch[2]);
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        }
+      } catch (_) {}
+
+      res.json({ success: true, photos: next });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to remove photo' });
+    }
+  });
+
+  // Reorder photos (accept new ordered array of URLs)
+  adminRouter.put('/communities/:id/photos/reorder', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { photos: newOrder } = req.body;
+      if (!Array.isArray(newOrder)) return res.status(400).json({ error: 'photos must be an array' });
+
+      const current = await getCommunityPhotos(communityId);
+      const currentSet = new Set(current);
+      const valid = newOrder.every(u => typeof u === 'string' && currentSet.has(u));
+      if (!valid || newOrder.length !== current.length) return res.status(400).json({ error: 'Invalid photo list — must contain same URLs as existing set' });
+
+      await db.update(communities).set({ photos: newOrder, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      res.json({ success: true, photos: newOrder });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to reorder photos' });
+    }
+  });
+
+  // Set primary photo (moves URL to index 0)
+  adminRouter.put('/communities/:id/photos/primary', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { url } = req.body;
+      if (!url) return res.status(400).json({ error: 'url is required' });
+
+      const photos = await getCommunityPhotos(communityId);
+      if (!photos.includes(url)) return res.status(404).json({ error: 'Photo not found in community gallery' });
+
+      const next = [url, ...photos.filter(p => p !== url)];
+      await db.update(communities).set({ photos: next, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      res.json({ success: true, photos: next });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to set primary photo' });
+    }
+  });
+  // ──────────────────────────────────────────────────────────────────────────
 
   // Get single community by ID — admin bypass (sees hidden/fake records).
   // Defined AFTER all literal /communities/* GET routes so it never shadows them.
