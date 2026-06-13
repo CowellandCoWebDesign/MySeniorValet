@@ -10,9 +10,12 @@ import {
   communityClaims,
   claimedCommunities,
   featuredCommunities,
-  listingFlags
+  listingFlags,
+  homeSectionConfigs,
+  SECTION_TYPES,
+  type SectionType
 } from "@shared/schema";
-import { eq, desc, sql, and, or, gte, ilike, inArray } from "drizzle-orm";
+import { eq, desc, sql, and, or, gte, ilike, inArray, asc } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { 
   getSecurityDashboard, 
@@ -2489,6 +2492,134 @@ export function registerAdminRoutes(app: Express) {
     }
   });
   // ──────────────────────────────────────────────────────────────────────────
+
+  // ── HOME PAGE SECTION CONFIGS ──────────────────────────────────────────────
+
+  // Ensure home_section_configs table exists and seed defaults on first use
+  async function ensureHomeSections() {
+    try {
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS home_section_configs (
+          id SERIAL PRIMARY KEY,
+          position INTEGER NOT NULL DEFAULT 0,
+          enabled BOOLEAN NOT NULL DEFAULT TRUE,
+          title TEXT NOT NULL,
+          subtitle TEXT,
+          section_type TEXT NOT NULL,
+          config JSONB DEFAULT '{}',
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        )
+      `);
+      const countResult = await db.execute(sql`SELECT COUNT(*)::integer AS count FROM home_section_configs`);
+      const countRow = (countResult as any).rows?.[0] ?? (countResult as any)[0];
+      if (Number(countRow?.count ?? 0) === 0) {
+        await db.execute(sql`
+          INSERT INTO home_section_configs (position, enabled, title, subtitle, section_type, config) VALUES
+          (1, TRUE, 'Recently Discovered Communities', 'Brand new communities added to our database', 'recently_discovered', '{}'),
+          (2, TRUE, 'HUD Affordable Communities', 'Government-verified affordable housing options', 'hud', '{}'),
+          (3, TRUE, 'Hawaii Paradise Communities', 'Exceptional senior living in America''s tropical paradise', 'location', '{"state":"HI"}'),
+          (4, TRUE, 'Fort Worth Lone Star Excellence', 'Texas-sized luxury and authentic southern hospitality', 'location', '{"city":"Fort Worth","state":"TX"}'),
+          (5, TRUE, 'New York Empire Excellence', 'World-class senior living in the Empire State', 'location', '{"state":"NY"}'),
+          (6, TRUE, 'Featured & Coastal Communities', 'Premium communities with exceptional amenities', 'featured', '{}'),
+          (7, TRUE, 'Highest Rated Communities', 'Top performers with exceptional ratings and satisfied families', 'highest_rated', '{}')
+        `);
+      }
+    } catch (e) {
+      console.warn('⚠️  home_section_configs init skipped:', e);
+    }
+  }
+  ensureHomeSections();
+
+  // List all sections (admin)
+  adminRouter.get('/home-sections', async (_req, res) => {
+    try {
+      const sections = await db
+        .select()
+        .from(homeSectionConfigs)
+        .orderBy(asc(homeSectionConfigs.position));
+      res.json(sections);
+    } catch (error) {
+      console.error('Error fetching home sections:', error);
+      res.status(500).json({ error: 'Failed to fetch home sections' });
+    }
+  });
+
+  // Create a new section
+  adminRouter.post('/home-sections', async (req, res) => {
+    try {
+      const { title, subtitle, sectionType, config, position, enabled } = req.body;
+      if (!title || !sectionType) {
+        return res.status(400).json({ error: 'title and sectionType are required' });
+      }
+      if (!(SECTION_TYPES as readonly string[]).includes(sectionType)) {
+        return res.status(400).json({ error: `Invalid sectionType. Must be one of: ${SECTION_TYPES.join(', ')}` });
+      }
+      const maxResult = await db.execute(sql`SELECT COALESCE(MAX(position),0)::integer AS max FROM home_section_configs`);
+      const existingRow = (maxResult as any).rows?.[0] ?? (maxResult as any)[0];
+      const nextPos = position ?? ((existingRow as any).max + 1);
+      const [inserted] = await db
+        .insert(homeSectionConfigs)
+        .values({
+          title,
+          subtitle: subtitle || null,
+          sectionType: sectionType as SectionType,
+          config: config || {},
+          position: nextPos,
+          enabled: enabled !== undefined ? enabled : true,
+        })
+        .returning();
+      res.json(inserted);
+    } catch (error) {
+      console.error('Error creating home section:', error);
+      res.status(500).json({ error: 'Failed to create home section' });
+    }
+  });
+
+  // Update a section
+  adminRouter.patch('/home-sections/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
+      const { title, subtitle, sectionType, config, position, enabled } = req.body;
+      if (sectionType && !(SECTION_TYPES as readonly string[]).includes(sectionType)) {
+        return res.status(400).json({ error: `Invalid sectionType. Must be one of: ${SECTION_TYPES.join(', ')}` });
+      }
+      const updates: Record<string, any> = { updatedAt: new Date() };
+      if (title !== undefined) updates.title = title;
+      if (subtitle !== undefined) updates.subtitle = subtitle;
+      if (sectionType !== undefined) updates.sectionType = sectionType;
+      if (config !== undefined) updates.config = config;
+      if (position !== undefined) updates.position = position;
+      if (enabled !== undefined) updates.enabled = enabled;
+
+      const [updated] = await db
+        .update(homeSectionConfigs)
+        .set(updates)
+        .where(eq(homeSectionConfigs.id, id))
+        .returning();
+      if (!updated) return res.status(404).json({ error: 'Section not found' });
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating home section:', error);
+      res.status(500).json({ error: 'Failed to update home section' });
+    }
+  });
+
+  // Delete a section
+  adminRouter.delete('/home-sections/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
+      await db.delete(homeSectionConfigs).where(eq(homeSectionConfigs.id, id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting home section:', error);
+      res.status(500).json({ error: 'Failed to delete home section' });
+    }
+  });
+
+  // ── END HOME PAGE SECTION CONFIGS ──────────────────────────────────────────
 
   // Get single community by ID — admin bypass (sees hidden/fake records).
   // Defined AFTER all literal /communities/* GET routes so it never shadows them.

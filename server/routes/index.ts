@@ -102,6 +102,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize community stats cache:', error);
   });
 
+  // Public: active home page sections (no auth required)
+  // Returns only enabled sections ordered by position.
+  // Columns are aliased to camelCase so the frontend can use them directly.
+  app.get('/api/home-sections/active', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`
+        SELECT
+          id,
+          title,
+          subtitle,
+          section_type   AS "sectionType",
+          config,
+          position,
+          enabled,
+          created_at     AS "createdAt",
+          updated_at     AS "updatedAt"
+        FROM home_section_configs
+        WHERE enabled = TRUE
+        ORDER BY position ASC
+      `);
+      res.set('Cache-Control', 'public, max-age=10');
+      res.json(result.rows || []);
+    } catch (error) {
+      console.error('Error fetching active home sections:', error);
+      res.status(500).json({ error: 'Failed to load home sections' });
+    }
+  });
+
   // Create HTTP server
   const httpServer = createServer(app);
 

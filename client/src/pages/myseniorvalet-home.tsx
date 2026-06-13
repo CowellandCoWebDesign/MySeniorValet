@@ -41,6 +41,7 @@ import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
 import { HUDCommunitiesSection } from "@/components/HUDCommunitiesSection";
+import { DynamicCommunitySection, type HomeSectionConfig } from "@/components/DynamicCommunitySection";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
@@ -1629,6 +1630,52 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   );
 }
 
+// Renders all DB-driven home page community sections.
+// Only falls back to hardcoded components when the API itself is unavailable
+// (network error / server error). An intentionally empty active-section list
+// renders nothing — respecting admin intent.
+function HomeSectionRenderer() {
+  const { data: sections, isLoading, isError } = useQuery<HomeSectionConfig[]>({
+    queryKey: ['/api/home-sections/active'],
+    staleTime: 10 * 1000,
+    gcTime: 60 * 1000,
+    retry: 1,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 mb-6">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-64 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  // API unavailable → fall back gracefully so the home page still shows carousels
+  if (isError) {
+    return (
+      <>
+        <div className="mb-6"><RecentlyDiscoveredCommunities /></div>
+        <div className="mb-6"><HUDCommunitiesSection /></div>
+        <div className="mb-6"><RedTagDeals hideHeader={true} /></div>
+        <div className="mb-6"><GeographicCommunitiesSection /></div>
+      </>
+    );
+  }
+
+  const list = Array.isArray(sections) ? sections : [];
+
+  // Empty list means admin deliberately hid/deleted all sections → render nothing
+  return (
+    <>
+      {list.map((section) => (
+        <DynamicCommunitySection key={section.id} section={section} />
+      ))}
+    </>
+  );
+}
+
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
@@ -2356,25 +2403,8 @@ export default function MySeniorValetHome() {
             }}>
                 <CardContent className="relative z-10 pt-4">
 
-                  {/* Recently Discovered Communities Section */}
-                  <div className="mb-6">
-                    <RecentlyDiscoveredCommunities />
-                  </div>
-
-                  {/* HUD Communities & Government Verified Section */}
-                  <div className="mb-6">
-                    <HUDCommunitiesSection />
-                  </div>
-
-                  {/* Featured Communities & Savings Tips */}
-                  <div className="mb-6">
-                    <RedTagDeals hideHeader={true} />
-                  </div>
-
-                  {/* Geographic Communities Section - Hawaii, Fort Worth, NYC, Canadian, Puerto Rico, Peru, Cuba, Costa Rica, Panama */}
-                  <div className="mb-6">
-                    <GeographicCommunitiesSection />
-                  </div>
+                  {/* DB-driven community sections — fully configurable from the Admin → Home Page tab */}
+                  <HomeSectionRenderer />
 
                   {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">

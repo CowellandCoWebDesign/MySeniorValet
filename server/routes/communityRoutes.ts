@@ -184,7 +184,140 @@ export function registerCommunityRoutes(app: Express) {
   });
   
   // Search endpoint moved to unifiedSearchRoutes.ts for better functionality
-  
+
+  // Unified section-data endpoint — powers the DB-driven home page sections.
+  // Uses raw SQL SELECT * to avoid Drizzle expanding schema columns that may
+  // not yet exist in the actual DB (e.g. admin_rating_override).
+  // ?type=location&city=Redding&state=CA&limit=12
+  // ?type=care_type&careType=Memory+Care
+  // ?type=hud | trending | highest_rated | featured | coastal | recently_discovered
+  app.get("/api/communities/section-data", async (req, res) => {
+    try {
+      const { type, city, state, careType, limit = "12" } = req.query;
+      const limitNum = Math.min(parseInt(limit as string) || 12, 30);
+
+      // Shared visibility WHERE clause (raw SQL so we skip Drizzle column expansion).
+      const baseWhere = sql`
+        "is_active" = TRUE
+        AND "is_hidden" IS NOT TRUE
+        AND NOT (
+          ("is_verified" IS NOT TRUE OR "is_verified" IS NULL)
+          AND ("phone" IS NULL OR trim("phone") = '')
+          AND ("website" IS NULL OR trim("website") = '')
+          AND ("description" IS NULL OR trim("description") = '')
+          AND (
+            "data_source" IS NULL
+            OR trim(lower("data_source")) = ''
+            OR trim(lower("data_source")) IN ('government database', 'placeholder', 'unknown')
+          )
+        )
+      `;
+
+      let rawResult: any;
+
+      // rating and rent_per_month are DECIMAL columns in the DB — compare directly.
+      if (type === 'hud') {
+        rawResult = await db.execute(sql`
+          SELECT * FROM communities
+          WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL
+          ORDER BY "rent_per_month" ASC NULLS LAST
+          LIMIT ${limitNum}
+        `);
+
+      } else if (type === 'trending') {
+        rawResult = await db.execute(sql`
+          SELECT * FROM communities
+          WHERE ${baseWhere} AND "rating" >= 4.0
+          ORDER BY "rating" DESC NULLS LAST
+          LIMIT ${limitNum}
+        `);
+
+      } else if (type === 'highest_rated') {
+        rawResult = await db.execute(sql`
+          SELECT * FROM communities
+          WHERE ${baseWhere} AND "rating" >= 3.5
+          ORDER BY "rating" DESC NULLS LAST
+          LIMIT ${limitNum}
+        `);
+
+      } else if (type === 'featured') {
+        const featuredRecords = await storage.getFeaturedCommunities();
+        if (featuredRecords.length > 0) {
+          const ids: number[] = featuredRecords.map((f: any) => f.communityId);
+          // Build a safe IN list using sql.join to avoid any array-cast ambiguity
+          const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
+          rawResult = await db.execute(sql`
+            SELECT * FROM communities
+            WHERE ${baseWhere} AND "id" IN (${idList})
+            LIMIT ${limitNum}
+          `);
+        } else {
+          rawResult = await db.execute(sql`
+            SELECT * FROM communities
+            WHERE ${baseWhere} AND "rating" >= 4.0
+            ORDER BY "rating" DESC NULLS LAST
+            LIMIT ${limitNum}
+          `);
+        }
+
+      } else if (type === 'coastal') {
+        rawResult = await db.execute(sql`
+          SELECT * FROM communities
+          WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')
+          ORDER BY "rating" DESC NULLS LAST
+          LIMIT ${limitNum}
+        `);
+
+      } else if (type === 'recently_discovered') {
+        rawResult = await db.execute(sql`
+          SELECT * FROM communities
+          WHERE ${baseWhere} AND "created_at" IS NOT NULL
+          ORDER BY "created_at" DESC
+          LIMIT ${limitNum}
+        `);
+
+      } else if (type === 'location') {
+        const cityVal = (city as string) || null;
+        const stateVal = (state as string) || null;
+        rawResult = await db.execute(sql`
+          SELECT * FROM communities
+          WHERE ${baseWhere}
+            AND (${cityVal}::text IS NULL OR "city" = ${cityVal})
+            AND (${stateVal}::text IS NULL OR "state" = ${stateVal})
+          ORDER BY "rating" DESC NULLS LAST
+          LIMIT ${limitNum}
+        `);
+
+      } else if (type === 'care_type' && careType) {
+        rawResult = await db.execute(sql`
+          SELECT * FROM communities
+          WHERE ${baseWhere}
+            AND "care_types"::text[] && ARRAY[${careType as string}]::text[]
+          ORDER BY "rating" DESC NULLS LAST
+          LIMIT ${limitNum}
+        `);
+
+      } else {
+        return res.json([]);
+      }
+
+      const rows: any[] = (rawResult as any).rows ?? rawResult ?? [];
+
+      const enriched = await Promise.all(
+        rows.map(async (c) => {
+          const e = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(c);
+          return eliminateCallForPricing(e);
+        })
+      );
+
+      res.set('Cache-Control', 'public, max-age=120');
+      res.json(enriched);
+    } catch (error) {
+      console.error("Error fetching section-data:", error);
+      res.status(500).json({ error: "Failed to fetch section data" });
+    }
+  });
+
   // HUD featured communities
   app.get("/api/communities/hud-featured", async (req, res) => {
     try {

@@ -7690,3 +7690,43 @@ export const insertSeniorResourceSchema = createInsertSchema(seniorResources)
   .omit({ id: true, createdAt: true, updatedAt: true, discoveredAt: true });
 export type InsertSeniorResource = z.infer<typeof insertSeniorResourceSchema>;
 export type SelectSeniorResource = typeof seniorResources.$inferSelect;
+
+// ========== HOME PAGE SECTION CONFIGS ==========
+// Controls which community sections appear on the home page and in what order.
+// Admins can add, reorder, enable/disable sections without a code deploy.
+export const SECTION_TYPES = [
+  'location',
+  'care_type',
+  'hud',
+  'trending',
+  'highest_rated',
+  'featured',
+  'coastal',
+  'recently_discovered',
+] as const;
+export type SectionType = (typeof SECTION_TYPES)[number];
+
+export const homeSectionConfigs = pgTable("home_section_configs", {
+  id: serial("id").primaryKey(),
+  position: integer("position").notNull().default(0),
+  enabled: boolean("enabled").notNull().default(true),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  sectionType: text("section_type").notNull().$type<SectionType>(),
+  config: jsonb("config").$type<{
+    city?: string;
+    state?: string;
+    careType?: string;
+    country?: string;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_home_section_configs_position").on(table.position),
+  index("idx_home_section_configs_enabled").on(table.enabled),
+]);
+
+export const insertHomeSectionConfigSchema = createInsertSchema(homeSectionConfigs)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertHomeSectionConfig = z.infer<typeof insertHomeSectionConfigSchema>;
+export type SelectHomeSectionConfig = typeof homeSectionConfigs.$inferSelect;

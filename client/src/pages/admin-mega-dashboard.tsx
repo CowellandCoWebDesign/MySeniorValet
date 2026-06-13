@@ -1,4 +1,4 @@
-import React, { useState, useEffect, lazy, Suspense } from "react";
+import React, { useState, useEffect, lazy, Suspense, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ import {
   Rocket, Heart, Flame, Gem, Lightbulb, // Creative icons from admin-creative
   LayoutDashboard, Key, Ban, LogIn, Wifi, DownloadCloud, UploadCloud,
   Camera, Printer, // Additional icons from various dashboards
-  EyeOff, ChevronLeft // Added for community management upgrades
+  EyeOff, ChevronLeft, ChevronUp, ChevronDown, Plus, Edit3 // Added for community management upgrades
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
@@ -3320,6 +3320,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <Mail className="h-4 w-4 mr-2" />
               Contact Inbox
             </TabsTrigger>
+            <TabsTrigger value="homepage">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              Home Page
+            </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -3615,8 +3619,423 @@ Communities Created: ${details.stats.communitiesCreated}`;
           <TabsContent value="contacts" className="space-y-4">
             <ContactSubmissionsTab />
           </TabsContent>
+
+          <TabsContent value="homepage" className="space-y-4">
+            <HomeSectionsAdmin />
+          </TabsContent>
         </Tabs>
       </div>
+    </div>
+  );
+}
+
+// ─── Home Page Section Manager ──────────────────────────────────────────────
+
+const SECTION_TYPE_LABELS: Record<string, string> = {
+  recently_discovered: "Recently Discovered",
+  hud: "HUD / Government Verified",
+  featured: "Featured Excellence",
+  trending: "Trending (Rating ≥ 4.0)",
+  highest_rated: "Highest Rated",
+  coastal: "Coastal Communities",
+  location: "By Location (City + State)",
+  care_type: "By Care Type",
+};
+
+const CARE_TYPE_OPTIONS = [
+  "Assisted Living", "Memory Care", "Independent Living", "Skilled Nursing",
+  "Continuing Care", "Adult Day Care", "Home Care", "Respite Care",
+  "HUD / Subsidized", "Active Adult",
+];
+
+const US_STATES = [
+  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
+  "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
+  "VA","WA","WV","WI","WY",
+];
+
+// City autocomplete input backed by /api/autocomplete/suggestions
+function CityAutocomplete({ value, state, onChange }: {
+  value: string;
+  state: string;
+  onChange: (city: string, state: string) => void;
+}) {
+  const [query, setQuery] = useState(value);
+  const [suggestions, setSuggestions] = useState<{ city: string; state: string; label: string }[]>([]);
+  const [open, setOpen] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const fetchSuggestions = (q: string) => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!q || q.length < 2) { setSuggestions([]); setOpen(false); return; }
+    timer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/autocomplete/suggestions?query=${encodeURIComponent(q)}&category=city&limit=10`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const cities: { city: string; state: string; label: string }[] = (data.suggestions ?? [])
+          .filter((s: any) => s.type === 'city')
+          .map((s: any) => ({ city: s.city ?? s.label?.split(',')[0]?.trim(), state: s.state ?? s.label?.split(',')[1]?.trim(), label: s.label }));
+        setSuggestions(cities);
+        setOpen(cities.length > 0);
+      } catch {}
+    }, 300);
+  };
+
+  return (
+    <div className="relative">
+      <Input
+        value={query}
+        onChange={(e) => { setQuery(e.target.value); fetchSuggestions(e.target.value); onChange(e.target.value, state); }}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
+        className="mt-1"
+        placeholder="e.g. Seattle"
+      />
+      {open && suggestions.length > 0 && (
+        <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border dark:border-gray-600 rounded shadow-lg max-h-48 overflow-y-auto text-sm">
+          {suggestions.map((s, i) => (
+            <div
+              key={i}
+              className="px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/40"
+              onMouseDown={() => { setQuery(s.city); setSuggestions([]); setOpen(false); onChange(s.city, s.state ?? state); }}
+            >
+              {s.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Renders the conditional config fields for location and care_type section types.
+function SectionConfigFields({ sectionType, config, onChange }: {
+  sectionType: string;
+  config: any;
+  onChange: (cfg: any) => void;
+}) {
+  if (sectionType === 'location') {
+    return (
+      <div className="grid grid-cols-2 gap-2 mt-2">
+        <div>
+          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">City (optional)</label>
+          <CityAutocomplete
+            value={config?.city ?? ""}
+            state={config?.state ?? ""}
+            onChange={(city, st) => onChange({ ...config, city: city || undefined, state: st || config?.state || undefined })}
+          />
+        </div>
+        <div>
+          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">State</label>
+          <select
+            className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
+            value={config?.state ?? ""}
+            onChange={(e) => onChange({ ...config, state: e.target.value || undefined })}
+          >
+            <option value="">— Any state —</option>
+            {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+      </div>
+    );
+  }
+  if (sectionType === 'care_type') {
+    return (
+      <div className="mt-2">
+        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Care Type</label>
+        <select
+          className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
+          value={config?.careType ?? ""}
+          onChange={(e) => onChange({ ...config, careType: e.target.value || undefined })}
+        >
+          <option value="">— Select care type —</option>
+          {CARE_TYPE_OPTIONS.map((ct) => <option key={ct} value={ct}>{ct}</option>)}
+        </select>
+      </div>
+    );
+  }
+  return null;
+}
+
+function HomeSectionsAdmin() {
+  const { toast } = useToast();
+  const [editingId, setEditingId] = useState<number | null>(null);
+  // editDraft holds only the fields that have been changed; merged with section at save time
+  const [editDraft, setEditDraft] = useState<any>({});
+  const blankNew = { title: "", subtitle: "", sectionType: "recently_discovered", enabled: true, config: {} };
+  const [newSection, setNewSection] = useState<any>(blankNew);
+  const [showAddForm, setShowAddForm] = useState(false);
+
+  const { data: sections = [], isLoading, refetch } = useQuery<any[]>({
+    queryKey: ['/api/admin/home-sections'],
+    queryFn: async () => {
+      const res = await fetch('/api/admin/home-sections', { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load sections');
+      return res.json();
+    },
+  });
+
+  const patchSection = async (id: number, updates: any) => {
+    const res = await fetch(`/api/admin/home-sections/${id}`, {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
+    if (!res.ok) throw new Error('Update failed');
+    return res.json();
+  };
+
+  const deleteSection = async (id: number) => {
+    const res = await fetch(`/api/admin/home-sections/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+    if (!res.ok) throw new Error('Delete failed');
+  };
+
+  const createSection = async (data: any) => {
+    const res = await fetch('/api/admin/home-sections', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || 'Create failed');
+    }
+    return res.json();
+  };
+
+  const handleToggle = async (section: any) => {
+    try {
+      await patchSection(section.id, { enabled: !section.enabled });
+      toast({ title: section.enabled ? "Section hidden" : "Section shown", description: section.title });
+      refetch();
+    } catch {
+      toast({ title: "Error", description: "Failed to update section", variant: "destructive" });
+    }
+  };
+
+  const handleMove = async (section: any, dir: "up" | "down", allSections: any[]) => {
+    const idx = allSections.findIndex((s: any) => s.id === section.id);
+    const newIdx = dir === "up" ? idx - 1 : idx + 1;
+    if (newIdx < 0 || newIdx >= allSections.length) return;
+    const neighbor = allSections[newIdx];
+    try {
+      await Promise.all([
+        patchSection(section.id, { position: neighbor.position }),
+        patchSection(neighbor.id, { position: section.position }),
+      ]);
+      refetch();
+    } catch {
+      toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
+    }
+  };
+
+  const handleSaveEdit = async (section: any) => {
+    if (!editingId) return;
+    try {
+      // Merge draft with current section values; send camelCase to API
+      const payload: any = {};
+      if (editDraft.title !== undefined) payload.title = editDraft.title;
+      if (editDraft.subtitle !== undefined) payload.subtitle = editDraft.subtitle;
+      if (editDraft.sectionType !== undefined) payload.sectionType = editDraft.sectionType;
+      if (editDraft.config !== undefined) payload.config = editDraft.config;
+      await patchSection(editingId, payload);
+      toast({ title: "Saved", description: "Section updated" });
+      setEditingId(null);
+      setEditDraft({});
+      refetch();
+    } catch {
+      toast({ title: "Error", description: "Failed to save", variant: "destructive" });
+    }
+  };
+
+  const handleDelete = async (id: number) => {
+    if (!confirm("Delete this section? This cannot be undone.")) return;
+    try {
+      await deleteSection(id);
+      toast({ title: "Deleted", description: "Section removed" });
+      refetch();
+    } catch {
+      toast({ title: "Error", description: "Failed to delete", variant: "destructive" });
+    }
+  };
+
+  const handleCreate = async () => {
+    try {
+      await createSection(newSection);
+      toast({ title: "Created", description: newSection.title });
+      setShowAddForm(false);
+      setNewSection(blankNew);
+      refetch();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message ?? "Failed to create section", variant: "destructive" });
+    }
+  };
+
+  const sorted = [...(sections as any[])].sort((a: any, b: any) => a.position - b.position);
+
+  // The current type and config during an edit (merged from section + draft)
+  const editType = (section: any) => editDraft.sectionType ?? section.sectionType;
+  const editConfig = (section: any) => editDraft.config ?? section.config ?? {};
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <LayoutDashboard className="h-5 w-5 text-blue-500" />
+                Home Page Community Sections
+              </CardTitle>
+              <CardDescription>
+                Control which community carousels appear on the home page, their order, titles, and data source.
+              </CardDescription>
+            </div>
+            <Button onClick={() => setShowAddForm(true)} size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Section
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+            </div>
+          ) : sorted.length === 0 ? (
+            <p className="text-sm text-gray-500 text-center py-8">No sections configured. Click "Add Section" to get started.</p>
+          ) : (
+            <div className="space-y-3">
+              {sorted.map((section: any, idx: number) => (
+                <div
+                  key={section.id}
+                  className={`border rounded-lg p-4 transition-all ${section.enabled ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900 opacity-60"}`}
+                >
+                  {editingId === section.id ? (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Title</label>
+                          <Input value={editDraft.title ?? section.title} onChange={(e) => setEditDraft({ ...editDraft, title: e.target.value })} className="mt-1" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Subtitle</label>
+                          <Input value={editDraft.subtitle ?? section.subtitle ?? ""} onChange={(e) => setEditDraft({ ...editDraft, subtitle: e.target.value })} className="mt-1" />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Section Type</label>
+                        <select
+                          className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
+                          value={editType(section)}
+                          onChange={(e) => setEditDraft({ ...editDraft, sectionType: e.target.value, config: {} })}
+                        >
+                          {Object.entries(SECTION_TYPE_LABELS).map(([v, l]) => (
+                            <option key={v} value={v}>{l}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <SectionConfigFields
+                        sectionType={editType(section)}
+                        config={editConfig(section)}
+                        onChange={(cfg) => setEditDraft({ ...editDraft, config: cfg })}
+                      />
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleSaveEdit(section)}>Save</Button>
+                        <Button size="sm" variant="outline" onClick={() => { setEditingId(null); setEditDraft({}); }}>Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="flex flex-col gap-0.5">
+                          <Button variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={() => handleMove(section, "up", sorted)} disabled={idx === 0}>
+                            <ChevronUp className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={() => handleMove(section, "down", sorted)} disabled={idx === sorted.length - 1}>
+                            <ChevronDown className="h-3 w-3" />
+                          </Button>
+                        </div>
+                        <span className="text-xs text-gray-400 w-6 text-center font-mono">{idx + 1}</span>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">{section.title}</p>
+                          <p className="text-xs text-gray-500 truncate">
+                            {SECTION_TYPE_LABELS[section.sectionType as string] ?? section.sectionType}
+                            {section.config?.city && ` · ${section.config.city}, ${section.config.state}`}
+                            {section.config?.careType && ` · ${section.config.careType}`}
+                          </p>
+                        </div>
+                        <Badge variant={section.enabled ? "default" : "secondary"} className="text-xs flex-shrink-0">
+                          {section.enabled ? "Visible" : "Hidden"}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button variant="outline" size="sm" onClick={() => { setEditingId(section.id); setEditDraft({}); }} className="h-7 px-2">
+                          <Edit3 className="h-3 w-3" />
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleToggle(section)} className="h-7 px-2">
+                          {section.enabled ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleDelete(section.id)} className="h-7 px-2 text-red-500 hover:text-red-700 hover:border-red-300">
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {showAddForm && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">New Section</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Title *</label>
+                <Input value={newSection.title} onChange={(e) => setNewSection({ ...newSection, title: e.target.value })} className="mt-1" placeholder="e.g. Top Rated Near You" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Subtitle</label>
+                <Input value={newSection.subtitle} onChange={(e) => setNewSection({ ...newSection, subtitle: e.target.value })} className="mt-1" placeholder="Optional description" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Section Type</label>
+              <select
+                className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
+                value={newSection.sectionType}
+                onChange={(e) => setNewSection({ ...newSection, sectionType: e.target.value, config: {} })}
+              >
+                {Object.entries(SECTION_TYPE_LABELS).map(([v, l]) => (
+                  <option key={v} value={v}>{l}</option>
+                ))}
+              </select>
+            </div>
+            <SectionConfigFields
+              sectionType={newSection.sectionType}
+              config={newSection.config}
+              onChange={(cfg) => setNewSection({ ...newSection, config: cfg })}
+            />
+            <div className="flex gap-2">
+              <Button size="sm" onClick={handleCreate} disabled={!newSection.title.trim()}>Create Section</Button>
+              <Button size="sm" variant="outline" onClick={() => { setShowAddForm(false); setNewSection(blankNew); }}>Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
