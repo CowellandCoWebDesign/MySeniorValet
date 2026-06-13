@@ -32,6 +32,8 @@ import { advancedAnalytics } from "./infrastructure/advanced-analytics";
 import { notificationSystem } from "./infrastructure/notification-system";
 import { integrationManager } from "./infrastructure/integration-manager";
 import cookieParser from "cookie-parser";
+import { prewarmSitemapCaches } from "./sitemap-generator";
+import { scheduleSitemapWarmup } from "./utils/sitemap-pinger";
 
 const app = express();
 
@@ -338,6 +340,12 @@ app.use((req, res, next) => {
     
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);
+    
+    // Pre-warm all sitemap caches so Google always hits a hot cache
+    prewarmSitemapCaches().catch(e => console.error('[Sitemap] Startup pre-warm error:', e));
+
+    // Schedule recurring 20h warmup to keep caches fresh before 24h TTL expires
+    scheduleSitemapWarmup();
     
     console.log('🚀 MySeniorValet server ready — all systems active');
   });

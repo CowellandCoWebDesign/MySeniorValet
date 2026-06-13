@@ -5,7 +5,7 @@ import axios from 'axios';
 import { inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
-import { clearSitemapCache } from '../sitemap-generator';
+import { clearSitemapCache, prewarmSitemapCaches } from '../sitemap-generator';
 import { computeCommunitySlugs } from './generate-slug';
 
 const BASE_URL = process.env.SITE_URL || 'https://www.myseniorvalet.com';
@@ -285,7 +285,6 @@ export async function scheduledSitemapPing() {
     await pingAllSearchEngines('normal');
     
     // Get recently updated communities (last 24 hours)
-    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000);
     const recentlyUpdated = await db
       .select({ id: communities.id })
       .from(communities)
@@ -301,6 +300,28 @@ export async function scheduledSitemapPing() {
   } catch (error) {
     console.error('[SEO] Scheduled ping failed:', error);
   }
+}
+
+// Schedule cache pre-warming every 20 hours so the 24h TTL never expires cold.
+// Call once on server startup; it sets up the recurring interval automatically.
+export function scheduleSitemapWarmup(): void {
+  const INTERVAL_MS = 20 * 60 * 60 * 1000; // 20 hours
+
+  // Fire first warmup after a short delay so it doesn't block startup
+  const firstRun = setTimeout(async () => {
+    console.log('[Sitemap] Running first scheduled warmup...');
+    await prewarmSitemapCaches();
+    await pingAllSearchEngines('normal').catch(() => {});
+  }, 5 * 60 * 1000); // 5 minutes after startup
+  firstRun.unref(); // Don't block process exit
+
+  const interval = setInterval(async () => {
+    console.log('[Sitemap] Running scheduled 20h warmup...');
+    await clearSitemapCache();
+    await prewarmSitemapCaches();
+    await pingAllSearchEngines('normal').catch(() => {});
+  }, INTERVAL_MS);
+  interval.unref(); // Don't block process exit
 }
 
 // Initialize IndexNow key file (if configured)
@@ -324,5 +345,6 @@ export default {
   onCommunityUpdated,
   onBulkCommunitiesAdded,
   scheduledSitemapPing,
+  scheduleSitemapWarmup,
   setupIndexNow
 };
