@@ -17,6 +17,9 @@ export interface HomeSectionConfig {
     state?: string;
     careType?: string;
     country?: string;
+    selectionMode?: "auto" | "curated" | "pinned";
+    communityIds?: number[];
+    excludeIds?: number[];
   } | null;
 }
 
@@ -25,7 +28,13 @@ interface Props {
 }
 
 function buildQueryKey(section: HomeSectionConfig): [string, Record<string, string>] {
-  const params: Record<string, string> = { type: section.sectionType, limit: "12" };
+  // Pass the section id so the server reads the authoritative selection rules
+  // (auto / curated / pinned) from the stored section config.
+  const params: Record<string, string> = {
+    type: section.sectionType,
+    limit: "12",
+    sectionId: String(section.id),
+  };
   if (section.config?.city) params.city = section.config.city;
   if (section.config?.state) params.state = section.config.state;
   if (section.config?.careType) params.careType = section.config.careType;

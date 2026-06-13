@@ -2652,6 +2652,65 @@ export function registerAdminRoutes(app: Express) {
     }
   }
 
+  // Normalize the curation-related fields stored inside a section's config JSONB so
+  // we never persist malformed selection rules. Preserves any other config keys.
+  function normalizeSectionConfig(config: any): any {
+    const cfg = (config && typeof config === 'object') ? { ...config } : {};
+    const toIdArray = (v: any): number[] =>
+      Array.isArray(v)
+        ? Array.from(new Set(v.map((n: any) => Number(n)).filter((n: number) => Number.isFinite(n) && n > 0)))
+        : [];
+    cfg.selectionMode = (cfg.selectionMode === 'curated' || cfg.selectionMode === 'pinned') ? cfg.selectionMode : 'auto';
+    cfg.communityIds = (cfg.selectionMode === 'auto') ? [] : toIdArray(cfg.communityIds);
+    cfg.excludeIds = toIdArray(cfg.excludeIds);
+    return cfg;
+  }
+
+  // Search communities for the carousel curation picker.
+  // Returns lightweight {id, name, city, state}. Raw SQL avoids Drizzle column drift.
+  adminRouter.get('/home-sections/community-search', async (req, res) => {
+    try {
+      const q = (req.query.q as string || '').trim();
+      if (q.length < 2) return res.json([]);
+      const like = `%${q}%`;
+      const result = await db.execute(sql`
+        SELECT "id", "name", "city", "state"
+        FROM communities
+        WHERE "is_active" = TRUE AND "is_hidden" IS NOT TRUE
+          AND ("name" ILIKE ${like} OR "city" ILIKE ${like})
+        ORDER BY "name" ASC
+        LIMIT 20
+      `);
+      res.json((result as any).rows ?? []);
+    } catch (error) {
+      console.error('Error searching communities for curation:', error);
+      res.status(500).json({ error: 'Failed to search communities' });
+    }
+  });
+
+  // Resolve a list of community ids back to {id, name, city, state} for rendering chips.
+  adminRouter.get('/home-sections/community-by-ids', async (req, res) => {
+    try {
+      const raw = (req.query.ids as string || '').trim();
+      if (!raw) return res.json([]);
+      const ids = raw
+        .split(',')
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => Number.isFinite(n));
+      if (ids.length === 0) return res.json([]);
+      const idList = sql.join(ids.map((i) => sql`${i}`), sql`, `);
+      const result = await db.execute(sql`
+        SELECT "id", "name", "city", "state"
+        FROM communities
+        WHERE "id" IN (${idList})
+      `);
+      res.json((result as any).rows ?? []);
+    } catch (error) {
+      console.error('Error resolving community ids for curation:', error);
+      res.status(500).json({ error: 'Failed to resolve communities' });
+    }
+  });
+
   // List all sections (admin)
   adminRouter.get('/home-sections', async (_req, res) => {
     try {
@@ -2685,7 +2744,7 @@ export function registerAdminRoutes(app: Express) {
           title,
           subtitle: subtitle || null,
           sectionType: sectionType as SectionType,
-          config: config || {},
+          config: normalizeSectionConfig(config),
           position: nextPos,
           enabled: enabled !== undefined ? enabled : true,
         })
@@ -2715,7 +2774,7 @@ export function registerAdminRoutes(app: Express) {
       if (title !== undefined) updates.title = title;
       if (subtitle !== undefined) updates.subtitle = subtitle;
       if (sectionType !== undefined) updates.sectionType = sectionType;
-      if (config !== undefined) updates.config = config;
+      if (config !== undefined) updates.config = normalizeSectionConfig(config);
       if (position !== undefined) updates.position = position;
       if (enabled !== undefined) updates.enabled = enabled;
 

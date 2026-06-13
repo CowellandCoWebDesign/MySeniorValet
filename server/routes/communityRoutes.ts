@@ -193,7 +193,7 @@ export function registerCommunityRoutes(app: Express) {
   // ?type=hud | trending | highest_rated | featured | coastal | recently_discovered
   app.get("/api/communities/section-data", async (req, res) => {
     try {
-      const { type, city, state, careType, limit = "12" } = req.query;
+      const { type, city, state, careType, limit = "12", sectionId } = req.query;
       const limitNum = Math.min(parseInt(limit as string) || 12, 30);
 
       // Shared visibility WHERE clause (raw SQL so we skip Drizzle column expansion).
@@ -213,95 +213,123 @@ export function registerCommunityRoutes(app: Express) {
         )
       `;
 
-      let rawResult: any;
+      // Builds an "AND id NOT IN (…)" fragment, or empty SQL when nothing to exclude.
+      const excludeClause = (ids: number[]) =>
+        ids.length > 0
+          ? sql` AND "id" NOT IN (${sql.join(ids.map((i) => sql`${i}`), sql`, `)})`
+          : sql``;
 
+      // Auto-fill query by section type, honoring optional exclusions + limit.
       // rating and rent_per_month are DECIMAL columns in the DB — compare directly.
-      if (type === 'hud') {
-        rawResult = await db.execute(sql`
-          SELECT * FROM communities
-          WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL
-          ORDER BY "rent_per_month" ASC NULLS LAST
-          LIMIT ${limitNum}
-        `);
-
-      } else if (type === 'trending') {
-        rawResult = await db.execute(sql`
-          SELECT * FROM communities
-          WHERE ${baseWhere} AND "rating" >= 4.0
-          ORDER BY "rating" DESC NULLS LAST
-          LIMIT ${limitNum}
-        `);
-
-      } else if (type === 'highest_rated') {
-        rawResult = await db.execute(sql`
-          SELECT * FROM communities
-          WHERE ${baseWhere} AND "rating" >= 3.5
-          ORDER BY "rating" DESC NULLS LAST
-          LIMIT ${limitNum}
-        `);
-
-      } else if (type === 'featured') {
-        const featuredRecords = await storage.getFeaturedCommunities();
-        if (featuredRecords.length > 0) {
-          const ids: number[] = featuredRecords.map((f: any) => f.communityId);
-          // Build a safe IN list using sql.join to avoid any array-cast ambiguity
-          const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
-          rawResult = await db.execute(sql`
-            SELECT * FROM communities
-            WHERE ${baseWhere} AND "id" IN (${idList})
-            LIMIT ${limitNum}
-          `);
+      async function runAutoQuery(
+        t: string,
+        opts: { city?: string | null; state?: string | null; careType?: string | null; exclude?: number[]; limit: number },
+      ): Promise<any[]> {
+        const ex = excludeClause(opts.exclude ?? []);
+        const lim = opts.limit;
+        if (lim <= 0) return [];
+        let r: any;
+        if (t === 'hud') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL${ex} ORDER BY "rent_per_month" ASC NULLS LAST LIMIT ${lim}`);
+        } else if (t === 'trending') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+        } else if (t === 'highest_rated') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 3.5${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+        } else if (t === 'featured') {
+          const featuredRecords = await storage.getFeaturedCommunities();
+          if (featuredRecords.length > 0) {
+            const ids: number[] = featuredRecords.map((f: any) => f.communityId);
+            const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex} LIMIT ${lim}`);
+          } else {
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+          }
+        } else if (t === 'coastal') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+        } else if (t === 'recently_discovered') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex} ORDER BY "created_at" DESC LIMIT ${lim}`);
+        } else if (t === 'location') {
+          const cityVal = opts.city || null;
+          const stateVal = opts.state || null;
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+        } else if (t === 'care_type' && opts.careType) {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "care_types"::text[] && ARRAY[${opts.careType}]::text[]${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
         } else {
-          rawResult = await db.execute(sql`
-            SELECT * FROM communities
-            WHERE ${baseWhere} AND "rating" >= 4.0
-            ORDER BY "rating" DESC NULLS LAST
-            LIMIT ${limitNum}
-          `);
+          return [];
         }
-
-      } else if (type === 'coastal') {
-        rawResult = await db.execute(sql`
-          SELECT * FROM communities
-          WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')
-          ORDER BY "rating" DESC NULLS LAST
-          LIMIT ${limitNum}
-        `);
-
-      } else if (type === 'recently_discovered') {
-        rawResult = await db.execute(sql`
-          SELECT * FROM communities
-          WHERE ${baseWhere} AND "created_at" IS NOT NULL
-          ORDER BY "created_at" DESC
-          LIMIT ${limitNum}
-        `);
-
-      } else if (type === 'location') {
-        const cityVal = (city as string) || null;
-        const stateVal = (state as string) || null;
-        rawResult = await db.execute(sql`
-          SELECT * FROM communities
-          WHERE ${baseWhere}
-            AND (${cityVal}::text IS NULL OR "city" = ${cityVal})
-            AND (${stateVal}::text IS NULL OR "state" = ${stateVal})
-          ORDER BY "rating" DESC NULLS LAST
-          LIMIT ${limitNum}
-        `);
-
-      } else if (type === 'care_type' && careType) {
-        rawResult = await db.execute(sql`
-          SELECT * FROM communities
-          WHERE ${baseWhere}
-            AND "care_types"::text[] && ARRAY[${careType as string}]::text[]
-          ORDER BY "rating" DESC NULLS LAST
-          LIMIT ${limitNum}
-        `);
-
-      } else {
-        return res.json([]);
+        return (r as any).rows ?? r ?? [];
       }
 
-      const rows: any[] = (rawResult as any).rows ?? rawResult ?? [];
+      // Fetch specific communities by id, preserving the requested order and
+      // dropping any that fail the visibility filter (hidden / inactive / invalid).
+      async function fetchByIds(ids: number[], lim: number): Promise<any[]> {
+        if (!ids.length || lim <= 0) return [];
+        const idList = sql.join(ids.map((i) => sql`${i}`), sql`, `);
+        const r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})`);
+        const rows: any[] = (r as any).rows ?? r ?? [];
+        const byId = new Map<number, any>(rows.map((c) => [Number(c.id), c]));
+        const ordered: any[] = [];
+        for (const id of ids) {
+          const c = byId.get(Number(id));
+          if (c) ordered.push(c);
+          if (ordered.length >= lim) break;
+        }
+        return ordered;
+      }
+
+      // Defaults from query params (backward-compatible callers without a sectionId).
+      let mode = 'auto';
+      let communityIds: number[] = [];
+      let excludeIds: number[] = [];
+      let cfgType = (type as string) || '';
+      let cfgCity: string | null = (city as string) || null;
+      let cfgState: string | null = (state as string) || null;
+      let cfgCareType: string | null = (careType as string) || null;
+
+      // When a sectionId is supplied, the stored section config is authoritative.
+      if (sectionId) {
+        const sid = parseInt(sectionId as string, 10);
+        if (!isNaN(sid)) {
+          const cfgRes = await db.execute(sql`SELECT section_type, config FROM home_section_configs WHERE id = ${sid} LIMIT 1`);
+          const cfgRow = (cfgRes as any).rows?.[0] ?? (cfgRes as any)[0];
+          if (cfgRow) {
+            const cfg = cfgRow.config || {};
+            cfgType = cfgRow.section_type;
+            cfgCity = cfg.city ?? null;
+            cfgState = cfg.state ?? null;
+            cfgCareType = cfg.careType ?? null;
+            mode = cfg.selectionMode === 'curated' || cfg.selectionMode === 'pinned' ? cfg.selectionMode : 'auto';
+            communityIds = Array.isArray(cfg.communityIds)
+              ? cfg.communityIds.map((n: any) => Number(n)).filter((n: number) => Number.isFinite(n))
+              : [];
+            excludeIds = Array.isArray(cfg.excludeIds)
+              ? cfg.excludeIds.map((n: any) => Number(n)).filter((n: number) => Number.isFinite(n))
+              : [];
+          }
+        }
+      }
+
+      let rows: any[] = [];
+      if (mode === 'curated') {
+        // Exactly the chosen communities, in the chosen order — nothing else.
+        rows = await fetchByIds(communityIds, limitNum);
+      } else if (mode === 'pinned') {
+        // Pinned communities first, then auto-fill the remaining slots.
+        const pinned = await fetchByIds(communityIds, limitNum);
+        const auto = await runAutoQuery(cfgType, {
+          city: cfgCity, state: cfgState, careType: cfgCareType,
+          exclude: Array.from(new Set([...communityIds, ...excludeIds])),
+          limit: limitNum - pinned.length,
+        });
+        rows = [...pinned, ...auto];
+      } else {
+        // Auto-fill, minus any excluded communities.
+        rows = await runAutoQuery(cfgType, {
+          city: cfgCity, state: cfgState, careType: cfgCareType,
+          exclude: excludeIds,
+          limit: limitNum,
+        });
+      }
 
       const enriched = await Promise.all(
         rows.map(async (c) => {
@@ -310,7 +338,8 @@ export function registerCommunityRoutes(app: Express) {
         })
       );
 
-      res.set('Cache-Control', 'public, max-age=120');
+      // Short cache so admin curation changes surface on the next home-page load.
+      res.set('Cache-Control', 'public, max-age=15');
       res.json(enriched);
     } catch (error) {
       console.error("Error fetching section-data:", error);

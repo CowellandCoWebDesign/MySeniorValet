@@ -3760,53 +3760,217 @@ function CityAutocomplete({ value, state, onChange }: {
   );
 }
 
-// Renders the conditional config fields for location and care_type section types.
+// Searchable community picker that manages an ordered list of community ids.
+// Used for both the curated/pinned "chosen" list and the "excluded" list.
+function CommunityMultiSelect({ ids, onChange, orderable, title, helpText }: {
+  ids: number[];
+  onChange: (ids: number[]) => void;
+  orderable: boolean;
+  title: string;
+  helpText: string;
+}) {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<{ id: number; name: string; city: string; state: string }[]>([]);
+  const [open, setOpen] = useState(false);
+  const [labels, setLabels] = useState<Record<number, { name: string; city: string; state: string }>>({});
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Resolve names for any ids we don't yet have labels for (e.g. saved selections).
+  useEffect(() => {
+    const missing = ids.filter((id) => !labels[id]);
+    if (missing.length === 0) return;
+    (async () => {
+      try {
+        const res = await fetch(`/api/admin/home-sections/community-by-ids?ids=${missing.join(',')}`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setLabels((prev) => {
+          const next = { ...prev };
+          for (const c of data) next[c.id] = { name: c.name, city: c.city, state: c.state };
+          return next;
+        });
+      } catch {}
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ids.join(',')]);
+
+  const search = (q: string) => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!q || q.length < 2) { setResults([]); setOpen(false); return; }
+    timer.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/admin/home-sections/community-search?q=${encodeURIComponent(q)}`, { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        setResults(data);
+        setOpen(data.length > 0);
+      } catch {}
+    }, 300);
+  };
+
+  const add = (c: { id: number; name: string; city: string; state: string }) => {
+    if (!ids.includes(c.id)) {
+      setLabels((prev) => ({ ...prev, [c.id]: { name: c.name, city: c.city, state: c.state } }));
+      onChange([...ids, c.id]);
+    }
+    setQuery(""); setResults([]); setOpen(false);
+  };
+
+  const remove = (id: number) => onChange(ids.filter((x) => x !== id));
+
+  const move = (idx: number, dir: -1 | 1) => {
+    const target = idx + dir;
+    if (target < 0 || target >= ids.length) return;
+    const next = [...ids];
+    [next[idx], next[target]] = [next[target], next[idx]];
+    onChange(next);
+  };
+
+  const labelFor = (id: number) => {
+    const l = labels[id];
+    if (!l) return `#${id}`;
+    return `${l.name}${l.city ? ` · ${l.city}${l.state ? `, ${l.state}` : ''}` : ''}`;
+  };
+
+  return (
+    <div className="mt-2">
+      <label className="text-xs font-medium text-gray-600 dark:text-gray-400">{title}</label>
+      <p className="text-[11px] text-gray-400 mb-1">{helpText}</p>
+      <div className="relative">
+        <Input
+          value={query}
+          onChange={(e) => { setQuery(e.target.value); search(e.target.value); }}
+          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onFocus={() => { if (results.length > 0) setOpen(true); }}
+          placeholder="Search communities by name or city…"
+          className="text-sm"
+        />
+        {open && results.length > 0 && (
+          <div className="absolute z-50 mt-1 w-full bg-white dark:bg-gray-800 border dark:border-gray-600 rounded shadow-lg max-h-56 overflow-y-auto text-sm">
+            {results.map((c) => (
+              <div
+                key={c.id}
+                className={`px-3 py-2 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/40 ${ids.includes(c.id) ? 'opacity-40 pointer-events-none' : ''}`}
+                onMouseDown={() => add(c)}
+              >
+                {c.name} <span className="text-gray-400">· {c.city}{c.state ? `, ${c.state}` : ''}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {ids.length > 0 ? (
+        <div className="mt-2 space-y-1">
+          {ids.map((id, idx) => (
+            <div key={id} className="flex items-center gap-2 bg-gray-50 dark:bg-gray-700/50 rounded px-2 py-1 text-xs">
+              {orderable && <span className="text-gray-400 font-mono w-4 text-center flex-shrink-0">{idx + 1}</span>}
+              <span className="flex-1 truncate">{labelFor(id)}</span>
+              {orderable && (
+                <>
+                  <button type="button" className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30" disabled={idx === 0} onClick={() => move(idx, -1)} aria-label="Move up"><ArrowUp className="h-3 w-3" /></button>
+                  <button type="button" className="text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30" disabled={idx === ids.length - 1} onClick={() => move(idx, 1)} aria-label="Move down"><ArrowDown className="h-3 w-3" /></button>
+                </>
+              )}
+              <button type="button" className="text-red-400 hover:text-red-600" onClick={() => remove(id)} aria-label="Remove"><X className="h-3 w-3" /></button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-[11px] text-gray-400 italic mt-1">None selected.</p>
+      )}
+    </div>
+  );
+}
+
+// Renders config fields for a section: the type-specific filters (location / care_type)
+// plus the community-selection controls (auto / curated / pinned) shared by all types.
 function SectionConfigFields({ sectionType, config, onChange }: {
   sectionType: string;
   config: any;
   onChange: (cfg: any) => void;
 }) {
-  if (sectionType === 'location') {
-    return (
-      <div className="grid grid-cols-2 gap-2 mt-2">
-        <div>
-          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">City (optional)</label>
-          <CityAutocomplete
-            value={config?.city ?? ""}
-            state={config?.state ?? ""}
-            onChange={(city, st) => onChange({ ...config, city: city || undefined, state: st || config?.state || undefined })}
-          />
+  const mode = config?.selectionMode ?? 'auto';
+  const setMode = (m: string) => {
+    const next = { ...config, selectionMode: m };
+    if (m === 'auto') next.communityIds = [];
+    onChange(next);
+  };
+
+  return (
+    <div className="space-y-2">
+      {sectionType === 'location' && (
+        <div className="grid grid-cols-2 gap-2 mt-2">
+          <div>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">City (optional)</label>
+            <CityAutocomplete
+              value={config?.city ?? ""}
+              state={config?.state ?? ""}
+              onChange={(city, st) => onChange({ ...config, city: city || undefined, state: st || config?.state || undefined })}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">State</label>
+            <select
+              className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
+              value={config?.state ?? ""}
+              onChange={(e) => onChange({ ...config, state: e.target.value || undefined })}
+            >
+              <option value="">— Any state —</option>
+              {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
         </div>
-        <div>
-          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">State</label>
+      )}
+
+      {sectionType === 'care_type' && (
+        <div className="mt-2">
+          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Care Type</label>
           <select
             className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
-            value={config?.state ?? ""}
-            onChange={(e) => onChange({ ...config, state: e.target.value || undefined })}
+            value={config?.careType ?? ""}
+            onChange={(e) => onChange({ ...config, careType: e.target.value || undefined })}
           >
-            <option value="">— Any state —</option>
-            {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+            <option value="">— Select care type —</option>
+            {CARE_TYPE_OPTIONS.map((ct) => <option key={ct} value={ct}>{ct}</option>)}
           </select>
         </div>
-      </div>
-    );
-  }
-  if (sectionType === 'care_type') {
-    return (
-      <div className="mt-2">
-        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Care Type</label>
+      )}
+
+      <div className="mt-2 border-t pt-2 dark:border-gray-700">
+        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Community selection</label>
         <select
           className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
-          value={config?.careType ?? ""}
-          onChange={(e) => onChange({ ...config, careType: e.target.value || undefined })}
+          value={mode}
+          onChange={(e) => setMode(e.target.value)}
         >
-          <option value="">— Select care type —</option>
-          {CARE_TYPE_OPTIONS.map((ct) => <option key={ct} value={ct}>{ct}</option>)}
+          <option value="auto">Auto-fill (by type, with optional exclusions)</option>
+          <option value="curated">Curated (exact hand-picked list & order)</option>
+          <option value="pinned">Pinned + auto-fill</option>
         </select>
+
+        {(mode === 'curated' || mode === 'pinned') && (
+          <CommunityMultiSelect
+            ids={Array.isArray(config?.communityIds) ? config.communityIds : []}
+            onChange={(communityIds) => onChange({ ...config, communityIds })}
+            orderable
+            title={mode === 'curated' ? 'Chosen communities (exact order)' : 'Pinned communities (shown first)'}
+            helpText={mode === 'curated' ? 'Only these communities appear, in this order.' : 'These appear first; the rest auto-fills by type.'}
+          />
+        )}
+
+        {(mode === 'auto' || mode === 'pinned') && (
+          <CommunityMultiSelect
+            ids={Array.isArray(config?.excludeIds) ? config.excludeIds : []}
+            onChange={(excludeIds) => onChange({ ...config, excludeIds })}
+            orderable={false}
+            title="Excluded communities"
+            helpText="These communities never appear in this carousel."
+          />
+        )}
       </div>
-    );
-  }
-  return null;
+    </div>
+  );
 }
 
 interface SortableSectionRowProps {
@@ -4294,9 +4458,16 @@ function HomeSectionsAdmin() {
     return res.json();
   };
 
-  // Refresh the public home page's section data so changes here propagate immediately
+  // Refresh the public home page's section data so changes here propagate immediately.
+  // Invalidate both the section list and every per-section carousel data query
+  // (keyed by /api/communities/section-data?...) so curation changes show on next load.
   const invalidatePublicSections = () => {
     queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
+    queryClient.invalidateQueries({
+      predicate: (q) =>
+        typeof q.queryKey?.[0] === 'string' &&
+        (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
+    });
   };
 
   const handleToggle = async (section: any) => {
