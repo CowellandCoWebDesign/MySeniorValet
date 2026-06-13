@@ -2174,6 +2174,112 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // ── Quality-flagged communities ──────────────────────────────────────────
+  // Returns communities that have data_quality_flags set (auto-groomed in June 2026)
+  // Uses raw SQL to avoid Drizzle ORM column drift (admin_rating_override missing from DB)
+  adminRouter.get('/communities/quality-flagged', async (req, res) => {
+    try {
+      const { page = '1', limit = '50', flagType, search } = req.query;
+      const pageNum = Math.max(1, parseInt(page as string));
+      const limitNum = Math.min(200, Math.max(1, parseInt(limit as string)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const allowedFlagTypes = ['not_geocoded', 'no_description', 'no_contact', 'no_street_number'];
+
+      let whereParts = [
+        `data_quality_flags IS NOT NULL`,
+        `array_length(data_quality_flags, 1) > 0`
+      ];
+
+      if (flagType && allowedFlagTypes.includes(flagType as string)) {
+        whereParts.push(`'${flagType}' = ANY(data_quality_flags)`);
+      }
+
+      if (search && typeof search === 'string' && search.trim().length > 0) {
+        const safe = search.replace(/'/g, "''").trim();
+        whereParts.push(`(name ILIKE '%${safe}%' OR city ILIKE '%${safe}%')`);
+      }
+
+      const whereClause = whereParts.join(' AND ');
+
+      const [dataResult, countResult] = await Promise.all([
+        db.execute(sql.raw(`
+          SELECT id, name, city, state, care_types, data_quality_flags, is_hidden
+          FROM communities
+          WHERE ${whereClause}
+          ORDER BY name ASC
+          LIMIT ${limitNum} OFFSET ${offset}
+        `)),
+        db.execute(sql.raw(`
+          SELECT COUNT(*)::integer AS total FROM communities WHERE ${whereClause}
+        `)),
+      ]);
+
+      const total = Number(countResult.rows[0]?.total ?? 0);
+
+      res.json({
+        communities: dataResult.rows,
+        total,
+        page: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        limit: limitNum,
+      });
+    } catch (error) {
+      console.error('Error fetching quality-flagged communities:', error);
+      res.status(500).json({ message: 'Failed to fetch quality-flagged communities' });
+    }
+  });
+
+  // Bulk action on quality-flagged communities: delete | restore | clear-flags
+  // Uses raw SQL to avoid Drizzle ORM column drift
+  adminRouter.post('/communities/bulk-quality-action', async (req, res) => {
+    try {
+      const { ids, action } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'ids must be a non-empty array' });
+      }
+      if (!['delete', 'restore', 'clear-flags'].includes(action)) {
+        return res.status(400).json({ error: 'action must be delete, restore, or clear-flags' });
+      }
+
+      const communityIds = ids.map(Number).filter(n => !isNaN(n) && n > 0);
+      if (communityIds.length === 0) {
+        return res.status(400).json({ error: 'No valid community IDs provided' });
+      }
+      if (communityIds.length > 500) {
+        return res.status(400).json({ error: 'Maximum 500 IDs per request' });
+      }
+
+      const idList = communityIds.join(',');
+      let result;
+
+      if (action === 'delete') {
+        result = await db.execute(sql.raw(`
+          DELETE FROM communities WHERE id IN (${idList})
+        `));
+      } else if (action === 'restore') {
+        result = await db.execute(sql.raw(`
+          UPDATE communities
+          SET is_hidden = false, data_quality_flags = '{}'
+          WHERE id IN (${idList})
+        `));
+      } else if (action === 'clear-flags') {
+        result = await db.execute(sql.raw(`
+          UPDATE communities
+          SET data_quality_flags = '{}'
+          WHERE id IN (${idList})
+        `));
+      }
+
+      const affected = (result as any)?.rowCount ?? communityIds.length;
+      res.json({ success: true, affected });
+    } catch (error) {
+      console.error('Error performing bulk quality action:', error);
+      res.status(500).json({ message: 'Failed to perform bulk quality action' });
+    }
+  });
+
   // Get pending listing flags for admin moderation
   adminRouter.get('/listing-flags', async (req, res) => {
     try {

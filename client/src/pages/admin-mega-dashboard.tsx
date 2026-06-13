@@ -714,7 +714,7 @@ export default function AdminMegaDashboard() {
 
   // Listing flags for moderation
   const [flagStatusFilter, setFlagStatusFilter] = useState<string>('Pending');
-  const [communitySubTab, setCommunitySubTab] = useState<'listings' | 'flags'>('listings');
+  const [communitySubTab, setCommunitySubTab] = useState<'listings' | 'quality' | 'flags'>('listings');
   const { data: listingFlagsData, isLoading: flagsLoading } = useQuery({
     queryKey: ['/api/admin/listing-flags', flagStatusFilter],
     queryFn: async () => {
@@ -722,6 +722,15 @@ export default function AdminMegaDashboard() {
       return await apiRequest('GET', `/api/admin/listing-flags?${params}`);
     },
     enabled: communitySubTab === 'flags',
+  });
+
+  // Quality-flagged communities count (for tab badge)
+  const { data: qualityFlaggedMeta } = useQuery({
+    queryKey: ['/api/admin/communities/quality-flagged-count'],
+    queryFn: async () => {
+      const res = await apiRequest('GET', '/api/admin/communities/quality-flagged?page=1&limit=1');
+      return res as { total: number };
+    },
   });
   
   const { data: filteredCommunities } = useQuery({
@@ -2025,11 +2034,24 @@ Communities Created: ${details.stats.communitiesCreated}`;
             </Button>
             <Button
               size="sm"
+              variant={communitySubTab === 'quality' ? 'default' : 'outline'}
+              onClick={() => setCommunitySubTab('quality')}
+            >
+              <Wrench className="h-4 w-4 mr-1.5" />
+              Quality Control
+              {(qualityFlaggedMeta as any)?.total > 0 && (
+                <Badge className="ml-1.5 bg-yellow-500 text-white text-[10px] h-4 px-1.5">
+                  {(qualityFlaggedMeta as any).total.toLocaleString()}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              size="sm"
               variant={communitySubTab === 'flags' ? 'default' : 'outline'}
               onClick={() => setCommunitySubTab('flags')}
             >
               <Flag className="h-4 w-4 mr-1.5" />
-              Flag Queue
+              Reports
               {stats?.flagged > 0 && (
                 <Badge className="ml-1.5 bg-red-500 text-white text-[10px] h-4 px-1.5">{stats.flagged}</Badge>
               )}
@@ -2455,6 +2477,11 @@ Communities Created: ${details.stats.communitiesCreated}`;
             </div>
           )}
 
+          {/* ══════════ QUALITY CONTROL TAB ══════════ */}
+          {communitySubTab === 'quality' && (
+            <QualityControlPanel />
+          )}
+
           {/* ══════════ FLAG QUEUE TAB ══════════ */}
           {communitySubTab === 'flags' && (
             <Card>
@@ -2561,20 +2588,26 @@ Communities Created: ${details.stats.communitiesCreated}`;
                               </div>
                             </div>
 
-                            <div className="flex flex-col gap-2 shrink-0 min-w-[100px]">
+                            <div className="flex flex-col gap-2 shrink-0 min-w-[110px]">
                               {(flag.status === 'Pending' || flag.status === 'Under Review') && (
                                 <>
                                   <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-50 dark:hover:bg-green-950 h-7 text-xs"
+                                    disabled={confirmFlagMutation.isPending || dismissFlagMutation.isPending}
                                     onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false })}>
-                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Confirm
+                                    {confirmFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <CheckCircle2 className="h-3 w-3 mr-1" />}
+                                    Mark Problematic
                                   </Button>
                                   <Button size="sm" variant="destructive" className="h-7 text-xs"
+                                    disabled={confirmFlagMutation.isPending || dismissFlagMutation.isPending}
                                     onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true })}>
-                                    <EyeOff className="h-3 w-3 mr-1" /> Confirm + Hide
+                                    {confirmFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <EyeOff className="h-3 w-3 mr-1" />}
+                                    Problematic + Hide
                                   </Button>
                                   <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                                    disabled={confirmFlagMutation.isPending || dismissFlagMutation.isPending}
                                     onClick={() => dismissFlagMutation.mutate(flag.id)}>
-                                    <X className="h-3 w-3 mr-1" /> Dismiss
+                                    {dismissFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <X className="h-3 w-3 mr-1" />}
+                                    Clear Report
                                   </Button>
                                 </>
                               )}
@@ -3888,6 +3921,323 @@ function SortableSectionRow({
         </div>
       )}
     </div>
+  );
+}
+
+// ─── Quality Control Panel ──────────────────────────────────────────────────
+// Standalone component so it owns its own state/queries cleanly
+const FLAG_TYPE_OPTIONS = [
+  { value: 'all', label: 'All Flag Types' },
+  { value: 'not_geocoded', label: 'Not Geocoded' },
+  { value: 'no_description', label: 'No Description' },
+  { value: 'no_contact', label: 'No Contact' },
+  { value: 'no_street_number', label: 'No Street Number' },
+] as const;
+
+const FLAG_BADGE: Record<string, { label: string; cls: string }> = {
+  not_geocoded:    { label: 'Not Geocoded',    cls: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300' },
+  no_description:  { label: 'No Description',  cls: 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300' },
+  no_contact:      { label: 'No Contact',       cls: 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300' },
+  no_street_number:{ label: 'No Street #',      cls: 'bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300' },
+};
+
+function QualityControlPanel() {
+  const { toast } = useToast();
+  const [qPage, setQPage] = useState(1);
+  const [qFlagType, setQFlagType] = useState<string>('all');
+  const [qSearch, setQSearch] = useState('');
+  const [qSearchInput, setQSearchInput] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const queryKey = ['/api/admin/communities/quality-flagged', qPage, qFlagType, qSearch];
+
+  const { data, isLoading, refetch } = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const params = new URLSearchParams({ page: String(qPage), limit: '50' });
+      if (qFlagType !== 'all') params.set('flagType', qFlagType);
+      if (qSearch) params.set('search', qSearch);
+      return await apiRequest('GET', `/api/admin/communities/quality-flagged?${params}`) as {
+        communities: any[];
+        total: number;
+        page: number;
+        totalPages: number;
+      };
+    },
+  });
+
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ ids, action }: { ids: number[]; action: string }) => {
+      return await apiRequest('POST', '/api/admin/communities/bulk-quality-action', { ids, action });
+    },
+    onSuccess: (_: any, variables: { ids: number[]; action: string }) => {
+      const labels: Record<string, string> = {
+        delete: 'Deleted',
+        restore: 'Restored',
+        'clear-flags': 'Flags cleared',
+      };
+      toast({ title: `${labels[variables.action] ?? 'Done'} — ${variables.ids.length} communities updated` });
+      setSelectedIds(new Set());
+      setConfirmDelete(false);
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/quality-flagged'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/quality-flagged-count'] });
+    },
+    onError: (err: any) => {
+      toast({ title: 'Action failed', description: err.message, variant: 'destructive' });
+    },
+  });
+
+  const communities = (data as any)?.communities ?? [];
+  const total = (data as any)?.total ?? 0;
+  const totalPages = (data as any)?.totalPages ?? 1;
+
+  const pageStart = total === 0 ? 0 : (qPage - 1) * 50 + 1;
+  const pageEnd = Math.min(qPage * 50, total);
+
+  const toggleRow = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (communities.every((c: any) => selectedIds.has(c.id))) {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        communities.forEach((c: any) => next.delete(c.id));
+        return next;
+      });
+    } else {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        communities.forEach((c: any) => next.add(c.id));
+        return next;
+      });
+    }
+  };
+
+  const selectedArr = Array.from(selectedIds);
+  const allOnPageSelected = communities.length > 0 && communities.every((c: any) => selectedIds.has(c.id));
+
+  return (
+    <Card>
+      <CardHeader className="pb-3 pt-4 px-4">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <Wrench className="h-4 w-4 text-yellow-500" />
+          Quality Control
+          {total > 0 && (
+            <span className="text-sm font-normal text-muted-foreground">
+              — {total.toLocaleString()} communities need attention
+            </span>
+          )}
+        </CardTitle>
+        <CardDescription>
+          Communities auto-hidden during data quality review. Restore them to make them public again, clear their flags, or delete them permanently.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="px-4 pb-4 space-y-3">
+        {/* Filter bar */}
+        <div className="flex flex-wrap gap-2">
+          <div className="relative flex-1 min-w-[180px]">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <Input
+              placeholder="Search name or city…"
+              value={qSearchInput}
+              onChange={e => setQSearchInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') { setQSearch(qSearchInput); setQPage(1); }
+              }}
+              className="pl-8 h-9"
+            />
+          </div>
+          <Button variant="outline" size="sm" className="h-9" onClick={() => { setQSearch(qSearchInput); setQPage(1); }}>
+            Search
+          </Button>
+          <Select value={qFlagType} onValueChange={v => { setQFlagType(v); setQPage(1); }}>
+            <SelectTrigger className="w-44 h-9">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FLAG_TYPE_OPTIONS.map(o => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" size="sm" className="h-9" onClick={() => refetch()}>
+            <RefreshCw className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+
+        {/* Bulk action bar */}
+        {selectedArr.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 p-3 bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+            <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+              {selectedArr.length} selected
+            </span>
+            <div className="flex gap-2 ml-auto flex-wrap">
+              <Button size="sm" variant="outline" className="h-7 text-xs border-green-300 text-green-700 hover:bg-green-50 dark:hover:bg-green-950"
+                disabled={bulkActionMutation.isPending}
+                onClick={() => bulkActionMutation.mutate({ ids: selectedArr, action: 'restore' })}>
+                {bulkActionMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <CheckCircle2 className="h-3 w-3 mr-1" />}
+                Restore (make public)
+              </Button>
+              <Button size="sm" variant="outline" className="h-7 text-xs"
+                disabled={bulkActionMutation.isPending}
+                onClick={() => bulkActionMutation.mutate({ ids: selectedArr, action: 'clear-flags' })}>
+                {bulkActionMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <X className="h-3 w-3 mr-1" />}
+                Clear flags only
+              </Button>
+              {!confirmDelete ? (
+                <Button size="sm" variant="destructive" className="h-7 text-xs"
+                  disabled={bulkActionMutation.isPending}
+                  onClick={() => setConfirmDelete(true)}>
+                  <Trash2 className="h-3 w-3 mr-1" />
+                  Delete {selectedArr.length}
+                </Button>
+              ) : (
+                <div className="flex gap-1.5 items-center bg-red-100 dark:bg-red-950/50 border border-red-300 dark:border-red-800 rounded-md px-2 py-1">
+                  <span className="text-xs text-red-700 dark:text-red-300 font-medium">
+                    Permanently delete {selectedArr.length} communities?
+                  </span>
+                  <Button size="sm" variant="destructive" className="h-6 text-xs px-2"
+                    disabled={bulkActionMutation.isPending}
+                    onClick={() => bulkActionMutation.mutate({ ids: selectedArr, action: 'delete' })}>
+                    {bulkActionMutation.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Confirm Delete'}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="h-6 text-xs px-2"
+                    onClick={() => setConfirmDelete(false)}>
+                    Cancel
+                  </Button>
+                </div>
+              )}
+              <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground"
+                onClick={() => { setSelectedIds(new Set()); setConfirmDelete(false); }}>
+                <X className="h-3 w-3 mr-1" /> Deselect all
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Table */}
+        {isLoading ? (
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="flex gap-3 items-center p-3 border rounded-lg">
+                <Skeleton className="h-4 w-4" />
+                <Skeleton className="h-4 flex-1" />
+                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        ) : communities.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-14 text-muted-foreground gap-3">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+              <CheckCircle2 className="h-5 w-5 opacity-40" />
+            </div>
+            <div className="text-center">
+              <p className="font-medium">No quality issues found</p>
+              <p className="text-sm text-muted-foreground/70 mt-0.5">
+                {qFlagType !== 'all' || qSearch ? 'Try adjusting your filters' : 'All communities look clean'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="border rounded-lg overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/40">
+                  <TableHead className="w-10 pl-3">
+                    <Checkbox
+                      checked={allOnPageSelected}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all on page"
+                    />
+                  </TableHead>
+                  <TableHead className="text-xs font-medium">Community</TableHead>
+                  <TableHead className="text-xs font-medium">Location</TableHead>
+                  <TableHead className="text-xs font-medium">Quality Flags</TableHead>
+                  <TableHead className="text-xs font-medium w-20">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {communities.map((c: any) => (
+                  <TableRow
+                    key={c.id}
+                    className={`cursor-pointer ${selectedIds.has(c.id) ? 'bg-yellow-50/40 dark:bg-yellow-950/20' : ''}`}
+                    onClick={() => toggleRow(c.id)}
+                  >
+                    <TableCell className="pl-3" onClick={e => e.stopPropagation()}>
+                      <Checkbox
+                        checked={selectedIds.has(c.id)}
+                        onCheckedChange={() => toggleRow(c.id)}
+                        aria-label={`Select ${c.name}`}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm font-medium leading-none">{c.name}</p>
+                      {c.care_types && Array.isArray(c.care_types) && c.care_types.length > 0 && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{c.care_types[0]}</p>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {[c.city, c.state].filter(Boolean).join(', ') || '—'}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {(c.data_quality_flags ?? []).map((flag: string) => {
+                          const badge = FLAG_BADGE[flag] ?? { label: flag, cls: 'bg-gray-100 text-gray-700' };
+                          return (
+                            <span key={flag} className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${badge.cls}`}>
+                              {badge.label}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {c.is_hidden ? (
+                        <span className="inline-flex items-center gap-1 text-xs text-orange-600 dark:text-orange-400">
+                          <EyeOff className="h-3 w-3" /> Hidden
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                          <Eye className="h-3 w-3" /> Public
+                        </span>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {/* Pagination */}
+        {total > 0 && (
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-xs text-muted-foreground">
+              Showing {pageStart}–{pageEnd} of {total.toLocaleString()}
+            </span>
+            <div className="flex gap-1.5">
+              <Button variant="outline" size="sm" className="h-7 text-xs"
+                disabled={qPage <= 1}
+                onClick={() => { setQPage(p => p - 1); setSelectedIds(new Set()); }}>
+                <ChevronLeft className="h-3.5 w-3.5 mr-1" />Previous
+              </Button>
+              <Button variant="outline" size="sm" className="h-7 text-xs"
+                disabled={qPage >= totalPages}
+                onClick={() => { setQPage(p => p + 1); setSelectedIds(new Set()); }}>
+                Next<ChevronRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
