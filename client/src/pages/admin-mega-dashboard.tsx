@@ -41,8 +41,25 @@ import {
   Rocket, Heart, Flame, Gem, Lightbulb, // Creative icons from admin-creative
   LayoutDashboard, Key, Ban, LogIn, Wifi, DownloadCloud, UploadCloud,
   Camera, Printer, // Additional icons from various dashboards
-  EyeOff, ChevronLeft, ChevronUp, ChevronDown, Plus, Edit3 // Added for community management upgrades
+  EyeOff, ChevronLeft, ChevronUp, ChevronDown, Plus, Edit3, GripVertical // Added for community management upgrades
 } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS as DndCSS } from "@dnd-kit/utilities";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -3759,6 +3776,121 @@ function SectionConfigFields({ sectionType, config, onChange }: {
   return null;
 }
 
+interface SortableSectionRowProps {
+  section: any;
+  idx: number;
+  editingId: number | null;
+  editDraft: any;
+  setEditDraft: (d: any) => void;
+  setEditingId: (id: number | null) => void;
+  handleToggle: (s: any) => void;
+  handleDelete: (id: number) => void;
+  handleSaveEdit: (s: any) => void;
+}
+
+function SortableSectionRow({
+  section,
+  idx,
+  editingId,
+  editDraft,
+  setEditDraft,
+  setEditingId,
+  handleToggle,
+  handleDelete,
+  handleSaveEdit,
+}: SortableSectionRowProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
+  const style: React.CSSProperties = {
+    transform: DndCSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.4 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+
+  const currentType = editDraft.sectionType ?? section.sectionType;
+  const currentConfig = editDraft.config ?? section.config ?? {};
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`border rounded-lg p-4 transition-all ${section.enabled ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900 opacity-60"}`}
+    >
+      {editingId === section.id ? (
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Title</label>
+              <Input value={editDraft.title ?? section.title} onChange={(e) => setEditDraft({ ...editDraft, title: e.target.value })} className="mt-1" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Subtitle</label>
+              <Input value={editDraft.subtitle ?? section.subtitle ?? ""} onChange={(e) => setEditDraft({ ...editDraft, subtitle: e.target.value })} className="mt-1" />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Section Type</label>
+            <select
+              className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
+              value={currentType}
+              onChange={(e) => setEditDraft({ ...editDraft, sectionType: e.target.value, config: {} })}
+            >
+              {Object.entries(SECTION_TYPE_LABELS).map(([v, l]) => (
+                <option key={v} value={v}>{l}</option>
+              ))}
+            </select>
+          </div>
+          <SectionConfigFields
+            sectionType={currentType}
+            config={currentConfig}
+            onChange={(cfg) => setEditDraft({ ...editDraft, config: cfg })}
+          />
+          <div className="flex gap-2">
+            <Button size="sm" onClick={() => handleSaveEdit(section)}>Save</Button>
+            <Button size="sm" variant="outline" onClick={() => { setEditingId(null); setEditDraft({}); }}>Cancel</Button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <button
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing touch-none p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+              aria-label="Drag to reorder"
+            >
+              <GripVertical className="h-4 w-4" />
+            </button>
+            <span className="text-xs text-gray-400 w-6 text-center font-mono">{idx + 1}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-sm truncate">{section.title}</p>
+              <p className="text-xs text-gray-500 truncate">
+                {SECTION_TYPE_LABELS[section.sectionType as string] ?? section.sectionType}
+                {section.config?.city && ` · ${section.config.city}, ${section.config.state}`}
+                {section.config?.careType && ` · ${section.config.careType}`}
+              </p>
+            </div>
+            <Badge variant={section.enabled ? "default" : "secondary"} className="text-xs flex-shrink-0">
+              {section.enabled ? "Visible" : "Hidden"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Button variant="outline" size="sm" onClick={() => { setEditingId(section.id); setEditDraft({}); }} className="h-7 px-2">
+              <Edit3 className="h-3 w-3" />
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleToggle(section)} className="h-7 px-2">
+              {section.enabled ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleDelete(section.id)} className="h-7 px-2 text-red-500 hover:text-red-700 hover:border-red-300">
+              <Trash2 className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HomeSectionsAdmin() {
   const { toast } = useToast();
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -3767,6 +3899,8 @@ function HomeSectionsAdmin() {
   const blankNew = { title: "", subtitle: "", sectionType: "recently_discovered", enabled: true, config: {} };
   const [newSection, setNewSection] = useState<any>(blankNew);
   const [showAddForm, setShowAddForm] = useState(false);
+  // Local order for optimistic reorder while PATCH calls are in-flight
+  const [localOrder, setLocalOrder] = useState<any[] | null>(null);
 
   const { data: sections = [], isLoading, refetch } = useQuery<any[]>({
     queryKey: ['/api/admin/home-sections'],
@@ -3820,19 +3954,27 @@ function HomeSectionsAdmin() {
     }
   };
 
-  const handleMove = async (section: any, dir: "up" | "down", allSections: any[]) => {
-    const idx = allSections.findIndex((s: any) => s.id === section.id);
-    const newIdx = dir === "up" ? idx - 1 : idx + 1;
-    if (newIdx < 0 || newIdx >= allSections.length) return;
-    const neighbor = allSections[newIdx];
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const current = localOrder ?? sorted;
+    const oldIndex = current.findIndex((s: any) => s.id === active.id);
+    const newIndex = current.findIndex((s: any) => s.id === over.id);
+    const reordered = arrayMove(current, oldIndex, newIndex);
+    setLocalOrder(reordered);
     try {
-      await Promise.all([
-        patchSection(section.id, { position: neighbor.position }),
-        patchSection(neighbor.id, { position: section.position }),
-      ]);
+      await Promise.all(reordered.map((s: any, i: number) => patchSection(s.id, { position: i + 1 })));
       refetch();
+      setLocalOrder(null);
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
+      setLocalOrder(null);
+      refetch();
     }
   };
 
@@ -3878,11 +4020,7 @@ function HomeSectionsAdmin() {
     }
   };
 
-  const sorted = [...(sections as any[])].sort((a: any, b: any) => a.position - b.position);
-
-  // The current type and config during an edit (merged from section + draft)
-  const editType = (section: any) => editDraft.sectionType ?? section.sectionType;
-  const editConfig = (section: any) => editDraft.config ?? section.config ?? {};
+  const sorted = localOrder ?? [...(sections as any[])].sort((a: any, b: any) => a.position - b.position);
 
   return (
     <div className="space-y-6">
@@ -3912,86 +4050,26 @@ function HomeSectionsAdmin() {
           ) : sorted.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-8">No sections configured. Click "Add Section" to get started.</p>
           ) : (
-            <div className="space-y-3">
-              {sorted.map((section: any, idx: number) => (
-                <div
-                  key={section.id}
-                  className={`border rounded-lg p-4 transition-all ${section.enabled ? "bg-white dark:bg-gray-800" : "bg-gray-50 dark:bg-gray-900 opacity-60"}`}
-                >
-                  {editingId === section.id ? (
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Title</label>
-                          <Input value={editDraft.title ?? section.title} onChange={(e) => setEditDraft({ ...editDraft, title: e.target.value })} className="mt-1" />
-                        </div>
-                        <div>
-                          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Subtitle</label>
-                          <Input value={editDraft.subtitle ?? section.subtitle ?? ""} onChange={(e) => setEditDraft({ ...editDraft, subtitle: e.target.value })} className="mt-1" />
-                        </div>
-                      </div>
-                      <div>
-                        <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Section Type</label>
-                        <select
-                          className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
-                          value={editType(section)}
-                          onChange={(e) => setEditDraft({ ...editDraft, sectionType: e.target.value, config: {} })}
-                        >
-                          {Object.entries(SECTION_TYPE_LABELS).map(([v, l]) => (
-                            <option key={v} value={v}>{l}</option>
-                          ))}
-                        </select>
-                      </div>
-                      <SectionConfigFields
-                        sectionType={editType(section)}
-                        config={editConfig(section)}
-                        onChange={(cfg) => setEditDraft({ ...editDraft, config: cfg })}
-                      />
-                      <div className="flex gap-2">
-                        <Button size="sm" onClick={() => handleSaveEdit(section)}>Save</Button>
-                        <Button size="sm" variant="outline" onClick={() => { setEditingId(null); setEditDraft({}); }}>Cancel</Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="flex flex-col gap-0.5">
-                          <Button variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={() => handleMove(section, "up", sorted)} disabled={idx === 0}>
-                            <ChevronUp className="h-3 w-3" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={() => handleMove(section, "down", sorted)} disabled={idx === sorted.length - 1}>
-                            <ChevronDown className="h-3 w-3" />
-                          </Button>
-                        </div>
-                        <span className="text-xs text-gray-400 w-6 text-center font-mono">{idx + 1}</span>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm truncate">{section.title}</p>
-                          <p className="text-xs text-gray-500 truncate">
-                            {SECTION_TYPE_LABELS[section.sectionType as string] ?? section.sectionType}
-                            {section.config?.city && ` · ${section.config.city}, ${section.config.state}`}
-                            {section.config?.careType && ` · ${section.config.careType}`}
-                          </p>
-                        </div>
-                        <Badge variant={section.enabled ? "default" : "secondary"} className="text-xs flex-shrink-0">
-                          {section.enabled ? "Visible" : "Hidden"}
-                        </Badge>
-                      </div>
-                      <div className="flex items-center gap-1 flex-shrink-0">
-                        <Button variant="outline" size="sm" onClick={() => { setEditingId(section.id); setEditDraft({}); }} className="h-7 px-2">
-                          <Edit3 className="h-3 w-3" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleToggle(section)} className="h-7 px-2">
-                          {section.enabled ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleDelete(section.id)} className="h-7 px-2 text-red-500 hover:text-red-700 hover:border-red-300">
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <SortableContext items={sorted.map((s: any) => s.id)} strategy={verticalListSortingStrategy}>
+                <div className="space-y-3">
+                  {sorted.map((section: any, idx: number) => (
+                    <SortableSectionRow
+                      key={section.id}
+                      section={section}
+                      idx={idx}
+                      editingId={editingId}
+                      editDraft={editDraft}
+                      setEditDraft={setEditDraft}
+                      setEditingId={setEditingId}
+                      handleToggle={handleToggle}
+                      handleDelete={handleDelete}
+                      handleSaveEdit={handleSaveEdit}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </CardContent>
       </Card>
