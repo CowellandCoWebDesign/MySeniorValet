@@ -9,7 +9,11 @@ import { sql } from 'drizzle-orm';
 export async function runStartupMigrations(): Promise<void> {
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS is_hidden BOOLEAN NOT NULL DEFAULT false`);
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS flag_status TEXT CHECK (flag_status IN ('pending', 'confirmed'))`);
-  console.log('✅ Startup migrations verified (community trust columns)');
+  // admin_rating_override and admin_rating_note are in Drizzle schema but were never
+  // migrated to the DB. Adding them here so db.select().from(communities) works.
+  await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_override NUMERIC(3,1)`);
+  await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_note TEXT`);
+  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override)');
 }
 
 // Allow direct execution: `npx tsx server/run-migration.ts`

@@ -10,6 +10,8 @@ neonConfig.webSocketConstructor = ws;
 const statements = [
   `ALTER TABLE communities ADD COLUMN IF NOT EXISTS data_quality_flags text[] DEFAULT '{}'`,
   `ALTER TABLE communities ADD COLUMN IF NOT EXISTS data_quality_checked_at timestamp`,
+  `ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_override NUMERIC(3,1)`,
+  `ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_note TEXT`,
   `CREATE TABLE IF NOT EXISTS home_section_configs (
     id SERIAL PRIMARY KEY,
     position INTEGER NOT NULL DEFAULT 0,
