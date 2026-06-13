@@ -1637,12 +1637,18 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
 function HomeSectionRenderer() {
   const { data: sections, isLoading, isError } = useQuery<HomeSectionConfig[]>({
     queryKey: ['/api/home-sections/active'],
-    staleTime: 10 * 1000,
+    staleTime: 0,
     gcTime: 60 * 1000,
-    retry: 1,
+    retry: 2,
+    // Always re-check on mount so admin show/hide & reorder changes appear on next load.
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
   });
 
-  if (isLoading) {
+  const list = Array.isArray(sections) ? sections : [];
+
+  // Initial load with no data yet → show a clean skeleton (never flash the fallback).
+  if (isLoading && list.length === 0 && !isError) {
     return (
       <div className="space-y-6 mb-6">
         {Array.from({ length: 3 }).map((_, i) => (
@@ -1652,8 +1658,9 @@ function HomeSectionRenderer() {
     );
   }
 
-  // API unavailable → fall back gracefully so the home page still shows carousels
-  if (isError) {
+  // Genuine API failure AND no data to show → fall back to hardcoded carousels.
+  // Once we have admin-configured sections, we always render those (never swap back).
+  if (isError && list.length === 0) {
     return (
       <>
         <div className="mb-6"><RecentlyDiscoveredCommunities /></div>
@@ -1663,8 +1670,6 @@ function HomeSectionRenderer() {
       </>
     );
   }
-
-  const list = Array.isArray(sections) ? sections : [];
 
   // Empty list means admin deliberately hid/deleted all sections → render nothing
   return (

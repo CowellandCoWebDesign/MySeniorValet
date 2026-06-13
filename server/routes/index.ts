@@ -124,7 +124,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         WHERE enabled = TRUE
         ORDER BY position ASC
       `);
-      res.set('Cache-Control', 'public, max-age=10');
+      // Short cache so admin show/hide & reorder changes surface on next page load.
+      res.set('Cache-Control', 'public, max-age=3');
       res.json(result.rows || []);
     } catch (error) {
       console.error('Error fetching active home sections:', error);

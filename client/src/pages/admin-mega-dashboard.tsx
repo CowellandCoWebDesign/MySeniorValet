@@ -4294,11 +4294,19 @@ function HomeSectionsAdmin() {
     return res.json();
   };
 
+  // Refresh the public home page's section data so changes here propagate immediately
+  const invalidatePublicSections = () => {
+    queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
+  };
+
   const handleToggle = async (section: any) => {
     try {
       await patchSection(section.id, { enabled: !section.enabled });
+      // Fire propagation right after the DB write succeeds so the public home page
+      // refreshes even if the admin-side refetch below happens to fail.
+      invalidatePublicSections();
       toast({ title: section.enabled ? "Section hidden" : "Section shown", description: section.title });
-      refetch();
+      await refetch();
     } catch {
       toast({ title: "Error", description: "Failed to update section", variant: "destructive" });
     }
@@ -4319,12 +4327,16 @@ function HomeSectionsAdmin() {
     setLocalOrder(reordered);
     try {
       await Promise.all(reordered.map((s: any, i: number) => patchSection(s.id, { position: i + 1 })));
-      refetch();
-      setLocalOrder(null);
+      invalidatePublicSections();
+      // Wait for the refreshed data (with new positions) to land BEFORE dropping the
+      // optimistic order, otherwise the list briefly reverts to the stale order.
+      await refetch();
     } catch {
       toast({ title: "Error", description: "Failed to reorder", variant: "destructive" });
+      await refetch().catch(() => {});
+    } finally {
+      // Always drop the optimistic order so the list reflects authoritative server data.
       setLocalOrder(null);
-      refetch();
     }
   };
 
@@ -4338,10 +4350,11 @@ function HomeSectionsAdmin() {
       if (editDraft.sectionType !== undefined) payload.sectionType = editDraft.sectionType;
       if (editDraft.config !== undefined) payload.config = editDraft.config;
       await patchSection(editingId, payload);
+      invalidatePublicSections();
       toast({ title: "Saved", description: "Section updated" });
       setEditingId(null);
       setEditDraft({});
-      refetch();
+      await refetch();
     } catch {
       toast({ title: "Error", description: "Failed to save", variant: "destructive" });
     }
@@ -4351,8 +4364,9 @@ function HomeSectionsAdmin() {
     if (!confirm("Delete this section? This cannot be undone.")) return;
     try {
       await deleteSection(id);
+      invalidatePublicSections();
       toast({ title: "Deleted", description: "Section removed" });
-      refetch();
+      await refetch();
     } catch {
       toast({ title: "Error", description: "Failed to delete", variant: "destructive" });
     }
@@ -4361,10 +4375,11 @@ function HomeSectionsAdmin() {
   const handleCreate = async () => {
     try {
       await createSection(newSection);
+      invalidatePublicSections();
       toast({ title: "Created", description: newSection.title });
       setShowAddForm(false);
       setNewSection(blankNew);
-      refetch();
+      await refetch();
     } catch (e: any) {
       toast({ title: "Error", description: e.message ?? "Failed to create section", variant: "destructive" });
     }
@@ -4383,7 +4398,8 @@ function HomeSectionsAdmin() {
                 Home Page Community Sections
               </CardTitle>
               <CardDescription>
-                Control which community carousels appear on the home page, their order, titles, and data source.
+                Manage the home page <strong>community carousels</strong> only — their order, titles, visibility, and data source.
+                This does not control other parts of the home page (hero, search, map, banners, news, etc.).
               </CardDescription>
             </div>
             <Button onClick={() => setShowAddForm(true)} size="sm">
