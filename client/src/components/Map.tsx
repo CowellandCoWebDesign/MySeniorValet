@@ -1538,7 +1538,7 @@ export default function Map({
             latitude: lat,
             longitude: lng,
             careTypes: properties.careTypes || [],
-            rating: properties.rating || 0,
+            rating: properties.rating || null,
             reviewCount: properties.reviewCount || 0,
             phone: properties.phone || '',
             website: properties.website || '',

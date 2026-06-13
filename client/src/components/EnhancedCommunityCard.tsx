@@ -6,6 +6,7 @@ import { Heart, Home, DollarSign, Users, Building, MapPin, Star, Zap, Shield, Ch
 import { Link } from "wouter";
 import { MarketIntelligenceModal } from "@/components/MarketIntelligenceModal";
 import { getCommunityUrl } from "@/lib/community-url";
+import { getEffectiveRating } from "@/lib/rating-utils";
 import { useContactReveal } from "@/hooks/useContactReveal";
 
 interface CommunityCardProps {
@@ -553,28 +554,33 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
             {/* RATINGS & AVAILABILITY ROW */}
             <div className="flex items-center justify-between">
               {/* Reviews */}
-              {community.rating ? (
-                <div className="flex items-center gap-1.5">
-                  <div className="flex items-center">
-                    {[...Array(5)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className={`h-3.5 w-3.5 ${i < Math.floor(community.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
-                      />
-                    ))}
+              {(() => {
+                const eff = getEffectiveRating(community as any);
+                return eff !== null ? (
+                  <div className="flex items-center gap-1.5">
+                    <div className="flex items-center">
+                      {[...Array(5)].map((_, i) => (
+                        <Star 
+                          key={i} 
+                          className={`h-3.5 w-3.5 ${i < Math.floor(eff) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {eff.toFixed(1)}
+                    </span>
+                    {(community.reviewCount || 0) > 0 && (
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        ({community.reviewCount})
+                      </span>
+                    )}
                   </div>
-                  <span className="text-sm font-bold text-gray-900 dark:text-white">
-                    {community.rating.toFixed(1)}
-                  </span>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    ({community.reviewCount || 0})
-                  </span>
-                </div>
-              ) : (
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  No reviews yet
-                </div>
-              )}
+                ) : (
+                  <div className="text-xs text-gray-500 dark:text-gray-400 italic">
+                    Not yet rated
+                  </div>
+                );
+              })()}
               
               {/* Available Units */}
               {availableUnits > 0 && (
@@ -733,12 +739,12 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
 
               {/* Reviews and Care Type Info */}
               <div className="flex flex-wrap items-center gap-3 text-sm mb-2">
-                {/* Google Reviews */}
-                {community.rating && (
+                {/* Rating */}
+                {getEffectiveRating(community as any) !== null && (
                   <div className="flex items-center gap-1">
                     <Star className="h-3.5 w-3.5 text-yellow-400 fill-yellow-400" />
                     <span className="font-medium text-gray-900 dark:text-white">
-                      {community.rating?.toFixed(1) || '0.0'}
+                      {getEffectiveRating(community as any)!.toFixed(1)}
                     </span>
                     {community.reviewCount && (
                       <span className="text-gray-500 dark:text-gray-400">

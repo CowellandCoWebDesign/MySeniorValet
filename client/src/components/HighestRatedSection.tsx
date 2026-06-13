@@ -36,17 +36,12 @@ export function HighestRatedSection() {
           <div className="flex items-center justify-center space-x-6 mt-6">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
-              <span className="text-lg text-amber-700 dark:text-amber-300 font-medium">4.0+ star ratings</span>
+              <span className="text-lg text-amber-700 dark:text-amber-300 font-medium">Ranked by verified family reviews</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
-              <span className="text-lg text-yellow-700 dark:text-yellow-300 font-medium">10+ verified reviews</span>
+              <span className="text-lg text-yellow-700 dark:text-yellow-300 font-medium">Real ratings from real families</span>
             </div>
-          </div>
-          
-          <div className="text-center mt-4">
-            <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">Average 4.3★ Rating</div>
-            <div className="text-lg text-amber-600 dark:text-amber-300 font-medium">Exceptional satisfaction scores</div>
           </div>
         </div>
         
@@ -117,7 +112,7 @@ export function HighestRatedSection() {
                     <div className="absolute top-3 left-3">
                       <div className="bg-amber-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
                         <Star className="w-3 h-3 fill-current" />
-                        <span>{community.rating || '4.0+'}</span>
+                        <span>{community.rating ? community.rating : 'Unrated'}</span>
                       </div>
                     </div>
                   </div>
@@ -130,11 +125,15 @@ export function HighestRatedSection() {
                       {community.city && community.state ? `${community.city}, ${community.state}` : 'Multiple Locations'}
                     </p>
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
-                        {community.rating || '4.0+'}★
-                      </span>
+                      {community.rating ? (
+                        <span className="text-lg font-bold text-amber-600 dark:text-amber-400">
+                          {community.rating}★
+                        </span>
+                      ) : (
+                        <span className="text-sm text-gray-500 dark:text-gray-400 italic">Not yet rated</span>
+                      )}
                       <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {community.reviewCount || '10+'} reviews
+                        {community.reviewCount ? `${community.reviewCount} reviews` : ''}
                       </span>
                     </div>
                   </CardContent>

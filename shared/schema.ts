@@ -1250,7 +1250,11 @@ export const communities = pgTable("communities", {
   lastAvailabilityUpdate: timestamp("last_availability_update"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  
+
+  // Admin manual rating override — for verified external ratings entered by admin only
+  adminRatingOverride: decimal("admin_rating_override", { precision: 3, scale: 1 }),
+  adminRatingNote: text("admin_rating_note"),
+
   // Yelp integration fields
   yelpId: varchar("yelp_id"),
   yelpRating: real("yelp_rating"),

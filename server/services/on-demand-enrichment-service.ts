@@ -258,11 +258,11 @@ export class OnDemandEnrichmentService {
         result.fieldsUpdated.push("amenities");
       }
 
-      // Rating from structured data (only if we don't already have one)
-      if (scraped.rating && !community.rating) {
-        updates.rating = scraped.rating.toString();
-        result.fieldsUpdated.push("rating");
-      }
+      // Rating is intentionally NOT written by enrichment — ratings must only come
+      // from real user-submitted reviews (via reviewRoutes.ts) or admin manual
+      // override (adminRatingOverride). Scraping a JSON-LD aggregateRating from
+      // a community website is not a verified user review and violates the
+      // Golden Data Rule if written to the primary rating field.
 
       // Persist a discovered official website so future enrichments reuse the
       // exact URL instead of re-searching (and re-rolling the dice). ONLY a

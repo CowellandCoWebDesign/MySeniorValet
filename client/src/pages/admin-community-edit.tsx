@@ -81,6 +81,8 @@ export default function AdminCommunityEdit() {
     isVerified: false,
     isFeaturedBrand: false,
     isHidden: false,
+    adminRatingOverride: "" as string,
+    adminRatingNote: "" as string,
   });
 
   const [photos, setPhotos] = useState<string[]>([]);
@@ -107,6 +109,8 @@ export default function AdminCommunityEdit() {
         isVerified: community.isVerified ?? false,
         isFeaturedBrand: community.isFeaturedBrand ?? false,
         isHidden: community.isHidden ?? false,
+        adminRatingOverride: community.adminRatingOverride != null ? String(community.adminRatingOverride) : "",
+        adminRatingNote: community.adminRatingNote ?? "",
       });
       setPhotos(community.photos ?? []);
     }
@@ -540,6 +544,51 @@ export default function AdminCommunityEdit() {
                     onCheckedChange={(v) => setForm((p) => ({ ...p, isHidden: v }))}
                   />
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Manual Rating Override */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Star className="w-4 h-4 text-yellow-500" />
+                Manual Rating Override
+              </CardTitle>
+              <CardDescription>
+                Use only for verified external ratings (e.g. state inspection scores). Leave blank to show ratings from real user reviews only.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="adminRatingOverride">Rating (1.0 – 5.0)</Label>
+                <Input
+                  id="adminRatingOverride"
+                  type="number"
+                  step="0.1"
+                  min="1.0"
+                  max="5.0"
+                  value={form.adminRatingOverride}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setForm((p) => ({ ...p, adminRatingOverride: v }));
+                  }}
+                  placeholder="e.g. 4.2"
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  When set, this overrides the platform-calculated rating. Clear to revert to user reviews.
+                </p>
+              </div>
+              <div>
+                <Label htmlFor="adminRatingNote">Source / Note</Label>
+                <Input
+                  id="adminRatingNote"
+                  value={form.adminRatingNote}
+                  onChange={(e) => setForm((p) => ({ ...p, adminRatingNote: e.target.value }))}
+                  placeholder="e.g. State inspection report – May 2026"
+                  className="mt-1"
+                />
               </div>
             </CardContent>
           </Card>

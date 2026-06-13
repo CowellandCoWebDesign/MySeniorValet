@@ -1,11 +1,35 @@
 import { type Express } from "express";
-import { db } from "../db";
+import { db, pool } from "../db";
 import { reviews, communities, users } from "@shared/schema";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 import { PerplexityReviewService } from "../perplexity-review-service";
+
+/**
+ * Atomically recalculates a community's rating and review_count from
+ * a single SQL UPDATE with aggregate subqueries — no separate select needed.
+ * Only counts reviews with moderation_status = 'Approved'.
+ */
+async function recalcCommunityRating(communityId: number): Promise<void> {
+  await pool.query(
+    `UPDATE communities
+     SET rating = (
+           SELECT CAST(ROUND(AVG(r.rating::numeric), 1) AS text)
+           FROM reviews r
+           WHERE r.community_id = $1 AND r.moderation_status = 'Approved'
+         ),
+         review_count = (
+           SELECT COUNT(*)::integer
+           FROM reviews r
+           WHERE r.community_id = $1 AND r.moderation_status = 'Approved'
+         ),
+         updated_at = NOW()
+     WHERE id = $1`,
+    [communityId]
+  );
+}
 
 export function registerReviewRoutes(app: Express) {
   // Get reviews for a community
@@ -73,22 +97,7 @@ export function registerReviewRoutes(app: Express) {
         })
         .returning();
 
-      // Update community rating and review count
-      const allReviews = await db
-        .select({ rating: reviews.rating })
-        .from(reviews)
-        .where(eq(reviews.communityId, validatedData.communityId));
-
-      const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
-
-      await db
-        .update(communities)
-        .set({
-          rating: avgRating.toFixed(1),
-          reviewCount: allReviews.length,
-          updatedAt: new Date()
-        })
-        .where(eq(communities.id, validatedData.communityId));
+      await recalcCommunityRating(validatedData.communityId);
 
       res.status(201).json(newReview);
     } catch (error) {
@@ -137,22 +146,8 @@ export function registerReviewRoutes(app: Express) {
         .where(eq(reviews.id, reviewId))
         .returning();
 
-      // Update community rating if rating changed
       if (rating !== undefined && rating !== review.rating) {
-        const allReviews = await db
-          .select({ rating: reviews.rating })
-          .from(reviews)
-          .where(eq(reviews.communityId, review.communityId));
-
-        const avgRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
-
-        await db
-          .update(communities)
-          .set({
-            rating: avgRating.toFixed(1),
-            updatedAt: new Date()
-          })
-          .where(eq(communities.id, review.communityId));
+        await recalcCommunityRating(review.communityId);
       }
 
       res.json(updatedReview);
@@ -193,34 +188,7 @@ export function registerReviewRoutes(app: Express) {
         .delete(reviews)
         .where(eq(reviews.id, reviewId));
 
-      // Update community rating and count
-      const remainingReviews = await db
-        .select({ rating: reviews.rating })
-        .from(reviews)
-        .where(eq(reviews.communityId, review.communityId));
-
-      if (remainingReviews.length > 0) {
-        const avgRating = remainingReviews.reduce((sum, r) => sum + r.rating, 0) / remainingReviews.length;
-        
-        await db
-          .update(communities)
-          .set({
-            rating: avgRating.toFixed(1),
-            reviewCount: remainingReviews.length,
-            updatedAt: new Date()
-          })
-          .where(eq(communities.id, review.communityId));
-      } else {
-        // No reviews left, reset rating
-        await db
-          .update(communities)
-          .set({
-            rating: null,
-            reviewCount: 0,
-            updatedAt: new Date()
-          })
-          .where(eq(communities.id, review.communityId));
-      }
+      await recalcCommunityRating(review.communityId);
 
       res.json({ success: true });
     } catch (error) {

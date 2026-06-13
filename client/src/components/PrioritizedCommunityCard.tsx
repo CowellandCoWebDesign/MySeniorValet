@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, MapPin, Map, Wifi, Car, Users, Home, Coffee, Dumbbell, Check } from "lucide-react";
 
 // Multiple Thinker variations for random selection
+import { getEffectiveRating, getRatingLabel } from "@/lib/rating-utils";
 import thinkerVariation1 from '@assets/generated_images/Thinker_statue_cosmic_placeholder_5ef720ce.png';
 import thinkerVariation2 from '@assets/generated_images/Complete_Thinker_in_cosmic_scene_7edc4191.png';
 import thinkerVariation3 from '@assets/generated_images/Thinker_blue_nebula_variation_37e62e66.png';
@@ -180,17 +181,8 @@ function CommunityCard({
   const discountAmount = pricing ? Math.round(pricing.monthly * 0.15) : 500;
   
   // Rating (use actual or generate based on some logic)
-  const rating = community.rating || (community.verified ? 8.8 : 8.2);
-  const reviewCount = community.reviewCount || Math.floor(Math.random() * 2000) + 500;
-  
-  // Get rating label
-  const getRatingLabel = () => {
-    if (rating >= 9) return "Exceptional";
-    if (rating >= 8.5) return "Excellent";
-    if (rating >= 8) return "Very Good";
-    if (rating >= 7) return "Good";
-    return "Fair";
-  };
+  const rating = getEffectiveRating(community as any);
+  const reviewCount = community.reviewCount || 0;
   
   // Get main amenities to display
   const getDisplayAmenities = () => {
@@ -365,13 +357,21 @@ function CommunityCard({
           
           {/* Rating Badge and Reviews */}
           <div className="flex items-center gap-3 mb-4">
-            <Badge className="bg-green-600 text-white px-2 py-1">
-              <span className="text-lg font-bold mr-2">{typeof rating === 'number' ? rating.toFixed(1) : '4.5'}</span>
-              <span className="text-sm">{getRatingLabel()}</span>
-            </Badge>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {reviewCount.toLocaleString()} reviews
-            </span>
+            {rating !== null ? (
+              <>
+                <Badge className="bg-green-600 text-white px-2 py-1">
+                  <span className="text-lg font-bold mr-2">{rating.toFixed(1)}</span>
+                  <span className="text-sm">{getRatingLabel(rating)}</span>
+                </Badge>
+                {reviewCount > 0 && (
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
+                    {reviewCount.toLocaleString()} reviews
+                  </span>
+                )}
+              </>
+            ) : (
+              <span className="text-sm text-gray-500 dark:text-gray-400 italic">Not yet rated</span>
+            )}
           </div>
           
           {/* View in a map button */}

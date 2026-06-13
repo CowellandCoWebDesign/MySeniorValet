@@ -531,6 +531,15 @@ export function registerAdminRoutes(app: Express) {
         }
       }
 
+      // Validate adminRatingOverride: must be 1.0–5.0 (1 decimal precision)
+      if (updates.adminRatingOverride !== null && updates.adminRatingOverride !== undefined) {
+        const override = parseFloat(String(updates.adminRatingOverride));
+        if (isNaN(override) || override < 1.0 || override > 5.0) {
+          return res.status(400).json({ error: 'adminRatingOverride must be a number between 1.0 and 5.0' });
+        }
+        updates.adminRatingOverride = Math.round(override * 10) / 10;
+      }
+
       // Golden Data Rule: reject test/fake patterns and duplicates before persisting
       const validationResult = await DataIntegrityValidator.performFullValidation({
         id: communityId,

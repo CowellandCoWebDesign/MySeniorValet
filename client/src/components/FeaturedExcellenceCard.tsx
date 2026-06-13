@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight, Lock } from "lucide-react";
 import { Link } from "wouter";
 import { getCommunityUrl } from "@/lib/community-url";
+import { getEffectiveRating } from "@/lib/rating-utils";
 import { useContactReveal } from "@/hooks/useContactReveal";
 
 interface FeaturedExcellenceCardProps {
@@ -205,10 +206,7 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
     return <Home className="w-3 h-3 text-gray-600 flex-shrink-0" />;
   };
 
-  // Calculate rating
-  const rating = typeof community.rating === 'string' 
-    ? parseFloat(community.rating) || 4.5 
-    : community.rating || 4.5;
+  const rating = getEffectiveRating(community as any);
 
   return (
     <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 flex flex-col ${compact ? 'w-[85%] sm:w-[280px] min-w-[85%] sm:min-w-[280px]' : 'w-[85%] sm:w-[300px] min-w-[85%] sm:min-w-[300px]'} h-full`}>
@@ -337,19 +335,28 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
 
           {/* Right: Rating */}
           <div className="text-right flex-shrink-0">
-            <div className="flex items-center gap-0.5 justify-end">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`w-2.5 h-2.5 ${
-                    i < Math.floor(rating)
-                      ? "fill-yellow-400 text-yellow-400"
-                      : "text-gray-300"
-                  }`}
-                />
-              ))}
-              <span className="text-xs ml-1 text-gray-700 dark:text-gray-300">({!isNaN(rating) ? rating.toFixed(1) : '4.5'})</span>
-            </div>
+            {rating !== null ? (
+              <div className="flex items-center gap-0.5 justify-end">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-2.5 h-2.5 ${
+                      i < Math.floor(rating)
+                        ? "fill-yellow-400 text-yellow-400"
+                        : "text-gray-300"
+                    }`}
+                  />
+                ))}
+                <span className="text-xs ml-1 text-gray-700 dark:text-gray-300">({rating.toFixed(1)})</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-0.5 justify-end">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-2.5 h-2.5 text-gray-300" />
+                ))}
+                <span className="text-xs ml-1 text-gray-500 dark:text-gray-400">Not yet rated</span>
+              </div>
+            )}
           </div>
         </div>
 
