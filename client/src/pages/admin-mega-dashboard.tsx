@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip as UiTooltip, TooltipContent as UiTooltipContent, TooltipProvider as UiTooltipProvider, TooltipTrigger as UiTooltipTrigger } from "@/components/ui/tooltip";
@@ -381,6 +382,7 @@ export default function AdminMegaDashboard() {
   const [countryFilter, setCountryFilter] = useState("all");
   const [typeFilter, setTypeFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState("all");
+  const [selectedMegaIds, setSelectedMegaIds] = useState<Set<number>>(new Set());
   
   // Audit log filters (from admin.tsx)
   const [auditFilters, setAuditFilters] = useState({
@@ -906,6 +908,22 @@ export default function AdminMegaDashboard() {
       toast({ title: "Community Verified", description: "The listing has been marked as verified." });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+    },
+  });
+
+  const bulkCommunityMutation = useMutation({
+    mutationFn: async ({ ids, action }: { ids: number[]; action: 'verify' | 'hide' | 'delete' }) => {
+      return await apiRequest('POST', '/api/admin/communities/bulk', { ids, action });
+    },
+    onSuccess: (_, { ids, action }) => {
+      const label = action === 'verify' ? 'Verified' : action === 'hide' ? 'Hidden' : 'Deleted';
+      toast({ title: `Bulk ${label}`, description: `${ids.length} communit${ids.length === 1 ? 'y' : 'ies'} ${label.toLowerCase()} successfully.` });
+      setSelectedMegaIds(new Set());
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Bulk Action Failed", description: error.message || "Failed to apply bulk action", variant: "destructive" });
     },
   });
 
@@ -1908,6 +1926,21 @@ Communities Created: ${details.stats.communitiesCreated}`;
     };
 
     const totalPages = fc?.totalPages || 0;
+
+    const megaPageIds: number[] = Array.isArray(fc?.communities) ? fc.communities.map((c: any) => c.id as number) : [];
+    const allMegaPageSelected = megaPageIds.length > 0 && megaPageIds.every((id: number) => selectedMegaIds.has(id));
+    const someMegaPageSelected = megaPageIds.some((id: number) => selectedMegaIds.has(id));
+    const toggleMegaSelectAll = () => {
+      if (allMegaPageSelected) {
+        setSelectedMegaIds(prev => { const n = new Set(prev); megaPageIds.forEach(id => n.delete(id)); return n; });
+      } else {
+        setSelectedMegaIds(prev => { const n = new Set(prev); megaPageIds.forEach(id => n.add(id)); return n; });
+      }
+    };
+    const toggleMegaRow = (id: number) => {
+      setSelectedMegaIds(prev => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+    };
+
     const pageWindow = (() => {
       if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
       const pages: (number | '…')[] = [1];
@@ -2082,6 +2115,14 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     <Table>
                       <TableHeader className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
                         <TableRow className="hover:bg-transparent border-b">
+                          <TableHead className="w-10 pl-3">
+                            <Checkbox
+                              checked={allMegaPageSelected}
+                              onCheckedChange={toggleMegaSelectAll}
+                              aria-label="Select all on page"
+                              className={someMegaPageSelected && !allMegaPageSelected ? "opacity-60" : ""}
+                            />
+                          </TableHead>
                           <TableHead className="w-[240px] font-semibold">Community</TableHead>
                           <TableHead className="font-semibold">Location</TableHead>
                           <TableHead className="font-semibold">Type</TableHead>
@@ -2095,6 +2136,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                         {/* Loading skeleton */}
                         {!fc?.communities && Array.from({ length: 8 }).map((_, i) => (
                           <TableRow key={i}>
+                            <TableCell className="pl-3"><Skeleton className="h-4 w-4" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-40" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
                             <TableCell><Skeleton className="h-4 w-24" /></TableCell>
@@ -2108,7 +2150,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
                         {/* Empty state */}
                         {Array.isArray(fc?.communities) && fc.communities.length === 0 && (
                           <TableRow>
-                            <TableCell colSpan={7}>
+                            <TableCell colSpan={8}>
                               <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
                                 <Building2 className="h-10 w-10 opacity-20" />
                                 <p className="font-medium">No communities match your filters</p>
@@ -2126,11 +2168,20 @@ Communities Created: ${details.stats.communitiesCreated}`;
                             .replace(/_/g, ' ')
                             .replace(/\b\w/g, (c: string) => c.toUpperCase());
                           const pricing = community.pricingFrom || community.pricing_from || community.rentPerMonth;
+                          const isMegaSelected = selectedMegaIds.has(community.id);
                           return (
                             <TableRow
                               key={community.id}
-                              className={`transition-colors ${community.isHidden ? 'opacity-50 bg-orange-500/5' : ''} ${community.flagStatus ? 'bg-red-500/5' : ''}`}
+                              className={`transition-colors ${isMegaSelected ? 'bg-primary/5' : ''} ${community.isHidden && !isMegaSelected ? 'opacity-50 bg-orange-500/5' : ''} ${community.flagStatus && !isMegaSelected ? 'bg-red-500/5' : ''}`}
                             >
+                              {/* Checkbox */}
+                              <TableCell className="py-2.5 pl-3 w-10">
+                                <Checkbox
+                                  checked={isMegaSelected}
+                                  onCheckedChange={() => toggleMegaRow(community.id)}
+                                  aria-label={`Select ${community.name}`}
+                                />
+                              </TableCell>
                               {/* Community name + badges */}
                               <TableCell className="py-2.5">
                                 <div className="font-medium text-sm leading-snug truncate max-w-[200px]" title={community.name}>
@@ -2334,6 +2385,57 @@ Communities Created: ${details.stats.communitiesCreated}`;
                 )}
               </CardContent>
             </Card>
+          )}
+
+          {/* ══════════ BULK ACTION BAR ══════════ */}
+          {selectedMegaIds.size > 0 && (
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-xl border bg-background/95 backdrop-blur-sm shadow-xl px-4 py-3 animate-in slide-in-from-bottom-4 duration-200">
+              <span className="text-sm font-medium text-muted-foreground mr-2">
+                {selectedMegaIds.size} selected
+              </span>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 border-green-500/40 text-green-600 hover:bg-green-500/10 hover:text-green-700"
+                disabled={bulkCommunityMutation.isPending}
+                onClick={() => bulkCommunityMutation.mutate({ ids: Array.from(selectedMegaIds), action: 'verify' })}
+              >
+                {bulkCommunityMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+                Verify ({selectedMegaIds.size})
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 border-orange-500/40 text-orange-600 hover:bg-orange-500/10 hover:text-orange-700"
+                disabled={bulkCommunityMutation.isPending}
+                onClick={() => bulkCommunityMutation.mutate({ ids: Array.from(selectedMegaIds), action: 'hide' })}
+              >
+                {bulkCommunityMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <EyeOff className="h-3.5 w-3.5" />}
+                Hide ({selectedMegaIds.size})
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+                disabled={bulkCommunityMutation.isPending}
+                onClick={() => {
+                  if (confirm(`Permanently delete ${selectedMegaIds.size} communit${selectedMegaIds.size === 1 ? 'y' : 'ies'}? This cannot be undone.`)) {
+                    bulkCommunityMutation.mutate({ ids: Array.from(selectedMegaIds), action: 'delete' });
+                  }
+                }}
+              >
+                {bulkCommunityMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                Delete ({selectedMegaIds.size})
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="ml-1 text-muted-foreground hover:text-foreground"
+                onClick={() => setSelectedMegaIds(new Set())}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           )}
 
           {/* ══════════ FLAG QUEUE TAB ══════════ */}

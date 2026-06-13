@@ -12,7 +12,7 @@ import {
   featuredCommunities,
   listingFlags
 } from "@shared/schema";
-import { eq, desc, sql, and, or, gte, ilike } from "drizzle-orm";
+import { eq, desc, sql, and, or, gte, ilike, inArray } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { 
   getSecurityDashboard, 
@@ -472,6 +472,42 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error('Error creating community:', error);
       res.status(500).json({ error: 'Failed to create community' });
+    }
+  });
+
+  // Bulk action on multiple communities
+  adminRouter.post('/communities/bulk', async (req, res) => {
+    try {
+      const { ids, action } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'ids must be a non-empty array' });
+      }
+      if (!['verify', 'hide', 'delete'].includes(action)) {
+        return res.status(400).json({ error: 'action must be verify, hide, or delete' });
+      }
+      const communityIds = ids.map(Number).filter(n => !isNaN(n));
+      if (communityIds.length === 0) {
+        return res.status(400).json({ error: 'No valid community IDs provided' });
+      }
+
+      let updateValues: Record<string, any>;
+      if (action === 'verify') {
+        updateValues = { isVerified: true, updatedAt: new Date() };
+      } else if (action === 'hide') {
+        updateValues = { isHidden: true, updatedAt: new Date() };
+      } else {
+        updateValues = { isActive: false, isHidden: true, updatedAt: new Date() };
+      }
+
+      await db.update(communities)
+        .set(updateValues)
+        .where(inArray(communities.id, communityIds));
+
+      console.log(`Admin bulk action: ${action} on ${communityIds.length} communities by ${req.user?.email}`);
+      res.json({ success: true, affected: communityIds.length, action });
+    } catch (error) {
+      console.error('Error performing bulk action:', error);
+      res.status(500).json({ error: 'Failed to perform bulk action' });
     }
   });
 

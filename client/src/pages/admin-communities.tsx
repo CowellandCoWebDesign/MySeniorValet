@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/table";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Building2,
   Search,
@@ -60,6 +61,7 @@ export default function AdminCommunities() {
   const [typeFilter, setTypeFilter] = useState("all");
   const [verificationFilter, setVerificationFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const itemsPerPage = 20;
 
   const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
@@ -124,6 +126,22 @@ export default function AdminCommunities() {
     }
   });
 
+  const bulkActionMutation = useMutation({
+    mutationFn: async ({ ids, action }: { ids: number[]; action: 'verify' | 'hide' | 'delete' }) => {
+      return await apiRequest('POST', '/api/admin/communities/bulk', { ids, action });
+    },
+    onSuccess: (_, { ids, action }) => {
+      const label = action === 'verify' ? 'Verified' : action === 'hide' ? 'Hidden' : 'Deleted';
+      toast({ title: `Bulk ${label}`, description: `${ids.length} communit${ids.length === 1 ? 'y' : 'ies'} ${label.toLowerCase()} successfully.` });
+      setSelectedIds(new Set());
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Bulk Action Failed", description: error.message || "Failed to apply bulk action", variant: "destructive" });
+    }
+  });
+
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-background">
@@ -145,6 +163,34 @@ export default function AdminCommunities() {
   const communities = communitiesData?.communities || [];
   const totalCommunities = communitiesData?.total || 0;
   const totalPages = Math.ceil(totalCommunities / itemsPerPage);
+
+  const pageIds = communities.map((c: any) => c.id as number);
+  const allPageSelected = pageIds.length > 0 && pageIds.every((id: number) => selectedIds.has(id));
+  const somePageSelected = pageIds.some((id: number) => selectedIds.has(id));
+
+  const toggleSelectAll = () => {
+    if (allPageSelected) {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        pageIds.forEach((id: number) => next.delete(id));
+        return next;
+      });
+    } else {
+      setSelectedIds(prev => {
+        const next = new Set(prev);
+        pageIds.forEach((id: number) => next.add(id));
+        return next;
+      });
+    }
+  };
+
+  const toggleRow = (id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
   const statsData = stats as any;
   const total = statsData?.total || 0;
   const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0;
@@ -335,6 +381,14 @@ export default function AdminCommunities() {
                       <Table>
                         <TableHeader className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
                           <TableRow className="hover:bg-transparent border-b">
+                            <TableHead className="w-10 pl-3">
+                              <Checkbox
+                                checked={allPageSelected}
+                                onCheckedChange={toggleSelectAll}
+                                aria-label="Select all on page"
+                                className={somePageSelected && !allPageSelected ? "opacity-60" : ""}
+                              />
+                            </TableHead>
                             <TableHead className="font-semibold w-[220px]">Community</TableHead>
                             <TableHead className="font-semibold">Location</TableHead>
                             <TableHead className="font-semibold">Type</TableHead>
@@ -349,6 +403,7 @@ export default function AdminCommunities() {
                           {/* Skeleton loading */}
                           {isLoading && Array.from({ length: 8 }).map((_, i) => (
                             <TableRow key={i}>
+                              <TableCell className="pl-3"><Skeleton className="h-4 w-4" /></TableCell>
                               <TableCell><Skeleton className="h-4 w-36" /></TableCell>
                               <TableCell><Skeleton className="h-4 w-20" /></TableCell>
                               <TableCell><Skeleton className="h-5 w-28 rounded-full" /></TableCell>
@@ -363,7 +418,7 @@ export default function AdminCommunities() {
                           {/* Empty state */}
                           {!isLoading && communities.length === 0 && (
                             <TableRow>
-                              <TableCell colSpan={8}>
+                              <TableCell colSpan={9}>
                                 <div className="flex flex-col items-center justify-center py-14 gap-2 text-muted-foreground">
                                   <Building2 className="h-10 w-10 opacity-20" />
                                   <p className="font-medium">No communities found</p>
@@ -378,8 +433,17 @@ export default function AdminCommunities() {
                           {/* Data rows */}
                           {!isLoading && communities.map((community: any) => {
                             const careLabel = (community.care_type || '').replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+                            const isSelected = selectedIds.has(community.id);
                             return (
-                              <TableRow key={community.id} className="transition-colors">
+                              <TableRow key={community.id} className={`transition-colors ${isSelected ? 'bg-primary/5' : ''}`}>
+                                {/* Checkbox */}
+                                <TableCell className="py-2.5 pl-3 w-10">
+                                  <Checkbox
+                                    checked={isSelected}
+                                    onCheckedChange={() => toggleRow(community.id)}
+                                    aria-label={`Select ${community.name}`}
+                                  />
+                                </TableCell>
                                 {/* Name */}
                                 <TableCell className="py-2.5">
                                   <p className="font-medium text-sm truncate max-w-[200px]" title={community.name}>
@@ -589,6 +653,57 @@ export default function AdminCommunities() {
           </Card>
         </div>
       </div>
+
+      {/* Floating bulk action bar */}
+      {selectedIds.size > 0 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 rounded-xl border bg-background/95 backdrop-blur-sm shadow-xl px-4 py-3 animate-in slide-in-from-bottom-4 duration-200">
+          <span className="text-sm font-medium text-muted-foreground mr-2">
+            {selectedIds.size} selected
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 border-green-500/40 text-green-600 hover:bg-green-500/10 hover:text-green-700"
+            disabled={bulkActionMutation.isPending}
+            onClick={() => bulkActionMutation.mutate({ ids: Array.from(selectedIds), action: 'verify' })}
+          >
+            {bulkActionMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
+            Verify ({selectedIds.size})
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 border-orange-500/40 text-orange-600 hover:bg-orange-500/10 hover:text-orange-700"
+            disabled={bulkActionMutation.isPending}
+            onClick={() => bulkActionMutation.mutate({ ids: Array.from(selectedIds), action: 'hide' })}
+          >
+            {bulkActionMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <EyeOff className="h-3.5 w-3.5" />}
+            Hide ({selectedIds.size})
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="gap-1.5 border-destructive/40 text-destructive hover:bg-destructive/10"
+            disabled={bulkActionMutation.isPending}
+            onClick={() => {
+              if (confirm(`Permanently delete ${selectedIds.size} communit${selectedIds.size === 1 ? 'y' : 'ies'}? This cannot be undone.`)) {
+                bulkActionMutation.mutate({ ids: Array.from(selectedIds), action: 'delete' });
+              }
+            }}
+          >
+            {bulkActionMutation.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+            Delete ({selectedIds.size})
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="ml-1 text-muted-foreground hover:text-foreground"
+            onClick={() => setSelectedIds(new Set())}
+          >
+            <X className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+      )}
     </TooltipProvider>
   );
 }
