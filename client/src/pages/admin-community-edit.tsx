@@ -79,15 +79,20 @@ export default function AdminCommunityEdit() {
       apiRequest("PUT", `/api/admin/communities/${communityId}`, data),
     onSuccess: () => {
       toast({ title: "Community updated", description: "Changes saved successfully." });
-      queryClient.invalidateQueries({ queryKey: ["/api/communities", communityId] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/communities"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/communities"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/communities/${communityId}`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/communities/by-slug"] });
     },
-    onError: async (err: any) => {
+    onError: (err: any) => {
       let message = "Failed to save changes.";
       try {
-        const body = await err?.response?.json?.();
-        if (body?.errors?.length) message = body.errors.join(", ");
-        else if (body?.message) message = body.message;
+        const jsonMatch = err?.message?.match(/^\d+: (.+)$/s);
+        if (jsonMatch) {
+          const body = JSON.parse(jsonMatch[1]);
+          if (body?.errors?.length) message = body.errors.join(", ");
+          else if (body?.message) message = body.message;
+        }
       } catch (_) {}
       toast({ title: "Update failed", description: message, variant: "destructive" });
     },

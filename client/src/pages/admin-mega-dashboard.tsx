@@ -830,6 +830,19 @@ export default function AdminMegaDashboard() {
         description: "The community has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/communities'] });
+    },
+    onError: (error: any) => {
+      let message = "Failed to update community.";
+      try {
+        const jsonMatch = error?.message?.match(/^\d+: (.+)$/s);
+        if (jsonMatch) {
+          const body = JSON.parse(jsonMatch[1]);
+          if (body?.errors?.length) message = body.errors.join(", ");
+          else if (body?.message) message = body.message;
+        }
+      } catch (_) {}
+      toast({ title: "Update Failed", description: message, variant: "destructive" });
     },
   });
   
@@ -839,10 +852,24 @@ export default function AdminMegaDashboard() {
     },
     onSuccess: () => {
       toast({
-        title: "Community Deleted",
-        description: "The community has been deleted successfully.",
+        title: "Community Removed",
+        description: "The community has been hidden and deactivated.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/communities'] });
+    },
+    onError: (error: any) => {
+      let message = "Failed to delete community.";
+      try {
+        const jsonMatch = error?.message?.match(/^\d+: (.+)$/s);
+        if (jsonMatch) {
+          const body = JSON.parse(jsonMatch[1]);
+          if (body?.error) message = body.error;
+          else if (body?.message) message = body.message;
+        }
+      } catch (_) {}
+      toast({ title: "Delete Failed", description: message, variant: "destructive" });
     },
   });
 

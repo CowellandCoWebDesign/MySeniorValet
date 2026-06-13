@@ -372,7 +372,10 @@ export function registerAdminRoutes(app: Express) {
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
       // Build filter conditions
-      const conditions = [];
+      // Always exclude soft-deleted records (isActive=false) from the admin list
+      const conditions = [
+        or(eq(communities.isActive, true), sql`${communities.isActive} IS NULL`)
+      ];
 
       // Case-insensitive search across name, city, or numeric id
       if (search) {
@@ -399,7 +402,7 @@ export function registerAdminRoutes(app: Express) {
         conditions.push(eq(communities.isVerified, false));
       }
 
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      const whereClause = and(...conditions);
 
       // Get communities matching the filters
       const communitiesList = await db.select().from(communities)
@@ -414,12 +417,14 @@ export function registerAdminRoutes(app: Express) {
         .from(communities)
         .where(whereClause);
 
+      const limitNum = parseInt(limit as string);
+      const pageNum = parseInt(page as string);
       res.json({
         communities: communitiesList,
         total: count,
-        tierCounts: {},
-        page: parseInt(page as string),
-        limit: parseInt(limit as string)
+        totalPages: Math.ceil(count / limitNum),
+        page: pageNum,
+        limit: limitNum
       });
     } catch (error) {
       console.error('Error fetching communities:', error);
@@ -509,15 +514,23 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Delete community
+  // Soft-delete community (sets isActive=false + isHidden=true to avoid FK constraint violations)
+  // This removes the record from all public-facing queries and the admin list without
+  // touching child rows in reviews, photos, messages, etc.
   adminRouter.delete('/communities/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      await db.delete(communities)
-        .where(eq(communities.id, parseInt(id)));
-      res.json({ success: true });
+      const communityId = parseInt(id);
+      const [updated] = await db.update(communities)
+        .set({ isActive: false, isHidden: true, updatedAt: new Date() })
+        .where(eq(communities.id, communityId))
+        .returning({ id: communities.id, name: communities.name });
+      if (!updated) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+      res.json({ success: true, id: updated.id, name: updated.name });
     } catch (error) {
-      console.error('Error deleting community:', error);
+      console.error('Error soft-deleting community:', error);
       res.status(500).json({ error: 'Failed to delete community' });
     }
   });
