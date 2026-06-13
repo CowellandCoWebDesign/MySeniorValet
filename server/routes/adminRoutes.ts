@@ -2531,6 +2531,21 @@ export function registerAdminRoutes(app: Express) {
   }
   ensureHomeSections();
 
+  // Renumber all home section positions to be contiguous (1, 2, 3, …) while
+  // preserving their current sorted order. Called after every create / delete.
+  async function compactHomeSectionPositions() {
+    const rows = await db
+      .select({ id: homeSectionConfigs.id })
+      .from(homeSectionConfigs)
+      .orderBy(asc(homeSectionConfigs.position));
+    for (let i = 0; i < rows.length; i++) {
+      await db
+        .update(homeSectionConfigs)
+        .set({ position: i + 1 })
+        .where(eq(homeSectionConfigs.id, rows[i].id));
+    }
+  }
+
   // List all sections (admin)
   adminRouter.get('/home-sections', async (_req, res) => {
     try {
@@ -2569,7 +2584,12 @@ export function registerAdminRoutes(app: Express) {
           enabled: enabled !== undefined ? enabled : true,
         })
         .returning();
-      res.json(inserted);
+      await compactHomeSectionPositions();
+      const [refreshed] = await db
+        .select()
+        .from(homeSectionConfigs)
+        .where(eq(homeSectionConfigs.id, inserted.id));
+      res.json(refreshed ?? inserted);
     } catch (error) {
       console.error('Error creating home section:', error);
       res.status(500).json({ error: 'Failed to create home section' });
@@ -2612,6 +2632,7 @@ export function registerAdminRoutes(app: Express) {
       const id = parseInt(req.params.id, 10);
       if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
       await db.delete(homeSectionConfigs).where(eq(homeSectionConfigs.id, id));
+      await compactHomeSectionPositions();
       res.json({ success: true });
     } catch (error) {
       console.error('Error deleting home section:', error);
