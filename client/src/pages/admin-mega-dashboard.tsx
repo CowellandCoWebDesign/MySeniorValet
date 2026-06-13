@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tooltip as UiTooltip, TooltipContent as UiTooltipContent, TooltipProvider as UiTooltipProvider, TooltipTrigger as UiTooltipTrigger } from "@/components/ui/tooltip";
 import { 
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, 
   AreaChart, Area, RadarChart, PolarGrid, PolarAngleAxis, 
@@ -37,7 +39,8 @@ import {
   Upload, Flag, Wrench, TestTube, Palette, FileSearch,
   Rocket, Heart, Flame, Gem, Lightbulb, // Creative icons from admin-creative
   LayoutDashboard, Key, Ban, LogIn, Wifi, DownloadCloud, UploadCloud,
-  Camera, Printer // Additional icons from various dashboards
+  Camera, Printer, // Additional icons from various dashboards
+  EyeOff, ChevronLeft // Added for community management upgrades
 } from "lucide-react";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
@@ -1880,420 +1883,629 @@ Communities Created: ${details.stats.communitiesCreated}`;
     </Card>
   );
 
-  // Community Management (from admin-communities)
-  const renderCommunityManagement = () => (
-    <div className="space-y-4">
-      {/* Stats row */}
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-        {[
-          { label: 'Total', value: (communityStats as any)?.total, color: 'text-foreground' },
-          { label: 'Verified', value: (communityStats as any)?.verified, color: 'text-green-600' },
-          { label: 'With Photos', value: (communityStats as any)?.withPhotos, color: 'text-blue-600' },
-          { label: 'With Pricing', value: (communityStats as any)?.withPricing, color: 'text-purple-600' },
-          { label: 'Hidden', value: (communityStats as any)?.hidden, color: 'text-orange-500' },
-          { label: 'Flagged', value: (communityStats as any)?.flagged, color: 'text-red-500' },
-        ].map(stat => (
-          <Card key={stat.label}>
-            <CardHeader className="pb-1 pt-3 px-3">
-              <CardTitle className="text-xs text-muted-foreground">{stat.label}</CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className={`text-xl font-bold ${stat.color}`}>{stat.value?.toLocaleString() ?? '…'}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+  // Community Management (from admin-communities) — upgraded UI/UX
+  const renderCommunityManagement = () => {
+    const stats = communityStats as any;
+    const fc = filteredCommunities as any;
+    const total = stats?.total || 0;
+    const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0;
 
-      {/* Sub-tab switcher */}
-      <div className="flex gap-2">
-        <Button
-          size="sm"
-          variant={communitySubTab === 'listings' ? 'default' : 'outline'}
-          onClick={() => setCommunitySubTab('listings')}
-        >
-          <Building2 className="h-4 w-4 mr-2" />
-          Listings
-        </Button>
-        <Button
-          size="sm"
-          variant={communitySubTab === 'flags' ? 'default' : 'outline'}
-          onClick={() => setCommunitySubTab('flags')}
-        >
-          <Flag className="h-4 w-4 mr-2" />
-          Flag Queue
-          {(communityStats as any)?.flagged > 0 && (
-            <Badge className="ml-2 bg-red-500 text-white text-xs h-5 px-1.5">{(communityStats as any).flagged}</Badge>
-          )}
-        </Button>
-      </div>
+    const activeFilterCount = [
+      searchQuery !== '',
+      stateFilter !== 'all',
+      countryFilter !== 'all',
+      typeFilter !== 'all',
+      verificationFilter !== 'all',
+    ].filter(Boolean).length;
 
-      {communitySubTab === 'listings' && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Building2 className="h-4 w-4 text-blue-600" />
-              Community Listings
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Filters */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              <div className="relative flex-1 min-w-[180px]">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name, city, or ID…"
-                  value={searchQuery}
-                  onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
-                  className="pl-8"
-                />
-              </div>
-              <Select value={countryFilter} onValueChange={v => { setCountryFilter(v); setCurrentPage(1); }}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Country" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Countries</SelectItem>
-                  {((communityFilterOptions as any)?.countries || []).map((c: any) => (
-                    <SelectItem key={c.value} value={c.value}>
-                      {c.value} ({c.count.toLocaleString()})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={stateFilter} onValueChange={v => { setStateFilter(v); setCurrentPage(1); }}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="State" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All States</SelectItem>
-                  {((communityFilterOptions as any)?.states || []).map((s: any) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.value} ({s.count.toLocaleString()})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setCurrentPage(1); }}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Care Type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Assisted Living">Assisted Living</SelectItem>
-                  <SelectItem value="Memory Care">Memory Care</SelectItem>
-                  <SelectItem value="Independent Living">Independent Living</SelectItem>
-                  <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
-                  <SelectItem value="55+ Active">55+ Active</SelectItem>
-                  <SelectItem value="HUD Housing">HUD Housing</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={verificationFilter} onValueChange={v => { setVerificationFilter(v); setCurrentPage(1); }}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="verified">Verified</SelectItem>
-                  <SelectItem value="unverified">Unverified</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button variant="outline" size="sm" onClick={() => updateAllPricingMutation.mutate()}>
-                <RefreshCw className="h-3 w-3 mr-1" /> Update Pricing
-              </Button>
-            </div>
+    const clearFilters = () => {
+      setSearchQuery('');
+      setStateFilter('all');
+      setCountryFilter('all');
+      setTypeFilter('all');
+      setVerificationFilter('all');
+      setCurrentPage(1);
+    };
 
-            {/* Table */}
-            <ScrollArea className="h-[420px]">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Community</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Photos</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.isArray((filteredCommunities as any)?.communities) && (filteredCommunities as any).communities.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                        No communities match your filters
-                      </TableCell>
-                    </TableRow>
+    const totalPages = fc?.totalPages || 0;
+    const pageWindow = (() => {
+      if (totalPages <= 7) return Array.from({ length: totalPages }, (_, i) => i + 1);
+      const pages: (number | '…')[] = [1];
+      if (currentPage > 3) pages.push('…');
+      for (let p = Math.max(2, currentPage - 1); p <= Math.min(totalPages - 1, currentPage + 1); p++) pages.push(p);
+      if (currentPage < totalPages - 2) pages.push('…');
+      pages.push(totalPages);
+      return pages;
+    })();
+
+    const statCards = [
+      { label: 'Total', value: stats?.total, icon: Building2, bg: 'bg-slate-500/10', color: 'text-slate-600 dark:text-slate-300', sub: '' },
+      { label: 'Verified', value: stats?.verified, icon: CheckCircle2, bg: 'bg-green-500/10', color: 'text-green-600', sub: `${pct(stats?.verified)}%` },
+      { label: 'With Photos', value: stats?.withPhotos, icon: Camera, bg: 'bg-blue-500/10', color: 'text-blue-600', sub: `${pct(stats?.withPhotos)}%` },
+      { label: 'With Pricing', value: stats?.withPricing, icon: DollarSign, bg: 'bg-purple-500/10', color: 'text-purple-600', sub: `${pct(stats?.withPricing)}%` },
+      { label: 'Hidden', value: stats?.hidden, icon: EyeOff, bg: 'bg-orange-500/10', color: 'text-orange-500', sub: stats?.hidden > 0 ? 'not public' : '' },
+      { label: 'Flagged', value: stats?.flagged, icon: Flag, bg: 'bg-red-500/10', color: 'text-red-500', sub: stats?.flagged > 0 ? 'needs review' : '' },
+    ];
+
+    // Derive flag counts by status from data (used for filter button badges)
+    const flagCountByStatus: Record<string, number> = {};
+    if (Array.isArray((listingFlagsData as any)?.flags)) {
+      for (const f of (listingFlagsData as any).flags) {
+        flagCountByStatus[f.status] = (flagCountByStatus[f.status] || 0) + 1;
+      }
+    }
+
+    return (
+      <UiTooltipProvider delayDuration={300}>
+        <div className="space-y-4">
+          {/* ── Stat cards ── */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+            {statCards.map(({ label, value, icon: Icon, bg, color, sub }) => (
+              <Card key={label} className="relative overflow-hidden">
+                <CardContent className="p-3 flex items-start gap-2.5">
+                  <div className={`rounded-md p-1.5 shrink-0 ${bg}`}>
+                    <Icon className={`h-4 w-4 ${color}`} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-xs text-muted-foreground leading-none mb-1">{label}</p>
+                    <p className={`text-lg font-bold leading-none ${color}`}>
+                      {value?.toLocaleString() ?? <Skeleton className="h-4 w-12 inline-block" />}
+                    </p>
+                    {sub && <p className="text-[10px] text-muted-foreground mt-0.5">{sub}</p>}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+
+          {/* ── Sub-tab switcher ── */}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant={communitySubTab === 'listings' ? 'default' : 'outline'}
+              onClick={() => setCommunitySubTab('listings')}
+            >
+              <Building2 className="h-4 w-4 mr-1.5" />
+              Listings
+              {fc?.total > 0 && (
+                <Badge variant="secondary" className="ml-1.5 text-[10px] h-4 px-1 font-normal">
+                  {fc.total.toLocaleString()}
+                </Badge>
+              )}
+            </Button>
+            <Button
+              size="sm"
+              variant={communitySubTab === 'flags' ? 'default' : 'outline'}
+              onClick={() => setCommunitySubTab('flags')}
+            >
+              <Flag className="h-4 w-4 mr-1.5" />
+              Flag Queue
+              {stats?.flagged > 0 && (
+                <Badge className="ml-1.5 bg-red-500 text-white text-[10px] h-4 px-1.5">{stats.flagged}</Badge>
+              )}
+            </Button>
+          </div>
+
+          {/* ══════════ LISTINGS TAB ══════════ */}
+          {communitySubTab === 'listings' && (
+            <Card>
+              <CardHeader className="pb-2 pt-4 px-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Building2 className="h-4 w-4 text-blue-600" />
+                    Community Listings
+                    {fc?.total !== undefined && (
+                      <span className="text-sm font-normal text-muted-foreground">
+                        ({fc.total.toLocaleString()} communities)
+                      </span>
+                    )}
+                  </CardTitle>
+                  <Button variant="outline" size="sm" onClick={() => updateAllPricingMutation.mutate()} className="shrink-0">
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Update Pricing
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                {/* ── Filter bar ── */}
+                <div className="flex flex-wrap gap-2 mb-3">
+                  <div className="relative flex-1 min-w-[180px]">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Input
+                      placeholder="Search by name, city, or ID…"
+                      value={searchQuery}
+                      onChange={e => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                      className="pl-8 h-9"
+                    />
+                  </div>
+                  <Select value={countryFilter} onValueChange={v => { setCountryFilter(v); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-32 h-9">
+                      <SelectValue placeholder="Country" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Countries</SelectItem>
+                      {((communityFilterOptions as any)?.countries || []).map((c: any) => (
+                        <SelectItem key={c.value} value={c.value}>
+                          {c.value} ({c.count.toLocaleString()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={stateFilter} onValueChange={v => { setStateFilter(v); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-28 h-9">
+                      <SelectValue placeholder="State" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All States</SelectItem>
+                      {((communityFilterOptions as any)?.states || []).map((s: any) => (
+                        <SelectItem key={s.value} value={s.value}>
+                          {s.value} ({s.count.toLocaleString()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select value={typeFilter} onValueChange={v => { setTypeFilter(v); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-38 h-9">
+                      <SelectValue placeholder="Care Type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="Assisted Living">Assisted Living</SelectItem>
+                      <SelectItem value="Memory Care">Memory Care</SelectItem>
+                      <SelectItem value="Independent Living">Independent Living</SelectItem>
+                      <SelectItem value="Skilled Nursing">Skilled Nursing</SelectItem>
+                      <SelectItem value="55+ Active">55+ Active</SelectItem>
+                      <SelectItem value="HUD Housing">HUD Housing</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={verificationFilter} onValueChange={v => { setVerificationFilter(v); setCurrentPage(1); }}>
+                    <SelectTrigger className="w-32 h-9">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="verified">Verified</SelectItem>
+                      <SelectItem value="unverified">Unverified</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {activeFilterCount > 0 && (
+                    <Button variant="ghost" size="sm" className="h-9 text-muted-foreground hover:text-foreground gap-1.5" onClick={clearFilters}>
+                      <X className="h-3 w-3" />
+                      Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
+                    </Button>
                   )}
-                  {Array.isArray((filteredCommunities as any)?.communities) && (filteredCommunities as any).communities.map((community: any) => (
-                    <TableRow key={community.id} className={community.isHidden ? 'opacity-50' : ''}>
-                      <TableCell className="max-w-[220px]">
-                        <div>
-                          <div className="font-medium truncate">{community.name}</div>
-                          <div className="text-xs text-muted-foreground flex gap-1 mt-0.5">
-                            {community.isVerified && <Badge variant="outline" className="text-green-600 border-green-300 text-[10px] px-1 py-0 h-4">✓ Verified</Badge>}
-                            {community.isHidden && <Badge variant="outline" className="text-orange-500 border-orange-300 text-[10px] px-1 py-0 h-4">Hidden</Badge>}
-                            {community.flagStatus && <Badge variant="outline" className="text-red-500 border-red-300 text-[10px] px-1 py-0 h-4">🚩 Flagged</Badge>}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <MapPin className="h-3 w-3 text-muted-foreground" />
-                          {community.city}, {community.state}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={community.isVerified ? "default" : "secondary"} className="text-xs">
-                          {community.isVerified ? "Verified" : "Unverified"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 text-sm">
-                          <Camera className="h-3 w-3" />
-                          {community.photos?.length || 0}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-1 justify-end">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0"
-                            title="View public listing"
-                            onClick={() => window.open(`/senior-living/${encodeURIComponent(community.state?.toLowerCase() || '')}/${encodeURIComponent(community.city?.toLowerCase().replace(/\s+/g, '-') || '')}/${encodeURIComponent(community.name?.toLowerCase().replace(/\s+/g, '-') || '')}`, '_blank')}
-                          >
-                            <Eye className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0 text-blue-500"
-                            title="Edit community"
-                            onClick={() => window.open(`/admin/community/${community.id}/edit`, '_blank')}
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          {!community.isVerified && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-green-600"
-                              title="Mark verified"
-                              onClick={() => verifyCommunityMutation.mutate(community.id)}
+                </div>
+
+                {/* ── Table ── */}
+                <div className="rounded-md border overflow-hidden">
+                  <ScrollArea className="h-[440px]">
+                    <Table>
+                      <TableHeader className="sticky top-0 z-10 bg-muted/80 backdrop-blur-sm">
+                        <TableRow className="hover:bg-transparent border-b">
+                          <TableHead className="w-[240px] font-semibold">Community</TableHead>
+                          <TableHead className="font-semibold">Location</TableHead>
+                          <TableHead className="font-semibold">Type</TableHead>
+                          <TableHead className="font-semibold">Status</TableHead>
+                          <TableHead className="font-semibold">Pricing</TableHead>
+                          <TableHead className="font-semibold text-center w-[52px]">Photos</TableHead>
+                          <TableHead className="text-right font-semibold w-[180px]">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {/* Loading skeleton */}
+                        {!fc?.communities && Array.from({ length: 8 }).map((_, i) => (
+                          <TableRow key={i}>
+                            <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                            <TableCell><Skeleton className="h-5 w-20 rounded-full" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                            <TableCell><Skeleton className="h-4 w-6 mx-auto" /></TableCell>
+                            <TableCell><Skeleton className="h-7 w-32 ml-auto" /></TableCell>
+                          </TableRow>
+                        ))}
+
+                        {/* Empty state */}
+                        {Array.isArray(fc?.communities) && fc.communities.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={7}>
+                              <div className="flex flex-col items-center justify-center py-12 text-muted-foreground gap-2">
+                                <Building2 className="h-10 w-10 opacity-20" />
+                                <p className="font-medium">No communities match your filters</p>
+                                {activeFilterCount > 0 && (
+                                  <Button variant="ghost" size="sm" onClick={clearFilters}>Clear filters</Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+
+                        {/* Rows */}
+                        {Array.isArray(fc?.communities) && fc.communities.map((community: any) => {
+                          const careLabel = (community.careTypes?.[0] || community.care_type || '')
+                            .replace(/_/g, ' ')
+                            .replace(/\b\w/g, (c: string) => c.toUpperCase());
+                          const pricing = community.pricingFrom || community.pricing_from || community.rentPerMonth;
+                          return (
+                            <TableRow
+                              key={community.id}
+                              className={`transition-colors ${community.isHidden ? 'opacity-50 bg-orange-500/5' : ''} ${community.flagStatus ? 'bg-red-500/5' : ''}`}
                             >
-                              <CheckCircle2 className="h-3 w-3" />
-                            </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0"
-                            title="Enrich data"
-                            onClick={() => enrichCommunityMutation.mutate(community.id)}
-                          >
-                            <Sparkles className="h-3 w-3" />
-                          </Button>
-                          {community.isHidden ? (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-orange-500"
-                              title="Restore (make public)"
-                              onClick={() => unhideCommunityMutation.mutate(community.id)}
-                            >
-                              <Eye className="h-3 w-3" />
-                            </Button>
+                              {/* Community name + badges */}
+                              <TableCell className="py-2.5">
+                                <div className="font-medium text-sm leading-snug truncate max-w-[200px]" title={community.name}>
+                                  {community.name}
+                                </div>
+                                <div className="flex flex-wrap gap-1 mt-1">
+                                  {community.isHidden && (
+                                    <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-orange-500/10 text-orange-500 font-medium">
+                                      <EyeOff className="h-2.5 w-2.5" /> Hidden
+                                    </span>
+                                  )}
+                                  {community.flagStatus && (
+                                    <span className="inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/10 text-red-500 font-medium">
+                                      <Flag className="h-2.5 w-2.5" /> Flagged
+                                    </span>
+                                  )}
+                                </div>
+                              </TableCell>
+
+                              {/* Location */}
+                              <TableCell className="py-2.5">
+                                <div className="flex items-center gap-1 text-sm">
+                                  <MapPin className="h-3 w-3 text-muted-foreground shrink-0" />
+                                  <span className="truncate">{community.city}, {community.state}</span>
+                                </div>
+                              </TableCell>
+
+                              {/* Care type */}
+                              <TableCell className="py-2.5">
+                                {careLabel ? (
+                                  <Badge variant="outline" className="text-[11px] font-normal whitespace-nowrap">
+                                    {careLabel}
+                                  </Badge>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/50">—</span>
+                                )}
+                              </TableCell>
+
+                              {/* Verification status */}
+                              <TableCell className="py-2.5">
+                                {community.isVerified ? (
+                                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 font-medium">
+                                    <CheckCircle2 className="h-3 w-3" /> Verified
+                                  </span>
+                                ) : (
+                                  <span className="inline-flex items-center gap-1 text-[11px] px-2 py-0.5 rounded-full bg-muted text-muted-foreground font-medium">
+                                    <XCircle className="h-3 w-3" /> Unverified
+                                  </span>
+                                )}
+                              </TableCell>
+
+                              {/* Pricing */}
+                              <TableCell className="py-2.5">
+                                {pricing ? (
+                                  <span className="text-sm font-medium text-foreground">
+                                    ${Number(pricing).toLocaleString()}<span className="text-xs text-muted-foreground font-normal">/mo</span>
+                                  </span>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground/50">No pricing</span>
+                                )}
+                              </TableCell>
+
+                              {/* Photo count */}
+                              <TableCell className="py-2.5 text-center">
+                                <span className={`inline-flex items-center justify-center gap-0.5 text-xs font-medium tabular-nums ${(community.photos?.length || 0) > 0 ? 'text-blue-500' : 'text-muted-foreground/40'}`}>
+                                  <Camera className="h-3 w-3" />
+                                  {community.photos?.length || 0}
+                                </span>
+                              </TableCell>
+
+                              {/* Actions */}
+                              <TableCell className="py-2.5 text-right">
+                                <div className="flex gap-0.5 justify-end items-center">
+                                  <UiTooltip>
+                                    <UiTooltipTrigger asChild>
+                                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-foreground"
+                                        onClick={() => window.open(`/senior-living/${encodeURIComponent(community.state?.toLowerCase() || '')}/${encodeURIComponent(community.city?.toLowerCase().replace(/\s+/g, '-') || '')}/${encodeURIComponent(community.name?.toLowerCase().replace(/\s+/g, '-') || '')}`, '_blank')}>
+                                        <Eye className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </UiTooltipTrigger>
+                                    <UiTooltipContent side="top">View public listing</UiTooltipContent>
+                                  </UiTooltip>
+
+                                  <UiTooltip>
+                                    <UiTooltipTrigger asChild>
+                                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-blue-500 hover:text-blue-600"
+                                        onClick={() => window.open(`/admin/community/${community.id}/edit`, '_blank')}>
+                                        <Edit className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </UiTooltipTrigger>
+                                    <UiTooltipContent side="top">Edit community</UiTooltipContent>
+                                  </UiTooltip>
+
+                                  {!community.isVerified && (
+                                    <UiTooltip>
+                                      <UiTooltipTrigger asChild>
+                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-green-600 hover:text-green-700"
+                                          onClick={() => verifyCommunityMutation.mutate(community.id)}>
+                                          <CheckCircle2 className="h-3.5 w-3.5" />
+                                        </Button>
+                                      </UiTooltipTrigger>
+                                      <UiTooltipContent side="top">Mark as verified</UiTooltipContent>
+                                    </UiTooltip>
+                                  )}
+
+                                  <UiTooltip>
+                                    <UiTooltipTrigger asChild>
+                                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-purple-500 hover:text-purple-600"
+                                        onClick={() => enrichCommunityMutation.mutate(community.id)}>
+                                        <Sparkles className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </UiTooltipTrigger>
+                                    <UiTooltipContent side="top">Enrich with web data</UiTooltipContent>
+                                  </UiTooltip>
+
+                                  {community.isHidden ? (
+                                    <UiTooltip>
+                                      <UiTooltipTrigger asChild>
+                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-orange-500 hover:text-orange-600"
+                                          onClick={() => unhideCommunityMutation.mutate(community.id)}>
+                                          <Eye className="h-3.5 w-3.5" />
+                                        </Button>
+                                      </UiTooltipTrigger>
+                                      <UiTooltipContent side="top">Restore to public</UiTooltipContent>
+                                    </UiTooltip>
+                                  ) : (
+                                    <UiTooltip>
+                                      <UiTooltipTrigger asChild>
+                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-orange-500"
+                                          onClick={() => hideCommunityMutation.mutate(community.id)}>
+                                          <EyeOff className="h-3.5 w-3.5" />
+                                        </Button>
+                                      </UiTooltipTrigger>
+                                      <UiTooltipContent side="top">Hide from public</UiTooltipContent>
+                                    </UiTooltip>
+                                  )}
+
+                                  <UiTooltip>
+                                    <UiTooltipTrigger asChild>
+                                      <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
+                                        onClick={() => {
+                                          if (confirm(`Delete "${community.name}"? This cannot be undone.`)) {
+                                            deleteCommunityMutation.mutate(community.id);
+                                          }
+                                        }}>
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </Button>
+                                    </UiTooltipTrigger>
+                                    <UiTooltipContent side="top">Delete permanently</UiTooltipContent>
+                                  </UiTooltip>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </ScrollArea>
+                </div>
+
+                {/* ── Pagination ── */}
+                {totalPages > 0 && (
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t">
+                    <p className="text-sm text-muted-foreground">
+                      {fc?.total ? (
+                        <>
+                          Showing {((currentPage - 1) * itemsPerPage + 1).toLocaleString()}–
+                          {Math.min(currentPage * itemsPerPage, fc.total).toLocaleString()} of{' '}
+                          <span className="font-medium text-foreground">{fc.total.toLocaleString()}</span> communities
+                        </>
+                      ) : `Page ${currentPage} of ${totalPages}`}
+                    </p>
+                    {totalPages > 1 && (
+                      <div className="flex items-center gap-1">
+                        <Button size="sm" variant="outline" className="h-7 px-2" disabled={currentPage <= 1}
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}>
+                          <ChevronLeft className="h-3.5 w-3.5" />
+                        </Button>
+                        {pageWindow.map((p, i) =>
+                          p === '…' ? (
+                            <span key={`ellipsis-${i}`} className="text-muted-foreground text-sm px-1">…</span>
                           ) : (
                             <Button
+                              key={p}
                               size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-muted-foreground"
-                              title="Hide from public"
-                              onClick={() => hideCommunityMutation.mutate(community.id)}
+                              variant={p === currentPage ? 'default' : 'outline'}
+                              className="h-7 w-7 p-0 text-xs"
+                              onClick={() => setCurrentPage(p as number)}
                             >
-                              <XCircle className="h-3 w-3" />
+                              {p}
                             </Button>
-                          )}
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-7 w-7 p-0 text-destructive"
-                            title="Delete permanently"
-                            onClick={() => {
-                              if (confirm(`Delete "${community.name}"? This cannot be undone.`)) {
-                                deleteCommunityMutation.mutate(community.id);
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
-
-            {/* Pagination */}
-            {(filteredCommunities as any)?.totalPages > 1 && (
-              <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                <div className="text-sm text-muted-foreground">
-                  Page {currentPage} of {(filteredCommunities as any)?.totalPages} · {(filteredCommunities as any)?.total?.toLocaleString()} total
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={currentPage <= 1}
-                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  >
-                    ← Prev
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    disabled={currentPage >= (filteredCommunities as any)?.totalPages}
-                    onClick={() => setCurrentPage(p => p + 1)}
-                  >
-                    Next →
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {communitySubTab === 'flags' && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Flag className="h-4 w-4 text-red-500" />
-              Listing Flag Queue
-            </CardTitle>
-            <CardDescription>Review and act on community reports submitted by users</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-2 mb-4">
-              {['Pending', 'Under Review', 'Resolved', 'Dismissed', 'all'].map(s => (
-                <Button
-                  key={s}
-                  size="sm"
-                  variant={flagStatusFilter === s ? 'default' : 'outline'}
-                  onClick={() => setFlagStatusFilter(s)}
-                >
-                  {s === 'all' ? 'All' : s}
-                </Button>
-              ))}
-            </div>
-
-            {flagsLoading ? (
-              <div className="flex items-center justify-center h-32">
-                <Loader2 className="w-6 h-6 animate-spin" />
-              </div>
-            ) : !(listingFlagsData as any)?.flags?.length ? (
-              <div className="text-center py-12 text-muted-foreground">
-                <Flag className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                <p>No flags in this queue</p>
-              </div>
-            ) : (
-              <ScrollArea className="h-[480px]">
-                <div className="space-y-3">
-                  {(listingFlagsData as any).flags.map((flag: any) => (
-                    <div key={flag.id} className="border rounded-lg p-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="destructive" className="text-xs">{flag.flagType}</Badge>
-                            <Badge variant="outline" className="text-xs">{flag.status}</Badge>
-                          </div>
-                          <div className="font-medium text-sm">
-                            {flag.communityName} — {flag.communityCity}, {flag.communityState}
-                          </div>
-                          <div className="text-sm text-muted-foreground mt-1">{flag.reason}</div>
-                          {flag.details && <div className="text-xs text-muted-foreground mt-1 italic">{flag.details}</div>}
-                          {flag.reporterName && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              Reported by: {flag.reporterName} {flag.reporterEmail ? `(${flag.reporterEmail})` : ''}
-                            </div>
-                          )}
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {flag.createdAt ? new Date(flag.createdAt).toLocaleDateString() : ''}
-                          </div>
-                        </div>
-                        <div className="flex flex-col gap-2 shrink-0">
-                          {(flag.status === 'Pending' || flag.status === 'Under Review') && (
-                            <>
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                className="text-green-700 border-green-300"
-                                onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false })}
-                              >
-                                Confirm
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="destructive"
-                                className="text-xs"
-                                onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true })}
-                              >
-                                Confirm + Hide
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => dismissFlagMutation.mutate(flag.id)}
-                              >
-                                Dismiss
-                              </Button>
-                            </>
-                          )}
-                          {/* Direct actions against the flagged community */}
-                          <div className="flex gap-1 pt-1 border-t mt-1">
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-blue-500"
-                              title="Edit community"
-                              onClick={() => window.open(`/admin/community/${flag.communityId}/edit`, '_blank')}
-                            >
-                              <Edit className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-muted-foreground"
-                              title="Hide from public"
-                              onClick={() => hideCommunityMutation.mutate(flag.communityId)}
-                            >
-                              <XCircle className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              className="h-7 w-7 p-0 text-destructive"
-                              title="Delete community permanently"
-                              onClick={() => {
-                                if (confirm(`Delete "${flag.communityName}"? This cannot be undone.`)) {
-                                  deleteCommunityMutation.mutate(flag.communityId);
-                                }
-                              }}
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        </div>
+                          )
+                        )}
+                        <Button size="sm" variant="outline" className="h-7 px-2" disabled={currentPage >= totalPages}
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}>
+                          <ChevronRight className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
-                    </div>
-                  ))}
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* ══════════ FLAG QUEUE TAB ══════════ */}
+          {communitySubTab === 'flags' && (
+            <Card>
+              <CardHeader className="pb-3 pt-4 px-4">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Flag className="h-4 w-4 text-red-500" />
+                  Listing Flag Queue
+                </CardTitle>
+                <CardDescription>Review and act on community reports submitted by users</CardDescription>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                {/* Status filter pills */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {(['Pending', 'Under Review', 'Resolved', 'Dismissed', 'all'] as const).map(s => {
+                    const count = s === 'all'
+                      ? (listingFlagsData as any)?.flags?.length
+                      : flagCountByStatus[s];
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => setFlagStatusFilter(s)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                          flagStatusFilter === s
+                            ? s === 'Pending' || s === 'all' && (listingFlagsData as any)?.flags?.some((f: any) => f.status === 'Pending')
+                              ? 'bg-red-500 border-red-500 text-white'
+                              : 'bg-primary border-primary text-primary-foreground'
+                            : 'border-border bg-background text-muted-foreground hover:border-foreground/30 hover:text-foreground'
+                        }`}
+                      >
+                        {s === 'Pending' && <span className="h-1.5 w-1.5 rounded-full bg-current" />}
+                        {s === 'all' ? 'All Flags' : s}
+                        {count !== undefined && count > 0 && (
+                          <span className={`rounded-full px-1 min-w-[16px] text-center leading-tight ${flagStatusFilter === s ? 'bg-white/20' : 'bg-muted'}`}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
-              </ScrollArea>
-            )}
-          </CardContent>
-        </Card>
-      )}
-    </div>
-  );
+
+                {flagsLoading ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="rounded-lg border p-4 space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-4 w-64" />
+                        <Skeleton className="h-3 w-48" />
+                      </div>
+                    ))}
+                  </div>
+                ) : !(listingFlagsData as any)?.flags?.length ? (
+                  <div className="flex flex-col items-center justify-center py-14 text-muted-foreground gap-3">
+                    <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+                      <Flag className="h-5 w-5 opacity-40" />
+                    </div>
+                    <div className="text-center">
+                      <p className="font-medium">No flags in this queue</p>
+                      <p className="text-sm text-muted-foreground/70 mt-0.5">
+                        {flagStatusFilter !== 'all' ? `No ${flagStatusFilter.toLowerCase()} flags` : 'All clear — no community reports to review'}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <ScrollArea className="h-[480px]">
+                    <div className="space-y-3 pr-1">
+                      {(listingFlagsData as any).flags.map((flag: any) => (
+                        <div
+                          key={flag.id}
+                          className={`rounded-lg border p-4 transition-colors ${
+                            flag.status === 'Pending'
+                              ? 'border-red-200 dark:border-red-900/50 bg-red-500/5'
+                              : flag.status === 'Under Review'
+                              ? 'border-yellow-200 dark:border-yellow-900/50 bg-yellow-500/5'
+                              : ''
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center flex-wrap gap-2 mb-2">
+                                <Badge variant="destructive" className="text-xs">{flag.flagType}</Badge>
+                                <Badge variant={flag.status === 'Pending' ? 'destructive' : flag.status === 'Resolved' ? 'default' : 'secondary'} className="text-xs">
+                                  {flag.status}
+                                </Badge>
+                              </div>
+                              <p className="font-medium text-sm">
+                                {flag.communityName}
+                                <span className="text-muted-foreground font-normal"> · {flag.communityCity}, {flag.communityState}</span>
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-1">{flag.reason}</p>
+                              {flag.details && (
+                                <p className="text-xs text-muted-foreground/80 mt-1 italic border-l-2 border-muted pl-2">{flag.details}</p>
+                              )}
+                              <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                {flag.reporterName && (
+                                  <span>
+                                    Reported by <span className="font-medium text-foreground">{flag.reporterName}</span>
+                                    {flag.reporterEmail && <span className="opacity-70"> ({flag.reporterEmail})</span>}
+                                  </span>
+                                )}
+                                {flag.createdAt && (
+                                  <span>{new Date(flag.createdAt).toLocaleDateString()}</span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col gap-2 shrink-0 min-w-[100px]">
+                              {(flag.status === 'Pending' || flag.status === 'Under Review') && (
+                                <>
+                                  <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-50 dark:hover:bg-green-950 h-7 text-xs"
+                                    onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false })}>
+                                    <CheckCircle2 className="h-3 w-3 mr-1" /> Confirm
+                                  </Button>
+                                  <Button size="sm" variant="destructive" className="h-7 text-xs"
+                                    onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true })}>
+                                    <EyeOff className="h-3 w-3 mr-1" /> Confirm + Hide
+                                  </Button>
+                                  <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                                    onClick={() => dismissFlagMutation.mutate(flag.id)}>
+                                    <X className="h-3 w-3 mr-1" /> Dismiss
+                                  </Button>
+                                </>
+                              )}
+                              <div className="flex gap-1 pt-1 border-t mt-1">
+                                <UiTooltip>
+                                  <UiTooltipTrigger asChild>
+                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-blue-500"
+                                      onClick={() => window.open(`/admin/community/${flag.communityId}/edit`, '_blank')}>
+                                      <Edit className="h-3 w-3" />
+                                    </Button>
+                                  </UiTooltipTrigger>
+                                  <UiTooltipContent>Edit community</UiTooltipContent>
+                                </UiTooltip>
+                                <UiTooltip>
+                                  <UiTooltipTrigger asChild>
+                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-orange-500"
+                                      onClick={() => hideCommunityMutation.mutate(flag.communityId)}>
+                                      <EyeOff className="h-3 w-3" />
+                                    </Button>
+                                  </UiTooltipTrigger>
+                                  <UiTooltipContent>Hide from public</UiTooltipContent>
+                                </UiTooltip>
+                                <UiTooltip>
+                                  <UiTooltipTrigger asChild>
+                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-destructive"
+                                      onClick={() => {
+                                        if (confirm(`Delete "${flag.communityName}"? This cannot be undone.`)) {
+                                          deleteCommunityMutation.mutate(flag.communityId);
+                                        }
+                                      }}>
+                                      <Trash2 className="h-3 w-3" />
+                                    </Button>
+                                  </UiTooltipTrigger>
+                                  <UiTooltipContent>Delete permanently</UiTooltipContent>
+                                </UiTooltip>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </UiTooltipProvider>
+    );
+  };
   
   // County Discovery Metrics (from admin-clean-full)
   const renderCountyDiscovery = () => (
