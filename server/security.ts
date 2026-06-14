@@ -121,6 +121,11 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
 
 // Enhanced input sanitization middleware with XSS and SQL injection protection
 export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
+  // Admin bulk-action endpoints send SQL-keyword action names ("delete", "restore", etc.)
+  // as legitimate enum values.  XSS protection still runs; only SQL keyword stripping
+  // is bypassed for these fully-authenticated admin routes.
+  const skipSqlPatterns = /^\/api\/admin\/communities\/bulk/.test(req.path);
+
   const sanitize = (obj: any): any => {
     if (typeof obj === 'string') {
       // Enhanced XSS protection patterns
@@ -142,20 +147,22 @@ export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
         .replace(/prompt\(/gi, '')
         .trim();
       
-      // SQL injection protection patterns
-      const sqlPatterns = [
-        /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|UNION|EXEC|EXECUTE)\b)/gi,
-        /(';|";|--|\*\/|xp_|sp_)/gi,
-        /(\bOR\b\s*\d+\s*=\s*\d+)/gi,
-        /(\bAND\b\s*\d+\s*=\s*\d+)/gi,
-        /(\bOR\b\s*'[^']*'\s*=\s*'[^']*')/gi,
-        /(\bAND\b\s*'[^']*'\s*=\s*'[^']*')/gi
-      ];
-      
-      for (const pattern of sqlPatterns) {
-        if (pattern.test(cleaned)) {
-          console.warn(`[SECURITY] Potential SQL injection blocked: ${req.method} ${req.path} - Pattern: ${cleaned.substring(0, 100)}`);
-          cleaned = cleaned.replace(pattern, '');
+      if (!skipSqlPatterns) {
+        // SQL injection protection patterns
+        const sqlPatterns = [
+          /(\b(SELECT|INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|UNION|EXEC|EXECUTE)\b)/gi,
+          /(';|";|--|\*\/|xp_|sp_)/gi,
+          /(\bOR\b\s*\d+\s*=\s*\d+)/gi,
+          /(\bAND\b\s*\d+\s*=\s*\d+)/gi,
+          /(\bOR\b\s*'[^']*'\s*=\s*'[^']*')/gi,
+          /(\bAND\b\s*'[^']*'\s*=\s*'[^']*')/gi
+        ];
+        
+        for (const pattern of sqlPatterns) {
+          if (pattern.test(cleaned)) {
+            console.warn(`[SECURITY] Potential SQL injection blocked: ${req.method} ${req.path} - Pattern: ${cleaned.substring(0, 100)}`);
+            cleaned = cleaned.replace(pattern, '');
+          }
         }
       }
       
