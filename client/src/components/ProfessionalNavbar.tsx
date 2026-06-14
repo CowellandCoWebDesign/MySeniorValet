@@ -272,7 +272,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-3 py-3">
                       Main Navigation
                     </p>
-                    {navigationItems.main.map((item) => (
+                    {navigationItems.main
+                      .filter(item => isAuthenticated || (item.href !== '/ai-search-intelligence' && item.href !== '/map-search'))
+                      .map((item) => (
                       <Link 
                         key={item.href} 
                         href={item.href}
@@ -345,7 +347,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
             {/* Desktop Navigation - Compact with Icons */}
             <div className="hidden lg:flex items-center space-x-1">
-              {navigationItems.main.map((item) => (
+              {navigationItems.main
+                .filter(item => isAuthenticated || (item.href !== '/ai-search-intelligence' && item.href !== '/map-search'))
+                .map((item) => (
                 <Link 
                   key={item.href} 
                   href={item.href}
@@ -407,35 +411,6 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
           {/* Right Section: Language, Notifications, User, Theme, Accessibility */}
           <div className="flex items-center space-x-1 lg:space-x-2">
-            {/* Language Selector - Hidden on small screens to save space */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className="hidden sm:block text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
-                  aria-label="Select language"
-                >
-                  {currentLanguage.flag}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>Select Language</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {languages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code as any)}
-                    className={cn(
-                      "flex items-center space-x-2",
-                      language === lang.code && "bg-purple-100 dark:bg-purple-900/30"
-                    )}
-                  >
-                    <span className="text-lg">{lang.flag}</span>
-                    <span>{lang.label}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Notifications */}
             {isAuthenticated && (
               <Button variant="ghost" size="icon" className="relative text-gray-700 dark:text-gray-300">
@@ -603,6 +578,29 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     })}
                   </div>
                   
+                  <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Languages className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm">Language</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {languages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => setLanguage(lang.code as any)}
+                          className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg text-sm transition-all duration-150 ${
+                            language === lang.code
+                              ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-300 font-medium'
+                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <span>{lang.flag}</span>
+                          <span>{lang.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       These settings are saved locally and will persist across sessions.
