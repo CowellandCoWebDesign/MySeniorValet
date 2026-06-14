@@ -45,7 +45,10 @@ export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiti
         req.path.endsWith('/spatial') ||
         // Read-only session-check endpoints poll frequently and pose no brute-force risk;
         // counting them against the budget causes spurious 429s on the login page.
-        (req.method === 'GET' && (req.path === '/api/auth/status' || req.path === '/api/auth/user'))) {
+        // NOTE: req.path inside app.use('/api', ...) is the subpath without '/api',
+        // so these are '/auth/status' not '/api/auth/status'. Use req.originalUrl
+        // as a reliable full-path match that is unaffected by mount-point stripping.
+        (req.method === 'GET' && (req.originalUrl.startsWith('/api/auth/status') || req.originalUrl.startsWith('/api/auth/user')))) {
       return next();
     }
     
