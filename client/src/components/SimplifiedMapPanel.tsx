@@ -71,6 +71,29 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
       .catch(() => {});
   }, [locationQuery]);
 
+  // Sync search bar and map when the browser back/forward buttons restore a ?location= param
+  useEffect(() => {
+    const handlePopState = () => {
+      const param = new URLSearchParams(window.location.search).get('location');
+      const restored = param ? param.replace(/-/g, ' ') : '';
+      setSearchValue(restored);
+      if (restored.length >= 2) {
+        fetch(`/api/geocode?location=${encodeURIComponent(restored)}`)
+          .then(r => r.json())
+          .then(geo => {
+            if (geo?.lat && geo?.lng) {
+              setMapCenter([geo.lat, geo.lng]);
+              setMapZoom(12);
+            }
+          })
+          .catch(() => {});
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // Fetch communities for current map bounds
   const handleBoundsChange = useCallback((bounds: any) => {
     const west = bounds.getWest?.() ?? bounds.west;
