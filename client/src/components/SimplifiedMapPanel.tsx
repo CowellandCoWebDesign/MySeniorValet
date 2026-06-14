@@ -3,6 +3,7 @@ import Map from "@/components/Map";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { Button } from "@/components/ui/button";
 import { Rows3, Columns2, MapPin, Sparkles } from "lucide-react";
+import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 
 interface SimplifiedMapPanelProps {
   locationQuery?: string;
@@ -31,6 +32,7 @@ const CARE_KEYWORDS: { key: string; label: string }[] = [
 export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }: SimplifiedMapPanelProps) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([40.52, -122.1]);
   const [mapZoom, setMapZoom] = useState(9);
+  const [searchValue, setSearchValue] = useState("");
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("horizontal");
@@ -342,18 +344,30 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-          <span className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-            {isLoading
-              ? "Loading communities…"
-              : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
-          </span>
+      <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <AutocompleteSearch
+            value={searchValue}
+            onChange={setSearchValue}
+            onSubmit={(query) => {
+              if (!query.trim()) return;
+              fetch(`/api/geocode?location=${encodeURIComponent(query.trim())}`)
+                .then(r => r.json())
+                .then(geo => {
+                  if (geo?.lat && geo?.lng) {
+                    setMapCenter([geo.lat, geo.lng]);
+                    setMapZoom(12);
+                  }
+                })
+                .catch(() => {});
+            }}
+            placeholder="Search a city or location…"
+            isLoading={isLoading}
+          />
         </div>
 
         {/* Layout toggle */}
-        <div className="flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+        <div className="flex-shrink-0 flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           <button
             onClick={() => setLayoutMode("vertical")}
             className={`p-1.5 rounded-md transition-colors ${
@@ -402,24 +416,30 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
       {layoutMode === "vertical" ? (
         /* Vertical: map on top, list below */
         <div>
-          <div className="border-b border-gray-200 dark:border-gray-700">
-            <Map
-              center={mapCenter}
-              zoom={mapZoom}
-              height="360px"
-              onBoundsChange={handleBoundsChange}
-              onCommunityClick={(community: any) => {
-                const el = document.getElementById(`smp-community-${community.id}`);
-                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
-              }}
-            />
+          <Map
+            center={mapCenter}
+            zoom={mapZoom}
+            height="360px"
+            onBoundsChange={handleBoundsChange}
+            onCommunityClick={(community: any) => {
+              const el = document.getElementById(`smp-community-${community.id}`);
+              if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+            }}
+          />
+          <div className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
+            <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+            <span>
+              {isLoading
+                ? "Loading communities…"
+                : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
+            </span>
           </div>
           <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
         </div>
       ) : (
         /* Horizontal: map left, landscape cards right (vertical scroll) */
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="md:border-r border-gray-200 dark:border-gray-700">
+          <div className="md:border-r border-gray-200 dark:border-gray-700 flex flex-col">
             <Map
               center={mapCenter}
               zoom={mapZoom}
@@ -430,6 +450,14 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
+            <div className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700">
+              <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
+              <span>
+                {isLoading
+                  ? "Loading communities…"
+                  : `${communityCount} communities in view${discoveredCommunities.length > 0 ? ` + ${discoveredCommunities.length} newly found` : ""}`}
+              </span>
+            </div>
           </div>
           {/* Right panel: vertically scrollable list of landscape cards, same height as map */}
           <div className="overflow-y-auto" style={{ height: "520px" }}>

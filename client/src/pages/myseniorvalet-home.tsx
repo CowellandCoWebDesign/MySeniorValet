@@ -600,7 +600,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   const { theme } = useTheme();
   const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
-  const [classicSearchValue, setClassicSearchValue] = useState(''); // Separate state for classic search input
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
@@ -1190,54 +1189,6 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </h1>
         </div>
 
-        {/* Search bar - directly below headline */}
-        <div className="w-full px-2 sm:px-4 pt-4 pb-4">
-        {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50" style={{ isolation: 'isolate' }}>
-          <AnimatePresence mode="wait">
-            {searchMode === 'ai' ? (
-              <motion.div
-                key="ai-assistant"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-              >
-                {false && <MySeniorValetChatKit 
-                  category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
-                  onCategoryChange={(cat) => onTabChange(cat)}
-                />}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="classic-search"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4"
-              >
-                {/* Classic Search Bar */}
-                <div className="flex flex-col gap-2">
-                  {/* Search Input with Autocomplete */}
-                  <AutocompleteSearch
-                    value={classicSearchValue}
-                    onChange={setClassicSearchValue}
-                    onSubmit={(query) => {
-                      setSearchQuery(query);
-                      handleAutoExpandingSearch(query);
-                    }}
-                    placeholder={searchPlaceholder}
-                    isLoading={isLoading}
-                    forceClearSuggestions={forceClearAutocomplete}
-                  />
-
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-        </div>
         </div>
       </section>
       
