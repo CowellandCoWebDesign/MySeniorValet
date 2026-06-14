@@ -1684,7 +1684,13 @@ export default function MySeniorValetHome() {
       : 'https://www.myseniorvalet.com/'
   });
   
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const param = new URLSearchParams(window.location.search).get('location');
+      if (param) return param.replace(/-/g, ' ');
+    }
+    return "";
+  });
   const [discoveredCommunities, setDiscoveredCommunities] = useState<any[]>([]);
 
   // Listen for search queries dispatched from HeroSectionWithTransformingSearch

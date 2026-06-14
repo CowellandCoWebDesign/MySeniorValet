@@ -29,15 +29,32 @@ const CARE_KEYWORDS: { key: string; label: string }[] = [
   { key: "subsidized", label: "hud-sponsored" },
 ];
 
+function toLocationParam(query: string): string {
+  return query.trim().replace(/,\s*/g, '-').replace(/\s+/g, '-');
+}
+
 export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }: SimplifiedMapPanelProps) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([40.52, -122.1]);
   const [mapZoom, setMapZoom] = useState(9);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const param = new URLSearchParams(window.location.search).get('location');
+      if (param) return param.replace(/-/g, ' ');
+    }
+    return "";
+  });
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("horizontal");
   const [selectedCareType, setSelectedCareType] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Pre-fill search bar from locationQuery prop (e.g. when parent reads it from URL on mount)
+  useEffect(() => {
+    if (locationQuery && locationQuery.trim().length >= 2 && !searchValue) {
+      setSearchValue(locationQuery.trim());
+    }
+  }, [locationQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Geocode locationQuery whenever it changes and fly the map there
   useEffect(() => {
@@ -351,6 +368,11 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
             onChange={setSearchValue}
             onSubmit={(query) => {
               if (!query.trim()) return;
+              // Write ?location= to URL without creating a new history entry
+              const param = toLocationParam(query);
+              const url = new URL(window.location.href);
+              url.searchParams.set('location', param);
+              window.history.replaceState(null, '', url.toString());
               fetch(`/api/geocode?location=${encodeURIComponent(query.trim())}`)
                 .then(r => r.json())
                 .then(geo => {
