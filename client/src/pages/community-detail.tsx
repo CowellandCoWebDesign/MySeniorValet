@@ -1779,14 +1779,14 @@ export default function CommunityDetail() {
       if (isAdmin) {
         // ── ADMIN PATH: paid Perplexity deep research (persists to DB) ──────────
         console.log('🧠 Admin Perplexity research for:', community.name);
-        // Honor the 7-day cache: a normal click serves persisted data when it's
-        // still fresh (no re-bill). The server only re-runs Perplexity when the
-        // record is older than 7 days.
+        // Always force a fresh Perplexity research run when an admin explicitly
+        // clicks the button — they need current data and the ability to fix
+        // wrong/stale information (including photos).
         const response = await fetch(`/api/admin/communities/${community.id}/perplexity-enrich`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
-          body: JSON.stringify({ forceRefresh: false }),
+          body: JSON.stringify({ forceRefresh: true }),
         });
 
         if (!response.ok) {
@@ -1794,28 +1794,16 @@ export default function CommunityDetail() {
         }
 
         const data = await response.json();
-        const photos: string[] = data.photos || [];
-        console.log('✅ Perplexity research complete, photos found:', photos.length);
+        console.log('✅ Perplexity research complete — photos:', (data.photos || []).length,
+          '| pricing:', !!data.pricing, '| website:', data.officialWebsite || 'none');
 
-        // Build a verificationReport-compatible object so the page reflects the
-        // new photos/summary/contact info immediately (data is also persisted).
-        const report = {
-          verificationResults: {
-            webIntelligence: {
-              images: photos.map((url: string) => ({ url, source: 'perplexity' })),
-              sources: data.sources || [],
-            },
-            searchResults: { summary: data.summary, sources: data.sources || [] },
-            perplexityData: { searchContent: data.summary, sources: data.sources || [] },
-          },
-          searchResults: { summary: data.summary, sources: data.sources || [] },
-          pricing: data.pricing
-            ? `$${(data.pricing.min ?? data.pricing.max)?.toLocaleString?.() ?? ''}`
-            : '',
-          contactInfo: { phone: data.phone || '', website: data.officialWebsite || '' },
-        };
-        setVerificationReport(report);
-        enrichmentCache.set(community.id, report);
+        // Data is now persisted to the DB. Clear any stale verificationReport so the
+        // Live Intelligence / market-data tab doesn't show enrichment data, then
+        // refetch the community record — the About section, contact info, and pricing
+        // will all render from the persisted community fields (description, phone,
+        // website, priceRange) in the correct Info & Tours tab.
+        setVerificationReport(null);
+        enrichmentCache.clearCommunity(community.id);
 
         // Refetch the persisted community record so all updated fields render.
         if (idQueryKey) queryClient.invalidateQueries({ queryKey: [idQueryKey] });

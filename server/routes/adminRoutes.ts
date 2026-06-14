@@ -32,6 +32,7 @@ import { DataIntegrityValidator } from "../services/data-integrity-validator";
 import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
 import { perplexitySearchAPI } from "../services/perplexity-search-api";
+import { scrapeWebsitePage } from "../services/free-enrichment-service";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
@@ -657,6 +658,35 @@ export function registerAdminRoutes(app: Express) {
         website: community.website,
       });
 
+      // ── PHOTO ENRICHMENT via Jina website scraping ─────────────────────────
+      // Perplexity Search API returns text snippets, not image files. For real
+      // community photos we scrape the official website directly using Jina Reader,
+      // which handles SPAs and returns og:image meta tags + inline images.
+      // This always REPLACES existing photos so stale/inaccurate ones are cleared.
+      const officialUrl = result.officialWebsite
+        || (community.website && !['aplaceformom', 'caring.com', 'senioradvisor', 'yelp.com'].some(d => community.website?.includes(d)) ? community.website : null);
+
+      let freshPhotoUrls: string[] = [];
+      let freshPhotoAttributions: string[] = [];
+
+      if (officialUrl) {
+        try {
+          console.log(`📸 [Jina] Scraping photos from ${officialUrl}`);
+          const scraped = await scrapeWebsitePage(officialUrl);
+          if (scraped.images.length > 0) {
+            freshPhotoUrls = scraped.images.slice(0, 20);
+            freshPhotoAttributions = freshPhotoUrls.map(() => {
+              try { return new URL(officialUrl).hostname.replace(/^www\./, ''); } catch { return 'official-site'; }
+            });
+            console.log(`✅ [Jina] Found ${freshPhotoUrls.length} photos from ${officialUrl}`);
+          } else {
+            console.log(`⚠️ [Jina] No photos found at ${officialUrl}`);
+          }
+        } catch (photoErr) {
+          console.warn(`⚠️ [Jina] Photo scrape failed for ${officialUrl}:`, photoErr instanceof Error ? photoErr.message : photoErr);
+        }
+      }
+
       const now = new Date();
       const validUntil = new Date(now.getTime() + ENRICHMENT_CACHE_TTL_MS);
 
@@ -669,7 +699,9 @@ export function registerAdminRoutes(app: Express) {
         pricing: result.pricing || community.enrichmentData?.pricing,
         managementCompany: result.managementCompany || community.enrichmentData?.managementCompany,
         availability: result.availability || community.enrichmentData?.availability,
-        photos: result.photos.length > 0 ? result.photos : community.enrichmentData?.photos,
+        photos: freshPhotoUrls.length > 0
+          ? freshPhotoUrls.map((url, i) => ({ url, source: freshPhotoAttributions[i] || 'official-site', isAuthentic: true }))
+          : (result.photos.length > 0 ? result.photos : community.enrichmentData?.photos),
         searchResults: {
           summary: result.summary || community.enrichmentData?.searchResults?.summary || '',
           sources: result.sources,
@@ -678,7 +710,7 @@ export function registerAdminRoutes(app: Express) {
         validUntil: validUntil.toISOString(),
       };
 
-      // Build top-level updates — only persist fields actually verified by Perplexity.
+      // Build top-level updates — only persist fields actually verified by Perplexity/Jina.
       const updates: any = {
         enrichmentData,
         enrichmentDataExpiry: validUntil,
@@ -700,9 +732,25 @@ export function registerAdminRoutes(app: Express) {
       if (result.managementCompany) updates.managementCompany = result.managementCompany;
       if (result.availability) updates.availabilityStatus = result.availability;
 
-      // Photos — store as string URLs with index-aligned source attributions.
-      const photoUrls = result.photos.map(p => p.url);
-      if (photoUrls.length > 0) {
+      // Pricing → top-level priceRange so all family-facing displays (badges,
+      // search cards, detail page) show the verified price instead of "Contact for pricing".
+      if (result.pricing?.min || result.pricing?.max) {
+        updates.priceRange = {
+          min: result.pricing.min ?? result.pricing.max,
+          max: result.pricing.max ?? result.pricing.min,
+        };
+        updates.pricingType = 'live';
+        updates.pricingLastUpdated = now;
+      }
+
+      // Photos — ALWAYS replace when Jina found fresh ones (clears stale/inaccurate photos).
+      if (freshPhotoUrls.length > 0) {
+        updates.photos = freshPhotoUrls;
+        updates.photoAttributions = freshPhotoAttributions;
+        updates.lastPhotoEnrichment = now;
+      } else if (result.photos.length > 0) {
+        // Fallback: Perplexity search found some image URLs (rare but possible)
+        const photoUrls = result.photos.map(p => p.url);
         updates.photos = photoUrls;
         updates.photoAttributions = result.photos.map(p => p.source || '');
         updates.lastPhotoEnrichment = now;
@@ -710,10 +758,13 @@ export function registerAdminRoutes(app: Express) {
 
       await db.update(communities).set(updates).where(eq(communities.id, communityId));
 
+      const persistedPhotoCount = freshPhotoUrls.length || result.photos.length;
       console.log(`✅ [Perplexity Enrich] Persisted for "${community.name}":`, {
         fields: Object.keys(updates),
-        photos: photoUrls.length,
+        photos: persistedPhotoCount,
         hasPricing: !!result.pricing,
+        hasPriceRange: !!updates.priceRange,
+        officialSite: officialUrl || 'none',
       });
 
       return res.json({
@@ -725,8 +776,10 @@ export function registerAdminRoutes(app: Express) {
         managementCompany: result.managementCompany,
         phone: result.phone,
         pricing: result.pricing,
+        priceRange: updates.priceRange || null,
         availability: result.availability,
-        photos: photoUrls,
+        photos: freshPhotoUrls.length > 0 ? freshPhotoUrls : result.photos.map(p => p.url),
+        photoCount: persistedPhotoCount,
         sources: result.sources,
         enrichmentData,
       });
