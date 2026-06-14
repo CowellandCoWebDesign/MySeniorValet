@@ -715,12 +715,19 @@ export default function AdminMegaDashboard() {
   // Listing flags for moderation
   const [flagStatusFilter, setFlagStatusFilter] = useState<string>('Pending');
   const [communitySubTab, setCommunitySubTab] = useState<'listings' | 'quality' | 'flags'>('listings');
+  const [pendingFlagId, setPendingFlagId] = useState<number | null>(null);
+  const [selectedFlagIds, setSelectedFlagIds] = useState<Set<number>>(new Set());
   const { data: listingFlagsData, isLoading: flagsLoading } = useQuery({
     queryKey: ['/api/admin/listing-flags', flagStatusFilter],
     queryFn: async () => {
       const params = new URLSearchParams({ status: flagStatusFilter, limit: '30' });
       return await apiRequest('GET', `/api/admin/listing-flags?${params}`);
     },
+    enabled: communitySubTab === 'flags',
+  });
+  const { data: flagStatusCounts } = useQuery({
+    queryKey: ['/api/admin/listing-flags/counts'],
+    queryFn: async () => await apiRequest('GET', '/api/admin/listing-flags/counts') as Record<string, number>,
     enabled: communitySubTab === 'flags',
   });
 
@@ -889,6 +896,8 @@ export default function AdminMegaDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
       queryClient.invalidateQueries({ queryKey: ['/api/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
     },
     onError: (error: any) => {
       let message = "Failed to delete community.";
@@ -912,6 +921,8 @@ export default function AdminMegaDashboard() {
       toast({ title: "Community Hidden", description: "The listing is no longer visible to the public." });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
     },
   });
 
@@ -960,6 +971,7 @@ export default function AdminMegaDashboard() {
     onSuccess: () => {
       toast({ title: "Flag Dismissed" });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
     },
   });
 
@@ -970,7 +982,70 @@ export default function AdminMegaDashboard() {
     onSuccess: () => {
       toast({ title: "Flag Confirmed", description: "The listing has been marked as flagged." });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+    },
+  });
+
+  // Combined hide-community + dismiss-flag used exclusively from the flag queue
+  const flagQueueHideMutation = useMutation({
+    mutationFn: async ({ communityId, flagId }: { communityId: number; flagId: number }) => {
+      await apiRequest('POST', `/api/admin/communities/${communityId}/hide`);
+      await apiRequest('POST', `/api/admin/listing-flags/${flagId}/dismiss`);
+    },
+    onSuccess: () => {
+      toast({ title: "Community Hidden & Report Cleared" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+    },
+    onError: () => toast({ title: "Hide Failed", description: "Could not hide the community.", variant: "destructive" }),
+  });
+
+  // Combined delete-community + dismiss-flag used exclusively from the flag queue
+  const flagQueueDeleteMutation = useMutation({
+    mutationFn: async ({ communityId, flagId }: { communityId: number; flagId: number }) => {
+      await apiRequest('DELETE', `/api/admin/communities/${communityId}`);
+      await apiRequest('POST', `/api/admin/listing-flags/${flagId}/dismiss`);
+    },
+    onSuccess: () => {
+      toast({ title: "Community Deleted & Report Cleared" });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/communities'] });
+    },
+    onError: (error: any) => {
+      let message = "Failed to delete community.";
+      try {
+        const jsonMatch = error?.message?.match(/^\d+: (.+)$/s);
+        if (jsonMatch) {
+          const body = JSON.parse(jsonMatch[1]);
+          if (body?.error) message = body.error;
+          else if (body?.message) message = body.message;
+        }
+      } catch (_) {}
+      toast({ title: "Delete Failed", description: message, variant: "destructive" });
+    },
+  });
+
+  // Bulk flag action (dismiss / confirm / confirm-and-hide)
+  const bulkFlagMutation = useMutation({
+    mutationFn: async ({ ids, action }: { ids: number[]; action: 'dismiss' | 'confirm' | 'confirm-and-hide' }) => {
+      return await apiRequest('POST', '/api/admin/listing-flags/bulk', { ids, action });
+    },
+    onSuccess: (_, { ids, action }) => {
+      const label = action === 'dismiss' ? 'dismissed' : action === 'confirm' ? 'confirmed' : 'confirmed & hidden';
+      toast({ title: "Bulk Action Complete", description: `${ids.length} flag${ids.length !== 1 ? 's' : ''} ${label}.` });
+      setSelectedFlagIds(new Set());
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+    },
+    onError: (error: any) => {
+      toast({ title: "Bulk Action Failed", description: error.message || "Failed to process flags", variant: "destructive" });
     },
   });
   
@@ -1986,13 +2061,8 @@ Communities Created: ${details.stats.communitiesCreated}`;
       { label: 'Flagged', value: stats?.flagged, icon: Flag, bg: 'bg-red-500/10', color: 'text-red-500', sub: stats?.flagged > 0 ? 'needs review' : '' },
     ];
 
-    // Derive flag counts by status from data (used for filter button badges)
-    const flagCountByStatus: Record<string, number> = {};
-    if (Array.isArray((listingFlagsData as any)?.flags)) {
-      for (const f of (listingFlagsData as any).flags) {
-        flagCountByStatus[f.status] = (flagCountByStatus[f.status] || 0) + 1;
-      }
-    }
+    // Real counts from the /counts endpoint (all statuses, not just current page)
+    const flagCountByStatus: Record<string, number> = (flagStatusCounts as any) ?? {};
 
     return (
       <UiTooltipProvider delayDuration={300}>
@@ -2496,16 +2566,16 @@ Communities Created: ${details.stats.communitiesCreated}`;
                 {/* Status filter pills */}
                 <div className="flex flex-wrap gap-2 mb-4">
                   {(['Pending', 'Under Review', 'Resolved', 'Dismissed', 'all'] as const).map(s => {
-                    const count = s === 'all'
-                      ? (listingFlagsData as any)?.flags?.length
-                      : flagCountByStatus[s];
+                    const totalAll = Object.values(flagCountByStatus).reduce((a, b) => a + b, 0);
+                    const count = s === 'all' ? totalAll : flagCountByStatus[s];
+                    const hasPending = (flagCountByStatus['Pending'] ?? 0) > 0;
                     return (
                       <button
                         key={s}
-                        onClick={() => setFlagStatusFilter(s)}
+                        onClick={() => { setFlagStatusFilter(s); setSelectedFlagIds(new Set()); }}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
                           flagStatusFilter === s
-                            ? s === 'Pending' || s === 'all' && (listingFlagsData as any)?.flags?.some((f: any) => f.status === 'Pending')
+                            ? (s === 'Pending' || (s === 'all' && hasPending))
                               ? 'bg-red-500 border-red-500 text-white'
                               : 'bg-primary border-primary text-primary-foreground'
                             : 'border-border bg-background text-muted-foreground hover:border-foreground/30 hover:text-foreground'
@@ -2522,6 +2592,37 @@ Communities Created: ${details.stats.communitiesCreated}`;
                     );
                   })}
                 </div>
+
+                {/* Bulk action bar */}
+                {selectedFlagIds.size > 0 && (
+                  <div className="flex items-center gap-2 mb-3 p-2.5 rounded-lg bg-primary/5 border border-primary/20">
+                    <span className="text-xs font-medium text-primary flex-1">
+                      {selectedFlagIds.size} flag{selectedFlagIds.size !== 1 ? 's' : ''} selected
+                    </span>
+                    <Button size="sm" variant="outline" className="h-7 text-xs"
+                      disabled={bulkFlagMutation.isPending}
+                      onClick={() => bulkFlagMutation.mutate({ ids: Array.from(selectedFlagIds), action: 'dismiss' })}>
+                      {bulkFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <X className="h-3 w-3 mr-1" />}
+                      Dismiss Selected
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-xs text-green-700 border-green-300 hover:bg-green-50 dark:hover:bg-green-950"
+                      disabled={bulkFlagMutation.isPending}
+                      onClick={() => bulkFlagMutation.mutate({ ids: Array.from(selectedFlagIds), action: 'confirm' })}>
+                      {bulkFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <CheckCircle2 className="h-3 w-3 mr-1" />}
+                      Confirm Selected
+                    </Button>
+                    <Button size="sm" variant="destructive" className="h-7 text-xs"
+                      disabled={bulkFlagMutation.isPending}
+                      onClick={() => bulkFlagMutation.mutate({ ids: Array.from(selectedFlagIds), action: 'confirm-and-hide' })}>
+                      {bulkFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <EyeOff className="h-3 w-3 mr-1" />}
+                      Confirm + Hide Selected
+                    </Button>
+                    <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground"
+                      onClick={() => setSelectedFlagIds(new Set())}>
+                      Clear
+                    </Button>
+                  </div>
+                )}
 
                 {flagsLoading ? (
                   <div className="space-y-3">
@@ -2548,106 +2649,137 @@ Communities Created: ${details.stats.communitiesCreated}`;
                 ) : (
                   <ScrollArea className="h-[480px]">
                     <div className="space-y-3 pr-1">
-                      {(listingFlagsData as any).flags.map((flag: any) => (
-                        <div
-                          key={flag.id}
-                          className={`rounded-lg border p-4 transition-colors ${
-                            flag.status === 'Pending'
-                              ? 'border-red-200 dark:border-red-900/50 bg-red-500/5'
-                              : flag.status === 'Under Review'
-                              ? 'border-yellow-200 dark:border-yellow-900/50 bg-yellow-500/5'
-                              : ''
-                          }`}
-                        >
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center flex-wrap gap-2 mb-2">
-                                <Badge variant="destructive" className="text-xs">{flag.flagType}</Badge>
-                                <Badge variant={flag.status === 'Pending' ? 'destructive' : flag.status === 'Resolved' ? 'default' : 'secondary'} className="text-xs">
-                                  {flag.status}
-                                </Badge>
-                              </div>
-                              <p className="font-medium text-sm">
-                                {flag.communityName}
-                                <span className="text-muted-foreground font-normal"> · {flag.communityCity}, {flag.communityState}</span>
-                              </p>
-                              <p className="text-sm text-muted-foreground mt-1">{flag.reason}</p>
-                              {flag.details && (
-                                <p className="text-xs text-muted-foreground/80 mt-1 italic border-l-2 border-muted pl-2">{flag.details}</p>
-                              )}
-                              <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                                {flag.reporterName && (
-                                  <span>
-                                    Reported by <span className="font-medium text-foreground">{flag.reporterName}</span>
-                                    {flag.reporterEmail && <span className="opacity-70"> ({flag.reporterEmail})</span>}
-                                  </span>
-                                )}
-                                {flag.createdAt && (
-                                  <span>{new Date(flag.createdAt).toLocaleDateString()}</span>
-                                )}
-                              </div>
-                            </div>
+                      {(listingFlagsData as any).flags.map((flag: any) => {
+                        const isThisPending = pendingFlagId === flag.id || (flagQueueHideMutation.isPending && flagQueueHideMutation.variables?.flagId === flag.id) || (flagQueueDeleteMutation.isPending && flagQueueDeleteMutation.variables?.flagId === flag.id);
+                        const isSelected = selectedFlagIds.has(flag.id);
+                        return (
+                          <div
+                            key={flag.id}
+                            className={`rounded-lg border p-4 transition-colors ${
+                              isSelected
+                                ? 'border-primary/50 bg-primary/5'
+                                : flag.status === 'Pending'
+                                ? 'border-red-200 dark:border-red-900/50 bg-red-500/5'
+                                : flag.status === 'Under Review'
+                                ? 'border-yellow-200 dark:border-yellow-900/50 bg-yellow-500/5'
+                                : ''
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              {/* Checkbox */}
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={e => {
+                                  const next = new Set(selectedFlagIds);
+                                  e.target.checked ? next.add(flag.id) : next.delete(flag.id);
+                                  setSelectedFlagIds(next);
+                                }}
+                                className="mt-1 h-3.5 w-3.5 shrink-0 cursor-pointer accent-primary"
+                              />
+                              <div className="flex items-start justify-between gap-4 flex-1 min-w-0">
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center flex-wrap gap-2 mb-2">
+                                    <Badge variant="destructive" className="text-xs">{flag.flagType}</Badge>
+                                    <Badge variant={flag.status === 'Pending' ? 'destructive' : flag.status === 'Resolved' ? 'default' : 'secondary'} className="text-xs">
+                                      {flag.status}
+                                    </Badge>
+                                  </div>
+                                  <p className="font-medium text-sm">
+                                    {flag.communityName}
+                                    <span className="text-muted-foreground font-normal"> · {flag.communityCity}, {flag.communityState}</span>
+                                  </p>
+                                  <p className="text-sm text-muted-foreground mt-1">{flag.reason}</p>
+                                  {flag.details && (
+                                    <p className="text-xs text-muted-foreground/80 mt-1 italic border-l-2 border-muted pl-2">{flag.details}</p>
+                                  )}
+                                  <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                    {flag.reporterName && (
+                                      <span>
+                                        Reported by <span className="font-medium text-foreground">{flag.reporterName}</span>
+                                        {flag.reporterEmail && <span className="opacity-70"> ({flag.reporterEmail})</span>}
+                                      </span>
+                                    )}
+                                    {flag.createdAt && (
+                                      <span>{new Date(flag.createdAt).toLocaleDateString()}</span>
+                                    )}
+                                  </div>
+                                </div>
 
-                            <div className="flex flex-col gap-2 shrink-0 min-w-[110px]">
-                              {(flag.status === 'Pending' || flag.status === 'Under Review') && (
-                                <>
-                                  <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-50 dark:hover:bg-green-950 h-7 text-xs"
-                                    disabled={confirmFlagMutation.isPending || dismissFlagMutation.isPending}
-                                    onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false })}>
-                                    {confirmFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <CheckCircle2 className="h-3 w-3 mr-1" />}
-                                    Mark Problematic
-                                  </Button>
-                                  <Button size="sm" variant="destructive" className="h-7 text-xs"
-                                    disabled={confirmFlagMutation.isPending || dismissFlagMutation.isPending}
-                                    onClick={() => confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true })}>
-                                    {confirmFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <EyeOff className="h-3 w-3 mr-1" />}
-                                    Problematic + Hide
-                                  </Button>
-                                  <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground"
-                                    disabled={confirmFlagMutation.isPending || dismissFlagMutation.isPending}
-                                    onClick={() => dismissFlagMutation.mutate(flag.id)}>
-                                    {dismissFlagMutation.isPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <X className="h-3 w-3 mr-1" />}
-                                    Clear Report
-                                  </Button>
-                                </>
-                              )}
-                              <div className="flex gap-1 pt-1 border-t mt-1">
-                                <UiTooltip>
-                                  <UiTooltipTrigger asChild>
-                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-blue-500"
-                                      onClick={() => window.open(`/admin/community/${flag.communityId}/edit`, '_blank')}>
-                                      <Edit className="h-3 w-3" />
-                                    </Button>
-                                  </UiTooltipTrigger>
-                                  <UiTooltipContent>Edit community</UiTooltipContent>
-                                </UiTooltip>
-                                <UiTooltip>
-                                  <UiTooltipTrigger asChild>
-                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-orange-500"
-                                      onClick={() => hideCommunityMutation.mutate(flag.communityId)}>
-                                      <EyeOff className="h-3 w-3" />
-                                    </Button>
-                                  </UiTooltipTrigger>
-                                  <UiTooltipContent>Hide from public</UiTooltipContent>
-                                </UiTooltip>
-                                <UiTooltip>
-                                  <UiTooltipTrigger asChild>
-                                    <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-destructive"
-                                      onClick={() => {
-                                        if (confirm(`Delete "${flag.communityName}"? This cannot be undone.`)) {
-                                          deleteCommunityMutation.mutate(flag.communityId);
-                                        }
-                                      }}>
-                                      <Trash2 className="h-3 w-3" />
-                                    </Button>
-                                  </UiTooltipTrigger>
-                                  <UiTooltipContent>Delete permanently</UiTooltipContent>
-                                </UiTooltip>
+                                <div className="flex flex-col gap-2 shrink-0 min-w-[118px]">
+                                  {(flag.status === 'Pending' || flag.status === 'Under Review') && (
+                                    <>
+                                      <Button size="sm" variant="outline" className="text-green-700 border-green-300 hover:bg-green-50 dark:hover:bg-green-950 h-7 text-xs"
+                                        disabled={isThisPending}
+                                        onClick={() => {
+                                          setPendingFlagId(flag.id);
+                                          confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: false }, { onSettled: () => setPendingFlagId(null) });
+                                        }}>
+                                        {isThisPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <CheckCircle2 className="h-3 w-3 mr-1" />}
+                                        Mark Problematic
+                                      </Button>
+                                      <Button size="sm" variant="destructive" className="h-7 text-xs"
+                                        disabled={isThisPending}
+                                        onClick={() => {
+                                          setPendingFlagId(flag.id);
+                                          confirmFlagMutation.mutate({ flagId: flag.id, hideAlso: true }, { onSettled: () => setPendingFlagId(null) });
+                                        }}>
+                                        {isThisPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <EyeOff className="h-3 w-3 mr-1" />}
+                                        Problematic + Hide
+                                      </Button>
+                                      <Button size="sm" variant="ghost" className="h-7 text-xs text-muted-foreground hover:text-foreground"
+                                        disabled={isThisPending}
+                                        onClick={() => {
+                                          setPendingFlagId(flag.id);
+                                          dismissFlagMutation.mutate(flag.id, { onSettled: () => setPendingFlagId(null) });
+                                        }}>
+                                        {isThisPending ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <X className="h-3 w-3 mr-1" />}
+                                        Clear Report
+                                      </Button>
+                                    </>
+                                  )}
+                                  <div className="flex gap-1 pt-1 border-t mt-1">
+                                    <UiTooltip>
+                                      <UiTooltipTrigger asChild>
+                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 text-blue-500"
+                                          disabled={isThisPending}
+                                          onClick={() => window.open(`/admin/community/${flag.communityId}/edit`, '_blank')}>
+                                          <Edit className="h-3 w-3" />
+                                        </Button>
+                                      </UiTooltipTrigger>
+                                      <UiTooltipContent>Edit community</UiTooltipContent>
+                                    </UiTooltip>
+                                    <UiTooltip>
+                                      <UiTooltipTrigger asChild>
+                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-orange-500"
+                                          disabled={isThisPending}
+                                          onClick={() => flagQueueHideMutation.mutate({ communityId: flag.communityId, flagId: flag.id })}>
+                                          <EyeOff className="h-3 w-3" />
+                                        </Button>
+                                      </UiTooltipTrigger>
+                                      <UiTooltipContent>Hide community & clear report</UiTooltipContent>
+                                    </UiTooltip>
+                                    <UiTooltip>
+                                      <UiTooltipTrigger asChild>
+                                        <Button size="sm" variant="ghost" className="h-7 w-7 p-0 hover:text-destructive"
+                                          disabled={isThisPending}
+                                          onClick={() => {
+                                            if (confirm(`Delete "${flag.communityName}"? This cannot be undone.`)) {
+                                              flagQueueDeleteMutation.mutate({ communityId: flag.communityId, flagId: flag.id });
+                                            }
+                                          }}>
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                      </UiTooltipTrigger>
+                                      <UiTooltipContent>Delete community & clear report</UiTooltipContent>
+                                    </UiTooltip>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </ScrollArea>
                 )}

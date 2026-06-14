@@ -2520,6 +2520,56 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Status counts across all statuses (for filter pill badges)
+  adminRouter.get('/listing-flags/counts', async (req, res) => {
+    try {
+      const rows = await db
+        .select({ status: listingFlags.status, count: sql<number>`count(*)` })
+        .from(listingFlags)
+        .groupBy(listingFlags.status);
+      const counts: Record<string, number> = {};
+      for (const row of rows) counts[row.status] = Number(row.count);
+      res.json(counts);
+    } catch (error) {
+      console.error('Error fetching listing flag counts:', error);
+      res.status(500).json({ message: 'Failed to fetch flag counts' });
+    }
+  });
+
+  // Bulk dismiss / confirm / confirm-and-hide
+  adminRouter.post('/listing-flags/bulk', async (req, res) => {
+    try {
+      const { ids, action } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: 'ids must be a non-empty array' });
+      }
+      if (!['dismiss', 'confirm', 'confirm-and-hide'].includes(action)) {
+        return res.status(400).json({ message: 'Invalid action' });
+      }
+      const now = new Date();
+      if (action === 'dismiss') {
+        await db.update(listingFlags)
+          .set({ status: 'Dismissed', reviewedAt: now, updatedAt: now })
+          .where(inArray(listingFlags.id, ids));
+      } else {
+        const flagRows = await db.update(listingFlags)
+          .set({ status: 'Resolved', reviewedAt: now, updatedAt: now })
+          .where(inArray(listingFlags.id, ids))
+          .returning({ communityId: listingFlags.communityId });
+        const communityIds = [...new Set(flagRows.map(r => r.communityId))];
+        if (communityIds.length > 0) {
+          const communityUpdates: Record<string, any> = { flagStatus: 'confirmed', updatedAt: now };
+          if (action === 'confirm-and-hide') communityUpdates.isHidden = true;
+          await db.update(communities).set(communityUpdates).where(inArray(communities.id, communityIds));
+        }
+      }
+      res.json({ message: `${ids.length} flag(s) processed` });
+    } catch (error) {
+      console.error('Error bulk processing flags:', error);
+      res.status(500).json({ message: 'Failed to bulk process flags' });
+    }
+  });
+
   // Get pending listing flags for admin moderation
   adminRouter.get('/listing-flags', async (req, res) => {
     try {

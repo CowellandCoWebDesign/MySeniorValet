@@ -140,6 +140,7 @@ export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
   const skipSqlPatterns = (
     req.path === '/api/admin/communities/bulk' ||
     req.path === '/api/admin/communities/bulk-quality-action' ||
+    req.path === '/api/admin/listing-flags/bulk' ||
     (req.method === 'POST' && /^\/api\/admin\/communities\/\d+\/hide$/.test(req.path)) ||
     (req.method === 'DELETE' && /^\/api\/admin\/communities\/\d+$/.test(req.path))
   );
