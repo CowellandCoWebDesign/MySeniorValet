@@ -33,7 +33,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
   const [mapZoom, setMapZoom] = useState(9);
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
-  const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("vertical");
+  const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("horizontal");
   const [selectedCareType, setSelectedCareType] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -346,7 +346,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
           <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
         </div>
       ) : (
-        /* Horizontal: map left, list right */
+        /* Horizontal: map left, cards right (horizontal scroll) */
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="md:border-r border-gray-200 dark:border-gray-700">
             <Map
@@ -356,11 +356,14 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
               onBoundsChange={handleBoundsChange}
               onCommunityClick={(community: any) => {
                 const el = document.getElementById(`smp-community-${community.id}`);
-                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+                if (el) el.scrollIntoView({ behavior: "smooth", inline: "center" });
               }}
             />
           </div>
-          <CommunityList communities={filteredCommunities} maxHeight="520px" />
+          {/* Right panel: horizontally scrollable card strip, same height as map */}
+          <div className="flex flex-col justify-center overflow-hidden" style={{ height: "520px" }}>
+            <CommunityList communities={filteredCommunities} maxHeight="520px" horizontal={true} />
+          </div>
         </div>
       )}
     </div>
