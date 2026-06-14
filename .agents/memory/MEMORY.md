@@ -12,3 +12,4 @@
 - [Communities Drizzle column drift](communities-drizzle-drift.md) — admin_rating_override in schema but NOT in DB; db.select().from(communities) → 500; use raw sql SELECT * for communities queries until column is migrated.
 - [dnd-kit drag in preview iframe](dnd-kit-iframe-drag.md) — pointer drag silently fails inside Replit preview/Canvas iframe; always add up/down button fallback + in-flight reorder guard.
 - [Photo enrichment sources](photo-enrichment-sources.md) — senior living directories (caring/aplaceformom/seniorlivingnearme) are VALID photo sources; only skip social/review sites; scrape multiple candidate pages.
+- [Community geocode cleanup](community-geocode-cleanup.md) — never hard-delete a community on a heuristic; quarantine (is_hidden+synthetic_suspected) and let the geocoder arbitrate real vs fake; restore via jsonb_populate_recordset.
