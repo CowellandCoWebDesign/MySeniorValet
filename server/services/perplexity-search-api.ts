@@ -804,6 +804,284 @@ Rules:
   }
 
   /**
+   * 🧠 ADMIN DEEP ENRICHMENT (paid Perplexity path — admin-gated only)
+   * =================================================================
+   * Combines the cheap Search API (raw web results + photos + sources) with a
+   * single `sonar` structured-output completion to produce a clean, verified,
+   * ≤1000-char summary plus structured fields for a single community.
+   *
+   * Golden Data Rule: every structured field is null unless Perplexity actually
+   * returned/verified it. We never fabricate pricing, websites, or phone numbers.
+   *
+   * Cost per run (forced refresh): ~1 Search call ($0.005) + 1 sonar call
+   * (a few cents) + optional 1 domain-restricted Search call for authentic
+   * official-site photos. Admin-gated + 7-day cache keep this minimal.
+   */
+  async deepEnrichCommunity(community: {
+    name: string;
+    city?: string | null;
+    state?: string | null;
+    website?: string | null;
+  }): Promise<{
+    summary: string;
+    officialWebsite: string | null;
+    managementCompany: string | null;
+    phone: string | null;
+    location: string | null;
+    availability: string | null;
+    pricing: { min?: number; max?: number; source?: string } | null;
+    photos: Array<{ url: string; source: string; isAuthentic: boolean }>;
+    sources: string[];
+  }> {
+    const location = [community.city, community.state].filter(Boolean).join(', ');
+    const label = `${community.name}${location ? ` (${location})` : ''}`;
+    console.log(`🧠 [Perplexity Deep Enrich] Researching ${label}`);
+
+    // ── 1. Broad Search API call — snippets for grounding + sources + photos ──
+    const broadQuery = `"${community.name}" ${location} senior living community official website phone address pricing management company availability photos`;
+    const broad = await this.search(broadQuery, {
+      max_results: 15,
+      max_tokens_per_page: 1024,
+    });
+
+    const snippetContext = broad.results
+      .map((r, i) => `[${i + 1}] ${r.title} — ${r.domain}\n${r.snippet}\nURL: ${r.url}`)
+      .join('\n\n')
+      .substring(0, 8000);
+
+    const sources = broad.results.map(r => r.url);
+
+    // Identify a likely official-site domain (first non-directory result) to flag
+    // authentic photos and to drive an optional domain-restricted image search.
+    const DIRECTORY_DOMAINS = [
+      'yelp.com', 'tripadvisor.com', 'facebook.com', 'google.com', 'caring.com',
+      'senioradvisor.com', 'aplaceformom.com', 'seniorliving.org', 'wikipedia.org',
+      'apartments.com', 'zillow.com', 'linkedin.com', 'youtube.com', 'instagram.com',
+    ];
+    const officialResult = broad.results.find(
+      r => r.domain && !DIRECTORY_DOMAINS.some(d => r.domain.includes(d))
+    );
+    const officialDomain = officialResult?.domain;
+
+    // ── 2. Sonar structured extraction (json_schema) — summary + fields ──────
+    const structured = await this.sonarStructuredExtract(community.name, location, snippetContext);
+
+    // ── 3. Photos — extract real image URLs from search results (no fabrication) ──
+    const photos = this.extractPhotosFromResults(broad.results, officialDomain);
+
+    // Golden Data Rule: only persist a website that Perplexity actually verified
+    // as the official site — never fall back to a heuristic "first non-directory"
+    // result, which could surface a third-party/aggregator URL.
+    const officialWebsite = structured.officialWebsite || null;
+    let officialHost: string | undefined;
+    try {
+      if (officialWebsite) officialHost = new URL(officialWebsite).hostname.replace(/^www\./, '');
+    } catch { /* ignore malformed url */ }
+
+    if (officialHost && photos.filter(p => p.isAuthentic).length < 3) {
+      try {
+        const imgSearch = await this.search(`${community.name} photos gallery`, {
+          max_results: 10,
+          domain_allowlist: [officialHost],
+        });
+        const officialPhotos = this.extractPhotosFromResults(imgSearch.results, officialHost);
+        for (const p of officialPhotos) {
+          if (!photos.some(existing => existing.url === p.url)) photos.push(p);
+        }
+      } catch (err) {
+        console.warn(`⚠️ Official-site image search failed for ${label}:`, err instanceof Error ? err.message : err);
+      }
+    }
+
+    return {
+      summary: structured.summary,
+      officialWebsite,
+      managementCompany: structured.managementCompany,
+      phone: structured.phone,
+      location: structured.location,
+      availability: structured.availability,
+      pricing: structured.pricing,
+      photos: photos.slice(0, 12),
+      sources,
+    };
+  }
+
+  /**
+   * Extract real image URLs from Search API results. Only genuine image URLs are
+   * returned — nothing is fabricated. Photos from the official domain are flagged
+   * `isAuthentic: true`; all others are flagged false with their true source.
+   */
+  private extractPhotosFromResults(
+    results: SearchResult[],
+    officialDomain?: string
+  ): Array<{ url: string; source: string; isAuthentic: boolean }> {
+    const seen = new Set<string>();
+    const photos: Array<{ url: string; source: string; isAuthentic: boolean }> = [];
+    const imageRe = /https?:\/\/[^\s"'<>]+?\.(?:jpg|jpeg|png|webp)(?:\?[^\s"'<>]*)?/gi;
+
+    const add = (url: string, domain: string) => {
+      const clean = url.replace(/[)\].,]+$/, '');
+      if (seen.has(clean)) return;
+      seen.add(clean);
+      const host = domain || (() => { try { return new URL(clean).hostname.replace(/^www\./, ''); } catch { return ''; } })();
+      const isAuthentic = !!officialDomain && (host.includes(officialDomain) || clean.includes(officialDomain));
+      photos.push({ url: clean, source: host || 'web', isAuthentic });
+    };
+
+    for (const r of results) {
+      if (/\.(jpg|jpeg|png|webp)(?:\?|$)/i.test(r.url)) add(r.url, r.domain);
+      const matches = r.snippet?.match(imageRe);
+      if (matches) for (const m of matches) add(m, r.domain);
+    }
+    return photos;
+  }
+
+  /**
+   * Single `sonar` structured-output completion. Returns a ≤1000-char summary and
+   * structured fields, grounded on both Perplexity's live web index and the
+   * provided Search API context. Unknown fields come back null (Golden Data Rule).
+   */
+  private async sonarStructuredExtract(
+    communityName: string,
+    location: string,
+    context: string
+  ): Promise<{
+    summary: string;
+    officialWebsite: string | null;
+    managementCompany: string | null;
+    phone: string | null;
+    location: string | null;
+    availability: string | null;
+    pricing: { min?: number; max?: number; source?: string } | null;
+  }> {
+    const startTime = Date.now();
+    const empty = {
+      summary: '', officialWebsite: null, managementCompany: null, phone: null,
+      location: null, availability: null, pricing: null,
+    };
+
+    if (!this.apiKey) throw new Error('Perplexity API key not configured');
+
+    const systemPrompt =
+      'You are a senior-living data researcher. Extract ONLY facts you can verify from the web ' +
+      'and the provided search context. NEVER guess or fabricate. If a field is unknown or ' +
+      'unverified, return null for it. Pricing must be a real monthly figure in USD reported for ' +
+      'THIS community; if no real pricing is published, return null (the app shows "Contact for ' +
+      'pricing"). The summary must be a single concise paragraph of at most 1000 characters covering, ' +
+      'where known: monthly pricing, contact info, location, the official website, the management/operating ' +
+      'company, and current availability.';
+
+    const userPrompt =
+      `Community: "${communityName}"${location ? `\nLocation: ${location}` : ''}\n\n` +
+      `Search context (ranked web results):\n${context || '(none)'}\n\n` +
+      'Return the structured JSON for this exact community only.';
+
+    const schema = {
+      type: 'object',
+      properties: {
+        summary: { type: 'string', description: '<=1000 char concise paragraph' },
+        officialWebsite: { type: ['string', 'null'] },
+        managementCompany: { type: ['string', 'null'] },
+        phone: { type: ['string', 'null'] },
+        location: { type: ['string', 'null'], description: 'City, State or full address' },
+        availability: { type: ['string', 'null'], description: 'e.g. "Waitlist", "Units available", "Contact for availability"' },
+        pricingMin: { type: ['number', 'null'], description: 'Lowest verified monthly price in USD' },
+        pricingMax: { type: ['number', 'null'], description: 'Highest verified monthly price in USD' },
+        pricingSource: { type: ['string', 'null'] },
+      },
+      required: ['summary', 'officialWebsite', 'managementCompany', 'phone', 'location', 'availability', 'pricingMin', 'pricingMax', 'pricingSource'],
+      additionalProperties: false,
+    };
+
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'sonar',
+          temperature: 0.1,
+          max_tokens: 900,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+          response_format: {
+            type: 'json_schema',
+            json_schema: { name: 'community_enrichment', schema },
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Sonar extract error (${response.status}):`, errorText);
+        await aiTracker.trackPerplexityCall({
+          action: 'sonar_structured_extract',
+          context: 'perplexity_admin_enrich',
+          requestDuration: Date.now() - startTime,
+          success: false,
+          errorMessage: `${response.status} - ${errorText}`,
+          prompt: communityName,
+        });
+        throw new Error(`Sonar extract failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content || '{}';
+      await aiTracker.trackPerplexityCall({
+        action: 'sonar_structured_extract',
+        context: 'perplexity_admin_enrich',
+        requestDuration: Date.now() - startTime,
+        success: true,
+        inputTokens: data.usage?.prompt_tokens,
+        outputTokens: data.usage?.completion_tokens,
+        prompt: `${communityName} ${location}`,
+        response: content.substring(0, 500),
+      });
+
+      let parsed: any = {};
+      try {
+        parsed = JSON.parse(content);
+      } catch {
+        console.warn('⚠️ Sonar returned non-JSON content; using empty extraction');
+        return empty;
+      }
+
+      const toNum = (v: any) => (typeof v === 'number' && isFinite(v) && v > 0 ? Math.round(v) : undefined);
+      const min = toNum(parsed.pricingMin);
+      const max = toNum(parsed.pricingMax);
+      const pricing = (min || max)
+        ? { min, max, source: typeof parsed.pricingSource === 'string' ? parsed.pricingSource : undefined }
+        : null;
+
+      const str = (v: any) => (typeof v === 'string' && v.trim() && v.trim().toLowerCase() !== 'null' ? v.trim() : null);
+
+      return {
+        summary: (str(parsed.summary) || '').substring(0, 1000),
+        officialWebsite: str(parsed.officialWebsite),
+        managementCompany: str(parsed.managementCompany),
+        phone: str(parsed.phone),
+        location: str(parsed.location),
+        availability: str(parsed.availability),
+        pricing,
+      };
+    } catch (error) {
+      await aiTracker.trackPerplexityCall({
+        action: 'sonar_structured_extract',
+        context: 'perplexity_admin_enrich',
+        requestDuration: Date.now() - startTime,
+        success: false,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        prompt: communityName,
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Search for news and market intelligence about senior living
    * Cost: $0.005 per request
    */

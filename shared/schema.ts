@@ -1311,6 +1311,8 @@ export const communities = pgTable("communities", {
       summary: string;
       sources: string[];
     };
+    managementCompany?: string;
+    availability?: string;
     lastFetched?: string;
     validUntil?: string; // Data expires after 7 days
   }>().default({}),

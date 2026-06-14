@@ -31,6 +31,7 @@ import { storage } from "../storage";
 import { DataIntegrityValidator } from "../services/data-integrity-validator";
 import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
+import { perplexitySearchAPI } from "../services/perplexity-search-api";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
@@ -588,6 +589,139 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error('Error updating community:', error);
       res.status(500).json({ error: 'Failed to update community' });
+    }
+  });
+
+  // ── ADMIN-ONLY PAID PERPLEXITY ENRICHMENT ──────────────────────────────────
+  // Deliberate, scoped exception to the "paid-AI-free enrichment" mandate:
+  // Perplexity is re-enabled ONLY on this admin-gated path (cost control). It
+  // runs a deep research pass (Search API + one sonar structured call) and
+  // PERSISTS the verified results to the community record so all families benefit.
+  // 7-day cache: skips re-billing unless `forceRefresh` is passed.
+  adminRouter.post('/communities/:id/perplexity-enrich', async (req, res) => {
+    const ENRICHMENT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: 'Invalid community ID' });
+      }
+      const forceRefresh = req.body?.forceRefresh === true;
+
+      const [community] = await db
+        .select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
+      // 7-day cache: serve persisted enrichment unless an admin forces a refresh.
+      const lastEnriched = community.lastSuccessfulEnrichment;
+      if (!forceRefresh && lastEnriched && (Date.now() - new Date(lastEnriched).getTime()) < ENRICHMENT_CACHE_TTL_MS) {
+        const ageDays = Math.round((Date.now() - new Date(lastEnriched).getTime()) / 86_400_000);
+        console.log(`⚡ [Perplexity Enrich] Cache hit for "${community.name}" — ${ageDays}d old, no re-bill`);
+        return res.json({
+          cached: true,
+          communityId,
+          summary: community.enrichmentData?.searchResults?.summary || community.description || '',
+          photos: community.photos || [],
+          enrichmentData: community.enrichmentData || {},
+        });
+      }
+
+      if (!process.env.PERPLEXITY_API_KEY) {
+        return res.status(503).json({ error: 'Perplexity API key not configured' });
+      }
+
+      console.log(`🧠 [Perplexity Enrich] Admin-triggered research for "${community.name}" (force=${forceRefresh})`);
+      const result = await perplexitySearchAPI.deepEnrichCommunity({
+        name: community.name,
+        city: community.city,
+        state: community.state,
+        website: community.website,
+      });
+
+      const now = new Date();
+      const validUntil = new Date(now.getTime() + ENRICHMENT_CACHE_TTL_MS);
+
+      // Build the structured enrichmentData blob (Golden Data Rule: only verified values).
+      const enrichmentData = {
+        ...(community.enrichmentData || {}),
+        verificationStatus: 'verified' as const,
+        officialWebsite: result.officialWebsite || community.enrichmentData?.officialWebsite,
+        phoneNumber: result.phone || community.enrichmentData?.phoneNumber,
+        pricing: result.pricing || community.enrichmentData?.pricing,
+        managementCompany: result.managementCompany || community.enrichmentData?.managementCompany,
+        availability: result.availability || community.enrichmentData?.availability,
+        photos: result.photos.length > 0 ? result.photos : community.enrichmentData?.photos,
+        searchResults: {
+          summary: result.summary || community.enrichmentData?.searchResults?.summary || '',
+          sources: result.sources,
+        },
+        lastFetched: now.toISOString(),
+        validUntil: validUntil.toISOString(),
+      };
+
+      // Build top-level updates — only persist fields actually verified by Perplexity.
+      const updates: any = {
+        enrichmentData,
+        enrichmentDataExpiry: validUntil,
+        lastSuccessfulEnrichment: now,
+        updatedAt: now,
+      };
+
+      // Concise summary (≤1000 chars) → description, unless admin protected.
+      if (result.summary && result.summary.length > 50) {
+        updates.description = result.summary;
+      }
+
+      // Website — respect admin protection; only persist a real URL.
+      if (result.officialWebsite && !community.websiteProtected) {
+        updates.website = result.officialWebsite;
+      }
+
+      if (result.phone) updates.phone = result.phone;
+      if (result.managementCompany) updates.managementCompany = result.managementCompany;
+      if (result.availability) updates.availabilityStatus = result.availability;
+
+      // Photos — store as string URLs with index-aligned source attributions.
+      const photoUrls = result.photos.map(p => p.url);
+      if (photoUrls.length > 0) {
+        updates.photos = photoUrls;
+        updates.photoAttributions = result.photos.map(p => p.source || '');
+        updates.lastPhotoEnrichment = now;
+      }
+
+      await db.update(communities).set(updates).where(eq(communities.id, communityId));
+
+      console.log(`✅ [Perplexity Enrich] Persisted for "${community.name}":`, {
+        fields: Object.keys(updates),
+        photos: photoUrls.length,
+        hasPricing: !!result.pricing,
+      });
+
+      return res.json({
+        success: true,
+        cached: false,
+        communityId,
+        summary: result.summary,
+        officialWebsite: result.officialWebsite,
+        managementCompany: result.managementCompany,
+        phone: result.phone,
+        pricing: result.pricing,
+        availability: result.availability,
+        photos: photoUrls,
+        sources: result.sources,
+        enrichmentData,
+      });
+    } catch (error) {
+      console.error('❌ [Perplexity Enrich] Failed:', error);
+      return res.status(500).json({
+        error: 'Perplexity enrichment failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
     }
   });
 

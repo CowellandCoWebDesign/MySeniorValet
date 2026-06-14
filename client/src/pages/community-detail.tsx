@@ -1415,8 +1415,9 @@ export default function CommunityDetail() {
   const isSlugBased = !!(stateParam && slug);
   const [, setLocation] = useLocation();
   
-  // Auth state — used to gate the favorite button
-  const { isAuthenticated } = useAuth();
+  // Auth state — used to gate the favorite button and the admin Perplexity path
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
   const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   // Always call useQuery hook regardless of ID validity to maintain consistent hook order
@@ -1770,35 +1771,82 @@ export default function CommunityDetail() {
   // MANUAL VERIFICATION: User-triggered search with force refresh
   const handleManualVerification = async () => {
     if (!community?.id || isVerifying) return;
-    
-    console.log('🔍 Force refreshing Market Data for:', community.name);
-    console.log('📌 Community website:', community.website || 'none');
+
     setHasStartedVerification(true);
     setIsVerifying(true);
-    
+
     try {
+      if (isAdmin) {
+        // ── ADMIN PATH: paid Perplexity deep research (persists to DB) ──────────
+        console.log('🧠 Admin Perplexity research for:', community.name);
+        // Honor the 7-day cache: a normal click serves persisted data when it's
+        // still fresh (no re-bill). The server only re-runs Perplexity when the
+        // record is older than 7 days.
+        const response = await fetch(`/api/admin/communities/${community.id}/perplexity-enrich`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ forceRefresh: false }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Perplexity enrichment failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        const photos: string[] = data.photos || [];
+        console.log('✅ Perplexity research complete, photos found:', photos.length);
+
+        // Build a verificationReport-compatible object so the page reflects the
+        // new photos/summary/contact info immediately (data is also persisted).
+        const report = {
+          verificationResults: {
+            webIntelligence: {
+              images: photos.map((url: string) => ({ url, source: 'perplexity' })),
+              sources: data.sources || [],
+            },
+            searchResults: { summary: data.summary, sources: data.sources || [] },
+            perplexityData: { searchContent: data.summary, sources: data.sources || [] },
+          },
+          searchResults: { summary: data.summary, sources: data.sources || [] },
+          pricing: data.pricing
+            ? `$${(data.pricing.min ?? data.pricing.max)?.toLocaleString?.() ?? ''}`
+            : '',
+          contactInfo: { phone: data.phone || '', website: data.officialWebsite || '' },
+        };
+        setVerificationReport(report);
+        enrichmentCache.set(community.id, report);
+
+        // Refetch the persisted community record so all updated fields render.
+        if (idQueryKey) queryClient.invalidateQueries({ queryKey: [idQueryKey] });
+        if (slugQueryKey) queryClient.invalidateQueries({ queryKey: [slugQueryKey] });
+        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+        return;
+      }
+
+      // ── NON-ADMIN PATH: should not happen (button hidden), but keep the free
+      //    verify flow as a safe fallback ─────────────────────────────────────
+      console.log('🔍 Force refreshing Market Data for:', community.name);
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          forceRefresh: true,  // TRUE = force fresh data
-          websiteUrl: community.website  // Pass the website URL from database
+        body: JSON.stringify({
+          forceRefresh: true,
+          websiteUrl: community.website,
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Verification failed: ${response.status}`);
       }
-      
+
       const report = await response.json();
       const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
       console.log('✅ Fresh data fetched, photos found:', foundPhotos);
       setVerificationReport(report);
       enrichmentCache.set(community.id, report);
-      
-      // Photos will be displayed from the verification report
+
       if (foundPhotos > 0) {
-        // Trigger a refresh to update the UI
         queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
       }
     } catch (error) {

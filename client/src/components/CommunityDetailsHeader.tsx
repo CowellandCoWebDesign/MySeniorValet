@@ -11,6 +11,7 @@ import {
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { MessagingInterface } from "./MessagingInterface";
 import { useContactReveal } from "@/hooks/useContactReveal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CommunityDetailsHeaderProps {
   community: any;
@@ -51,6 +52,10 @@ export function CommunityDetailsHeader({
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
+  // Admin-only: the Perplexity research/refresh button is hidden entirely for
+  // non-admins and logged-out visitors (paid path, cost control).
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
   
   // Determine if community needs data quality review
   const needsDataReview = () => {
@@ -400,8 +405,8 @@ export function CommunityDetailsHeader({
           
           {/* Action Buttons */}
           <div className="flex items-center space-x-2 ml-3">
-            {/* Re-fetch latest data — quick access */}
-            {onRefetch && (
+            {/* Re-fetch latest data — admin-only (paid Perplexity research) */}
+            {onRefetch && isAdmin && (
               <button
                 onClick={onRefetch}
                 disabled={isRefetching}
