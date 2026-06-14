@@ -268,6 +268,77 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
     );
   };
 
+  const LandscapeList = ({ communities }: { communities: any[] }) => (
+    <div className="flex flex-col gap-3 p-3">
+      {communities.length === 0 && !isLoading && (
+        <div className="w-full p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
+          {locationQuery
+            ? "No communities found in this area. Try zooming out or adjusting filters."
+            : "Search a city above to explore communities on the map."}
+        </div>
+      )}
+      {communities.map((community: any, index: number) => (
+        <div key={community.id} id={`smp-community-${community.id}`}>
+          <FeaturedExcellenceCard
+            community={{
+              ...community,
+              name: community.name || "Community",
+              city: community.city || "City",
+              state: community.state || "State",
+              rating: community.rating || null,
+              photos: community.photos || [],
+              careTypes: community.careTypes || [],
+              amenities: community.amenities || [],
+              occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+              totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+              priceRange: community.priceRange,
+              phone: community.phone,
+              website: community.website,
+            }}
+            index={index}
+            landscape={true}
+            disableAutoPhotoLoad={true}
+          />
+        </div>
+      ))}
+
+      {discoveredCommunities.length > 0 && (
+        <>
+          <div className="px-3 py-2 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700 flex items-center gap-2">
+            <Sparkles className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+            <span className="text-xs font-semibold text-purple-700 dark:text-purple-300">
+              {discoveredCommunities.length} Newly Found via AI Discovery
+            </span>
+          </div>
+          {discoveredCommunities.map((community: any, index: number) => (
+            <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`}>
+              <FeaturedExcellenceCard
+                community={{
+                  ...community,
+                  name: community.name || "Community",
+                  city: community.city || "City",
+                  state: community.state || "State",
+                  rating: community.rating || null,
+                  photos: community.photos || [],
+                  careTypes: community.careTypes || [],
+                  amenities: community.amenities || [],
+                  occupancyRate: 0,
+                  totalUnits: 100,
+                  priceRange: community.priceRange,
+                  phone: community.phone,
+                  website: community.website,
+                }}
+                index={index}
+                landscape={true}
+                disableAutoPhotoLoad={true}
+              />
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg overflow-hidden">
       {/* Header */}
@@ -346,7 +417,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
           <CommunityList communities={filteredCommunities} maxHeight="480px" horizontal={true} />
         </div>
       ) : (
-        /* Horizontal: map left, cards right (horizontal scroll) */
+        /* Horizontal: map left, landscape cards right (vertical scroll) */
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="md:border-r border-gray-200 dark:border-gray-700">
             <Map
@@ -356,13 +427,13 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
               onBoundsChange={handleBoundsChange}
               onCommunityClick={(community: any) => {
                 const el = document.getElementById(`smp-community-${community.id}`);
-                if (el) el.scrollIntoView({ behavior: "smooth", inline: "center" });
+                if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
           </div>
-          {/* Right panel: horizontally scrollable card strip, same height as map */}
-          <div className="flex flex-col justify-center overflow-hidden" style={{ height: "520px" }}>
-            <CommunityList communities={filteredCommunities} maxHeight="520px" horizontal={true} />
+          {/* Right panel: vertically scrollable list of landscape cards, same height as map */}
+          <div className="overflow-y-auto" style={{ height: "520px" }}>
+            <LandscapeList communities={filteredCommunities} />
           </div>
         </div>
       )}

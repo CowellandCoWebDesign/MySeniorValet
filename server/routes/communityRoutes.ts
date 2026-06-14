@@ -843,8 +843,13 @@ export function registerCommunityRoutes(app: Express) {
           longitude: communities.longitude,
           city: communities.city,
           state: communities.state,
+          address: communities.address,
           careTypes: communities.careTypes,
-          rating: communities.rating
+          rating: communities.rating,
+          description: communities.description,
+          amenities: communities.amenities,
+          rentPerMonth: communities.rentPerMonth,
+          photos: communities.photos
         })
         .from(communities)
         .where(

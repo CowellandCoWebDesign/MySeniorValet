@@ -33,10 +33,11 @@ interface FeaturedExcellenceCardProps {
   };
   index?: number;
   compact?: boolean; // For horizontal sliders
+  landscape?: boolean; // Horizontal layout: photo left, rich content right
   disableAutoPhotoLoad?: boolean; // Prevent automatic photo loading in directory views
 }
 
-export function FeaturedExcellenceCard({ community, index = 0, compact = false, disableAutoPhotoLoad = false }: FeaturedExcellenceCardProps) {
+export function FeaturedExcellenceCard({ community, index = 0, compact = false, landscape = false, disableAutoPhotoLoad = false }: FeaturedExcellenceCardProps) {
   // Normalize legacy field names to standard fields
   const normalizedAddress = community.address || community.streetAddress;
   const normalizedPhone = community.phone || community.phoneNumber;
@@ -207,6 +208,119 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
   };
 
   const rating = getEffectiveRating(community as any);
+
+  // Pricing label honoring the Golden Data Rule (no synthetic prices)
+  const rentValue = typeof community.rentPerMonth === "string"
+    ? parseFloat(community.rentPerMonth)
+    : community.rentPerMonth;
+  const priceLabel = rentValue && rentValue > 0
+    ? `$${Math.round(rentValue).toLocaleString()}/mo`
+    : community.priceRange && community.priceRange.min > 0
+      ? `$${Math.round(community.priceRange.min).toLocaleString()}/mo`
+      : null;
+
+  // Landscape layout: photo on the left, dense info on the right
+  if (landscape) {
+    const heroPhoto = enrichedPhotos && enrichedPhotos.length > 0 ? enrichedPhotos[0] : null;
+    const careLabel = community.careTypes && community.careTypes.length > 0 ? community.careTypes[0] : "Senior Living";
+    const initial = (community.name || "?").trim().charAt(0).toUpperCase();
+
+    return (
+      <Card className="group relative overflow-hidden border border-gray-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-600 hover:shadow-md transition-all bg-white dark:bg-gray-800 flex flex-row w-full">
+        {/* Left: photo / placeholder */}
+        <div className="relative w-32 sm:w-40 flex-shrink-0 bg-gradient-to-br from-orange-500/90 to-amber-600/90 overflow-hidden">
+          {heroPhoto ? (
+            <img
+              src={heroPhoto}
+              alt={community.name}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.currentTarget as HTMLImageElement).style.display = "none";
+              }}
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-5xl font-bold text-white/90 select-none">{initial}</span>
+            </div>
+          )}
+          {/* Care type pill on photo */}
+          <div className="absolute top-2 left-2 bg-black/55 backdrop-blur-sm text-white px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide">
+            {careLabel}
+          </div>
+        </div>
+
+        {/* Right: content */}
+        <CardContent className="flex flex-col flex-grow p-3 min-w-0">
+          {/* Header: name + address (left), pricing (right) */}
+          <div className="flex justify-between items-start gap-2 mb-1.5">
+            <div className="min-w-0 flex-1">
+              <Link href={getCommunityUrl(community)}>
+                <h3 className="text-sm font-bold leading-tight text-gray-900 dark:text-white line-clamp-1 hover:text-orange-600 dark:hover:text-orange-400 transition-colors cursor-pointer" data-testid={`text-name-${community.id}`}>
+                  {community.name}
+                </h3>
+              </Link>
+              <div className="flex items-center gap-1 mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                <MapPin className="w-3 h-3 flex-shrink-0" />
+                <span className="line-clamp-1">{normalizedAddress || cityState || `${community.city}, ${community.state}`}</span>
+              </div>
+            </div>
+            <div className="text-right flex-shrink-0">
+              {priceLabel ? (
+                <>
+                  <div className="text-[10px] text-gray-400 dark:text-gray-500 leading-none">Starting at</div>
+                  <div className="text-sm font-bold text-orange-600 dark:text-orange-400 leading-tight" data-testid={`text-price-${community.id}`}>{priceLabel}</div>
+                </>
+              ) : (
+                <div className="text-[11px] font-medium text-gray-500 dark:text-gray-400" data-testid={`text-price-${community.id}`}>Contact for pricing</div>
+              )}
+            </div>
+          </div>
+
+          {/* Rating + amenity icons */}
+          <div className="flex items-center gap-2 mb-1.5">
+            {rating !== null ? (
+              <div className="flex items-center gap-1 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-1.5 py-0.5 rounded">
+                <span className="text-xs font-bold">{rating.toFixed(1)}</span>
+                <Star className="w-3 h-3 fill-green-600 text-green-600 dark:fill-green-400 dark:text-green-400" />
+              </div>
+            ) : (
+              <span className="text-[10px] text-gray-400 dark:text-gray-500">Not yet rated</span>
+            )}
+            <div className="flex items-center gap-1.5">
+              {amenities.slice(0, 3).map((amenity, idx) => (
+                <span key={idx} title={amenity} className="text-gray-500 dark:text-gray-400">
+                  {getAmenityIcon(amenity)}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Description snippet */}
+          {community.description && (
+            <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 mb-2 flex-grow">
+              {community.description}
+            </p>
+          )}
+          {!community.description && <div className="flex-grow" />}
+
+          {/* Action buttons */}
+          <div className="flex items-center gap-2 mt-auto">
+            <Link href={getCommunityUrl(community)} className="flex-1">
+              <Button className="w-full h-7 text-xs bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white" data-testid={`button-details-${community.id}`}>
+                View Details
+              </Button>
+            </Link>
+            <Link href={`${getCommunityUrl(community)}?tab=tour`} className="flex-1">
+              <Button variant="outline" className="w-full h-7 text-xs border-orange-300 dark:border-orange-700 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/30" data-testid={`button-tour-${community.id}`}>
+                Schedule Tour
+              </Button>
+            </Link>
+          </div>
+        </CardContent>
+        {consentDialog}
+      </Card>
+    );
+  }
 
   return (
     <Card className={`relative overflow-hidden border hover:border-orange-300 dark:hover:border-orange-700 transition-all bg-white dark:bg-gray-800 flex flex-col ${compact ? 'w-[85%] sm:w-[280px] min-w-[85%] sm:min-w-[280px]' : 'w-[85%] sm:w-[300px] min-w-[85%] sm:min-w-[300px]'} h-full`}>
