@@ -121,10 +121,15 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
 
 // Enhanced input sanitization middleware with XSS and SQL injection protection
 export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
-  // Admin bulk-action endpoints send SQL-keyword action names ("delete", "restore", etc.)
-  // as legitimate enum values.  XSS protection still runs; only SQL keyword stripping
-  // is bypassed for these fully-authenticated admin routes.
-  const skipSqlPatterns = /^\/api\/admin\/communities\/bulk/.test(req.path);
+  // Certain trusted admin endpoints send SQL-keyword strings as legitimate enum values
+  // (e.g. action:"delete").  XSS protection still runs; only the SQL keyword stripping
+  // block is bypassed for these fully-authenticated, explicitly listed admin routes.
+  const skipSqlPatterns = (
+    req.path === '/api/admin/communities/bulk' ||
+    req.path === '/api/admin/communities/bulk-quality-action' ||
+    (req.method === 'POST' && /^\/api\/admin\/communities\/\d+\/hide$/.test(req.path)) ||
+    (req.method === 'DELETE' && /^\/api\/admin\/communities\/\d+$/.test(req.path))
+  );
 
   const sanitize = (obj: any): any => {
     if (typeof obj === 'string') {
