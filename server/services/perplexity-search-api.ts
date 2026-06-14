@@ -853,10 +853,13 @@ Rules:
 
     // Identify a likely official-site domain (first non-directory result) to flag
     // authentic photos and to drive an optional domain-restricted image search.
+    // Only exclude domains that are genuinely NOT useful for senior living photos/info.
+    // Senior living directories (caring.com, aplaceformom.com, seniorlivingnearme.com,
+    // senioradvisor.com, seniorhousing.net, assistedliving.com, etc.) are VALID sources —
+    // they often have curated community photos and pricing, so we accept them.
     const DIRECTORY_DOMAINS = [
-      'yelp.com', 'tripadvisor.com', 'facebook.com', 'google.com', 'caring.com',
-      'senioradvisor.com', 'aplaceformom.com', 'seniorliving.org', 'wikipedia.org',
-      'apartments.com', 'zillow.com', 'linkedin.com', 'youtube.com', 'instagram.com',
+      'yelp.com', 'tripadvisor.com', 'facebook.com', 'google.com', 'wikipedia.org',
+      'linkedin.com', 'youtube.com', 'instagram.com', 'twitter.com', 'x.com',
     ];
     const officialResult = broad.results.find(
       r => r.domain && !DIRECTORY_DOMAINS.some(d => r.domain.includes(d))

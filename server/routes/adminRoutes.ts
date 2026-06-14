@@ -658,34 +658,73 @@ export function registerAdminRoutes(app: Express) {
         website: community.website,
       });
 
-      // ── PHOTO ENRICHMENT via Jina website scraping ─────────────────────────
+      // ── PHOTO ENRICHMENT via Jina/website scraping (MULTI-SOURCE) ──────────
       // Perplexity Search API returns text snippets, not image files. For real
-      // community photos we scrape the official website directly using Jina Reader,
-      // which handles SPAs and returns og:image meta tags + inline images.
+      // community photos we scrape candidate pages directly (og:image + inline
+      // images). We accept photos from ANY source that has them — the community's
+      // own site AND senior living directories (caring.com, aplaceformom.com,
+      // seniorlivingnearme.com, etc.), which often have the best curated galleries.
       // This always REPLACES existing photos so stale/inaccurate ones are cleared.
-      const officialUrl = result.officialWebsite
-        || (community.website && !['aplaceformom', 'caring.com', 'senioradvisor', 'yelp.com'].some(d => community.website?.includes(d)) ? community.website : null);
+      //
+      // Only social/review sites are skipped — they rarely host real gallery images.
+      const SKIP_PHOTO_DOMAINS = ['yelp.com', 'tripadvisor.com', 'facebook.com', 'instagram.com', 'twitter.com', 'x.com', 'linkedin.com', 'youtube.com'];
+      const isScrapeable = (url: string | null | undefined): url is string => {
+        if (!url || !/^https?:\/\//i.test(url)) return false;
+        let host = '';
+        try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch { return false; }
+        // hostname-based match: exact domain or a subdomain of it (avoids substring false positives)
+        return !SKIP_PHOTO_DOMAINS.some(d => host === d || host.endsWith(`.${d}`));
+      };
+
+      // Build an ordered, de-duplicated list of candidate pages to scrape:
+      // 1. Perplexity's verified official website (best), 2. the stored DB website,
+      // 3. up to 3 of Perplexity's discovered source URLs (directories, etc.).
+      const candidateUrls: string[] = [];
+      const seenHosts = new Set<string>();
+      const addCandidate = (url: string | null | undefined) => {
+        if (!isScrapeable(url)) return;
+        let host = '';
+        try { host = new URL(url).hostname.replace(/^www\./, ''); } catch { return; }
+        if (seenHosts.has(host)) return;
+        seenHosts.add(host);
+        candidateUrls.push(url);
+      };
+      addCandidate(result.officialWebsite);
+      addCandidate(community.website);
+      (result.sources || []).forEach(addCandidate);
 
       let freshPhotoUrls: string[] = [];
       let freshPhotoAttributions: string[] = [];
+      const seenPhotoUrls = new Set<string>();
 
-      if (officialUrl) {
+      // Scrape candidates in order until we have a good gallery (~12+) or run out
+      // (cap at 4 pages to keep the request fast).
+      for (const pageUrl of candidateUrls.slice(0, 4)) {
+        if (freshPhotoUrls.length >= 20) break;
         try {
-          console.log(`📸 [Jina] Scraping photos from ${officialUrl}`);
-          const scraped = await scrapeWebsitePage(officialUrl);
-          if (scraped.images.length > 0) {
-            freshPhotoUrls = scraped.images.slice(0, 20);
-            freshPhotoAttributions = freshPhotoUrls.map(() => {
-              try { return new URL(officialUrl).hostname.replace(/^www\./, ''); } catch { return 'official-site'; }
-            });
-            console.log(`✅ [Jina] Found ${freshPhotoUrls.length} photos from ${officialUrl}`);
-          } else {
-            console.log(`⚠️ [Jina] No photos found at ${officialUrl}`);
+          console.log(`📸 [Jina] Scraping photos from ${pageUrl}`);
+          const scraped = await scrapeWebsitePage(pageUrl);
+          let host = 'web';
+          try { host = new URL(pageUrl).hostname.replace(/^www\./, ''); } catch {}
+          let added = 0;
+          for (const img of scraped.images) {
+            if (freshPhotoUrls.length >= 20) break;
+            if (seenPhotoUrls.has(img)) continue;
+            seenPhotoUrls.add(img);
+            freshPhotoUrls.push(img);
+            freshPhotoAttributions.push(host);
+            added++;
           }
+          console.log(`✅ [Jina] +${added} photos from ${pageUrl} (total ${freshPhotoUrls.length})`);
+          if (freshPhotoUrls.length >= 12) break;
         } catch (photoErr) {
-          console.warn(`⚠️ [Jina] Photo scrape failed for ${officialUrl}:`, photoErr instanceof Error ? photoErr.message : photoErr);
+          console.warn(`⚠️ [Jina] Photo scrape failed for ${pageUrl}:`, photoErr instanceof Error ? photoErr.message : photoErr);
         }
       }
+      if (freshPhotoUrls.length === 0) {
+        console.log(`⚠️ [Jina] No photos found across ${candidateUrls.length} candidate page(s)`);
+      }
+      const officialUrl = result.officialWebsite || community.website || null;
 
       const now = new Date();
       const validUntil = new Date(now.getTime() + ENRICHMENT_CACHE_TTL_MS);

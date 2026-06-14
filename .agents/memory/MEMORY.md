@@ -11,3 +11,4 @@
 - [DB grooming June 2026](db-grooming-june-2026.md) — 2,416 communities hidden (is_hidden=true) + data_quality_flags set; 31,067 remain public; signal keys defined; reverse/restore SQL documented.
 - [Communities Drizzle column drift](communities-drizzle-drift.md) — admin_rating_override in schema but NOT in DB; db.select().from(communities) → 500; use raw sql SELECT * for communities queries until column is migrated.
 - [dnd-kit drag in preview iframe](dnd-kit-iframe-drag.md) — pointer drag silently fails inside Replit preview/Canvas iframe; always add up/down button fallback + in-flight reorder guard.
+- [Photo enrichment sources](photo-enrichment-sources.md) — senior living directories (caring/aplaceformom/seniorlivingnearme) are VALID photo sources; only skip social/review sites; scrape multiple candidate pages.
