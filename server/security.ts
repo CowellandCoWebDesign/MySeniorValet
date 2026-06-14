@@ -42,11 +42,21 @@ export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiti
         req.path.startsWith('/api/communities/coastal') ||
         req.path.startsWith('/api/communities/clusters') ||
         req.path.includes('/spatial') ||
-        req.path.endsWith('/spatial')) {
+        req.path.endsWith('/spatial') ||
+        // Read-only session-check endpoints poll frequently and pose no brute-force risk;
+        // counting them against the budget causes spurious 429s on the login page.
+        (req.method === 'GET' && (req.path === '/api/auth/status' || req.path === '/api/auth/user'))) {
       return next();
     }
     
-    const clientId = req.ip || 'unknown';
+    // Prefer the real browser IP injected by Replit's proxy over req.ip,
+    // which is always 127.0.0.1 in the proxied environment and would make
+    // all users share a single bucket.
+    const forwarded = req.headers['x-forwarded-for'];
+    const realIp = (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null)
+      || req.ip
+      || 'unknown';
+    const clientId = realIp;
     const now = Date.now();
     const windowMs = SECURITY_CONFIG.rateLimiting.windowMs;
     
