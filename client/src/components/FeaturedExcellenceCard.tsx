@@ -303,6 +303,54 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           )}
           {!community.description && <div className="flex-grow" />}
 
+          {/* Consent-gated contact reveal */}
+          {(normalizedPhone || normalizedWebsite) && (
+            <div className="flex items-center gap-2 mb-2 text-xs">
+              {normalizedPhone && (
+                isRevealed('phone') ? (
+                  <a
+                    href={`tel:${normalizedPhone}`}
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                    data-testid={`link-call-${community.id}`}
+                  >
+                    📞 Call
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('phone'); }}
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                    data-testid={`button-call-${community.id}`}
+                  >
+                    <Lock className="w-3 h-3" /> Call
+                  </button>
+                )
+              )}
+              {normalizedWebsite && (
+                isRevealed('website') ? (
+                  <a
+                    href={normalizedWebsiteHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
+                    data-testid={`link-website-${community.id}`}
+                  >
+                    🌐 Website
+                  </a>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('website'); }}
+                    className="flex items-center gap-1 px-2 py-1 rounded bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900/50 transition-colors"
+                    data-testid={`button-website-${community.id}`}
+                  >
+                    <Lock className="w-3 h-3" /> Website
+                  </button>
+                )
+              )}
+            </div>
+          )}
+
           {/* Action buttons */}
           <div className="flex items-center gap-2 mt-auto">
             <Link href={getCommunityUrl(community)} className="flex-1">
