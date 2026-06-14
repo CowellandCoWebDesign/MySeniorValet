@@ -3803,11 +3803,131 @@ Communities Created: ${details.stats.communitiesCreated}`;
           </TabsContent>
 
           <TabsContent value="homepage" className="space-y-4">
+            <MapDefaultCard />
             <HomeSectionsAdmin />
           </TabsContent>
         </Tabs>
       </div>
     </div>
+  );
+}
+
+// ─── Map Default Location Card ───────────────────────────────────────────────
+
+function MapDefaultCard() {
+  const { data, isLoading, refetch } = useQuery<{ lat: number; lng: number; zoom: number }>({
+    queryKey: ['/api/settings/map-defaults'],
+    staleTime: 30_000,
+  });
+  const [lat, setLat] = useState('');
+  const [lng, setLng] = useState('');
+  const [zoom, setZoom] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setLat(String(data.lat));
+      setLng(String(data.lng));
+      setZoom(String(data.zoom));
+    }
+  }, [data]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest('PUT', '/api/admin/settings/map-defaults', {
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        zoom: parseFloat(zoom),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to save');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['/api/settings/map-defaults'] });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Map className="h-5 w-5 text-blue-500" />
+          Map Default Location
+        </CardTitle>
+        <CardDescription>
+          Set the starting center and zoom for fresh visitors to /map-search. Session storage takes
+          priority for returning visitors (2-hour window).
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading current defaults…
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <Label htmlFor="map-lat">Latitude (−90 to 90)</Label>
+                <Input
+                  id="map-lat"
+                  value={lat}
+                  onChange={e => setLat(e.target.value)}
+                  placeholder="37.7749"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="map-lng">Longitude (−180 to 180)</Label>
+                <Input
+                  id="map-lng"
+                  value={lng}
+                  onChange={e => setLng(e.target.value)}
+                  placeholder="-122.4194"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="map-zoom">Zoom Level (1–18)</Label>
+                <Input
+                  id="map-zoom"
+                  type="number"
+                  min="1"
+                  max="18"
+                  value={zoom}
+                  onChange={e => setZoom(e.target.value)}
+                  placeholder="12"
+                />
+              </div>
+            </div>
+            <div className="mt-4 flex items-center gap-3">
+              <Button
+                onClick={() => saveMutation.mutate()}
+                disabled={saveMutation.isPending}
+                className="flex items-center gap-2"
+              >
+                {saveMutation.isPending
+                  ? <Loader2 className="h-4 w-4 animate-spin" />
+                  : <Save className="h-4 w-4" />}
+                Save Map Default
+              </Button>
+              {saved && (
+                <span className="flex items-center gap-1 text-sm text-green-500">
+                  <CheckCircle className="h-4 w-4" /> Saved! Fresh visitors will see this location.
+                </span>
+              )}
+              {saveMutation.isError && (
+                <span className="text-sm text-red-500">{String(saveMutation.error)}</span>
+              )}
+            </div>
+          </>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 

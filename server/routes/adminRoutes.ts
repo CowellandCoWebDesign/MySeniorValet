@@ -3114,6 +3114,28 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Admin: update map default location
+  adminRouter.put('/settings/map-defaults', async (req, res) => {
+    try {
+      const { lat, lng, zoom } = req.body;
+      if (typeof lat !== 'number' || lat < -90 || lat > 90)
+        return res.status(400).json({ error: 'Invalid lat: must be a number between -90 and 90' });
+      if (typeof lng !== 'number' || lng < -180 || lng > 180)
+        return res.status(400).json({ error: 'Invalid lng: must be a number between -180 and 180' });
+      if (typeof zoom !== 'number' || zoom < 1 || zoom > 18)
+        return res.status(400).json({ error: 'Invalid zoom: must be a number between 1 and 18' });
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('map_defaults', ${JSON.stringify({ lat, lng, zoom })}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json({ lat, lng, zoom });
+    } catch (error) {
+      console.error('Error saving map defaults:', error);
+      res.status(500).json({ error: 'Failed to save map defaults' });
+    }
+  });
+
   // Mount admin router
   app.use('/api/admin', adminRouter);
 }

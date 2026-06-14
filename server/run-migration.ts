@@ -13,7 +13,18 @@ export async function runStartupMigrations(): Promise<void> {
   // migrated to the DB. Adding them here so db.select().from(communities) works.
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_override NUMERIC(3,1)`);
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_note TEXT`);
-  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override)');
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS platform_settings (
+      key VARCHAR PRIMARY KEY,
+      value JSONB NOT NULL
+    )
+  `);
+  await db.execute(sql`
+    INSERT INTO platform_settings (key, value)
+    VALUES ('map_defaults', '{"lat":37.7749,"lng":-122.4194,"zoom":12}'::jsonb)
+    ON CONFLICT (key) DO NOTHING
+  `);
+  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings)');
 }
 
 // Allow direct execution: `npx tsx server/run-migration.ts`

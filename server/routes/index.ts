@@ -330,5 +330,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const imageProxyRoutes = await import('./imageProxy');
   app.use('/', imageProxyRoutes.default);
 
+  // Public: admin-configured map default location (no auth — map calls on every fresh load)
+  app.get('/api/settings/map-defaults', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'map_defaults'`);
+      if (result.rows.length > 0) {
+        res.json(result.rows[0].value);
+      } else {
+        res.json({ lat: 37.7749, lng: -122.4194, zoom: 12 });
+      }
+    } catch {
+      res.json({ lat: 37.7749, lng: -122.4194, zoom: 12 });
+    }
+  });
+
   return httpServer;
 }

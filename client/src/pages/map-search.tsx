@@ -143,9 +143,17 @@ export default function MapSearch() {
     }
   };
 
+  // Admin-configured map defaults — used as fallback when no session state exists
+  const { data: adminMapDefaults } = useQuery<{ lat: number; lng: number; zoom: number }>({
+    queryKey: ['/api/settings/map-defaults'],
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+
   // Load saved state from session storage
   const { loadState, saveState } = useMapSessionStorage();
   const savedState = loadState();
+  const hasSavedCenter = useRef(!!savedState?.center);
   
   // Initialize state with saved values or defaults
   const [searchQuery, setSearchQuery] = useState(communityParam || savedState?.searchQuery || initialQuery);
@@ -172,6 +180,16 @@ export default function MapSearch() {
     savedState?.center || [37.7749, -122.4194] // Use saved center or default to SF
   );
   const [mapZoom, setMapZoom] = useState(savedState?.zoom || 12); // Use saved zoom or default
+
+  // Apply admin-configured default once loaded — only for fresh visitors with no session state
+  useEffect(() => {
+    if (hasSavedCenter.current) return; // session state takes priority
+    if (adminMapDefaults) {
+      setMapCenter([adminMapDefaults.lat, adminMapDefaults.lng]);
+      setMapZoom(adminMapDefaults.zoom);
+    }
+  }, [adminMapDefaults]);
+
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(savedState?.bounds || null);
   const [showBottomPanel, setShowBottomPanel] = useState(savedState?.showBottomPanel || false);
