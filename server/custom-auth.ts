@@ -16,6 +16,7 @@ import MemoryStore from 'memorystore';
 import connectPg from 'connect-pg-simple';
 import type { Express } from 'express';
 import { validatePassword } from './auth/password-validator';
+import { authLimiter, createRateLimitMiddleware } from './infrastructure/rateLimiter';
 import { 
   generateTOTPSecret, 
   verifyTOTP, 
@@ -316,8 +317,8 @@ export function setupCustomAuth(app: Express) {
     }
   });
   
-  // Login
-  router.post('/api/auth/login', async (req, res) => {
+  // Login — exempted from the global rate limiter but protected by its own dedicated authLimiter
+  router.post('/api/auth/login', createRateLimitMiddleware(authLimiter), async (req, res) => {
     try {
       const { email, password, totpCode, backupCode } = req.body;
       

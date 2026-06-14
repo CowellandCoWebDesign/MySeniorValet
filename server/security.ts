@@ -43,6 +43,11 @@ export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiti
         req.path.startsWith('/api/communities/clusters') ||
         req.path.includes('/spatial') ||
         req.path.endsWith('/spatial') ||
+        // Map data: read-only, fires on every pan/zoom — rate-limiting causes "Failed to load communities"
+        req.path.startsWith('/api/communities/map-data') ||
+        // Login: has its own dedicated brute-force limiter (authLimiter); blocking login via the
+        // global budget (exhausted by normal map/search activity) locks legitimate users out
+        (req.method === 'POST' && req.originalUrl.startsWith('/api/auth/login')) ||
         // Read-only session-check endpoints poll frequently and pose no brute-force risk;
         // counting them against the budget causes spurious 429s on the login page.
         // NOTE: req.path inside app.use('/api', ...) is the subpath without '/api',

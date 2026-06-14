@@ -94,9 +94,11 @@ app.use(securityDashboard.middleware());
 
 // Apply rate limiting only to API routes (excluding map operations)
 app.use('/api', (req, res, next) => {
-  // Skip rate limiting for map operations and clusters
+  // Skip rate limiting for map operations, clusters, and login
   if (req.path.includes('/clusters') || 
-      req.path.includes('/spatial')) {
+      req.path.includes('/spatial') ||
+      req.path.includes('/map-data') ||
+      (req.method === 'POST' && req.path.startsWith('/auth/login'))) {
     return next();
   }
   return createRateLimit()(req, res, next);
