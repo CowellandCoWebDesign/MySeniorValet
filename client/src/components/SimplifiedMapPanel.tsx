@@ -388,9 +388,27 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
         <div className="flex-1 min-w-0">
           <AutocompleteSearch
             value={searchValue}
-            onChange={setSearchValue}
+            onChange={(val) => {
+              setSearchValue(val);
+              if (!val.trim()) {
+                // Input was cleared — remove ?location= and reset map immediately
+                const url = new URL(window.location.href);
+                url.searchParams.delete('location');
+                window.history.replaceState(null, '', url.toString());
+                setMapCenter([40.52, -122.1]);
+                setMapZoom(9);
+              }
+            }}
             onSubmit={(query) => {
-              if (!query.trim()) return;
+              if (!query.trim()) {
+                // Safety guard for keyboard submit on empty field
+                const url = new URL(window.location.href);
+                url.searchParams.delete('location');
+                window.history.replaceState(null, '', url.toString());
+                setMapCenter([40.52, -122.1]);
+                setMapZoom(9);
+                return;
+              }
               // Write ?location= to URL without creating a new history entry
               const param = toLocationParam(query);
               const url = new URL(window.location.href);
