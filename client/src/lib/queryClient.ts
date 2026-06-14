@@ -47,10 +47,10 @@ export const queryClient = new QueryClient({
       queryFn: getQueryFn({ on401: "throw" }),
       refetchInterval: false,
       refetchOnWindowFocus: false,
-      staleTime: 0, // Disable all caching for fresh auth data
-      gcTime: 0, // Don't keep cached data
-      refetchOnMount: true, // Always refetch on mount
-      refetchOnReconnect: true, // Always refetch on reconnect
+      refetchOnMount: true,
+      refetchOnReconnect: false,
+      staleTime: 60 * 1000,    // 1 minute default — prevents floods on re-mount
+      gcTime: 5 * 60 * 1000,  // 5 minutes garbage collection
       retry: false,
     },
     mutations: {
@@ -59,11 +59,9 @@ export const queryClient = new QueryClient({
   },
 });
 
-// Function to clear all authentication caches
+// Invalidate auth caches and force a fresh fetch on next access (e.g. after login/logout)
 export const clearAuthCaches = () => {
   queryClient.invalidateQueries({ queryKey: ['/api/auth/status'] });
   queryClient.invalidateQueries({ queryKey: ['/api/auth/user'] });
-  queryClient.removeQueries({ queryKey: ['/api/auth/status'] });
-  queryClient.removeQueries({ queryKey: ['/api/auth/user'] });
   console.log('✅ Auth caches cleared');
 };

@@ -1,13 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+
+const AUTH_STALE_TIME = 5 * 60 * 1000; // 5 minutes
+const AUTH_GC_TIME = 10 * 60 * 1000;   // 10 minutes
 
 export function useAuth() {
-  // Check authentication status from both Replit OAuth and bypass
   const { data: authStatus, isLoading: statusLoading } = useQuery({
     queryKey: ["/api/auth/status"],
     queryFn: async () => {
       try {
         const response = await fetch("/api/auth/status", {
-          credentials: "include", // Include cookies with request
+          credentials: "include",
         });
         const data = await response.json();
         return data;
@@ -16,19 +18,19 @@ export function useAuth() {
       }
     },
     retry: false,
-    staleTime: 0, // NO CACHE - always fetch fresh
-    gcTime: 0, // NO CACHE - don't keep stale data
-    refetchOnMount: true, // Always refetch on mount
-    refetchOnReconnect: true, // Always refetch on reconnect
+    staleTime: AUTH_STALE_TIME,
+    gcTime: AUTH_GC_TIME,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
-  
-  // ALWAYS fetch full user data including role when authenticated
+
   const { data: fullUser, isLoading: userLoading } = useQuery({
     queryKey: ["/api/auth/user"],
     queryFn: async () => {
       try {
         const response = await fetch("/api/auth/user", {
-          credentials: "include", // Include cookies with request
+          credentials: "include",
         });
         if (!response.ok) return null;
         const userData = await response.json();
@@ -39,18 +41,18 @@ export function useAuth() {
       }
     },
     retry: false,
-    enabled: authStatus?.isAuthenticated === true, // CHANGED: Fetch when authenticated to get role
-    staleTime: 0, // NO CACHE - always fetch fresh
-    gcTime: 0, // NO CACHE - don't keep stale data
-    refetchOnMount: true, // Always refetch on mount
-    refetchOnReconnect: true, // Always refetch on reconnect
+    enabled: authStatus?.isAuthenticated === true,
+    staleTime: AUTH_STALE_TIME,
+    gcTime: AUTH_GC_TIME,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   });
-  
-  // Use fullUser when available as it has the complete data including role
+
   const user = fullUser || authStatus?.user;
   const isLoading = statusLoading || (userLoading && authStatus?.isAuthenticated);
   const isAuthenticated = !!(authStatus?.isAuthenticated || fullUser);
-  
+
   return {
     user,
     isLoading,
