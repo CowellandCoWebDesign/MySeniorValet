@@ -607,8 +607,22 @@ export function registerAdminRoutes(app: Express) {
       }
       const forceRefresh = req.body?.forceRefresh === true;
 
+      // Explicit-column select (not a full-table `select()`) so the query never
+      // depends on every column in the Drizzle schema being present in the DB.
+      // Only the fields this endpoint actually reads are selected.
       const [community] = await db
-        .select()
+        .select({
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          state: communities.state,
+          website: communities.website,
+          websiteProtected: communities.websiteProtected,
+          description: communities.description,
+          photos: communities.photos,
+          enrichmentData: communities.enrichmentData,
+          lastSuccessfulEnrichment: communities.lastSuccessfulEnrichment,
+        })
         .from(communities)
         .where(eq(communities.id, communityId))
         .limit(1);
