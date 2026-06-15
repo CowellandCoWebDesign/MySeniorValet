@@ -2218,7 +2218,6 @@ export default function MapSearch() {
                       key={`community-${community.id}`}
                       community={community}
                       index={index}
-                      disableAutoPhotoLoad={true}
                     />
                   </div>
                 ))}

@@ -135,6 +135,7 @@ class SuperclusterService {
         WHERE 
           latitude IS NOT NULL 
           AND longitude IS NOT NULL
+          AND (is_hidden IS NULL OR is_hidden = false)
           AND CAST(latitude AS float) >= ${bbox[1]}
           AND CAST(latitude AS float) <= ${bbox[3]}
           AND CAST(longitude AS float) >= ${bbox[0]}
@@ -201,6 +202,7 @@ class SuperclusterService {
           WHERE 
             latitude IS NOT NULL 
             AND longitude IS NOT NULL
+            AND (is_hidden IS NULL OR is_hidden = false)
             AND CAST(latitude AS float) >= ${bbox[1]}
             AND CAST(latitude AS float) <= ${bbox[3]}
             AND CAST(longitude AS float) >= ${bbox[0]}
@@ -266,6 +268,7 @@ class SuperclusterService {
           WHERE 
             latitude IS NOT NULL 
             AND longitude IS NOT NULL
+            AND (is_hidden IS NULL OR is_hidden = false)
             AND CAST(latitude AS float) >= ${bbox[1]}
             AND CAST(latitude AS float) <= ${bbox[3]}
             AND CAST(longitude AS float) >= ${bbox[0]}
@@ -314,6 +317,7 @@ class SuperclusterService {
           WHERE 
             latitude IS NOT NULL 
             AND longitude IS NOT NULL
+            AND (is_hidden IS NULL OR is_hidden = false)
             AND CAST(latitude AS float) >= ${bbox[1]}
             AND CAST(latitude AS float) <= ${bbox[3]}
             AND CAST(longitude AS float) >= ${bbox[0]}
@@ -385,6 +389,7 @@ class SuperclusterService {
         .where(
           and(
             sql`${communities.isActive} = true`,
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
             isNotNull(communities.latitude),
             isNotNull(communities.longitude),
             sql`CAST(${communities.latitude} AS float) >= ${bbox[1]}`,
@@ -453,6 +458,7 @@ class SuperclusterService {
           AVG(CAST(longitude AS float)) as lng
         FROM communities
         WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+          AND (is_hidden IS NULL OR is_hidden = false)
         GROUP BY city, state
         HAVING COUNT(*) > 50
         ORDER BY count DESC
@@ -481,11 +487,30 @@ class SuperclusterService {
   }
 
   /**
-   * Refresh caches
+   * Invalidate all supercluster caches immediately.
+   * Clears both in-memory service maps and the shared cache store entries
+   * (keys prefixed with cities:, state:, region:, local:).
+   * Call this after any admin hide/unhide action so the map reflects the
+   * change on the next request rather than waiting for TTL expiry.
    */
-  async refresh(): Promise<void> {
+  async invalidateCache(): Promise<void> {
     this.regionalCaches.clear();
     this.zoomLevelClusters.clear();
+    this.citySummaries.clear();
+    await Promise.all([
+      cache.deleteByPrefix('cities:'),
+      cache.deleteByPrefix('state:'),
+      cache.deleteByPrefix('region:'),
+      cache.deleteByPrefix('local:'),
+    ]);
+    console.log('Supercluster caches invalidated');
+  }
+
+  /**
+   * Refresh caches (reinitializes city summaries after invalidation)
+   */
+  async refresh(): Promise<void> {
+    await this.invalidateCache();
     await this.initializeCitySummaries();
     console.log('Supercluster caches refreshed');
   }

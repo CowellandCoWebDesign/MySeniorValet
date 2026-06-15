@@ -37,6 +37,7 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import { clearAllCommunityCaches } from "../infrastructure/cache";
+import { superclusterService } from "../services/supercluster";
 
 // Community photos are stored on disk under public/uploads/community-photos/<id>/
 // and served publicly via the existing express.static('public') middleware in server/index.ts.
@@ -2401,6 +2402,7 @@ export function registerAdminRoutes(app: Express) {
       if (!updated) return res.status(404).json({ message: 'Community not found' });
       clearAllCommunityCaches();
       communityStatsCache.invalidateCache();
+      superclusterService.invalidateCache().catch((err: any) => console.error('Supercluster cache invalidation error:', err));
       res.json({ message: 'Community hidden', community: updated });
     } catch (error) {
       console.error('Error hiding community:', error);
@@ -2419,6 +2421,7 @@ export function registerAdminRoutes(app: Express) {
       if (!updated) return res.status(404).json({ message: 'Community not found' });
       clearAllCommunityCaches();
       communityStatsCache.invalidateCache();
+      superclusterService.invalidateCache().catch((err: any) => console.error('Supercluster cache invalidation error:', err));
       res.json({ message: 'Community unhidden', community: updated });
     } catch (error) {
       console.error('Error unhiding community:', error);

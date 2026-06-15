@@ -101,6 +101,25 @@ class CacheManager {
     }
   }
 
+  async deleteByPrefix(prefix: string): Promise<void> {
+    try {
+      if (this.redis) {
+        const keys = await this.redis.keys(`${prefix}*`);
+        if (keys.length > 0) {
+          await this.redis.del(...keys);
+        }
+      } else {
+        for (const key of this.memoryCache.keys()) {
+          if (key.startsWith(prefix)) {
+            this.memoryCache.delete(key);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Cache deleteByPrefix error:', error);
+    }
+  }
+
   // Get cache statistics
   getStats() {
     return {
