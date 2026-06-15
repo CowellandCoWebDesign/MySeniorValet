@@ -5,6 +5,7 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
+      isolatedModules: true,
       tsconfig: {
         jsx: 'react',
         esModuleInterop: true,
