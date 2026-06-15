@@ -246,6 +246,8 @@ export function registerCommunityRoutes(app: Express) {
           }
         } else if (t === 'coastal') {
           r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+        } else if (t === 'most_reviewed') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "review_count" IS NOT NULL AND "review_count" > 0${ex} ORDER BY "review_count" DESC NULLS LAST LIMIT ${lim}`);
         } else if (t === 'recently_discovered') {
           r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex} ORDER BY "created_at" DESC LIMIT ${lim}`);
         } else if (t === 'location') {

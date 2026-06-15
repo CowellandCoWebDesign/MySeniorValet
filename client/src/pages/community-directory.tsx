@@ -148,7 +148,7 @@ export default function CommunityDirectory() {
   const sortTypeMap: Record<string, string> = {
     'newest': 'recently_discovered',
     'highest-rated': 'highest_rated',
-    'most-reviewed': 'trending',
+    'most-reviewed': 'most_reviewed',
   };
   const activeSortType = sortTypeMap[pageSettings?.defaultSort ?? 'newest'] ?? 'recently_discovered';
 
