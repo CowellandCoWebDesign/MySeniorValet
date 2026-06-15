@@ -509,6 +509,11 @@ export function registerAdminRoutes(app: Express) {
         .set(updateValues)
         .where(inArray(communities.id, communityIds));
 
+      if (action === 'hide' || action === 'delete') {
+        clearAllCommunityCaches();
+        communityStatsCache.invalidateCache();
+      }
+
       console.log(`Admin bulk action: ${action} on ${communityIds.length} communities by ${req.user?.email}`);
       res.json({ success: true, affected: communityIds.length, action });
     } catch (error) {
