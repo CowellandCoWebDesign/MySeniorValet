@@ -6,8 +6,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BreadcrumbNavigation } from '@/components/BreadcrumbNavigation';
-import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, Star, TrendingUp, Sparkles } from 'lucide-react';
+import { ShoppingCart, Pill, Car, Stethoscope, Phone, Home, DollarSign, ExternalLink, Star, TrendingUp, Sparkles, Pin, Megaphone } from 'lucide-react';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
+
+interface ServicesPageSettings {
+  featuredBannerEnabled: boolean;
+  heroText: string;
+  pinnedVendorIds: number[];
+}
 
 interface MarketplaceCategory {
   id: number;
@@ -43,6 +49,12 @@ const iconMap: Record<string, any> = {
 export default function VendorMarketplace() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  // Fetch admin page settings (public endpoint, no auth required)
+  const { data: pageSettings } = useQuery<ServicesPageSettings>({
+    queryKey: ['/api/settings/services-page'],
+    staleTime: 60_000,
+  });
+
   // Fetch categories
   const { data: categories = [] } = useQuery<MarketplaceCategory[]>({
     queryKey: ['/api/marketplace/categories'],
@@ -53,13 +65,17 @@ export default function VendorMarketplace() {
     queryKey: ['/api/vendors'],
   });
 
-  // Filter vendors by category (vendors now come from main vendor system)
-  const filteredVendors = selectedCategory === 'all' 
-    ? vendors 
-    : vendors.filter(v => {
-        // Check if vendor's service categories include the selected category
-        return v.serviceCategories?.includes(selectedCategory);
-      });
+  // Fetch pinned vendors by their IDs (if any are configured)
+  const pinnedIds = pageSettings?.pinnedVendorIds ?? [];
+  const pinnedVendors = pinnedIds.length > 0
+    ? (vendors as any[]).filter(v => pinnedIds.includes(v.id))
+    : [];
+
+  // Filter vendors by category, excluding pinned vendors to prevent duplicate rendering
+  const filteredVendors = (selectedCategory === 'all'
+    ? vendors
+    : vendors.filter(v => v.serviceCategories?.includes(selectedCategory))
+  ).filter((v: any) => !pinnedIds.includes(v.id));
 
   // Group vendors by subscription tier
   const nationalVendors = filteredVendors.filter(v => v.subscriptionTier === 'national');
@@ -84,6 +100,17 @@ export default function VendorMarketplace() {
         type="website"
       />
       
+      {/* Admin-configured featured banner */}
+      {pageSettings?.featuredBannerEnabled && (
+        <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3">
+          <div className="container mx-auto px-4 flex items-center justify-center gap-2 text-center">
+            <Megaphone className="h-4 w-4 flex-shrink-0" />
+            <span className="font-medium">Featured Services</span>
+            {pageSettings.heroText && <span className="opacity-90">— {pageSettings.heroText}</span>}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="container mx-auto px-4">
@@ -94,7 +121,9 @@ export default function VendorMarketplace() {
           </Link>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Senior Services & Vendor Marketplace</h1>
           <p className="text-xl opacity-90 mb-8">
-            Researched and discovered services and products to support your senior living journey
+            {pageSettings?.heroText && !pageSettings?.featuredBannerEnabled
+              ? pageSettings.heroText
+              : 'Researched and discovered services and products to support your senior living journey'}
           </p>
           
           {/* Statistics Row */}
@@ -165,6 +194,41 @@ export default function VendorMarketplace() {
           </TabsList>
 
           <TabsContent value={selectedCategory} className="mt-6">
+            {/* Admin-pinned vendors */}
+            {pinnedVendors.length > 0 && (
+              <div className="mb-10">
+                <h2 className="text-2xl font-bold mb-4 flex items-center">
+                  <Pin className="w-5 h-5 mr-2 text-orange-500" />
+                  Editor's Picks
+                </h2>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {pinnedVendors.map((vendor: any) => (
+                    <Card
+                      key={`pinned-${vendor.id}`}
+                      className="hover:shadow-xl transition-all cursor-pointer border-2 border-orange-400 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20"
+                      onClick={() => handleVendorClick(vendor.id)}
+                    >
+                      <CardHeader>
+                        <CardTitle className="text-xl flex items-center gap-2">
+                          {vendor.businessName}
+                          <Badge className="bg-orange-500 text-white">Editor's Pick</Badge>
+                        </CardTitle>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          {vendor.description || 'Recommended senior service provider'}
+                        </p>
+                      </CardHeader>
+                      <CardContent>
+                        <Button className="w-full group bg-orange-500 hover:bg-orange-600">
+                          Visit {vendor.businessName}
+                          <ExternalLink className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* National Partners (Premium) */}
             {nationalVendors.length > 0 && (
               <div className="mb-10">

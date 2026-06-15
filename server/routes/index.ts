@@ -346,5 +346,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public: Services page settings
+  app.get('/api/settings/services-page', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'services_page_settings'`);
+      res.json(result.rows.length > 0 ? result.rows[0].value : { featuredBannerEnabled: false, heroText: '', pinnedVendorIds: [] });
+    } catch {
+      res.json({ featuredBannerEnabled: false, heroText: '', pinnedVendorIds: [] });
+    }
+  });
+
+  // Public: Healthcare page settings
+  app.get('/api/settings/healthcare-page', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'healthcare_page_settings'`);
+      res.json(result.rows.length > 0 ? result.rows[0].value : { featuredBannerEnabled: false, heroText: '', pinnedProviderIds: [] });
+    } catch {
+      res.json({ featuredBannerEnabled: false, heroText: '', pinnedProviderIds: [] });
+    }
+  });
+
+  // Public: Directory page settings
+  app.get('/api/settings/directory-page', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'directory_page_settings'`);
+      res.json(result.rows.length > 0 ? result.rows[0].value : { defaultSort: 'newest', promoBannerEnabled: false, promoBannerText: '', pinnedCommunityIds: [] });
+    } catch {
+      res.json({ defaultSort: 'newest', promoBannerEnabled: false, promoBannerText: '', pinnedCommunityIds: [] });
+    }
+  });
+
   return httpServer;
 }

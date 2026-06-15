@@ -3167,6 +3167,81 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Admin: update Services page settings
+  adminRouter.put('/settings/services-page', async (req, res) => {
+    try {
+      const { featuredBannerEnabled, heroText, pinnedVendorIds } = req.body;
+      if (typeof featuredBannerEnabled !== 'boolean')
+        return res.status(400).json({ error: 'featuredBannerEnabled must be boolean' });
+      if (typeof heroText !== 'string')
+        return res.status(400).json({ error: 'heroText must be a string' });
+      if (!Array.isArray(pinnedVendorIds))
+        return res.status(400).json({ error: 'pinnedVendorIds must be an array' });
+      const validIds = pinnedVendorIds.map(Number).filter(n => !isNaN(n) && n > 0);
+      const value = { featuredBannerEnabled, heroText: heroText.trim(), pinnedVendorIds: validIds };
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('services_page_settings', ${JSON.stringify(value)}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json(value);
+    } catch (error) {
+      console.error('Error saving services page settings:', error);
+      res.status(500).json({ error: 'Failed to save services page settings' });
+    }
+  });
+
+  // Admin: update Healthcare page settings
+  adminRouter.put('/settings/healthcare-page', async (req, res) => {
+    try {
+      const { featuredBannerEnabled, heroText, pinnedProviderIds } = req.body;
+      if (typeof featuredBannerEnabled !== 'boolean')
+        return res.status(400).json({ error: 'featuredBannerEnabled must be boolean' });
+      if (typeof heroText !== 'string')
+        return res.status(400).json({ error: 'heroText must be a string' });
+      if (!Array.isArray(pinnedProviderIds))
+        return res.status(400).json({ error: 'pinnedProviderIds must be an array' });
+      const validIds = pinnedProviderIds.map(Number).filter(n => !isNaN(n) && n > 0);
+      const value = { featuredBannerEnabled, heroText: heroText.trim(), pinnedProviderIds: validIds };
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('healthcare_page_settings', ${JSON.stringify(value)}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json(value);
+    } catch (error) {
+      console.error('Error saving healthcare page settings:', error);
+      res.status(500).json({ error: 'Failed to save healthcare page settings' });
+    }
+  });
+
+  // Admin: update Directory page settings
+  adminRouter.put('/settings/directory-page', async (req, res) => {
+    try {
+      const { defaultSort, promoBannerEnabled, promoBannerText, pinnedCommunityIds } = req.body;
+      const validSorts = ['newest', 'highest-rated', 'most-reviewed'];
+      if (!validSorts.includes(defaultSort))
+        return res.status(400).json({ error: `defaultSort must be one of: ${validSorts.join(', ')}` });
+      if (typeof promoBannerEnabled !== 'boolean')
+        return res.status(400).json({ error: 'promoBannerEnabled must be boolean' });
+      if (typeof promoBannerText !== 'string')
+        return res.status(400).json({ error: 'promoBannerText must be a string' });
+      if (!Array.isArray(pinnedCommunityIds))
+        return res.status(400).json({ error: 'pinnedCommunityIds must be an array' });
+      const validIds = pinnedCommunityIds.map(Number).filter(n => !isNaN(n) && n > 0).slice(0, 5);
+      const value = { defaultSort, promoBannerEnabled, promoBannerText: promoBannerText.trim(), pinnedCommunityIds: validIds };
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('directory_page_settings', ${JSON.stringify(value)}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json(value);
+    } catch (error) {
+      console.error('Error saving directory page settings:', error);
+      res.status(500).json({ error: 'Failed to save directory page settings' });
+    }
+  });
+
   // Mount admin router
   app.use('/api/admin', adminRouter);
 }

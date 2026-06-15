@@ -24,7 +24,22 @@ export async function runStartupMigrations(): Promise<void> {
     VALUES ('map_defaults', '{"lat":37.7749,"lng":-122.4194,"zoom":12}'::jsonb)
     ON CONFLICT (key) DO NOTHING
   `);
-  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings)');
+  await db.execute(sql`
+    INSERT INTO platform_settings (key, value)
+    VALUES ('services_page_settings', '{"featuredBannerEnabled":false,"heroText":"","pinnedVendorIds":[]}'::jsonb)
+    ON CONFLICT (key) DO NOTHING
+  `);
+  await db.execute(sql`
+    INSERT INTO platform_settings (key, value)
+    VALUES ('healthcare_page_settings', '{"featuredBannerEnabled":false,"heroText":"","pinnedProviderIds":[]}'::jsonb)
+    ON CONFLICT (key) DO NOTHING
+  `);
+  await db.execute(sql`
+    INSERT INTO platform_settings (key, value)
+    VALUES ('directory_page_settings', '{"defaultSort":"newest","promoBannerEnabled":false,"promoBannerText":"","pinnedCommunityIds":[]}'::jsonb)
+    ON CONFLICT (key) DO NOTHING
+  `);
+  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings)');
 }
 
 // Allow direct execution: `npx tsx server/run-migration.ts`

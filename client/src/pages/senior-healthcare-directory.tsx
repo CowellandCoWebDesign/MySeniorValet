@@ -30,6 +30,12 @@ interface HealthcareService {
   badge?: string;
 }
 
+interface HealthcarePageSettings {
+  featuredBannerEnabled: boolean;
+  heroText: string;
+  pinnedProviderIds: number[];
+}
+
 export default function SeniorHealthcareDirectory() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
@@ -42,6 +48,12 @@ export default function SeniorHealthcareDirectory() {
   const [filterRating, setFilterRating] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filteredResultsCount, setFilteredResultsCount] = useState(0);
+
+  // Fetch admin page settings (public endpoint, no auth required)
+  const { data: pageSettings } = useQuery<HealthcarePageSettings>({
+    queryKey: ['/api/settings/healthcare-page'],
+    staleTime: 60_000,
+  });
 
   // Fetch care services data - get ALL services without limit for proper categorization
   const { data: careServicesData, isLoading: servicesLoading } = useQuery({
@@ -73,7 +85,13 @@ export default function SeniorHealthcareDirectory() {
 
   const services = (careServicesData as any)?.services || [];
   const hospitals = (hospitalsData as any)?.hospitals || [];
-  
+
+  // Derive pinned providers from admin settings
+  const pinnedProviderIds: number[] = pageSettings?.pinnedProviderIds ?? [];
+  const pinnedProviders = pinnedProviderIds.length > 0
+    ? services.filter((s: any) => pinnedProviderIds.includes(s.id))
+    : [];
+
   // Categorize real services for display
   const homeHealthServices = services.filter((s: any) => 
     s.serviceCategory === 'Home Care Services' || 
@@ -533,6 +551,59 @@ export default function SeniorHealthcareDirectory() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <NavigationHeader />
+      {/* Admin-configured featured providers banner */}
+      {pageSettings?.featuredBannerEnabled && (
+        <div className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white py-3">
+          <div className="max-w-6xl mx-auto px-4 flex items-center justify-center gap-2 text-center">
+            <Heart className="h-4 w-4 flex-shrink-0" />
+            <span className="font-medium">Featured Providers</span>
+            {pageSettings.heroText && <span className="opacity-90">— {pageSettings.heroText}</span>}
+          </div>
+        </div>
+      )}
+      {/* Admin-pinned featured provider cards */}
+      {pinnedProviders.length > 0 && (
+        <section className="px-4 py-8 bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50 dark:from-gray-900 dark:via-teal-950/20 dark:to-gray-900">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center gap-3 mb-5">
+              <Star className="w-6 h-6 text-teal-600" />
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Featured Healthcare Providers</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Highlighted by our editorial team</p>
+              </div>
+              <Badge className="ml-auto bg-teal-600 text-white">Editor's Picks</Badge>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pinnedProviders.map((provider: any) => (
+                <div
+                  key={provider.id}
+                  className="bg-white dark:bg-gray-800 rounded-xl border border-teal-200 dark:border-teal-800/40 shadow p-4 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-teal-100 dark:bg-teal-900/40 flex items-center justify-center shrink-0">
+                      <Stethoscope className="h-5 w-5 text-teal-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-sm text-gray-900 dark:text-white leading-tight">{provider.name}</p>
+                      {provider.serviceCategory && (
+                        <Badge variant="outline" className="mt-1 text-xs text-teal-700 border-teal-300">{provider.serviceCategory}</Badge>
+                      )}
+                      {provider.description && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{provider.description}</p>
+                      )}
+                      {provider.city && (
+                        <p className="text-xs text-gray-400 mt-1 flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />{[provider.city, provider.state].filter(Boolean).join(', ')}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
       <main>
       {/* Page Header */}
       <section className="px-4 py-12 bg-gradient-to-r from-teal-600 via-blue-600 to-indigo-600">
@@ -546,7 +617,9 @@ export default function SeniorHealthcareDirectory() {
               Senior Healthcare Services Directory
             </h1>
             <p className="text-xl text-blue-100 max-w-3xl mx-auto mb-8">
-              Connect with {totalProviders?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area
+              {pageSettings?.heroText && !pageSettings?.featuredBannerEnabled
+                ? pageSettings.heroText
+                : `Connect with ${totalProviders?.toLocaleString() || '4,210'}+ verified healthcare and caregiving services in your area`}
             </p>
             
             {/* Enhanced Stats Cards with Real Data Variety */}

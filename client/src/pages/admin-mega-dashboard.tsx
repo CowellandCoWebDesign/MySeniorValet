@@ -3611,6 +3611,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <LayoutDashboard className="h-4 w-4 mr-2" />
               Home Page
             </TabsTrigger>
+            <TabsTrigger value="otherpages">
+              <Layers className="h-4 w-4 mr-2" />
+              Other Pages
+            </TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
@@ -3911,6 +3915,12 @@ Communities Created: ${details.stats.communitiesCreated}`;
             <MapDefaultCard />
             <HomeSectionsAdmin />
           </TabsContent>
+
+          <TabsContent value="otherpages" className="space-y-4">
+            <ServicesPageSettingsCard />
+            <HealthcarePageSettingsCard />
+            <DirectoryPageSettingsCard />
+          </TabsContent>
         </Tabs>
       </div>
     </div>
@@ -4030,6 +4040,349 @@ function MapDefaultCard() {
               )}
             </div>
           </>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Services Page Settings Card ────────────────────────────────────────────
+
+interface ServicesPageSettings {
+  featuredBannerEnabled: boolean;
+  heroText: string;
+  pinnedVendorIds: number[];
+}
+
+function ServicesPageSettingsCard() {
+  const { data, isLoading, refetch } = useQuery<ServicesPageSettings>({
+    queryKey: ['/api/settings/services-page'],
+    staleTime: 30_000,
+  });
+  const [featuredBannerEnabled, setFeaturedBannerEnabled] = useState(false);
+  const [heroText, setHeroText] = useState('');
+  const [pinnedVendorIds, setPinnedVendorIds] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setFeaturedBannerEnabled(data.featuredBannerEnabled ?? false);
+      setHeroText(data.heroText ?? '');
+      setPinnedVendorIds((data.pinnedVendorIds ?? []).join(', '));
+    }
+  }, [data]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const ids = pinnedVendorIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
+      const res = await apiRequest('PUT', '/api/admin/settings/services-page', {
+        featuredBannerEnabled,
+        heroText,
+        pinnedVendorIds: ids,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to save');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['/api/settings/services-page'] });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Store className="h-5 w-5 text-purple-500" />
+          Services / Marketplace Page
+        </CardTitle>
+        <CardDescription>
+          Control the featured banner, hero message, and pinned vendors shown at the top of the marketplace page.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading settings…
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Switch
+                id="services-banner"
+                checked={featuredBannerEnabled}
+                onCheckedChange={setFeaturedBannerEnabled}
+              />
+              <Label htmlFor="services-banner">Show "Featured Services" banner on marketplace page</Label>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="services-hero">Hero / Call-to-Action Text</Label>
+              <Input
+                id="services-hero"
+                value={heroText}
+                onChange={e => setHeroText(e.target.value)}
+                placeholder="e.g. Discover trusted senior services near you"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="services-pinned">Pinned Vendor IDs (comma-separated)</Label>
+              <Input
+                id="services-pinned"
+                value={pinnedVendorIds}
+                onChange={e => setPinnedVendorIds(e.target.value)}
+                placeholder="e.g. 12, 45, 78"
+              />
+              <p className="text-xs text-muted-foreground">These vendors will appear pinned at the top of the marketplace listing.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="flex items-center gap-2">
+                {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save Services Settings
+              </Button>
+              {saved && <span className="flex items-center gap-1 text-sm text-green-500"><CheckCircle className="h-4 w-4" /> Saved!</span>}
+              {saveMutation.isError && <span className="text-sm text-red-500">{String(saveMutation.error)}</span>}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Healthcare Page Settings Card ──────────────────────────────────────────
+
+interface HealthcarePageSettings {
+  featuredBannerEnabled: boolean;
+  heroText: string;
+  pinnedProviderIds: number[];
+}
+
+function HealthcarePageSettingsCard() {
+  const { data, isLoading, refetch } = useQuery<HealthcarePageSettings>({
+    queryKey: ['/api/settings/healthcare-page'],
+    staleTime: 30_000,
+  });
+  const [featuredBannerEnabled, setFeaturedBannerEnabled] = useState(false);
+  const [heroText, setHeroText] = useState('');
+  const [pinnedProviderIds, setPinnedProviderIds] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setFeaturedBannerEnabled(data.featuredBannerEnabled ?? false);
+      setHeroText(data.heroText ?? '');
+      setPinnedProviderIds((data.pinnedProviderIds ?? []).join(', '));
+    }
+  }, [data]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const ids = pinnedProviderIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
+      const res = await apiRequest('PUT', '/api/admin/settings/healthcare-page', {
+        featuredBannerEnabled,
+        heroText,
+        pinnedProviderIds: ids,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to save');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['/api/settings/healthcare-page'] });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Heart className="h-5 w-5 text-teal-500" />
+          Healthcare Providers Page
+        </CardTitle>
+        <CardDescription>
+          Control the featured banner, hero notice, and pinned provider listings shown at the top of the healthcare directory.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading settings…
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Switch
+                id="healthcare-banner"
+                checked={featuredBannerEnabled}
+                onCheckedChange={setFeaturedBannerEnabled}
+              />
+              <Label htmlFor="healthcare-banner">Show "Featured Providers" section on healthcare page</Label>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="healthcare-hero">Page Notice / Hero Text</Label>
+              <Input
+                id="healthcare-hero"
+                value={heroText}
+                onChange={e => setHeroText(e.target.value)}
+                placeholder="e.g. Connecting seniors with trusted healthcare partners"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="healthcare-pinned">Pinned Provider IDs (comma-separated)</Label>
+              <Input
+                id="healthcare-pinned"
+                value={pinnedProviderIds}
+                onChange={e => setPinnedProviderIds(e.target.value)}
+                placeholder="e.g. 5, 22, 91"
+              />
+              <p className="text-xs text-muted-foreground">These care service providers will appear pinned at the top of the healthcare listing.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="flex items-center gap-2">
+                {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save Healthcare Settings
+              </Button>
+              {saved && <span className="flex items-center gap-1 text-sm text-green-500"><CheckCircle className="h-4 w-4" /> Saved!</span>}
+              {saveMutation.isError && <span className="text-sm text-red-500">{String(saveMutation.error)}</span>}
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ─── Directory Page Settings Card ───────────────────────────────────────────
+
+interface DirectoryPageSettings {
+  defaultSort: string;
+  promoBannerEnabled: boolean;
+  promoBannerText: string;
+  pinnedCommunityIds: number[];
+}
+
+function DirectoryPageSettingsCard() {
+  const { data, isLoading, refetch } = useQuery<DirectoryPageSettings>({
+    queryKey: ['/api/settings/directory-page'],
+    staleTime: 30_000,
+  });
+  const [defaultSort, setDefaultSort] = useState('newest');
+  const [promoBannerEnabled, setPromoBannerEnabled] = useState(false);
+  const [promoBannerText, setPromoBannerText] = useState('');
+  const [pinnedCommunityIds, setPinnedCommunityIds] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (data) {
+      setDefaultSort(data.defaultSort ?? 'newest');
+      setPromoBannerEnabled(data.promoBannerEnabled ?? false);
+      setPromoBannerText(data.promoBannerText ?? '');
+      setPinnedCommunityIds((data.pinnedCommunityIds ?? []).join(', '));
+    }
+  }, [data]);
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const ids = pinnedCommunityIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0).slice(0, 5);
+      const res = await apiRequest('PUT', '/api/admin/settings/directory-page', {
+        defaultSort,
+        promoBannerEnabled,
+        promoBannerText,
+        pinnedCommunityIds: ids,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to save');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      refetch();
+      queryClient.invalidateQueries({ queryKey: ['/api/settings/directory-page'] });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    },
+  });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Building2 className="h-5 w-5 text-blue-500" />
+          Communities Directory Page
+        </CardTitle>
+        <CardDescription>
+          Set the default sort order, toggle a promotional banner, and pin up to 5 communities to the top of the directory.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" /> Loading settings…
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="dir-sort">Default Sort Order</Label>
+              <Select value={defaultSort} onValueChange={setDefaultSort}>
+                <SelectTrigger id="dir-sort" className="w-56">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="highest-rated">Highest Rated</SelectItem>
+                  <SelectItem value="most-reviewed">Most Reviewed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center gap-3">
+              <Switch
+                id="dir-promo"
+                checked={promoBannerEnabled}
+                onCheckedChange={setPromoBannerEnabled}
+              />
+              <Label htmlFor="dir-promo">Show promotional banner on directory page</Label>
+            </div>
+            {promoBannerEnabled && (
+              <div className="space-y-1">
+                <Label htmlFor="dir-promo-text">Promotional Banner Text</Label>
+                <Input
+                  id="dir-promo-text"
+                  value={promoBannerText}
+                  onChange={e => setPromoBannerText(e.target.value)}
+                  placeholder="e.g. New communities added weekly — explore them now!"
+                />
+              </div>
+            )}
+            <div className="space-y-1">
+              <Label htmlFor="dir-pinned">Pinned Community IDs (up to 5, comma-separated)</Label>
+              <Input
+                id="dir-pinned"
+                value={pinnedCommunityIds}
+                onChange={e => setPinnedCommunityIds(e.target.value)}
+                placeholder="e.g. 101, 204, 388, 512, 701"
+              />
+              <p className="text-xs text-muted-foreground">These communities will appear pinned at the top of the directory. Maximum 5 communities.</p>
+            </div>
+            <div className="flex items-center gap-3">
+              <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="flex items-center gap-2">
+                {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Save Directory Settings
+              </Button>
+              {saved && <span className="flex items-center gap-1 text-sm text-green-500"><CheckCircle className="h-4 w-4" /> Saved!</span>}
+              {saveMutation.isError && <span className="text-sm text-red-500">{String(saveMutation.error)}</span>}
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>

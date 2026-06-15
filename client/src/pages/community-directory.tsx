@@ -56,6 +56,13 @@ const stateNames: Record<string, string> = {
   'PR': 'Puerto Rico', 'VI': 'Virgin Islands', 'GU': 'Guam'
 };
 
+interface DirectoryPageSettings {
+  defaultSort: string;
+  promoBannerEnabled: boolean;
+  promoBannerText: string;
+  pinnedCommunityIds: number[];
+}
+
 export default function CommunityDirectory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedState, setSelectedState] = useState("");
@@ -63,6 +70,12 @@ export default function CommunityDirectory() {
   
   // 3D Carousel state
   const [currentRotation, setCurrentRotation] = useState(0);
+
+  // Fetch admin page settings (public endpoint, no auth required)
+  const { data: pageSettings } = useQuery<DirectoryPageSettings>({
+    queryKey: ['/api/settings/directory-page'],
+    staleTime: 60_000,
+  });
   
   // Check for location query parameter and scroll to section
   useEffect(() => {
@@ -101,7 +114,59 @@ export default function CommunityDirectory() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
-  
+
+  // Derive pinned community IDs from admin settings
+  const pinnedCommunityIds: number[] = pageSettings?.pinnedCommunityIds ?? [];
+
+  // Fetch each pinned community by ID
+  const { data: pinnedCommunitiesRaw } = useQuery({
+    queryKey: ['/api/communities/pinned-list', pinnedCommunityIds],
+    queryFn: async () => {
+      if (pinnedCommunityIds.length === 0) return [];
+      const results = await Promise.all(
+        pinnedCommunityIds.map(id =>
+          fetch(`/api/communities/${id}`, { credentials: 'include' })
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null)
+        )
+      );
+      return results.filter(Boolean);
+    },
+    enabled: pinnedCommunityIds.length > 0,
+    staleTime: 60_000,
+  });
+
+  // Sort pinned communities by admin-configured default sort
+  const pinnedCommunities = [...((pinnedCommunitiesRaw as any[]) ?? [])].sort((a, b) => {
+    const sort = pageSettings?.defaultSort ?? 'newest';
+    if (sort === 'highest-rated') return (b.rating ?? 0) - (a.rating ?? 0);
+    if (sort === 'most-reviewed') return (b.reviewCount ?? b.review_count ?? 0) - (a.reviewCount ?? a.review_count ?? 0);
+    return 0;
+  });
+
+  // Map admin defaultSort to the section-data API type
+  const sortTypeMap: Record<string, string> = {
+    'newest': 'recently_discovered',
+    'highest-rated': 'highest_rated',
+    'most-reviewed': 'trending',
+  };
+  const activeSortType = sortTypeMap[pageSettings?.defaultSort ?? 'newest'] ?? 'recently_discovered';
+
+  // Fetch main directory listing driven by defaultSort
+  const { data: sortedListingRaw, isLoading: sortedListingLoading } = useQuery({
+    queryKey: ['/api/communities/section-data', activeSortType],
+    queryFn: async () => {
+      const r = await fetch(`/api/communities/section-data?type=${activeSortType}&limit=12`, { credentials: 'include' });
+      if (!r.ok) throw new Error('Failed to fetch sorted communities');
+      return await r.json();
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Exclude pinned communities from the main listing to avoid duplicates
+  const sortedListing: any[] = ((sortedListingRaw as any)?.communities ?? sortedListingRaw ?? [])
+    .filter((c: any) => !pinnedCommunityIds.includes(c.id));
+
   const checkScrollPosition = () => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
@@ -761,6 +826,15 @@ export default function CommunityDirectory() {
         </script>
       </Helmet>
       <NavigationHeader />
+      {/* Admin-configured promotional banner */}
+      {pageSettings?.promoBannerEnabled && pageSettings.promoBannerText && (
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3">
+          <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-2 text-center">
+            <Sparkles className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium">{pageSettings.promoBannerText}</span>
+          </div>
+        </div>
+      )}
       <main>
       {/* Hero Section with Stats */}
       <section className="relative py-16 bg-gradient-to-br from-blue-900 via-blue-800 to-purple-900 overflow-hidden">
@@ -913,6 +987,136 @@ export default function CommunityDirectory() {
           </div>
         </div>
       </section>
+
+      {/* ★ ADMIN-PINNED RECOMMENDED COMMUNITIES ★ */}
+      {pinnedCommunities.length > 0 && (
+        <section className="px-4 py-10 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-amber-950/20 dark:to-gray-900">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <Trophy className="w-7 h-7 text-amber-500" />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Recommended Communities</h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {pageSettings?.defaultSort === 'highest-rated' ? 'Sorted by highest rating' :
+                   pageSettings?.defaultSort === 'most-reviewed' ? 'Sorted by most reviews' :
+                   'Curated by our team'}
+                </p>
+              </div>
+              <Badge className="ml-auto bg-amber-500 text-white">Editor's Picks</Badge>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {pinnedCommunities.map((community: any) => (
+                <a
+                  key={community.id}
+                  href={getCommunityUrl(community)}
+                  className="block group bg-white dark:bg-gray-800 rounded-xl border border-amber-200 dark:border-amber-800/40 shadow hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 overflow-hidden"
+                >
+                  {community.photos?.[0] && (
+                    <div className="h-36 overflow-hidden">
+                      <img src={community.photos[0]} alt={community.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    </div>
+                  )}
+                  <div className="p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">{community.name}</p>
+                      {community.rating && (
+                        <span className="flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-400 shrink-0">
+                          <Star className="h-3 w-3 fill-current" />{Number(community.rating).toFixed(1)}
+                        </span>
+                      )}
+                    </div>
+                    {(community.city || community.state) && (
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />{[community.city, community.state].filter(Boolean).join(', ')}
+                      </p>
+                    )}
+                    {community.basePrice && (
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        From ${Number(community.basePrice).toLocaleString()}/mo
+                      </p>
+                    )}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ★ ADMIN-SORTED DIRECTORY LISTING ★ */}
+      {(sortedListing.length > 0 || sortedListingLoading) && (
+        <section className="px-4 py-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+          <div className="max-w-7xl mx-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <TrendingUp className="w-6 h-6 text-indigo-600" />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {pageSettings?.defaultSort === 'highest-rated' ? 'Top Rated Communities' :
+                   pageSettings?.defaultSort === 'most-reviewed' ? 'Most Popular Communities' :
+                   'Recently Added Communities'}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {pageSettings?.defaultSort === 'highest-rated' ? 'Sorted by highest community rating' :
+                   pageSettings?.defaultSort === 'most-reviewed' ? 'Sorted by popularity & reviews' :
+                   'Latest communities added to our database'}
+                </p>
+              </div>
+              <Badge className="ml-auto bg-indigo-600 text-white capitalize">
+                {pageSettings?.defaultSort === 'highest-rated' ? 'Highest Rated' :
+                 pageSettings?.defaultSort === 'most-reviewed' ? 'Most Popular' : 'Newest First'}
+              </Badge>
+            </div>
+            {sortedListingLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="bg-gray-100 dark:bg-gray-800 rounded-xl h-52 animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {sortedListing.slice(0, 12).map((community: any) => (
+                  <a
+                    key={community.id}
+                    href={getCommunityUrl(community)}
+                    className="block group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 overflow-hidden"
+                  >
+                    {community.photos?.[0] && (
+                      <div className="h-32 overflow-hidden">
+                        <img src={community.photos[0]} alt={community.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">{community.name}</p>
+                        {community.rating && (
+                          <span className="flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-400 shrink-0">
+                            <Star className="h-3 w-3 fill-current" />{Number(community.rating).toFixed(1)}
+                          </span>
+                        )}
+                      </div>
+                      {(community.city || community.state) && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                          <MapPin className="h-3 w-3" />{[community.city, community.state].filter(Boolean).join(', ')}
+                        </p>
+                      )}
+                      {community.basePrice && (
+                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                          From ${Number(community.basePrice).toLocaleString()}/mo
+                        </p>
+                      )}
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
+            <div className="mt-6 text-center">
+              <a href="/map-search" className="inline-flex items-center text-indigo-600 dark:text-indigo-400 hover:underline text-sm font-medium">
+                View all communities <ChevronRight className="h-4 w-4 ml-1" />
+              </a>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ★ RECENTLY DISCOVERED COMMUNITIES CAROUSEL ★ */}
       <section className="px-4 py-12 bg-gradient-to-br from-indigo-950 via-blue-950 to-purple-950">
