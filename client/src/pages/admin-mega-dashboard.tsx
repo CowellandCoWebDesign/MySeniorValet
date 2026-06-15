@@ -717,7 +717,7 @@ export default function AdminMegaDashboard() {
   const [communitySubTab, setCommunitySubTab] = useState<'listings' | 'quality' | 'flags'>('listings');
   const [pendingFlagId, setPendingFlagId] = useState<number | null>(null);
   const [selectedFlagIds, setSelectedFlagIds] = useState<Set<number>>(new Set());
-  const { data: listingFlagsData, isLoading: flagsLoading } = useQuery({
+  const { data: listingFlagsData, isLoading: flagsLoading, refetch: refetchFlags } = useQuery({
     queryKey: ['/api/admin/listing-flags', flagStatusFilter],
     queryFn: async () => {
       const params = new URLSearchParams({ status: flagStatusFilter, limit: '30' });
@@ -740,7 +740,7 @@ export default function AdminMegaDashboard() {
     },
   });
   
-  const { data: filteredCommunities } = useQuery({
+  const { data: filteredCommunities, refetch: refetchCommunities } = useQuery({
     queryKey: ['/api/admin/communities', currentPage, searchQuery, stateFilter, countryFilter, typeFilter, verificationFilter],
     queryFn: async () => {
       const params = new URLSearchParams({
@@ -897,8 +897,10 @@ export default function AdminMegaDashboard() {
         title: "Community Removed",
         description: "The community has been hidden and deactivated.",
       });
+      refetchCommunities();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           typeof query.queryKey[0] === 'string' &&
@@ -933,8 +935,10 @@ export default function AdminMegaDashboard() {
     },
     onSuccess: () => {
       toast({ title: "Community Hidden", description: "The listing is no longer visible to the public." });
+      refetchCommunities();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           typeof query.queryKey[0] === 'string' &&
@@ -949,6 +953,9 @@ export default function AdminMegaDashboard() {
           (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
       });
     },
+    onError: (error: any) => {
+      toast({ title: "Hide Failed", description: error.message || "Failed to hide community.", variant: "destructive" });
+    },
   });
 
   const unhideCommunityMutation = useMutation({
@@ -957,8 +964,10 @@ export default function AdminMegaDashboard() {
     },
     onSuccess: () => {
       toast({ title: "Community Restored", description: "The listing is now visible to the public." });
+      refetchCommunities();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           typeof query.queryKey[0] === 'string' &&
@@ -971,6 +980,9 @@ export default function AdminMegaDashboard() {
           (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
       });
     },
+    onError: (error: any) => {
+      toast({ title: "Restore Failed", description: error.message || "Failed to restore community.", variant: "destructive" });
+    },
   });
 
   const verifyCommunityMutation = useMutation({
@@ -979,14 +991,19 @@ export default function AdminMegaDashboard() {
     },
     onSuccess: () => {
       toast({ title: "Community Verified", description: "The listing has been marked as verified." });
+      refetchCommunities();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
       queryClient.invalidateQueries({
         predicate: (q) =>
           typeof q.queryKey?.[0] === 'string' &&
           (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
       });
+    },
+    onError: (error: any) => {
+      toast({ title: "Verify Failed", description: error.message || "Failed to verify community.", variant: "destructive" });
     },
   });
 
@@ -998,12 +1015,20 @@ export default function AdminMegaDashboard() {
       const label = action === 'verify' ? 'Verified' : action === 'hide' ? 'Hidden' : 'Deleted';
       toast({ title: `Bulk ${label}`, description: `${ids.length} communit${ids.length === 1 ? 'y' : 'ies'} ${label.toLowerCase()} successfully.` });
       setSelectedMegaIds(new Set());
+      refetchCommunities();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           typeof query.queryKey[0] === 'string' &&
           (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
+      queryClient.invalidateQueries({
+        predicate: (q) =>
+          typeof q.queryKey?.[0] === 'string' &&
+          (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
       });
     },
     onError: (error: any) => {
@@ -1042,17 +1067,31 @@ export default function AdminMegaDashboard() {
     },
     onSuccess: () => {
       toast({ title: "Community Hidden & Report Cleared" });
+      refetchFlags();
+      refetchCommunities();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           typeof query.queryKey[0] === 'string' &&
           (query.queryKey[0] as string).startsWith('/api/communities'),
       });
     },
-    onError: () => toast({ title: "Hide Failed", description: "Could not hide the community.", variant: "destructive" }),
+    onError: (error: any) => {
+      let message = "Could not hide the community.";
+      try {
+        const jsonMatch = error?.message?.match(/^\d+: (.+)$/s);
+        if (jsonMatch) {
+          const body = JSON.parse(jsonMatch[1]);
+          if (body?.error) message = body.error;
+          else if (body?.message) message = body.message;
+        }
+      } catch (_) {}
+      toast({ title: "Hide Failed", description: message, variant: "destructive" });
+    },
   });
 
   // Combined delete-community + dismiss-flag used exclusively from the flag queue
@@ -1063,10 +1102,13 @@ export default function AdminMegaDashboard() {
     },
     onSuccess: () => {
       toast({ title: "Community Deleted & Report Cleared" });
+      refetchFlags();
+      refetchCommunities();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           typeof query.queryKey[0] === 'string' &&
@@ -1096,9 +1138,11 @@ export default function AdminMegaDashboard() {
       const label = action === 'dismiss' ? 'dismissed' : action === 'confirm' ? 'confirmed' : 'confirmed & hidden';
       toast({ title: "Bulk Action Complete", description: `${ids.length} flag${ids.length !== 1 ? 's' : ''} ${label}.` });
       setSelectedFlagIds(new Set());
+      refetchFlags();
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/dashboard/stats'] });
       queryClient.invalidateQueries({
         predicate: (query) =>
           typeof query.queryKey[0] === 'string' &&
@@ -4489,8 +4533,10 @@ function QualityControlPanel() {
       setConfirmDelete(false);
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/quality-flagged'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/quality-flagged-count'] });
+      refetch();
     },
     onError: (err: any) => {
+      setConfirmDelete(false);
       toast({ title: 'Action failed', description: err.message, variant: 'destructive' });
     },
   });

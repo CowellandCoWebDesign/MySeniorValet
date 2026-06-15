@@ -118,9 +118,23 @@ export default function AdminCommunityEdit() {
 
   const invalidateAll = () => {
     qc.invalidateQueries({ queryKey: ["/api/admin/communities"] });
+    qc.invalidateQueries({ queryKey: ["/api/admin/communities", communityId] });
     qc.invalidateQueries({ queryKey: ["/api/communities"] });
     qc.invalidateQueries({ queryKey: [`/api/communities/${communityId}`] });
     qc.invalidateQueries({ queryKey: ["/api/communities/by-slug"] });
+    qc.invalidateQueries({
+      predicate: (query) =>
+        typeof query.queryKey[0] === 'string' &&
+        (query.queryKey[0] as string).startsWith('/api/communities'),
+    });
+    qc.invalidateQueries({ queryKey: ["/api/home-sections/active"] });
+    qc.invalidateQueries({
+      predicate: (q) =>
+        typeof q.queryKey?.[0] === 'string' &&
+        (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
+    });
+    qc.invalidateQueries({ queryKey: ["/api/admin/dashboard/stats"] });
+    qc.invalidateQueries({ queryKey: ["/api/admin/communities/stats"] });
   };
 
   const updateMutation = useMutation({

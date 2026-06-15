@@ -2811,6 +2811,8 @@ export function registerAdminRoutes(app: Express) {
       const photos = await getCommunityPhotos(communityId);
       photos.push(publicUrl);
       await db.update(communities).set({ photos, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
 
       res.json({ success: true, url: publicUrl, photos });
     } catch (error) {
@@ -2833,6 +2835,8 @@ export function registerAdminRoutes(app: Express) {
       if (photos.includes(url)) return res.status(400).json({ error: 'Photo already exists' });
       photos.push(url);
       await db.update(communities).set({ photos, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ success: true, photos });
     } catch (error) {
       res.status(500).json({ error: 'Failed to add photo' });
@@ -2862,6 +2866,8 @@ export function registerAdminRoutes(app: Express) {
         }
       } catch (_) {}
 
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ success: true, photos: next });
     } catch (error) {
       res.status(500).json({ error: 'Failed to remove photo' });
@@ -2883,6 +2889,8 @@ export function registerAdminRoutes(app: Express) {
       if (!valid || newOrder.length !== current.length) return res.status(400).json({ error: 'Invalid photo list — must contain same URLs as existing set' });
 
       await db.update(communities).set({ photos: newOrder, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ success: true, photos: newOrder });
     } catch (error) {
       res.status(500).json({ error: 'Failed to reorder photos' });
@@ -2903,6 +2911,8 @@ export function registerAdminRoutes(app: Express) {
 
       const next = [url, ...photos.filter(p => p !== url)];
       await db.update(communities).set({ photos: next, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ success: true, photos: next });
     } catch (error) {
       res.status(500).json({ error: 'Failed to set primary photo' });
