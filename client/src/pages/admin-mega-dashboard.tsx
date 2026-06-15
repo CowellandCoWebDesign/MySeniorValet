@@ -4046,6 +4046,135 @@ function MapDefaultCard() {
   );
 }
 
+// ─── Searchable Pinned-Item Picker ──────────────────────────────────────────
+
+interface PickerItem { id: number; name: string; }
+
+interface SearchablePickerProps {
+  value: PickerItem[];
+  onChange: (items: PickerItem[]) => void;
+  fetchResults: (q: string) => Promise<PickerItem[]>;
+  label: string;
+  helpText?: string;
+  maxItems?: number;
+  placeholder?: string;
+}
+
+function SearchablePicker({ value, onChange, fetchResults, label, helpText, maxItems, placeholder }: SearchablePickerProps) {
+  const [query, setQuery] = React.useState('');
+  const [results, setResults] = React.useState<PickerItem[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
+  const search = (q: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!q.trim()) { setResults([]); setOpen(false); return; }
+    debounceRef.current = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const items = await fetchResults(q.trim());
+        setResults(items);
+        setOpen(true);
+      } catch { setResults([]); }
+      finally { setLoading(false); }
+    }, 300);
+  };
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+    search(e.target.value);
+  };
+
+  const select = (item: PickerItem) => {
+    if (maxItems && value.length >= maxItems) return;
+    if (value.some(v => v.id === item.id)) return;
+    onChange([...value, item]);
+    setQuery('');
+    setResults([]);
+    setOpen(false);
+  };
+
+  const remove = (id: number) => onChange(value.filter(v => v.id !== id));
+
+  const atMax = maxItems != null && value.length >= maxItems;
+
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+      <div className="flex flex-wrap gap-2 min-h-[36px]">
+        {value.map(item => (
+          <Badge key={item.id} variant="secondary" className="flex items-center gap-1 px-2 py-1 text-sm">
+            <span className="font-medium">{item.name}</span>
+            <span className="text-muted-foreground text-xs">#{item.id}</span>
+            <button
+              type="button"
+              onClick={() => remove(item.id)}
+              className="ml-1 rounded-full hover:bg-muted p-0.5"
+              aria-label={`Remove ${item.name}`}
+            >
+              <X className="h-3 w-3" />
+            </button>
+          </Badge>
+        ))}
+      </div>
+      {!atMax && (
+        <div ref={containerRef} className="relative">
+          <div className="relative">
+            {loading
+              ? <Loader2 className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground animate-spin" />
+              : <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />}
+            <Input
+              value={query}
+              onChange={handleInput}
+              onFocus={() => { if (results.length) setOpen(true); }}
+              placeholder={placeholder ?? 'Type to search…'}
+              className="pl-8"
+            />
+          </div>
+          {open && results.length > 0 && (
+            <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md max-h-56 overflow-y-auto">
+              {results.map(item => {
+                const already = value.some(v => v.id === item.id);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    disabled={already}
+                    onClick={() => select(item)}
+                    className={`w-full text-left px-3 py-2 text-sm flex items-center justify-between hover:bg-accent ${already ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    <span>{item.name}</span>
+                    <span className="text-muted-foreground text-xs">#{item.id}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          {open && !loading && results.length === 0 && query.trim() && (
+            <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md px-3 py-2 text-sm text-muted-foreground">
+              No results for "{query}"
+            </div>
+          )}
+        </div>
+      )}
+      {helpText && <p className="text-xs text-muted-foreground">{helpText}</p>}
+      {atMax && <p className="text-xs text-amber-500">Maximum of {maxItems} items selected.</p>}
+    </div>
+  );
+}
+
 // ─── Services Page Settings Card ────────────────────────────────────────────
 
 interface ServicesPageSettings {
@@ -4061,24 +4190,29 @@ function ServicesPageSettingsCard() {
   });
   const [featuredBannerEnabled, setFeaturedBannerEnabled] = useState(false);
   const [heroText, setHeroText] = useState('');
-  const [pinnedVendorIds, setPinnedVendorIds] = useState('');
+  const [pinnedVendors, setPinnedVendors] = useState<PickerItem[]>([]);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (data) {
       setFeaturedBannerEnabled(data.featuredBannerEnabled ?? false);
       setHeroText(data.heroText ?? '');
-      setPinnedVendorIds((data.pinnedVendorIds ?? []).join(', '));
+      setPinnedVendors((data.pinnedVendorIds ?? []).map(id => ({ id, name: `#${id}` })));
     }
   }, [data]);
 
+  const fetchVendors = async (q: string): Promise<PickerItem[]> => {
+    const res = await apiRequest('GET', `/api/admin/vendors?search=${encodeURIComponent(q)}&limit=15`);
+    const json = await res.json();
+    return (json.vendors ?? []).map((v: any) => ({ id: v.id, name: v.business_name || v.businessName || `Vendor #${v.id}` }));
+  };
+
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const ids = pinnedVendorIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
       const res = await apiRequest('PUT', '/api/admin/settings/services-page', {
         featuredBannerEnabled,
         heroText,
-        pinnedVendorIds: ids,
+        pinnedVendorIds: pinnedVendors.map(v => v.id),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -4129,16 +4263,14 @@ function ServicesPageSettingsCard() {
                 placeholder="e.g. Discover trusted senior services near you"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="services-pinned">Pinned Vendor IDs (comma-separated)</Label>
-              <Input
-                id="services-pinned"
-                value={pinnedVendorIds}
-                onChange={e => setPinnedVendorIds(e.target.value)}
-                placeholder="e.g. 12, 45, 78"
-              />
-              <p className="text-xs text-muted-foreground">These vendors will appear pinned at the top of the marketplace listing.</p>
-            </div>
+            <SearchablePicker
+              value={pinnedVendors}
+              onChange={setPinnedVendors}
+              fetchResults={fetchVendors}
+              label="Pinned Vendors"
+              helpText="These vendors will appear pinned at the top of the marketplace listing."
+              placeholder="Search vendors by name…"
+            />
             <div className="flex items-center gap-3">
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="flex items-center gap-2">
                 {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -4169,24 +4301,33 @@ function HealthcarePageSettingsCard() {
   });
   const [featuredBannerEnabled, setFeaturedBannerEnabled] = useState(false);
   const [heroText, setHeroText] = useState('');
-  const [pinnedProviderIds, setPinnedProviderIds] = useState('');
+  const [pinnedProviders, setPinnedProviders] = useState<PickerItem[]>([]);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     if (data) {
       setFeaturedBannerEnabled(data.featuredBannerEnabled ?? false);
       setHeroText(data.heroText ?? '');
-      setPinnedProviderIds((data.pinnedProviderIds ?? []).join(', '));
+      setPinnedProviders((data.pinnedProviderIds ?? []).map(id => ({ id, name: `#${id}` })));
     }
   }, [data]);
 
+  const fetchProviders = async (q: string): Promise<PickerItem[]> => {
+    const res = await fetch(`/api/care-services/search?q=${encodeURIComponent(q)}&limit=15`);
+    if (!res.ok) return [];
+    const json = await res.json();
+    return (json.services ?? []).map((s: any) => ({
+      id: s.id,
+      name: s.city ? `${s.name} — ${s.city}` : s.name,
+    }));
+  };
+
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const ids = pinnedProviderIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
       const res = await apiRequest('PUT', '/api/admin/settings/healthcare-page', {
         featuredBannerEnabled,
         heroText,
-        pinnedProviderIds: ids,
+        pinnedProviderIds: pinnedProviders.map(p => p.id),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -4237,16 +4378,14 @@ function HealthcarePageSettingsCard() {
                 placeholder="e.g. Connecting seniors with trusted healthcare partners"
               />
             </div>
-            <div className="space-y-1">
-              <Label htmlFor="healthcare-pinned">Pinned Provider IDs (comma-separated)</Label>
-              <Input
-                id="healthcare-pinned"
-                value={pinnedProviderIds}
-                onChange={e => setPinnedProviderIds(e.target.value)}
-                placeholder="e.g. 5, 22, 91"
-              />
-              <p className="text-xs text-muted-foreground">These care service providers will appear pinned at the top of the healthcare listing.</p>
-            </div>
+            <SearchablePicker
+              value={pinnedProviders}
+              onChange={setPinnedProviders}
+              fetchResults={fetchProviders}
+              label="Pinned Providers"
+              helpText="These care service providers will appear pinned at the top of the healthcare listing."
+              placeholder="Search providers by name…"
+            />
             <div className="flex items-center gap-3">
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="flex items-center gap-2">
                 {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -4279,7 +4418,7 @@ function DirectoryPageSettingsCard() {
   const [defaultSort, setDefaultSort] = useState('newest');
   const [promoBannerEnabled, setPromoBannerEnabled] = useState(false);
   const [promoBannerText, setPromoBannerText] = useState('');
-  const [pinnedCommunityIds, setPinnedCommunityIds] = useState('');
+  const [pinnedCommunities, setPinnedCommunities] = useState<PickerItem[]>([]);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -4287,18 +4426,26 @@ function DirectoryPageSettingsCard() {
       setDefaultSort(data.defaultSort ?? 'newest');
       setPromoBannerEnabled(data.promoBannerEnabled ?? false);
       setPromoBannerText(data.promoBannerText ?? '');
-      setPinnedCommunityIds((data.pinnedCommunityIds ?? []).join(', '));
+      setPinnedCommunities((data.pinnedCommunityIds ?? []).map(id => ({ id, name: `#${id}` })));
     }
   }, [data]);
 
+  const fetchCommunities = async (q: string): Promise<PickerItem[]> => {
+    const res = await apiRequest('GET', `/api/admin/communities?search=${encodeURIComponent(q)}&limit=15`);
+    const json = await res.json();
+    return (json.communities ?? []).map((c: any) => ({
+      id: c.id,
+      name: c.city ? `${c.name} — ${c.city}` : c.name,
+    }));
+  };
+
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const ids = pinnedCommunityIds.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0).slice(0, 5);
       const res = await apiRequest('PUT', '/api/admin/settings/directory-page', {
         defaultSort,
         promoBannerEnabled,
         promoBannerText,
-        pinnedCommunityIds: ids,
+        pinnedCommunityIds: pinnedCommunities.map(c => c.id),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -4364,16 +4511,15 @@ function DirectoryPageSettingsCard() {
                 />
               </div>
             )}
-            <div className="space-y-1">
-              <Label htmlFor="dir-pinned">Pinned Community IDs (up to 5, comma-separated)</Label>
-              <Input
-                id="dir-pinned"
-                value={pinnedCommunityIds}
-                onChange={e => setPinnedCommunityIds(e.target.value)}
-                placeholder="e.g. 101, 204, 388, 512, 701"
-              />
-              <p className="text-xs text-muted-foreground">These communities will appear pinned at the top of the directory. Maximum 5 communities.</p>
-            </div>
+            <SearchablePicker
+              value={pinnedCommunities}
+              onChange={setPinnedCommunities}
+              fetchResults={fetchCommunities}
+              label="Pinned Communities"
+              helpText="These communities will appear pinned at the top of the directory."
+              maxItems={5}
+              placeholder="Search communities by name…"
+            />
             <div className="flex items-center gap-3">
               <Button onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending} className="flex items-center gap-2">
                 {saveMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}

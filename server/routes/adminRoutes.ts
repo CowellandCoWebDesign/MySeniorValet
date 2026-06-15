@@ -310,10 +310,12 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { page = 1, limit = 50, tier, search } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+      const searchTerm = search ? `%${String(search).toLowerCase()}%` : null;
 
       // Get all vendors with their details using raw SQL
       const vendorsResult = await db.execute(sql`
         SELECT * FROM vendors
+        ${searchTerm ? sql`WHERE LOWER(business_name) LIKE ${searchTerm} OR LOWER(primary_contact_name) LIKE ${searchTerm}` : sql``}
         ORDER BY created_at DESC
         LIMIT ${parseInt(limit as string)}
         OFFSET ${offset}

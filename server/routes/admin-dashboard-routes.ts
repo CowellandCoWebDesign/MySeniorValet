@@ -3,7 +3,8 @@
 
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { communities, users, messages, vendors, auditLogs, communitySubscriptions, vendorSubscriptions } from '../../shared/schema';
+import { communities, users, messages, vendors, marketplaceVendors, auditLogs, communitySubscriptions, vendorSubscriptions } from '../../shared/schema';
+import { ilike } from 'drizzle-orm';
 import { eq, sql, desc, and, gte, lte, count, avg, sum, not, isNull } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
 import { performanceMonitor } from '../infrastructure/performance-monitor';
@@ -1196,6 +1197,32 @@ router.post('/api/admin/data-quality/deactivate-non-senior', requireAuth, requir
   } catch (error) {
     console.error('Error running non-senior deactivation:', error);
     res.status(500).json({ error: 'Deactivation failed', details: String(error) });
+  }
+});
+
+// ========== MARKETPLACE VENDOR SEARCH (for pinned vendor picker) ==========
+
+router.get('/api/admin/marketplace-vendors', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
+  try {
+    const search = (req.query.search as string || '').trim();
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+
+    const conditions: any[] = [];
+    if (search) {
+      conditions.push(ilike(marketplaceVendors.name, `%${search}%`));
+    }
+
+    const results = await db
+      .select({ id: marketplaceVendors.id, name: marketplaceVendors.name, slug: marketplaceVendors.slug })
+      .from(marketplaceVendors)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(marketplaceVendors.name)
+      .limit(limit);
+
+    res.json({ vendors: results });
+  } catch (error) {
+    console.error('Error searching marketplace vendors:', error);
+    res.status(500).json({ error: 'Failed to search vendors' });
   }
 });
 
