@@ -513,6 +513,7 @@ export function registerAdminRoutes(app: Express) {
       if (action === 'hide' || action === 'delete') {
         clearAllCommunityCaches();
         communityStatsCache.invalidateCache();
+        superclusterService.refresh().catch((err: any) => console.error('Supercluster refresh error:', err));
       }
 
       console.log(`Admin bulk action: ${action} on ${communityIds.length} communities by ${req.user?.email}`);
@@ -2530,6 +2531,9 @@ export function registerAdminRoutes(app: Express) {
       const affected = (result as any)?.rowCount ?? communityIds.length;
       clearAllCommunityCaches();
       communityStatsCache.invalidateCache();
+      if (action === 'delete' || action === 'restore') {
+        superclusterService.refresh().catch((err: any) => console.error('Supercluster refresh error:', err));
+      }
       res.json({ success: true, affected });
     } catch (error) {
       console.error('Error performing bulk quality action:', error);
@@ -2583,6 +2587,7 @@ export function registerAdminRoutes(app: Express) {
       if (action === 'confirm-and-hide') {
         clearAllCommunityCaches();
         communityStatsCache.invalidateCache();
+        superclusterService.refresh().catch((err: any) => console.error('Supercluster refresh error:', err));
       }
       res.json({ message: `${ids.length} flag(s) processed` });
     } catch (error) {
