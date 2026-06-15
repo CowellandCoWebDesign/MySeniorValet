@@ -952,6 +952,12 @@ export default function AdminMegaDashboard() {
           typeof query.queryKey[0] === 'string' &&
           (query.queryKey[0] as string).startsWith('/api/communities'),
       });
+      queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
+      queryClient.invalidateQueries({
+        predicate: (q) =>
+          typeof q.queryKey?.[0] === 'string' &&
+          (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
+      });
     },
   });
 
