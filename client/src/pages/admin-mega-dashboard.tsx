@@ -906,6 +906,12 @@ export default function AdminMegaDashboard() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
+      queryClient.invalidateQueries({
+        predicate: (q) =>
+          typeof q.queryKey?.[0] === 'string' &&
+          (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
+      });
     },
     onError: (error: any) => {
       let message = "Failed to delete community.";
@@ -936,6 +942,12 @@ export default function AdminMegaDashboard() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
+      queryClient.invalidateQueries({
+        predicate: (q) =>
+          typeof q.queryKey?.[0] === 'string' &&
+          (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
+      });
     },
   });
 
@@ -969,6 +981,12 @@ export default function AdminMegaDashboard() {
       toast({ title: "Community Verified", description: "The listing has been marked as verified." });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/home-sections/active'] });
+      queryClient.invalidateQueries({
+        predicate: (q) =>
+          typeof q.queryKey?.[0] === 'string' &&
+          (q.queryKey[0] as string).startsWith('/api/communities/section-data'),
+      });
     },
   });
 
