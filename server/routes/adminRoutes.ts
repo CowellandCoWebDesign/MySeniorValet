@@ -36,6 +36,7 @@ import { scrapeWebsitePage } from "../services/free-enrichment-service";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
+import { clearAllCommunityCaches } from "../infrastructure/cache";
 
 // Community photos are stored on disk under public/uploads/community-photos/<id>/
 // and served publicly via the existing express.static('public') middleware in server/index.ts.
@@ -845,6 +846,8 @@ export function registerAdminRoutes(app: Express) {
       if (!updated) {
         return res.status(404).json({ error: 'Community not found' });
       }
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ success: true, id: updated.id, name: updated.name });
     } catch (error) {
       console.error('Error soft-deleting community:', error);
@@ -2391,6 +2394,8 @@ export function registerAdminRoutes(app: Express) {
         .where(eq(communities.id, communityId))
         .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
       if (!updated) return res.status(404).json({ message: 'Community not found' });
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ message: 'Community hidden', community: updated });
     } catch (error) {
       console.error('Error hiding community:', error);
@@ -2407,6 +2412,8 @@ export function registerAdminRoutes(app: Express) {
         .where(eq(communities.id, communityId))
         .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
       if (!updated) return res.status(404).json({ message: 'Community not found' });
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ message: 'Community unhidden', community: updated });
     } catch (error) {
       console.error('Error unhiding community:', error);
@@ -2513,6 +2520,8 @@ export function registerAdminRoutes(app: Express) {
       }
 
       const affected = (result as any)?.rowCount ?? communityIds.length;
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
       res.json({ success: true, affected });
     } catch (error) {
       console.error('Error performing bulk quality action:', error);
@@ -2562,6 +2571,10 @@ export function registerAdminRoutes(app: Express) {
           if (action === 'confirm-and-hide') communityUpdates.isHidden = true;
           await db.update(communities).set(communityUpdates).where(inArray(communities.id, communityIds));
         }
+      }
+      if (action === 'confirm-and-hide') {
+        clearAllCommunityCaches();
+        communityStatsCache.invalidateCache();
       }
       res.json({ message: `${ids.length} flag(s) processed` });
     } catch (error) {

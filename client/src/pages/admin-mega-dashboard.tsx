@@ -868,7 +868,11 @@ export default function AdminMegaDashboard() {
         description: "The community has been updated successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/communities'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
     },
     onError: (error: any) => {
       let message = "Failed to update community.";
@@ -895,7 +899,11 @@ export default function AdminMegaDashboard() {
       });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/communities'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
     },
@@ -921,6 +929,11 @@ export default function AdminMegaDashboard() {
       toast({ title: "Community Hidden", description: "The listing is no longer visible to the public." });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
     },
@@ -934,6 +947,11 @@ export default function AdminMegaDashboard() {
       toast({ title: "Community Restored", description: "The listing is now visible to the public." });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
     },
   });
 
@@ -958,6 +976,11 @@ export default function AdminMegaDashboard() {
       setSelectedMegaIds(new Set());
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
     },
     onError: (error: any) => {
       toast({ title: "Bulk Action Failed", description: error.message || "Failed to apply bulk action", variant: "destructive" });
@@ -999,6 +1022,11 @@ export default function AdminMegaDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
     },
     onError: () => toast({ title: "Hide Failed", description: "Could not hide the community.", variant: "destructive" }),
   });
@@ -1015,7 +1043,11 @@ export default function AdminMegaDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities/stats'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/communities'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
     },
     onError: (error: any) => {
       let message = "Failed to delete community.";
@@ -1043,6 +1075,11 @@ export default function AdminMegaDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/listing-flags/counts'] });
       queryClient.invalidateQueries({ queryKey: ['/api/admin/communities'] });
+      queryClient.invalidateQueries({
+        predicate: (query) =>
+          typeof query.queryKey[0] === 'string' &&
+          (query.queryKey[0] as string).startsWith('/api/communities'),
+      });
     },
     onError: (error: any) => {
       toast({ title: "Bulk Action Failed", description: error.message || "Failed to process flags", variant: "destructive" });
