@@ -2790,6 +2790,94 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // ─── Photo cleanup endpoint ───────────────────────────────────────────────
+  // POST /api/admin/photos/cleanup-duplicates
+  // Scans every community's photos[] and removes: exact duplicates, UI-chrome
+  // noise (sentsuccessfully, closex, icons …), icon-sized thumbnails (≤150px),
+  // and collapses different-size variants of the same image.
+  adminRouter.post('/photos/cleanup-duplicates', async (req, res) => {
+    const dryRun = req.body?.dryRun === true;
+    const rawCommunityId = req.body?.communityId;
+    const parsedId = rawCommunityId !== undefined && rawCommunityId !== null ? parseInt(String(rawCommunityId), 10) : null;
+    if (parsedId !== null && (!Number.isInteger(parsedId) || parsedId <= 0)) {
+      return res.status(400).json({ error: 'communityId must be a positive integer' });
+    }
+    const singleId: number | null = parsedId;
+
+    try {
+      const { CommunityPhotoEnrichment } = await import('../services/community-photo-enrichment');
+
+      const BATCH_SIZE = 500;
+      let offset = 0;
+      let examined = 0;
+      let updated = 0;
+      let photosRemoved = 0;
+      let photosKept = 0;
+
+      while (true) {
+        const rows = await db.execute(
+          singleId
+            ? sql`SELECT id, photos, photo_attributions FROM communities WHERE id = ${singleId} AND photos IS NOT NULL AND array_length(photos,1) > 0`
+            : sql`SELECT id, photos, photo_attributions FROM communities WHERE photos IS NOT NULL AND array_length(photos,1) > 0 ORDER BY id LIMIT ${BATCH_SIZE} OFFSET ${offset}`
+        );
+        const batch: any[] = (rows as any).rows ?? (rows as any);
+        if (!batch || batch.length === 0) break;
+
+        for (const row of batch) {
+          examined++;
+          const rawPhotos: string[] = row.photos ?? [];
+          const rawAttribs: string[] = row.photo_attributions ?? [];
+          if (rawPhotos.length === 0) continue;
+
+          const cleaned = CommunityPhotoEnrichment.cleanPhotoArray(rawPhotos);
+          const removed = rawPhotos.length - cleaned.length;
+          if (removed === 0) { photosKept += rawPhotos.length; continue; }
+
+          // Re-align attributions
+          const survivorSet = new Set(cleaned);
+          const cleanedAttribs: string[] = rawPhotos
+            .map((url, i) => (survivorSet.has(url) ? (rawAttribs[i] ?? '') : null))
+            .filter((a): a is string => a !== null);
+
+          updated++;
+          photosRemoved += removed;
+          photosKept += cleaned.length;
+
+          if (!dryRun) {
+            // Use Drizzle ORM `.update` so the driver serialises the arrays
+            // correctly — raw `JSON.stringify(arr)::text[]` is rejected by PG
+            // because JSON array syntax ≠ PG array literal syntax.
+            await db.update(communities)
+              .set({ photos: cleaned, photoAttributions: cleanedAttribs, updatedAt: new Date() })
+              .where(eq(communities.id, row.id as number));
+          }
+        }
+
+        if (singleId) break;
+        offset += BATCH_SIZE;
+        if (batch.length < BATCH_SIZE) break;
+      }
+
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+
+      res.json({
+        success: true,
+        dryRun,
+        examined,
+        updated,
+        photosRemoved,
+        photosKept,
+        message: dryRun
+          ? `Dry run complete: would remove ${photosRemoved} photos from ${updated} communities`
+          : `Cleanup complete: removed ${photosRemoved} photos from ${updated} communities`,
+      });
+    } catch (err) {
+      console.error('Photo cleanup error:', err);
+      res.status(500).json({ error: 'Photo cleanup failed', details: String(err) });
+    }
+  });
+
   // ─── Photo management endpoints ───────────────────────────────────────────
   // Helper: fetch community photos array
   async function getCommunityPhotos(communityId: number): Promise<string[]> {

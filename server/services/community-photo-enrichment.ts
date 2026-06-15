@@ -158,11 +158,136 @@ export class CommunityPhotoEnrichment {
       '-map.',
       '_map.',
       'sprite',
-      'favicon'
+      'favicon',
+      // UI chrome that leaks in from scraping contact / email-confirmation pages
+      'sentsuccessfully',
+      'sent-successfully',
+      'closex',
+      'close-x',
+      'close_x',
+      'checkmark',
+      'check-mark',
+      'check_mark',
+      'successicon',
+      'success-icon',
+      'success_icon',
+      // Arrow / navigation chrome
+      'arrow-right',
+      'arrow-left',
+      'arrow_right',
+      'arrow_left',
+      'prev-arrow',
+      'next-arrow',
+      'breadcrumb',
+      // Very small thumbnail/icon sizes embedded in the URL path or query string
+      // e.g. photo-50x50.jpg, thumb_80x60.png
+      // Blocked via the URL-normalisation step in isSmallThumbnailUrl, not here.
     ];
     
     const urlLower = url.toLowerCase();
     return blockedPatterns.some(pattern => urlLower.includes(pattern));
+  }
+
+  /**
+   * Returns true when a URL encodes tiny icon/thumbnail dimensions that make it
+   * unsuitable as a community gallery photo.
+   * Matches patterns like: photo-50x50.jpg, thumb_80x60.png, ?w=30&h=30,
+   * ?width=48, ?size=32, /32x32/, etc.
+   * Only flags images where BOTH dimensions (when detectable) are ≤ 150px, or
+   * where a single dimension indicator is ≤ 100px.
+   */
+  static isSmallThumbnailUrl(url: string): boolean {
+    if (!url) return false;
+    const lower = url.toLowerCase();
+
+    // Match WxH patterns (path segment or filename): e.g. 50x50, 80x60, 32x32
+    const whMatch = lower.match(/[_\-\/](\d+)x(\d+)[_\-\/\.]/);
+    if (whMatch) {
+      const w = parseInt(whMatch[1], 10);
+      const h = parseInt(whMatch[2], 10);
+      if (w <= 150 && h <= 150) return true;
+    }
+
+    // Match single-dimension query params: ?w=32, ?width=48, ?size=32, ?thumb=50
+    const singleDimMatch = lower.match(/[?&](?:w|h|width|height|size|thumb|thumbnail)=(\d+)/);
+    if (singleDimMatch) {
+      const dim = parseInt(singleDimMatch[1], 10);
+      if (dim <= 100) return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Derive a normalised "base key" from a photo URL that strips dimension
+   * hints so that 250x150 and 750x500 variants of the same asset share a key.
+   * Used by deduplication to prefer the largest-available version.
+   */
+  static normalisedPhotoKey(url: string): string {
+    try {
+      const parsed = new URL(url);
+      // Strip common dimension query params
+      ['w', 'h', 'width', 'height', 'size', 'thumb', 'thumbnail', 'resize',
+       'dimensions', 'format', 'quality', 'q', 'fit', 'dpr'].forEach(p => {
+        parsed.searchParams.delete(p);
+      });
+      // Strip dimension suffixes from pathname: -250x150, _750x500, /32x32
+      const cleanPath = parsed.pathname
+        .replace(/[_\-]?\d+x\d+/gi, '')
+        .replace(/\/\d+x\d+\//gi, '/');
+      parsed.pathname = cleanPath;
+      return (parsed.hostname + parsed.pathname + parsed.search).toLowerCase();
+    } catch {
+      // Relative or malformed URL — strip inline WxH only
+      return url.toLowerCase().replace(/[_\-]?\d+x\d+/gi, '');
+    }
+  }
+
+  /**
+   * Clean a photo array for one community:
+   *  1. Remove exact-URL duplicates
+   *  2. Remove noise / UI-chrome patterns (isStockOrPlaceholderPhoto + isSmallThumbnailUrl)
+   *  3. Collapse thumbnail variants — when several URLs share the same normalised key,
+   *     keep the one with the largest apparent dimensions (longest URL as tie-breaker).
+   * Returns the cleaned array (same reference iff nothing changed).
+   */
+  static cleanPhotoArray(photos: string[]): string[] {
+    if (!photos || photos.length === 0) return photos;
+
+    // Step 1 – exact dedup
+    const unique = [...new Set(photos.filter(p => typeof p === 'string' && p.trim().length > 0))];
+
+    // Step 2 – noise removal
+    const filtered = unique.filter(p => !this.isStockOrPlaceholderPhoto(p) && !this.isSmallThumbnailUrl(p));
+
+    // Step 3 – collapse thumbnail variants
+    // Build a map: normalised key → best URL
+    const byKey = new Map<string, string>();
+    for (const url of filtered) {
+      const key = this.normalisedPhotoKey(url);
+      const existing = byKey.get(key);
+      if (!existing) {
+        byKey.set(key, url);
+      } else {
+        // Prefer the variant whose path/filename encodes larger dimensions.
+        // Simple heuristic: prefer the URL with larger max(W, H).
+        const extractMaxDim = (u: string): number => {
+          const m = u.toLowerCase().match(/[_\-\/](\d+)x(\d+)/);
+          if (m) return Math.max(parseInt(m[1], 10), parseInt(m[2], 10));
+          const q = u.toLowerCase().match(/[?&](?:w|width)=(\d+)/);
+          if (q) return parseInt(q[1], 10);
+          return 0;
+        };
+        if (extractMaxDim(url) > extractMaxDim(existing)) {
+          byKey.set(key, url);
+        } else if (extractMaxDim(url) === extractMaxDim(existing) && url.length > existing.length) {
+          // Same apparent size — keep the longer URL (usually higher quality)
+          byKey.set(key, url);
+        }
+      }
+    }
+
+    return [...byKey.values()];
   }
 
   /**

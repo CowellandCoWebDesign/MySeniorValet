@@ -1481,19 +1481,46 @@ export function registerCommunityRoutes(app: Express) {
           // false positive must not permanently erase real community photos. When
           // discovery finds nothing, existing stored photos are left untouched.
           if (!hasDbPhotos && discoveredPhotos.length > 0) {
-            updates.photos = discoveredPhotos;
-            // Persist per-photo source attribution (index-aligned) so each image's
-            // true origin — official site or a specific public directory — is
-            // auditable and the UI never mislabels a directory photo's source.
-            updates.photoAttributions =
-              discoveredPhotoAttributions.length === discoveredPhotos.length
-                ? discoveredPhotoAttributions
-                : discoveredPhotos.map((_, i) => discoveredPhotoAttributions[i] || "");
-            hasUpdates = true;
-            console.log(
-              `✅ Updating photos with ${discoveredPhotos.length} corroborated images ` +
-                `(attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
-            );
+            // Apply full clean before persisting: removes exact duplicates, UI-chrome
+            // noise (sentsuccessfully, closex, icons …), icon-sized thumbnails, and
+            // collapses different-size variants of the same image.
+            const rawDiscovered = discoveredPhotos;
+            const cleanedDiscovered = CommunityPhotoEnrichment.cleanPhotoArray(rawDiscovered);
+
+            // Re-align attributions after cleaning so they remain index-aligned.
+            const survivorSet = new Set(cleanedDiscovered);
+            const cleanedAttributions = rawDiscovered
+              .map((url, i) =>
+                survivorSet.has(url) ? (discoveredPhotoAttributions[i] ?? "") : null,
+              )
+              .filter((a): a is string => a !== null);
+
+            if (cleanedDiscovered.length === 0) {
+              // All discovered photos were noise — skip persisting to avoid wiping real data
+              console.log(`⚠️ All ${rawDiscovered.length} discovered photos removed as noise — skipping photo update`);
+            } else {
+              updates.photos = cleanedDiscovered;
+              // Persist per-photo source attribution (index-aligned) so each image's
+              // true origin — official site or a specific public directory — is
+              // auditable and the UI never mislabels a directory photo's source.
+              updates.photoAttributions =
+                cleanedAttributions.length === cleanedDiscovered.length
+                  ? cleanedAttributions
+                  : cleanedDiscovered.map((_, i) => cleanedAttributions[i] || "");
+              hasUpdates = true;
+              if (cleanedDiscovered.length < rawDiscovered.length) {
+                console.log(
+                  `✅ Updating photos with ${cleanedDiscovered.length} corroborated images ` +
+                    `(${rawDiscovered.length - cleanedDiscovered.length} noise/duplicate URLs removed; ` +
+                    `attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
+                );
+              } else {
+                console.log(
+                  `✅ Updating photos with ${cleanedDiscovered.length} corroborated images ` +
+                    `(attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
+                );
+              }
+            }
           }
 
           // Always stamp lastSuccessfulEnrichment when the pipeline produced real data
