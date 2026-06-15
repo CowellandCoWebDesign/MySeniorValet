@@ -29,6 +29,17 @@ export default defineConfig({
     emptyOutDir: true,
     cssMinify: "esbuild",
   },
+  optimizeDeps: {
+    include: [
+      "leaflet",
+      "react-leaflet",
+      "react-leaflet-cluster",
+      "leaflet-providers",
+      "leaflet.fullscreen",
+      "leaflet.locatecontrol",
+      "leaflet-control-geocoder",
+    ],
+  },
   server: {
     fs: {
       strict: true,

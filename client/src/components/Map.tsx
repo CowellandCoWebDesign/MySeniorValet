@@ -3,7 +3,10 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl,
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
-import MarkerClusterGroup from 'react-leaflet-cluster';
+import _MarkerClusterGroupImport from 'react-leaflet-cluster';
+// Vite 8 rolldown CJS interop: `export default require_lib()` exports the whole
+// module.exports object {default: Component}, so we unwrap .default if needed.
+const MarkerClusterGroup = (_MarkerClusterGroupImport as any)?.default ?? _MarkerClusterGroupImport;
 // Import enhanced Leaflet plugins for senior-friendly features
 import 'leaflet.fullscreen/Control.FullScreen.css';
 import 'leaflet.fullscreen';
