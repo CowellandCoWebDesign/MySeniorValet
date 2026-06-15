@@ -1849,23 +1849,27 @@ export default function CommunityDetail() {
     }
   };
 
-  // Combine photos from community and verification report
+  // Combine photos from community and verification report.
+  // Admin-uploaded photos (/uploads/...) are the most authoritative source and always shown first.
   const allPhotos = React.useMemo(() => {
-    const photos = [];
-    
-    // Add verification photos first (they're usually better quality)
+    const photos: string[] = [];
+
+    // 1. Admin-uploaded photos first — these are the ground truth set by the admin
+    const adminUploaded = (community?.photos || []).filter((p: string) => p.startsWith('/uploads/'));
+    photos.push(...adminUploaded);
+
+    // 2. Verification / web-intelligence photos next
     if (verificationReport?.verificationResults?.webIntelligence?.images) {
       const verifiedPhotos = verificationReport.verificationResults.webIntelligence.images
         .map((img: any) => typeof img === 'string' ? img : img.image_url || img.url)
         .filter(Boolean);
       photos.push(...verifiedPhotos);
     }
-    
-    // Add community photos if no verification photos
-    if (photos.length === 0 && community?.photos && community.photos.length > 0) {
-      photos.push(...community.photos);
-    }
-    
+
+    // 3. All other DB photos (scraped/enriched) as supplemental sources
+    const otherDbPhotos = (community?.photos || []).filter((p: string) => !p.startsWith('/uploads/'));
+    photos.push(...otherDbPhotos);
+
     // Remove duplicates
     return [...new Set(photos)];
   }, [community?.photos, verificationReport]);

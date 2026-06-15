@@ -2787,7 +2787,9 @@ export function registerAdminRoutes(app: Express) {
   // Helper: fetch community photos array
   async function getCommunityPhotos(communityId: number): Promise<string[]> {
     const [c] = await db.select({ photos: communities.photos }).from(communities).where(eq(communities.id, communityId));
-    return c?.photos ?? [];
+    const photos = c?.photos ?? [];
+    // Deduplicate to prevent repeated enrichment runs from adding duplicate URLs
+    return [...new Set(photos)];
   }
 
   // Helper: assert community exists, return 404 if not

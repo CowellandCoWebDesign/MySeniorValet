@@ -58,6 +58,12 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
   const [enrichedPhotos, setEnrichedPhotos] = useState<string[]>(community.photos || []);
   const [isLoadingPhotos, setIsLoadingPhotos] = useState(false);
+
+  // Keep enrichedPhotos in sync when the community.photos prop updates (e.g. after admin upload)
+  useEffect(() => {
+    setEnrichedPhotos(community.photos || []);
+    setCurrentPhotoIndex(0);
+  }, [community.id, community.photos]);
   
   // Default amenities if none provided
   const amenities = community.amenities && community.amenities.length > 0 
@@ -380,13 +386,12 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
               src={enrichedPhotos[currentPhotoIndex]} 
               alt={`${community.name} - Photo ${currentPhotoIndex + 1}`}
               className="w-full h-full object-cover transition-opacity duration-500"
-              onError={(e) => {
-                // If image fails to load, remove it from the array
+              onError={() => {
+                // Remove the failed photo; if no photos remain, clear the array
+                // so the placeholder (Professional Photos Coming Soon) renders.
                 const newPhotos = enrichedPhotos.filter((_, i) => i !== currentPhotoIndex);
-                if (newPhotos.length > 0) {
-                  setEnrichedPhotos(newPhotos);
-                  setCurrentPhotoIndex(0);
-                }
+                setEnrichedPhotos(newPhotos);
+                setCurrentPhotoIndex(newPhotos.length > 0 ? 0 : 0);
               }}
             />
             
