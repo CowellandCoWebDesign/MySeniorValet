@@ -17,7 +17,10 @@ interface PendingRequest {
 class EnrichmentCache {
   private cache = new Map<string, CacheEntry>();
   private pendingRequests = new Map<string, PendingRequest>();
-  private readonly CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+  // Enrichment content is retained INDEFINITELY — it is only ever replaced when
+  // the user clicks Refresh (which calls set()/clearCommunity()). 100 years acts
+  // as "never expires" while keeping the expiry-stamped CacheEntry shape intact.
+  private readonly CACHE_DURATION = 100 * 365 * 24 * 60 * 60 * 1000;
   private readonly REQUEST_TIMEOUT = 60 * 1000; // 60 seconds for pending requests
   private readonly STORAGE_KEY = 'enrichment-cache-v1';
   
@@ -35,12 +38,10 @@ class EnrichmentCache {
         const stored = localStorage.getItem(this.STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          const now = Date.now();
-          // Restore only non-expired entries
+          // Restore ALL entries — content is retained indefinitely, including
+          // legacy entries that were written with the old 7-day expiry.
           Object.entries(parsed).forEach(([key, entry]: [string, any]) => {
-            if (entry.expiry > now) {
-              this.cache.set(key, entry);
-            }
+            this.cache.set(key, entry);
           });
           console.log(`📦 Loaded ${this.cache.size} cached enrichment entries from storage`);
         }
@@ -57,15 +58,12 @@ class EnrichmentCache {
     if (typeof window !== 'undefined' && window.localStorage) {
       try {
         const toStore: Record<string, CacheEntry> = {};
-        const now = Date.now();
-        
-        // Only save non-expired entries
+
+        // Persist ALL entries — content is retained indefinitely.
         this.cache.forEach((entry, key) => {
-          if (entry.expiry > now) {
-            toStore[key] = entry;
-          }
+          toStore[key] = entry;
         });
-        
+
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(toStore));
       } catch (error) {
         console.error('Failed to save enrichment cache to storage:', error);
@@ -92,11 +90,12 @@ class EnrichmentCache {
   get(communityId: string | number): any {
     const cacheKey = `community-${communityId}`;
     const cached = this.cache.get(cacheKey);
-    
-    if (cached && cached.expiry > Date.now()) {
+
+    // Content never expires — return it whenever present.
+    if (cached) {
       return cached.data;
     }
-    
+
     return undefined;
   }
 
@@ -113,10 +112,10 @@ class EnrichmentCache {
     
     // If forceRefresh is true, bypass cache
     if (!forceRefresh) {
-      // Check if we have valid cached data
+      // Check if we have cached data (content never expires).
       const cached = this.cache.get(cacheKey);
-      if (cached && cached.expiry > Date.now()) {
-        console.log(`✅ Using cached enrichment data for community ${communityId}, expires in ${Math.round((cached.expiry - Date.now()) / (1000 * 60 * 60))} hours`);
+      if (cached) {
+        console.log(`✅ Using cached enrichment data for community ${communityId} (retained until manual Refresh)`);
         return cached.data;
       }
 
@@ -145,7 +144,7 @@ class EnrichmentCache {
         // Remove from pending requests
         this.pendingRequests.delete(cacheKey);
         
-        console.log(`💾 Cached enrichment data for community ${communityId} for 7 days`);
+        console.log(`💾 Cached enrichment data for community ${communityId} (retained until manual Refresh)`);
         return data;
       })
       .catch(error => {
@@ -175,7 +174,7 @@ class EnrichmentCache {
       expiry: Date.now() + this.CACHE_DURATION
     });
     this.saveToStorage();
-    console.log(`💾 Directly cached enrichment data for community ${communityId} (7 days)`);
+    console.log(`💾 Directly cached enrichment data for community ${communityId} (retained until next Refresh)`);
   }
 
   /**
@@ -218,15 +217,9 @@ class EnrichmentCache {
    */
   cleanup() {
     const now = Date.now();
-    
-    // Remove expired cache entries
-    for (const [key, entry] of this.cache.entries()) {
-      if (entry.expiry <= now) {
-        this.cache.delete(key);
-      }
-    }
-    
-    // Remove stale pending requests
+
+    // Cache entries are retained indefinitely (only replaced on manual Refresh),
+    // so we never drop them here. Only stale pending requests are cleared.
     for (const [key, request] of this.pendingRequests.entries()) {
       if (now - request.timestamp > this.REQUEST_TIMEOUT) {
         this.pendingRequests.delete(key);

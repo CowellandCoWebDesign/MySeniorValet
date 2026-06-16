@@ -32,6 +32,26 @@ photo-source change applied to one path silently regresses via the others.
   corroborate path (`photoDirectoryCandidates`) so photos surface deterministically
   WITHOUT DuckDuckGo/Bing (the user flagged DDG as "clouding" Perplexity).
 
+**Off-community filename gate (`photoBelongsToDifferentCommunity` / `filterPhotosForCommunity`):**
+- Separate from the host allowlist: rejects a photo whose FILENAME slug embeds a
+  DIFFERENT facility's name (e.g. a `Willow-Springs-...` seniorly image persisted on
+  a Quartz Hill listing). Applied at the central read getter
+  (`getEnrichedPhotosForCommunity`) AND every write path + the one-off cleanup
+  script, all sharing the same helper so DB matches live filters.
+- Conservative by design: needs a facility-type marker + ≥2 distinctive name tokens
+  that the TARGET community does NOT reference. Numeric/generic descriptor filenames
+  are kept.
+- **Own-domain guard is mandatory** (4th arg `officialWebsite`): a program/event
+  filename on the community's OWN site is theirs (e.g.
+  `Alzheimers-Memories-in-the-Making` on stellarcaresd.com). Keep when the photo host
+  matches the official-website host OR the host alpha-string embeds a ≥4-char name
+  token. Without it the filter wrongly strips legitimate own-site photos (saved 22
+  photos across 16 communities in the June 2026 cleanup).
+- When writing `text[]` photos in a script, use Drizzle's `db.update(communities).set
+  ({photos,...})`, NOT raw `sql\`${arr}::text[]\`` (the manual cast throws
+  transformTypeCast). The drizzle builder only emits set columns, sidestepping the
+  admin_rating_override column drift.
+
 **Scraping URL hygiene (applies to every scrape):**
 - Bare domains like `rbhc.biz` throw in `new URL()` → the SSRF guard
   (`isSafePublicUrl`) rejects them as "unsafe URL", silently dropping a valid

@@ -2,6 +2,32 @@ import { communities } from '@shared/schema';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
 import { normalizePhotoUrls } from '../utils/photo-urls';
+import { communityNameTokens } from './free-enrichment-service';
+
+// Generic photo-descriptor words that appear in image filenames but are NOT part
+// of a community's proper name (e.g. "Dining", "Exterior"). Stripped before we
+// decide whether a filename embeds a *different* facility's name.
+const PHOTO_DESCRIPTOR_WORDS = new Set([
+  'photo', 'photos', 'image', 'images', 'img', 'pic', 'pics', 'picture',
+  'dining', 'room', 'rooms', 'exterior', 'interior', 'building', 'front',
+  'lobby', 'bedroom', 'bathroom', 'kitchen', 'garden', 'gardens', 'patio',
+  'view', 'views', 'entrance', 'hallway', 'courtyard', 'pool', 'gallery',
+  'hero', 'banner', 'main', 'thumb', 'thumbnail', 'large', 'small', 'medium',
+  'default', 'cover', 'outside', 'inside', 'aerial', 'sign', 'logo', 'map',
+  'amenity', 'amenities', 'common', 'area', 'areas', 'suite', 'apartment',
+  'living', 'bed', 'bath', 'floor', 'plan', 'floorplan', 'grounds', 'campus',
+]);
+
+// Strong markers that a filename slug encodes a named senior-living FACILITY
+// (as opposed to a random descriptor). Used together with distinctive proper-name
+// tokens to confirm a filename carries a specific community's name.
+const FACILITY_NAME_MARKERS = [
+  'care center', 'care-center', 'carecenter', 'memory care', 'memory-care',
+  'assisted living', 'assisted-living', 'skilled nursing', 'skilled-nursing',
+  'post acute', 'post-acute', 'postacute', 'senior living', 'senior-living',
+  'health center', 'health-center', 'nursing', 'rehabilitation', 'alzheimer',
+  'retirement', 'village', 'manor', 'estates', 'commons', 'hospice', 'lodge',
+];
 
 /**
  * Community Photo Enrichment Service
@@ -245,6 +271,120 @@ export class CommunityPhotoEnrichment {
   }
 
   /**
+   * Decide whether a photo URL/filename embeds a DIFFERENT community's name.
+   *
+   * Directory CDNs (seniorly.com, caring.com, etc.) sometimes store an image
+   * whose filename is the slug of another facility — e.g.
+   * `Willow-Springs-Alzheimers-Special-Care-Center-Dining.jpg` saved onto a
+   * Quartz Hill listing. Such photos clearly belong elsewhere and violate the
+   * Golden Data Rule.
+   *
+   * Conservative by design — only returns true when ALL hold:
+   *   1. The filename slug contains a senior-living facility marker
+   *      (e.g. "care center", "alzheimer", "post acute"), AND
+   *   2. It contains ≥2 distinctive proper-name tokens (after dropping generic
+   *      senior-living stopwords and photo-descriptor words), AND
+   *   3. The TARGET community is NOT referenced by those tokens.
+   * Ambiguous filenames (numeric IDs, generic descriptors) are kept.
+   */
+  static photoBelongsToDifferentCommunity(
+    url: string,
+    name: string,
+    city: string,
+    officialWebsite?: string,
+  ): boolean {
+    if (!url || !name) return false;
+
+    // Extract the human-readable filename slug (last path segment, no extension)
+    // and the host (used for the own-domain guard below).
+    let slug = '';
+    let host = '';
+    try {
+      const u = new URL(url);
+      host = u.hostname.replace(/^www\./, '').toLowerCase();
+      const segs = u.pathname.split('/').filter(Boolean);
+      slug = decodeURIComponent(segs[segs.length - 1] || '');
+    } catch {
+      slug = url;
+    }
+    slug = slug.replace(/\.[a-z0-9]{2,5}$/i, '');
+
+    // Normalise separators (-, _, +, %20, digits) to spaces.
+    const phrase = slug
+      .replace(/[^a-zA-Z]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toLowerCase();
+    if (!phrase) return false;
+
+    // 1. Must look like a named facility.
+    const hasFacilityMarker = FACILITY_NAME_MARKERS.some((m) => phrase.includes(m));
+    if (!hasFacilityMarker) return false;
+
+    // 2. Must carry ≥2 distinctive proper-name tokens (drop generic + descriptor words).
+    const facilityNameTokens = communityNameTokens(phrase).filter(
+      (t) => !PHOTO_DESCRIPTOR_WORDS.has(t),
+    );
+    if (facilityNameTokens.length < 2) return false;
+
+    // 3. Does the filename reference THIS community? If so, keep it.
+    const targetTokens = communityNameTokens(name);
+    if (targetTokens.length === 0) return false; // can't judge — keep
+    const matched = targetTokens.filter((t) => phrase.includes(t)).length;
+    const referencesThis =
+      matched / targetTokens.length >= 0.5 || (targetTokens.length >= 3 && matched >= 2);
+    if (referencesThis) return false;
+
+    // City match is a weak signal of ownership — if the slug embeds this
+    // community's city it may still be a same-facility photo; keep to stay safe.
+    const cityNorm = (city || '').toLowerCase().trim();
+    if (cityNorm && cityNorm.length >= 4 && phrase.includes(cityNorm)) return false;
+
+    // Own-domain guard: a photo hosted on the community's OWN site is theirs even
+    // if the filename is a program/event name (e.g. "Alzheimers-Memories-in-the-
+    // Making" on stellarcaresd.com). Keep when the host matches the official
+    // website OR the host embeds a distinctive name token of this community.
+    if (host) {
+      let officialHost = '';
+      try {
+        const ow = (officialWebsite || '').trim();
+        if (ow && /\./.test(ow) && !/\s/.test(ow)) {
+          officialHost = new URL(/^https?:\/\//i.test(ow) ? ow : `https://${ow}`)
+            .hostname.replace(/^www\./, '')
+            .toLowerCase();
+        }
+      } catch {
+        /* unparseable website — ignore */
+      }
+      if (officialHost && (host === officialHost || host.endsWith(`.${officialHost}`))) {
+        return false;
+      }
+      const hostAlpha = host.replace(/[^a-z]/g, '');
+      if (targetTokens.some((t) => t.length >= 4 && hostAlpha.includes(t))) {
+        return false;
+      }
+    }
+
+    return true; // embeds a named facility that isn't this one
+  }
+
+  /**
+   * Remove photos that clearly belong to a different community (name mismatch in
+   * the filename). Conservative — keeps anything ambiguous.
+   */
+  static filterPhotosForCommunity(
+    photos: string[],
+    name: string,
+    city: string,
+    officialWebsite?: string,
+  ): string[] {
+    if (!photos || photos.length === 0) return [];
+    return photos.filter(
+      (u) => !this.photoBelongsToDifferentCommunity(u, name, city, officialWebsite),
+    );
+  }
+
+  /**
    * Clean a photo array for one community:
    *  1. Remove exact-URL duplicates
    *  2. Remove noise / UI-chrome patterns (isStockOrPlaceholderPhoto + isSmallThumbnailUrl)
@@ -309,9 +449,20 @@ export class CommunityPhotoEnrichment {
       ...(community.imageGallery || []),
       ...(community.yelpPhotos || [])
     ]).filter(photo => !this.isStockOrPlaceholderPhoto(photo));
-    
+
+    // Golden Data Rule: drop photos whose filename embeds a DIFFERENT facility's
+    // name (e.g. a Willow Springs image on a Quartz Hill listing). Applied at the
+    // central read getter so the carousel never shows another community's photos,
+    // even before the DB cleanup pass runs.
+    const owned = this.filterPhotosForCommunity(
+      existingPhotos,
+      community.name || '',
+      community.city || '',
+      community.website || '',
+    );
+
     // Return only real photos, no stock photo fallbacks
-    return existingPhotos.slice(0, 15);
+    return owned.slice(0, 15);
   }
   
   /**

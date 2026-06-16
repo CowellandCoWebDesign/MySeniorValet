@@ -955,17 +955,20 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 {(() => {
                   // Check all possible data paths for Perplexity content
                   // CRITICAL FIX: Backend returns content in searchResults.summary (primary source)
-                  const perplexityContent = 
+                  // Prefer the clean, persisted community.description. The live
+                  // verify content is only used as a fallback and only when it is
+                  // NOT legacy conversational AI output (hallucinated date / wrong
+                  // phone) — that blob must never render as the overview.
+                  const liveVerifyContent =
                     localVerificationReport?.verificationResults?.searchResults?.summary ||
                     localVerificationReport?.searchResults?.summary ||
                     localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
                     localVerificationReport?.perplexityData?.searchContent ||
                     localVerificationReport?.searchContent ||
-                    localVerificationReport?.content ||
-                    // Fall back to the persisted description (web-intelligence sourced)
-                    // saved on the community record, so it renders on a normal page
-                    // load without requiring a fresh live verification.
-                    community?.description;
+                    localVerificationReport?.content;
+                  const perplexityContent =
+                    community?.description ||
+                    (isLegacyVerifyBlob(liveVerifyContent) ? undefined : liveVerifyContent);
                   
                   const perplexitySources = 
                     localVerificationReport?.verificationResults?.perplexityData?.sources ||
@@ -1412,6 +1415,30 @@ const calculateCompositeRating = (community: Community): string => {
   return compositeScore.toFixed(1);
 };
 
+/**
+ * Detect legacy conversational AI output from the old verify path — e.g.
+ * "I have conducted a real-time web search ... as of my search on November 20,
+ * 2023 ...". This text was never persisted to community.description; it lives
+ * only in the browser enrichment cache and contains hallucinated dates / wrong
+ * contact info. We must never render it as the headline Community Overview.
+ */
+const LEGACY_VERIFY_BLOB_PATTERNS = [
+  /i have conducted/i,
+  /real-?time web search/i,
+  /as of my (search|knowledge)/i,
+  /knowledge cut-?off/i,
+  /as an ai\b/i,
+  /i (don'?t|do not) have (access|real-?time)/i,
+  /i (cannot|can'?t) (browse|access)/i,
+  /based on my search/i,
+  /my (search|training) (on|data)/i,
+];
+
+function isLegacyVerifyBlob(text: unknown): boolean {
+  if (typeof text !== 'string' || text.length === 0) return false;
+  return LEGACY_VERIFY_BLOB_PATTERNS.some((re) => re.test(text));
+}
+
 export default function CommunityDetail() {
   const params = useParams<{ id?: string; state?: string; city?: string; slug?: string }>();
   const { id, state: stateParam, city: cityParam, slug } = params;
@@ -1807,32 +1834,40 @@ export default function CommunityDetail() {
         setVerificationReport(null);
         enrichmentCache.clearCommunity(community.id);
 
-        // Immediately patch the cached community with the new photos so the
-        // carousel shows them without waiting for the network round-trip.
+        // Patch the FULL fresh result into the cached community record so the
+        // carousel, About section, contact info, and pricing all update
+        // instantly — no network round-trip. We intentionally do NOT refetch
+        // immediately afterward: an immediate refetch was returning an empty/
+        // partial record and wiping the just-applied photos back to zero.
         const freshPhotos: string[] = (data.photos || []).filter(
           (u: any) => typeof u === 'string' && /^https?:\/\//i.test(u),
         );
-        if (freshPhotos.length > 0) {
-          if (slugQueryKey) {
-            queryClient.setQueryData([slugQueryKey], (old: any) =>
-              old ? { ...old, photos: freshPhotos } : old,
-            );
+        const isValidWebsite = (w: any) =>
+          typeof w === 'string' && /^https?:\/\//i.test(w);
+        const buildPatch = (old: any) => {
+          if (!old) return old;
+          const patch: any = { ...old };
+          if (freshPhotos.length > 0) patch.photos = freshPhotos;
+          if (typeof data.summary === 'string' && data.summary.length > 50) {
+            patch.description = data.summary;
           }
-          if (idQueryKey) {
-            queryClient.setQueryData([idQueryKey], (old: any) =>
-              old ? { ...old, photos: freshPhotos } : old,
-            );
-          }
-          queryClient.setQueryData([`/api/communities/${community.id}`], (old: any) =>
-            old ? { ...old, photos: freshPhotos } : old,
-          );
-        }
+          if (isValidWebsite(data.officialWebsite)) patch.website = data.officialWebsite;
+          if (typeof data.phone === 'string' && data.phone.trim()) patch.phone = data.phone;
+          if (data.priceRange) patch.priceRange = data.priceRange;
+          return patch;
+        };
 
-        // Force an immediate background refetch so description, pricing, and
-        // other persisted fields also update (photos already patched above).
-        if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
-        if (idQueryKey) queryClient.refetchQueries({ queryKey: [idQueryKey] });
-        queryClient.refetchQueries({ queryKey: [`/api/communities/${community.id}`] });
+        if (slugQueryKey) queryClient.setQueryData([slugQueryKey], buildPatch);
+        if (idQueryKey) queryClient.setQueryData([idQueryKey], buildPatch);
+        queryClient.setQueryData([`/api/communities/${community.id}`], buildPatch);
+
+        // Mark the queries stale WITHOUT forcing an immediate refetch, so the
+        // patched data stays on screen and only re-syncs on the next natural
+        // mount/refocus (when the DB write has fully propagated).
+        const markStale = { refetchType: 'none' as const };
+        if (slugQueryKey) queryClient.invalidateQueries({ queryKey: [slugQueryKey], ...markStale });
+        if (idQueryKey) queryClient.invalidateQueries({ queryKey: [idQueryKey], ...markStale });
+        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`], ...markStale });
         return;
       }
 
@@ -2706,9 +2741,14 @@ export default function CommunityDetail() {
                   <CardContent>
                     {/* Community Description - Use enriched data when available */}
                     {(() => {
+                      // Prefer the clean, persisted community.description (correct
+                      // address/phone). Only fall back to the live verify description
+                      // when it is NOT legacy conversational AI output.
                       const enrichedDescription = verificationReport?.description || 
                                                   verificationReport?.verificationResults?.description;
-                      const displayDescription = enrichedDescription || community.description;
+                      const displayDescription =
+                        community.description ||
+                        (isLegacyVerifyBlob(enrichedDescription) ? undefined : enrichedDescription);
                       
                       if (displayDescription) {
                         const overviewRevealed = isDetailRevealed('overview');

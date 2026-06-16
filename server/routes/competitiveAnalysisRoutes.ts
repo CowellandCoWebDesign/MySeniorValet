@@ -9,6 +9,7 @@ import { unifiedPerplexityCache } from '../unified-perplexity-cache';
 import { cleanCitationArtifactsDeep } from '../utils/data-quality';
 import { normalizePhotoUrls } from '../utils/photo-urls';
 import { isSeniorLivingDirectoryHost } from '../services/perplexity-search-api';
+import { CommunityPhotoEnrichment } from '../services/community-photo-enrichment';
 
 const router = express.Router();
 const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
@@ -224,7 +225,12 @@ router.post('/api/competitive-analysis', async (req, res) => {
               let host = '';
               try { host = new URL(u).hostname.replace(/^www\./, '').toLowerCase(); } catch { return false; }
               const isOfficial = !!officialHost && (host === officialHost || host.endsWith(`.${officialHost}`));
-              return isOfficial || isSeniorLivingDirectoryHost(host);
+              if (!isOfficial && !isSeniorLivingDirectoryHost(host)) return false;
+              // Golden Data Rule: drop photos whose filename embeds a DIFFERENT
+              // facility's name (directory CDNs sometimes carry another community's slug).
+              return !CommunityPhotoEnrichment.photoBelongsToDifferentCommunity(
+                u, community.name || '', community.city || '', community.website || '',
+              );
             });
             if (gatedPhotos.length > 0) {
               competitiveUpdates.photos = gatedPhotos;

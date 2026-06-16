@@ -25,7 +25,9 @@
  *   - `websiteProtected` is authoritative — discovery never overwrites an
  *     admin-entered website.
  *   - SSRF guard on every community-provided URL fetch.
- *   - 7-day cache: no re-billing unless `forceRefresh` is passed.
+ *   - Persisted-content cache (NO EXPIRY): once a community has a meaningful
+ *     description, served DB data is reused indefinitely; enrichment only re-runs
+ *     (and re-bills) when `forceRefresh` is passed (the manual Refresh button).
  */
 
 import { db } from "../db";
@@ -43,10 +45,13 @@ import { normalizePhotoUrls } from "../utils/photo-urls";
 import { CommunityPhotoEnrichment } from "./community-photo-enrichment";
 import { geocodeWithNominatim } from "../nominatim-geocoding";
 
-const ENRICHMENT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
+// Persisted content no longer expires; this only stamps an informational
+// `validUntil` / `enrichmentDataExpiry` far in the future so nothing downstream
+// treats the content as stale.
+const ENRICHMENT_CACHE_TTL_MS = 10 * 365 * 24 * 60 * 60 * 1000;
 
 export interface UnifiedEnrichmentOptions {
-  /** Bypass the 7-day cache and re-run enrichment (re-bills Perplexity). */
+  /** Re-run enrichment from scratch (re-bills Perplexity); the manual Refresh. */
   forceRefresh?: boolean;
   /** Optional website override (from discovery). Ignored when websiteProtected. */
   websiteUrl?: string;
@@ -120,24 +125,25 @@ export async function enrichCommunityUnified(
     }
   }
 
-  // ── 7-day cache ───────────────────────────────────────────────────────────
-  // Serve persisted enrichment unless the caller forces a refresh. Guard: only
+  // ── Persisted-content cache (no expiry) ────────────────────────────────────
+  // Serve persisted enrichment unless the caller forces a refresh. Content is
+  // retained INDEFINITELY — there is no age check — so it survives reloads and is
+  // only ever replaced when the user clicks Refresh (forceRefresh). Guard: only
   // cache-serve when the DB holds a MEANINGFUL description (>80 chars). A short/
   // empty description means a prior enrichment produced nothing useful — re-run
-  // instead of serving "Contact for details." for 7 days.
+  // to fill the gap instead of serving "Contact for details." forever.
   const lastEnriched = community.lastSuccessfulEnrichment;
   const hasMeaningfulDescription =
     !!community.description && community.description.trim().length > 80;
-  if (
-    !forceRefresh &&
-    lastEnriched &&
-    hasMeaningfulDescription &&
-    Date.now() - new Date(lastEnriched).getTime() < ENRICHMENT_CACHE_TTL_MS
-  ) {
-    const ageDays = Math.round((Date.now() - new Date(lastEnriched).getTime()) / 86_400_000);
-    console.log(`⚡ Cache hit for "${community.name}" — enriched ${ageDays}d ago, serving DB data`);
-    const cachedPhotos = (community.photos || []).filter(
-      (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
+  if (!forceRefresh && lastEnriched && hasMeaningfulDescription) {
+    console.log(`⚡ Cache hit for "${community.name}" — serving persisted DB data (no expiry)`);
+    const cachedPhotos = CommunityPhotoEnrichment.filterPhotosForCommunity(
+      (community.photos || []).filter(
+        (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
+      ),
+      community.name || "",
+      community.city || "",
+      community.website || "",
     );
     return {
       communityId,
@@ -243,14 +249,30 @@ export async function enrichCommunityUnified(
   );
 
   // ── Stage 3 — Photo discovery + Golden-Data validation ──────────────────────
+  const rawDbPhotoCount = (community.photos || []).filter(
+    (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
+  ).length;
   const dbPhotoPairs: Array<{ url: string; attr: string }> = (community.photos || [])
     .map((u: string, i: number) => ({
       url: u,
       attr: (community.photoAttributions || [])[i] || community.website || "",
     }))
-    .filter((p: { url: string }) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(p.url));
+    .filter((p: { url: string }) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(p.url))
+    // Golden Data Rule: drop photos whose filename embeds a DIFFERENT facility's name.
+    .filter(
+      (p: { url: string }) =>
+        !CommunityPhotoEnrichment.photoBelongsToDifferentCommunity(
+          p.url,
+          community.name || "",
+          community.city || "",
+          community.website || "",
+        ),
+    );
   const cleanDbPhotos: string[] = dbPhotoPairs.map((p) => p.url);
   const cleanDbAttributions: string[] = dbPhotoPairs.map((p) => p.attr);
+  // If ownership filtering removed contaminated DB photos, persist the cleaned set
+  // even when we keep using DB photos (so the bad URLs are scrubbed permanently).
+  const dbPhotosWereCleaned = cleanDbPhotos.length < rawDbPhotoCount;
   let discoveredPhotos: string[] = [];
   let discoveredPhotoAttributions: string[] = [];
   const hasDbPhotos = cleanDbPhotos.length > 0;
@@ -409,12 +431,40 @@ export async function enrichCommunityUnified(
     );
   }
 
+  // Golden Data Rule: drop discovered photos whose filename embeds a DIFFERENT
+  // facility's name (keep attributions aligned).
+  if (discoveredPhotos.length > 0) {
+    const keptPairs = discoveredPhotos
+      .map((url, i) => ({ url, attr: discoveredPhotoAttributions[i] ?? "" }))
+      .filter(
+        (p) =>
+          !CommunityPhotoEnrichment.photoBelongsToDifferentCommunity(
+            p.url,
+            community.name || "",
+            community.city || "",
+            community.website || "",
+          ),
+      );
+    if (keptPairs.length < discoveredPhotos.length) {
+      console.log(
+        `🚫 Dropped ${discoveredPhotos.length - keptPairs.length} discovered photo(s) belonging to other communities`,
+      );
+    }
+    discoveredPhotos = keptPairs.map((p) => p.url);
+    discoveredPhotoAttributions = keptPairs.map((p) => p.attr);
+  }
+
   // Build the enrichment result (shared shape for all callers).
   const photos = hasDbPhotos
     ? cleanDbPhotos
     : discoveredPhotos.length > 0
       ? discoveredPhotos
-      : freeEnrichment.photos || [];
+      : CommunityPhotoEnrichment.filterPhotosForCommunity(
+          freeEnrichment.photos || [],
+          community.name || "",
+          community.city || "",
+          community.website || "",
+        );
   const photoAttributions = hasDbPhotos
     ? cleanDbAttributions
     : discoveredPhotos.length > 0
@@ -482,7 +532,16 @@ export async function enrichCommunityUnified(
 
   // Photos — NON-DESTRUCTIVE: only ever replaced with verified replacements; never
   // wiped on the blocklist alone (a false positive must not erase real photos).
-  if (!hasDbPhotos && discoveredPhotos.length > 0) {
+  if (hasDbPhotos && dbPhotosWereCleaned) {
+    // Existing DB photos contained images belonging to OTHER communities —
+    // persist the scrubbed set so the contamination is removed permanently.
+    updates.photos = cleanDbPhotos;
+    updates.photoAttributions = cleanDbAttributions;
+    hasUpdates = true;
+    console.log(
+      `🧹 Scrubbing ${rawDbPhotoCount - cleanDbPhotos.length} off-community photo(s) from "${community.name}"`,
+    );
+  } else if (!hasDbPhotos && discoveredPhotos.length > 0) {
     const rawDiscovered = discoveredPhotos;
     const cleanedDiscovered = CommunityPhotoEnrichment.cleanPhotoArray(rawDiscovered);
     const survivorSet = new Set(cleanedDiscovered);
