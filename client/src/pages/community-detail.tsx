@@ -2640,6 +2640,254 @@ export default function CommunityDetail() {
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                {/* Community Information & Amenities */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold flex items-center">
+                      <Building className="w-5 h-5 mr-2 text-blue-600" />
+                      About {community.name}
+                    </CardTitle>
+                    <CardDescription className="flex items-center gap-2">
+                      Community details, amenities, and services available
+                      {(() => {
+                        const sources: Array<{source: string}> = (community as any).enrichmentSources || [];
+                        const lastSource = sources.length > 0 ? sources[sources.length - 1].source : null;
+                        const enriched = (community as any).enrichmentCompleted;
+                        if (lastSource === 'jina_official_website') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-700">
+                              <Globe className="w-3 h-3" />
+                              Enriched from official website
+                            </span>
+                          );
+                        }
+                        if (lastSource === 'jina_web_search') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-700">
+                              <Search className="w-3 h-3" />
+                              Enriched from web search
+                            </span>
+                          );
+                        }
+                        if (!enriched || lastSource === 'no_source' || !lastSource) {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700">
+                              <Info className="w-3 h-3" />
+                              Contact for details
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Community Description - Use enriched data when available */}
+                    {(() => {
+                      const enrichedDescription = verificationReport?.description || 
+                                                  verificationReport?.verificationResults?.description;
+                      const displayDescription = enrichedDescription || community.description;
+                      
+                      if (displayDescription) {
+                        const overviewRevealed = isDetailRevealed('overview');
+                        return (
+                          <div className="mb-6">
+                            <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
+                            {overviewRevealed ? (
+                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
+                            ) : (
+                              <div className="relative">
+                                {/* Show the first ~6 lines free, blur the rest until revealed */}
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-6">
+                                  {displayDescription}
+                                </p>
+                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white dark:from-gray-800 to-transparent" />
+                                <button
+                                  type="button"
+                                  onClick={() => revealDetail('overview')}
+                                  className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                                  data-testid="button-reveal-overview"
+                                >
+                                  <Lock className="w-3.5 h-3.5" />
+                                  See full details
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    {/* Amenities Section - Use enriched data when available */}
+                    {(() => {
+                      const enrichedAmenities = verificationReport?.amenities?.extracted || 
+                                               verificationReport?.verificationResults?.amenities?.extracted;
+                      const displayAmenities = enrichedAmenities || community.amenities;
+                      
+                      if (displayAmenities && displayAmenities.length > 0) {
+                        return (
+                          <div className="mb-6">
+                            <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                              <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
+                              Community Amenities
+                              {enrichedAmenities && (
+                                <span className="ml-2 text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">
+                                  Verified
+                                </span>
+                              )}
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                              {displayAmenities.map((amenity: string, index: number) => (
+                                <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                                  <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                                  <span className="text-sm text-gray-900 dark:text-gray-100">{amenity}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
+                    {/* Care Services */}
+                    {community.careServices && community.careServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Heart className="w-4 h-4 mr-2 text-red-600" />
+                          Care Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.careServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Healthcare Services */}
+                    {community.healthcareServices && community.healthcareServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Stethoscope className="w-4 h-4 mr-2 text-purple-600" />
+                          Healthcare Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.healthcareServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dining Services */}
+                    {community.diningServices && community.diningServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <UtensilsCrossed className="w-4 h-4 mr-2 text-orange-600" />
+                          Dining Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.diningServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Transportation Services */}
+                    {community.transportationServices && community.transportationServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Car className="w-4 h-4 mr-2 text-green-600" />
+                          Transportation Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.transportationServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Fitness Services */}
+                    {community.fitnessServices && community.fitnessServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Activity className="w-4 h-4 mr-2 text-indigo-600" />
+                          Fitness & Wellness
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.fitnessServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Social Services */}
+                    {community.socialServices && community.socialServices.length > 0 && (
+                      <div className="mb-6">
+                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
+                          <Users className="w-4 h-4 mr-2 text-blue-600" />
+                          Social & Community Services
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {community.socialServices.map((service, index) => (
+                            <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
+                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* No amenities message */}
+                    {(!community.amenities || community.amenities.length === 0) &&
+                     (!community.careServices || community.careServices.length === 0) &&
+                     (!community.healthcareServices || community.healthcareServices.length === 0) &&
+                     (!community.diningServices || community.diningServices.length === 0) &&
+                     (!community.transportationServices || community.transportationServices.length === 0) &&
+                     (!community.fitnessServices || community.fitnessServices.length === 0) &&
+                     (!community.socialServices || community.socialServices.length === 0) && (
+                      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-6">
+                        <div className="flex items-center gap-3">
+                          <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                          <div>
+                            <h4 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-1">
+                              Amenities Information Needed
+                            </h4>
+                            <p className="text-amber-700 dark:text-amber-300 mb-3">
+                              This community's amenities and services information has not been updated yet.
+                            </p>
+                            <p className="text-sm text-amber-600 dark:text-amber-400">
+                              Is this your community? Claim this profile to add detailed amenities information and attract more qualified residents.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+
                 {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
@@ -2894,254 +3142,6 @@ export default function CommunityDetail() {
                   </div>
               </CardContent>
             </Card>
-
-
-                {/* Community Information & Amenities */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold flex items-center">
-                      <Building className="w-5 h-5 mr-2 text-blue-600" />
-                      About {community.name}
-                    </CardTitle>
-                    <CardDescription className="flex items-center gap-2">
-                      Community details, amenities, and services available
-                      {(() => {
-                        const sources: Array<{source: string}> = (community as any).enrichmentSources || [];
-                        const lastSource = sources.length > 0 ? sources[sources.length - 1].source : null;
-                        const enriched = (community as any).enrichmentCompleted;
-                        if (lastSource === 'jina_official_website') {
-                          return (
-                            <span className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-700">
-                              <Globe className="w-3 h-3" />
-                              Enriched from official website
-                            </span>
-                          );
-                        }
-                        if (lastSource === 'jina_web_search') {
-                          return (
-                            <span className="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-700">
-                              <Search className="w-3 h-3" />
-                              Enriched from web search
-                            </span>
-                          );
-                        }
-                        if (!enriched || lastSource === 'no_source' || !lastSource) {
-                          return (
-                            <span className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700">
-                              <Info className="w-3 h-3" />
-                              Contact for details
-                            </span>
-                          );
-                        }
-                        return null;
-                      })()}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Community Description - Use enriched data when available */}
-                    {(() => {
-                      const enrichedDescription = verificationReport?.description || 
-                                                  verificationReport?.verificationResults?.description;
-                      const displayDescription = enrichedDescription || community.description;
-                      
-                      if (displayDescription) {
-                        const overviewRevealed = isDetailRevealed('overview');
-                        return (
-                          <div className="mb-6">
-                            <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
-                            {overviewRevealed ? (
-                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
-                            ) : (
-                              <div className="relative">
-                                {/* Show the first ~6 lines free, blur the rest until revealed */}
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-6">
-                                  {displayDescription}
-                                </p>
-                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white dark:from-gray-800 to-transparent" />
-                                <button
-                                  type="button"
-                                  onClick={() => revealDetail('overview')}
-                                  className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                                  data-testid="button-reveal-overview"
-                                >
-                                  <Lock className="w-3.5 h-3.5" />
-                                  See full details
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-
-                    {/* Amenities Section - Use enriched data when available */}
-                    {(() => {
-                      const enrichedAmenities = verificationReport?.amenities?.extracted || 
-                                               verificationReport?.verificationResults?.amenities?.extracted;
-                      const displayAmenities = enrichedAmenities || community.amenities;
-                      
-                      if (displayAmenities && displayAmenities.length > 0) {
-                        return (
-                          <div className="mb-6">
-                            <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                              <Sparkles className="w-4 h-4 mr-2 text-blue-600" />
-                              Community Amenities
-                              {enrichedAmenities && (
-                                <span className="ml-2 text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-0.5 rounded-full">
-                                  Verified
-                                </span>
-                              )}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                              {displayAmenities.map((amenity: string, index: number) => (
-                                <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                                  <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                                  <span className="text-sm text-gray-900 dark:text-gray-100">{amenity}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
-                    })()}
-
-                    {/* Care Services */}
-                    {community.careServices && community.careServices.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                          <Heart className="w-4 h-4 mr-2 text-red-600" />
-                          Care Services
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {community.careServices.map((service, index) => (
-                            <div key={index} className="flex items-center p-2 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-700">
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Healthcare Services */}
-                    {community.healthcareServices && community.healthcareServices.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                          <Stethoscope className="w-4 h-4 mr-2 text-purple-600" />
-                          Healthcare Services
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {community.healthcareServices.map((service, index) => (
-                            <div key={index} className="flex items-center p-2 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Dining Services */}
-                    {community.diningServices && community.diningServices.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                          <UtensilsCrossed className="w-4 h-4 mr-2 text-orange-600" />
-                          Dining Services
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {community.diningServices.map((service, index) => (
-                            <div key={index} className="flex items-center p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-700">
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Transportation Services */}
-                    {community.transportationServices && community.transportationServices.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                          <Car className="w-4 h-4 mr-2 text-green-600" />
-                          Transportation Services
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {community.transportationServices.map((service, index) => (
-                            <div key={index} className="flex items-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Fitness Services */}
-                    {community.fitnessServices && community.fitnessServices.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                          <Activity className="w-4 h-4 mr-2 text-indigo-600" />
-                          Fitness & Wellness
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {community.fitnessServices.map((service, index) => (
-                            <div key={index} className="flex items-center p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-200 dark:border-indigo-700">
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Social Services */}
-                    {community.socialServices && community.socialServices.length > 0 && (
-                      <div className="mb-6">
-                        <h4 className="text-lg font-semibold mb-3 text-gray-900 dark:text-gray-100 flex items-center">
-                          <Users className="w-4 h-4 mr-2 text-blue-600" />
-                          Social & Community Services
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                          {community.socialServices.map((service, index) => (
-                            <div key={index} className="flex items-center p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-700">
-                              <CheckCircle className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                              <span className="text-sm text-gray-900 dark:text-gray-100">{service}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* No amenities message */}
-                    {(!community.amenities || community.amenities.length === 0) &&
-                     (!community.careServices || community.careServices.length === 0) &&
-                     (!community.healthcareServices || community.healthcareServices.length === 0) &&
-                     (!community.diningServices || community.diningServices.length === 0) &&
-                     (!community.transportationServices || community.transportationServices.length === 0) &&
-                     (!community.fitnessServices || community.fitnessServices.length === 0) &&
-                     (!community.socialServices || community.socialServices.length === 0) && (
-                      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-6">
-                        <div className="flex items-center gap-3">
-                          <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                          <div>
-                            <h4 className="text-lg font-semibold text-amber-800 dark:text-amber-200 mb-1">
-                              Amenities Information Needed
-                            </h4>
-                            <p className="text-amber-700 dark:text-amber-300 mb-3">
-                              This community's amenities and services information has not been updated yet.
-                            </p>
-                            <p className="text-sm text-amber-600 dark:text-amber-400">
-                              Is this your community? Claim this profile to add detailed amenities information and attract more qualified residents.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
 
                 {/* Move-In Coordination Section */}
                 <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
