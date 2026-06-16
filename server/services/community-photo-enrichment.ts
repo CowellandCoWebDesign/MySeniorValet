@@ -1,6 +1,7 @@
 import { communities } from '@shared/schema';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
+import { normalizePhotoUrls } from '../utils/photo-urls';
 
 /**
  * Community Photo Enrichment Service
@@ -251,11 +252,15 @@ export class CommunityPhotoEnrichment {
    *     keep the one with the largest apparent dimensions (longest URL as tie-breaker).
    * Returns the cleaned array (same reference iff nothing changed).
    */
-  static cleanPhotoArray(photos: string[]): string[] {
-    if (!photos || photos.length === 0) return photos;
+  static cleanPhotoArray(photos: any[]): string[] {
+    if (!photos || photos.length === 0) return [];
+
+    // Step 0 – normalize: extract URLs from object entries, decode HTML
+    // entities (&amp; etc.), unwrap proxy URLs, drop "[object Object]"/non-http.
+    const normalized = normalizePhotoUrls(photos);
 
     // Step 1 – exact dedup
-    const unique = [...new Set(photos.filter(p => typeof p === 'string' && p.trim().length > 0))];
+    const unique = [...new Set(normalized.filter(p => typeof p === 'string' && p.trim().length > 0))];
 
     // Step 2 – noise removal
     const filtered = unique.filter(p => !this.isStockOrPlaceholderPhoto(p) && !this.isSmallThumbnailUrl(p));
@@ -294,12 +299,16 @@ export class CommunityPhotoEnrichment {
    * Get only real photos for a community (NO STOCK PHOTOS)
    */
   static getEnrichedPhotosForCommunity(community: any): string[] {
-    // Check existing photos and filter out ANY stock/placeholder photos
-    const existingPhotos = [
+    // Check existing photos and filter out ANY stock/placeholder photos.
+    // normalizePhotoUrls runs FIRST so legacy corruption ("[object Object]",
+    // object entries, &amp;-encoded URLs) is cleaned at serve time — this is the
+    // central read getter behind /api/communities/:id, so every public detail
+    // read is protected, not just comprehensive-data.
+    const existingPhotos = normalizePhotoUrls([
       ...(community.photos || []),
       ...(community.imageGallery || []),
       ...(community.yelpPhotos || [])
-    ].filter(photo => photo && !this.isStockOrPlaceholderPhoto(photo));
+    ]).filter(photo => !this.isStockOrPlaceholderPhoto(photo));
     
     // Return only real photos, no stock photo fallbacks
     return existingPhotos.slice(0, 15);

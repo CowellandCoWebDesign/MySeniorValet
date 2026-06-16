@@ -14,3 +14,4 @@
 - [Photo enrichment sources](photo-enrichment-sources.md) — senior living directories (caring/aplaceformom/seniorlivingnearme) are VALID photo sources; only skip social/review sites; scrape multiple candidate pages.
 - [Vite 8 CJS default interop](vite8-cjs-default-interop.md) — rolldown wraps CJS as `export default require_lib()`, breaking default imports; unwrap with `(import as any)?.default ?? import`.
 - [Community geocode cleanup](community-geocode-cleanup.md) — never hard-delete a community on a heuristic; quarantine (is_hidden+synthetic_suspected) and let the geocoder arbitrate real vs fake; restore via jsonb_populate_recordset.
+- [communities.photos corruption](community-photos-corruption.md) — text[] holds "[object Object]"/entity-encoded URLs that break public photos; normalizePhotoUrls on every read+write path.

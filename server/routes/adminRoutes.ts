@@ -793,16 +793,28 @@ export function registerAdminRoutes(app: Express) {
       }
 
       // Photos — ALWAYS replace when Jina found fresh ones (clears stale/inaccurate photos).
+      // normalizePhotoUrls guarantees clean string URLs (decodes &amp; entities,
+      // unwraps any object entries) so the text[] column never stores "[object Object]".
       if (freshPhotoUrls.length > 0) {
-        updates.photos = freshPhotoUrls;
-        updates.photoAttributions = freshPhotoAttributions;
-        updates.lastPhotoEnrichment = now;
+        const cleaned = normalizePhotoUrls(freshPhotoUrls);
+        // Only overwrite when cleaning leaves real URLs — never wipe existing
+        // photos because every fresh candidate was filtered out as invalid.
+        if (cleaned.length > 0) {
+          updates.photos = cleaned;
+          // Re-align attributions to the surviving cleaned URLs.
+          const beforeDecode = new Map(freshPhotoUrls.map((u, i) => [u, freshPhotoAttributions[i] || '']));
+          updates.photoAttributions = cleaned.map((u, i) =>
+            beforeDecode.get(u) ?? freshPhotoAttributions[i] ?? '');
+          updates.lastPhotoEnrichment = now;
+        }
       } else if (result.photos.length > 0) {
         // Fallback: Perplexity search found some image URLs (rare but possible)
-        const photoUrls = result.photos.map(p => p.url);
-        updates.photos = photoUrls;
-        updates.photoAttributions = result.photos.map(p => p.source || '');
-        updates.lastPhotoEnrichment = now;
+        const cleaned = normalizePhotoUrls(result.photos.map(p => p.url));
+        if (cleaned.length > 0) {
+          updates.photos = cleaned;
+          updates.photoAttributions = cleaned.map(() => result.photos[0]?.source || '');
+          updates.lastPhotoEnrichment = now;
+        }
       }
 
       await db.update(communities).set(updates).where(eq(communities.id, communityId));

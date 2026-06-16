@@ -15,6 +15,16 @@ router.get('/api/image-proxy', async (req, res) => {
     // Decode the URL in case it's double-encoded
     let decodedUrl = decodeURIComponent(imageUrl);
 
+    // Decode HTML entities that some scraped URLs carry (e.g. ...?w=570&amp;h=550).
+    // Left undecoded, the upstream host sees a literal "&amp;" query key and
+    // returns the wrong image or a 404.
+    if (decodedUrl.includes('&')) {
+      decodedUrl = decodedUrl
+        .replace(/&amp;/gi, '&')
+        .replace(/&#0*38;/g, '&')
+        .replace(/&#x0*26;/gi, '&');
+    }
+
     // Filter out obviously corrupted URLs before processing
     if (decodedUrl.includes('QwQwQwQw') || 
         decodedUrl.includes('kQz8kQz8') ||

@@ -6,6 +6,7 @@ import { communityWebsiteCrawler, DeepCrawlResult } from './services/community-w
 import { db } from './db';
 import { perplexityCache, communities, pricingHistory } from '../shared/schema';
 import { eq, lt, and, isNull } from 'drizzle-orm';
+import { normalizePhotoUrls } from './utils/photo-urls';
 
 interface CachedCommunityData {
   communityPk?: number; // Numeric primary key from communities.id table
@@ -174,10 +175,13 @@ class UnifiedPerplexityCache {
           
           const updates: any = {};
           
-          // Update photos if we have them
-          if (originalPhotos.length > 0) {
-            updates.photos = originalPhotos;
-            console.log(`📸 Syncing ${originalPhotos.length} photos to communities.photos for ID ${communityPk}`);
+          // Update photos if we have them. normalizePhotoUrls guarantees clean
+          // string URLs (objects → url, &amp; decoded) so the text[] column never
+          // stores "[object Object]" or entity-broken URLs.
+          const cleanSyncPhotos = normalizePhotoUrls(originalPhotos);
+          if (cleanSyncPhotos.length > 0) {
+            updates.photos = cleanSyncPhotos;
+            console.log(`📸 Syncing ${cleanSyncPhotos.length} photos to communities.photos for ID ${communityPk}`);
           }
           
           // Update description with FULL Perplexity content

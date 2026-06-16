@@ -18,5 +18,4 @@ Vite 8 uses rolldown internally. Its CJS-to-ESM interop wraps packages different
 ## How to Apply
 - The symptom is React's "Element type is invalid: expected string or class/function but got: object" from a component that uses that package.
 - Check `.vite/deps/<package>.js` — if the last line is `export default require_lib()` (not `export { something as default }`), the package needs the unwrap pattern above.
-- react-leaflet-cluster was the first known case after upgrading to Vite 8 + @vitejs/plugin-react v6.
-- Already-applied fix lives in `client/src/components/Map.tsx` line 9-12.
+- react-leaflet-cluster was the first known case after upgrading to Vite 8 + @vitejs/plugin-react v6; grep for the unwrap pattern to find where it's already applied.

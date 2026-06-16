@@ -22,6 +22,7 @@ import { internalNotifications } from "../services/internal-notifications";
 import { enrichCommunityFree, scrapeWebsitePage, searchDuckDuckGo, textReferencesCommunity, type DdgSearchResult } from "../services/free-enrichment-service";
 import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
 import { cleanCitationArtifacts, isReachableWebsite } from "../utils/data-quality";
+import { normalizePhotoUrls } from "../utils/photo-urls";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
 import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
 import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
@@ -1980,26 +1981,18 @@ export function registerCommunityRoutes(app: Express) {
       // Process photos from database only - NO external API calls
       let normalizedPhotos = [];
       
-      // Use existing database photos
+      // Use existing database photos.
+      // normalizePhotoUrls repairs legacy corruption at serve time: it extracts
+      // URLs from object entries, decodes HTML entities (&amp; → &), and drops
+      // "[object Object]"/non-http junk so only fetchable URLs reach the proxy.
       if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
-        console.log(`✅ Found ${community.photos.length} photos in database`);
-        normalizedPhotos = community.photos.map(photo => {
-          // Handle various photo formats in database
-          if (typeof photo === 'string') {
-            // If it's already a full URL, use it with proxy
-            if (photo.includes('http')) {
-              return `/api/image-proxy?url=${encodeURIComponent(photo)}`;
-            }
-            return photo;
-          }
-          if (typeof photo === 'object' && photo !== null) {
-            const url = photo.url || photo.imageUrl || photo.src || '';
-            if (url && url.includes('http')) {
-              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
-            }
-          }
-          return '';
-        }).filter(url => url && url.trim() !== '');
+        const cleanUrls = normalizePhotoUrls(community.photos);
+        console.log(`✅ Found ${community.photos.length} photos in database (${cleanUrls.length} valid after normalize)`);
+        normalizedPhotos = cleanUrls.map(url =>
+          url.startsWith('/uploads/')
+            ? url
+            : `/api/image-proxy?url=${encodeURIComponent(url)}`
+        );
       }
 
       // Build market data from existing database fields only
