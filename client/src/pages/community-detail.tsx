@@ -1807,10 +1807,32 @@ export default function CommunityDetail() {
         setVerificationReport(null);
         enrichmentCache.clearCommunity(community.id);
 
-        // Refetch the persisted community record so all updated fields render.
-        if (idQueryKey) queryClient.invalidateQueries({ queryKey: [idQueryKey] });
-        if (slugQueryKey) queryClient.invalidateQueries({ queryKey: [slugQueryKey] });
-        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+        // Immediately patch the cached community with the new photos so the
+        // carousel shows them without waiting for the network round-trip.
+        const freshPhotos: string[] = (data.photos || []).filter(
+          (u: any) => typeof u === 'string' && /^https?:\/\//i.test(u),
+        );
+        if (freshPhotos.length > 0) {
+          if (slugQueryKey) {
+            queryClient.setQueryData([slugQueryKey], (old: any) =>
+              old ? { ...old, photos: freshPhotos } : old,
+            );
+          }
+          if (idQueryKey) {
+            queryClient.setQueryData([idQueryKey], (old: any) =>
+              old ? { ...old, photos: freshPhotos } : old,
+            );
+          }
+          queryClient.setQueryData([`/api/communities/${community.id}`], (old: any) =>
+            old ? { ...old, photos: freshPhotos } : old,
+          );
+        }
+
+        // Force an immediate background refetch so description, pricing, and
+        // other persisted fields also update (photos already patched above).
+        if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
+        if (idQueryKey) queryClient.refetchQueries({ queryKey: [idQueryKey] });
+        queryClient.refetchQueries({ queryKey: [`/api/communities/${community.id}`] });
         return;
       }
 
