@@ -104,6 +104,21 @@ const getVideoPlatform = (url: string): string => {
   return 'Video';
 };
 
+// Route any absolute external http(s) photo URL through the same-origin image
+// proxy so it renders regardless of upstream protocol/host restrictions
+// (mixed-content, CSP img-src, hotlink blocking, CORS). Already-proxied URLs,
+// local upload paths, and video URLs are returned untouched.
+const toProxiedUrl = (url: string): string => {
+  if (!url || typeof url !== 'string') return url;
+  if (url.startsWith('/api/image-proxy')) return url;
+  if (url.startsWith('/')) return url; // local same-origin paths (e.g. /uploads/...)
+  if (isVideoUrl(url)) return url; // videos are embedded in an iframe, not proxied
+  if (/^https?:\/\//i.test(url)) {
+    return `/api/image-proxy?url=${encodeURIComponent(url)}`;
+  }
+  return url;
+};
+
 interface PhotoCarouselProps {
   photos?: any[];
   communityId?: number;
@@ -204,7 +219,7 @@ export function EnhancedPhotoCarousel({
           // Check if it's a video URL
           const videoFlag = isVideoUrl(url);
           allPhotos.push({ 
-            url, 
+            url: toProxiedUrl(url), 
             source: loadingStage === 'complete' ? 'high-quality' : 'quick-load',
             isAuthentic: true,
             isVideo: videoFlag
@@ -240,7 +255,7 @@ export function EnhancedPhotoCarousel({
       community.photos.forEach((p: any) => {
         const url = typeof p === 'string' ? p : (p.image_url || p.url || p);
         if (isValidPhotoUrl(url)) {
-          allPhotos.push({ url, source: 'database' });
+          allPhotos.push({ url: toProxiedUrl(url), source: 'database' });
         }
       });
     }
@@ -252,17 +267,9 @@ export function EnhancedPhotoCarousel({
         
         if (!isValidPhotoUrl(url)) return;
         
-        // Skip proxy if URL is already proxied
-        if (url && !url.startsWith('/api/image-proxy')) {
-          // Use proxy for external images to bypass CORS
-          if (url.includes('tripadvisor.com') || 
-              url.includes('yelp.com') || 
-              url.includes('yelpcdn.com') ||
-              url.includes('googleusercontent.com') ||
-              url.includes('otstatic.com')) {
-            url = `/api/image-proxy?url=${encodeURIComponent(url)}`;
-          }
-        }
+        // Route every external image through the same-origin proxy to bypass
+        // mixed-content / CSP / hotlink / CORS restrictions.
+        url = toProxiedUrl(url);
         
         allPhotos.push({ url, source: 'prop' });
       });
@@ -288,19 +295,9 @@ export function EnhancedPhotoCarousel({
           return;
         }
         
-        let processedUrl = url;
-        
-        // Skip proxy if URL is already proxied
-        if (processedUrl && !processedUrl.startsWith('/api/image-proxy')) {
-          // Use proxy for external images to bypass CORS
-          if (processedUrl.includes('tripadvisor.com') || 
-              processedUrl.includes('yelp.com') || 
-              processedUrl.includes('yelpcdn.com') ||
-              processedUrl.includes('googleusercontent.com') ||
-              processedUrl.includes('otstatic.com')) {
-            processedUrl = `/api/image-proxy?url=${encodeURIComponent(processedUrl)}`;
-          }
-        }
+        // Route every external image through the same-origin proxy to bypass
+        // mixed-content / CSP / hotlink / CORS restrictions.
+        const processedUrl = toProxiedUrl(url);
         
         const photoData = {
           url: processedUrl,

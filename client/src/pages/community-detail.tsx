@@ -962,7 +962,11 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
                     localVerificationReport?.perplexityData?.searchContent ||
                     localVerificationReport?.searchContent ||
-                    localVerificationReport?.content;
+                    localVerificationReport?.content ||
+                    // Fall back to the persisted description (web-intelligence sourced)
+                    // saved on the community record, so it renders on a normal page
+                    // load without requiring a fresh live verification.
+                    community?.description;
                   
                   const perplexitySources = 
                     localVerificationReport?.verificationResults?.perplexityData?.sources ||
