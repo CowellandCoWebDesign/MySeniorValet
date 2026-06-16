@@ -8,7 +8,9 @@ description: Why scraped photos found by enrichment fail to render publicly, and
 1. Photo **objects** (`{url, source, isAuthentic}`) written into the text[] coerce to the literal string `"[object Object]"`. Real URLs usually survive in `enrichment_data->'photos'`.
 2. **HTML-entity-encoded** URLs (`&amp;`, `&#38;`) 404 when fetched — the image proxy URL-decodes but historically did NOT entity-decode.
 
-Always run `normalizePhotoUrls()` (server/utils/photo-urls.ts) on BOTH write and read paths. It maps objects→url, unwraps `/api/image-proxy?url=` prefixes, decodes HTML entities, drops non-http/`[object Object]`, and dedupes.
+Always run `normalizePhotoUrls()` (server/utils/photo-urls.ts) on BOTH write and read paths. It maps objects→url, unwraps `/api/image-proxy?url=` prefixes, decodes HTML entities, unwraps Next.js image-optimizer wrappers, drops non-http/`[object Object]`, and dedupes.
+
+3. **Next.js image-optimizer wrappers** (`<host>/_next/image?url=<encoded CDN url>&w=&q=`, e.g. olera.care) rate-limit (429) when proxied and render blank. `unwrapNextImageUrl()` (exported from photo-urls.ts) rewrites them to the inner CDN URL when the inner `url` is absolute http(s); relative inner targets and plain URLs are left untouched. Applied in both `normalizePhotoUrls` (persist) and `server/routes/imageProxy.ts` (fetch, before SSRF checks).
 
 **Why:** the corruption is invisible in the admin panel (which reads the live object array) but the public detail page reads the persisted text[], so admins saw photos that never reached families.
 

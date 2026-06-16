@@ -26,3 +26,17 @@ zero or stale photos.
   allowlist + this exact-match test now live in ONE exported helper,
   `isSeniorLivingDirectoryHost()` (perplexity-search-api.ts) — reuse it everywhere
   instead of re-implementing per-route filters. See community-photo-write-paths.md.
+
+**Perplexity `return_images` gate (June 2026):** the directory allowlist is NO
+longer a hard requirement for Perplexity's own returned images. That gate
+(`originIsDirectory && relevant`) discarded ALL photos for communities hosted on
+unlisted sites (e.g. olera.care: 10 returned, 10 rejected, 0 kept). Now: trust
+Perplexity by default — keep when authentic (official domain) OR a light guard
+passes (`hasNameToken && hasCityToken && !siblingLocation`), and the guard ONLY
+applies when BOTH distinctive name AND city tokens exist; generic-named /
+unknown-city communities default to keeping. The Jina *scrape* directory gate
+(arbitrary pages, not curated Perplexity output) stays in place.
+
+**Why:** allowlist over-rejection silently zeroed out photos for good communities;
+Perplexity already returns query-matched images, so a manual host list is redundant
+and harmful. Light name+city guard still catches same-name college/gym/hospital.

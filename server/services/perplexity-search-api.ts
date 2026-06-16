@@ -1125,15 +1125,20 @@ Rules:
         const imgHasCity = cityTokens.some(t => imgHay.includes(t));
         const siblingLocation = imgHasName && cityTokens.length > 0 && !imgHasCity;
 
-        // Accept verified official-domain images outright (their galleries/CDNs
-        // often use generic paths). Otherwise the ORIGIN page must be a recognized
-        // senior-living directory AND clearly reference this community by name AND
-        // city. `return_images` happily returns gyms, hospitals, and architecture
-        // portfolios for generically-named facilities; gating on a known directory
-        // origin is the only reliable way to reject that look-alike junk.
-        const originIsDirectory = isSeniorLivingDirectoryHost(host);
+        // Trust Perplexity's query-matched images by default and apply only a
+        // light guard, instead of requiring the origin to sit on a hand-maintained
+        // directory allowlist (which discarded good photos hosted on sites we
+        // hadn't listed). We keep an image when it is authentic (official domain)
+        // OR it passes the light relevance guard. We only have a reliable signal
+        // to reject when BOTH a distinctive name token AND a city token exist for
+        // the community; in that case the origin must reference this community by
+        // name and city and not be a sibling-brand location. For generically-named
+        // communities (no distinctive name tokens) or unknown-city ones, we lack a
+        // reliable signal, so we keep Perplexity's result rather than dropping all.
+        const haveSignal = nameTokens.length > 0 && cityTokens.length > 0;
         const relevant = hasNameToken && hasCityToken && !siblingLocation;
-        if (!isAuthentic && !(originIsDirectory && relevant)) {
+        const keep = isAuthentic || !haveSignal || relevant;
+        if (!keep) {
           rejected++;
           continue;
         }

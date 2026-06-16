@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import fetch from 'node-fetch';
+import { unwrapNextImageUrl } from '../utils/photo-urls';
 
 const router = Router();
 
@@ -24,6 +25,12 @@ router.get('/api/image-proxy', async (req, res) => {
         .replace(/&#0*38;/g, '&')
         .replace(/&#x0*26;/gi, '&');
     }
+
+    // Unwrap Next.js image-optimizer wrappers (e.g. olera.care/_next/image?url=
+    // <cdn.sanity.io ...>) to the underlying CDN URL. The wrapper rate-limits
+    // (429) when proxied; the inner CDN URL fetches reliably. SSRF/host checks
+    // below run on this final unwrapped URL.
+    decodedUrl = unwrapNextImageUrl(decodedUrl);
 
     // Filter out obviously corrupted URLs before processing
     if (decodedUrl.includes('QwQwQwQw') || 
