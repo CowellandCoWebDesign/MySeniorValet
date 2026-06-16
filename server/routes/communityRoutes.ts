@@ -21,6 +21,7 @@ import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { enrichCommunityFree, scrapeWebsitePage, searchDuckDuckGo, textReferencesCommunity, type DdgSearchResult } from "../services/free-enrichment-service";
 import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
+import { perplexitySearchAPI, isSeniorLivingDirectoryHost } from "../services/perplexity-search-api";
 import { cleanCitationArtifacts, isReachableWebsite } from "../utils/data-quality";
 import { normalizePhotoUrls } from "../utils/photo-urls";
 import { multiAIVerificationService } from "../multi-ai-verification-service";
@@ -1152,10 +1153,15 @@ export function registerCommunityRoutes(app: Express) {
         }
       }
       
-      // 7-day cache: skip Jina fetch if we have recent enrichment and caller did not force a refresh
+      // 7-day cache: skip Jina fetch if we have recent enrichment and caller did not force a refresh.
+      // Guard: only serve from cache when the DB actually holds a meaningful description
+      // (> 80 chars). A short/empty description means a prior enrichment produced nothing
+      // useful — re-run enrichment instead of serving "Contact for details." for 7 days.
       const ENRICHMENT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
       const lastEnriched = community.lastSuccessfulEnrichment;
-      if (!forceRefresh && lastEnriched && (Date.now() - new Date(lastEnriched).getTime()) < ENRICHMENT_CACHE_TTL_MS) {
+      const hasMeaningfulDescription = !!community.description && community.description.trim().length > 80;
+      if (!forceRefresh && lastEnriched && hasMeaningfulDescription &&
+          (Date.now() - new Date(lastEnriched).getTime()) < ENRICHMENT_CACHE_TTL_MS) {
         const ageDays = Math.round((Date.now() - new Date(lastEnriched).getTime()) / 86_400_000);
         console.log(`⚡ Cache hit for "${community.name}" — enriched ${ageDays}d ago, serving DB data`);
         return res.json({
@@ -1191,33 +1197,66 @@ export function registerCommunityRoutes(app: Express) {
         });
       }
 
-      // ── Primary: Gemini 2.0 Flash + Search Grounding ──────────────────────────
-      console.log(`🤖 Trying Gemini enrichment for "${community.name}" (${community.city}, ${community.state})`);
-      const geminiResult = await enrichCommunityWithGemini({
-        name: community.name,
-        city: community.city,
-        state: community.state,
-      });
+      // ── Primary: Perplexity sonar (description) + return_images (photos) ──────
+      // Perplexity is the platform's enrichment engine: `deepEnrichCommunity` runs
+      // one Search API call + one sonar structured-extract (verified description &
+      // fields) + one sonar `return_images` call (native, multi-source community
+      // photos). This replaces the prior Gemini + DuckDuckGo/Jina scrape path,
+      // which corroborated 0 photos and produced empty About sections.
+      console.log(`🧠 Trying Perplexity enrichment for "${community.name}" (${community.city}, ${community.state})`);
 
       let freeEnrichment: Awaited<ReturnType<typeof enrichCommunityFree>> | null = null;
+      // Photos returned natively by Perplexity `return_images` ({url, source}).
+      let perplexityPhotos: Array<{ url: string; source: string }> = [];
+      // Perplexity Search results whose host is a recognized senior-living directory.
+      // Fed into the directory scrape/corroborate path below as the deterministic,
+      // Perplexity-sourced photo discovery (preferred over DuckDuckGo/Bing).
+      let perplexityDirectoryCandidates: Array<{ url: string; title: string; snippet: string }> = [];
 
-      if (geminiResult.sourceType === "gemini_search" && geminiResult.about) {
-        console.log(`🤖 Gemini enrichment: ${geminiResult.about.length} chars for "${community.name}"`);
-        // Map Gemini result into the FreeEnrichmentResult shape
-        freeEnrichment = {
-          about: geminiResult.about,
-          website: geminiResult.website,
-          phone: geminiResult.phone,
-          careTypes: geminiResult.careTypes,
-          amenities: geminiResult.amenities,
-          pricingContext: geminiResult.pricing,
-          sourceUrl: geminiResult.website || communityWebsite || community.website || undefined,
-          sourceType: "web_search",
-          structured: true,
-        } as any;
-      } else {
+      try {
+        const pplx = await perplexitySearchAPI.deepEnrichCommunity({
+          name: community.name,
+          city: community.city,
+          state: community.state,
+          website: communityWebsite || community.website,
+        });
+
+        if (pplx.summary && pplx.summary.length > 50) {
+          perplexityPhotos = (pplx.photos || []).map((p) => ({ url: p.url, source: p.source }));
+          perplexityDirectoryCandidates = pplx.photoDirectoryCandidates || [];
+          console.log(
+            `🧠 Perplexity enrichment: ${pplx.summary.length} chars, ${perplexityPhotos.length} photo(s), ` +
+            `${perplexityDirectoryCandidates.length} directory candidate(s) for "${community.name}"`,
+          );
+          const pricingContext =
+            pplx.pricing && (pplx.pricing.min || pplx.pricing.max)
+              ? (pplx.pricing.min && pplx.pricing.max && pplx.pricing.min !== pplx.pricing.max
+                  ? `$${pplx.pricing.min.toLocaleString()}–$${pplx.pricing.max.toLocaleString()}/mo`
+                  : `$${(pplx.pricing.min ?? pplx.pricing.max)!.toLocaleString()}/mo`)
+              : undefined;
+          // Map Perplexity result into the FreeEnrichmentResult shape
+          freeEnrichment = {
+            about: pplx.summary,
+            website: pplx.officialWebsite || undefined,
+            phone: pplx.phone || undefined,
+            careTypes: [],
+            amenities: [],
+            pricingContext,
+            photos: perplexityPhotos.map((p) => p.url),
+            sourceUrl: pplx.officialWebsite || communityWebsite || community.website || undefined,
+            sourceType: "web_search",
+            structured: true,
+          } as any;
+        }
+      } catch (err) {
+        console.warn(
+          `⚠️ Perplexity enrichment failed for "${community.name}": ${err instanceof Error ? err.message : err}`,
+        );
+      }
+
+      if (!freeEnrichment) {
         // ── Fallback: DuckDuckGo + Jina pipeline ────────────────────────────────
-        console.log(`🔍 Gemini unavailable — running DuckDuckGo/Jina enrichment for "${community.name}"`);
+        console.log(`🔍 Perplexity unavailable — running DuckDuckGo/Jina enrichment for "${community.name}"`);
         freeEnrichment = await enrichCommunityFree({
           name: community.name,
           city: community.city,
@@ -1249,13 +1288,29 @@ export function registerCommunityRoutes(app: Express) {
       // Per-photo source attribution, index-aligned with discoveredPhotos.
       let discoveredPhotoAttributions: string[] = [];
       const hasDbPhotos = cleanDbPhotos.length > 0;
-      if (!hasDbPhotos) {
+
+      // Prefer Perplexity's native `return_images` photos — reliable, multi-source,
+      // and already confirmed for this exact community. Only fall back to the
+      // DuckDuckGo/Jina scrape (below) when Perplexity returned none.
+      if (!hasDbPhotos && perplexityPhotos.length > 0) {
+        discoveredPhotos = perplexityPhotos.map((p) => p.url);
+        discoveredPhotoAttributions = perplexityPhotos.map((p) => p.source || "perplexity");
+        console.log(`📸 Using ${discoveredPhotos.length} Perplexity return_images photo(s) for "${community.name}"`);
+      }
+
+      if (!hasDbPhotos && discoveredPhotos.length === 0) {
         // Scrape a page and return its usable (non-blocklisted) images + the page
         // text we use to confirm the page is actually about THIS community.
         const scrapeUsablePage = async (
           url: string,
         ): Promise<{ images: string[]; text: string }> => {
-          const page = await scrapeWebsitePage(url);
+          // Normalize bare domains (e.g. "rbhc.biz") to a full URL AND force https.
+          // The SSRF guard rejects unparseable bare hosts ("unsafe URL"), and http
+          // image URLs persisted from the scrape would be blocked as mixed content
+          // on the public https page — so scrape over https to yield https images.
+          const normalizedUrl = (/^https?:\/\//i.test(url) ? url : `https://${url}`)
+            .replace(/^http:\/\//i, "https://");
+          const page = await scrapeWebsitePage(normalizedUrl);
           return {
             images: page.images
               .filter((u) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u))
@@ -1315,8 +1370,28 @@ export function registerCommunityRoutes(app: Express) {
         //    the cheap search title/snippet (pre-fetch), then via the scraped body.
         const MAX_DIRECTORY_SOURCES = 4;
         let directoriesScraped = 0;
-        for (const listing of ddg.directoryListings) {
+        // Prefer Perplexity-sourced directory candidates (deterministic) and then
+        // any DuckDuckGo/Bing directory listings as a supplement. Both are held to
+        // the SAME allowlist + name/city confirmation, so neither can inject junk —
+        // this is what keeps DuckDuckGo from clouding the Perplexity-sourced photos.
+        const directoryCandidates = [...perplexityDirectoryCandidates, ...ddg.directoryListings];
+        const seenListingUrls = new Set<string>();
+        for (const listing of directoryCandidates) {
           if (directoriesScraped >= MAX_DIRECTORY_SOURCES) break;
+          if (seenListingUrls.has(listing.url)) continue;
+          seenListingUrls.add(listing.url);
+          // Golden Data: only trust recognized senior-living directories as a
+          // photo source. A name+city text match is NOT enough — search engines
+          // routinely return same-name gyms, clinics, hospitals, and architecture
+          // portfolios (e.g. "Red Bluff Health & Fitness" for "Red Bluff Health
+          // Care Center") whose pages legitimately mention the city. Restricting to
+          // known directories (exact host/subdomain match) reliably rejects that junk.
+          let listingHost = "";
+          try { listingHost = new URL(listing.url).hostname.replace(/^www\./, ""); } catch {}
+          if (!isSeniorLivingDirectoryHost(listingHost)) {
+            console.log(`📸 Skipping non-directory listing (untrusted source): ${listing.url}`);
+            continue;
+          }
           const meta = `${listing.url} ${listing.title} ${listing.snippet}`;
           if (!textReferencesCommunity(meta, community.name, community.city, { requireCity: true })) {
             console.log(`📸 Skipping directory listing (metadata mismatch): ${listing.url}`);
@@ -1433,6 +1508,12 @@ export function registerCommunityRoutes(app: Express) {
       if (enrichmentResult.searchResults?.summary) {
         const updates: any = {};
         let hasUpdates = false;
+        // Tracks whether REAL public content (description or photos) was actually
+        // persisted. lastSuccessfulEnrichment must only be stamped when this is
+        // true — otherwise a successful-but-empty Gemini call stamps the timestamp,
+        // the 7-day cache kicks in, and the About section serves "Contact for
+        // details." forever (it never re-enriches to fill the blank description).
+        let contentWasSaved = false;
         
         // Get current community data
         const [current] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
@@ -1468,10 +1549,11 @@ export function registerCommunityRoutes(app: Express) {
           // (citation artifacts stripped before persisting)
           const candidateDescription = cleanCitationArtifacts(enrichmentResult.searchResults?.summary);
           if (candidateDescription &&
-              candidateDescription.length > 100 &&
+              candidateDescription.length > 50 &&
               (!current.description || current.description.length < 50 || forceRefresh)) {
             updates.description = candidateDescription; // Full content, no substring!
             hasUpdates = true;
+            contentWasSaved = true;
             console.log(`✅ Updating description with FULL enriched content (${candidateDescription.length} chars)`);
           }
 
@@ -1509,6 +1591,7 @@ export function registerCommunityRoutes(app: Express) {
                   ? cleanedAttributions
                   : cleanedDiscovered.map((_, i) => cleanedAttributions[i] || "");
               hasUpdates = true;
+              contentWasSaved = true;
               if (cleanedDiscovered.length < rawDiscovered.length) {
                 console.log(
                   `✅ Updating photos with ${cleanedDiscovered.length} corroborated images ` +
@@ -1524,8 +1607,11 @@ export function registerCommunityRoutes(app: Express) {
             }
           }
 
-          // Always stamp lastSuccessfulEnrichment when the pipeline produced real data
-          if (freeEnrichment.sourceType !== 'none') {
+          // Only stamp lastSuccessfulEnrichment when REAL public content (a
+          // description or photos) was actually persisted. Stamping on a
+          // successful-but-empty enrichment would arm the 7-day cache and lock the
+          // About section to "Contact for details." until the TTL expires.
+          if (contentWasSaved) {
             updates.lastSuccessfulEnrichment = new Date();
             hasUpdates = true;
           }

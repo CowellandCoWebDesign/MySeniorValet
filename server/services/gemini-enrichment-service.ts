@@ -40,8 +40,8 @@ export async function enrichCommunityWithGemini(params: {
 Community name: ${params.name}
 State: ${params.state}
 
-Required JSON (use null for unknown fields, keep "about" to 1 sentence):
-{"about":"one sentence description","website":null,"phone":null,"careTypes":["e.g. Assisted Living"],"amenities":["e.g. Dining"],"pricing":null}
+Required JSON (use null for unknown fields, write "about" as 2-4 sentences, at least 120 characters):
+{"about":"A 2-4 sentence description of the community, its setting, and the care it provides (minimum 120 characters).","website":null,"phone":null,"careTypes":["e.g. Assisted Living"],"amenities":["e.g. Dining"],"pricing":null}
 
 CRITICAL: NEVER guess or invent a website URL or phone number. Always return null for "website" and "phone" — they are verified separately from real sources. Do NOT add citation markers like [1] or "(verify)".
 

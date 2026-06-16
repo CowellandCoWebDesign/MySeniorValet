@@ -7,6 +7,8 @@ import { eq } from 'drizzle-orm';
 import { DiscoveredCommunityService } from '../services/discovered-community-service';
 import { unifiedPerplexityCache } from '../unified-perplexity-cache';
 import { cleanCitationArtifactsDeep } from '../utils/data-quality';
+import { normalizePhotoUrls } from '../utils/photo-urls';
+import { isSeniorLivingDirectoryHost } from '../services/perplexity-search-api';
 
 const router = express.Router();
 const enhancedEnrichmentService = new EnhancedAIEnrichmentService();
@@ -184,15 +186,56 @@ router.post('/api/competitive-analysis', async (req, res) => {
           // citation artifacts from every string in the structured blob first
           // so markers like [2]/*(verify)* never get persisted.
           const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+          const competitiveUpdates: any = {
+            enrichmentData: cleanCitationArtifactsDeep(intelligence),
+            enrichmentDataExpiry: expiryDate,
+            lastEnrichmentDate: new Date(),
+            enrichmentStatus: 'completed' as any,
+            enrichmentCompleted: true,
+          };
+
+          // Bridge sonar → canonical columns the community detail page reads on
+          // refresh. Without this, sonar content lived only in enrichmentData and
+          // the About section / photo carousel (which read community.description /
+          // community.photos) stayed empty across reloads.
+          const sonarDescription = cleanCitationArtifactsDeep({ d: intelligence.description })?.d;
+          if (sonarDescription && sonarDescription.length > 80 &&
+              (!community.description || community.description.length < 80)) {
+            competitiveUpdates.description = sonarDescription;
+          }
+          // Only fill photos when the community has none — never clobber existing
+          // verified photos. normalizePhotoUrls guarantees clean string URLs.
+          const existingPhotoCount = Array.isArray(community.photos) ? community.photos.length : 0;
+          if (existingPhotoCount === 0 && Array.isArray(intelligence.photos) && intelligence.photos.length > 0) {
+            const cleanSonarPhotos = normalizePhotoUrls(intelligence.photos);
+            // Golden Data host gate: only persist photos hosted on the verified
+            // official site or a recognized senior-living directory. Perplexity's
+            // discovery photos can include off-community/junk hosts; without this
+            // filter they would populate the public carousel unvetted.
+            let officialHost = '';
+            try {
+              const ow = intelligence.officialWebsite || community.website || '';
+              if (ow) {
+                officialHost = new URL(/^https?:\/\//i.test(ow) ? ow : `https://${ow}`)
+                  .hostname.replace(/^www\./, '').toLowerCase();
+              }
+            } catch { /* ignore unparseable */ }
+            const gatedPhotos = cleanSonarPhotos.filter((u) => {
+              let host = '';
+              try { host = new URL(u).hostname.replace(/^www\./, '').toLowerCase(); } catch { return false; }
+              const isOfficial = !!officialHost && (host === officialHost || host.endsWith(`.${officialHost}`));
+              return isOfficial || isSeniorLivingDirectoryHost(host);
+            });
+            if (gatedPhotos.length > 0) {
+              competitiveUpdates.photos = gatedPhotos;
+            } else if (cleanSonarPhotos.length > 0) {
+              console.log(`📸 [Competitive] Dropped ${cleanSonarPhotos.length} unvetted photo(s) for ${community.name} (no official/directory host match)`);
+            }
+          }
+
           await db
             .update(communities)
-            .set({
-              enrichmentData: cleanCitationArtifactsDeep(intelligence),
-              enrichmentDataExpiry: expiryDate,
-              lastEnrichmentDate: new Date(),
-              enrichmentStatus: 'completed' as any,
-              enrichmentCompleted: true
-            })
+            .set(competitiveUpdates)
             .where(eq(communities.id, communityId));
         } else {
           // No comprehensive data available

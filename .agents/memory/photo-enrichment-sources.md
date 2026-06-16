@@ -21,5 +21,8 @@ zero or stale photos.
   candidate pages: officialWebsite → DB website → Perplexity source URLs, merging
   deduped photos (cap 20, early-break ~12). Perplexity Search API returns text
   snippets only — actual photos come from scrapeWebsitePage() (og:image + inline).
-- Use hostname-based deny matching (host === d || host.endsWith('.'+d)), never
-  substring includes() — 'x.com' substring matches unrelated hosts.
+- Use hostname-based matching (host === d || host.endsWith('.'+d)), never substring
+  includes() — 'x.com' substring matches unrelated hosts. The trusted-directory
+  allowlist + this exact-match test now live in ONE exported helper,
+  `isSeniorLivingDirectoryHost()` (perplexity-search-api.ts) — reuse it everywhere
+  instead of re-implementing per-route filters. See community-photo-write-paths.md.

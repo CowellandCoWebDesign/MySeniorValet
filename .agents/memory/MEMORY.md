@@ -12,6 +12,7 @@
 - [Communities Drizzle column drift](communities-drizzle-drift.md) — admin_rating_override in schema but NOT in DB; db.select().from(communities) → 500; use raw sql SELECT * for communities queries until column is migrated.
 - [dnd-kit drag in preview iframe](dnd-kit-iframe-drag.md) — pointer drag silently fails inside Replit preview/Canvas iframe; always add up/down button fallback + in-flight reorder guard.
 - [Photo enrichment sources](photo-enrichment-sources.md) — senior living directories (caring/aplaceformom/seniorlivingnearme) are VALID photo sources; only skip social/review sites; scrape multiple candidate pages.
+- [Community photo write paths](community-photo-write-paths.md) — 3 routes write communities.photos; apply isSeniorLivingDirectoryHost gate to ALL; normalize bare domains + force https (SSRF/mixed-content) else carousel shows junk or nothing.
 - [Vite 8 CJS default interop](vite8-cjs-default-interop.md) — rolldown wraps CJS as `export default require_lib()`, breaking default imports; unwrap with `(import as any)?.default ?? import`.
 - [Community geocode cleanup](community-geocode-cleanup.md) — never hard-delete a community on a heuristic; quarantine (is_hidden+synthetic_suspected) and let the geocoder arbitrate real vs fake; restore via jsonb_populate_recordset.
 - [communities.photos corruption](community-photos-corruption.md) — text[] holds "[object Object]"/entity-encoded URLs that break public photos; normalizePhotoUrls on every read+write path.

@@ -31,8 +31,9 @@ import { storage } from "../storage";
 import { DataIntegrityValidator } from "../services/data-integrity-validator";
 import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
-import { perplexitySearchAPI } from "../services/perplexity-search-api";
-import { scrapeWebsitePage } from "../services/free-enrichment-service";
+import { perplexitySearchAPI, isSeniorLivingDirectoryHost } from "../services/perplexity-search-api";
+import { scrapeWebsitePage, textReferencesCommunity } from "../services/free-enrichment-service";
+import { normalizePhotoUrls } from "../utils/photo-urls";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
@@ -703,19 +704,76 @@ export function registerAdminRoutes(app: Express) {
       addCandidate(community.website);
       (result.sources || []).forEach(addCandidate);
 
+      // Hosts we treat as the verified official site — their scraped images are
+      // trusted without further corroboration. Everything else (directories) must
+      // additionally reference this community by name + city before we keep its
+      // images (Golden Data: never persist off-community "clouding" photos).
+      const officialHosts: string[] = [];
+      for (const u of [result.officialWebsite, community.website]) {
+        if (!u) continue;
+        try {
+          officialHosts.push(
+            new URL(/^https?:\/\//i.test(u) ? u : `https://${u}`).hostname.replace(/^www\./, '').toLowerCase(),
+          );
+        } catch { /* ignore unparseable */ }
+      }
+
       let freshPhotoUrls: string[] = [];
       let freshPhotoAttributions: string[] = [];
       const seenPhotoUrls = new Set<string>();
 
+      // Seed with Perplexity `return_images` photos first — these are native,
+      // multi-source community images returned directly by the sonar API (reliable),
+      // so they lead; the Jina scrape below supplements them with site-specific shots.
+      for (const p of (result.photos || [])) {
+        if (freshPhotoUrls.length >= 20) break;
+        if (!p?.url || seenPhotoUrls.has(p.url)) continue;
+        seenPhotoUrls.add(p.url);
+        freshPhotoUrls.push(p.url);
+        freshPhotoAttributions.push(p.source || 'perplexity');
+      }
+      if (freshPhotoUrls.length > 0) {
+        console.log(`📸 [Perplexity] Seeded ${freshPhotoUrls.length} return_images photo(s) before scraping`);
+      }
+
+      // Perplexity-first: only fall back to web scraping when Perplexity's native
+      // images didn't yield a usable gallery. When Perplexity already returned
+      // enough relevant photos we SKIP scraping entirely — it only "clouds" the
+      // result, adds latency, and risks lower-quality/off-community images.
+      const PERPLEXITY_PHOTO_SUFFICIENT = 4;
+      const candidatePages = freshPhotoUrls.length >= PERPLEXITY_PHOTO_SUFFICIENT
+        ? []
+        : candidateUrls.slice(0, 4);
+      if (freshPhotoUrls.length >= PERPLEXITY_PHOTO_SUFFICIENT) {
+        console.log(`✅ [Perplexity] ${freshPhotoUrls.length} photo(s) sufficient — skipping web scrape`);
+      }
+
       // Scrape candidates in order until we have a good gallery (~12+) or run out
       // (cap at 4 pages to keep the request fast).
-      for (const pageUrl of candidateUrls.slice(0, 4)) {
+      for (const pageUrl of candidatePages) {
         if (freshPhotoUrls.length >= 20) break;
         try {
           console.log(`📸 [Jina] Scraping photos from ${pageUrl}`);
-          const scraped = await scrapeWebsitePage(pageUrl);
+          // Force https so resolved image URLs are https — http images would be
+          // blocked as mixed content on the public https community page.
+          const scrapeUrl = (/^https?:\/\//i.test(pageUrl) ? pageUrl : `https://${pageUrl}`)
+            .replace(/^http:\/\//i, "https://");
+          const scraped = await scrapeWebsitePage(scrapeUrl);
           let host = 'web';
-          try { host = new URL(pageUrl).hostname.replace(/^www\./, ''); } catch {}
+          try { host = new URL(scrapeUrl).hostname.replace(/^www\./, '').toLowerCase(); } catch {}
+          // Golden Data gate: keep scraped images only from (a) the verified
+          // official site, or (b) a recognized senior-living directory whose page
+          // actually references THIS community by name + city. This mirrors the
+          // verify endpoint's gate and stops Jina-scraped sources from "clouding"
+          // the Perplexity-sourced photos with same-name gyms/clinics/articles.
+          const isOfficialHost = officialHosts.some((oh) => host === oh || host.endsWith(`.${oh}`));
+          const isTrustedDirectory =
+            isSeniorLivingDirectoryHost(host) &&
+            textReferencesCommunity(`${pageUrl} ${scraped.text}`, community.name, community.city, { requireCity: true });
+          if (!isOfficialHost && !isTrustedDirectory) {
+            console.log(`📸 [Jina] Skipping untrusted/unconfirmed page (no official/directory match): ${pageUrl}`);
+            continue;
+          }
           let added = 0;
           for (const img of scraped.images) {
             if (freshPhotoUrls.length >= 20) break;
@@ -749,7 +807,14 @@ export function registerAdminRoutes(app: Express) {
         managementCompany: result.managementCompany || community.enrichmentData?.managementCompany,
         availability: result.availability || community.enrichmentData?.availability,
         photos: freshPhotoUrls.length > 0
-          ? freshPhotoUrls.map((url, i) => ({ url, source: freshPhotoAttributions[i] || 'official-site', isAuthentic: true }))
+          ? freshPhotoUrls.map((url, i) => ({
+              url,
+              source: freshPhotoAttributions[i] || 'web',
+              // Keep authenticity source-accurate (Golden Data Rule): only the
+              // Perplexity native photos carry verified official-domain flags;
+              // scraped/directory photos are not assumed authentic.
+              isAuthentic: (result.photos || []).find(p => p?.url === url)?.isAuthentic === true,
+            }))
           : (result.photos.length > 0 ? result.photos : community.enrichmentData?.photos),
         searchResults: {
           summary: result.summary || community.enrichmentData?.searchResults?.summary || '',

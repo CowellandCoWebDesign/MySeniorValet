@@ -10,6 +10,38 @@
 
 import { aiTracker } from "./ai-tracker.service";
 
+// Recognized senior-living directory domains that carry curated, on-community
+// photos. A non-official photo is only trusted (Golden Data Rule) when its ORIGIN
+// page host matches one of these — this rejects look-alike junk that Perplexity
+// `return_images` surfaces for generically-named facilities (e.g. a "Red Bluff
+// Health & Fitness" gym, a "Dignity Health" hospital, or an architecture firm's
+// portfolio shown for a care center named "Red Bluff Health Care Center").
+export const SENIOR_LIVING_PHOTO_SOURCES = [
+  'caring.com', 'aplaceformom.com', 'seniorlivingnearme.com', 'senioradvisor.com',
+  'seniorhousing.net', 'assistedliving.com', 'seniorly.com', 'mycaringplan.com',
+  'seniorcarehomes.com', 'senioradvice.com', 'after55.com', 'newlifestyles.com',
+  'caregiverlist.com', 'snrproject.com', 'retirementhomes.com',
+  // Additional photo-capable senior-care directories observed in return_images
+  // origins. Pure data/ratings sites that carry NO community photos (e.g.
+  // medicare.gov, nursinghomecompare.com) are deliberately excluded — they can
+  // never supply a usable image, so allowing them only invites mismatches.
+  'nursinghomes.com', 'seniorcarefinder.com', 'usnews.com', 'theseniorlist.com',
+  'seniorhomes.com', 'memorycare.com', 'assistedlivingfacilities.org',
+  'seniorliving.org', 'aging.com', 'elderlylongtermcare.com',
+];
+
+/**
+ * Exact host/subdomain membership test for the senior-living photo allowlist.
+ * Uses `host === domain || host.endsWith('.' + domain)` — NOT substring `includes` —
+ * so a look-alike host such as `fake-caring.com` or `caring.com.evil.tld` can never
+ * masquerade as a trusted directory.
+ */
+export function isSeniorLivingDirectoryHost(host: string): boolean {
+  const h = (host || '').toLowerCase().replace(/^www\./, '').trim();
+  if (!h) return false;
+  return SENIOR_LIVING_PHOTO_SOURCES.some((d) => h === d || h.endsWith('.' + d));
+}
+
 interface SearchResult {
   title: string;
   url: string;
@@ -831,6 +863,7 @@ Rules:
     availability: string | null;
     pricing: { min?: number; max?: number; source?: string } | null;
     photos: Array<{ url: string; source: string; isAuthentic: boolean }>;
+    photoDirectoryCandidates: Array<{ url: string; title: string; snippet: string }>;
     sources: string[];
   }> {
     const location = [community.city, community.state].filter(Boolean).join(', ');
@@ -861,16 +894,46 @@ Rules:
       'yelp.com', 'tripadvisor.com', 'facebook.com', 'google.com', 'wikipedia.org',
       'linkedin.com', 'youtube.com', 'instagram.com', 'twitter.com', 'x.com',
     ];
+    // The "official" domain (used to flag photos `isAuthentic`, which bypasses the
+    // name/city relevance gate) must be a genuine community/operator site — NOT a
+    // senior-living directory. Otherwise a first result of caring.com/seniorly.com
+    // would mark directory images authentic and let un-corroborated photos through.
     const officialResult = broad.results.find(
-      r => r.domain && !DIRECTORY_DOMAINS.some(d => r.domain.includes(d))
+      r => r.domain
+        && !DIRECTORY_DOMAINS.some(d => r.domain.includes(d))
+        && !isSeniorLivingDirectoryHost(r.domain)
     );
     const officialDomain = officialResult?.domain;
+
+    // Deterministic photo-source candidates: Perplexity Search results whose host
+    // is a recognized senior-living directory. These feed the scrape-and-corroborate
+    // path in the verify endpoint so real directory photos surface reliably even
+    // when nondeterministic `return_images` happens to return none — and without
+    // leaning on DuckDuckGo/Bing (which the user flagged as "clouding" Perplexity).
+    const photoDirectoryCandidates = broad.results
+      .filter((r) => {
+        let host = (r.domain || '').toLowerCase();
+        if (!host) { try { host = new URL(r.url).hostname; } catch { /* ignore */ } }
+        return isSeniorLivingDirectoryHost(host);
+      })
+      .map((r) => ({ url: r.url, title: r.title || '', snippet: r.snippet || '' }));
 
     // ── 2. Sonar structured extraction (json_schema) — summary + fields ──────
     const structured = await this.sonarStructuredExtract(community.name, location, snippetContext);
 
     // ── 3. Photos — extract real image URLs from search results (no fabrication) ──
     const photos = this.extractPhotosFromResults(broad.results, officialDomain);
+
+    // ── 3a. PRIMARY photos via Perplexity sonar `return_images` ─────────────────
+    // The Search API only returns text snippets, so snippet-scraped image URLs are
+    // rare. The Chat Completions API with `return_images: true` returns a native
+    // `images` array (real, multi-source community photos). These are the most
+    // reliable source, so they lead — snippet-scraped photos become a supplement.
+    const nativeImages = await this.sonarReturnImages(community.name, location, officialDomain, community.city);
+    for (let i = nativeImages.length - 1; i >= 0; i--) {
+      const img = nativeImages[i];
+      if (!photos.some(p => p.url === img.url)) photos.unshift(img);
+    }
 
     // Golden Data Rule: only persist a website that Perplexity actually verified
     // as the official site — never fall back to a heuristic "first non-directory"
@@ -896,6 +959,23 @@ Rules:
       }
     }
 
+    // ── Source-quality filter (Golden Data Rule) ────────────────────────────────
+    // Snippet-scraped images (extractPhotosFromResults) are NOT relevance-gated and
+    // can surface look-alike junk (e.g. a "Red Bluff Health & Fitness" gym on a
+    // care-center page). Only trust photos that are either (a) from the verified
+    // official domain, or (b) from a recognized senior-living directory — these are
+    // the sources that actually carry curated community photos. Everything else is
+    // dropped so we never show an off-community image.
+    const trustedPhotos = photos.filter(
+      p => p.isAuthentic
+        || (officialHost && (p.source || '').includes(officialHost))
+        || isSeniorLivingDirectoryHost(p.source || ''),
+    );
+    const droppedCount = photos.length - trustedPhotos.length;
+    if (droppedCount > 0) {
+      console.log(`🧹 Dropped ${droppedCount} untrusted-source photo(s) for "${community.name}" (kept ${trustedPhotos.length})`);
+    }
+
     return {
       summary: structured.summary,
       officialWebsite,
@@ -904,7 +984,8 @@ Rules:
       location: structured.location,
       availability: structured.availability,
       pricing: structured.pricing,
-      photos: photos.slice(0, 12),
+      photos: trustedPhotos.slice(0, 12),
+      photoDirectoryCandidates,
       sources,
     };
   }
@@ -937,6 +1018,144 @@ Rules:
       if (matches) for (const m of matches) add(m, r.domain);
     }
     return photos;
+  }
+
+  /**
+   * Fetch authentic community photos via Perplexity sonar `return_images`.
+   * Unlike the Search API (text snippets only), the Chat Completions API returns
+   * a native `images` array of {image_url, origin_url, width, height}. This CANNOT
+   * be combined with `response_format` (json_schema suppresses the images array),
+   * so it is a dedicated, lightweight call. Social/review domains are excluded;
+   * photos whose origin is the official domain are flagged `isAuthentic`.
+   */
+  private async sonarReturnImages(
+    communityName: string,
+    location: string,
+    officialDomain?: string,
+    city?: string | null,
+  ): Promise<Array<{ url: string; source: string; isAuthentic: boolean }>> {
+    if (!this.apiKey) return [];
+    const startTime = Date.now();
+    const prompt =
+      `Show photos of "${communityName}"${location ? ` in ${location}` : ''}, a senior living ` +
+      `community — building exterior, interior common areas, resident rooms/apartments, dining, and amenities.`;
+    try {
+      const response = await fetch(`${this.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'sonar',
+          temperature: 0.1,
+          max_tokens: 200,
+          return_images: true,
+          image_format_filter: ['jpg', 'jpeg', 'png', 'webp'],
+          image_domain_filter: [
+            '-yelp.com', '-tripadvisor.com', '-facebook.com', '-instagram.com',
+            '-twitter.com', '-x.com', '-linkedin.com', '-youtube.com',
+          ],
+          messages: [
+            { role: 'system', content: 'You are a senior-living researcher. Find authentic photos of the exact community named.' },
+            { role: 'user', content: prompt },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ return_images error (${response.status}):`, errorText.slice(0, 300));
+        await aiTracker.trackPerplexityCall({
+          action: 'sonar_return_images',
+          context: 'perplexity_return_images',
+          requestDuration: Date.now() - startTime,
+          success: false,
+          errorMessage: `${response.status} - ${errorText.slice(0, 200)}`,
+          prompt: communityName,
+        }).catch(() => {});
+        return [];
+      }
+
+      const data = await response.json();
+      const images: any[] = Array.isArray(data.images) ? data.images : [];
+
+      // ── Relevance gate (Golden Data Rule) ───────────────────────────────────
+      // `return_images` returns web images matching the query, but common names
+      // ("Brookdale", "Sunrise") collide with colleges, home models, and other
+      // locations. We only trust an image when its ORIGIN page (URL + title)
+      // references this exact community: a distinctive name token AND the city
+      // (or the verified official domain). This rejects name-collision junk.
+      const GENERIC = new Set([
+        'senior', 'seniors', 'living', 'care', 'community', 'communities', 'home', 'homes', 'house',
+        'the', 'of', 'at', 'and', 'assisted', 'memory', 'independent', 'skilled', 'nursing',
+        'retirement', 'place', 'center', 'centre', 'village', 'villas', 'villa', 'gardens', 'garden',
+        'court', 'estates', 'estate', 'park', 'plaza', 'lodge', 'suites', 'suite', 'residence',
+        'residences', 'health', 'rehabilitation', 'rehab', 'manor', 'terrace', 'life', 'inc', 'llc',
+      ]);
+      const norm = (s: string) => (s || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+      const cityTokens = norm(city || location.split(',')[0] || '').split(/\s+/).filter(t => t.length >= 4);
+      const nameTokens = norm(communityName)
+        .split(/\s+/)
+        .filter(t => t.length >= 3 && !GENERIC.has(t) && !cityTokens.includes(t));
+
+      const seen = new Set<string>();
+      const out: Array<{ url: string; source: string; isAuthentic: boolean }> = [];
+      let rejected = 0;
+      for (const img of images) {
+        const url: string | undefined = img?.image_url || img?.imageUrl;
+        if (!url || seen.has(url)) continue;
+        seen.add(url);
+        const originUrl: string = img?.origin_url || img?.originUrl || url;
+        const title: string = img?.title || '';
+        let host = '';
+        try { host = new URL(originUrl).hostname.replace(/^www\./, ''); } catch { /* ignore */ }
+        const isAuthentic = !!officialDomain && (host.includes(officialDomain) || originUrl.includes(officialDomain));
+
+        const haystack = norm(`${originUrl} ${title}`);
+        const hasNameToken = nameTokens.length > 0 && nameTokens.some(t => haystack.includes(t));
+        const hasCityToken = cityTokens.length === 0 || cityTokens.some(t => haystack.includes(t));
+
+        // Sibling-location guard: a chain listing page for our city often shows
+        // thumbnails of OTHER nearby branches of the same brand. When the image
+        // filename itself self-describes the brand but a city that is not ours,
+        // it is a different community's photo — reject it (Golden Data Rule).
+        const imgHay = norm(url);
+        const imgHasName = nameTokens.some(t => imgHay.includes(t));
+        const imgHasCity = cityTokens.some(t => imgHay.includes(t));
+        const siblingLocation = imgHasName && cityTokens.length > 0 && !imgHasCity;
+
+        // Accept verified official-domain images outright (their galleries/CDNs
+        // often use generic paths). Otherwise the ORIGIN page must be a recognized
+        // senior-living directory AND clearly reference this community by name AND
+        // city. `return_images` happily returns gyms, hospitals, and architecture
+        // portfolios for generically-named facilities; gating on a known directory
+        // origin is the only reliable way to reject that look-alike junk.
+        const originIsDirectory = isSeniorLivingDirectoryHost(host);
+        const relevant = hasNameToken && hasCityToken && !siblingLocation;
+        if (!isAuthentic && !(originIsDirectory && relevant)) {
+          rejected++;
+          continue;
+        }
+        out.push({ url, source: host || 'web', isAuthentic });
+      }
+      console.log(
+        `📸 Perplexity return_images: ${out.length} photo(s) kept for "${communityName}" ` +
+        `(${rejected} rejected as off-community)`,
+      );
+      await aiTracker.trackPerplexityCall({
+        action: 'sonar_return_images',
+        context: 'perplexity_return_images',
+        requestDuration: Date.now() - startTime,
+        success: true,
+        prompt: `${communityName} ${location}`,
+        response: `${out.length} images`,
+      }).catch(() => {});
+      return out;
+    } catch (err) {
+      console.warn(`⚠️ return_images request failed:`, err instanceof Error ? err.message : err);
+      return [];
+    }
   }
 
   /**
