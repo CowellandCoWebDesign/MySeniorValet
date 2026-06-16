@@ -307,8 +307,8 @@ export function CommunityDetailsHeader({
     <>
       <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <CardContent className="p-0">
-        {/* Photo Carousel - Full Height Without Overlays */}
-        <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
+        {/* Photo Carousel - natural height so the built-in thumbnail gallery is visible */}
+        <div className="relative">
           <EnhancedPhotoCarousel 
             photos={getCombinedPhotos()} 
             communityName={community.name}
@@ -316,7 +316,7 @@ export function CommunityDetailsHeader({
             community={community}
             verificationReport={verificationReport}
             isVerifying={isVerifying}
-            className="w-full h-full"
+            className="w-full"
             currentPhotoIndex={currentPhotoIndex}
             onPhotoIndexChange={onPhotoChange}
             showSourceIndicator={true}
