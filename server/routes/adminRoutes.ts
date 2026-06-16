@@ -31,9 +31,8 @@ import { storage } from "../storage";
 import { DataIntegrityValidator } from "../services/data-integrity-validator";
 import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
-import { perplexitySearchAPI, isSeniorLivingDirectoryHost } from "../services/perplexity-search-api";
-import { scrapeWebsitePage, textReferencesCommunity } from "../services/free-enrichment-service";
-import { normalizePhotoUrls } from "../utils/photo-urls";
+// All admin enrichment flows through the single unified orchestrator.
+import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
@@ -604,14 +603,12 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // ── ADMIN-ONLY PAID PERPLEXITY ENRICHMENT ──────────────────────────────────
-  // Deliberate, scoped exception to the "paid-AI-free enrichment" mandate:
-  // Perplexity is re-enabled ONLY on this admin-gated path (cost control). It
-  // runs a deep research pass (Search API + one sonar structured call) and
-  // PERSISTS the verified results to the community record so all families benefit.
-  // 7-day cache: skips re-billing unless `forceRefresh` is passed.
+  // ── ADMIN-ONLY FORCE ENRICHMENT ────────────────────────────────────────────
+  // Admin-gated entry point into THE single unified enrichment pipeline
+  // (Perplexity primary → free scraping fallback → photo validation/Golden-Data).
+  // Persists verified results so all families benefit. 7-day cache: skips
+  // re-billing unless `forceRefresh` is passed.
   adminRouter.post('/communities/:id/perplexity-enrich', async (req, res) => {
-    const ENRICHMENT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
     try {
       const communityId = parseInt(req.params.id);
       if (isNaN(communityId)) {
@@ -619,300 +616,33 @@ export function registerAdminRoutes(app: Express) {
       }
       const forceRefresh = req.body?.forceRefresh === true;
 
-      // Explicit-column select (not a full-table `select()`) so the query never
-      // depends on every column in the Drizzle schema being present in the DB.
-      // Only the fields this endpoint actually reads are selected.
-      const [community] = await db
-        .select({
-          id: communities.id,
-          name: communities.name,
-          city: communities.city,
-          state: communities.state,
-          website: communities.website,
-          websiteProtected: communities.websiteProtected,
-          description: communities.description,
-          photos: communities.photos,
-          enrichmentData: communities.enrichmentData,
-          lastSuccessfulEnrichment: communities.lastSuccessfulEnrichment,
-        })
-        .from(communities)
-        .where(eq(communities.id, communityId))
-        .limit(1);
-
-      if (!community) {
-        return res.status(404).json({ error: 'Community not found' });
-      }
-
-      // 7-day cache: serve persisted enrichment unless an admin forces a refresh.
-      const lastEnriched = community.lastSuccessfulEnrichment;
-      if (!forceRefresh && lastEnriched && (Date.now() - new Date(lastEnriched).getTime()) < ENRICHMENT_CACHE_TTL_MS) {
-        const ageDays = Math.round((Date.now() - new Date(lastEnriched).getTime()) / 86_400_000);
-        console.log(`⚡ [Perplexity Enrich] Cache hit for "${community.name}" — ${ageDays}d old, no re-bill`);
-        return res.json({
-          cached: true,
-          communityId,
-          summary: community.enrichmentData?.searchResults?.summary || community.description || '',
-          photos: community.photos || [],
-          enrichmentData: community.enrichmentData || {},
-        });
-      }
-
-      if (!process.env.PERPLEXITY_API_KEY) {
-        return res.status(503).json({ error: 'Perplexity API key not configured' });
-      }
-
-      console.log(`🧠 [Perplexity Enrich] Admin-triggered research for "${community.name}" (force=${forceRefresh})`);
-      const result = await perplexitySearchAPI.deepEnrichCommunity({
-        name: community.name,
-        city: community.city,
-        state: community.state,
-        website: community.website,
-      });
-
-      // ── PHOTO ENRICHMENT via Jina/website scraping (MULTI-SOURCE) ──────────
-      // Perplexity Search API returns text snippets, not image files. For real
-      // community photos we scrape candidate pages directly (og:image + inline
-      // images). We accept photos from ANY source that has them — the community's
-      // own site AND senior living directories (caring.com, aplaceformom.com,
-      // seniorlivingnearme.com, etc.), which often have the best curated galleries.
-      // This always REPLACES existing photos so stale/inaccurate ones are cleared.
-      //
-      // Only social/review sites are skipped — they rarely host real gallery images.
-      const SKIP_PHOTO_DOMAINS = ['yelp.com', 'tripadvisor.com', 'facebook.com', 'instagram.com', 'twitter.com', 'x.com', 'linkedin.com', 'youtube.com'];
-      const isScrapeable = (url: string | null | undefined): url is string => {
-        if (!url || !/^https?:\/\//i.test(url)) return false;
-        let host = '';
-        try { host = new URL(url).hostname.replace(/^www\./, '').toLowerCase(); } catch { return false; }
-        // hostname-based match: exact domain or a subdomain of it (avoids substring false positives)
-        return !SKIP_PHOTO_DOMAINS.some(d => host === d || host.endsWith(`.${d}`));
-      };
-
-      // Build an ordered, de-duplicated list of candidate pages to scrape:
-      // 1. Perplexity's verified official website (best), 2. the stored DB website,
-      // 3. up to 3 of Perplexity's discovered source URLs (directories, etc.).
-      const candidateUrls: string[] = [];
-      const seenHosts = new Set<string>();
-      const addCandidate = (url: string | null | undefined) => {
-        if (!isScrapeable(url)) return;
-        let host = '';
-        try { host = new URL(url).hostname.replace(/^www\./, ''); } catch { return; }
-        if (seenHosts.has(host)) return;
-        seenHosts.add(host);
-        candidateUrls.push(url);
-      };
-      addCandidate(result.officialWebsite);
-      addCandidate(community.website);
-      (result.sources || []).forEach(addCandidate);
-
-      // Hosts we treat as the verified official site — their scraped images are
-      // trusted without further corroboration. Everything else (directories) must
-      // additionally reference this community by name + city before we keep its
-      // images (Golden Data: never persist off-community "clouding" photos).
-      const officialHosts: string[] = [];
-      for (const u of [result.officialWebsite, community.website]) {
-        if (!u) continue;
-        try {
-          officialHosts.push(
-            new URL(/^https?:\/\//i.test(u) ? u : `https://${u}`).hostname.replace(/^www\./, '').toLowerCase(),
-          );
-        } catch { /* ignore unparseable */ }
-      }
-
-      let freshPhotoUrls: string[] = [];
-      let freshPhotoAttributions: string[] = [];
-      const seenPhotoUrls = new Set<string>();
-
-      // Seed with Perplexity `return_images` photos first — these are native,
-      // multi-source community images returned directly by the sonar API (reliable),
-      // so they lead; the Jina scrape below supplements them with site-specific shots.
-      for (const p of (result.photos || [])) {
-        if (freshPhotoUrls.length >= 20) break;
-        if (!p?.url || seenPhotoUrls.has(p.url)) continue;
-        seenPhotoUrls.add(p.url);
-        freshPhotoUrls.push(p.url);
-        freshPhotoAttributions.push(p.source || 'perplexity');
-      }
-      if (freshPhotoUrls.length > 0) {
-        console.log(`📸 [Perplexity] Seeded ${freshPhotoUrls.length} return_images photo(s) before scraping`);
-      }
-
-      // Perplexity-first: only fall back to web scraping when Perplexity's native
-      // images didn't yield a usable gallery. When Perplexity already returned
-      // enough relevant photos we SKIP scraping entirely — it only "clouds" the
-      // result, adds latency, and risks lower-quality/off-community images.
-      const PERPLEXITY_PHOTO_SUFFICIENT = 4;
-      const candidatePages = freshPhotoUrls.length >= PERPLEXITY_PHOTO_SUFFICIENT
-        ? []
-        : candidateUrls.slice(0, 4);
-      if (freshPhotoUrls.length >= PERPLEXITY_PHOTO_SUFFICIENT) {
-        console.log(`✅ [Perplexity] ${freshPhotoUrls.length} photo(s) sufficient — skipping web scrape`);
-      }
-
-      // Scrape candidates in order until we have a good gallery (~12+) or run out
-      // (cap at 4 pages to keep the request fast).
-      for (const pageUrl of candidatePages) {
-        if (freshPhotoUrls.length >= 20) break;
-        try {
-          console.log(`📸 [Jina] Scraping photos from ${pageUrl}`);
-          // Force https so resolved image URLs are https — http images would be
-          // blocked as mixed content on the public https community page.
-          const scrapeUrl = (/^https?:\/\//i.test(pageUrl) ? pageUrl : `https://${pageUrl}`)
-            .replace(/^http:\/\//i, "https://");
-          const scraped = await scrapeWebsitePage(scrapeUrl);
-          let host = 'web';
-          try { host = new URL(scrapeUrl).hostname.replace(/^www\./, '').toLowerCase(); } catch {}
-          // Golden Data gate: keep scraped images only from (a) the verified
-          // official site, or (b) a recognized senior-living directory whose page
-          // actually references THIS community by name + city. This mirrors the
-          // verify endpoint's gate and stops Jina-scraped sources from "clouding"
-          // the Perplexity-sourced photos with same-name gyms/clinics/articles.
-          const isOfficialHost = officialHosts.some((oh) => host === oh || host.endsWith(`.${oh}`));
-          const isTrustedDirectory =
-            isSeniorLivingDirectoryHost(host) &&
-            textReferencesCommunity(`${pageUrl} ${scraped.text}`, community.name, community.city, { requireCity: true });
-          if (!isOfficialHost && !isTrustedDirectory) {
-            console.log(`📸 [Jina] Skipping untrusted/unconfirmed page (no official/directory match): ${pageUrl}`);
-            continue;
-          }
-          let added = 0;
-          for (const img of scraped.images) {
-            if (freshPhotoUrls.length >= 20) break;
-            if (seenPhotoUrls.has(img)) continue;
-            seenPhotoUrls.add(img);
-            freshPhotoUrls.push(img);
-            freshPhotoAttributions.push(host);
-            added++;
-          }
-          console.log(`✅ [Jina] +${added} photos from ${pageUrl} (total ${freshPhotoUrls.length})`);
-          if (freshPhotoUrls.length >= 12) break;
-        } catch (photoErr) {
-          console.warn(`⚠️ [Jina] Photo scrape failed for ${pageUrl}:`, photoErr instanceof Error ? photoErr.message : photoErr);
-        }
-      }
-      if (freshPhotoUrls.length === 0) {
-        console.log(`⚠️ [Jina] No photos found across ${candidateUrls.length} candidate page(s)`);
-      }
-      const officialUrl = result.officialWebsite || community.website || null;
-
-      const now = new Date();
-      const validUntil = new Date(now.getTime() + ENRICHMENT_CACHE_TTL_MS);
-
-      // Build the structured enrichmentData blob (Golden Data Rule: only verified values).
-      const enrichmentData = {
-        ...(community.enrichmentData || {}),
-        verificationStatus: 'verified' as const,
-        officialWebsite: result.officialWebsite || community.enrichmentData?.officialWebsite,
-        phoneNumber: result.phone || community.enrichmentData?.phoneNumber,
-        pricing: result.pricing || community.enrichmentData?.pricing,
-        managementCompany: result.managementCompany || community.enrichmentData?.managementCompany,
-        availability: result.availability || community.enrichmentData?.availability,
-        photos: freshPhotoUrls.length > 0
-          ? freshPhotoUrls.map((url, i) => ({
-              url,
-              source: freshPhotoAttributions[i] || 'web',
-              // Keep authenticity source-accurate (Golden Data Rule): only the
-              // Perplexity native photos carry verified official-domain flags;
-              // scraped/directory photos are not assumed authentic.
-              isAuthentic: (result.photos || []).find(p => p?.url === url)?.isAuthentic === true,
-            }))
-          : (result.photos.length > 0 ? result.photos : community.enrichmentData?.photos),
-        searchResults: {
-          summary: result.summary || community.enrichmentData?.searchResults?.summary || '',
-          sources: result.sources,
-        },
-        lastFetched: now.toISOString(),
-        validUntil: validUntil.toISOString(),
-      };
-
-      // Build top-level updates — only persist fields actually verified by Perplexity/Jina.
-      const updates: any = {
-        enrichmentData,
-        enrichmentDataExpiry: validUntil,
-        lastSuccessfulEnrichment: now,
-        updatedAt: now,
-      };
-
-      // Concise summary (≤1000 chars) → description, unless admin protected.
-      if (result.summary && result.summary.length > 50) {
-        updates.description = result.summary;
-      }
-
-      // Website — respect admin protection; only persist a real URL.
-      if (result.officialWebsite && !community.websiteProtected) {
-        updates.website = result.officialWebsite;
-      }
-
-      if (result.phone) updates.phone = result.phone;
-      if (result.managementCompany) updates.managementCompany = result.managementCompany;
-      if (result.availability) updates.availabilityStatus = result.availability;
-
-      // Pricing → top-level priceRange so all family-facing displays (badges,
-      // search cards, detail page) show the verified price instead of "Contact for pricing".
-      if (result.pricing?.min || result.pricing?.max) {
-        updates.priceRange = {
-          min: result.pricing.min ?? result.pricing.max,
-          max: result.pricing.max ?? result.pricing.min,
-        };
-        updates.pricingType = 'live';
-        updates.pricingLastUpdated = now;
-      }
-
-      // Photos — ALWAYS replace when Jina found fresh ones (clears stale/inaccurate photos).
-      // normalizePhotoUrls guarantees clean string URLs (decodes &amp; entities,
-      // unwraps any object entries) so the text[] column never stores "[object Object]".
-      if (freshPhotoUrls.length > 0) {
-        const cleaned = normalizePhotoUrls(freshPhotoUrls);
-        // Only overwrite when cleaning leaves real URLs — never wipe existing
-        // photos because every fresh candidate was filtered out as invalid.
-        if (cleaned.length > 0) {
-          updates.photos = cleaned;
-          // Re-align attributions to the surviving cleaned URLs.
-          const beforeDecode = new Map(freshPhotoUrls.map((u, i) => [u, freshPhotoAttributions[i] || '']));
-          updates.photoAttributions = cleaned.map((u, i) =>
-            beforeDecode.get(u) ?? freshPhotoAttributions[i] ?? '');
-          updates.lastPhotoEnrichment = now;
-        }
-      } else if (result.photos.length > 0) {
-        // Fallback: Perplexity search found some image URLs (rare but possible)
-        const cleaned = normalizePhotoUrls(result.photos.map(p => p.url));
-        if (cleaned.length > 0) {
-          updates.photos = cleaned;
-          updates.photoAttributions = cleaned.map(() => result.photos[0]?.source || '');
-          updates.lastPhotoEnrichment = now;
-        }
-      }
-
-      await db.update(communities).set(updates).where(eq(communities.id, communityId));
-
-      const persistedPhotoCount = freshPhotoUrls.length || result.photos.length;
-      console.log(`✅ [Perplexity Enrich] Persisted for "${community.name}":`, {
-        fields: Object.keys(updates),
-        photos: persistedPhotoCount,
-        hasPricing: !!result.pricing,
-        hasPriceRange: !!updates.priceRange,
-        officialSite: officialUrl || 'none',
-      });
+      const result = await enrichCommunityUnified(communityId, { forceRefresh });
 
       return res.json({
         success: true,
-        cached: false,
+        cached: result.cached,
         communityId,
         summary: result.summary,
         officialWebsite: result.officialWebsite,
         managementCompany: result.managementCompany,
         phone: result.phone,
         pricing: result.pricing,
-        priceRange: updates.priceRange || null,
+        priceRange: result.pricing
+          ? {
+              min: result.pricing.min ?? result.pricing.max,
+              max: result.pricing.max ?? result.pricing.min,
+            }
+          : null,
         availability: result.availability,
-        photos: freshPhotoUrls.length > 0 ? freshPhotoUrls : result.photos.map(p => p.url),
-        photoCount: persistedPhotoCount,
+        photos: result.photos,
+        photoCount: result.photos.length,
         sources: result.sources,
-        enrichmentData,
+        enrichmentData: result.enrichmentData,
       });
     } catch (error) {
-      console.error('❌ [Perplexity Enrich] Failed:', error);
+      console.error('❌ [Admin Enrich] Failed:', error);
       return res.status(500).json({
-        error: 'Perplexity enrichment failed',
+        error: 'Enrichment failed',
         message: error instanceof Error ? error.message : 'Unknown error',
       });
     }

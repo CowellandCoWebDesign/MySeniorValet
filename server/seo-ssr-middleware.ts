@@ -75,7 +75,6 @@ import { communities, reviews, perplexityCache } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
 import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
-import { communityEnrichmentService } from './services/community-enrichment-service';
 import { 
   findLocationBySlug, 
   generateLocationTitle, 

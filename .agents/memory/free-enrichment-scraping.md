@@ -1,70 +1,65 @@
 ---
-name: Free community enrichment scraping
-description: Why the enrichment pipeline is paid-AI-free and the Golden-Data/SSRF constraints any future change must respect.
+name: Community enrichment pipeline
+description: The single unified Perplexity-first enrichment pipeline and the Golden-Data/SSRF/website-authority constraints any future change must respect.
 ---
 
-# Free community enrichment scraping
+# Community enrichment pipeline
 
-Community enrichment (`server/services/on-demand-enrichment-service.ts`) is a
-zero-cost, website-scraping-only pipeline (cheerio). It must NOT call paid AI
-(OpenAI/ChatGPT, Claude/Anthropic, Perplexity) for description/photo generation.
+There is ONE enrichment pipeline: `enrichCommunityUnified()` in
+`server/services/community-enrichment-orchestrator.ts`. Every entry point routes
+through it — the public Refresh button (`POST /api/communities/:id/verify`), the
+admin force-refresh (`POST /api/admin/communities/:id/perplexity-enrich`), the
+admin enrich/refresh-dynamic/enrich-batch routes
+(`server/routes/community-enrichment-routes.ts`), and the community-detail on-view
+trigger (fire-and-forget; cost is bounded by the orchestrator's 7-day cache, so a
+freshly-enriched community is served from DB without a new Perplexity call). Do NOT
+re-introduce a competing pipeline.
 
-**Why:** User mandate — billing used the user's own API keys, AI-generated
-descriptions were invented marketing copy (a Golden Data Rule violation), and
-the Playwright photo path was broken. Free scraping is the required default; a
-"hyper cheap" real-research source may be added later via the `researchHook()`
-no-op stub — never re-introduce invented content.
+**Why:** the codebase had ~6 overlapping enrichment services (optimized/simple/
+gemini/on-demand/community-enrichment-service + inline route copies) that drifted
+apart and produced inconsistent results. They were deleted and collapsed into the
+one orchestrator.
 
-**How to apply:**
-- Prefer curated sources for descriptions (JSON-LD → meta → og → body prose) and
-  REJECT boilerplate (nav/footer/cookie/JS-disabled). Big-brand SPA pages
-  (e.g. Atria) only server-render a generic shell, so they yield boilerplate
-  descriptions and a single duplicated social-share/og graphic. Persisting those
-  is a Golden Data violation (same junk image across thousands of communities) —
-  filter them out (`looksLikeContentImage`, `isBoilerplate`, `isGenericEmail`)
-  and let the community fall back to "Contact for details" instead.
-- Only fill a description when the existing one is an empty stub (<100 chars);
-  never clobber richer existing text.
-- Real, server-rendered independent community sites scrape well (genuine
-  description + multiple real photos) — that's the target case.
-- Photo stock-blocklist must match by filename/path substring, not just the
-  stock-photo *domain*. Directories (e.g. seniorliving.org) serve generic
-  placeholders from their own CDN like `/listing-stock-images/shutterstock_*.jpg`;
-  blocking only `shutterstock.com` lets them through, so they persist and show on
-  the detail carousel while `community-card` filters them — an inconsistency users
-  notice. Block `shutterstock`, `listing-stock-images`, `/stock-images/`, etc.
-  (avoid bare `stock` — false-positives like "Stockton"/"Woodstock").
+## Pipeline order (do not reorder)
+1. **Perplexity (PRIMARY)** — `perplexitySearchAPI.deepEnrichCommunity` (Search
+   API + sonar structured-extract + native `return_images`) for description,
+   contact/pricing, and multi-source photos.
+2. **Free web scraping (BOOSTER/FALLBACK)** — `enrichCommunityFree` (DuckDuckGo +
+   Jina) recovers description/photos for free when Perplexity returns nothing
+   usable; directory/official pages scraped to corroborate photos.
+3. **Photo validation + Golden-Data filtering** — stock/placeholder blocklist,
+   senior-living-directory allowlist, name+city corroboration, SSRF-guarded
+   fetches, non-destructive persistence.
 
-## Picking the official-website / About source (not photos)
-The website/About selection loop in `searchDuckDuckGo` is separate from photo
-discovery — only it gets name/source filtering; photo reach must stay wide.
-- Reject reference/social (Wikipedia, Britannica, Fandom, X, etc. via
-  `isReferenceOrSocialDomain`) AND referral/advisory aggregators (`isDirectorySite`)
-  so neither becomes the verified website or About text (Golden Data).
-- Validate the pick against the result's TITLE+SNIPPET, NOT the URL — a URL host
-  containing a generic name token (sunrise-sunset.org ↔ "Sunrise Senior Living")
-  is a false positive. For names with <2 distinctive tokens
-  (`communityNameTokens`), also require the city.
-- `isDirectorySite` matches by substring, so only list LOW-COLLISION branded
-  aggregator names (seniorcareauthority, seniorly.com, seniorguidance,
-  seniorliving.org, agingcare.com). Generic phrases ("assistedliving",
-  "nursinghomes", "retirementhomes") appear inside real community domains
-  (parkviewassistedliving.com) and would wrongly suppress the real official site.
-- Admin-entered website is authoritative: `community.website` is always the scrape
-  target, and `websiteProtected` blocks discovery/verify from overwriting it. Pass
-  `enrichCommunityFree({ authoritativeWebsite: websiteProtected && website })` so the
-  Jina-failure discovery fallback is DISABLED for protected URLs — never silently
-  substitute a discovered URL for an admin's. All 3 callers (on-demand, verify,
-  community-enrichment-service) must thread this flag.
+> NOTE: This supersedes the older "paid-AI-free enrichment" mandate. Perplexity-
+> first is now correct; the free scraper is the booster/fallback, not the default.
+
+## Invariants any change MUST preserve
+- **Golden Data Rule:** only verified real values persist. Reject SPA boilerplate
+  (nav/footer/cookie/JS-disabled), generic og/social-share images (one junk image
+  across thousands of communities), AI-guessed/unreachable websites. Fall back to
+  "Contact for details" / "Contact for pricing" rather than inventing content.
+- **Non-destructive persist:** never clobber richer existing data; a photo
+  blocklist false-positive must not erase real existing photos.
+- **`websiteProtected` is authoritative:** admin-entered website always wins;
+  discovery/verify must never overwrite it or silently substitute a discovered URL.
+- **7-day cache:** no re-enrichment/re-billing unless `forceRefresh` is passed.
+- **Photo stock-blocklist matches by filename/path substring, not just domain:**
+  directories serve generic placeholders from their own CDN
+  (`/listing-stock-images/shutterstock_*.jpg`). Block `shutterstock`,
+  `listing-stock-images`, `/stock-images/`, etc. — avoid bare `stock`
+  (false-positives like "Stockton"/"Woodstock").
+- **Validate photo/website corroboration against TITLE+SNIPPET, not the URL** — a
+  host with a generic name token (sunrise-sunset.org ↔ "Sunrise Senior Living") is
+  a false positive; for low-distinctiveness names also require the city.
 
 ## SSRF: server-side fetch of community-provided URLs
-Enrichment fetches DB-stored community website URLs server-side and is reachable
-from the normal view flow (`onCommunityView`). Any such fetch MUST go through the
-SSRF guard (`isSafePublicUrl` / `isPrivateIp`): http(s) + ports 80/443 only,
-reject localhost/.local/.internal, DNS-resolve and reject private/loopback/
-link-local (169.254/16 metadata)/CGNAT/multicast/reserved (IPv4+IPv6), and
-re-validate EVERY redirect hop (use `redirect: "manual"`, not "follow").
-**Why:** without it, a crafted website/redirect could pivot to internal network
-or cloud metadata endpoints. Residual DNS-rebinding TOCTOU remains (resolve vs
-connect are separate) — acceptable for now; pin-per-hop or egress controls would
-fully close it.
+Enrichment fetches DB-stored community website URLs server-side. Every such fetch
+MUST go through the SSRF guard (`isSafePublicUrl` / `isPrivateIp` in
+`utils/data-quality`): http(s) + ports 80/443 only, reject
+localhost/.local/.internal, DNS-resolve and reject private/loopback/link-local
+(169.254/16 metadata)/CGNAT/multicast/reserved (IPv4+IPv6), and re-validate EVERY
+redirect hop (`redirect: "manual"`, not "follow").
+**Why:** without it, a crafted website/redirect could pivot to internal network or
+cloud metadata. Residual DNS-rebinding TOCTOU remains (resolve vs connect are
+separate) — acceptable for now; pin-per-hop or egress controls would fully close it.

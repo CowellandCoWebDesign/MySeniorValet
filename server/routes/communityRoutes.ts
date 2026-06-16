@@ -19,18 +19,11 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
-import { enrichCommunityFree, scrapeWebsitePage, searchDuckDuckGo, textReferencesCommunity, type DdgSearchResult } from "../services/free-enrichment-service";
-import { enrichCommunityWithGemini } from "../services/gemini-enrichment-service";
-import { perplexitySearchAPI, isSeniorLivingDirectoryHost } from "../services/perplexity-search-api";
-import { cleanCitationArtifacts, isReachableWebsite } from "../utils/data-quality";
 import { normalizePhotoUrls } from "../utils/photo-urls";
-import { multiAIVerificationService } from "../multi-ai-verification-service";
-import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
-import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
-import { simpleEnrichmentService } from "../services/simple-enrichment-service";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
 import { vendors } from "@shared/schema";
-import { geocodeWithNominatim } from "../nominatim-geocoding";
+// THE single enrichment pipeline. All enrichment entry points route through this.
+import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
 
 /**
  * Single shared predicate for ALL public community queries.
@@ -1113,73 +1106,25 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      // Check if this community is featured (for cache duration)
-      const [featuredRecord] = await db
-        .select()
-        .from(featuredCommunities)
-        .where(
-          and(
-            eq(featuredCommunities.communityId, communityId),
-            eq(featuredCommunities.isActive, true)
-          )
-        )
-        .limit(1);
-      
-      const isFeatured = featuredRecord ? true : false;
-      
-      // Use the website URL from the request (from discovery) or fall back to community's stored website
-      // CRITICAL FIX: Filter out invalid website values like "No", "Not", "N/A", etc.
-      // When the community's website is admin-protected, it is authoritative: ignore
-      // any request-supplied websiteUrl override and force the stored website as the
-      // scrape target so a discovery override can never bypass the admin's choice.
-      let communityWebsite = (community.websiteProtected && community.website)
-        ? community.website
-        : (websiteUrl || community.website);
-      if (communityWebsite) {
-        // Check if it's a valid URL (must start with http or https or www)
-        const isValidUrl = communityWebsite.startsWith('http://') || 
-                          communityWebsite.startsWith('https://') || 
-                          communityWebsite.startsWith('www.');
-        
-        // Also check for common invalid values
-        const invalidValues = ['no', 'not', 'n/a', 'none', 'null', 'undefined', ''];
-        const isInvalid = invalidValues.includes(communityWebsite.toLowerCase().trim());
-        
-        if (!isValidUrl || isInvalid) {
-          console.log(`⚠️ Invalid website URL detected: "${communityWebsite}" - ignoring`);
-          communityWebsite = undefined;
-        } else {
-          console.log(`📌 Using website URL for photo search: ${communityWebsite}`);
-        }
-      }
-      
-      // 7-day cache: skip Jina fetch if we have recent enrichment and caller did not force a refresh.
-      // Guard: only serve from cache when the DB actually holds a meaningful description
-      // (> 80 chars). A short/empty description means a prior enrichment produced nothing
-      // useful — re-run enrichment instead of serving "Contact for details." for 7 days.
-      const ENRICHMENT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-      const lastEnriched = community.lastSuccessfulEnrichment;
-      const hasMeaningfulDescription = !!community.description && community.description.trim().length > 80;
-      if (!forceRefresh && lastEnriched && hasMeaningfulDescription &&
-          (Date.now() - new Date(lastEnriched).getTime()) < ENRICHMENT_CACHE_TTL_MS) {
-        const ageDays = Math.round((Date.now() - new Date(lastEnriched).getTime()) / 86_400_000);
-        console.log(`⚡ Cache hit for "${community.name}" — enriched ${ageDays}d ago, serving DB data`);
+      const result = await enrichCommunityUnified(communityId, { forceRefresh, websiteUrl });
+
+      // Served from the 7-day cache — no enrichment/billing happened.
+      if (result.cached) {
         return res.json({
-          communityId: communityId,
-          communityName: community.name,
-          timestamp: lastEnriched.toISOString(),
+          communityId: result.communityId,
+          communityName: result.communityName,
+          timestamp: result.lastUpdated,
           cached: true,
           verificationResults: {
             webIntelligence: {
-              images: community.photos || [],
-              // Stored per-photo attributions (index-aligned with `images`).
-              imageAttributions: community.photoAttributions || [],
-              sources: community.website ? [community.website] : []
+              images: result.photos,
+              imageAttributions: result.photoAttributions,
+              sources: result.sources
             },
             perplexityData: {
-              lastUpdated: lastEnriched.toISOString(),
-              searchContent: community.description || 'Contact for details.',
-              sources: community.website ? [community.website] : []
+              lastUpdated: result.lastUpdated,
+              searchContent: result.summary || 'Contact for details.',
+              sources: result.sources
             }
           },
           consensus: {
@@ -1189,530 +1134,56 @@ export function registerCommunityRoutes(app: Express) {
             confidenceScore: 75,
             transparencyNotes: 'Served from cached enrichment data'
           },
-          pricing: '',
+          pricing: result.pricingContext,
           contactInfo: {
-            phone: community.phone || '',
-            website: community.website || ''
+            phone: result.phone,
+            website: result.officialWebsite
           }
         });
       }
 
-      // ── Primary: Perplexity sonar (description) + return_images (photos) ──────
-      // Perplexity is the platform's enrichment engine: `deepEnrichCommunity` runs
-      // one Search API call + one sonar structured-extract (verified description &
-      // fields) + one sonar `return_images` call (native, multi-source community
-      // photos). This replaces the prior Gemini + DuckDuckGo/Jina scrape path,
-      // which corroborated 0 photos and produced empty About sections.
-      console.log(`🧠 Trying Perplexity enrichment for "${community.name}" (${community.city}, ${community.state})`);
-
-      let freeEnrichment: Awaited<ReturnType<typeof enrichCommunityFree>> | null = null;
-      // Photos returned natively by Perplexity `return_images` ({url, source}).
-      let perplexityPhotos: Array<{ url: string; source: string }> = [];
-      // Perplexity Search results whose host is a recognized senior-living directory.
-      // Fed into the directory scrape/corroborate path below as the deterministic,
-      // Perplexity-sourced photo discovery (preferred over DuckDuckGo/Bing).
-      let perplexityDirectoryCandidates: Array<{ url: string; title: string; snippet: string }> = [];
-
-      try {
-        const pplx = await perplexitySearchAPI.deepEnrichCommunity({
-          name: community.name,
-          city: community.city,
-          state: community.state,
-          website: communityWebsite || community.website,
-        });
-
-        if (pplx.summary && pplx.summary.length > 50) {
-          perplexityPhotos = (pplx.photos || []).map((p) => ({ url: p.url, source: p.source }));
-          perplexityDirectoryCandidates = pplx.photoDirectoryCandidates || [];
-          console.log(
-            `🧠 Perplexity enrichment: ${pplx.summary.length} chars, ${perplexityPhotos.length} photo(s), ` +
-            `${perplexityDirectoryCandidates.length} directory candidate(s) for "${community.name}"`,
-          );
-          const pricingContext =
-            pplx.pricing && (pplx.pricing.min || pplx.pricing.max)
-              ? (pplx.pricing.min && pplx.pricing.max && pplx.pricing.min !== pplx.pricing.max
-                  ? `$${pplx.pricing.min.toLocaleString()}–$${pplx.pricing.max.toLocaleString()}/mo`
-                  : `$${(pplx.pricing.min ?? pplx.pricing.max)!.toLocaleString()}/mo`)
-              : undefined;
-          // Map Perplexity result into the FreeEnrichmentResult shape
-          freeEnrichment = {
-            about: pplx.summary,
-            website: pplx.officialWebsite || undefined,
-            phone: pplx.phone || undefined,
-            careTypes: [],
-            amenities: [],
-            pricingContext,
-            photos: perplexityPhotos.map((p) => p.url),
-            sourceUrl: pplx.officialWebsite || communityWebsite || community.website || undefined,
-            sourceType: "web_search",
-            structured: true,
-          } as any;
-        }
-      } catch (err) {
-        console.warn(
-          `⚠️ Perplexity enrichment failed for "${community.name}": ${err instanceof Error ? err.message : err}`,
-        );
-      }
-
-      if (!freeEnrichment) {
-        // ── Fallback: DuckDuckGo + Jina pipeline ────────────────────────────────
-        console.log(`🔍 Perplexity unavailable — running DuckDuckGo/Jina enrichment for "${community.name}"`);
-        freeEnrichment = await enrichCommunityFree({
-          name: community.name,
-          city: community.city,
-          state: community.state,
-          websiteUrl: communityWebsite,
-          authoritativeWebsite: !!community.websiteProtected && !!communityWebsite,
-        });
-      }
-
-      console.log(`✅ Enrichment complete for "${community.name}": sourceType=${freeEnrichment.sourceType}, structured=${freeEnrichment.structured}`);
-
-      // ── Photo discovery: scrape the community website when no DB photos exist ──
-      // CommunityPhotoEnrichment only filters existing photos; it never fetches
-      // new ones. Live photo discovery died with Perplexity, so communities that
-      // were never scraped show zero photos. Recover them for free from the site.
-      // Filter stored photos through the blocklist so previously-persisted junk
-      // (map graphics, placeholders, icons) is never served as a community photo.
-      // Keep stored photos and their attributions aligned while filtering junk,
-      // so a blocklist hit drops the photo AND its stale attribution together.
-      const dbPhotoPairs: Array<{ url: string; attr: string }> = (community.photos || [])
-        .map((u: string, i: number) => ({
-          url: u,
-          attr: (community.photoAttributions || [])[i] || community.website || "",
-        }))
-        .filter((p: { url: string }) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(p.url));
-      const cleanDbPhotos: string[] = dbPhotoPairs.map((p) => p.url);
-      const cleanDbAttributions: string[] = dbPhotoPairs.map((p) => p.attr);
-      let discoveredPhotos: string[] = [];
-      // Per-photo source attribution, index-aligned with discoveredPhotos.
-      let discoveredPhotoAttributions: string[] = [];
-      const hasDbPhotos = cleanDbPhotos.length > 0;
-
-      // Prefer Perplexity's native `return_images` photos — reliable, multi-source,
-      // and already confirmed for this exact community. Only fall back to the
-      // DuckDuckGo/Jina scrape (below) when Perplexity returned none.
-      if (!hasDbPhotos && perplexityPhotos.length > 0) {
-        discoveredPhotos = perplexityPhotos.map((p) => p.url);
-        discoveredPhotoAttributions = perplexityPhotos.map((p) => p.source || "perplexity");
-        console.log(`📸 Using ${discoveredPhotos.length} Perplexity return_images photo(s) for "${community.name}"`);
-      }
-
-      if (!hasDbPhotos && discoveredPhotos.length === 0) {
-        // Scrape a page and return its usable (non-blocklisted) images + the page
-        // text we use to confirm the page is actually about THIS community.
-        const scrapeUsablePage = async (
-          url: string,
-        ): Promise<{ images: string[]; text: string }> => {
-          // Normalize bare domains (e.g. "rbhc.biz") to a full URL AND force https.
-          // The SSRF guard rejects unparseable bare hosts ("unsafe URL"), and http
-          // image URLs persisted from the scrape would be blocked as mixed content
-          // on the public https page — so scrape over https to yield https images.
-          const normalizedUrl = (/^https?:\/\//i.test(url) ? url : `https://${url}`)
-            .replace(/^http:\/\//i, "https://");
-          const page = await scrapeWebsitePage(normalizedUrl);
-          return {
-            images: page.images
-              .filter((u) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u))
-              .slice(0, 15),
-            text: page.text,
-          };
-        };
-
-        // Normalize an image URL for cross-source corroboration: drop the query
-        // string and lowercase host+path so the same asset served by two listings
-        // (or with tracking params) collapses to a single key.
-        const normalizeImageKey = (u: string): string => {
-          try {
-            const p = new URL(u);
-            return (p.hostname + p.pathname).toLowerCase();
-          } catch {
-            return u.toLowerCase();
-          }
-        };
-
-        type PhotoSource = { url: string; official: boolean; images: string[] };
-        const confirmedSources: PhotoSource[] = [];
-
-        const primaryUrl =
-          (freeEnrichment as any).website ||
-          freeEnrichment.sourceUrl ||
-          communityWebsite ||
-          community.website ||
-          undefined;
-
-        // One DuckDuckGo search gives us the real official site (text-preferred)
-        // plus ranked public directory listing pages (with title/snippet so each
-        // can be confirmed as belonging to this community before we trust it).
-        const ddg = await searchDuckDuckGo(community.name, community.city, community.state);
-
-        // 1. Official / discovered-official site(s). The community's own site is
-        //    authoritative for itself, so we confirm only the name tokens (the
-        //    city is optional — a homepage may not surface it in matchable text).
-        const officialCandidates: string[] = [];
-        if (primaryUrl) officialCandidates.push(primaryUrl);
-        if (ddg.website && !officialCandidates.includes(ddg.website)) {
-          officialCandidates.push(ddg.website);
-        }
-        for (const url of officialCandidates) {
-          const { images, text } = await scrapeUsablePage(url);
-          if (images.length === 0) continue;
-          if (!textReferencesCommunity(`${url} ${text}`, community.name, community.city)) {
-            console.log(`📸 Skipping unconfirmed official source ${url} (no community match)`);
-            continue;
-          }
-          confirmedSources.push({ url, official: true, images });
-          console.log(`📸 Official source ${url} → ${images.length} confirmed photo(s)`);
-        }
-
-        // 2. Public directory listings (photo fallback). These are the wrong-source
-        //    risk, so each must reference this community by name AND city — first via
-        //    the cheap search title/snippet (pre-fetch), then via the scraped body.
-        const MAX_DIRECTORY_SOURCES = 4;
-        let directoriesScraped = 0;
-        // Prefer Perplexity-sourced directory candidates (deterministic) and then
-        // any DuckDuckGo/Bing directory listings as a supplement. Both are held to
-        // the SAME allowlist + name/city confirmation, so neither can inject junk —
-        // this is what keeps DuckDuckGo from clouding the Perplexity-sourced photos.
-        const directoryCandidates = [...perplexityDirectoryCandidates, ...ddg.directoryListings];
-        const seenListingUrls = new Set<string>();
-        for (const listing of directoryCandidates) {
-          if (directoriesScraped >= MAX_DIRECTORY_SOURCES) break;
-          if (seenListingUrls.has(listing.url)) continue;
-          seenListingUrls.add(listing.url);
-          // Golden Data: only trust recognized senior-living directories as a
-          // photo source. A name+city text match is NOT enough — search engines
-          // routinely return same-name gyms, clinics, hospitals, and architecture
-          // portfolios (e.g. "Red Bluff Health & Fitness" for "Red Bluff Health
-          // Care Center") whose pages legitimately mention the city. Restricting to
-          // known directories (exact host/subdomain match) reliably rejects that junk.
-          let listingHost = "";
-          try { listingHost = new URL(listing.url).hostname.replace(/^www\./, ""); } catch {}
-          if (!isSeniorLivingDirectoryHost(listingHost)) {
-            console.log(`📸 Skipping non-directory listing (untrusted source): ${listing.url}`);
-            continue;
-          }
-          const meta = `${listing.url} ${listing.title} ${listing.snippet}`;
-          if (!textReferencesCommunity(meta, community.name, community.city, { requireCity: true })) {
-            console.log(`📸 Skipping directory listing (metadata mismatch): ${listing.url}`);
-            continue;
-          }
-          directoriesScraped++;
-          const { images, text } = await scrapeUsablePage(listing.url);
-          if (images.length === 0) continue;
-          if (!textReferencesCommunity(`${meta} ${text}`, community.name, community.city, { requireCity: true })) {
-            console.log(`📸 Skipping directory listing (body mismatch): ${listing.url}`);
-            continue;
-          }
-          confirmedSources.push({ url: listing.url, official: false, images });
-          console.log(`📸 Directory ${listing.url} → ${images.length} confirmed photo(s)`);
-        }
-
-        // 3. Corroborate & rank across the confirmed sources:
-        //    - official-site photos are always trusted (the site is the community's own)
-        //    - directory photos appearing across ≥2 confirmed sources are corroborated
-        //    - a directory singleton is kept ONLY when it is the sole confirmed source
-        //      (no official photos and a single directory) so a lone, possibly
-        //      mismatched image never wins when better evidence exists.
-        const photoMap = new Map<
-          string,
-          { url: string; official: boolean; sources: string[]; order: number }
-        >();
-        let order = 0;
-        for (const src of confirmedSources) {
-          for (const img of src.images) {
-            const key = normalizeImageKey(img);
-            const existing = photoMap.get(key);
-            if (existing) {
-              if (!existing.sources.includes(src.url)) existing.sources.push(src.url);
-              if (src.official) existing.official = true;
-            } else {
-              photoMap.set(key, { url: img, official: src.official, sources: [src.url], order: order++ });
-            }
-          }
-        }
-
-        const officialExists = Array.from(photoMap.values()).some((e) => e.official);
-        const directorySourceCount = confirmedSources.filter((s) => !s.official).length;
-
-        const ranked = Array.from(photoMap.values())
-          .filter((e) => {
-            if (e.official) return true;
-            if (e.sources.length >= 2) return true; // corroborated across sources
-            return !officialExists && directorySourceCount <= 1; // sole confirmed source
-          })
-          .sort((a, b) => {
-            if (a.official !== b.official) return a.official ? -1 : 1;
-            if (b.sources.length !== a.sources.length) return b.sources.length - a.sources.length;
-            return a.order - b.order;
-          });
-
-        discoveredPhotos = ranked.map((e) => e.url).slice(0, 15);
-        // Attribution per photo: prefer an official source that carries it, else
-        // the first confirmed source. Index-aligned with discoveredPhotos.
-        discoveredPhotoAttributions = ranked.slice(0, 15).map((e) => {
-          if (e.official) {
-            const officialSrc = confirmedSources.find(
-              (s) => s.official && s.images.some((i) => normalizeImageKey(i) === normalizeImageKey(e.url)),
-            );
-            if (officialSrc) return officialSrc.url;
-          }
-          return e.sources[0];
-        });
-
-        console.log(
-          `📸 Corroborated ${discoveredPhotos.length} photo(s) for "${community.name}" from ` +
-            `${confirmedSources.length} confirmed source(s)` +
-            (officialExists ? " (official photos present)" : ""),
-        );
-      }
-
-      // Build enrichmentResult in the same shape the downstream code expects
-      const enrichmentResult = {
-        communityId: communityId,
-        communityName: community.name,
-        lastUpdated: new Date().toISOString(),
-        verificationStatus: 'verified' as const,
-        confidence: freeEnrichment.sourceType === 'none' ? 30 : 75,
-        officialWebsite: freeEnrichment.sourceUrl || community.website || '',
-        phoneNumber: freeEnrichment.phone || community.phone || '',
-        pricing: freeEnrichment.pricingContext || '',
-        extractedAddress: undefined as string | undefined,
-        // Prefer existing (clean) DB photos; otherwise use freshly scraped website photos
-        photos: hasDbPhotos
-          ? cleanDbPhotos
-          : (discoveredPhotos.length > 0 ? discoveredPhotos : (freeEnrichment.photos || [])),
-        // Per-photo source attribution, index-aligned with `photos`, so the UI
-        // can show each image's true origin instead of mislabeling directory
-        // photos as the official website.
-        photoAttributions: hasDbPhotos
-          ? cleanDbAttributions
-          : (discoveredPhotos.length > 0 ? discoveredPhotoAttributions : []),
-        careTypes: freeEnrichment.careTypes || [],
-        amenities: freeEnrichment.amenities || [],
-        searchResults: {
-          summary: freeEnrichment.about || community.description ||
-            'Contact for details — information for this community was not found online.',
-          sources: freeEnrichment.sourceUrl ? [freeEnrichment.sourceUrl] : []
-        }
-      };
-
-      console.log(`📝 Verify endpoint for ${community.name}:`, {
-        forceRefresh,
-        sourceType: freeEnrichment.sourceType,
-        hasAbout: !!freeEnrichment.about,
-        photosCount: enrichmentResult.photos.length
-      });
-      
-      // Update database with discovered information
-      if (enrichmentResult.searchResults?.summary) {
-        const updates: any = {};
-        let hasUpdates = false;
-        // Tracks whether REAL public content (description or photos) was actually
-        // persisted. lastSuccessfulEnrichment must only be stamped when this is
-        // true — otherwise a successful-but-empty Gemini call stamps the timestamp,
-        // the 7-day cache kicks in, and the About section serves "Contact for
-        // details." forever (it never re-enriches to fill the blank description).
-        let contentWasSaved = false;
-        
-        // Get current community data
-        const [current] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
-        
-        if (current) {
-          // Update website if found and different — but ONLY persist a website that
-          // actually resolves. AI-guessed / 404 domains are dropped, never saved
-          // (Golden Data Rule). Citation artifacts are stripped before comparison.
-          const candidateWebsite = cleanCitationArtifacts(enrichmentResult.officialWebsite);
-          if (current.websiteProtected && candidateWebsite && current.website !== candidateWebsite) {
-            // Admin-set website is authoritative — discovery never overwrites it.
-            console.log(`🔒 Keeping admin-protected website for "${current.name}": ${current.website}`);
-          } else if (candidateWebsite && current.website !== candidateWebsite) {
-            if (await isReachableWebsite(candidateWebsite)) {
-              updates.website = candidateWebsite;
-              hasUpdates = true;
-              console.log(`✅ Updating website to: ${candidateWebsite}`);
-            } else {
-              console.log(`🚫 Skipped unreachable website for "${current.name}": ${candidateWebsite}`);
-            }
-          }
-          
-          // Update phone if found and different (citation artifacts stripped)
-          const candidatePhone = cleanCitationArtifacts(enrichmentResult.phoneNumber);
-          if (candidatePhone && current.phone !== candidatePhone) {
-            updates.phone = candidatePhone;
-            hasUpdates = true;
-            console.log(`✅ Updating phone to: ${candidatePhone}`);
-          }
-          
-          // Update description with FULL content for SEO - no truncation
-          // Allow overwrite on forceRefresh even when a description already exists
-          // (citation artifacts stripped before persisting)
-          const candidateDescription = cleanCitationArtifacts(enrichmentResult.searchResults?.summary);
-          if (candidateDescription &&
-              candidateDescription.length > 50 &&
-              (!current.description || current.description.length < 50 || forceRefresh)) {
-            updates.description = candidateDescription; // Full content, no substring!
-            hasUpdates = true;
-            contentWasSaved = true;
-            console.log(`✅ Updating description with FULL enriched content (${candidateDescription.length} chars)`);
-          }
-
-          // Photo persistence — NON-DESTRUCTIVE.
-          // Stored photos are only ever REPLACED when we have verified replacement
-          // photos (corroborated, confirmed-for-community images discovered above).
-          // We never wipe the column based on the blocklist alone: a blocklist
-          // false positive must not permanently erase real community photos. When
-          // discovery finds nothing, existing stored photos are left untouched.
-          if (!hasDbPhotos && discoveredPhotos.length > 0) {
-            // Apply full clean before persisting: removes exact duplicates, UI-chrome
-            // noise (sentsuccessfully, closex, icons …), icon-sized thumbnails, and
-            // collapses different-size variants of the same image.
-            const rawDiscovered = discoveredPhotos;
-            const cleanedDiscovered = CommunityPhotoEnrichment.cleanPhotoArray(rawDiscovered);
-
-            // Re-align attributions after cleaning so they remain index-aligned.
-            const survivorSet = new Set(cleanedDiscovered);
-            const cleanedAttributions = rawDiscovered
-              .map((url, i) =>
-                survivorSet.has(url) ? (discoveredPhotoAttributions[i] ?? "") : null,
-              )
-              .filter((a): a is string => a !== null);
-
-            if (cleanedDiscovered.length === 0) {
-              // All discovered photos were noise — skip persisting to avoid wiping real data
-              console.log(`⚠️ All ${rawDiscovered.length} discovered photos removed as noise — skipping photo update`);
-            } else {
-              updates.photos = cleanedDiscovered;
-              // Persist per-photo source attribution (index-aligned) so each image's
-              // true origin — official site or a specific public directory — is
-              // auditable and the UI never mislabels a directory photo's source.
-              updates.photoAttributions =
-                cleanedAttributions.length === cleanedDiscovered.length
-                  ? cleanedAttributions
-                  : cleanedDiscovered.map((_, i) => cleanedAttributions[i] || "");
-              hasUpdates = true;
-              contentWasSaved = true;
-              if (cleanedDiscovered.length < rawDiscovered.length) {
-                console.log(
-                  `✅ Updating photos with ${cleanedDiscovered.length} corroborated images ` +
-                    `(${rawDiscovered.length - cleanedDiscovered.length} noise/duplicate URLs removed; ` +
-                    `attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
-                );
-              } else {
-                console.log(
-                  `✅ Updating photos with ${cleanedDiscovered.length} corroborated images ` +
-                    `(attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
-                );
-              }
-            }
-          }
-
-          // Only stamp lastSuccessfulEnrichment when REAL public content (a
-          // description or photos) was actually persisted. Stamping on a
-          // successful-but-empty enrichment would arm the 7-day cache and lock the
-          // About section to "Contact for details." until the TTL expires.
-          if (contentWasSaved) {
-            updates.lastSuccessfulEnrichment = new Date();
-            hasUpdates = true;
-          }
-
-          // Address correction: if Perplexity found a different city than what is stored, update
-          const extractedAddress = enrichmentResult.extractedAddress;
-          if (extractedAddress) {
-            const addrParts = extractedAddress.match(/^(.+),\s*([A-Za-z\s]+),\s*([A-Z]{2})\s*(\d{5})?$/);
-            if (addrParts) {
-              const [, streetAddr, extractedCity, extractedState, extractedZip] = addrParts;
-              const storedCity = (current.city || '').trim().toLowerCase();
-              const newCity = extractedCity.trim().toLowerCase();
-              if (newCity && newCity !== storedCity) {
-                console.log(`🏠 Address correction detected for "${current.name}": "${current.city}" → "${extractedCity.trim()}"`);
-                updates.address = streetAddr.trim();
-                updates.city = extractedCity.trim();
-                updates.state = extractedState.trim();
-                if (extractedZip) updates.zipCode = extractedZip;
-                hasUpdates = true;
-                // Re-geocode using the corrected address to update map coordinates
-                try {
-                  const newCoords = await geocodeWithNominatim(
-                    `${streetAddr.trim()}, ${extractedCity.trim()}, ${extractedState}`
-                  );
-                  if (newCoords) {
-                    updates.latitude = newCoords.lat;
-                    updates.longitude = newCoords.lng;
-                    console.log(`📍 Re-geocoded "${current.name}" to: ${newCoords.lat}, ${newCoords.lng}`);
-                  }
-                } catch (geoErr) {
-                  console.warn(`⚠️ Re-geocoding failed for "${current.name}":`, geoErr);
-                }
-              }
-            }
-          }
-
-          // Apply updates if any
-          if (hasUpdates) {
-            await db.update(communities)
-              .set({
-                ...updates,
-                updatedAt: new Date()
-              })
-              .where(eq(communities.id, communityId));
-            console.log(`✅ On-demand enrichment completed for community ${communityId}:`, { 
-              fieldsUpdated: Object.keys(updates),
-              protectedFieldsSkipped: []
-            });
-          }
-        }
-      }
-
-      // Transform to match expected frontend format
+      // Transform the unified result into the frontend verification report shape.
       const verificationReport = {
-        communityId: enrichmentResult.communityId,
-        communityName: enrichmentResult.communityName,
-        timestamp: enrichmentResult.lastUpdated,
-        
-        // Core verification data
+        communityId: result.communityId,
+        communityName: result.communityName,
+        timestamp: result.lastUpdated,
+
         verificationResults: {
           webIntelligence: {
-            images: enrichmentResult.photos,
-            // Per-photo source attribution (index-aligned with `images`) so the
-            // UI can show where each photo actually came from — never mislabeling
-            // a directory photo as the official website.
-            imageAttributions: enrichmentResult.photoAttributions || [],
-            sources: enrichmentResult.searchResults?.sources || [],
-            careTypes: enrichmentResult.careTypes,
-            amenities: enrichmentResult.amenities
+            images: result.photos,
+            // Per-photo source attribution (index-aligned with `images`).
+            imageAttributions: result.photoAttributions || [],
+            sources: result.sources || [],
+            careTypes: result.careTypes,
+            amenities: result.amenities
           },
           searchResults: {
-            summary: enrichmentResult.searchResults?.summary,
-            sources: enrichmentResult.searchResults?.sources || []
+            summary: result.summary,
+            sources: result.sources || []
           },
           perplexityData: {
-            lastUpdated: enrichmentResult.lastUpdated,
-            searchContent: enrichmentResult.searchResults?.summary,
-            sources: enrichmentResult.searchResults?.sources || []
+            lastUpdated: result.lastUpdated,
+            searchContent: result.summary,
+            sources: result.sources || []
           }
         },
-        
-        // Care types and amenities at top level for easy UI access
-        careTypes: enrichmentResult.careTypes,
-        amenities: enrichmentResult.amenities,
-        
-        // Consensus data
+
+        careTypes: result.careTypes,
+        amenities: result.amenities,
+
         consensus: {
-          agreementLevel: enrichmentResult.verificationStatus === 'verified' ? 'strong' : 'weak',
+          agreementLevel: result.verificationStatus === 'verified' ? 'strong' : 'weak',
           verifiedFacts: [],
           disputedFacts: [],
-          confidenceScore: enrichmentResult.confidence,
-          transparencyNotes: `Verification status: ${enrichmentResult.verificationStatus}`
+          confidenceScore: result.confidence,
+          transparencyNotes: `Verification status: ${result.verificationStatus}`
         },
-        
-        // Pricing data
-        pricing: enrichmentResult.pricing,
-        
-        // Contact info
+
+        pricing: result.pricingContext,
+
         contactInfo: {
-          phone: enrichmentResult.phoneNumber,
-          website: enrichmentResult.officialWebsite
+          phone: result.phone,
+          website: result.officialWebsite
         }
       };
 
@@ -2368,11 +1839,13 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      // DISABLED: On-demand enrichment to prevent duplicate Perplexity API calls
-      // The community is already enriched via CommunityPhotoEnrichment.enrichCommunityIfNeeded below
-      // onDemandEnrichmentService.onCommunityView(communityId).catch(error => {
-      //   console.error(`Failed to trigger enrichment for community ${communityId}:`, error);
-      // });
+      // On-view enrichment: fire-and-forget through THE single unified pipeline.
+      // Cost is bounded by the orchestrator's 7-day cache (ENRICHMENT_CACHE_TTL_MS) —
+      // a freshly-enriched community is served from DB without a new Perplexity call,
+      // so this shares the exact same path as the Refresh button and admin force-refresh.
+      enrichCommunityUnified(communityId).catch((error) => {
+        console.error(`Failed to trigger on-view enrichment for community ${communityId}:`, error);
+      });
 
       // Get reviews for the community
       const communityReviews = await db
@@ -2382,7 +1855,8 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
-      // Realtime Perplexity enrichment is disabled — serve enriched content from DB column
+      // Response is served immediately from the DB column; the on-view enrichment above
+      // refreshes it in the background (cache-bounded) for the next view.
       console.log(`📖 Community detail GET for ${community.name}: serving data from database`);
       const realTimeData = {
         lastUpdated: new Date().toISOString(),
@@ -2714,11 +2188,15 @@ export function registerCommunityRoutes(app: Express) {
 
 
 
-  // Enrich community data (admin only)
+  // Enrich community data (admin only) — routes through THE single unified pipeline.
   app.post("/api/communities/:id/enrich", requireAuth, isAdmin, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
       const { enrichmentType = 'all' } = req.body;
+
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
 
       const [community] = await db
         .select()
@@ -2732,39 +2210,26 @@ export function registerCommunityRoutes(app: Express) {
 
       const enrichmentResults: any = {};
 
-      // Google Places enrichment
-      if (enrichmentType === 'all' || enrichmentType === 'google') {
+      // Description + photos + contact/pricing all come from the unified pipeline
+      // (Perplexity primary → free scraping fallback → photo validation).
+      if (enrichmentType === 'all' || enrichmentType === 'photos' || enrichmentType === 'google') {
         try {
-          const googleData = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
-          enrichmentResults.google = {
-            success: !!googleData,
-            data: googleData
+          const result = await enrichCommunityUnified(communityId, { forceRefresh: true });
+          enrichmentResults.enrichment = {
+            success: true,
+            cached: result.cached,
+            photosAdded: result.photos.length,
+            summary: result.summary,
           };
-        } catch (error) {
-          enrichmentResults.google = {
+        } catch (error: any) {
+          enrichmentResults.enrichment = {
             success: false,
-            error: error.message
+            error: error?.message ?? 'Unknown error',
           };
         }
       }
 
-      // Photo enrichment
-      if (enrichmentType === 'all' || enrichmentType === 'photos') {
-        try {
-          const photoData = await systematicPhotoEnrichment.enrichSingleCommunity(community);
-          enrichmentResults.photos = {
-            success: !!photoData,
-            photosAdded: photoData?.photosAdded || 0
-          };
-        } catch (error) {
-          enrichmentResults.photos = {
-            success: false,
-            error: error.message
-          };
-        }
-      }
-
-      // Care type classification
+      // Care type classification (separate, free heuristic — not paid enrichment).
       if (enrichmentType === 'all' || enrichmentType === 'careTypes') {
         try {
           const careTypes = await careTypeClassifier.classifyCommunity(community);
@@ -2779,10 +2244,10 @@ export function registerCommunityRoutes(app: Express) {
               careTypes
             };
           }
-        } catch (error) {
+        } catch (error: any) {
           enrichmentResults.careTypes = {
             success: false,
-            error: error.message
+            error: error?.message ?? 'Unknown error',
           };
         }
       }
@@ -2827,9 +2292,9 @@ export function registerCommunityRoutes(app: Express) {
         try {
           let enriched = false;
 
-          // Enrich based on type
+          // Photos/description via the single unified pipeline.
           if (enrichmentType === 'all' || enrichmentType === 'photos') {
-            await systematicPhotoEnrichment.enrichSingleCommunity(community);
+            await enrichCommunityUnified(community.id, { forceRefresh: true });
             enriched = true;
           }
 
@@ -2852,13 +2317,15 @@ export function registerCommunityRoutes(app: Express) {
               status: 'success'
             });
           }
-        } catch (error) {
+          // Gentle pacing between communities to avoid hammering upstream APIs.
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        } catch (error: any) {
           results.failed++;
           results.details.push({
             id: community.id,
             name: community.name,
             status: 'failed',
-            error: error.message
+            error: error?.message ?? 'Unknown error'
           });
         }
       }

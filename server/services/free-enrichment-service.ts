@@ -40,7 +40,7 @@ export interface FreeEnrichmentResult {
 const JINA_TIMEOUT_MS = 15_000;
 const GROQ_TIMEOUT_MS = 20_000;
 
-// ── SSRF guard (same logic as on-demand-enrichment-service) ──────────────────
+// ── SSRF guard (shared SSRF-safe URL logic) ──────────────────────────────────
 
 async function isSafePublicUrl(rawUrl: string): Promise<boolean> {
   let parsed: URL;
