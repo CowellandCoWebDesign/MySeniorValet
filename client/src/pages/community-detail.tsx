@@ -40,7 +40,6 @@ import {
 } from "@/lib/amenities-checklists";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
-import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
@@ -1562,9 +1561,8 @@ export default function CommunityDetail() {
   
   const { toast } = useToast();
   
-  // Move useResponsive and searchQuery state here to ensure they're called before any conditional returns
+  // Move useResponsive here to ensure it's called before any conditional returns
   const { isMobile, isTablet, isDesktop } = useResponsive();
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   // Contact gating: blur detailed pricing & overview until login/consent (reveal + referral lead).
@@ -2423,24 +2421,6 @@ export default function CommunityDetail() {
       
       {/* Add padding-top to account for fixed navbar */}
       <div className="bg-gray-50 dark:bg-gray-900 pt-20">      
-      {/* Search Bar - Consistent with home page */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-4">
-        <div className="container-responsive">
-          <div className="max-w-2xl mx-auto">
-            <AutocompleteSearch
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onSubmit={(query) => {
-                // Navigate to map search with the query
-                window.location.href = `/map-search?q=${encodeURIComponent(query)}`;
-              }}
-              placeholder="Search for communities, cities, or states..."
-              inputClassName="w-full"
-            />
-          </div>
-        </div>
-      </div>
-      
       {/* Breadcrumb Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="container-responsive">

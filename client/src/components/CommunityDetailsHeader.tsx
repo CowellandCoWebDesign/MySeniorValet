@@ -360,10 +360,14 @@ export function CommunityDetailsHeader({
           </div>
         )}
         
-        {/* Action Buttons Row */}
-        <div className="flex justify-end items-center px-3 sm:px-6 py-2 border-b border-gray-200 dark:border-gray-700">
+        {/* Name + Action Buttons Row */}
+        <div className="flex justify-between items-center gap-3 px-3 sm:px-6 py-2 border-b border-gray-200 dark:border-gray-700">
+          {/* Community Name */}
+          <h1 className="min-w-0 flex-1 text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words leading-tight">
+            {community.name}
+          </h1>
           {/* Action Buttons */}
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-shrink-0 items-center space-x-2">
             {/* Re-fetch latest data — admin-only (paid Perplexity research) */}
             {onRefetch && isAdmin && (
               <button
@@ -438,13 +442,7 @@ export function CommunityDetailsHeader({
             
             {/* Community Details - Full width with better spacing */}
             <div>
-              <div className="mb-3">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words leading-tight">
-                  {community.name}
-                </h1>
-              </div>
-
-              {/* Rating, Care Type and HUD Badges - directly below name */}
+              {/* Rating, Care Type and HUD Badges */}
               <div className="flex flex-wrap items-center gap-3 mb-3">
                 {community.googleRating && (
                   <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
