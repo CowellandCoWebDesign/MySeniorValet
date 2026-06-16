@@ -215,7 +215,7 @@ export function GeographicCommunitiesSection() {
             </div>
             
             <div className="text-center mt-6">
-              <Link to="/map-search?state=HI" data-testid="link-explore-hawaii">
+              <Link to="/ai-search-intelligence?location=Hawaii" data-testid="link-explore-hawaii">
                 <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-6 py-4 text-base font-semibold shadow-xl" data-testid="button-explore-hawaii">
                   Explore All Hawaii Communities
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -315,7 +315,7 @@ export function GeographicCommunitiesSection() {
             </div>
             
             <div className="text-center mt-6">
-              <Link to="/map-search?city=Fort Worth&state=Texas" data-testid="link-explore-fortworth">
+              <Link to="/ai-search-intelligence?location=Fort Worth, Texas" data-testid="link-explore-fortworth">
                 <Button size="lg" className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-6 py-4 text-base font-semibold shadow-xl" data-testid="button-explore-fortworth">
                   Explore All Fort Worth Communities
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -415,7 +415,7 @@ export function GeographicCommunitiesSection() {
             </div>
             
             <div className="text-center mt-6">
-              <Link to="/map-search?state=NY" data-testid="link-explore-newyork">
+              <Link to="/ai-search-intelligence?location=New York" data-testid="link-explore-newyork">
                 <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-6 py-4 text-base font-semibold shadow-xl" data-testid="button-explore-newyork">
                   Explore All New York Communities
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -492,7 +492,7 @@ export function GeographicCommunitiesSection() {
                   </div>
                 ))
               ) : ((canadianCommunities as any)?.communities || []).length === 0 ? (
-                <Link to="/search?location=canada" data-testid="link-canadian-promo">
+                <Link to="/ai-search-intelligence?location=canada" data-testid="link-canadian-promo">
                   <div className="overflow-hidden flex-shrink-0 w-60 h-[28rem] border-2 border-red-300 dark:border-red-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-900 flex items-center justify-center">
                       <div className="text-center p-6">
@@ -534,7 +534,7 @@ export function GeographicCommunitiesSection() {
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 🏝️ Puerto Rico Communities
               </h2>
-              <Link to="/search?location=Puerto Rico" data-testid="link-puertorico-view-all">
+              <Link to="/ai-search-intelligence?location=Puerto Rico" data-testid="link-puertorico-view-all">
                 <Button variant="outline" className="flex items-center gap-2 border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20 text-sm" data-testid="button-puertorico-view-all">
                   View All Puerto Rico
                   <ArrowRight className="w-4 h-4" />
@@ -585,7 +585,7 @@ export function GeographicCommunitiesSection() {
             </div>
           ) : !(puertoRicoCommunities as any)?.communities?.length ? (
             <div className="text-center text-gray-600 dark:text-gray-400">
-              <Button variant="outline" className="mt-2" onClick={() => setLocation('/map-search?location=Puerto Rico')} data-testid="button-search-puertorico">
+              <Button variant="outline" className="mt-2" onClick={() => setLocation('/ai-search-intelligence?location=Puerto Rico')} data-testid="button-search-puertorico">
                 Search All Puerto Rico Communities
               </Button>
             </div>
@@ -611,7 +611,7 @@ export function GeographicCommunitiesSection() {
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 🇵🇪 Peru Communities
               </h2>
-              <Link to="/search?location=Peru" data-testid="link-peru-view-all">
+              <Link to="/ai-search-intelligence?location=Peru" data-testid="link-peru-view-all">
                 <Button variant="outline" className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20 text-sm" data-testid="button-peru-view-all">
                   View All Peru
                   <ArrowRight className="w-4 h-4" />
@@ -655,7 +655,7 @@ export function GeographicCommunitiesSection() {
             </div>
           ) : !(peruCommunities as any)?.communities?.length ? (
             <div className="text-center text-gray-600 dark:text-gray-400">
-              <Button variant="outline" className="mt-2" onClick={() => setLocation('/map-search?location=Peru')} data-testid="button-search-peru">
+              <Button variant="outline" className="mt-2" onClick={() => setLocation('/ai-search-intelligence?location=Peru')} data-testid="button-search-peru">
                 Search All Peru Communities
               </Button>
             </div>
@@ -758,7 +758,7 @@ export function GeographicCommunitiesSection() {
             </div>
             
             <div className="text-center mt-6">
-              <Link to="/search?location=Cuba" data-testid="link-explore-cuba">
+              <Link to="/ai-search-intelligence?location=Cuba" data-testid="link-explore-cuba">
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white px-6 py-4 text-base font-semibold shadow-xl" data-testid="button-explore-cuba">
                   Explore All Cuba Communities
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -777,7 +777,7 @@ export function GeographicCommunitiesSection() {
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 🇨🇷 Costa Rica Communities
               </h2>
-              <Link to="/search?location=Costa Rica" data-testid="link-costarica-view-all">
+              <Link to="/ai-search-intelligence?location=Costa Rica" data-testid="link-costarica-view-all">
                 <Button variant="outline" className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20 text-sm" data-testid="button-costarica-view-all">
                   View All Costa Rica
                   <ArrowRight className="w-4 h-4" />
@@ -828,7 +828,7 @@ export function GeographicCommunitiesSection() {
             </div>
           ) : !(costaRicaCommunities as any)?.communities?.length ? (
             <div className="text-center text-gray-600 dark:text-gray-400">
-              <Button variant="outline" className="mt-2" onClick={() => setLocation('/map-search?location=Costa Rica')} data-testid="button-search-costarica">
+              <Button variant="outline" className="mt-2" onClick={() => setLocation('/ai-search-intelligence?location=Costa Rica')} data-testid="button-search-costarica">
                 Search All Costa Rica Communities
               </Button>
             </div>
@@ -854,7 +854,7 @@ export function GeographicCommunitiesSection() {
               <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
                 🇵🇦 Panama Communities
               </h2>
-              <Link to="/search?location=Panama" data-testid="link-panama-view-all">
+              <Link to="/ai-search-intelligence?location=Panama" data-testid="link-panama-view-all">
                 <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20 text-sm" data-testid="button-panama-view-all">
                   View All Panama
                   <ArrowRight className="w-4 h-4" />
@@ -905,7 +905,7 @@ export function GeographicCommunitiesSection() {
             </div>
           ) : !(panamaCommunities as any)?.communities?.length ? (
             <div className="text-center text-gray-600 dark:text-gray-400">
-              <Button variant="outline" className="mt-2" onClick={() => setLocation('/map-search?location=Panama')} data-testid="button-search-panama">
+              <Button variant="outline" className="mt-2" onClick={() => setLocation('/ai-search-intelligence?location=Panama')} data-testid="button-search-panama">
                 Search All Panama Communities
               </Button>
             </div>

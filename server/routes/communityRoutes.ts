@@ -242,7 +242,12 @@ export function registerCommunityRoutes(app: Express) {
         } else if (t === 'coastal') {
           r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
         } else if (t === 'most_reviewed') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "review_count" IS NOT NULL AND "review_count" > 0${ex} ORDER BY "review_count" DESC NULLS LAST LIMIT ${lim}`);
+          // Order by review count (most-reviewed first) but DO NOT hard-exclude
+          // communities with zero/null reviews — most of the 33k+ communities have
+          // no reviews yet, and excluding them blanks the directory grid. Falling
+          // back to rating keeps the grid populated while still surfacing the
+          // most-reviewed communities at the top.
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere}${ex} ORDER BY "review_count" DESC NULLS LAST, "rating" DESC NULLS LAST LIMIT ${lim}`);
         } else if (t === 'recently_discovered') {
           r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex} ORDER BY "created_at" DESC LIMIT ${lim}`);
         } else if (t === 'location') {

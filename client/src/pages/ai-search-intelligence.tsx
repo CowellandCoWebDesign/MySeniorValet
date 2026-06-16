@@ -257,18 +257,24 @@ export default function AISearchIntelligence() {
     const city = urlParams.get('city');
     const state = urlParams.get('state');
     const country = urlParams.get('country');
+    // Company / brand / free-text query (used by the Community Directory's
+    // "Explore all" brand & section buttons). Any of these acts as the search term.
+    const company = urlParams.get('company');
+    const brand = urlParams.get('brand');
+    const query = urlParams.get('query');
+    const searchTerm = location || company || brand || query;
     
     if (mode === 'simplified') {
       setActiveTab('simplified');
     }
     
-    // Set location if provided
-    if (location) {
+    // Set the search term if provided (location, company, brand, or query)
+    if (searchTerm) {
       setSimplifiedFilters(prev => ({
         ...prev,
-        location: location
+        location: searchTerm
       }));
-      setSearchQuery(location);
+      setSearchQuery(searchTerm);
       
       // Try to set map center based on location
       if (city && state) {
@@ -494,23 +500,30 @@ export default function AISearchIntelligence() {
   // Simplified Search Mutation with Fallback Logic
   const simplifiedSearchMutation = useMutation({
     mutationFn: async (filters: typeof simplifiedFilters) => {
-      // Trim the location to handle spaces added by keyboards
+      // Trim the location/term to handle spaces added by keyboards
       const trimmedLocation = filters.location.trim();
       console.log('🔍 Searching for:', trimmedLocation);
       
-      // Primary search with all filters
+      // Primary search via the live unified search engine. The old
+      // /api/communities/search/unified path no longer exists (it returned the
+      // SPA HTML shell, silently breaking every search). /api/search/unified
+      // matches by location, community name AND management company, so brand /
+      // company "Explore all" buttons return results too.
       const primarySearchParams = new URLSearchParams({
-        location: trimmedLocation,
-        careType: filters.typeOfLiving.join(',') || 'All Types',
-        priceMin: filters.priceRange[0].toString(),
-        priceMax: filters.priceRange[1].toString(),
+        q: trimmedLocation,
         limit: '50',
         offset: '0'
       });
 
-      let response = await fetch(`/api/communities/search/unified?${primarySearchParams}`);
+      let response = await fetch(`/api/search/unified?${primarySearchParams}`);
       if (!response.ok) throw new Error('Simplified search failed');
       let data = await response.json();
+
+      // Normalize: the unified endpoint returns { communities: [...] }; the rest
+      // of this page expects a `results` array.
+      if (data && !Array.isArray(data.results) && Array.isArray(data.communities)) {
+        data.results = data.communities;
+      }
 
       // If no results and filters are restrictive, try fallback searches
       if (!data.results || data.results.length === 0) {
@@ -519,17 +532,17 @@ export default function AISearchIntelligence() {
         // Fallback 1: Remove price restrictions
         if (filters.priceRange[0] > 500 || filters.priceRange[1] < 8000) {
           const fallbackParams1 = new URLSearchParams({
-            location: trimmedLocation,
-            careType: filters.typeOfLiving.join(',') || 'All Types',
-            priceMin: '0',
-            priceMax: '15000',
+            q: trimmedLocation,
             limit: '25',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams1}`);
+          response = await fetch(`/api/search/unified?${fallbackParams1}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
@@ -543,17 +556,17 @@ export default function AISearchIntelligence() {
         // Fallback 2: Expand care types if specific types were selected
         if (filters.typeOfLiving.length > 0 && filters.typeOfLiving.length < 4) {
           const fallbackParams2 = new URLSearchParams({
-            location: trimmedLocation,
-            careType: 'All Types',
-            priceMin: filters.priceRange[0].toString(),
-            priceMax: filters.priceRange[1].toString(),
+            q: trimmedLocation,
             limit: '25',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams2}`);
+          response = await fetch(`/api/search/unified?${fallbackParams2}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
@@ -567,17 +580,17 @@ export default function AISearchIntelligence() {
         // Fallback 3: Location only (remove all other filters)
         if (trimmedLocation) {
           const fallbackParams3 = new URLSearchParams({
-            location: trimmedLocation,
-            careType: 'All Types',
-            priceMin: '0',
-            priceMax: '15000',
+            q: trimmedLocation,
             limit: '25',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams3}`);
+          response = await fetch(`/api/search/unified?${fallbackParams3}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
@@ -591,17 +604,17 @@ export default function AISearchIntelligence() {
         // Fallback 4: National search with care type only
         if (filters.typeOfLiving.length > 0) {
           const fallbackParams4 = new URLSearchParams({
-            location: '',
-            careType: filters.typeOfLiving.join(','),
-            priceMin: '0',
-            priceMax: '15000',
+            q: filters.typeOfLiving.join(' '),
             limit: '20',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams4}`);
+          response = await fetch(`/api/search/unified?${fallbackParams4}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
