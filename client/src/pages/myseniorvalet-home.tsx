@@ -1,5 +1,8 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
-import heroImagePath from "@assets/generated_images/seniors_garden_celebration.png";
+import heroGoldenGate from "@assets/generated_images/hero_golden_gate_bridge.png";
+import heroMtShasta from "@assets/generated_images/hero_mt_shasta.png";
+import heroSundialBridge from "@assets/generated_images/hero_sundial_bridge_redding.png";
+import heroLighthouseSunset from "@assets/generated_images/hero_lighthouse_sunset.png";
 import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
@@ -82,12 +85,12 @@ import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
-  // Preload hero background image with highest priority
+  // Preload first cycling hero image with highest priority
   const heroLink = document.createElement('link');
   heroLink.rel = 'preload';
   heroLink.as = 'image';
-  heroLink.href = "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg";
-  heroLink.type = 'image/jpeg';
+  heroLink.href = heroGoldenGate;
+  heroLink.type = 'image/png';
   heroLink.fetchPriority = 'high';
   document.head.appendChild(heroLink);
   
@@ -99,6 +102,14 @@ if (typeof document !== 'undefined') {
   thinkerLink.type = 'image/png';
   document.head.appendChild(thinkerLink);
 }
+
+// Cycling hero images for the home page hero (crossfade every ~6s)
+const HERO_IMAGES = [
+  { src: heroGoldenGate, alt: "Golden Gate Bridge framed by rolling hills at golden hour" },
+  { src: heroMtShasta, alt: "Snow-capped Mt Shasta rising above an evergreen forest" },
+  { src: heroSundialBridge, alt: "The Sundial Bridge spanning the river in Redding, California" },
+  { src: heroLighthouseSunset, alt: "A coastal lighthouse silhouetted against a vivid sunset sky" },
+];
 
 // Dynamic placeholder texts for search box
 const SEARCH_PLACEHOLDERS = {
@@ -632,6 +643,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [forceClearAutocomplete, setForceClearAutocomplete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0); // Index of the currently displayed cycling hero image
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
@@ -654,6 +666,18 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       sessionStorage.setItem('searchMode', searchMode);
     }
   }, [searchMode]);
+
+  // Cycle the hero background image every 6s with a crossfade.
+  // Respect prefers-reduced-motion: do not auto-cycle, show the first image.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+    const interval = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
   
   // Listen for search mode changes from the navbar
   useEffect(() => {
@@ -1103,21 +1127,26 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             }
           }}
         >
-          <img
-            src={heroImagePath}
-            alt="Senior friends celebrating together at a luxury resort-style community garden"
-            className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            loading="eager"
-            decoding="sync"
-            onLoad={() => setImageLoaded(true)}
-            style={{ 
-              willChange: imageLoaded ? 'auto' : 'opacity',
-              contentVisibility: 'auto',
-              transform: 'translateZ(0)' // Force GPU acceleration
-            }}
-          />
+          {HERO_IMAGES.map((image, index) => {
+            const isActive = index === heroIndex;
+            return (
+              <img
+                key={image.src}
+                src={image.src}
+                alt={image.alt}
+                className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
+                  isActive && imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                decoding={index === 0 ? 'sync' : 'async'}
+                onLoad={index === 0 ? () => setImageLoaded(true) : undefined}
+                style={{
+                  willChange: 'opacity',
+                  transform: 'translateZ(0)' // Force GPU acceleration
+                }}
+              />
+            );
+          })}
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 sm:via-black/10 to-black/65"></div>
         </div>
         
