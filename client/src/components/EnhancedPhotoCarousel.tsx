@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw, Play } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ZoomIn, Share2, AlertTriangle, CheckCircle, RefreshCw, Play, Flag } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { FlagListingDialog } from "@/components/flag-listing-dialog";
 
 // Helper functions for video detection and embed URL generation
 const isVideoUrl = (url: string): boolean => {
@@ -823,6 +824,29 @@ export function EnhancedPhotoCarousel({
           >
             <ZoomIn className="w-4 h-4" />
           </Button>
+
+          {/* Report photo affordance — flag a wrong/inappropriate image */}
+          {communityId && (
+            <div className="absolute top-16 left-4 z-20">
+              <FlagListingDialog
+                communityId={Number(communityId)}
+                communityName={communityName || "this community"}
+                defaultFlagType="Inappropriate Content"
+                trigger={
+                  <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); }}
+                    title="Report a wrong or inappropriate photo"
+                    aria-label="Report a problem with this photo"
+                    className="h-9 w-9 flex items-center justify-center rounded-md bg-black/50 hover:bg-red-600/80 text-white transition-all duration-200 hover:scale-110"
+                    data-testid="button-flag-photo"
+                  >
+                    <Flag className="w-4 h-4" />
+                  </button>
+                }
+              />
+            </div>
+          )}
 
           {/* Photo Issue Indicator */}
           {hasValidationIssue && (

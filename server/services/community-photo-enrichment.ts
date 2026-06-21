@@ -2,7 +2,6 @@ import { communities } from '@shared/schema';
 import { db } from '../db';
 import { eq } from 'drizzle-orm';
 import { normalizePhotoUrls } from '../utils/photo-urls';
-import { communityNameTokens } from './free-enrichment-service';
 
 // Generic photo-descriptor words that appear in image filenames but are NOT part
 // of a community's proper name (e.g. "Dining", "Exterior"). Stripped before we
@@ -28,6 +27,36 @@ const FACILITY_NAME_MARKERS = [
   'health center', 'health-center', 'nursing', 'rehabilitation', 'alzheimer',
   'retirement', 'village', 'manor', 'estates', 'commons', 'hospice', 'lodge',
 ];
+
+// Truly-generic senior-living words that NEVER distinguish one community from
+// another (every facility shares them). Dropped even when DISCRIMINATING
+// siblings. NOTE: unlike free-enrichment-service's NAME_STOPWORDS, this set
+// intentionally KEEPS type/suffix words (estates, manor, gardens, lodge, court,
+// villas, residences, springs, commons, village, place, heights…) because those
+// are exactly what tells "Hilltop Estates" apart from "Hilltop Springs".
+const GENERIC_CARE_WORDS = new Set([
+  'senior', 'seniors', 'living', 'care', 'assisted', 'memory', 'independent',
+  'nursing', 'skilled', 'community', 'communities', 'center', 'centre', 'home',
+  'homes', 'house', 'housing', 'retirement', 'health', 'healthcare',
+  'rehabilitation', 'rehab', 'facility', 'the', 'of', 'at', 'and', 'for',
+  'llc', 'inc', 'co', 'group',
+]);
+
+/**
+ * Tokenize a community name for SIBLING DISCRIMINATION. Unlike
+ * `communityNameTokens` in free-enrichment-service (which treats senior-living
+ * type/suffix words as stopwords and so collapses "Hilltop Estates" and
+ * "Hilltop Springs" both down to ["hilltop"]), this keeps those distinguishing
+ * suffix words and only drops the truly-generic care words. This is what lets
+ * the mismatch filter tell two sibling communities apart.
+ */
+function discriminatingNameTokens(name: string): string[] {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter((t) => t.length >= 3 && !GENERIC_CARE_WORDS.has(t));
+}
 
 /**
  * Community Photo Enrichment Service
@@ -321,24 +350,46 @@ export class CommunityPhotoEnrichment {
     const hasFacilityMarker = FACILITY_NAME_MARKERS.some((m) => phrase.includes(m));
     if (!hasFacilityMarker) return false;
 
-    // 2. Must carry ≥2 distinctive proper-name tokens (drop generic + descriptor words).
-    const facilityNameTokens = communityNameTokens(phrase).filter(
+    // 2. Must carry ≥2 distinctive proper-name tokens. Drop generic care words +
+    //    photo descriptors, but KEEP type/suffix words (estates, manor, springs…)
+    //    so a sibling sharing only a core token stays distinguishable. Using the
+    //    discrimination tokenizer here is what gives "Hilltop Estates" its second
+    //    token instead of collapsing it to just ["hilltop"].
+    const facilityNameTokens = discriminatingNameTokens(phrase).filter(
       (t) => !PHOTO_DESCRIPTOR_WORDS.has(t),
     );
     if (facilityNameTokens.length < 2) return false;
 
     // 3. Does the filename reference THIS community? If so, keep it.
-    const targetTokens = communityNameTokens(name);
+    //    Short names (≤2 distinctive tokens) must match ALL of them — a single
+    //    shared core token ("hilltop") is NOT enough to claim a sibling's photo
+    //    ("Hilltop Estates" vs "Hilltop Springs"). Longer names tolerate one
+    //    missing token (≥50% or ≥2 matched) to absorb minor naming variation.
+    const targetTokens = discriminatingNameTokens(name);
     if (targetTokens.length === 0) return false; // can't judge — keep
     const matched = targetTokens.filter((t) => phrase.includes(t)).length;
     const referencesThis =
-      matched / targetTokens.length >= 0.5 || (targetTokens.length >= 3 && matched >= 2);
+      targetTokens.length <= 2
+        ? matched === targetTokens.length
+        : matched / targetTokens.length >= 0.5 || matched >= 2;
     if (referencesThis) return false;
 
-    // City match is a weak signal of ownership — if the slug embeds this
-    // community's city it may still be a same-facility photo; keep to stay safe.
-    const cityNorm = (city || '').toLowerCase().trim();
-    if (cityNorm && cityNorm.length >= 4 && phrase.includes(cityNorm)) return false;
+    // The filename names a facility that is NOT this community (step 3) — but it
+    // could still be a same-community photo if it introduces no distinctive
+    // identity of its own. Treat this community's name tokens AND its city tokens
+    // as "allowed"; any leftover distinctive token (e.g. "estates" when this is
+    // "Hilltop Springs" in city Hilltop) is a DIFFERENT facility's signature, so
+    // a mere city coincidence must NOT rescue it. This keeps sibling
+    // discrimination working even when two communities share a city — the prior
+    // "filename contains the city → keep" guard defeated exactly that case.
+    const allowedTokens = new Set<string>([
+      ...targetTokens,
+      ...discriminatingNameTokens(city || ''),
+    ]);
+    const foreignDistinctiveTokens = facilityNameTokens.filter(
+      (t) => !allowedTokens.has(t),
+    );
+    if (foreignDistinctiveTokens.length === 0) return false; // nothing foreign — keep
 
     // Own-domain guard: a photo hosted on the community's OWN site is theirs even
     // if the filename is a program/event name (e.g. "Alzheimers-Memories-in-the-
@@ -347,7 +398,12 @@ export class CommunityPhotoEnrichment {
     if (host) {
       let officialHost = '';
       try {
-        const ow = (officialWebsite || '').trim();
+        // The DB sometimes stores the website with markdown/junk wrappers
+        // (e.g. "**www.hilltopspringssl.com**"); strip anything that isn't a
+        // valid hostname/url character before parsing.
+        const ow = (officialWebsite || '')
+          .trim()
+          .replace(/[^a-z0-9.\-:/]/gi, '');
         if (ow && /\./.test(ow) && !/\s/.test(ow)) {
           officialHost = new URL(/^https?:\/\//i.test(ow) ? ow : `https://${ow}`)
             .hostname.replace(/^www\./, '')
@@ -359,8 +415,20 @@ export class CommunityPhotoEnrichment {
       if (officialHost && (host === officialHost || host.endsWith(`.${officialHost}`))) {
         return false;
       }
+      // Sibling-aware host guard. A directory CDN names the facility in its
+      // subdomain (e.g. hilltopestatessl.seniorlivingnearme.com). If that host
+      // embeds a FOREIGN distinctive token ("estates" for a "Hilltop Springs"
+      // listing), the photo is served from a DIFFERENT facility's subdomain —
+      // a shared core token ("hilltop") must NOT rescue it. Only treat the host
+      // as "theirs" when it carries this community's name AND no foreign name.
       const hostAlpha = host.replace(/[^a-z]/g, '');
-      if (targetTokens.some((t) => t.length >= 4 && hostAlpha.includes(t))) {
+      const hostEmbedsForeign = foreignDistinctiveTokens.some(
+        (t) => t.length >= 4 && hostAlpha.includes(t),
+      );
+      if (
+        !hostEmbedsForeign &&
+        targetTokens.some((t) => t.length >= 4 && hostAlpha.includes(t))
+      ) {
         return false;
       }
     }

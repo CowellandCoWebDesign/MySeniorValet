@@ -2,11 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight, Lock } from "lucide-react";
+import { Star, MapPin, Home, Heart, Activity, Users, Utensils, Car, Music, Book, ChevronLeft, ChevronRight, Lock, Flag } from "lucide-react";
 import { Link } from "wouter";
 import { getCommunityUrl } from "@/lib/community-url";
 import { getEffectiveRating } from "@/lib/rating-utils";
 import { useContactReveal } from "@/hooks/useContactReveal";
+import { FlagListingDialog } from "@/components/flag-listing-dialog";
 
 interface FeaturedExcellenceCardProps {
   community: {
@@ -369,6 +370,23 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
                 Schedule Tour
               </Button>
             </Link>
+            <FlagListingDialog
+              communityId={community.id}
+              communityName={community.name}
+              defaultFlagType="Inappropriate Content"
+              trigger={
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); }}
+                  title="Report a wrong or inappropriate photo"
+                  aria-label="Report a problem with this listing"
+                  className="flex-shrink-0 h-7 w-7 flex items-center justify-center rounded border border-gray-200 dark:border-gray-700 text-gray-400 hover:text-red-600 hover:border-red-300 dark:hover:text-red-400 transition-colors"
+                  data-testid={`button-flag-${community.id}`}
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                </button>
+              }
+            />
           </div>
         </CardContent>
         {consentDialog}
@@ -489,6 +507,27 @@ export function FeaturedExcellenceCard({ community, index = 0, compact = false, 
           <Badge className={`text-xs font-medium px-2 py-1 ${getAvailabilityColor()}`}>
             {getAvailability()}
           </Badge>
+        </div>
+
+        {/* Report photo affordance — lets families flag a wrong/inappropriate image */}
+        <div className="absolute bottom-2 left-2">
+          <FlagListingDialog
+            communityId={community.id}
+            communityName={community.name}
+            defaultFlagType="Inappropriate Content"
+            trigger={
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); }}
+                title="Report a wrong or inappropriate photo"
+                aria-label="Report a problem with this photo"
+                className="h-7 w-7 flex items-center justify-center rounded-full bg-black/50 hover:bg-red-600/80 text-white transition-colors"
+                data-testid={`button-flag-${community.id}`}
+              >
+                <Flag className="w-3.5 h-3.5" />
+              </button>
+            }
+          />
         </div>
       </div>
 
