@@ -48,9 +48,9 @@ export interface SearchResult {
 
 export class ComprehensiveSearchEngine {
   
-  async search(query: string, filters: SearchFilters = {}, options: { limit?: number; offset?: number } = {}): Promise<SearchResult> {
+  async search(query: string, filters: SearchFilters = {}, options: { limit?: number; offset?: number; discover?: boolean } = {}): Promise<SearchResult> {
     const startTime = Date.now();
-    const { limit = 100, offset = 0 } = options;
+    const { limit = 100, offset = 0, discover: forceDiscovery = false } = options;
     
     // Store original filters for fallback message
     const originalFilters = { ...filters };
@@ -99,29 +99,11 @@ export class ComprehensiveSearchEngine {
     let [{ count }] = await countQuery;
     let totalResults = parseInt(count.toString());
     
-    // DISCOVERY MODE: Use AI only when NO results are found
+    // DISCOVERY MODE: Self-healing Perplexity discovery (decided below once we
+    // know whether this is a location query with no real local matches).
     let discoveryMode = false;
     let discoveryMessage = '';
     let aiSuggestions: any = null;
-    
-    // Activate Discovery Mode ONLY when we have ZERO results
-    // Don't trigger for valid searches that found 1-2 specific communities
-    if (totalResults === 0 && query && query.trim() !== '') {
-      console.log(`🔍 Activating Discovery Mode for query: "${query}" (no results found)`);
-      discoveryMode = true;
-      
-      // Only keep the existing database results - don't add random locations
-      // AI suggestions will be provided separately
-      
-      if (totalResults === 0) {
-        discoveryMessage = "🔮 Discovery Mode Activated: We're using AI to find communities that match your search. Click on any result to see live pricing and availability.";
-      } else {
-        discoveryMessage = `🔮 Discovery Mode Enhanced: Found ${totalResults} direct match${totalResults === 1 ? '' : 'es'}. Using AI to discover additional options for you.`;
-      }
-      
-      // We'll integrate Perplexity AI suggestions later in the response
-      // This prevents random locations from appearing
-    }
     
     // Build facets for filtering
     const facets = await this.buildFacets(conditions);
@@ -132,7 +114,39 @@ export class ComprehensiveSearchEngine {
     // Get intent scores for metadata
     const normalizedQuery = query ? query.toLowerCase().trim() : '';
     const intentScores = normalizedQuery ? await this.calculateIntentScores(normalizedQuery) : null;
-    
+
+    // LOCATION-SCOPED DISCOVERY: decide whether this query targets a place and
+    // whether the DB actually has communities IN that place. This decouples the
+    // discovery trigger from the global zero-count (which almost never happens).
+    const isLocationStyleQuery = !!normalizedQuery && this.isLocationStyleQuery(query, intentScores);
+    let locationHasNoRealMatches = false;
+    if (isLocationStyleQuery) {
+      try {
+        const locationOnly = this.extractLocationString(query).toLowerCase();
+        const locConds = await this.buildLocationConditions(locationOnly);
+        if (locConds.length > 0) {
+          const locWhere = locConds.length > 1 ? or(...locConds) : locConds[0];
+          const [{ count: locCount }] = await db
+            .select({ count: sql`count(*)` })
+            .from(communities)
+            .where(and(locWhere, sql`is_active = true`));
+          locationHasNoRealMatches = parseInt(locCount.toString()) === 0;
+        } else {
+          locationHasNoRealMatches = true;
+        }
+      } catch (e) {
+        console.warn('⚠️ Location-scoped match count failed:', e);
+      }
+    }
+
+    // Decide whether to run self-healing Perplexity discovery.
+    // Cost control: auto-discovery ONLY when a location query has no real local
+    // match (or zero total results); the explicit `discover` flag forces it.
+    const shouldDiscover = !!normalizedQuery && (
+      forceDiscovery ||
+      (isLocationStyleQuery && (totalResults === 0 || locationHasNoRealMatches))
+    );
+
     // If this is a healthcare search, also get healthcare services
     let healthcareServices: any[] | undefined;
     let healthcareTypeFacets: { name: string; count: number }[] | undefined;
@@ -143,66 +157,99 @@ export class ComprehensiveSearchEngine {
       healthcareTypeFacets = healthcareResults.facets;
     }
     
-    // DISCOVERY MODE: Free web discovery via DuckDuckGo + Jina Reader
-    if (discoveryMode) {
+    // SELF-HEALING DISCOVERY: Perplexity (sonar). Golden Data Rule compliant —
+    // real, sourced, labeled `ai_discovered_perplexity`, never synthetic.
+    if (shouldDiscover) {
+      discoveryMode = true;
       try {
-        const { discoverCommunitiesViaWeb } = await import('./free-discovery-service');
+        const { perplexitySearchAPI } = await import('./perplexity-search-api');
+        const { discoveredCommunityService } = await import('./discovered-community-service');
 
-        // Parse city/state from query for better discovery targeting
-        let discoveryCity = filters.city || '';
-        let discoveryState = filters.state || '';
-        if (!discoveryCity && query.includes(',')) {
-          const [part1, part2] = query.split(',').map(s => s.trim());
-          discoveryCity = part1;
-          discoveryState = part2;
+        // Resolve a clean location + optional care type for the discovery prompt
+        let discoveryLocation = this.extractLocationString(query);
+        if (filters.city) {
+          discoveryLocation = filters.state ? `${filters.city}, ${filters.state}` : filters.city;
         }
 
-        console.log(`🦆 Discovery Mode: searching web for "${query}"`);
-        const discoveredResults = await discoverCommunitiesViaWeb(query, discoveryCity || undefined, discoveryState || undefined);
+        const careTypeHint = (filters.careTypes && filters.careTypes.length > 0)
+          ? filters.careTypes[0]
+          : (intentScores && intentScores.careType > 0.3 ? this.extractCareTypeHint(normalizedQuery) : undefined);
 
-        if (discoveredResults.length > 0) {
-          // Format discovered communities to match expected shape
-          const formattedDiscovered = discoveredResults.map((d, idx) => ({
+        console.log(`🔮 Self-healing Perplexity discovery for "${discoveryLocation}"${careTypeHint ? ` (${careTypeHint})` : ''}`);
+        const discovery = await perplexitySearchAPI.discoverCommunities(discoveryLocation, {
+          careType: careTypeHint,
+          limit: 15,
+        });
+
+        const discovered = discovery.communities || [];
+
+        if (discovered.length > 0) {
+          // Format discovered communities to match the existing response shape
+          const formattedDiscovered = discovered.map((d, idx) => ({
             id: -(idx + 1), // Negative IDs indicate discovered (not in DB)
             name: d.name,
             address: d.address || '',
-            city: d.city || discoveryCity || '',
-            state: d.state || discoveryState || '',
-            country: d.country || 'US',
+            city: d.city || filters.city || '',
+            state: d.state || filters.state || '',
+            country: 'US',
             phone: d.phone || null,
             website: d.website || null,
-            description: d.description || `Senior living community found via web discovery`,
-            careTypes: d.careTypes || ['Senior Living'],
+            description: `Senior living community discovered via Perplexity AI for ${discoveryLocation}. Contact the community to verify current pricing and availability.`,
+            careTypes: d.careTypes && d.careTypes.length > 0 ? d.careTypes : ['Senior Living'],
             photos: [],
             latitude: null,
             longitude: null,
             isVerified: false,
             isActive: true,
-            data_source: d.source,
+            data_source: 'ai_discovered_perplexity',
             isDiscovered: true,
             confidence: d.confidence
           }));
 
-          results = [...formattedDiscovered];
-          totalResults = formattedDiscovered.length;
+          // Surface discovered communities alongside any real DB matches
+          results = [...results, ...formattedDiscovered];
+          totalResults = results.length;
 
           aiSuggestions = {
-            summary: `Found ${discoveredResults.length} senior living communities via web search.`,
-            sources: discoveredResults.map(d => d.website).filter(Boolean),
+            summary: `Found ${discovered.length} senior living ${discovered.length === 1 ? 'community' : 'communities'} via Perplexity AI for ${discoveryLocation}.`,
+            sources: discovery.sources || [],
             images: []
           };
+          discoveryMessage = `🔮 Discovery Mode: We searched the web with Perplexity AI and found ${discovered.length} senior living ${discovered.length === 1 ? 'community' : 'communities'} for "${discoveryLocation}". These are newly discovered — contact each community to verify current pricing and availability.`;
 
-          console.log(`✨ Discovery Mode: added ${discoveredResults.length} web-discovered communities`);
+          // Persist so future searches self-heal from the DB (labeled
+          // ai_discovered_perplexity; pricing only added once verified).
+          try {
+            await discoveredCommunityService.saveDiscoveredCommunities(
+              discovered.map(d => ({
+                name: d.name,
+                address: d.address,
+                city: d.city || filters.city,
+                state: d.state || filters.state,
+                phone: d.phone,
+                website: d.website,
+                careTypes: d.careTypes,
+                discoverySource: 'perplexity',
+              }))
+            );
+          } catch (saveErr) {
+            console.error('⚠️ Failed to persist discovered communities:', saveErr);
+          }
+
+          console.log(`✨ Perplexity discovery added ${discovered.length} communities for "${discoveryLocation}"`);
         } else {
           aiSuggestions = {
-            summary: 'No additional communities found via web search for this location.',
-            sources: [],
+            summary: `No additional senior living communities were found via Perplexity AI for "${discoveryLocation}".`,
+            sources: discovery.sources || [],
             images: []
           };
-          console.log(`⚠️ Discovery Mode: no results from web search for "${query}"`);
+          discoveryMessage = `🔮 Discovery Mode: We searched the web with Perplexity AI but did not find additional senior living communities for "${discoveryLocation}".`;
+          console.log(`⚠️ Perplexity discovery found nothing for "${discoveryLocation}"`);
         }
       } catch (error) {
-        console.error('Discovery Mode error:', error);
+        console.error('Perplexity discovery error:', error);
+        discoveryMessage = `🔮 Discovery Mode: We tried to search the web for new communities, but the discovery service is temporarily unavailable. Please try again shortly.`;
+        aiSuggestions = aiSuggestions || { summary: '', sources: [], images: [] };
       }
     }
     
@@ -228,6 +275,67 @@ export class ComprehensiveSearchEngine {
     };
   }
   
+  /**
+   * Decide whether a query targets a place (and is therefore a candidate for
+   * self-healing location discovery). Community-name signals (dash, quotes,
+   * distinctive name keywords) are explicitly NOT location-style.
+   */
+  private isLocationStyleQuery(query: string, intentScores: any): boolean {
+    const q = query.trim();
+    if (!q) return false;
+    if (q.includes(' - ')) return false;            // "Name - City, ST" = community name
+    if (/"/.test(q)) return false;                  // quoted = explicit name
+    if (/\b(?:in|near|around)\s+\S/i.test(q)) return true;          // "... in <place>"
+    if (/^[a-zA-Z\s.']+,\s*[a-zA-Z]{2,}$/i.test(q)) return true;    // "City, ST"
+    if (/^\d{5}(-\d{4})?$/.test(q)) return true;                    // ZIP code
+    if (intentScores && intentScores.location >= 0.3) return true;  // scored location
+
+    // Bare 1-3 word place name with no name/care/price/company signal — treat as
+    // an (unknown) town to search rather than a community name.
+    const lower = q.toLowerCase();
+    const words = q.split(/\s+/);
+    if (words.length <= 3 && /^[a-zA-Z][a-zA-Z\s.']*$/.test(q)) {
+      const nameSignals = ['manor', 'estates', 'village', 'residence', 'lodge', 'plaza', 'terrace', 'gardens', 'court', 'villa', 'oaks', 'pines', 'meadows', 'ridge', 'heights', 'grove', 'pointe', 'crossing', 'commons', 'towers', 'square'];
+      const careOrGeneric = ['memory', 'care', 'assisted', 'nursing', 'independent', 'skilled', 'senior', 'living', 'retirement', 'hospice', 'respite', 'rehabilitation', 'dementia', 'alzheimer', 'community', 'facility', 'home', 'house'];
+      const hasNameSignal = nameSignals.some(s => lower.includes(s));
+      const hasCareOrGeneric = careOrGeneric.some(s => lower.includes(s));
+      const hasOtherIntent = intentScores && (intentScores.careType >= 0.3 || intentScores.price >= 0.3 || intentScores.company >= 0.3);
+      if (!hasNameSignal && !hasCareOrGeneric && !hasOtherIntent) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Extract the place portion of a query for location filtering / discovery.
+   * Strips "in/near/around" prepositions and leading/embedded care-type and
+   * generic senior-living words, leaving just the location (e.g.
+   * "memory care in Bend, OR" → "bend, or"). Falls back to the trimmed query.
+   */
+  private extractLocationString(query: string): string {
+    let q = query.trim();
+    const prep = q.match(/\b(?:in|near|around)\s+(.+)$/i);
+    if (prep) q = prep[1].trim();
+    // Drop leading qualifiers ("best", "affordable", ...)
+    q = q.replace(/^(?:the\s+)?(?:best|top|cheap|affordable|luxury|premium|nearby|local)\s+/i, '');
+    // Remove care-type / generic senior-living phrases wherever they appear
+    q = q.replace(/\b(?:memory care|assisted living|independent living|skilled nursing|nursing homes?|retirement communit(?:y|ies)|retirement homes?|senior living|senior care|senior housing|hospice care|respite care|rehabilitation|continuing care|care facilit(?:y|ies)|communit(?:y|ies)|facilit(?:y|ies))\b/gi, '');
+    q = q.replace(/\s{2,}/g, ' ').replace(/^[\s,]+|[\s,]+$/g, '').trim();
+    return q || query.trim();
+  }
+
+  /**
+   * Map a query to a single care-type label to focus discovery prompts.
+   */
+  private extractCareTypeHint(query: string): string | undefined {
+    const q = query.toLowerCase();
+    if (/\b(memory care|alzheimer|dementia)\b/.test(q)) return 'memory care';
+    if (/\bassisted living\b/.test(q)) return 'assisted living';
+    if (/\bindependent living\b/.test(q)) return 'independent living';
+    if (/\b(skilled nursing|nursing home)\b/.test(q)) return 'skilled nursing';
+    if (/\bretirement\b/.test(q)) return 'retirement community';
+    return undefined;
+  }
+
   private async buildSearchConditions(query: string, filters: SearchFilters) {
     const conditions: any[] = [];
     let searchType = 'general';
@@ -246,20 +354,27 @@ export class ComprehensiveSearchEngine {
       
       // Check if this looks like a specific community name BEFORE applying location logic
       // Community names often contain city names (e.g., "San Diego Senior Manor", "Redwood Lodge - Fremont, CA")
+      // IMPORTANT: generic words ("senior", "living", "care", "home", "community",
+      // "house", etc.) are intentionally EXCLUDED — phrases like "senior living in
+      // <town>" are location searches, not community-name searches.
       const communityNameKeywords = [
-        'manor', 'estates', 'village', 'residence', 'living', 'senior', 'care', 
-        'home', 'center', 'community', 'lodge', 'plaza', 'terrace', 'gardens',
-        'court', 'place', 'park', 'villa', 'oaks', 'pines', 'meadows', 'ridge',
-        'haven', 'house', 'assisted', 'memory', 'nursing', 'retirement', 'heights',
-        'grove', 'pointe', 'crossing', 'commons', 'towers', 'square', 'club'
+        'manor', 'estates', 'village', 'residence', 'lodge', 'plaza', 'terrace',
+        'gardens', 'court', 'villa', 'oaks', 'pines', 'meadows', 'ridge',
+        'heights', 'grove', 'pointe', 'crossing', 'commons', 'towers', 'square'
       ];
-      
-      // Check if query contains community name keywords OR has specific patterns
-      // Don't treat simple "City, State" patterns as community names
-      const isCityStatePattern = /^[a-zA-Z\s]+,\s*[A-Z]{2}$/i.test(query.trim());
-      const looksLikeCommunityName = !isCityStatePattern && (
-        communityNameKeywords.some(keyword => normalizedQuery.includes(keyword)) ||
-        normalizedQuery.includes(' - ') // Common pattern: "Name - City, State"
+
+      // "Name - City, State" and quoted text are explicit community-name signals.
+      const dashPattern = normalizedQuery.includes(' - ');
+      const hasQuotedName = /"/.test(query);
+      // Strict "City, State" / "City, Country" pattern (no dash) is a location.
+      const isCityStatePattern = !dashPattern && /^[a-zA-Z\s.']+,\s*[a-zA-Z]{2,}$/i.test(query.trim());
+      const hasLocationPreposition = /\b(?:in|near|around)\s+\S/i.test(query);
+      // Location intent wins over generic words: if the query is clearly a place,
+      // do NOT treat it as a community name.
+      const isLocationIntent = isCityStatePattern || hasLocationPreposition || intentScores.location >= 0.3;
+
+      const looksLikeCommunityName = dashPattern || hasQuotedName || (
+        !isLocationIntent && communityNameKeywords.some(keyword => normalizedQuery.includes(keyword))
       );
       
       // Apply conditions based on ALL detected intents (not just dominant)
@@ -271,9 +386,12 @@ export class ComprehensiveSearchEngine {
         const isInternational = this.detectInternationalQuery(normalizedQuery);
         
         // ALWAYS search location conditions, even for international queries
-        // This will find communities in our database first before triggering Discovery Mode
-        const locationConditions = await this.buildLocationConditions(normalizedQuery);
-        console.log(`🔍 Raw location conditions built: ${locationConditions.length}`);
+        // This will find communities in our database first before triggering Discovery Mode.
+        // Use the extracted place portion so "senior living in <town>" / "memory
+        // care in <town>" filter on the town, not the whole phrase.
+        const locationOnly = this.extractLocationString(query).toLowerCase();
+        const locationConditions = await this.buildLocationConditions(locationOnly);
+        console.log(`🔍 Raw location conditions built: ${locationConditions.length} (location="${locationOnly}")`);
         
         // Only add location conditions if they exist
         if (locationConditions.length > 0) {

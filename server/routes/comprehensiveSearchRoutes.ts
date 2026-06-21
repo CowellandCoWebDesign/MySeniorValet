@@ -20,15 +20,18 @@ router.post('/api/search/comprehensive', async (req, res) => {
       query = '', 
       filters = {},
       limit = 1000, 
-      offset = 0 
+      offset = 0,
+      discover = false,
+      forceDiscovery = false
     } = req.body;
     
-    // NORMAL DATABASE SEARCH ONLY - No global discovery here
-    // Global discovery is reserved for the dedicated "🌍 Discovery mode" button
+    // Self-healing discovery runs automatically for location queries with no
+    // local matches; `discover`/`forceDiscovery` forces it (e.g. the explicit
+    // "Search the web for this area" button).
     const results = await comprehensiveSearchEngine.search(
       query, 
       filters as SearchFilters,
-      { limit, offset }
+      { limit, offset, discover: Boolean(discover || forceDiscovery) }
     );
     
     res.json({
@@ -63,7 +66,9 @@ router.get('/api/search/comprehensive', async (req, res) => {
       priceMax,
       rating,
       limit = '1000', 
-      offset = '0' 
+      offset = '0',
+      discover,
+      forceDiscovery
     } = req.query;
     
     const filters: SearchFilters = {};
@@ -75,12 +80,13 @@ router.get('/api/search/comprehensive', async (req, res) => {
     if (priceMax) filters.priceMax = parseInt(priceMax as string);
     if (rating) filters.rating = parseFloat(rating as string);
     
-    // NORMAL DATABASE SEARCH ONLY - No global discovery here
-    // Global discovery is reserved for the dedicated "🌍 Discovery mode" button
+    // Self-healing discovery runs automatically for location queries with no
+    // local matches; `discover=true` forces it (the "Search the web" button).
+    const shouldDiscover = discover === 'true' || forceDiscovery === 'true';
     const results = await comprehensiveSearchEngine.search(
       query as string,
       filters,
-      { limit: parseInt(limit as string), offset: parseInt(offset as string) }
+      { limit: parseInt(limit as string), offset: parseInt(offset as string), discover: shouldDiscover }
     );
     
     res.json({

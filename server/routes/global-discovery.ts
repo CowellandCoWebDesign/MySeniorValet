@@ -1142,38 +1142,77 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
 
       let discoveredCommunities: any[] = [];
       const citations: any[] = [];
+      // Track which discovery engine actually produced the results so the
+      // response labels stay accurate (Golden Data / accurate-messaging rule).
+      let discoveryEngineLabel = 'Perplexity AI';
 
-      console.log(`🦆 Discovery Mode ACTIVE: Using free web search for "${query}"`);
+      console.log(`🔮 Discovery Mode ACTIVE: Using Perplexity AI for "${query}"`);
 
       try {
-        const webDiscovered = await discoverCommunitiesViaWeb(
-          query,
-          citySearch || undefined,
-          stateSearch || undefined
-        );
+        if (searchType === 'services') {
+          // Services discovery still uses the free web scraper (unchanged).
+          discoveryEngineLabel = 'Free Discovery (DuckDuckGo+Jina)';
+          const webDiscovered = await discoverCommunitiesViaWeb(
+            query,
+            citySearch || undefined,
+            stateSearch || undefined
+          );
 
-        discoveredCommunities = webDiscovered.map(community => ({
-          name: community.name,
-          address: community.address || '',
-          city: community.city || citySearch || '',
-          state: community.state || stateSearch || '',
-          country: community.country || defaultCountry,
-          phone: community.phone || '',
-          website: community.website || '',
-          email: '',
-          zipCode: '',
-          description: community.description || `Senior living facility found via web search for "${query}"`,
-          careTypes: community.careTypes || ['Senior Living'],
-          photoSources: [],
-          source: community.source,
-          confidence: community.confidence,
-          isDiscovered: true
-        }));
+          discoveredCommunities = webDiscovered.map(community => ({
+            name: community.name,
+            address: community.address || '',
+            city: community.city || citySearch || '',
+            state: community.state || stateSearch || '',
+            country: community.country || defaultCountry,
+            phone: community.phone || '',
+            website: community.website || '',
+            email: '',
+            zipCode: '',
+            description: community.description || `Found via web search for "${query}"`,
+            careTypes: community.careTypes || ['Senior Living'],
+            photoSources: [],
+            source: community.source,
+            confidence: community.confidence,
+            isDiscovered: true
+          }));
+        } else {
+          // SELF-HEALING COMMUNITY DISCOVERY via Perplexity (sonar). Real,
+          // sourced facilities only — Golden Data Rule compliant.
+          const { perplexitySearchAPI } = await import('../services/perplexity-search-api');
+          const discoveryLocation = citySearch && stateSearch
+            ? `${citySearch}, ${stateSearch}`
+            : (citySearch || query);
+          const discovery = await perplexitySearchAPI.discoverCommunities(discoveryLocation, {
+            limit: typeof limit === 'number' && limit > 0 ? limit : 15,
+          });
+
+          discoveredCommunities = (discovery.communities || []).map(community => ({
+            name: community.name,
+            address: community.address || '',
+            city: community.city || citySearch || '',
+            state: community.state || stateSearch || '',
+            country: defaultCountry,
+            phone: community.phone || '',
+            website: community.website || '',
+            email: '',
+            zipCode: '',
+            description: `Senior living community discovered via Perplexity AI for "${query}". Contact the community to verify current pricing and availability.`,
+            careTypes: community.careTypes && community.careTypes.length > 0 ? community.careTypes : ['Senior Living'],
+            photoSources: [],
+            source: 'ai_discovered_perplexity',
+            confidence: community.confidence || 85,
+            isDiscovered: true
+          }));
+
+          (discovery.sources || []).forEach((s: string) => {
+            if (s && !citations.includes(s)) citations.push(s);
+          });
+        }
 
         const withContact = discoveredCommunities.filter((c: any) => c.phone || c.website).length;
-        console.log(`✅ Free Discovery found ${discoveredCommunities.length} candidates (${withContact} with contact info)`);
+        console.log(`✅ ${discoveryEngineLabel} found ${discoveredCommunities.length} candidates (${withContact} with contact info)`);
       } catch (searchError) {
-        console.error('❌ Free Discovery error, falling back to database only:', searchError);
+        console.error(`❌ Discovery error (${discoveryEngineLabel}), falling back to database only:`, searchError);
         discoveredCommunities = [];
       }
 
@@ -1446,14 +1485,14 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   medicalRestrictions: [],
                   photos: [],
                   photoAttributions: [],
-                  data_source: 'Free Discovery (DuckDuckGo+Jina)',
+                  data_source: 'ai_discovered_perplexity',
                   discoverySource: 'Global Discovery Search',
                   discoveryDate: new Date(),
                   enrichmentStatus: enrichmentStatus,
                   enrichmentCompleted: verificationResult.autoApproved,
                   enrichmentHistory: [{
                     timestamp: new Date().toISOString(),
-                    source: 'Free Web Discovery',
+                    source: 'Perplexity AI Discovery',
                     fieldsUpdated: ['initial_discovery'],
                     autoApproved: verificationResult.autoApproved,
                     confidenceScore: verificationResult.confidenceScore,
@@ -1480,7 +1519,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                   city: discovered.city || citySearch || 'Unknown',
                   state: discovered.state || stateSearch || 'Unknown',
                   country: discovered.country || defaultCountry,
-                  data_source: 'Free Discovery (DuckDuckGo+Jina)'
+                  data_source: 'ai_discovered_perplexity'
                 }
               });
               // Create a fallback object if insert fails
@@ -1777,11 +1816,11 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           totalFound: displayResults.length,
           existingCount: existingInWebResults,
           discoveredCount: newlyDiscovered,
-          sources: citations.length > 0 ? [...citations, 'Database'] : ['DuckDuckGo+Jina Web Search', 'Database'],
+          sources: citations.length > 0 ? [...citations, 'Database'] : [discoveryEngineLabel, 'Database'],
           searchLocation: query,
           timestamp: new Date().toISOString(),
           aiConfidence: discoveredCommunities.length > 0 ? 75 : 50,
-          dataSource: 'Free Discovery (DuckDuckGo+Jina)',
+          dataSource: discoveryEngineLabel,
           articlesFound: allResults.length - displayResults.length
         },
         message: displayResults.length === 0 

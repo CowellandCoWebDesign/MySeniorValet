@@ -1721,6 +1721,45 @@ export default function MySeniorValetHome() {
     return "";
   });
   const [discoveredCommunities, setDiscoveredCommunities] = useState<any[]>([]);
+  const [isDiscovering, setIsDiscovering] = useState(false);
+
+  // Self-healing community discovery via Perplexity (server: /api/global-discovery/search).
+  // force=false → cost-controlled: the server only runs Perplexity when the DB has
+  // zero communities for the query. force=true → "Search the web for this area"
+  // button deliberately forces a Perplexity discovery even when DB rows exist.
+  const runDiscovery = useCallback(async (query: string, opts: { force?: boolean } = {}) => {
+    const q = (query || '').trim();
+    if (q.length < 2) return;
+    setIsDiscovering(true);
+    try {
+      const resp = await fetch('/api/global-discovery/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: q,
+          searchType: 'location',
+          limit: 15,
+          discoveryMode: opts.force === true,
+        }),
+        signal: AbortSignal.timeout(90000)
+      });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const found: any[] = data?.results || [];
+      const newlyDiscovered = found.filter((c: any) => c.isDiscovered);
+      if (newlyDiscovered.length > 0) {
+        setDiscoveredCommunities(newlyDiscovered);
+        queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+      } else if (opts.force === true) {
+        // Forced search completed but found nothing new — clear so the UI reflects it.
+        setDiscoveredCommunities([]);
+      }
+    } catch {
+      // Swallow — empty state + button remain available for retry.
+    } finally {
+      setIsDiscovering(false);
+    }
+  }, []);
 
   // Listen for search queries dispatched from HeroSectionWithTransformingSearch
   useEffect(() => {
@@ -1730,29 +1769,12 @@ export default function MySeniorValetHome() {
       setSearchQuery(query);
       setActiveTab('communities');
       setDiscoveredCommunities([]); // reset on new search
-
-      // Fire background discovery and surface results in map panel
-      fetch('/api/global-discovery/search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, searchType: 'location', limit: 15, discoveryMode: true }),
-        signal: AbortSignal.timeout(90000)
-      })
-        .then(r => r.ok ? r.json() : null)
-        .then(data => {
-          if (!data) return;
-          const found: any[] = data.results || [];
-          const newlyDiscovered = found.filter((c: any) => c.isDiscovered);
-          if (newlyDiscovered.length > 0) {
-            setDiscoveredCommunities(newlyDiscovered);
-            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
-          }
-        })
-        .catch(() => {});
+      // Auto path: NOT forced — server self-heals only when DB has no local matches.
+      runDiscovery(query, { force: false });
     };
     window.addEventListener('homeSearchQuery', handler);
     return () => window.removeEventListener('homeSearchQuery', handler);
-  }, []);
+  }, [runDiscovery]);
 
   const [isMobile, setIsMobile] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -2378,7 +2400,7 @@ export default function MySeniorValetHome() {
                 <TabsContent value="communities" className="mt-1">
               {/* Simplified Map Panel - shown above community directory content */}
               <div className="mb-8 px-2 sm:px-0">
-                <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} />
+                <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} onForceDiscovery={() => runDiscovery(searchQuery, { force: true })} isDiscovering={isDiscovering} />
               </div>
 
               {/* Community Directory Card - Moved Above Featured Excellence */}

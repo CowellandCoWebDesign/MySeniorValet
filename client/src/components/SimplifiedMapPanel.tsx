@@ -9,6 +9,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface SimplifiedMapPanelProps {
   locationQuery?: string;
   discoveredCommunities?: any[];
+  onForceDiscovery?: () => void;
+  isDiscovering?: boolean;
 }
 
 const CARE_TYPE_FILTERS = [
@@ -34,7 +36,7 @@ function toLocationParam(query: string): string {
   return query.trim().replace(/,\s*/g, '-').replace(/\s+/g, '-');
 }
 
-export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }: SimplifiedMapPanelProps) {
+export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], onForceDiscovery, isDiscovering = false }: SimplifiedMapPanelProps) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([40.52, -122.1]);
   const [mapZoom, setMapZoom] = useState(9);
   const [searchValue, setSearchValue] = useState(() => {
@@ -169,16 +171,51 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
 
   const communityCount = filteredCommunities.length;
 
+  // Shared empty state. When a location was searched but no communities are in
+  // the DB for it, offer an explicit "Search the web for this area" button that
+  // forces a Perplexity discovery (cost-controlled — only runs on demand).
+  const DiscoverEmptyState = ({ compact = false }: { compact?: boolean }) => (
+    <div className={`${compact ? "flex-shrink-0 w-full" : "w-full"} p-6 text-center`}>
+      <p className="text-gray-500 dark:text-gray-400 text-sm mb-3">
+        {locationQuery
+          ? "No communities found in this area yet."
+          : "Search a city above to explore communities on the map."}
+      </p>
+      {locationQuery && onForceDiscovery && (
+        <Button
+          onClick={onForceDiscovery}
+          disabled={isDiscovering}
+          size="sm"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+          data-testid="button-discover-web"
+        >
+          {isDiscovering ? (
+            <>
+              <Sparkles className="w-4 h-4 mr-1.5 animate-pulse" />
+              Searching the web…
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-4 h-4 mr-1.5" />
+              Search the web for {locationQuery}
+            </>
+          )}
+        </Button>
+      )}
+      {locationQuery && onForceDiscovery && !isDiscovering && (
+        <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2">
+          Uses Perplexity AI to find real communities in this area (~10–15s).
+        </p>
+      )}
+    </div>
+  );
+
   const CommunityList = ({ communities, maxHeight, horizontal = false }: { communities: any[]; maxHeight: string; horizontal?: boolean }) => {
     if (horizontal) {
       return (
         <div className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-3 pt-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {communities.length === 0 && !isLoading && (
-            <div className="flex-shrink-0 w-full p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-              {locationQuery
-                ? "No communities found in this area. Try zooming out or adjusting filters."
-                : "Search a city above to explore communities on the map."}
-            </div>
+            <DiscoverEmptyState compact />
           )}
           {communities.map((community: any, index: number) => (
             <div key={community.id} id={`smp-community-${community.id}`} className="flex-shrink-0 w-72">
@@ -246,11 +283,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
     return (
       <div className={`overflow-y-auto divide-y divide-gray-100 dark:divide-gray-800`} style={{ maxHeight }}>
         {communities.length === 0 && !isLoading && (
-          <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-            {locationQuery
-              ? "No communities found in this area. Try zooming out or adjusting filters."
-              : "Search a city above to explore communities on the map."}
-          </div>
+          <DiscoverEmptyState />
         )}
         {communities.map((community: any, index: number) => (
           <div key={community.id} id={`smp-community-${community.id}`} className="p-3">
@@ -318,11 +351,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
   const LandscapeList = ({ communities }: { communities: any[] }) => (
     <div className="flex flex-col gap-3 p-3">
       {communities.length === 0 && !isLoading && (
-        <div className="w-full p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
-          {locationQuery
-            ? "No communities found in this area. Try zooming out or adjusting filters."
-            : "Search a city above to explore communities on the map."}
-        </div>
+        <DiscoverEmptyState />
       )}
       {communities.map((community: any, index: number) => (
         <div key={community.id} id={`smp-community-${community.id}`}>
