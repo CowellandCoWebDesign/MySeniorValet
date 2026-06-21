@@ -1721,6 +1721,7 @@ export default function MySeniorValetHome() {
     return "";
   });
   const [discoveredCommunities, setDiscoveredCommunities] = useState<any[]>([]);
+  const [discoveredSources, setDiscoveredSources] = useState<string[]>([]);
   const [isDiscovering, setIsDiscovering] = useState(false);
 
   // Self-healing community discovery via Perplexity (server: /api/global-discovery/search).
@@ -1747,12 +1748,15 @@ export default function MySeniorValetHome() {
       const data = await resp.json();
       const found: any[] = data?.results || [];
       const newlyDiscovered = found.filter((c: any) => c.isDiscovered);
+      const sources: string[] = data?.metadata?.sources || [];
       if (newlyDiscovered.length > 0) {
         setDiscoveredCommunities(newlyDiscovered);
+        setDiscoveredSources(sources);
         queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
       } else if (opts.force === true) {
         // Forced search completed but found nothing new — clear so the UI reflects it.
         setDiscoveredCommunities([]);
+        setDiscoveredSources([]);
       }
     } catch {
       // Swallow — empty state + button remain available for retry.
@@ -1769,6 +1773,7 @@ export default function MySeniorValetHome() {
       setSearchQuery(query);
       setActiveTab('communities');
       setDiscoveredCommunities([]); // reset on new search
+      setDiscoveredSources([]);
       // Auto path: NOT forced — server self-heals only when DB has no local matches.
       runDiscovery(query, { force: false });
     };
@@ -2400,7 +2405,7 @@ export default function MySeniorValetHome() {
                 <TabsContent value="communities" className="mt-1">
               {/* Simplified Map Panel - shown above community directory content */}
               <div className="mb-8 px-2 sm:px-0">
-                <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} onForceDiscovery={() => runDiscovery(searchQuery, { force: true })} isDiscovering={isDiscovering} />
+                <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} discoveredSources={discoveredSources} onForceDiscovery={() => runDiscovery(searchQuery, { force: true })} isDiscovering={isDiscovering} />
               </div>
 
               {/* Community Directory Card - Moved Above Featured Excellence */}

@@ -9,6 +9,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 interface SimplifiedMapPanelProps {
   locationQuery?: string;
   discoveredCommunities?: any[];
+  discoveredSources?: string[];
   onForceDiscovery?: () => void;
   isDiscovering?: boolean;
 }
@@ -36,7 +37,7 @@ function toLocationParam(query: string): string {
   return query.trim().replace(/,\s*/g, '-').replace(/\s+/g, '-');
 }
 
-export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], onForceDiscovery, isDiscovering = false }: SimplifiedMapPanelProps) {
+export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], discoveredSources = [], onForceDiscovery, isDiscovering = false }: SimplifiedMapPanelProps) {
   const [mapCenter, setMapCenter] = useState<[number, number]>([40.52, -122.1]);
   const [mapZoom, setMapZoom] = useState(9);
   const [searchValue, setSearchValue] = useState(() => {
@@ -213,70 +214,89 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
   const CommunityList = ({ communities, maxHeight, horizontal = false }: { communities: any[]; maxHeight: string; horizontal?: boolean }) => {
     if (horizontal) {
       return (
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-3 pt-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-          {communities.length === 0 && !isLoading && (
-            <DiscoverEmptyState compact />
-          )}
-          {communities.map((community: any, index: number) => (
-            <div key={community.id} id={`smp-community-${community.id}`} className="flex-shrink-0 w-72">
-              <FeaturedExcellenceCard
-                community={{
-                  ...community,
-                  name: community.name || "Community",
-                  city: community.city || "City",
-                  state: community.state || "State",
-                  rating: community.rating || null,
-                  photos: community.photos || [],
-                  careTypes: community.careTypes || [],
-                  amenities: community.amenities || [],
-                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                  priceRange: community.priceRange,
-                  phone: community.phone,
-                  website: community.website,
-                }}
-                index={index}
-                compact={true}
-                disableAutoPhotoLoad={true}
-              />
-            </div>
-          ))}
-
-          {discoveredCommunities.length > 0 && (
-            <>
-              <div className="flex-shrink-0 self-center px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full flex items-center gap-1.5 border border-purple-200 dark:border-purple-700">
-                <Sparkles className="w-3 h-3 text-purple-600 dark:text-purple-400" />
-                <span className="text-xs font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap">
-                  {discoveredCommunities.length} via AI
-                </span>
+        <>
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-3 pt-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {communities.length === 0 && !isLoading && (
+              <DiscoverEmptyState compact />
+            )}
+            {communities.map((community: any, index: number) => (
+              <div key={community.id} id={`smp-community-${community.id}`} className="flex-shrink-0 w-72">
+                <FeaturedExcellenceCard
+                  community={{
+                    ...community,
+                    name: community.name || "Community",
+                    city: community.city || "City",
+                    state: community.state || "State",
+                    rating: community.rating || null,
+                    photos: community.photos || [],
+                    careTypes: community.careTypes || [],
+                    amenities: community.amenities || [],
+                    occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
+                    totalUnits: community.totalUnits || community.totalUnitsHud || 100,
+                    priceRange: community.priceRange,
+                    phone: community.phone,
+                    website: community.website,
+                  }}
+                  index={index}
+                  compact={true}
+                  disableAutoPhotoLoad={true}
+                />
               </div>
-              {discoveredCommunities.map((community: any, index: number) => (
-                <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="flex-shrink-0 w-72">
-                  <FeaturedExcellenceCard
-                    community={{
-                      ...community,
-                      name: community.name || "Community",
-                      city: community.city || "City",
-                      state: community.state || "State",
-                      rating: community.rating || null,
-                      photos: community.photos || [],
-                      careTypes: community.careTypes || [],
-                      amenities: community.amenities || [],
-                      occupancyRate: 0,
-                      totalUnits: 100,
-                      priceRange: community.priceRange,
-                      phone: community.phone,
-                      website: community.website,
-                    }}
-                    index={index}
-                    compact={true}
-                    disableAutoPhotoLoad={true}
-                  />
+            ))}
+
+            {discoveredCommunities.length > 0 && (
+              <>
+                <div className="flex-shrink-0 self-center px-3 py-1 bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 rounded-full flex items-center gap-1.5 border border-purple-200 dark:border-purple-700">
+                  <Sparkles className="w-3 h-3 text-purple-600 dark:text-purple-400" />
+                  <span className="text-xs font-semibold text-purple-700 dark:text-purple-300 whitespace-nowrap">
+                    {discoveredCommunities.length} via AI
+                  </span>
                 </div>
-              ))}
-            </>
+                {discoveredCommunities.map((community: any, index: number) => (
+                  <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="flex-shrink-0 w-72">
+                    <FeaturedExcellenceCard
+                      community={{
+                        ...community,
+                        name: community.name || "Community",
+                        city: community.city || "City",
+                        state: community.state || "State",
+                        rating: community.rating || null,
+                        photos: community.photos || [],
+                        careTypes: community.careTypes || [],
+                        amenities: community.amenities || [],
+                        occupancyRate: 0,
+                        totalUnits: 100,
+                        priceRange: community.priceRange,
+                        phone: community.phone,
+                        website: community.website,
+                      }}
+                      index={index}
+                      compact={true}
+                      disableAutoPhotoLoad={true}
+                    />
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+          {discoveredCommunities.length > 0 && discoveredSources.length > 0 && (
+            <div className="px-4 py-2 bg-blue-50/70 dark:bg-blue-900/10 border-t border-blue-100 dark:border-blue-800/40">
+              <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium mb-1">Sources</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                {discoveredSources.map((src, i) => {
+                  let hostname = src;
+                  try { hostname = new URL(src).hostname.replace(/^www\./, ''); } catch {}
+                  return (
+                    <a key={i} href={src} target="_blank" rel="noopener noreferrer"
+                      className="text-[11px] text-blue-500 dark:text-blue-400 hover:underline" title={src}>
+                      {hostname}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
           )}
-        </div>
+        </>
       );
     }
 
@@ -318,6 +338,30 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
                 {discoveredCommunities.length} Newly Found via AI Discovery
               </span>
             </div>
+            {discoveredSources.length > 0 && (
+              <div className="px-4 py-2 bg-blue-50/70 dark:bg-blue-900/10 border-b border-blue-100 dark:border-blue-800/40">
+                <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium mb-1">Sources</p>
+                <ul className="flex flex-col gap-0.5">
+                  {discoveredSources.map((src, i) => {
+                    let hostname = src;
+                    try { hostname = new URL(src).hostname.replace(/^www\./, ''); } catch {}
+                    return (
+                      <li key={i}>
+                        <a
+                          href={src}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[11px] text-blue-500 dark:text-blue-400 hover:underline truncate block"
+                          title={src}
+                        >
+                          {hostname}
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
             {discoveredCommunities.map((community: any, index: number) => (
               <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="p-3 bg-purple-50/30 dark:bg-purple-900/10">
                 <FeaturedExcellenceCard
@@ -386,6 +430,23 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
               {discoveredCommunities.length} Newly Found via AI Discovery
             </span>
           </div>
+          {discoveredSources.length > 0 && (
+            <div className="px-3 py-2 bg-blue-50/70 dark:bg-blue-900/10 rounded-lg border border-blue-100 dark:border-blue-800/40">
+              <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium mb-1">Sources</p>
+              <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                {discoveredSources.map((src, i) => {
+                  let hostname = src;
+                  try { hostname = new URL(src).hostname.replace(/^www\./, ''); } catch {}
+                  return (
+                    <a key={i} href={src} target="_blank" rel="noopener noreferrer"
+                      className="text-[11px] text-blue-500 dark:text-blue-400 hover:underline" title={src}>
+                      {hostname}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          )}
           {discoveredCommunities.map((community: any, index: number) => (
             <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`}>
               <FeaturedExcellenceCard
