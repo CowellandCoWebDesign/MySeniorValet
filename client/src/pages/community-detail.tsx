@@ -1514,6 +1514,11 @@ export default function CommunityDetail() {
     }
   };
   
+  // Self-heal: when a community loads with no photos / no description, fire the
+  // public self-heal endpoint ONCE per session to enrich it without admin login.
+  const [selfHealAttempted, setSelfHealAttempted] = useState(false);
+  const [isSelfHealing, setIsSelfHealing] = useState(false);
+
   // Human verification gate — checked once per browser session
   const [humanVerified, setHumanVerified] = useState<boolean>(() => {
     try { return sessionStorage.getItem('msv_human_verified') === 'true'; } catch { return false; }
@@ -1634,6 +1639,8 @@ export default function CommunityDetail() {
       setHasStartedVerification(false);
       setIsVerifying(false);
       setHasAutoScrolled(false); // T003: reset scroll state per community
+      setSelfHealAttempted(false);
+      setIsSelfHealing(false);
     }
   }, [id]);
   
@@ -1706,6 +1713,75 @@ export default function CommunityDetail() {
     console.log('🚀 Auto-loading market data for:', community.name);
     handleInitialLoad();
   }, [community?.id, community?.name, id, hasStartedVerification]);
+
+  // SELF-HEAL: when a sparse community (no photos / no real description) loads,
+  // silently fire the public self-heal endpoint in the background (no admin login
+  // required). Runs at most ONCE per session per community; respects the backend's
+  // skipped/rate-limit responses. Patches the cached community record in place on
+  // success so the carousel + About section fill without a page reload.
+  useEffect(() => {
+    if (!community?.id || selfHealAttempted) return;
+
+    // Guard against stale TanStack Query data — only act on the resolved community
+    // that matches the URL param (slug routes have no numeric id to compare).
+    if (!isSlugBased && Number(community.id) !== Number(id)) return;
+
+    const dbPhotoCount = (community.photos || []).filter(
+      (p: any) => typeof p === 'string' && p.trim().length > 0,
+    ).length;
+    const descLen = (community.description || '').trim().length;
+    const isSparse = dbPhotoCount === 0 || descLen < 100;
+    const alreadyEnriched = (community as any).enrichmentStatus === 'completed';
+
+    if (!isSparse || alreadyEnriched) return;
+
+    setSelfHealAttempted(true);
+    setIsSelfHealing(true);
+
+    (async () => {
+      try {
+        const response = await fetch(`/api/communities/${community.id}/self-heal`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data?.skipped || !data?.community) return;
+
+        const result = data.community;
+        const freshPhotos: string[] = (result.photos || []).filter(
+          (u: any) => typeof u === 'string' && /^https?:\/\//i.test(u),
+        );
+        const isValidWebsite = (w: any) => typeof w === 'string' && /^https?:\/\//i.test(w);
+        const buildPatch = (old: any) => {
+          if (!old) return old;
+          const patch: any = { ...old };
+          if (freshPhotos.length > 0) patch.photos = freshPhotos;
+          if (typeof result.description === 'string' && result.description.length > 50) {
+            patch.description = result.description;
+          }
+          if (isValidWebsite(result.website)) patch.website = result.website;
+          if (typeof result.phone === 'string' && result.phone.trim()) patch.phone = result.phone;
+          patch.enrichmentStatus = 'completed';
+          return patch;
+        };
+
+        // Patch the cache immediately so the UI updates without a reload.
+        if (slugQueryKey) queryClient.setQueryData([slugQueryKey], buildPatch);
+        if (idQueryKey) queryClient.setQueryData([idQueryKey], buildPatch);
+        queryClient.setQueryData([`/api/communities/${community.id}`], buildPatch);
+
+        // Force a background re-sync once the DB write has propagated.
+        if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
+        if (idQueryKey) queryClient.refetchQueries({ queryKey: [idQueryKey] });
+      } catch (err) {
+        console.warn('Self-heal enrichment failed (non-blocking):', err);
+      } finally {
+        setIsSelfHealing(false);
+      }
+    })();
+  }, [community?.id, community?.photos, community?.description, id, isSlugBased, selfHealAttempted]);
 
   // INITIAL LOAD: Check backend cache first, don't force refresh
   const handleInitialLoad = async () => {
@@ -2781,6 +2857,16 @@ export default function CommunityDetail() {
                                 </button>
                               </div>
                             )}
+                          </div>
+                        );
+                      }
+                      // Self-heal in flight: subtle "finding more information" hint
+                      // while the background enrichment populates the description.
+                      if (isSelfHealing) {
+                        return (
+                          <div className="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Finding more information…
                           </div>
                         );
                       }

@@ -122,6 +122,125 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
+  // ── PUBLIC SELF-HEAL ENRICHMENT ────────────────────────────────────────────
+  // Lets a community detail page that loads with no photos / no description
+  // silently fill itself in WITHOUT an admin being logged in. Routes through THE
+  // single unified enrichment pipeline (`enrichCommunityUnified`) — the same one
+  // the admin force-refresh uses — so results persist permanently and benefit all
+  // future visitors. The admin route is unchanged.
+  //
+  // Gates (priority order):
+  //   1. Content-complete (photos AND a real description ≥100 chars) → skipped,
+  //      no Perplexity call. Enrichment runs ONCE and is never repeated for
+  //      content-complete communities.
+  //   2. In-flight de-dup: enrichmentStatus='in_progress' OR a self-heal attempt
+  //      within the last 10 min → skipped (two browser tabs can't both fire).
+  //   3. 24h rate limit: one self-heal per community per 24h, enforced via the
+  //      DB `last_enrichment_attempt` timestamp (no in-memory state; survives
+  //      restarts). Prevents re-billing when a prior run found nothing useful.
+  app.post("/api/communities/:id/self-heal", async (req, res) => {
+    try {
+      // Validate :id is a real integer community ID (reject non-numeric).
+      const communityId = parseInt(req.params.id, 10);
+      if (isNaN(communityId) || String(communityId) !== req.params.id.trim()) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      const [community] = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          description: communities.description,
+          photos: communities.photos,
+          enrichmentStatus: communities.enrichmentStatus,
+          lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
+        })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Gate 1 — content-complete: enrichment already ran and saved permanently.
+      const photoCount = (community.photos || []).filter(
+        (p: string) => typeof p === "string" && p.trim().length > 0,
+      ).length;
+      const descLen = (community.description || "").trim().length;
+      const isContentComplete = photoCount > 0 && descLen >= 100;
+      if (isContentComplete) {
+        return res.json({ skipped: true, reason: "already has content" });
+      }
+
+      const now = Date.now();
+      const lastAttempt = community.lastEnrichmentAttempt
+        ? new Date(community.lastEnrichmentAttempt).getTime()
+        : 0;
+      const minsSinceAttempt = lastAttempt ? (now - lastAttempt) / 60000 : Infinity;
+
+      // Gate 2 — in-flight de-dup (10 min). NOT a data TTL.
+      if (community.enrichmentStatus === "in_progress" || minsSinceAttempt < 10) {
+        return res.json({ skipped: true, reason: "enrichment in progress" });
+      }
+
+      // Gate 3 — 24h rate limit (abuse protection).
+      if (minsSinceAttempt < 24 * 60) {
+        return res.json({ skipped: true, reason: "rate limited" });
+      }
+
+      // Mark in-flight BEFORE the (slow) pipeline runs so a concurrent tab hits
+      // gate 2 and does not fire a duplicate Perplexity call.
+      const startedAt = new Date();
+      await db
+        .update(communities)
+        .set({ enrichmentStatus: "in_progress", lastEnrichmentAttempt: startedAt } as any)
+        .where(eq(communities.id, communityId));
+
+      console.log(
+        `🩺 [Self-Heal] Triggered for community ${communityId} ("${community.name}") at ${startedAt.toISOString()}`,
+      );
+
+      try {
+        const result = await enrichCommunityUnified(communityId);
+        await db
+          .update(communities)
+          .set({ enrichmentStatus: "completed", lastEnrichmentDate: new Date() } as any)
+          .where(eq(communities.id, communityId));
+
+        console.log(
+          `🩺 [Self-Heal] Completed for community ${communityId}: ${result.photos.length} photo(s), ` +
+            `${(result.summary || "").length} desc chars`,
+        );
+
+        return res.json({
+          success: true,
+          skipped: false,
+          community: {
+            id: communityId,
+            photos: result.photos,
+            description: result.summary,
+            phone: result.phone,
+            website: result.officialWebsite,
+            careTypes: result.careTypes,
+          },
+        });
+      } catch (pipelineErr) {
+        await db
+          .update(communities)
+          .set({ enrichmentStatus: "failed" } as any)
+          .where(eq(communities.id, communityId));
+        throw pipelineErr;
+      }
+    } catch (error) {
+      console.error("❌ [Self-Heal] Failed:", error);
+      return res.status(500).json({
+        error: "Self-heal enrichment failed",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   // 301 redirect: /community/:id → SEO-friendly URL /senior-living/:state/:city/:slug
   app.get("/community/:id", async (req, res, next) => {
     const communityId = parseInt(req.params.id, 10);
