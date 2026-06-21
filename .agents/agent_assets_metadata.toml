@@ -1,0 +1,26 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "YeAHqMIvBIisGf0kLVwTj"
+uri = "file://attached_assets/generated_images/hero_golden_gate_bridge.png"
+type = "image"
+title = "golden gate bridge hero"
+
+[[generated]]
+id = "A8VJKDESNEw0FT3oqDA-x"
+uri = "file://attached_assets/generated_images/hero_mt_shasta.png"
+type = "image"
+title = "mt shasta hero"
+
+[[generated]]
+id = "ng-NiCsEXhrAI_b4xSaL5"
+uri = "file://attached_assets/generated_images/hero_sundial_bridge_redding.png"
+type = "image"
+title = "sundial bridge redding hero"
+
+[[generated]]
+id = "G6HRsAYQIHZVrhVsMW0J3"
+uri = "file://attached_assets/generated_images/hero_lighthouse_sunset.png"
+type = "image"
+title = "lighthouse sunset hero"
