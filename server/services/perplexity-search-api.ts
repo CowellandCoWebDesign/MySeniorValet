@@ -42,6 +42,21 @@ export function isSeniorLivingDirectoryHost(host: string): boolean {
   return SENIOR_LIVING_PHOTO_SOURCES.some((d) => h === d || h.endsWith('.' + d));
 }
 
+/**
+ * Anchor "authentic" to the VERIFIED official website using exact host or
+ * subdomain matching (NOT a loose substring / first-result heuristic). A photo
+ * is authentic only when its host equals the official host or is a subdomain of
+ * it. Returns false whenever there is no verified official host to anchor to —
+ * authenticity must never be assumed when the anchoring domain isn't verified.
+ */
+export function hostMatchesOfficial(host: string, officialHost?: string): boolean {
+  if (!host || !officialHost) return false;
+  const h = host.toLowerCase().replace(/^www\./, '').trim();
+  const o = officialHost.toLowerCase().replace(/^www\./, '').trim();
+  if (!h || !o) return false;
+  return h === o || h.endsWith('.' + o);
+}
+
 interface SearchResult {
   title: string;
   url: string;
@@ -884,27 +899,6 @@ Rules:
 
     const sources = broad.results.map(r => r.url);
 
-    // Identify a likely official-site domain (first non-directory result) to flag
-    // authentic photos and to drive an optional domain-restricted image search.
-    // Only exclude domains that are genuinely NOT useful for senior living photos/info.
-    // Senior living directories (caring.com, aplaceformom.com, seniorlivingnearme.com,
-    // senioradvisor.com, seniorhousing.net, assistedliving.com, etc.) are VALID sources —
-    // they often have curated community photos and pricing, so we accept them.
-    const DIRECTORY_DOMAINS = [
-      'yelp.com', 'tripadvisor.com', 'facebook.com', 'google.com', 'wikipedia.org',
-      'linkedin.com', 'youtube.com', 'instagram.com', 'twitter.com', 'x.com',
-    ];
-    // The "official" domain (used to flag photos `isAuthentic`, which bypasses the
-    // name/city relevance gate) must be a genuine community/operator site — NOT a
-    // senior-living directory. Otherwise a first result of caring.com/seniorly.com
-    // would mark directory images authentic and let un-corroborated photos through.
-    const officialResult = broad.results.find(
-      r => r.domain
-        && !DIRECTORY_DOMAINS.some(d => r.domain.includes(d))
-        && !isSeniorLivingDirectoryHost(r.domain)
-    );
-    const officialDomain = officialResult?.domain;
-
     // Deterministic photo-source candidates: Perplexity Search results whose host
     // is a recognized senior-living directory. These feed the scrape-and-corroborate
     // path in the verify endpoint so real directory photos surface reliably even
@@ -921,28 +915,36 @@ Rules:
     // ── 2. Sonar structured extraction (json_schema) — summary + fields ──────
     const structured = await this.sonarStructuredExtract(community.name, location, snippetContext);
 
+    // Golden Data Rule: only persist a website that Perplexity actually verified
+    // as the official site — never fall back to a heuristic "first non-directory"
+    // result, which could surface a third-party/aggregator URL. This verified host
+    // is the SOLE authenticity anchor for photos (exact / subdomain match); when
+    // sonar cannot verify a site there is no authentic anchor and every photo must
+    // earn its place through the name+city relevance gate instead.
+    const officialWebsite = structured.officialWebsite || null;
+    let officialHost: string | undefined;
+    try {
+      if (officialWebsite) officialHost = new URL(officialWebsite).hostname.replace(/^www\./, '');
+    } catch { /* ignore malformed url */ }
+
     // ── 3. Photos — extract real image URLs from search results (no fabrication) ──
-    const photos = this.extractPhotosFromResults(broad.results, officialDomain);
+    // Snippet-scraped photos are NOT relevance-gated, so they are flagged
+    // un-corroborated and only survive the trust filter when authentic (hosted on
+    // the verified official site).
+    const photos = this.extractPhotosFromResults(broad.results, officialHost);
 
     // ── 3a. PRIMARY photos via Perplexity sonar `return_images` ─────────────────
     // The Search API only returns text snippets, so snippet-scraped image URLs are
     // rare. The Chat Completions API with `return_images: true` returns a native
     // `images` array (real, multi-source community photos). These are the most
     // reliable source, so they lead — snippet-scraped photos become a supplement.
-    const nativeImages = await this.sonarReturnImages(community.name, location, officialDomain, community.city);
+    // Every returned image runs through a name+city relevance gate; survivors are
+    // flagged `corroborated` so the trust filter can keep them.
+    const nativeImages = await this.sonarReturnImages(community.name, location, officialHost, community.city);
     for (let i = nativeImages.length - 1; i >= 0; i--) {
       const img = nativeImages[i];
       if (!photos.some(p => p.url === img.url)) photos.unshift(img);
     }
-
-    // Golden Data Rule: only persist a website that Perplexity actually verified
-    // as the official site — never fall back to a heuristic "first non-directory"
-    // result, which could surface a third-party/aggregator URL.
-    const officialWebsite = structured.officialWebsite || null;
-    let officialHost: string | undefined;
-    try {
-      if (officialWebsite) officialHost = new URL(officialWebsite).hostname.replace(/^www\./, '');
-    } catch { /* ignore malformed url */ }
 
     if (officialHost && photos.filter(p => p.isAuthentic).length < 3) {
       try {
@@ -959,21 +961,23 @@ Rules:
       }
     }
 
-    // ── Source-quality filter (Golden Data Rule) ────────────────────────────────
-    // Snippet-scraped images (extractPhotosFromResults) are NOT relevance-gated and
-    // can surface look-alike junk (e.g. a "Red Bluff Health & Fitness" gym on a
-    // care-center page). Only trust photos that are either (a) from the verified
-    // official domain, or (b) from a recognized senior-living directory — these are
-    // the sources that actually carry curated community photos. Everything else is
-    // dropped so we never show an off-community image.
+    // ── Per-community trust filter (Golden Data Rule) ───────────────────────────
+    // A photo is persisted ONLY when it is positively tied to THIS community:
+    //   (a) authentic    — hosted on the sonar-verified official site, OR
+    //   (b) corroborated — its origin page referenced this community by name + city
+    //                      (the relevance gate in `sonarReturnImages`).
+    // Directory photos are NO LONGER trusted by host alone: a listing image for a
+    // DIFFERENT facility on caring.com/seniorly.com must not pass merely because
+    // the host is a recognized directory, and un-corroborated snippet-scraped
+    // photos are likewise dropped. Directory pages still contribute real photos —
+    // but only via the scrape-and-corroborate path in the orchestrator, which
+    // confirms the specific page is about this community by name + city.
     const trustedPhotos = photos.filter(
-      p => p.isAuthentic
-        || (officialHost && (p.source || '').includes(officialHost))
-        || isSeniorLivingDirectoryHost(p.source || ''),
+      (p) => p.isAuthentic || (p as any).corroborated === true,
     );
     const droppedCount = photos.length - trustedPhotos.length;
     if (droppedCount > 0) {
-      console.log(`🧹 Dropped ${droppedCount} untrusted-source photo(s) for "${community.name}" (kept ${trustedPhotos.length})`);
+      console.log(`🧹 Dropped ${droppedCount} un-confirmed photo(s) for "${community.name}" (kept ${trustedPhotos.length})`);
     }
 
     return {
@@ -997,19 +1001,23 @@ Rules:
    */
   private extractPhotosFromResults(
     results: SearchResult[],
-    officialDomain?: string
-  ): Array<{ url: string; source: string; isAuthentic: boolean }> {
+    officialHost?: string
+  ): Array<{ url: string; source: string; isAuthentic: boolean; corroborated: boolean }> {
     const seen = new Set<string>();
-    const photos: Array<{ url: string; source: string; isAuthentic: boolean }> = [];
+    const photos: Array<{ url: string; source: string; isAuthentic: boolean; corroborated: boolean }> = [];
     const imageRe = /https?:\/\/[^\s"'<>]+?\.(?:jpg|jpeg|png|webp)(?:\?[^\s"'<>]*)?/gi;
 
     const add = (url: string, domain: string) => {
       const clean = url.replace(/[)\].,]+$/, '');
       if (seen.has(clean)) return;
       seen.add(clean);
-      const host = domain || (() => { try { return new URL(clean).hostname.replace(/^www\./, ''); } catch { return ''; } })();
-      const isAuthentic = !!officialDomain && (host.includes(officialDomain) || clean.includes(officialDomain));
-      photos.push({ url: clean, source: host || 'web', isAuthentic });
+      const host = (domain || (() => { try { return new URL(clean).hostname; } catch { return ''; } })())
+        .replace(/^www\./, '');
+      // Authenticity is anchored to the VERIFIED official host via exact /
+      // subdomain matching only. Snippet-scraped photos are never relevance-gated,
+      // so they are flagged un-corroborated and will be dropped unless authentic.
+      const isAuthentic = hostMatchesOfficial(host, officialHost);
+      photos.push({ url: clean, source: host || 'web', isAuthentic, corroborated: false });
     };
 
     for (const r of results) {
@@ -1031,9 +1039,9 @@ Rules:
   private async sonarReturnImages(
     communityName: string,
     location: string,
-    officialDomain?: string,
+    officialHost?: string,
     city?: string | null,
-  ): Promise<Array<{ url: string; source: string; isAuthentic: boolean }>> {
+  ): Promise<Array<{ url: string; source: string; isAuthentic: boolean; corroborated: boolean }>> {
     if (!this.apiKey) return [];
     const startTime = Date.now();
     const prompt =
@@ -1100,7 +1108,7 @@ Rules:
         .filter(t => t.length >= 3 && !GENERIC.has(t) && !cityTokens.includes(t));
 
       const seen = new Set<string>();
-      const out: Array<{ url: string; source: string; isAuthentic: boolean }> = [];
+      const out: Array<{ url: string; source: string; isAuthentic: boolean; corroborated: boolean }> = [];
       let rejected = 0;
       for (const img of images) {
         const url: string | undefined = img?.image_url || img?.imageUrl;
@@ -1110,7 +1118,7 @@ Rules:
         const title: string = img?.title || '';
         let host = '';
         try { host = new URL(originUrl).hostname.replace(/^www\./, ''); } catch { /* ignore */ }
-        const isAuthentic = !!officialDomain && (host.includes(officialDomain) || originUrl.includes(officialDomain));
+        const isAuthentic = hostMatchesOfficial(host, officialHost);
 
         const haystack = norm(`${originUrl} ${title}`);
         const hasNameToken = nameTokens.length > 0 && nameTokens.some(t => haystack.includes(t));
@@ -1125,24 +1133,25 @@ Rules:
         const imgHasCity = cityTokens.some(t => imgHay.includes(t));
         const siblingLocation = imgHasName && cityTokens.length > 0 && !imgHasCity;
 
-        // Trust Perplexity's query-matched images by default and apply only a
-        // light guard, instead of requiring the origin to sit on a hand-maintained
-        // directory allowlist (which discarded good photos hosted on sites we
-        // hadn't listed). We keep an image when it is authentic (official domain)
-        // OR it passes the light relevance guard. We only have a reliable signal
-        // to reject when BOTH a distinctive name token AND a city token exist for
-        // the community; in that case the origin must reference this community by
-        // name and city and not be a sibling-brand location. For generically-named
-        // communities (no distinctive name tokens) or unknown-city ones, we lack a
-        // reliable signal, so we keep Perplexity's result rather than dropping all.
+        // Golden Data Rule — positive-confirmation gate. A `return_images` photo is
+        // kept ONLY when it is positively tied to THIS community:
+        //   • authentic — its origin sits on the sonar-verified official site, OR
+        //   • corroborated — we HAVE a reliable signal (a distinctive name token
+        //     AND a city token both exist) and the origin references this community
+        //     by name and city and is not a sibling-brand location.
+        // We no longer keep-by-default when there is "no signal": a generically-
+        // named or unknown-city community is exactly the hard case where an
+        // off-community image is most likely, so without an official-domain anchor
+        // those photos are dropped rather than persisted on a guess. They survive
+        // only if corroborated, falling back to "Contact for details" otherwise.
         const haveSignal = nameTokens.length > 0 && cityTokens.length > 0;
-        const relevant = hasNameToken && hasCityToken && !siblingLocation;
-        const keep = isAuthentic || !haveSignal || relevant;
+        const corroborated = haveSignal && hasNameToken && hasCityToken && !siblingLocation;
+        const keep = isAuthentic || corroborated;
         if (!keep) {
           rejected++;
           continue;
         }
-        out.push({ url, source: host || 'web', isAuthentic });
+        out.push({ url, source: host || 'web', isAuthentic, corroborated });
       }
       console.log(
         `📸 Perplexity return_images: ${out.length} photo(s) kept for "${communityName}" ` +

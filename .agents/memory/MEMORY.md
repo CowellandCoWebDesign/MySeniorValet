@@ -18,3 +18,4 @@
 - [communities.photos corruption](community-photos-corruption.md) — text[] holds "[object Object]"/entity-encoded URLs that break public photos; normalizePhotoUrls on every read+write path.
 - [Photo sibling discrimination](photo-sibling-discrimination.md) — mismatch filter needs its OWN tokenizer that KEEPS suffix words (estates/springs/manor); short names match ALL tokens; city coincidence must not rescue a sibling.
 - [TanStack Query refetch after mutation](tanstack-refetch-post-mutation.md) — invalidateQueries alone won't update staleTime:30min queries; use setQueryData (instant patch) + refetchQueries (force background sync) together.
+- [Photo confirmation gate](photo-confirmation-gate.md) — persist a photo only if authentic (sonar officialHost match) OR name+city corroborated; forced refresh re-derives & may clear to []; never wipe on transient failure.

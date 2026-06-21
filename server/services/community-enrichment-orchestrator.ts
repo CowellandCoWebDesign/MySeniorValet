@@ -275,16 +275,89 @@ export async function enrichCommunityUnified(
   const dbPhotosWereCleaned = cleanDbPhotos.length < rawDbPhotoCount;
   let discoveredPhotos: string[] = [];
   let discoveredPhotoAttributions: string[] = [];
+  // Tracks whether photo discovery actually completed (vs threw on a transient
+  // network failure). Only a COMPLETED discovery that found nothing may clear
+  // existing photos — a failure must never erase confirmed photos.
+  let discoveryRan = false;
   const hasDbPhotos = cleanDbPhotos.length > 0;
 
+  const normalizeImageKey = (u: string): string => {
+    try {
+      const p = new URL(u);
+      return (p.hostname + p.pathname).toLowerCase();
+    } catch {
+      return u.toLowerCase();
+    }
+  };
+  const samePhotoSet = (a: string[], b: string[]): boolean => {
+    if (a.length !== b.length) return false;
+    const sa = new Set(a.map(normalizeImageKey));
+    return b.every((u) => sa.has(normalizeImageKey(u)));
+  };
+
+  // Verified official host(s) for THIS community — the only hosts on which an
+  // existing DB photo is treated as "confirmed official" and therefore PRESERVED
+  // across a forced refresh. Built from the admin/known website and the verified
+  // official site (sonar/free-scraper), never from a heuristic guess.
+  const parseHost = (u?: string | null): string => {
+    if (!u) return "";
+    try {
+      return new URL(/^https?:\/\//i.test(u) ? u : `https://${u}`).hostname
+        .replace(/^www\./, "")
+        .toLowerCase();
+    } catch {
+      return "";
+    }
+  };
+  const officialHostSet = new Set<string>();
+  for (const w of [community.website, (freeEnrichment as any)?.website, communityWebsite]) {
+    const h = parseHost(w);
+    if (h) officialHostSet.add(h);
+  }
+  const hostIsOfficial = (host: string): boolean => {
+    if (!host) return false;
+    for (const o of officialHostSet) {
+      if (host === o || host.endsWith(`.${o}`) || o.endsWith(`.${host}`)) return true;
+    }
+    return false;
+  };
+  const isConfirmedOfficialPhoto = (p: { url: string; attr: string }): boolean =>
+    hostIsOfficial(parseHost(p.url)) || hostIsOfficial(parseHost(p.attr));
+  // A stored photo is "confirmed" — and therefore PRESERVED across a forced
+  // refresh — when it is tied to the official host OR is name+city corroborated
+  // via a recognized senior-living directory attribution (same rule as discovery).
+  const isConfirmedDbPhoto = (p: { url: string; attr: string }): boolean => {
+    if (isConfirmedOfficialPhoto(p)) return true;
+    const attrHost = parseHost(p.attr);
+    if (attrHost && isSeniorLivingDirectoryHost(attrHost)) {
+      return textReferencesCommunity(
+        `${p.url} ${p.attr}`,
+        community.name || "",
+        community.city || "",
+        { requireCity: true },
+      );
+    }
+    return false;
+  };
+  // Existing DB photos positively tied to this community. These are preserved even
+  // when a forced refresh re-derives the rest of the set.
+  const confirmedDbPairs = dbPhotoPairs.filter(isConfirmedDbPhoto);
+
+  // Run discovery when there are no usable DB photos OR the caller forced a
+  // refresh. A forced refresh MUST re-derive photos so unconfirmed/wrong stored
+  // images can be replaced with positively-confirmed ones (or cleared).
+  const shouldRunDiscovery = forceRefresh || !hasDbPhotos;
+
   // Prefer Perplexity's native return_images — reliable, multi-source, confirmed.
-  if (!hasDbPhotos && perplexityPhotos.length > 0) {
+  if (shouldRunDiscovery && perplexityPhotos.length > 0) {
     discoveredPhotos = perplexityPhotos.map((p) => p.url);
     discoveredPhotoAttributions = perplexityPhotos.map((p) => p.source || "perplexity");
+    discoveryRan = true;
     console.log(`📸 Using ${discoveredPhotos.length} Perplexity return_images photo(s) for "${community.name}"`);
   }
 
-  if (!hasDbPhotos && discoveredPhotos.length === 0) {
+  if (shouldRunDiscovery && (forceRefresh || discoveredPhotos.length === 0)) {
+   try {
     const scrapeUsablePage = async (
       url: string,
     ): Promise<{ images: string[]; text: string }> => {
@@ -301,15 +374,6 @@ export async function enrichCommunityUnified(
           .slice(0, 15),
         text: page.text,
       };
-    };
-
-    const normalizeImageKey = (u: string): string => {
-      try {
-        const p = new URL(u);
-        return (p.hostname + p.pathname).toLowerCase();
-      } catch {
-        return u.toLowerCase();
-      }
     };
 
     type PhotoSource = { url: string; official: boolean; images: string[] };
@@ -413,8 +477,8 @@ export async function enrichCommunityUnified(
         return a.order - b.order;
       });
 
-    discoveredPhotos = ranked.map((e) => e.url).slice(0, 15);
-    discoveredPhotoAttributions = ranked.slice(0, 15).map((e) => {
+    const scrapeUrls = ranked.map((e) => e.url);
+    const scrapeAttrs = ranked.map((e) => {
       if (e.official) {
         const officialSrc = confirmedSources.find(
           (s) => s.official && s.images.some((i) => normalizeImageKey(i) === normalizeImageKey(e.url)),
@@ -424,11 +488,38 @@ export async function enrichCommunityUnified(
       return e.sources[0];
     });
 
+    // Merge any Perplexity return_images (already in discoveredPhotos) with the
+    // scrape-corroborated set, deduped — a forced refresh runs BOTH passes so
+    // photos are fully re-derived from official + corroborated directory sources.
+    const mergedUrls: string[] = [];
+    const mergedAttrs: string[] = [];
+    const seenMerge = new Set<string>();
+    const pushMerged = (url: string, attr: string) => {
+      const k = normalizeImageKey(url);
+      if (seenMerge.has(k)) return;
+      seenMerge.add(k);
+      mergedUrls.push(url);
+      mergedAttrs.push(attr);
+    };
+    discoveredPhotos.forEach((u, i) => pushMerged(u, discoveredPhotoAttributions[i] ?? ""));
+    scrapeUrls.forEach((u, i) => pushMerged(u, scrapeAttrs[i] ?? ""));
+    discoveredPhotos = mergedUrls.slice(0, 15);
+    discoveredPhotoAttributions = mergedAttrs.slice(0, 15);
+
     console.log(
       `📸 Corroborated ${discoveredPhotos.length} photo(s) for "${community.name}" from ` +
         `${confirmedSources.length} confirmed source(s)` +
         (officialExists ? " (official photos present)" : ""),
     );
+    discoveryRan = true;
+   } catch (err) {
+      console.warn(
+        `⚠️ Photo discovery failed for "${community.name}" — keeping existing photos: ` +
+          (err instanceof Error ? err.message : String(err)),
+      );
+      // A scrape failure must not undo a successful Perplexity pass.
+      discoveryRan = discoveredPhotos.length > 0;
+    }
   }
 
   // Golden Data Rule: drop discovered photos whose filename embeds a DIFFERENT
@@ -454,22 +545,59 @@ export async function enrichCommunityUnified(
     discoveredPhotoAttributions = keptPairs.map((p) => p.attr);
   }
 
-  // Build the enrichment result (shared shape for all callers).
-  const photos = hasDbPhotos
-    ? cleanDbPhotos
-    : discoveredPhotos.length > 0
-      ? discoveredPhotos
-      : CommunityPhotoEnrichment.filterPhotosForCommunity(
-          freeEnrichment.photos || [],
-          community.name || "",
-          community.city || "",
-          community.website || "",
+  // Build the enrichment result photo set (shared shape for all callers).
+  let photos: string[];
+  let photoAttributions: string[];
+  // True only when a forced refresh confirmed there are NO real photos for this
+  // community while unconfirmed images are stored — those are then cleared and the
+  // community falls back to "Contact for details" (Golden Data Rule).
+  let clearPhotos = false;
+
+  if (forceRefresh) {
+    // Forced refresh re-derives photos: preserve confirmed-official DB photos and
+    // merge in freshly-confirmed discovery; unconfirmed stored images are dropped.
+    const orderedUrls: string[] = [];
+    const attrByKey = new Map<string, string>();
+    const pushPhoto = (url: string, attr: string) => {
+      const k = normalizeImageKey(url);
+      if (attrByKey.has(k)) return;
+      attrByKey.set(k, attr);
+      orderedUrls.push(url);
+    };
+    confirmedDbPairs.forEach((p) => pushPhoto(p.url, p.attr));
+    discoveredPhotos.forEach((url, i) => pushPhoto(url, discoveredPhotoAttributions[i] ?? ""));
+    photos = orderedUrls;
+    photoAttributions = orderedUrls.map((u) => attrByKey.get(normalizeImageKey(u)) ?? "");
+
+    if (photos.length === 0) {
+      if (discoveryRan && rawDbPhotoCount > 0) {
+        // Discovery completed and confirmed NO real photos for this community, yet
+        // unconfirmed images are stored — drop them (Contact for details).
+        clearPhotos = true;
+        console.log(
+          `🧹 Forced refresh confirmed no real photos for "${community.name}" — will clear ${rawDbPhotoCount} unconfirmed image(s)`,
         );
-  const photoAttributions = hasDbPhotos
-    ? cleanDbAttributions
-    : discoveredPhotos.length > 0
-      ? discoveredPhotoAttributions
-      : [];
+      } else {
+        // Transient discovery failure (or nothing stored) — never erase existing.
+        photos = cleanDbPhotos;
+        photoAttributions = cleanDbAttributions;
+      }
+    }
+  } else if (hasDbPhotos) {
+    photos = cleanDbPhotos;
+    photoAttributions = cleanDbAttributions;
+  } else if (discoveredPhotos.length > 0) {
+    photos = discoveredPhotos;
+    photoAttributions = discoveredPhotoAttributions;
+  } else {
+    photos = CommunityPhotoEnrichment.filterPhotosForCommunity(
+      freeEnrichment.photos || [],
+      community.name || "",
+      community.city || "",
+      community.website || "",
+    );
+    photoAttributions = [];
+  }
 
   const summary =
     freeEnrichment.about ||
@@ -530,9 +658,46 @@ export async function enrichCommunityUnified(
     console.log(`✅ Updating description with FULL enriched content (${candidateDescription.length} chars)`);
   }
 
-  // Photos — NON-DESTRUCTIVE: only ever replaced with verified replacements; never
-  // wiped on the blocklist alone (a false positive must not erase real photos).
-  if (hasDbPhotos && dbPhotosWereCleaned) {
+  // Photos — NON-DESTRUCTIVE except a forced refresh that positively confirms the
+  // stored images are wrong: only ever replaced with verified replacements (or
+  // cleared on a forced refresh that found nothing); never wiped on the blocklist
+  // alone (a false positive must not erase real photos) or on transient failures.
+  if (clearPhotos) {
+    // Forced refresh confirmed no photos can be tied to this community — drop the
+    // unconfirmed stored images so it falls back to "Contact for details".
+    updates.photos = [];
+    updates.photoAttributions = [];
+    updates.lastPhotoEnrichment = now;
+    hasUpdates = true;
+    console.log(
+      `🧹 Forced refresh: clearing ${rawDbPhotoCount} unconfirmed photo(s) from "${community.name}" (Contact for details)`,
+    );
+  } else if (forceRefresh) {
+    // Forced refresh persists the re-derived/merged set (confirmed-official DB
+    // photos + freshly-confirmed discovery) whenever it differs from what's
+    // stored, replacing unconfirmed images with confirmed ones. Still scrubs when
+    // only off-community contamination was removed.
+    const cleanedFinal = CommunityPhotoEnrichment.cleanPhotoArray(photos);
+    const survivorSet = new Set(cleanedFinal);
+    const cleanedAttributions = photos
+      .map((url, i) => (survivorSet.has(url) ? photoAttributions[i] ?? "" : null))
+      .filter((a): a is string => a !== null);
+    const samePhotos = samePhotoSet(cleanedFinal, cleanDbPhotos);
+    if (cleanedFinal.length > 0 && (!samePhotos || dbPhotosWereCleaned)) {
+      updates.photos = cleanedFinal;
+      updates.photoAttributions =
+        cleanedAttributions.length === cleanedFinal.length
+          ? cleanedAttributions
+          : cleanedFinal.map((_, i) => cleanedAttributions[i] || "");
+      updates.lastPhotoEnrichment = now;
+      hasUpdates = true;
+      if (!samePhotos) contentWasSaved = true;
+      console.log(
+        `✅ Forced refresh persisting ${cleanedFinal.length} confirmed photo(s) for "${community.name}" ` +
+          `(attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
+      );
+    }
+  } else if (hasDbPhotos && dbPhotosWereCleaned) {
     // Existing DB photos contained images belonging to OTHER communities —
     // persist the scrubbed set so the contamination is removed permanently.
     updates.photos = cleanDbPhotos;
@@ -601,8 +766,9 @@ export async function enrichCommunityUnified(
     pricing: structuredPricing || (community.enrichmentData as any)?.pricing,
     managementCompany: managementCompany || (community.enrichmentData as any)?.managementCompany,
     availability: availability || (community.enrichmentData as any)?.availability,
-    photos:
-      photos.length > 0
+    photos: clearPhotos
+      ? []
+      : photos.length > 0
         ? photos.map((url, i) => ({
             url,
             source: photoAttributions[i] || "web",
@@ -631,6 +797,9 @@ export async function enrichCommunityUnified(
     if (updates.photos) {
       const cleaned = normalizePhotoUrls(updates.photos);
       if (cleaned.length > 0) updates.photos = cleaned;
+      // An intentional forced-refresh clear must persist the empty array (Contact
+      // for details); only a non-clear empty result is dropped to avoid wiping.
+      else if (clearPhotos) updates.photos = [];
       else delete updates.photos;
     }
     await db

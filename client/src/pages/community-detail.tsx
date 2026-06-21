@@ -1847,7 +1847,10 @@ export default function CommunityDetail() {
         const buildPatch = (old: any) => {
           if (!old) return old;
           const patch: any = { ...old };
-          if (freshPhotos.length > 0) patch.photos = freshPhotos;
+          // A forced refresh always returns the authoritative photo set, which may
+          // be EMPTY when unconfirmed photos were cleared (Contact for details) —
+          // apply it even when empty so wrong photos disappear immediately.
+          if (Array.isArray(data.photos)) patch.photos = freshPhotos;
           if (typeof data.summary === 'string' && data.summary.length > 50) {
             patch.description = data.summary;
           }
@@ -1893,9 +1896,12 @@ export default function CommunityDetail() {
       setVerificationReport(report);
       enrichmentCache.set(community.id, report);
 
-      if (foundPhotos > 0) {
-        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
-      }
+      // A forced refresh may ADD confirmed photos OR CLEAR unconfirmed ones, so
+      // always re-sync the community record (slug + id keys) — invalidating only
+      // when photos were found would leave wrong/cleared photos on screen.
+      if (slugQueryKey) queryClient.invalidateQueries({ queryKey: [slugQueryKey] });
+      if (idQueryKey) queryClient.invalidateQueries({ queryKey: [idQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
     } catch (error) {
       console.error('❌ Verification error details:', {
         error,
