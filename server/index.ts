@@ -18,7 +18,8 @@ import {
   sqlInjectionProtection,
   securityLogger,
   enhanceSessionSecurity,
-  createRateLimit 
+  createRateLimit,
+  isRateLimitExempt 
 } from "./security";
 import { cacheBuster, devModeHeaders } from "./cache-buster";
 import { devCacheKiller, clearViteCache } from "./dev-cache-killer";
@@ -94,11 +95,11 @@ app.use(securityDashboard.middleware());
 
 // Apply rate limiting only to API routes (excluding map operations)
 app.use('/api', (req, res, next) => {
-  // Skip rate limiting for map operations, clusters, and login
-  if (req.path.includes('/clusters') || 
-      req.path.includes('/spatial') ||
-      req.path.includes('/map-data') ||
-      (req.method === 'POST' && req.path.startsWith('/auth/login'))) {
+  // Skip rate limiting for read-only browse/map endpoints and login.
+  // Use the shared isRateLimitExempt() (which matches req.originalUrl, the full
+  // path) instead of re-checking req.path here — inside app.use('/api', ...)
+  // Express strips the /api prefix, so req.path-based checks silently miss.
+  if (isRateLimitExempt(req)) {
     return next();
   }
   return createRateLimit()(req, res, next);

@@ -9,7 +9,12 @@ const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 const SECURITY_CONFIG = {
   rateLimiting: {
     windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 300, // per window - increased for normal browsing
+    // Global budget for NON-exempt API reads/writes. High-frequency read-only
+    // browse/map endpoints are exempt via isRateLimitExempt(), so this budget
+    // only needs to cover other (mostly write/admin) traffic. Kept generous so
+    // normal usage never trips it; sensitive routes (auth/signup/forgot/reset)
+    // have their own dedicated brute-force limiter (authLimiter).
+    maxRequests: 1000, // per window
     apiMaxRequests: 200, // for API endpoints - increased for communities data
     authMaxRequests: 50, // for auth endpoints - increased for demo testing
   },
@@ -19,41 +24,73 @@ const SECURITY_CONFIG = {
   }
 };
 
+// Determine whether a request should be exempt from the global rate limiter.
+//
+// CRITICAL: When the limiter is mounted with `app.use('/api', ...)` Express strips
+// the `/api` mount prefix from `req.path` (so it becomes `/communities/markers`,
+// not `/api/communities/markers`). Matching against `req.path` therefore silently
+// fails for every `/api/...` exemption. We match against the FULL path via
+// `req.originalUrl` (query string stripped) so exemptions fire regardless of where
+// the middleware is mounted.
+export function isRateLimitExempt(req: Request): boolean {
+  const fullPath = (req.originalUrl || req.url || '').split('?')[0];
+  const method = req.method;
+
+  // Static files and main SPA routes
+  if (fullPath.startsWith('/src/') ||
+      fullPath.startsWith('/@') ||
+      fullPath === '/' ||
+      fullPath === '/search' ||
+      fullPath === '/community' ||
+      fullPath.startsWith('/community/') ||
+      fullPath.endsWith('.js') ||
+      fullPath.endsWith('.css') ||
+      fullPath.endsWith('.map') ||
+      fullPath.includes('vite') ||
+      fullPath.includes('hmr')) {
+    return true;
+  }
+
+  // Read-only browse + map endpoints. These fire repeatedly on page load and on
+  // every map pan/zoom — counting them against a global budget causes
+  // "Failed to load communities / map data" and "Failed to fetch hospitals".
+  if (fullPath === '/api/search/suggestions' ||
+      fullPath.startsWith('/api/communities/search') ||      // includes /search/spatial
+      fullPath.startsWith('/api/communities/by-location') ||
+      fullPath.startsWith('/api/communities/count') ||
+      fullPath.startsWith('/api/communities/trending') ||
+      fullPath.startsWith('/api/communities/coastal') ||
+      fullPath.startsWith('/api/communities/markers') ||
+      fullPath.startsWith('/api/communities/clusters') ||    // clusters, clusters-fixed, clusters/:id/expand
+      fullPath.startsWith('/api/communities/map-data') ||
+      fullPath.startsWith('/api/communities/spatial') ||
+      fullPath.includes('/spatial') ||                        // vendors/healthcare spatial searches
+      fullPath.startsWith('/api/vendors/search/spatial') ||
+      fullPath.startsWith('/api/hospitals') ||                // hospital markers + all hospital reads
+      fullPath.startsWith('/api/healthcare/hospitals-map') ||
+      fullPath.startsWith('/api/heatmap')) {
+    return true;
+  }
+
+  // Login has its own dedicated brute-force limiter (authLimiter); blocking login
+  // via the global budget (exhausted by normal map/search activity) would lock
+  // legitimate users out.
+  if (method === 'POST' && fullPath.startsWith('/api/auth/login')) {
+    return true;
+  }
+
+  // Read-only session-check endpoints poll frequently and pose no brute-force risk.
+  if (method === 'GET' && (fullPath.startsWith('/api/auth/status') || fullPath.startsWith('/api/auth/user'))) {
+    return true;
+  }
+
+  return false;
+}
+
 // Rate limiting middleware
 export function createRateLimit(maxRequests: number = SECURITY_CONFIG.rateLimiting.maxRequests) {
   return (req: Request, res: Response, next: NextFunction) => {
-    // Skip rate limiting for static files and main app routes
-    if (req.path.startsWith('/src/') || 
-        req.path.startsWith('/@') || 
-        req.path === '/' || 
-        req.path === '/search' || 
-        req.path === '/community' ||
-        req.path.startsWith('/community/') ||
-        req.path.endsWith('.js') || 
-        req.path.endsWith('.css') || 
-        req.path.endsWith('.map') ||
-        req.path.includes('vite') ||
-        req.path.includes('hmr') ||
-        req.path === '/api/search/suggestions' ||
-        req.path.startsWith('/api/communities/search') ||
-        req.path.startsWith('/api/communities/by-location') ||
-        req.path.startsWith('/api/communities/count') ||
-        req.path.startsWith('/api/communities/trending') ||
-        req.path.startsWith('/api/communities/coastal') ||
-        req.path.startsWith('/api/communities/clusters') ||
-        req.path.includes('/spatial') ||
-        req.path.endsWith('/spatial') ||
-        // Map data: read-only, fires on every pan/zoom — rate-limiting causes "Failed to load communities"
-        req.path.startsWith('/api/communities/map-data') ||
-        // Login: has its own dedicated brute-force limiter (authLimiter); blocking login via the
-        // global budget (exhausted by normal map/search activity) locks legitimate users out
-        (req.method === 'POST' && req.originalUrl.startsWith('/api/auth/login')) ||
-        // Read-only session-check endpoints poll frequently and pose no brute-force risk;
-        // counting them against the budget causes spurious 429s on the login page.
-        // NOTE: req.path inside app.use('/api', ...) is the subpath without '/api',
-        // so these are '/auth/status' not '/api/auth/status'. Use req.originalUrl
-        // as a reliable full-path match that is unaffected by mount-point stripping.
-        (req.method === 'GET' && (req.originalUrl.startsWith('/api/auth/status') || req.originalUrl.startsWith('/api/auth/user')))) {
+    if (isRateLimitExempt(req)) {
       return next();
     }
     
