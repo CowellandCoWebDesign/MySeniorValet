@@ -1747,13 +1747,28 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // Process all web-discovered communities
       // SIMPLIFIED: Just add all discovered communities - they already have correct flags
+      // DE-DUPLICATION: collapse candidates that resolve to the same community so it
+      // never appears more than once in the results list. Existing communities are
+      // keyed on their real DB id; newly discovered ones (no real id) on name+city+state.
+      const seenResultKeys = new Set<string>();
       discoveredWithRealIds.forEach(webCommunity => {
         // Skip if no name exists
         if (!webCommunity.name) {
           console.log('⚠️ Skipping web result with no name:', webCommunity);
           return;
         }
-        
+
+        const hasRealId = typeof webCommunity.id === 'number' && webCommunity.id > 0;
+        const dedupKey = hasRealId
+          ? `id:${webCommunity.id}`
+          : `ncs:${(webCommunity.name || '').toLowerCase().trim()}|${(webCommunity.city || '').toLowerCase().trim()}|${(webCommunity.state || '').toLowerCase().trim()}`;
+
+        if (seenResultKeys.has(dedupKey)) {
+          console.log(`🔁 Skipping duplicate web result: "${webCommunity.name}" (${dedupKey})`);
+          return;
+        }
+        seenResultKeys.add(dedupKey);
+
         // Add to results - flags are already set correctly in discoveredWithRealIds
         allWebResults.push(webCommunity);
       });
