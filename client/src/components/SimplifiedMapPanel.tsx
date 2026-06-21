@@ -484,6 +484,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
       {layoutMode === "vertical" ? (
         /* Vertical: map on top, list below */
         <div>
+          <div className="overflow-hidden" style={{ height: verticalMapHeight }}>
           <Map
             center={mapCenter}
             zoom={mapZoom}
@@ -494,6 +495,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
               if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
             }}
           />
+          </div>
           <div className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
             <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
             <span>
@@ -508,6 +510,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
         /* Horizontal: map left, landscape cards right (vertical scroll) */
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="md:border-r border-gray-200 dark:border-gray-700 flex flex-col">
+            <div className="overflow-hidden" style={{ height: horizontalMapHeight }}>
             <Map
               center={mapCenter}
               zoom={mapZoom}
@@ -518,6 +521,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
                 if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
               }}
             />
+            </div>
             <div className="px-4 py-2 text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 border-t border-gray-200 dark:border-gray-700">
               <MapPin className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
               <span>
