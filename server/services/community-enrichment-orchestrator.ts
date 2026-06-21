@@ -86,6 +86,75 @@ export interface UnifiedEnrichmentResult {
 }
 
 /**
+ * Normalize a photo URL to a host+path key (lowercased, query/hash dropped) so
+ * thumbnail variants and duplicate links collapse to one entry. Module-scoped so
+ * both the enrichment pipeline and the pure forced-refresh helper share it.
+ */
+export function normalizeImageKey(u: string): string {
+  try {
+    const p = new URL(u);
+    return (p.hostname + p.pathname).toLowerCase();
+  } catch {
+    return (u || "").toLowerCase();
+  }
+}
+
+/**
+ * Pure forced-refresh photo decision (extracted so it is unit-testable in
+ * isolation from network/DB). A forced refresh re-derives photos: it preserves
+ * confirmed-official/corroborated DB photos and merges in freshly-confirmed
+ * discovery (deduped). It clears the stored set to [] ONLY when ALL hold:
+ *   1. the merged confirmed set is empty,
+ *   2. discovery actually completed (`discoveryRan`) — never on a transient
+ *      scrape/network failure, and
+ *   3. the DB previously had (unconfirmed) photos (`rawDbPhotoCount > 0`).
+ * Otherwise (nothing confirmed, but discovery didn't run or nothing was stored)
+ * it preserves the existing cleaned DB photos.
+ */
+export function decideForcedRefreshPhotos(params: {
+  confirmedDbPairs: Array<{ url: string; attr: string }>;
+  discoveredPhotos: string[];
+  discoveredPhotoAttributions: string[];
+  discoveryRan: boolean;
+  rawDbPhotoCount: number;
+  cleanDbPhotos: string[];
+  cleanDbAttributions: string[];
+}): { photos: string[]; photoAttributions: string[]; clearPhotos: boolean } {
+  const orderedUrls: string[] = [];
+  const attrByKey = new Map<string, string>();
+  const pushPhoto = (url: string, attr: string) => {
+    const k = normalizeImageKey(url);
+    if (attrByKey.has(k)) return;
+    attrByKey.set(k, attr);
+    orderedUrls.push(url);
+  };
+  params.confirmedDbPairs.forEach((p) => pushPhoto(p.url, p.attr));
+  params.discoveredPhotos.forEach((url, i) =>
+    pushPhoto(url, params.discoveredPhotoAttributions[i] ?? ""),
+  );
+
+  let photos = orderedUrls;
+  let photoAttributions = orderedUrls.map(
+    (u) => attrByKey.get(normalizeImageKey(u)) ?? "",
+  );
+  let clearPhotos = false;
+
+  if (photos.length === 0) {
+    if (params.discoveryRan && params.rawDbPhotoCount > 0) {
+      // Discovery completed and confirmed NO real photos for this community, yet
+      // unconfirmed images are stored — drop them (Contact for details).
+      clearPhotos = true;
+    } else {
+      // Transient discovery failure (or nothing stored) — never erase existing.
+      photos = params.cleanDbPhotos;
+      photoAttributions = params.cleanDbAttributions;
+    }
+  }
+
+  return { photos, photoAttributions, clearPhotos };
+}
+
+/**
  * Run the unified enrichment pipeline for a single community and persist the
  * verified results. Returns a rich result every caller can map to its own
  * response shape.
@@ -281,14 +350,6 @@ export async function enrichCommunityUnified(
   let discoveryRan = false;
   const hasDbPhotos = cleanDbPhotos.length > 0;
 
-  const normalizeImageKey = (u: string): string => {
-    try {
-      const p = new URL(u);
-      return (p.hostname + p.pathname).toLowerCase();
-    } catch {
-      return u.toLowerCase();
-    }
-  };
   const samePhotoSet = (a: string[], b: string[]): boolean => {
     if (a.length !== b.length) return false;
     const sa = new Set(a.map(normalizeImageKey));
@@ -556,32 +617,22 @@ export async function enrichCommunityUnified(
   if (forceRefresh) {
     // Forced refresh re-derives photos: preserve confirmed-official DB photos and
     // merge in freshly-confirmed discovery; unconfirmed stored images are dropped.
-    const orderedUrls: string[] = [];
-    const attrByKey = new Map<string, string>();
-    const pushPhoto = (url: string, attr: string) => {
-      const k = normalizeImageKey(url);
-      if (attrByKey.has(k)) return;
-      attrByKey.set(k, attr);
-      orderedUrls.push(url);
-    };
-    confirmedDbPairs.forEach((p) => pushPhoto(p.url, p.attr));
-    discoveredPhotos.forEach((url, i) => pushPhoto(url, discoveredPhotoAttributions[i] ?? ""));
-    photos = orderedUrls;
-    photoAttributions = orderedUrls.map((u) => attrByKey.get(normalizeImageKey(u)) ?? "");
-
-    if (photos.length === 0) {
-      if (discoveryRan && rawDbPhotoCount > 0) {
-        // Discovery completed and confirmed NO real photos for this community, yet
-        // unconfirmed images are stored — drop them (Contact for details).
-        clearPhotos = true;
-        console.log(
-          `🧹 Forced refresh confirmed no real photos for "${community.name}" — will clear ${rawDbPhotoCount} unconfirmed image(s)`,
-        );
-      } else {
-        // Transient discovery failure (or nothing stored) — never erase existing.
-        photos = cleanDbPhotos;
-        photoAttributions = cleanDbAttributions;
-      }
+    const decision = decideForcedRefreshPhotos({
+      confirmedDbPairs,
+      discoveredPhotos,
+      discoveredPhotoAttributions,
+      discoveryRan,
+      rawDbPhotoCount,
+      cleanDbPhotos,
+      cleanDbAttributions,
+    });
+    photos = decision.photos;
+    photoAttributions = decision.photoAttributions;
+    clearPhotos = decision.clearPhotos;
+    if (clearPhotos) {
+      console.log(
+        `🧹 Forced refresh confirmed no real photos for "${community.name}" — will clear ${rawDbPhotoCount} unconfirmed image(s)`,
+      );
     }
   } else if (hasDbPhotos) {
     photos = cleanDbPhotos;
