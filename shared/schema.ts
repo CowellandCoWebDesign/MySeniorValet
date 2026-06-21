@@ -1272,7 +1272,12 @@ export const communities = pgTable("communities", {
   
   // Enrichment completion tracking
   enrichmentCompleted: boolean("enrichment_completed").default(false), // Tracks if community has been fully enriched
-  enrichmentStatus: text("enrichment_status", { enum: ["pending", "in_progress", "completed", "failed"] }).default("pending"),
+  // "no_data" is a terminal/quiet state: after repeated self-heal runs that find
+  // nothing online, the community stops auto-retrying until an admin forces it.
+  enrichmentStatus: text("enrichment_status", { enum: ["pending", "in_progress", "completed", "failed", "no_data"] }).default("pending"),
+  // Consecutive self-heal runs that persisted NO new content. Drives the
+  // escalating backoff (24h → 7d → 30d → terminal). Reset to 0 on a successful
+  // run (real content saved) or when an admin forces a retry.
   enrichmentAttempts: integer("enrichment_attempts").default(0),
   lastEnrichmentAttempt: timestamp("last_enrichment_attempt"),
   enrichmentHistory: json("enrichment_history").$type<Array<{

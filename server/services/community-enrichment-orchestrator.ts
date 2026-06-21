@@ -62,6 +62,12 @@ export interface UnifiedEnrichmentResult {
   communityName: string;
   /** True when served from the 7-day cache (no enrichment/billing happened). */
   cached: boolean;
+  /**
+   * True when this run persisted NEW real public content (a meaningful
+   * description or photos). Drives the self-heal backoff: a run that saved
+   * nothing is a "no data found" outcome and widens the retry cooldown.
+   */
+  contentSaved: boolean;
   lastUpdated: string;
   verificationStatus: "verified";
   confidence: number;
@@ -218,6 +224,7 @@ export async function enrichCommunityUnified(
       communityId,
       communityName: community.name,
       cached: true,
+      contentSaved: false,
       lastUpdated: new Date(lastEnriched).toISOString(),
       verificationStatus: "verified",
       confidence: 75,
@@ -866,6 +873,7 @@ export async function enrichCommunityUnified(
     communityId,
     communityName: community.name,
     cached: false,
+    contentSaved: contentWasSaved,
     lastUpdated: now.toISOString(),
     verificationStatus: "verified",
     confidence: freeEnrichment.sourceType === "none" ? 30 : 75,

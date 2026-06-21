@@ -618,6 +618,18 @@ export function registerAdminRoutes(app: Express) {
 
       const result = await enrichCommunityUnified(communityId, { forceRefresh });
 
+      // Admin force-retry: clear any accrued self-heal backoff and the terminal
+      // "no_data" quiet state so the community can auto-heal again. The counter
+      // is reset to 0 regardless of outcome — the admin explicitly intervened.
+      const foundData = result.cached === true || result.contentSaved === true;
+      await db
+        .update(communities)
+        .set({
+          enrichmentAttempts: 0,
+          enrichmentStatus: foundData ? "completed" : "failed",
+        } as any)
+        .where(eq(communities.id, communityId));
+
       return res.json({
         success: true,
         cached: result.cached,

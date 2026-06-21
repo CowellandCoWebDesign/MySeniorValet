@@ -2,6 +2,21 @@ import { db } from './db';
 import { sql } from 'drizzle-orm';
 
 /**
+ * Single source of truth for the values allowed by the
+ * `communities_enrichment_status_check` CHECK constraint. MUST stay in sync with
+ * the `enrichmentStatus` enum in `shared/schema.ts` — a drift test enforces this.
+ * Drizzle does NOT manage CHECK constraints, so adding a value to the schema enum
+ * without adding it here means writes of that value 500 (23514) at runtime.
+ */
+export const ENRICHMENT_STATUS_VALUES = [
+  'pending',
+  'in_progress',
+  'completed',
+  'failed',
+  'no_data',
+] as const;
+
+/**
  * Idempotent startup migration — adds new columns that community trust &
  * moderation features depend on. Safe to run on every server start because
  * every statement uses IF NOT EXISTS / idempotent DDL.
@@ -13,6 +28,18 @@ export async function runStartupMigrations(): Promise<void> {
   // migrated to the DB. Adding them here so db.select().from(communities) works.
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_override NUMERIC(3,1)`);
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_note TEXT`);
+  // enrichment_status gained a terminal "no_data" value (self-heal backoff). The
+  // existing CHECK constraint enumerates allowed values and is NOT managed by
+  // Drizzle, so it must be widened here or writes of 'no_data' fail (23514 → 500).
+  // Idempotent: drop-if-exists then re-add from the single source of truth.
+  const enrichmentStatusArray = ENRICHMENT_STATUS_VALUES.map((v) => `'${v}'::text`).join(', ');
+  await db.execute(sql`ALTER TABLE communities DROP CONSTRAINT IF EXISTS communities_enrichment_status_check`);
+  await db.execute(
+    sql.raw(
+      `ALTER TABLE communities ADD CONSTRAINT communities_enrichment_status_check ` +
+        `CHECK (enrichment_status = ANY (ARRAY[${enrichmentStatusArray}]))`,
+    ),
+  );
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS platform_settings (
       key VARCHAR PRIMARY KEY,

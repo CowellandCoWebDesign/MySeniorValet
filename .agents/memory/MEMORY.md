@@ -21,3 +21,5 @@
 - [Photo sibling discrimination](photo-sibling-discrimination.md) — mismatch filter needs its OWN tokenizer that KEEPS suffix words (estates/springs/manor); short names match ALL tokens; city coincidence must not rescue a sibling.
 - [TanStack Query refetch after mutation](tanstack-refetch-post-mutation.md) — invalidateQueries alone won't update staleTime:30min queries; use setQueryData (instant patch) + refetchQueries (force background sync) together.
 - [Photo confirmation gate](photo-confirmation-gate.md) — persist a photo only if authentic (sonar officialHost match) OR name+city corroborated; forced refresh re-derives & may clear to []; never wipe on transient failure.
+- [enrichment_status CHECK constraint](enrichment-status-check-constraint.md) — communities text-enums have a separate DB CHECK constraint Drizzle won't update; adding an enum value needs a manual ALTER in BOTH dev and prod or writes 500.
+- [Self-heal enrichment backoff](self-heal-backoff.md) — no-content self-heal runs escalate cooldown 24h→7d→30d via enrichment_attempts, then terminal status='no_data'; contentSaved/cached resets; admin force-enrich clears it.

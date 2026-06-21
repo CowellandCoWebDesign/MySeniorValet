@@ -24,6 +24,7 @@ import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment
 import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
 import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
 
 /**
  * Single shared predicate for ALL public community queries.
@@ -135,9 +136,14 @@ export function registerCommunityRoutes(app: Express) {
   //      content-complete communities.
   //   2. In-flight de-dup: enrichmentStatus='in_progress' OR a self-heal attempt
   //      within the last 10 min → skipped (two browser tabs can't both fire).
-  //   3. 24h rate limit: one self-heal per community per 24h, enforced via the
-  //      DB `last_enrichment_attempt` timestamp (no in-memory state; survives
-  //      restarts). Prevents re-billing when a prior run found nothing useful.
+  //   3. Terminal "no data" state: enrichmentStatus='no_data' → skipped forever
+  //      (community repeatedly found to have nothing online). An admin force
+  //      refresh clears this and resets the counter.
+  //   4. Escalating backoff rate limit: a run that persists NO new content widens
+  //      the cooldown via the `enrichment_attempts` counter — 24h → 7d → 30d →
+  //      terminal — instead of a fixed 24h. A successful run (real content saved)
+  //      resets the counter to 0. Enforced via the DB `last_enrichment_attempt`
+  //      timestamp + `enrichment_attempts` (no in-memory state; survives restarts).
   app.post("/api/communities/:id/self-heal", async (req, res) => {
     try {
       // Validate :id is a real integer community ID (reject non-numeric).
@@ -153,6 +159,7 @@ export function registerCommunityRoutes(app: Express) {
           description: communities.description,
           photos: communities.photos,
           enrichmentStatus: communities.enrichmentStatus,
+          enrichmentAttempts: communities.enrichmentAttempts,
           lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
         })
         .from(communities)
@@ -184,9 +191,24 @@ export function registerCommunityRoutes(app: Express) {
         return res.json({ skipped: true, reason: "enrichment in progress" });
       }
 
-      // Gate 3 — 24h rate limit (abuse protection).
-      if (minsSinceAttempt < 24 * 60) {
-        return res.json({ skipped: true, reason: "rate limited" });
+      // Gate 3 — terminal "no data" state. Repeated runs found nothing online,
+      // so we stop auto-retrying entirely until an admin forces a refresh.
+      if (community.enrichmentStatus === "no_data") {
+        return res.json({ skipped: true, reason: "no data found (terminal)" });
+      }
+
+      // Gate 4 — escalating backoff rate limit. The required cooldown widens with
+      // each consecutive no-content run: 24h → 7d → 30d (then terminal). A fresh
+      // or just-succeeded community (attempts=0) keeps the original 24h floor.
+      const failedAttempts = community.enrichmentAttempts || 0;
+      const requiredCooldownHours = selfHealCooldownHours(failedAttempts);
+      if (minsSinceAttempt < requiredCooldownHours * 60) {
+        return res.json({
+          skipped: true,
+          reason: "rate limited",
+          retryAfterHours: requiredCooldownHours,
+          consecutiveNoDataAttempts: failedAttempts,
+        });
       }
 
       // Mark in-flight BEFORE the (slow) pipeline runs so a concurrent tab hits
@@ -203,19 +225,51 @@ export function registerCommunityRoutes(app: Express) {
 
       try {
         const result = await enrichCommunityUnified(communityId);
-        await db
-          .update(communities)
-          .set({ enrichmentStatus: "completed", lastEnrichmentDate: new Date() } as any)
-          .where(eq(communities.id, communityId));
+
+        // "Found data" = real new content persisted this run, OR the community
+        // already had meaningful content (cache hit). Anything else is a
+        // no-data run that escalates the backoff.
+        const foundData = result.cached === true || result.contentSaved === true;
+
+        if (foundData) {
+          // Success: clear any accrued backoff so future visits behave normally.
+          await db
+            .update(communities)
+            .set({
+              enrichmentStatus: "completed",
+              enrichmentAttempts: 0,
+              lastEnrichmentDate: new Date(),
+            } as any)
+            .where(eq(communities.id, communityId));
+        } else {
+          // No content found: widen the cooldown. Once the consecutive no-data
+          // count crosses the terminal threshold, mark it quiet ("no_data") so it
+          // stops auto-retrying until an admin forces a refresh.
+          const newAttempts = failedAttempts + 1;
+          const terminal = newAttempts >= SELF_HEAL_TERMINAL_ATTEMPTS;
+          await db
+            .update(communities)
+            .set({
+              enrichmentStatus: terminal ? "no_data" : "failed",
+              enrichmentAttempts: newAttempts,
+            } as any)
+            .where(eq(communities.id, communityId));
+          console.log(
+            `🩺 [Self-Heal] No content for community ${communityId} ` +
+              `(attempt ${newAttempts}/${SELF_HEAL_TERMINAL_ATTEMPTS})` +
+              (terminal ? " → marked terminal (no_data)" : ` → next retry in ${selfHealCooldownHours(newAttempts)}h`),
+          );
+        }
 
         console.log(
           `🩺 [Self-Heal] Completed for community ${communityId}: ${result.photos.length} photo(s), ` +
-            `${(result.summary || "").length} desc chars`,
+            `${(result.summary || "").length} desc chars, foundData=${foundData}`,
         );
 
         return res.json({
           success: true,
           skipped: false,
+          foundData,
           community: {
             id: communityId,
             photos: result.photos,
@@ -226,6 +280,8 @@ export function registerCommunityRoutes(app: Express) {
           },
         });
       } catch (pipelineErr) {
+        // A thrown error is treated as transient (network/API), NOT a "no data"
+        // outcome — it must not escalate the backoff toward the terminal state.
         await db
           .update(communities)
           .set({ enrichmentStatus: "failed" } as any)
