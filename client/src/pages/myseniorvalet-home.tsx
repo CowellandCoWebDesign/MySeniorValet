@@ -1723,11 +1723,20 @@ export default function MySeniorValetHome() {
   const [discoveredCommunities, setDiscoveredCommunities] = useState<any[]>([]);
   const [discoveredSources, setDiscoveredSources] = useState<string[]>([]);
   const [isDiscovering, setIsDiscovering] = useState(false);
+  // Whether the last location search reported SPARSE/incomplete DB coverage, so the
+  // self-healing pipeline should validate+repair (not just fill zero results).
+  const [hasSparseCoverage, setHasSparseCoverage] = useState(false);
+  // Per-query guard so the sparse-coverage auto-trigger fires at most once per
+  // location and can never loop.
+  const sparseTriggeredRef = useRef<Set<string>>(new Set());
 
   // Self-healing community discovery via Perplexity (server: /api/global-discovery/search).
-  // force=false → cost-controlled: the server only runs Perplexity when the DB has
-  // zero communities for the query. force=true → "Search the web for this area"
-  // button deliberately forces a Perplexity discovery even when DB rows exist.
+  // force=false → cost-controlled: the server runs Perplexity when the DB has zero
+  //   communities OR when coverage is SPARSE/incomplete, gated by its own 24h cost
+  //   guard. The merged ("Newly Found" + "In Database") results come back in this
+  //   single call — the frontend never bypasses the guard.
+  // force=true → "Search the web for more" button deliberately forces a Perplexity
+  //   discovery even when DB rows exist (and bypasses the server-side 24h cost guard).
   const runDiscovery = useCallback(async (query: string, opts: { force?: boolean } = {}) => {
     const q = (query || '').trim();
     if (q.length < 2) return;
@@ -1749,6 +1758,9 @@ export default function MySeniorValetHome() {
       const found: any[] = data?.results || [];
       const newlyDiscovered = found.filter((c: any) => c.isDiscovered);
       const sources: string[] = data?.metadata?.sources || [];
+      const sparseCoverage = data?.metadata?.sparseCoverage === true;
+      setHasSparseCoverage(sparseCoverage);
+
       if (newlyDiscovered.length > 0) {
         setDiscoveredCommunities(newlyDiscovered);
         setDiscoveredSources(sources);
@@ -1757,6 +1769,20 @@ export default function MySeniorValetHome() {
         // Forced search completed but found nothing new — clear so the UI reflects it.
         setDiscoveredCommunities([]);
         setDiscoveredSources([]);
+      }
+
+      // Self-healing trigger: when the backend reports SPARSE coverage but this
+      // (non-forced) call returned nothing new — i.e. the server's 24h cost guard
+      // already skipped discovery for this city — re-run a NON-forced discovery so
+      // the merged DB results stay fresh. force:false means the server guard still
+      // decides whether Perplexity actually runs, so the API is never hammered. The
+      // per-query ref ensures this fires at most once per location.
+      if (sparseCoverage && newlyDiscovered.length === 0 && opts.force !== true
+          && !sparseTriggeredRef.current.has(q.toLowerCase())) {
+        sparseTriggeredRef.current.add(q.toLowerCase());
+        setIsDiscovering(false);
+        runDiscovery(q, { force: false });
+        return;
       }
     } catch {
       // Swallow — empty state + button remain available for retry.
@@ -1774,12 +1800,25 @@ export default function MySeniorValetHome() {
       setActiveTab('communities');
       setDiscoveredCommunities([]); // reset on new search
       setDiscoveredSources([]);
-      // Auto path: NOT forced — server self-heals only when DB has no local matches.
+      // Auto path: NOT forced — server self-heals on zero OR sparse coverage.
       runDiscovery(query, { force: false });
     };
     window.addEventListener('homeSearchQuery', handler);
     return () => window.removeEventListener('homeSearchQuery', handler);
   }, [runDiscovery]);
+
+  // URL-driven path: when the page loads with a location already in the URL
+  // (e.g. SEO deep link /?location=Sacramento-CA), kick off self-healing discovery
+  // once without any user click. force:false → server's 24h cost guard decides
+  // whether Perplexity runs, and it auto-discovers on zero OR sparse coverage.
+  useEffect(() => {
+    const initial = (searchQuery || '').trim();
+    if (initial.length >= 2) {
+      runDiscovery(initial, { force: false });
+    }
+    // Intentionally run ONCE on mount with the URL-provided query.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [isMobile, setIsMobile] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -2404,7 +2443,7 @@ export default function MySeniorValetHome() {
                 {/* Communities Tab */}
                 <TabsContent value="communities" className="mt-1">
               {/* Simplified Map Panel - shown above community directory content */}
-              <div className="mb-8 px-2 sm:px-0">
+              <div className="mb-8 px-2 sm:px-0" data-sparse-coverage={hasSparseCoverage}>
                 <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} discoveredSources={discoveredSources} onForceDiscovery={() => runDiscovery(searchQuery, { force: true })} isDiscovering={isDiscovering} />
               </div>
 

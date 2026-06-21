@@ -416,6 +416,25 @@ export function isSeniorLivingFacility(name: string, careTypes: string[]): boole
   return true;
 }
 
+// ---------------------------------------------------------------------------
+// Task #250 cost guard: remember which city+state had an AUTO Perplexity
+// discovery recently so repeated searches of the same sparse city within 24h
+// don't hammer the API. Keyed by "city|state" (lowercased). A forced
+// discoveryMode=true request bypasses this guard.
+// ---------------------------------------------------------------------------
+const AUTO_DISCOVERY_TTL_MS = 24 * 60 * 60 * 1000;
+const recentAutoDiscovery = new Map<string, number>();
+
+function autoDiscoveryRecentlyRan(cityStateKey: string): boolean {
+  const last = recentAutoDiscovery.get(cityStateKey);
+  if (!last) return false;
+  if (Date.now() - last > AUTO_DISCOVERY_TTL_MS) {
+    recentAutoDiscovery.delete(cityStateKey);
+    return false;
+  }
+  return true;
+}
+
 export function setupGlobalDiscoveryRoutes(app: Express) {
   
   // Global discovery search endpoint
@@ -1030,11 +1049,48 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       }
       
       console.log(`💾 Found ${existingCommunities.length} existing communities in database`);
-      
-      // Check if we're in Discovery Mode or searching for services
-      // Auto-trigger discovery when zero results exist, even without explicit discoveryMode flag
-      const isDiscoveryMode = req.body.discoveryMode === true || 
-        (existingCommunities.length === 0 && query && query.trim().length > 2);
+
+      // ---------------------------------------------------------------------
+      // Task #250: detect SPARSE / INCOMPLETE coverage so the self-healing
+      // discovery VALIDATES + REPAIRS the DB instead of only filling blanks.
+      // A location is "sparse" when:
+      //   - fewer than 5 communities exist, OR
+      //   - fewer than 15 exist AND more than half have neither a photo nor a
+      //     description (stale data from a failed/mixed past scrape).
+      // Well-covered cities (>= 15) keep the fast-path and never call Perplexity.
+      // ---------------------------------------------------------------------
+      const hasNoPhotos = (c: any) => !Array.isArray(c.photos) || c.photos.length === 0;
+      const hasNoDescription = (c: any) => !c.description || String(c.description).trim().length < 30;
+      const incompleteCount = existingCommunities.filter(c => hasNoPhotos(c) && hasNoDescription(c)).length;
+      const sparseCoverage = searchType !== 'services' && (
+        existingCommunities.length < 5 ||
+        (existingCommunities.length < 15 && incompleteCount > existingCommunities.length / 2)
+      );
+
+      // Cost guard: skip an AUTO sparse discovery if we already ran one for this
+      // city+state within the last 24h (forced discoveryMode bypasses this).
+      const discoveryCityKey = (`${(citySearch || '').toLowerCase().trim()}|${(stateSearch || '').toLowerCase().trim()}`).trim() === '|'
+        ? (query || '').toLowerCase().trim()
+        : `${(citySearch || '').toLowerCase().trim()}|${(stateSearch || '').toLowerCase().trim()}`;
+      const autoRanRecently = autoDiscoveryRecentlyRan(discoveryCityKey);
+
+      if (sparseCoverage) {
+        console.log(`🩺 Sparse coverage for "${query}" (key=${discoveryCityKey}): ${existingCommunities.length} communities, ${incompleteCount} missing photo+description. autoRanRecently=${autoRanRecently}`);
+      }
+
+      // Check if we're in Discovery Mode or searching for services.
+      // Auto-trigger discovery when zero results exist OR coverage is sparse,
+      // even without an explicit discoveryMode flag — but ALWAYS gate auto runs
+      // behind the 24h cost guard so repeated searches for the same city (zero
+      // OR sparse) don't hammer the API. A forced discoveryMode bypasses the guard.
+      const forcedDiscovery = req.body.discoveryMode === true;
+      const zeroResults = existingCommunities.length === 0 && !!query && query.trim().length > 2;
+      const shouldAutoDiscover = !forcedDiscovery && (zeroResults || sparseCoverage) && !autoRanRecently;
+      const isDiscoveryMode = forcedDiscovery || shouldAutoDiscover;
+
+      if ((zeroResults || sparseCoverage) && autoRanRecently && !forcedDiscovery) {
+        console.log(`💸 Skipping auto Perplexity discovery for "${discoveryCityKey}" — ran within last 24h (cost guard). zeroResults=${zeroResults} sparse=${sparseCoverage}`);
+      }
       
       // If NOT in Discovery Mode and we have enough database results (skip for services)
       if (!isDiscoveryMode && searchType !== 'services' && existingCommunities.length >= 15) {
@@ -1058,7 +1114,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             searchLocation: query,
             timestamp: new Date().toISOString(),
             aiConfidence: 100,
-            dataSource: 'Database (33k+ verified communities)'
+            dataSource: 'Database (33k+ verified communities)',
+            sparseCoverage: false
           },
           message: `Found ${existingCommunities.length} verified communities in ${query}`
         });
@@ -1089,7 +1146,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             timestamp: new Date().toISOString(),
             aiConfidence: 100,
             dataSource: 'Database (33k+ verified communities)',
-            discoveryModeUsed: false
+            discoveryModeUsed: false,
+            sparseCoverage
           },
           message: existingCommunities.length === 0 
             ? 'No communities found in database. Use Discovery Mode to search the web.'
@@ -1147,6 +1205,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       let discoveryEngineLabel = 'Perplexity AI';
 
       console.log(`🔮 Discovery Mode ACTIVE: Using Perplexity AI for "${query}"`);
+
+      // Task #250: record this run so the cost guard skips a repeat auto sparse
+      // discovery for the same city+state within the next 24h.
+      if (searchType !== 'services') {
+        recentAutoDiscovery.set(discoveryCityKey, Date.now());
+      }
 
       try {
         if (searchType === 'services') {
@@ -1773,18 +1837,26 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         allWebResults.push(webCommunity);
       });
       
-      // If web discovery returned no results, add ALL database communities as fallback
-      if (discoveredWithRealIds.length === 0 && existingCommunities.length > 0) {
-        console.log(`📋 Web discovery returned no results. Adding ${existingCommunities.length} database communities to results.`);
-        
-        // Add all database communities as "existing" results
+      // Task #250: ALWAYS merge the existing DB communities below the freshly
+      // discovered ones ("Newly Found" first, "In Database" below). De-dup by the
+      // same id key so a DB community that discovery just updated isn't listed
+      // twice. This also covers the old fallback (discovery returned nothing).
+      if (existingCommunities.length > 0) {
+        let mergedExisting = 0;
         existingCommunities.forEach(dbCommunity => {
+          const dedupKey = `id:${dbCommunity.id}`;
+          if (seenResultKeys.has(dedupKey)) return;
+          seenResultKeys.add(dedupKey);
           allWebResults.push({
             ...dbCommunity,
             isExisting: true,
             isDiscovered: false
           });
+          mergedExisting++;
         });
+        if (mergedExisting > 0) {
+          console.log(`📋 Merged ${mergedExisting} existing DB communities below ${discoveredWithRealIds.length} discovered result(s).`);
+        }
       }
       
       const allResults = allWebResults;
@@ -1836,7 +1908,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           timestamp: new Date().toISOString(),
           aiConfidence: discoveredCommunities.length > 0 ? 75 : 50,
           dataSource: discoveryEngineLabel,
-          articlesFound: allResults.length - displayResults.length
+          articlesFound: allResults.length - displayResults.length,
+          sparseCoverage
         },
         message: displayResults.length === 0 
           ? `No businesses found for "${query}". Try a different location or search term.`

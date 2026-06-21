@@ -627,6 +627,33 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
           </div>
         </div>
       )}
+
+      {/* Always-visible "Search the web for more" footer for ANY location search —
+          lets users augment even well-covered cities with fresh Perplexity finds. */}
+      {locationQuery && onForceDiscovery && (
+        <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 text-center bg-gray-50/60 dark:bg-gray-800/40">
+          <Button
+            onClick={onForceDiscovery}
+            disabled={isDiscovering}
+            variant="outline"
+            size="sm"
+            className="text-xs border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300 hover:bg-purple-50 dark:hover:bg-purple-900/20"
+            data-testid="button-discover-web-footer"
+          >
+            {isDiscovering ? (
+              <>
+                <Sparkles className="w-3.5 h-3.5 mr-1.5 animate-pulse" />
+                Searching the web…
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5 mr-1.5" />
+                Not finding what you need? Search the web for more in {locationQuery}
+              </>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
