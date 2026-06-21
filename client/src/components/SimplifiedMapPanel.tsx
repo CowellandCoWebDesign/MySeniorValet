@@ -4,6 +4,7 @@ import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { Button } from "@/components/ui/button";
 import { Rows3, Columns2, MapPin, Sparkles } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface SimplifiedMapPanelProps {
   locationQuery?: string;
@@ -46,6 +47,10 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
   const [layoutMode, setLayoutMode] = useState<"vertical" | "horizontal">("horizontal");
+  const isMobile = useIsMobile();
+  // Halve the map height on mobile so it doesn't dominate the viewport.
+  const horizontalMapHeight = isMobile ? "260px" : "520px";
+  const verticalMapHeight = isMobile ? "180px" : "360px";
   const [selectedCareType, setSelectedCareType] = useState("all");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -482,7 +487,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
           <Map
             center={mapCenter}
             zoom={mapZoom}
-            height="360px"
+            height={verticalMapHeight}
             onBoundsChange={handleBoundsChange}
             onCommunityClick={(community: any) => {
               const el = document.getElementById(`smp-community-${community.id}`);
@@ -506,7 +511,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
             <Map
               center={mapCenter}
               zoom={mapZoom}
-              height="520px"
+              height={horizontalMapHeight}
               onBoundsChange={handleBoundsChange}
               onCommunityClick={(community: any) => {
                 const el = document.getElementById(`smp-community-${community.id}`);
@@ -523,7 +528,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [] }
             </div>
           </div>
           {/* Right panel: vertically scrollable list of landscape cards, same height as map */}
-          <div className="overflow-y-auto" style={{ height: "520px" }}>
+          <div className="overflow-y-auto" style={{ height: horizontalMapHeight }}>
             <LandscapeList communities={filteredCommunities} />
           </div>
         </div>

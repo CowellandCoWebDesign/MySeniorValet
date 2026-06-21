@@ -1280,13 +1280,19 @@ export default function Map({
 
   // Force minimum height if percentage height
   const mapHeight = height === '100%' ? '600px' : height;
+  // Derive minimums from the requested height so callers can render a shorter
+  // map (e.g. ~260px on mobile) without the hardcoded floors forcing it large.
+  const numericHeight = parseInt(mapHeight, 10);
+  const outerMinHeight = isNaN(numericHeight) ? 600 : Math.min(600, numericHeight);
+  const innerMinHeight = isNaN(numericHeight) ? 400 : Math.min(400, numericHeight);
+  const containerMinHeight = isNaN(numericHeight) ? 500 : Math.min(500, numericHeight);
 
   return (
-    <div className="w-full flex" style={{ height: mapHeight, minHeight: '600px' }}>
+    <div className="w-full flex" style={{ height: mapHeight, minHeight: `${outerMinHeight}px` }}>
       {/* Performance monitor removed per user request */}
 
       {/* Map Container */}
-      <div className="flex-1 relative" style={{ minHeight: '400px' }}>
+      <div className="flex-1 relative" style={{ minHeight: `${innerMinHeight}px` }}>
 
         {/* Compact Location Button - Moved to bottom-left */}
         <div className="absolute bottom-4 left-4 z-[1000]">
@@ -1350,7 +1356,7 @@ export default function Map({
           minZoom={2}  // World-level zoom
           maxZoom={18} // Street-level detail
           // No maxBounds - allow worldwide viewing
-          style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
+          style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: `${containerMinHeight}px` }}
           className="rounded-lg"
         >
         <MapEvents 
