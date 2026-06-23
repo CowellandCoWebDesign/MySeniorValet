@@ -867,6 +867,24 @@ export async function enrichCommunityUnified(
     console.log(`✅ Unified enrichment persisted for community ${communityId}:`, {
       fieldsUpdated: Object.keys(updates),
     });
+
+    // Self-heal visibility: re-score and re-apply the STRICT keep-public policy
+    // now that content may have changed. A hidden community that just gained a
+    // real description/photo is auto-restored (Task #262). Best-effort — must
+    // never break enrichment.
+    try {
+      const { recomputeCommunityVisibility } = await import("./community-visibility");
+      const vis = await recomputeCommunityVisibility(communityId);
+      if (vis) {
+        console.log(
+          `🔁 Visibility recomputed for community ${communityId}: ` +
+            `class=${vis.evaluation.classification} score=${vis.evaluation.score} ` +
+            `tier=${vis.evaluation.tier} hidden=${vis.hidden}`,
+        );
+      }
+    } catch (visErr) {
+      console.warn(`⚠️ Visibility recompute failed for community ${communityId}:`, visErr);
+    }
   }
 
   return {

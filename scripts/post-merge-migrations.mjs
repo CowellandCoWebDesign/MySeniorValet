@@ -12,6 +12,9 @@ const statements = [
   `ALTER TABLE communities ADD COLUMN IF NOT EXISTS data_quality_checked_at timestamp`,
   `ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_override NUMERIC(3,1)`,
   `ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_note TEXT`,
+  `ALTER TABLE communities ADD COLUMN IF NOT EXISTS senior_classification TEXT CHECK (senior_classification IN ('senior', 'non_senior', 'unknown'))`,
+  `ALTER TABLE communities ADD COLUMN IF NOT EXISTS quality_score INTEGER`,
+  `ALTER TABLE communities ADD COLUMN IF NOT EXISTS quality_tier TEXT CHECK (quality_tier IN ('featured', 'verified', 'good', 'thin', 'empty'))`,
   `CREATE TABLE IF NOT EXISTS home_section_configs (
     id SERIAL PRIMARY KEY,
     position INTEGER NOT NULL DEFAULT 0,

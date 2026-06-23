@@ -1556,6 +1556,12 @@ export const communities = pgTable("communities", {
   dataQualityFlags: text("data_quality_flags").array().default([]),
   dataQualityCheckedAt: timestamp("data_quality_checked_at"), // last scan timestamp
 
+  // Senior classification + quality scoring (Task #262) — single source of truth
+  // for visibility. Computed by evaluateCommunity() in shared/community-classification.ts.
+  seniorClassification: text("senior_classification", { enum: ["senior", "non_senior", "unknown"] }), // null = not yet scored
+  qualityScore: integer("quality_score"),   // 0–100 composite quality score
+  qualityTier: text("quality_tier", { enum: ["featured", "verified", "good", "thin", "empty"] }),
+
   // Lifecycle flag — deactivated records are excluded from public listings/search
   isActive: boolean("is_active").default(true),
 

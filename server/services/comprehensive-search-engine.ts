@@ -1214,7 +1214,11 @@ export class ComprehensiveSearchEngine {
           state: communities.state
         })
         .from(communities)
-        .where(or(...communityNameConditions))
+        .where(and(
+          sql`${communities.isActive} = true`,
+          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          or(...communityNameConditions)
+        ))
         .orderBy(sql`
           CASE 
             WHEN LOWER(${communities.name}) LIKE LOWER(${normalizedQuery}) || '%' THEN 1
@@ -1253,7 +1257,11 @@ export class ComprehensiveSearchEngine {
           count: sql<number>`COUNT(*)::int`.as('count')
         })
         .from(communities)
-        .where(or(...cityConditions))
+        .where(and(
+          sql`${communities.isActive} = true`,
+          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          or(...cityConditions)
+        ))
         .groupBy(communities.city, communities.state)
         .having(sql`COUNT(*) > 0`)
         .orderBy(desc(sql`COUNT(*)`))
@@ -1290,7 +1298,11 @@ export class ComprehensiveSearchEngine {
             count: sql<number>`COUNT(*)::int`.as('count')
           })
           .from(communities)
-          .where(or(...stateConditions))
+          .where(and(
+            sql`${communities.isActive} = true`,
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            or(...stateConditions)
+          ))
           .groupBy(communities.state)
           .having(sql`COUNT(*) > 0`)
           .orderBy(desc(sql`COUNT(*)`))
@@ -1322,6 +1334,8 @@ export class ComprehensiveSearchEngine {
         .from(communities)
         .where(
           and(
+            sql`${communities.isActive} = true`,
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
             or(...companyConditions),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`

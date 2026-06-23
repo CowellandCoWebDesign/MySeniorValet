@@ -28,6 +28,12 @@ export async function runStartupMigrations(): Promise<void> {
   // migrated to the DB. Adding them here so db.select().from(communities) works.
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_override NUMERIC(3,1)`);
   await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS admin_rating_note TEXT`);
+  // Senior classification + quality scoring (Task #262). Additive; computed by
+  // the classify-score pass and recomputed on enrichment. Without these,
+  // db.select().from(communities) throws 42703.
+  await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS senior_classification TEXT CHECK (senior_classification IN ('senior', 'non_senior', 'unknown'))`);
+  await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS quality_score INTEGER`);
+  await db.execute(sql`ALTER TABLE communities ADD COLUMN IF NOT EXISTS quality_tier TEXT CHECK (quality_tier IN ('featured', 'verified', 'good', 'thin', 'empty'))`);
   // enrichment_status gained a terminal "no_data" value (self-heal backoff). The
   // existing CHECK constraint enumerates allowed values and is NOT managed by
   // Drizzle, so it must be widened here or writes of 'no_data' fail (23514 → 500).
