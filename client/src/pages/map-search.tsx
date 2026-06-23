@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles, ShieldCheck } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
@@ -109,6 +109,7 @@ interface SearchFilters {
   amenities: string[];
   budget: string;
   availability: string;
+  verifiedOnly: boolean;
 }
 
 export default function MapSearch() {
@@ -173,7 +174,8 @@ export default function MapSearch() {
       minRating: 0,
       amenities: [],
       budget: getBudgetFilter(budgetParam),
-      availability: 'All Status'
+      availability: 'All Status',
+      verifiedOnly: false
     }
   );
   const [mapCenter, setMapCenter] = useState<[number, number]>(
@@ -1443,13 +1445,14 @@ export default function MapSearch() {
       minRating: 0,
       amenities: [],
       budget: 'Any Budget',
-      availability: 'All Status'
+      availability: 'All Status',
+      verifiedOnly: false
     });
   };
 
   const activeFiltersCount = Object.values(filters).filter(value => 
     value !== 'All Types' && value !== 'Any Budget' && value !== 'All Status' && 
-    value !== 0 && (Array.isArray(value) ? value.length > 0 : true)
+    value !== 0 && value !== false && (Array.isArray(value) ? value.length > 0 : true)
   ).length;
 
   return (
@@ -1953,6 +1956,25 @@ export default function MapSearch() {
               </div>
             </PopoverContent>
           </Popover>
+
+          {/* Verified Only Toggle — shows only HUD-verified, claimed, or featured communities */}
+          <Button
+            onClick={() => setFilters({ ...filters, verifiedOnly: !filters.verifiedOnly })}
+            size="sm"
+            variant={filters.verifiedOnly ? 'default' : 'outline'}
+            aria-pressed={filters.verifiedOnly}
+            data-testid="toggle-verified-only"
+            title="Show only HUD government-verified, claimed, or featured communities"
+            className={`flex items-center gap-1 ${filters.verifiedOnly
+              ? 'bg-green-600 text-white hover:bg-green-700 border-green-600'
+              : (isDarkMode
+                ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600'
+                : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50')
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span className="text-xs">Verified only</span>
+          </Button>
 
           {/* Legend Button */}
           <Button

@@ -3,6 +3,7 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { and, sql, between, isNotNull } from "drizzle-orm";
 import { superclusterService } from "../services/supercluster";
+import { verifiedOnlyFilter } from "../utils/community-ranking";
 
 export function registerMappingRoutes(app: Express) {
   
@@ -11,7 +12,7 @@ export function registerMappingRoutes(app: Express) {
   // NEW: Raw markers endpoint for frontend clustering with react-leaflet-cluster
   app.get("/api/communities/markers", async (req, res) => {
     try {
-      const { west, south, east, north, limit = 10000 } = req.query;
+      const { west, south, east, north, limit = 10000, verifiedOnly } = req.query;
       
       if (!west || !south || !east || !north) {
         return res.status(400).json({ 
@@ -23,8 +24,14 @@ export function registerMappingRoutes(app: Express) {
       const southFloat = parseFloat(south as string);
       const eastFloat = parseFloat(east as string);
       const northFloat = parseFloat(north as string);
+
+      // Optional family "verified only" filter — when on, only verified/featured/
+      // HUD/claimed communities are returned, so the frontend cluster counts
+      // (computed from these markers) stay accurate too.
+      const verifiedOnlyEnabled = verifiedOnly === 'true' || verifiedOnly === '1';
+      const verifiedClause = verifiedOnlyEnabled ? sql` AND ${verifiedOnlyFilter()}` : sql``;
       
-      console.log(`Fetching raw markers for bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]`);
+      console.log(`Fetching raw markers for bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]${verifiedOnlyEnabled ? ' (verified only)' : ''}`);
       
       // Fetch all communities in bounds from database using raw SQL for stability
       const result = await db.execute(sql`
@@ -39,7 +46,7 @@ export function registerMappingRoutes(app: Express) {
         WHERE latitude IS NOT NULL 
           AND longitude IS NOT NULL
           AND latitude BETWEEN ${southFloat} AND ${northFloat}
-          AND longitude BETWEEN ${westFloat} AND ${eastFloat}
+          AND longitude BETWEEN ${westFloat} AND ${eastFloat}${verifiedClause}
         LIMIT ${parseInt(limit as string)}
       `);
       
@@ -78,7 +85,7 @@ export function registerMappingRoutes(app: Express) {
   // FIXED: Supercluster-powered clustering endpoint (kept for backward compatibility)
   app.get("/api/communities/clusters", async (req, res) => {
     try {
-      const { west, south, east, north, zoom = 10, limit = 5000 } = req.query;
+      const { west, south, east, north, zoom = 10, limit = 5000, verifiedOnly } = req.query;
       
       if (!west || !south || !east || !north) {
         return res.status(400).json({ 
@@ -91,14 +98,15 @@ export function registerMappingRoutes(app: Express) {
       const eastFloat = parseFloat(east as string);
       const northFloat = parseFloat(north as string);
       const zoomInt = parseInt(zoom as string);
+      const verifiedOnlyEnabled = verifiedOnly === 'true' || verifiedOnly === '1';
       
-      console.log(`Clustering request: zoom=${zoomInt}, bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]`);
+      console.log(`Clustering request: zoom=${zoomInt}, bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]${verifiedOnlyEnabled ? ' (verified only)' : ''}`);
       
       // Initialize supercluster if needed
       await superclusterService.initialize();
       
       // Get clusters from supercluster
-      const clusters = await superclusterService.getClusters([westFloat, southFloat, eastFloat, northFloat], zoomInt);
+      const clusters = await superclusterService.getClusters([westFloat, southFloat, eastFloat, northFloat], zoomInt, verifiedOnlyEnabled);
       
       console.log(`Supercluster returned ${clusters.length} clusters/points for zoom ${zoomInt}`);
       

@@ -26,3 +26,4 @@
 - [Self-heal enrichment backoff](self-heal-backoff.md) — no-content self-heal runs escalate cooldown 24h→7d→30d via enrichment_attempts, then terminal status='no_data'; contentSaved/cached resets; admin force-enrich clears it.
 - [QC review queue](qc-review-queue.md) — admin queue = hidden OR deactivated OR flagged; "reviewed" overloads flag_status='confirmed'; restore/keep-hidden/enrich actions; removal (single+bulk) stays via removal-request flow.
 - [Quality-aware ranking](quality-aware-ranking.md) — server/utils/community-ranking.ts SQL helpers rank/filter PUBLIC results by REAL signals (tier/score/HUD/featured/claimed), NEVER is_verified; NULL-safe; bare cols work in raw+drizzle; ordering-only.
+- [Map verified-only filter](map-verified-only-filter.md) — live map clusters in-browser from /api/communities/markers (NOT supercluster); add ?verifiedOnly to markers+clusters; cache key gets v: prefix.

@@ -424,6 +424,7 @@ interface MapProps {
     amenities?: string[];
     budget?: string;
     availability?: string;
+    verifiedOnly?: boolean;
   };
   onCommunityClick?: (community: Community) => void;
   onBoundsChange?: (bounds: any) => void;
@@ -986,6 +987,9 @@ export default function Map({
         }
         if (searchFilters.availability && searchFilters.availability !== 'All Status') {
           params.append('availability', searchFilters.availability);
+        }
+        if (searchFilters.verifiedOnly) {
+          params.append('verifiedOnly', 'true');
         }
       }
 
