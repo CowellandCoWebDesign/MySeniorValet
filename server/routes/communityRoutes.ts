@@ -25,6 +25,7 @@ import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
 import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
 import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
+import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter } from "../utils/community-ranking";
 
 /**
  * Single shared predicate for ALL public community queries.
@@ -363,8 +364,11 @@ export function registerCommunityRoutes(app: Express) {
   // ?type=hud | trending | highest_rated | featured | coastal | recently_discovered
   app.get("/api/communities/section-data", async (req, res) => {
     try {
-      const { type, city, state, careType, limit = "12", sectionId } = req.query;
+      const { type, city, state, careType, limit = "12", sectionId, verifiedOnly } = req.query;
       const limitNum = Math.min(parseInt(limit as string) || 12, 30);
+
+      // Optional family-facing "verified only" toggle — real signals only.
+      const verifiedClause = verifiedOnly === 'true' ? sql` AND ${verifiedOnlyFilter()}` : sql``;
 
       // Shared visibility WHERE clause (raw SQL so we skip Drizzle column expansion).
       const baseWhere = sql`
@@ -380,7 +384,7 @@ export function registerCommunityRoutes(app: Express) {
             OR trim(lower("data_source")) = ''
             OR trim(lower("data_source")) IN ('government database', 'placeholder', 'unknown')
           )
-        )
+        )${verifiedClause}
       `;
 
       // Builds an "AND id NOT IN (…)" fragment, or empty SQL when nothing to exclude.
@@ -400,37 +404,38 @@ export function registerCommunityRoutes(app: Express) {
         if (lim <= 0) return [];
         let r: any;
         if (t === 'hud') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL${ex} ORDER BY "rent_per_month" ASC NULLS LAST LIMIT ${lim}`);
+          // Cheapest HUD pricing first (the section's intent); quality breaks ties.
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL${ex} ORDER BY "rent_per_month" ASC NULLS LAST, ${qualityRankExpr()} DESC LIMIT ${lim}`);
         } else if (t === 'trending') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'highest_rated') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 3.5${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 3.5${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'featured') {
           const featuredRecords = await storage.getFeaturedCommunities();
           if (featuredRecords.length > 0) {
             const ids: number[] = featuredRecords.map((f: any) => f.communityId);
             const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
-            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex} LIMIT ${lim}`);
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
           } else {
-            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
           }
         } else if (t === 'coastal') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'most_reviewed') {
           // Order by review count (most-reviewed first) but DO NOT hard-exclude
           // communities with zero/null reviews — most of the 33k+ communities have
-          // no reviews yet, and excluding them blanks the directory grid. Falling
-          // back to rating keeps the grid populated while still surfacing the
-          // most-reviewed communities at the top.
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere}${ex} ORDER BY "review_count" DESC NULLS LAST, "rating" DESC NULLS LAST LIMIT ${lim}`);
+          // no reviews yet, and excluding them blanks the directory grid. Quality
+          // rank breaks ties so verified/featured listings surface within each band.
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere}${ex} ORDER BY "review_count" DESC NULLS LAST, ${qualityRankExpr()} DESC, "rating" DESC NULLS LAST LIMIT ${lim}`);
         } else if (t === 'recently_discovered') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex} ORDER BY "created_at" DESC LIMIT ${lim}`);
+          // Newest first (the section's intent); quality breaks ties.
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex} ORDER BY "created_at" DESC, ${qualityRankExpr()} DESC LIMIT ${lim}`);
         } else if (t === 'location') {
           const cityVal = opts.city || null;
           const stateVal = opts.state || null;
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'care_type' && opts.careType) {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "care_types"::text[] && ARRAY[${opts.careType}]::text[]${ex} ORDER BY "rating" DESC NULLS LAST LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "care_types"::text[] && ARRAY[${opts.careType}]::text[]${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else {
           return [];
         }

@@ -479,6 +479,12 @@ function CommunityCard({ community, index = 0, variant = 'standard', onSelect }:
                     LIVE PRICING
                   </Badge>
                 )}
+                {!isHudProperty && ((community as any).isClaimed || (community as any).claimVerified || (community as any).claimed_by || (community as any).claim_verified) && (
+                  <Badge className="bg-teal-600 text-white border-0 text-xs px-2 py-1">
+                    <UserCheck className="h-3 w-3 mr-1" />
+                    OPERATOR-VERIFIED
+                  </Badge>
+                )}
               </div>
               
               {/* Occupancy Badge */}

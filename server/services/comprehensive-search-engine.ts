@@ -6,6 +6,7 @@
 import { db } from '../db';
 import { communities, healthcareServiceTypes } from '@shared/schema';
 import { eq, and, or, ilike, gte, lte, sql, desc, asc, isNotNull, not } from 'drizzle-orm';
+import { qualityOrderBy, verifiedOnlyFilter } from '../utils/community-ranking';
 
 export interface SearchFilters {
   careTypes?: string[];
@@ -20,6 +21,8 @@ export interface SearchFilters {
   radius?: number;
   latitude?: number;
   longitude?: number;
+  /** Optional family-facing toggle: only return meaningfully-verified listings. */
+  verifiedOnly?: boolean;
 }
 
 export interface SearchResult {
@@ -986,6 +989,11 @@ export class ComprehensiveSearchEngine {
     if (filters.rating !== undefined) {
       conditions.push(gte(communities.rating, filters.rating));
     }
+
+    // Optional family-facing "verified only" toggle — real signals only.
+    if (filters.verifiedOnly) {
+      conditions.push(verifiedOnlyFilter());
+    }
   }
   
   private applySorting(query: any, searchType: string, searchQuery: string) {
@@ -1008,8 +1016,8 @@ export class ComprehensiveSearchEngine {
           -- Everything else (low priority)
           ELSE 5
         END,
-        -- Secondary sort by rating
-        ${communities.rating} DESC NULLS LAST,
+        -- Secondary: verified/featured/good-quality listings ahead of thin ones
+        ${qualityOrderBy()},
         -- Tertiary sort by name length (shorter names usually more relevant)
         LENGTH(${communities.name}) ASC,
         -- Final sort alphabetically
@@ -1032,11 +1040,11 @@ export class ComprehensiveSearchEngine {
           ${communities.name} ASC
         `);
       case 'location':
-        return query.orderBy(desc(communities.rating), asc(communities.city));
+        return query.orderBy(sql`${qualityOrderBy()}, ${communities.city} ASC`);
       case 'careType':
-        return query.orderBy(desc(communities.rating));
+        return query.orderBy(qualityOrderBy());
       default:
-        return query.orderBy(desc(communities.rating), asc(communities.name));
+        return query.orderBy(sql`${qualityOrderBy()}, ${communities.name} ASC`);
     }
   }
   

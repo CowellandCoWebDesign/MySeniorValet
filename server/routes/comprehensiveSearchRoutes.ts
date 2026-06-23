@@ -65,6 +65,7 @@ router.get('/api/search/comprehensive', async (req, res) => {
       priceMin,
       priceMax,
       rating,
+      verifiedOnly,
       limit = '1000', 
       offset = '0',
       discover,
@@ -79,6 +80,7 @@ router.get('/api/search/comprehensive', async (req, res) => {
     if (priceMin) filters.priceMin = parseInt(priceMin as string);
     if (priceMax) filters.priceMax = parseInt(priceMax as string);
     if (rating) filters.rating = parseFloat(rating as string);
+    if (verifiedOnly === 'true') filters.verifiedOnly = true;
     
     // Self-healing discovery runs automatically for location queries with no
     // local matches; `discover=true` forces it (the "Search the web" button).

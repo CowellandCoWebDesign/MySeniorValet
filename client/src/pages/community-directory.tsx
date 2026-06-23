@@ -14,7 +14,7 @@ import {
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
   Calendar, Hotel, Flower2, Sparkles, AlertCircle,
   Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft,
-  ArrowRight, Languages, Phone, Award, Trophy, Gem
+  ArrowRight, Languages, Phone, Award, Trophy, Gem, ShieldCheck
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { getCommunityUrl } from "@/lib/community-url";
@@ -114,6 +114,7 @@ export default function CommunityDirectory() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   // Derive pinned community IDs from admin settings
   const pinnedCommunityIds: number[] = pageSettings?.pinnedCommunityIds ?? [];
@@ -154,9 +155,12 @@ export default function CommunityDirectory() {
 
   // Fetch main directory listing driven by defaultSort
   const { data: sortedListingRaw, isLoading: sortedListingLoading } = useQuery({
-    queryKey: ['/api/communities/section-data', activeSortType],
+    queryKey: ['/api/communities/section-data', activeSortType, verifiedOnly],
     queryFn: async () => {
-      const r = await fetch(`/api/communities/section-data?type=${activeSortType}&limit=12`, { credentials: 'include' });
+      const r = await fetch(
+        `/api/communities/section-data?type=${activeSortType}&limit=12${verifiedOnly ? '&verifiedOnly=true' : ''}`,
+        { credentials: 'include' },
+      );
       if (!r.ok) throw new Error('Failed to fetch sorted communities');
       return await r.json();
     },
@@ -1061,10 +1065,27 @@ export default function CommunityDirectory() {
                    'Latest communities added to our database'}
                 </p>
               </div>
-              <Badge className="ml-auto bg-indigo-600 text-white capitalize">
-                {pageSettings?.defaultSort === 'highest-rated' ? 'Highest Rated' :
-                 pageSettings?.defaultSort === 'most-reviewed' ? 'Most Popular' : 'Newest First'}
-              </Badge>
+              <div className="ml-auto flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setVerifiedOnly((v) => !v)}
+                  aria-pressed={verifiedOnly}
+                  data-testid="toggle-verified-only"
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors ${
+                    verifiedOnly
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:border-green-500'
+                  }`}
+                  title="Show only HUD government-verified, claimed, or featured communities"
+                >
+                  <ShieldCheck className="h-3.5 w-3.5" />
+                  Verified only
+                </button>
+                <Badge className="bg-indigo-600 text-white capitalize">
+                  {pageSettings?.defaultSort === 'highest-rated' ? 'Highest Rated' :
+                   pageSettings?.defaultSort === 'most-reviewed' ? 'Most Popular' : 'Newest First'}
+                </Badge>
+              </div>
             </div>
             {sortedListingLoading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

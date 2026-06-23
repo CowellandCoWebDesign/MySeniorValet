@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { and, sql, gte, lte, isNotNull } from 'drizzle-orm';
 import { cache } from '../cache';
+import { qualityOrderBy } from '../utils/community-ranking';
 
 interface GeoJSONFeature {
   type: 'Feature';
@@ -398,6 +399,9 @@ class SuperclusterService {
             sql`CAST(${communities.longitude} AS float) <= ${bbox[2]}`
           )
         )
+        // Quality-aware: when the viewport holds >500 communities, keep the
+        // verified/featured/good-quality ones rather than an arbitrary 500.
+        .orderBy(qualityOrderBy())
         .limit(500); // Cap at 500 for performance
 
       const features: ClusterFeature[] = viewportCommunities.map(community => ({
