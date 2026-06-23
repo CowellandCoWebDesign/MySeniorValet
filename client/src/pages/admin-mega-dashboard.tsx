@@ -111,6 +111,11 @@ const VerificationDashboard = lazy(() => import("@/components/admin/Verification
   default: module.VerificationDashboard
 })));
 
+// Lazy load QC Review & Resolution Queue
+const QcReviewQueue = lazy(() => import("@/components/admin/QcReviewQueue").then(module => ({
+  default: module.QcReviewQueue
+})));
+
 // Define comprehensive metrics interface (from super-admin-analytics)
 interface DashboardMetrics {
   platform: {
@@ -3571,6 +3576,10 @@ Communities Created: ${details.stats.communitiesCreated}`;
               <Building2 className="h-4 w-4 mr-2" />
               Communities
             </TabsTrigger>
+            <TabsTrigger value="qc-review">
+              <Shield className="h-4 w-4 mr-2" />
+              QC Review
+            </TabsTrigger>
             <TabsTrigger value="system">
               <Settings className="h-4 w-4 mr-2" />
               System
@@ -3827,6 +3836,12 @@ Communities Created: ${details.stats.communitiesCreated}`;
           
           <TabsContent value="communities" className="space-y-4">
             {renderCommunityManagement()}
+          </TabsContent>
+
+          <TabsContent value="qc-review" className="space-y-4">
+            <Suspense fallback={<div className="flex items-center justify-center py-16"><Loader2 className="w-6 h-6 animate-spin" /></div>}>
+              <QcReviewQueue />
+            </Suspense>
           </TabsContent>
           
           <TabsContent value="system" className="space-y-4">

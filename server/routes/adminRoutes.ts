@@ -33,6 +33,7 @@ import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
 // All admin enrichment flows through the single unified orchestrator.
 import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+import { recomputeCommunityVisibility } from "../services/community-visibility";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
@@ -2359,6 +2360,322 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error('Error performing bulk quality action:', error);
       res.status(500).json({ message: 'Failed to perform bulk quality action' });
+    }
+  });
+
+  // ── QC Review & Resolution Queue ──────────────────────────────────────────
+  // Adjudication surface for communities hidden from / removed from public view
+  // (is_hidden = true OR is_active = false). Lists the REAL flags, score,
+  // classification, source, and tier each record carries — no invented data.
+  //
+  // Reason buckets map structured signals to human-readable categories; each is
+  // a SQL predicate so per-reason counts and filtering share one source of truth.
+  // "Reviewed" === flag_status = 'confirmed' (set by Keep Hidden); the default
+  // view shows only UNREVIEWED items so the queue visibly drains as it is worked.
+  const QC_REASONS: { id: string; label: string; predicate: string }[] = [
+    {
+      id: 'non_senior',
+      label: 'Non-senior',
+      predicate: `(senior_classification = 'non_senior' OR 'non_senior' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'fake',
+      label: 'Fake / suspect',
+      predicate: `('clearly_fake' = ANY(data_quality_flags) OR 'synthetic_suspected' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'empty',
+      label: 'Empty / no content',
+      predicate: `(quality_tier = 'empty' OR 'no_description' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'thin',
+      label: 'Thin content',
+      predicate: `(quality_tier = 'thin' OR 'thin_description' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'geo',
+      label: 'Geo / location',
+      predicate: `('not_geocoded' = ANY(data_quality_flags) OR 'geo_needs_review' = ANY(data_quality_flags) OR 'no_street_number' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'no_contact',
+      label: 'No contact info',
+      predicate: `('no_contact' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'flagged',
+      label: 'Flagged (unreviewed)',
+      predicate: `(flag_status IS NOT NULL AND flag_status <> '' AND flag_status <> 'confirmed')`,
+    },
+    {
+      id: 'international',
+      label: 'International',
+      predicate: `(country IS NOT NULL AND trim(country) <> '' AND upper(trim(country)) NOT IN ('US','USA','UNITED STATES','UNITED STATES OF AMERICA','U.S.','U.S.A.'))`,
+    },
+    {
+      id: 'deactivated',
+      label: 'Deactivated',
+      predicate: `(is_active = false)`,
+    },
+  ];
+
+  // GET /api/admin/communities/qc-queue
+  //   ?reason= one of QC_REASONS ids
+  //   ?source= substring match on data_source
+  //   ?seniorClassification= senior|non_senior|unknown|unscored
+  //   ?scoreMin= &scoreMax=  (0-100, against quality_score)
+  //   ?reviewed= true|false  (false = unreviewed default)
+  //   ?search= name/city
+  //   ?page= &limit=
+  // Raw SQL throughout to dodge the known communities Drizzle/DB column drift.
+  adminRouter.get('/communities/qc-queue', async (req, res) => {
+    try {
+      const {
+        reason,
+        source,
+        seniorClassification,
+        scoreMin,
+        scoreMax,
+        tier,
+        reviewed,
+        search,
+        page = '1',
+        limit = '50',
+      } = req.query as Record<string, string>;
+
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const limitNum = Math.min(200, Math.max(1, parseInt(limit) || 50));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Base membership: hidden from public, deactivated, OR carrying a flag
+      // status (e.g. an admin/user problem report). This keeps actively-flagged
+      // records in the review surface even if they are still publicly visible.
+      const baseParts: string[] = [
+        `(is_hidden = true OR is_active = false OR (flag_status IS NOT NULL AND flag_status <> ''))`,
+      ];
+
+      // Reviewed toggle. Default (anything other than explicit "true") shows the
+      // unreviewed backlog so acted-on items leave the working queue.
+      if (reviewed === 'true') {
+        baseParts.push(`flag_status = 'confirmed'`);
+      } else {
+        baseParts.push(`(flag_status IS DISTINCT FROM 'confirmed')`);
+      }
+
+      const baseWhere = baseParts.join(' AND ');
+
+      // Filter clauses layered on top of base membership.
+      const filterParts: string[] = [];
+
+      const reasonDef = QC_REASONS.find((r) => r.id === reason);
+      if (reasonDef) filterParts.push(reasonDef.predicate);
+
+      if (source && source.trim().length > 0) {
+        const safe = source.replace(/'/g, "''").trim();
+        filterParts.push(`data_source ILIKE '%${safe}%'`);
+      }
+
+      if (seniorClassification) {
+        if (seniorClassification === 'unscored') {
+          filterParts.push(`senior_classification IS NULL`);
+        } else if (['senior', 'non_senior', 'unknown'].includes(seniorClassification)) {
+          filterParts.push(`senior_classification = '${seniorClassification}'`);
+        }
+      }
+
+      const minScore = scoreMin !== undefined && scoreMin !== '' ? parseInt(scoreMin) : null;
+      const maxScore = scoreMax !== undefined && scoreMax !== '' ? parseInt(scoreMax) : null;
+      if (minScore !== null && !isNaN(minScore)) {
+        filterParts.push(`quality_score >= ${minScore}`);
+      }
+      if (maxScore !== null && !isNaN(maxScore)) {
+        filterParts.push(`quality_score <= ${maxScore}`);
+      }
+
+      // Quality tier filter (matches the schema enum + an "unscored" bucket for
+      // records the scoring engine has not yet rated).
+      if (tier) {
+        if (tier === 'unscored') {
+          filterParts.push(`quality_tier IS NULL`);
+        } else if (['featured', 'verified', 'good', 'thin', 'empty'].includes(tier)) {
+          filterParts.push(`quality_tier = '${tier}'`);
+        }
+      }
+
+      if (search && search.trim().length > 0) {
+        const safe = search.replace(/'/g, "''").trim();
+        filterParts.push(`(name ILIKE '%${safe}%' OR city ILIKE '%${safe}%')`);
+      }
+
+      const fullWhere = [baseWhere, ...filterParts].join(' AND ');
+
+      // Per-reason counts honor the base membership + the active reviewed toggle
+      // (but NOT the reason filter itself), so the pills always show how much of
+      // the current backlog falls into each bucket.
+      const reasonCountSelects = QC_REASONS.map(
+        (r) => `COUNT(*) FILTER (WHERE ${r.predicate}) AS "${r.id}"`,
+      ).join(',\n            ');
+
+      const [dataResult, countResult, reasonCountsResult] = await Promise.all([
+        db.execute(sql.raw(`
+          SELECT
+            id, name, city, state, country, care_types,
+            data_quality_flags, is_hidden, is_active, flag_status,
+            senior_classification, quality_score, quality_tier,
+            data_source, enrichment_status, website, phone,
+            COALESCE(array_length(photos, 1), 0) AS photo_count,
+            description
+          FROM communities
+          WHERE ${fullWhere}
+          ORDER BY name ASC
+          LIMIT ${limitNum} OFFSET ${offset}
+        `)),
+        db.execute(sql.raw(`
+          SELECT COUNT(*)::integer AS total FROM communities WHERE ${fullWhere}
+        `)),
+        db.execute(sql.raw(`
+          SELECT
+            ${reasonCountSelects},
+            COUNT(*)::integer AS "all"
+          FROM communities
+          WHERE ${baseWhere}
+        `)),
+      ]);
+
+      const total = Number(countResult.rows[0]?.total ?? 0);
+      const rawCounts = reasonCountsResult.rows[0] ?? {};
+      const reasonCounts = QC_REASONS.map((r) => ({
+        id: r.id,
+        label: r.label,
+        count: Number((rawCounts as any)[r.id] ?? 0),
+      }));
+
+      // Trim description for the queue list (full record is one click away).
+      const items = dataResult.rows.map((row: any) => ({
+        ...row,
+        description:
+          typeof row.description === 'string' && row.description.length > 240
+            ? row.description.slice(0, 240) + '…'
+            : row.description,
+      }));
+
+      res.json({
+        communities: items,
+        total,
+        page: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        limit: limitNum,
+        backlogTotal: Number((rawCounts as any).all ?? 0),
+        reasons: reasonCounts,
+        reviewed: reviewed === 'true',
+      });
+    } catch (error) {
+      console.error('Error fetching QC queue:', error);
+      res.status(500).json({ message: 'Failed to fetch QC review queue' });
+    }
+  });
+
+  // POST /api/admin/communities/qc-action
+  //   body: { ids: number[], action: 'restore' | 'keep-hidden' | 'enrich' }
+  // Single-item and bulk share this endpoint. Removal is intentionally NOT here:
+  // it stays explicit/manual through the existing removal-request flow.
+  //   - restore:     force public (is_hidden=false, is_active=true), clear the
+  //                  quality/protective flags + flag_status so the next
+  //                  visibility pass won't immediately re-hide it.
+  //   - keep-hidden: confirm hidden (is_hidden=true, flag_status='confirmed') —
+  //                  marks the item reviewed so it drops out of the backlog view.
+  //   - enrich:      run the unified enrichment pipeline, then recompute
+  //                  visibility so a record that gained real content auto-restores.
+  adminRouter.post('/communities/qc-action', async (req, res) => {
+    try {
+      const { ids, action } = req.body || {};
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'ids must be a non-empty array' });
+      }
+      if (!['restore', 'keep-hidden', 'enrich'].includes(action)) {
+        return res
+          .status(400)
+          .json({ error: 'action must be restore, keep-hidden, or enrich' });
+      }
+
+      const communityIds = ids.map(Number).filter((n) => !isNaN(n) && n > 0);
+      if (communityIds.length === 0) {
+        return res.status(400).json({ error: 'No valid community IDs provided' });
+      }
+      if (communityIds.length > 500) {
+        return res.status(400).json({ error: 'Maximum 500 IDs per request' });
+      }
+
+      let affected = 0;
+      let enrichResults: { id: number; restored: boolean; contentSaved: boolean }[] | undefined;
+
+      if (action === 'restore') {
+        // Strip protective + managed quality flags so the record won't be
+        // auto-re-hidden, and clear any admin-confirmed problem report.
+        const result = await db
+          .update(communities)
+          .set({
+            isHidden: false,
+            isActive: true,
+            flagStatus: null,
+            dataQualityFlags: [],
+            updatedAt: new Date(),
+          } as any)
+          .where(inArray(communities.id, communityIds));
+        affected = (result as any)?.rowCount ?? communityIds.length;
+      } else if (action === 'keep-hidden') {
+        const result = await db
+          .update(communities)
+          .set({
+            isHidden: true,
+            flagStatus: 'confirmed',
+            updatedAt: new Date(),
+          } as any)
+          .where(inArray(communities.id, communityIds));
+        affected = (result as any)?.rowCount ?? communityIds.length;
+      } else {
+        // enrich — bounded sequential to respect AI rate limits / cost guards.
+        enrichResults = [];
+        for (const id of communityIds) {
+          try {
+            const result = await enrichCommunityUnified(id, { forceRefresh: true });
+            const foundData = result.cached === true || result.contentSaved === true;
+            await db
+              .update(communities)
+              .set({
+                enrichmentAttempts: 0,
+                enrichmentStatus: foundData ? 'completed' : 'failed',
+              } as any)
+              .where(eq(communities.id, id));
+            // Re-score so a now-enriched record auto-restores (or stays hidden).
+            const recomputed = await recomputeCommunityVisibility(id);
+            enrichResults.push({
+              id,
+              restored: recomputed ? recomputed.hidden === false : false,
+              contentSaved: foundData,
+            });
+            affected += 1;
+          } catch (err) {
+            console.error(`[QC enrich] community ${id} failed:`, err);
+            enrichResults.push({ id, restored: false, contentSaved: false });
+          }
+        }
+      }
+
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      superclusterService
+        .refresh()
+        .catch((err: any) => console.error('Supercluster refresh error:', err));
+
+      console.log(
+        `Admin QC action: ${action} on ${communityIds.length} communities by ${req.user?.email}`,
+      );
+      res.json({ success: true, action, affected, results: enrichResults });
+    } catch (error) {
+      console.error('Error performing QC action:', error);
+      res.status(500).json({ message: 'Failed to perform QC action' });
     }
   });
 

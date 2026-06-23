@@ -24,3 +24,4 @@
 - [enrichment_status CHECK constraint](enrichment-status-check-constraint.md) — communities text-enums have a separate DB CHECK constraint Drizzle won't update; adding an enum value needs a manual ALTER in BOTH dev and prod or writes 500.
 - [Community visibility policy](community-visibility-policy.md) — ONE evaluator (evaluateCommunity) + ONE writer (community-visibility.ts) for senior_classification/quality_score/tier + STRICT is_hidden; conservative non_senior; protective flags; self-heal auto-restore.
 - [Self-heal enrichment backoff](self-heal-backoff.md) — no-content self-heal runs escalate cooldown 24h→7d→30d via enrichment_attempts, then terminal status='no_data'; contentSaved/cached resets; admin force-enrich clears it.
+- [QC review queue](qc-review-queue.md) — admin queue = hidden OR deactivated OR flagged; "reviewed" overloads flag_status='confirmed'; restore/keep-hidden/enrich actions; removal (single+bulk) stays via removal-request flow.
