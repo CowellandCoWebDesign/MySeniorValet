@@ -20,6 +20,7 @@ import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
 import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { VendorCard } from '@/components/VendorCard';
 import EnhancedVendorCard from '@/components/EnhancedVendorCard';
 import { HealthcareServiceCard } from '@/components/HealthcareServiceCard';
@@ -2235,11 +2236,11 @@ export default function MapSearch() {
                   return a.name.localeCompare(b.name);
                 })
                 .map((community: Community, index: number) => (
-                  <div onClick={() => handleCommunityClick(community)} className="cursor-pointer">
-                    <FeaturedExcellenceCard
-                      key={`community-${community.id}`}
+                  <div key={`community-${community.id}`} className="cursor-pointer">
+                    <CommunityCard
                       community={community}
-                      index={index}
+                      variant="list"
+                      onSelect={() => handleCommunityClick(community)}
                     />
                   </div>
                 ))}
@@ -2347,12 +2348,11 @@ export default function MapSearch() {
                             {filteredCommunities
                               .slice(0, 5)
                               .map((community: Community, index: number) => (
-                              <div onClick={() => handleCommunityClick(community)} className="cursor-pointer">
-                                <FeaturedExcellenceCard
-                                  key={`all-community-${community.id}`}
+                              <div key={`all-community-${community.id}`} className="cursor-pointer">
+                                <CommunityCard
                                   community={community}
-                                  index={index}
-                                  disableAutoPhotoLoad={true}
+                                  variant="list"
+                                  onSelect={() => handleCommunityClick(community)}
                                 />
                               </div>
                             ))}

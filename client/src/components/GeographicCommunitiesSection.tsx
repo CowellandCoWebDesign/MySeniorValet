@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Info, ArrowRight, ChevronLeft, ChevronRight, Flag } from "lucide-react";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { CommunityCard } from "@/components/CommunityCard";
 
 export function GeographicCommunitiesSection() {
   const [, setLocation] = useLocation();
@@ -200,15 +201,7 @@ export function GeographicCommunitiesSection() {
               ) : (
                 ((hawaiiCommunities as any)?.communities || []).slice(0, 12).map((community: any, index: number) => (
                   <div key={`hawaii-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-hawaii-community-${community.id}`}>
-                    <FeaturedExcellenceCard 
-                      community={{
-                        ...community,
-                        badge: "🌴 Aloha Living"
-                      }} 
-                      index={index} 
-                      disableAutoPhotoLoad={true}
-                      compact 
-                    />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))
               )}
@@ -300,15 +293,7 @@ export function GeographicCommunitiesSection() {
               ) : (
                 ((texasCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`texas-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-texas-community-${community.id}`}>
-                    <FeaturedExcellenceCard 
-                      community={{
-                        ...community,
-                        badge: "🏜️ Texas Pride"
-                      }} 
-                      index={index} 
-                      disableAutoPhotoLoad={true}
-                      compact 
-                    />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))
               )}
@@ -400,15 +385,7 @@ export function GeographicCommunitiesSection() {
               ) : (
                 ((newYorkCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`newyork-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-newyork-community-${community.id}`}>
-                    <FeaturedExcellenceCard 
-                      community={{
-                        ...community,
-                        badge: "🏙️ Empire Living"
-                      }} 
-                      index={index} 
-                      disableAutoPhotoLoad={true}
-                      compact 
-                    />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))
               )}
@@ -517,7 +494,7 @@ export function GeographicCommunitiesSection() {
               ) : (
                 ((canadianCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`canadian-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-canadian-community-${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} compact disableAutoPhotoLoad={true} />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))
               )}
@@ -594,7 +571,7 @@ export function GeographicCommunitiesSection() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500" style={{scrollBehavior: 'smooth'}}>
                 {((puertoRicoCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`pr-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-puertorico-community-${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))}
               </div>
@@ -664,7 +641,7 @@ export function GeographicCommunitiesSection() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500" style={{scrollBehavior: 'smooth'}}>
                 {((peruCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`pe-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-peru-community-${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))}
               </div>
@@ -743,15 +720,7 @@ export function GeographicCommunitiesSection() {
               ) : (
                 ((cubaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`cuba-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-cuba-community-${community.id}`}>
-                    <FeaturedExcellenceCard 
-                      community={{
-                        ...community,
-                        badge: "🎭 Heritage Living"
-                      }} 
-                      index={index} 
-                      disableAutoPhotoLoad={true}
-                      compact 
-                    />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))
               )}
@@ -837,7 +806,7 @@ export function GeographicCommunitiesSection() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500" style={{scrollBehavior: 'smooth'}}>
                 {((costaRicaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`cr-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-costarica-community-${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))}
               </div>
@@ -914,7 +883,7 @@ export function GeographicCommunitiesSection() {
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500" style={{scrollBehavior: 'smooth'}}>
                 {((panamaCommunities as any)?.communities || []).map((community: any, index: number) => (
                   <div key={`pa-${community.id}-${index}`} className="flex-shrink-0" data-testid={`card-panama-community-${community.id}`}>
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))}
               </div>

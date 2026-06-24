@@ -8,6 +8,7 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { CommunityCard } from "@/components/CommunityCard";
 
 interface RedTagDeal {
   id: number;
@@ -264,11 +265,9 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
               
               return (
                 <div key={deal.id} className="flex-shrink-0">
-                  <FeaturedExcellenceCard
+                  <CommunityCard
                     community={community}
-                    index={index}
-                    compact={true}
-                    disableAutoPhotoLoad={true}
+                    variant="compact"
                   />
                 </div>
               );

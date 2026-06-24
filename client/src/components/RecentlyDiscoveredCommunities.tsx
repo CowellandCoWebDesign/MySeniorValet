@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
+import { CommunityCard } from '@/components/CommunityCard';
 
 export function RecentlyDiscoveredCommunities() {
   // Carousel refs and state
@@ -118,11 +119,7 @@ export function RecentlyDiscoveredCommunities() {
                 transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
               >
                 <div className="hover:scale-[1.02] transition-transform duration-300 h-full">
-                  <FeaturedExcellenceCard 
-                    community={community}
-                    compact={true}
-                    disableAutoPhotoLoad={true}
-                  />
+                  <CommunityCard community={community} variant="compact" />
                 </div>
               </motion.div>
             ))

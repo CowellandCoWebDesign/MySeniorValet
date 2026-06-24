@@ -6,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Brain, Sparkles, MessageCircle, TrendingUp, MapPin, DollarSign, Star, Users, ChevronRight, ExternalLink, Phone, Globe, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EnhancedCommunityCard } from './EnhancedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 
 interface KrakenAIResponseProps {
   query: string;
@@ -375,8 +376,9 @@ Examples:
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {response.recommendations.slice(0, 6).map((community, index) => (
                         <div key={community.id || index} className="transform hover:scale-105 transition-transform duration-200">
-                          <EnhancedCommunityCard 
+                          <CommunityCard 
                             community={community}
+                            variant="grid"
                           />
                         </div>
                       ))}

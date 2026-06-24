@@ -45,6 +45,7 @@ import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
 import { HUDCommunitiesSection } from "@/components/HUDCommunitiesSection";
 import { DynamicCommunitySection, type HomeSectionConfig } from "@/components/DynamicCommunitySection";
+import { CommunityCard } from "@/components/CommunityCard";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
@@ -1494,11 +1495,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                                 </div>
                               </div>
                             ) : (
-                              <FeaturedExcellenceCard
-                                community={item}
-                                index={index}
-                                disableAutoPhotoLoad={true}
-                              />
+                              <CommunityCard community={item} variant="grid" />
                             )}
                           </motion.div>
                         ))}

@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Toggle } from '@/components/ui/toggle';
 import { useDebounce } from '@/hooks/use-debounce';
 import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
 import { getCommunityUrl } from '@/lib/community-url';
@@ -339,10 +340,9 @@ export function TransformingHeroSearch({ initialHeroContent }: TransformingHeroS
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ duration: 0.3 }}
                         >
-                          <PrioritizedCommunityCard
+                          <CommunityCard
                             community={community}
                             variant="list"
-                            onSelect={() => window.location.href = getCommunityUrl(community)}
                           />
                         </motion.div>
                       ))

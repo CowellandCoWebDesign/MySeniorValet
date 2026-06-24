@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Map from "@/components/Map";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { CommunityCard } from "@/components/CommunityCard";
 import { Button } from "@/components/ui/button";
 import { Rows3, Columns2, MapPin, Sparkles } from "lucide-react";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
@@ -221,26 +222,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
             )}
             {communities.map((community: any, index: number) => (
               <div key={community.id} id={`smp-community-${community.id}`} className="flex-shrink-0 w-72">
-                <FeaturedExcellenceCard
-                  community={{
-                    ...community,
-                    name: community.name || "Community",
-                    city: community.city || "City",
-                    state: community.state || "State",
-                    rating: community.rating || null,
-                    photos: community.photos || [],
-                    careTypes: community.careTypes || [],
-                    amenities: community.amenities || [],
-                    occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                    totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                    priceRange: community.priceRange,
-                    phone: community.phone,
-                    website: community.website,
-                  }}
-                  index={index}
-                  compact={true}
-                  disableAutoPhotoLoad={true}
-                />
+                <CommunityCard community={community} variant="compact" />
               </div>
             ))}
 
@@ -254,26 +236,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
                 </div>
                 {discoveredCommunities.map((community: any, index: number) => (
                   <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="flex-shrink-0 w-72">
-                    <FeaturedExcellenceCard
-                      community={{
-                        ...community,
-                        name: community.name || "Community",
-                        city: community.city || "City",
-                        state: community.state || "State",
-                        rating: community.rating || null,
-                        photos: community.photos || [],
-                        careTypes: community.careTypes || [],
-                        amenities: community.amenities || [],
-                        occupancyRate: 0,
-                        totalUnits: 100,
-                        priceRange: community.priceRange,
-                        phone: community.phone,
-                        website: community.website,
-                      }}
-                      index={index}
-                      compact={true}
-                      disableAutoPhotoLoad={true}
-                    />
+                    <CommunityCard community={community} variant="compact" />
                   </div>
                 ))}
               </>
@@ -307,26 +270,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
         )}
         {communities.map((community: any, index: number) => (
           <div key={community.id} id={`smp-community-${community.id}`} className="p-3">
-            <FeaturedExcellenceCard
-              community={{
-                ...community,
-                name: community.name || "Community",
-                city: community.city || "City",
-                state: community.state || "State",
-                rating: community.rating || null,
-                photos: community.photos || [],
-                careTypes: community.careTypes || [],
-                amenities: community.amenities || [],
-                occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                priceRange: community.priceRange,
-                phone: community.phone,
-                website: community.website,
-              }}
-              index={index}
-              compact={true}
-              disableAutoPhotoLoad={true}
-            />
+            <CommunityCard community={community} variant="list" />
           </div>
         ))}
 
@@ -364,26 +308,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
             )}
             {discoveredCommunities.map((community: any, index: number) => (
               <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`} className="p-3 bg-purple-50/30 dark:bg-purple-900/10">
-                <FeaturedExcellenceCard
-                  community={{
-                    ...community,
-                    name: community.name || "Community",
-                    city: community.city || "City",
-                    state: community.state || "State",
-                    rating: community.rating || null,
-                    photos: community.photos || [],
-                    careTypes: community.careTypes || [],
-                    amenities: community.amenities || [],
-                    occupancyRate: 0,
-                    totalUnits: 100,
-                    priceRange: community.priceRange,
-                    phone: community.phone,
-                    website: community.website,
-                  }}
-                  index={index}
-                  compact={true}
-                  disableAutoPhotoLoad={true}
-                />
+                <CommunityCard community={community} variant="list" />
               </div>
             ))}
           </>
@@ -399,26 +324,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
       )}
       {communities.map((community: any, index: number) => (
         <div key={community.id} id={`smp-community-${community.id}`}>
-          <FeaturedExcellenceCard
-            community={{
-              ...community,
-              name: community.name || "Community",
-              city: community.city || "City",
-              state: community.state || "State",
-              rating: community.rating || null,
-              photos: community.photos || [],
-              careTypes: community.careTypes || [],
-              amenities: community.amenities || [],
-              occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-              totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-              priceRange: community.priceRange,
-              phone: community.phone,
-              website: community.website,
-            }}
-            index={index}
-            landscape={true}
-            disableAutoPhotoLoad={true}
-          />
+          <CommunityCard community={community} variant="list" />
         </div>
       ))}
 
@@ -449,26 +355,7 @@ export function SimplifiedMapPanel({ locationQuery, discoveredCommunities = [], 
           )}
           {discoveredCommunities.map((community: any, index: number) => (
             <div key={`disc-${community.id || index}`} id={`smp-disc-${community.id}`}>
-              <FeaturedExcellenceCard
-                community={{
-                  ...community,
-                  name: community.name || "Community",
-                  city: community.city || "City",
-                  state: community.state || "State",
-                  rating: community.rating || null,
-                  photos: community.photos || [],
-                  careTypes: community.careTypes || [],
-                  amenities: community.amenities || [],
-                  occupancyRate: 0,
-                  totalUnits: 100,
-                  priceRange: community.priceRange,
-                  phone: community.phone,
-                  website: community.website,
-                }}
-                index={index}
-                landscape={true}
-                disableAutoPhotoLoad={true}
-              />
+              <CommunityCard community={community} variant="list" />
             </div>
           ))}
         </>

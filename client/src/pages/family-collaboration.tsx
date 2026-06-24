@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { FamilyShareButton } from '@/components/family-share-button';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { useAuth } from '@/hooks/useAuth';
 import { Link as RouterLink, useLocation } from 'wouter';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
@@ -149,10 +150,9 @@ export default function FamilyCollaborationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
           {/* Sample Community Card */}
           <div className="space-y-4">
-            <EnhancedCommunityCard
+            <CommunityCard
               community={sampleCommunity as any}
-              variant="featured"
-              index={0}
+              variant="grid"
             />
             <Card className="shadow-lg border-0 bg-white dark:bg-gray-800">
               <CardContent className="p-6">

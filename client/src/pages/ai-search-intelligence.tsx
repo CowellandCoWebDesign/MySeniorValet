@@ -17,6 +17,7 @@ import Map from '@/components/Map';
 import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
 import { useLocationSEO } from '@/hooks/useLocationSEO';
@@ -1174,18 +1175,7 @@ export default function AISearchIntelligence() {
                           </p>
                         </div>
                       )}
-                      <PrioritizedCommunityCard
-                        community={community}
-                        variant="list"
-                        onSelect={() => {
-                          // Navigate to community detail page
-                          window.location.href = `/community/${community.id}`;
-                        }}
-                        onToggleFavorite={() => {
-                          console.log(`Toggled favorite: ${community.name}`);
-                        }}
-                        isFavorite={false}
-                      />
+                      <CommunityCard community={community} variant="list" />
                       <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                           size="sm"
@@ -1470,26 +1460,7 @@ export default function AISearchIntelligence() {
                               id={`community-${community.id}`}
                               className="p-2"
                             >
-                              <FeaturedExcellenceCard 
-                                community={{
-                                  ...community,
-                                  name: community.name || 'Community',
-                                  city: community.city || 'City',
-                                  state: community.state || 'State',
-                                  rating: community.rating || null,
-                                  photos: community.photos || [],
-                                  careTypes: community.careTypes || [],
-                                  amenities: community.amenities || [],
-                                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                                  priceRange: community.priceRange,
-                                  phone: community.phone,
-                                  website: community.website
-                                }}
-                                index={index}
-                                compact={true}
-                                disableAutoPhotoLoad={true}
-                              />
+                              <CommunityCard community={community} variant="list" />
                             </div>
                           );
                         });
@@ -2772,26 +2743,7 @@ export default function AISearchIntelligence() {
                             
                             {/* Enhanced card with featured styling */}
                             <div className="p-3">
-                              <FeaturedExcellenceCard 
-                                community={{
-                                  ...community,
-                                  name: community.name || 'Community',
-                                  city: community.city || 'City', 
-                                  state: community.state || 'State',
-                                  rating: community.rating || null,
-                                  photos: community.photos || [],
-                                  careTypes: community.careTypes || [],
-                                  amenities: community.amenities || [],
-                                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                                  priceRange: community.priceRange,
-                                  phone: community.phone,
-                                  website: community.website
-                                }}
-                                index={index}
-                                compact={true}
-                                disableAutoPhotoLoad={true}
-                              />
+                              <CommunityCard community={community} variant="compact" />
                             </div>
                           </div>
                         );

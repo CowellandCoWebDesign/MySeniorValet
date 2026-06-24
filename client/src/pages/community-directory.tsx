@@ -19,7 +19,7 @@ import {
 import { Link, useLocation } from "wouter";
 import { getCommunityUrl } from "@/lib/community-url";
 import { motion } from "framer-motion";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { CommunityCard } from "@/components/CommunityCard";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
@@ -1010,37 +1010,7 @@ export default function CommunityDirectory() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {pinnedCommunities.map((community: any) => (
-                <a
-                  key={community.id}
-                  href={getCommunityUrl(community)}
-                  className="block group bg-white dark:bg-gray-800 rounded-xl border border-amber-200 dark:border-amber-800/40 shadow hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 overflow-hidden"
-                >
-                  {community.photos?.[0] && (
-                    <div className="h-36 overflow-hidden">
-                      <img src={community.photos[0]} alt={community.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  )}
-                  <div className="p-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">{community.name}</p>
-                      {community.rating && (
-                        <span className="flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-400 shrink-0">
-                          <Star className="h-3 w-3 fill-current" />{Number(community.rating).toFixed(1)}
-                        </span>
-                      )}
-                    </div>
-                    {(community.city || community.state) && (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />{[community.city, community.state].filter(Boolean).join(', ')}
-                      </p>
-                    )}
-                    {community.basePrice && (
-                      <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                        From ${Number(community.basePrice).toLocaleString()}/mo
-                      </p>
-                    )}
-                  </div>
-                </a>
+                <CommunityCard key={community.id} community={community} variant="grid" />
               ))}
             </div>
           </div>
@@ -1096,37 +1066,7 @@ export default function CommunityDirectory() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {sortedListing.slice(0, 12).map((community: any) => (
-                  <a
-                    key={community.id}
-                    href={getCommunityUrl(community)}
-                    className="block group bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 overflow-hidden"
-                  >
-                    {community.photos?.[0] && (
-                      <div className="h-32 overflow-hidden">
-                        <img src={community.photos[0]} alt={community.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      </div>
-                    )}
-                    <div className="p-3">
-                      <div className="flex items-start justify-between gap-2">
-                        <p className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 leading-tight">{community.name}</p>
-                        {community.rating && (
-                          <span className="flex items-center gap-0.5 text-xs text-amber-600 dark:text-amber-400 shrink-0">
-                            <Star className="h-3 w-3 fill-current" />{Number(community.rating).toFixed(1)}
-                          </span>
-                        )}
-                      </div>
-                      {(community.city || community.state) && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />{[community.city, community.state].filter(Boolean).join(', ')}
-                        </p>
-                      )}
-                      {community.basePrice && (
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                          From ${Number(community.basePrice).toLocaleString()}/mo
-                        </p>
-                      )}
-                    </div>
-                  </a>
+                  <CommunityCard key={community.id} community={community} variant="grid" />
                 ))}
               </div>
             )}
@@ -1226,11 +1166,7 @@ export default function CommunityDirectory() {
                         transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
                       >
                         <div className="hover:scale-[1.02] transition-transform duration-300 h-full">
-                          <FeaturedExcellenceCard 
-                            community={community}
-                            compact={true}
-                            disableAutoPhotoLoad={true}
-                          />
+                          <CommunityCard community={community} variant="compact" />
                         </div>
                       </motion.div>
                     );
@@ -1377,15 +1313,7 @@ export default function CommunityDirectory() {
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: index === 0 ? "🏆 Top Rated" : index === 1 ? "✨ Premium" : "⭐ Featured"
-                          }}
-                          index={index}
-                          disableAutoPhotoLoad={true} 
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                       </div>
                     </div>
                   </div>
@@ -1489,23 +1417,7 @@ export default function CommunityDirectory() {
                   {provincialQuery.data.communities.map((community: any, index: number) => (
                     <div key={community.id} className="flex-none w-80 transform transition-transform hover:scale-105">
                       <div className="bg-gradient-to-br from-amber-900/50 to-orange-900/50 backdrop-blur rounded-xl overflow-hidden border border-amber-500/30 shadow-xl">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: index === 0 ? "🏆 Top Rated" : 
-                                   index === 1 ? "✨ Premium" : 
-                                   index === 2 ? "⭐ Featured" :
-                                   index === 3 ? "💎 Excellence" :
-                                   index === 4 ? "🌟 Premier" :
-                                   community.name.includes("Solstice") ? "☀️ Solstice" :
-                                   index < 15 ? "🏅 Select" :
-                                   index < 30 ? "✨ Quality" : 
-                                   "🏠 Affordable"
-                          }}
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                       </div>
                     </div>
                   ))}
@@ -1629,15 +1541,7 @@ export default function CommunityDirectory() {
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: index === 0 ? "🥇 J.D. Power #1" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
-                          }}
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                       </div>
                     </div>
                   </div>
@@ -1739,24 +1643,7 @@ export default function CommunityDirectory() {
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: index === 0 ? "💎 Luxury" : 
-                                   index === 1 ? "🌟 Hospitality" : 
-                                   index === 2 ? "⭐ Featured" :
-                                   index === 3 ? "👑 Premier" :
-                                   index === 4 ? "💜 Excellence" :
-                                   index < 20 ? "✨ Premium" :
-                                   index < 50 ? "🌸 Select" :
-                                   index < 100 ? "⭐ Quality" :
-                                   index < 150 ? "🏆 Award Winner" :
-                                   "💎 Community"
-                          }}
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                       </div>
                     </div>
                   </div>
@@ -1858,15 +1745,7 @@ export default function CommunityDirectory() {
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-rose-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: index === 0 ? "🔴 Industry Leader" : index === 1 ? "🏆 Excellence" : "⭐ Featured"
-                          }}
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                       </div>
                     </div>
                   </div>
@@ -1957,15 +1836,7 @@ export default function CommunityDirectory() {
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: index === 0 ? "👑 Gold Standard" : index === 1 ? "🌟 Resort Style" : "⭐ Featured"
-                          }}
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                       </div>
                     </div>
                   </div>
@@ -1982,7 +1853,7 @@ export default function CommunityDirectory() {
                   <div className="relative group">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                     <div className="relative">
-                      <FeaturedExcellenceCard 
+                      <CommunityCard 
                         community={{
                           id: 75135,
                           name: "Capriana at Brea",
@@ -1994,8 +1865,7 @@ export default function CommunityDirectory() {
                           amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
                           rating: 4.8
                         }} 
-                        index={0} 
-                        compact 
+                        variant="compact" 
                       />
                     </div>
                   </div>
@@ -2005,7 +1875,7 @@ export default function CommunityDirectory() {
                   <div className="relative group">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                     <div className="relative">
-                      <FeaturedExcellenceCard 
+                      <CommunityCard 
                         community={{
                           id: 75125,
                           name: "Ivy Park at Alta Loma",
@@ -2017,8 +1887,7 @@ export default function CommunityDirectory() {
                           amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
                           rating: 4.7
                         }} 
-                        index={1} 
-                        compact 
+                        variant="compact" 
                       />
                     </div>
                   </div>
@@ -2028,7 +1897,7 @@ export default function CommunityDirectory() {
                   <div className="relative group">
                     <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                     <div className="relative">
-                      <FeaturedExcellenceCard 
+                      <CommunityCard 
                         community={{
                           id: 75128,
                           name: "Ivy Park at Bonita",
@@ -2040,8 +1909,7 @@ export default function CommunityDirectory() {
                           amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
                           rating: 4.6
                         }} 
-                        index={2} 
-                        compact 
+                        variant="compact" 
                       />
                     </div>
                   </div>
@@ -2160,26 +2028,18 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((hawaiiCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`hawaii-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
+                  <div key={`hawaii-${community.id}-${index}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: "🌴 Aloha Living"
-                          }} 
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                         {/* Premium Badge Overlay */}
                         <Badge className="absolute top-4 right-4 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold shadow-lg">
                           Island Paradise
                         </Badge>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))
               )}
             </div>
@@ -2293,26 +2153,18 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((texasCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`texas-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
+                  <div key={`texas-${community.id}-${index}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-orange-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: "🏜️ Texas Pride"
-                          }} 
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                         {/* Premium Badge Overlay */}
                         <Badge className="absolute top-4 right-4 bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold shadow-lg">
                           Lone Star Living
                         </Badge>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))
               )}
             </div>
@@ -2394,9 +2246,7 @@ export default function CommunityDirectory() {
               
               <div ref={floridaSliderRef} className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((floridaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`florida-${community.id}-${index}`} href={getCommunityUrl(community)}>
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`florida-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
               
@@ -2508,9 +2358,7 @@ export default function CommunityDirectory() {
               <>
                 {/* Display first 10 HUD properties with complete information */}
                 {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
-                  <Link key={`hud-${community.id}-${index}`} href={getCommunityUrl(community)}>
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`hud-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
                 
                 {/* Action Card at the end */}
@@ -2669,26 +2517,18 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((newYorkCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`newyork-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
+                  <div key={`newyork-${community.id}-${index}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-indigo-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: "🏙️ Empire Living"
-                          }} 
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                         {/* Premium Badge Overlay */}
                         <Badge className="absolute top-4 right-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold shadow-lg">
                           Metropolitan Elite
                         </Badge>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))
               )}
             </div>
@@ -2843,10 +2683,7 @@ export default function CommunityDirectory() {
               </>
             ) : (
               ((canadianCommunities as any)?.communities || []).map((community: any, index: number) => (
-                <Link key={`canadian-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                  <FeaturedExcellenceCard community={community} index={index} compact disableAutoPhotoLoad={true} />
-
-                </Link>
+                <CommunityCard key={`canadian-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
               ))
             )}
             </div>
@@ -2944,9 +2781,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-cyan-500 dark:scrollbar-thumb-cyan-400 " style={{scrollBehavior: 'smooth'}}>
                 {((puertoRicoCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`pr-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`pr-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
               
@@ -3057,9 +2892,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-red-500 dark:scrollbar-thumb-red-400 " style={{scrollBehavior: 'smooth'}}>
                 {((peruCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`pe-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`pe-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
               
@@ -3174,26 +3007,18 @@ export default function CommunityDirectory() {
                 ))
               ) : (
                 ((cubaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`cuba-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
+                  <div key={`cuba-${community.id}-${index}`} className="flex-shrink-0">
                     <div className="relative group">
                       <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
                       <div className="relative">
-                        <FeaturedExcellenceCard 
-                          community={{
-                            ...community,
-                            badge: "🎭 Heritage Living"
-                          }} 
-                          index={index} 
-                          disableAutoPhotoLoad={true}
-                          compact 
-                        />
+                        <CommunityCard community={community} variant="compact" />
                         {/* Premium Badge Overlay */}
                         <Badge className="absolute top-4 right-4 bg-gradient-to-r from-blue-500 to-red-500 text-white font-bold shadow-lg">
                           Caribbean Heritage
                         </Badge>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 ))
               )}
             </div>
@@ -3296,9 +3121,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-green-500 dark:scrollbar-thumb-green-400 " style={{scrollBehavior: 'smooth'}}>
                 {((costaRicaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`cr-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`cr-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
               
@@ -3402,9 +3225,7 @@ export default function CommunityDirectory() {
             <div className="relative">
               <div className="flex gap-4 overflow-x-auto overflow-y-hidden pb-4 scrollbar-thin scrollbar-thumb-blue-500 dark:scrollbar-thumb-blue-400 " style={{scrollBehavior: 'smooth'}}>
                 {((panamaCommunities as any)?.communities || []).map((community: any, index: number) => (
-                  <Link key={`pa-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`pa-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
               
@@ -3497,9 +3318,7 @@ export default function CommunityDirectory() {
               </h3>
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-red-500">
                 {((ontarioCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
-                  <Link key={`on-${community.id}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`on-${community.id}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
             </div>
@@ -3514,9 +3333,7 @@ export default function CommunityDirectory() {
               </h3>
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-blue-500">
                 {((quebecCommunities as any)?.communities || []).slice(0, 20).map((community: any, index: number) => (
-                  <Link key={`qc-${community.id}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`qc-${community.id}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
             </div>
@@ -3616,9 +3433,7 @@ export default function CommunityDirectory() {
               </h3>
               <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-green-500">
                 {((nswCommunities as any)?.communities || []).slice(0, 15).map((community: any, index: number) => (
-                  <Link key={`nsw-${community.id}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                    <FeaturedExcellenceCard community={community} index={index} disableAutoPhotoLoad={true} compact />
-                  </Link>
+                  <CommunityCard key={`nsw-${community.id}`} community={community} variant="compact" className="flex-shrink-0" />
                 ))}
               </div>
             </div>
@@ -3777,10 +3592,7 @@ export default function CommunityDirectory() {
               ))
             ) : (
               ((mexicoCommunities as any)?.communities || []).map((community: any, index: number) => (
-                <Link key={`mexico-${community.id}-${index}`} href={getCommunityUrl(community)} className="flex-shrink-0">
-                  <FeaturedExcellenceCard community={community} index={index} compact disableAutoPhotoLoad={true} />
-
-                </Link>
+                <CommunityCard key={`mexico-${community.id}-${index}`} community={community} variant="compact" className="flex-shrink-0" />
               ))
             )}
           </div>

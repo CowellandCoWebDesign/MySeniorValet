@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Home, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
+import { CommunityCard } from '@/components/CommunityCard';
 
 export function HUDCommunitiesSection() {
   // Slider ref for navigation
@@ -103,12 +104,7 @@ export function HUDCommunitiesSection() {
               {/* Display first 10 HUD properties */}
               {((hudProperties as any[]) || []).slice(0, 10).map((community: any, index: number) => (
                 <div key={`hud-${community.id}-${index}`} className="flex-shrink-0 h-full">
-                  <FeaturedExcellenceCard 
-                    community={community} 
-                    index={index} 
-                    disableAutoPhotoLoad={true} 
-                    compact 
-                  />
+                  <CommunityCard community={community} variant="compact" />
                 </div>
               ))}
               

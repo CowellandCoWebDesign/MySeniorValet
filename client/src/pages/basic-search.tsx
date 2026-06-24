@@ -12,6 +12,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import { SearchingMascot } from "@/components/mascot";
 import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { CommunityCard } from "@/components/CommunityCard";
 // Map imports - GeoJSON integration following Leaflet documentation
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -534,12 +535,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             {/* Sample Community Cards */}
             <div className="space-y-3">
               {filteredCommunities.slice(0, 3).map((community: any, index: number) => (
-                <EnhancedCommunityCard
+                <CommunityCard
                   key={community.id}
                   community={community}
                   variant="list"
-                  index={index}
-                  onSelect={() => window.location.href = getCommunityUrl(community)}
                 />
               ))}
             </div>
@@ -626,12 +625,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           
           <div className="space-y-4">
             {filteredCommunities.slice(0, 8).map((community: any, index: number) => (
-              <EnhancedCommunityCard
+              <CommunityCard
                 key={community.id}
                 community={community}
                 variant="list"
-                index={index}
-                onSelect={() => window.location.href = getCommunityUrl(community)}
               />
             ))}
           </div>

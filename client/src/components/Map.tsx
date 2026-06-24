@@ -18,6 +18,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye, Brain } from 'lucide-react';
 import AIMapIntegration from './AIMapIntegration';
 import { PrioritizedCommunityCard } from './PrioritizedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -1643,48 +1644,9 @@ export default function Map({
                 maxWidth={450}
               >
                 <div className="w-full max-w-md">
-                  <PrioritizedCommunityCard
-                    community={{
-                      ...community,
-                      // Transform priceRange to object format if needed
-                      priceRange: (function() {
-                        if (!community.priceRange) {
-                          return { min: 0, max: 0 };
-                        }
-                        if (typeof community.priceRange === 'object' && 'min' in community.priceRange && 'max' in community.priceRange) {
-                          return community.priceRange;
-                        }
-                        if (typeof community.priceRange === 'string') {
-                          // Try to parse string format like "$3000 - $5000"
-                          const match = community.priceRange.match(/\$?(\d+(?:,\d+)?)\s*[-–]\s*\$?(\d+(?:,\d+)?)/);
-                          if (match) {
-                            return {
-                              min: parseInt(match[1].replace(',', '')),
-                              max: parseInt(match[2].replace(',', ''))
-                            };
-                          }
-                          return { min: 0, max: 0 };
-                        }
-                        return { min: 0, max: 0 };
-                      })(),
-                      // Add enriched occupancy data
-                      occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
-                      totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                      availableUnits: community.availableUnits || Math.floor(Math.random() * 10) + 1,
-                      waitListLength: community.waitListLength || 0
-                    }}
+                  <CommunityCard
+                    community={community}
                     variant="list"
-                    onSelect={() => window.location.href = getCommunityUrl(community)}
-                    onToggleFavorite={() => {
-                      const newFavorites = new Set(favorites);
-                      if (favorites.has(community.id)) {
-                        newFavorites.delete(community.id);
-                      } else {
-                        newFavorites.add(community.id);
-                      }
-                      setFavorites(newFavorites);
-                    }}
-                    isFavorite={favorites.has(community.id)}
                   />
                 </div>
                   </Popup>

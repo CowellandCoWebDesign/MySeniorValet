@@ -13,6 +13,7 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import Map from '@/components/Map';
 import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
@@ -412,15 +413,15 @@ export default function AISearchSimplified() {
                   {communities.slice(0, 12).map((community: any) => (
                     <div
                       key={community.id}
-                      onClick={() => handleCommunitySelect(community)}
                       className={cn(
                         "cursor-pointer transition-all duration-200",
                         selectedCommunity?.id === community.id && "ring-2 ring-blue-500 rounded-lg"
                       )}
                     >
-                      <PrioritizedCommunityCard
+                      <CommunityCard
                         community={community}
-                        onSelect={() => setLocation(getCommunityUrl(community))}
+                        variant="grid"
+                        onSelect={() => handleCommunitySelect(community)}
                       />
                     </div>
                   ))}

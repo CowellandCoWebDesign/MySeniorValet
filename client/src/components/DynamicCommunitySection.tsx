@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { CommunityCard } from "@/components/CommunityCard";
 
 export interface HomeSectionConfig {
   id: number;
@@ -124,11 +125,7 @@ export function DynamicCommunitySection({ section }: Props) {
               ))
             : list.map((community, index) => (
                 <div key={`${section.id}-${community.id}-${index}`} className="flex-shrink-0">
-                  <FeaturedExcellenceCard
-                    community={community}
-                    index={index}
-                    compact
-                  />
+                  <CommunityCard community={community} variant="compact" />
                 </div>
               ))}
         </div>
