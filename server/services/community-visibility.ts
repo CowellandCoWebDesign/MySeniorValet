@@ -163,6 +163,10 @@ export interface VisibilityPassOptions {
   batchSize?: number;
   /** Skip rows whose data_quality_checked_at is within this many hours. */
   skipCheckedWithinHours?: number;
+  /** Stop after this many seconds of wall-clock time (0/undefined = no budget).
+   *  Combined with skipCheckedWithinHours this makes the pass resumable in
+   *  short, time-boxed chunks (e.g. inside a post-merge hook with a timeout). */
+  maxSeconds?: number;
   /** Per-batch progress callback. */
   onBatch?: (stats: VisibilityPassStats) => void;
 }
@@ -218,6 +222,8 @@ export async function runVisibilityPass(
   const batchSize = Math.max(1, opts.batchSize ?? 1000);
   const stats = emptyStats();
   let cursor = opts.afterId ?? 0;
+  const deadline =
+    opts.maxSeconds && opts.maxSeconds > 0 ? Date.now() + opts.maxSeconds * 1000 : null;
 
   const staleCutoff =
     opts.skipCheckedWithinHours && opts.skipCheckedWithinHours > 0
@@ -266,6 +272,7 @@ export async function runVisibilityPass(
 
     opts.onBatch?.(stats);
     if (opts.limit && stats.processed >= opts.limit) break;
+    if (deadline && Date.now() >= deadline) break;
   }
 
   return stats;

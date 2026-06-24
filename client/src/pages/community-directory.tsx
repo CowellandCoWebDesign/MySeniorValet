@@ -473,11 +473,6 @@ export default function CommunityDirectory() {
   const [language, setLanguage] = useState('en');
   
   
-  // Fetch community count
-  const { data: communityCount } = useQuery({
-    queryKey: ['/api/communities/count']
-  });
-  
   // Fetch HUD count
   const { data: hudCount } = useQuery({
     queryKey: ['/api/communities/hud-count']
@@ -859,7 +854,7 @@ export default function CommunityDirectory() {
           >
             <Badge className="bg-white/20 text-white px-4 py-1 mb-4">
               <Database className="h-4 w-4 mr-2" />
-              COMPLETE DATABASE ACCESS
+              VERIFIED SENIOR LIVING DIRECTORY
             </Badge>
             
             <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
@@ -867,15 +862,15 @@ export default function CommunityDirectory() {
             </h1>
             
             <p className="text-xl text-blue-100 mb-8 max-w-3xl mx-auto">
-              Access our complete database of {formatCount((communityCount as any)?.count, statsLoading)}+ senior living communities worldwide across {formatCount(communityStats?.countryCount, statsLoading)}+ countries!
+              Browse {formatCount(communityStats?.totalCommunities, statsLoading)}+ verified senior living communities across {formatCount(communityStats?.countryCount, statsLoading)}+ countries — with transparent, source-attributed details.
             </p>
             
-            {/* Key Stats - ALL REAL DATA */}
+            {/* Key Stats — computed over the public, family-visible set */}
             <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-white">{formatCount((communityCount as any)?.count, statsLoading)}+</div>
-                  <div className="text-xs text-blue-100">Total Communities</div>
+                  <div className="text-3xl font-bold text-white">{formatCount(communityStats?.totalCommunities, statsLoading)}+</div>
+                  <div className="text-xs text-blue-100">Verified Communities</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
@@ -892,8 +887,8 @@ export default function CommunityDirectory() {
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
-                  <div className="text-3xl font-bold text-green-300">Live</div>
-                  <div className="text-xs text-blue-100">Real-Time Data</div>
+                  <div className="text-3xl font-bold text-green-300">{formatCount(communityStats?.totalVerified, statsLoading)}</div>
+                  <div className="text-xs text-blue-100">Verified Listings</div>
                 </CardContent>
               </Card>
             </div>
@@ -911,7 +906,7 @@ export default function CommunityDirectory() {
                 Search Communities
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                {formatCount((communityCount as any)?.count, statsLoading)}+ Communities • Live Pricing • Real Reviews
+                {formatCount(communityStats?.totalCommunities, statsLoading)}+ Verified Communities • Transparent Pricing • Real Reviews
               </p>
             </div>
             
@@ -3750,7 +3745,7 @@ export default function CommunityDirectory() {
                     <span className="font-bold text-green-600">{formatCount(communityStats?.totalHUD, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600 dark:text-gray-400">AI Verified</span>
+                    <span className="text-gray-600 dark:text-gray-400">Verified Listings</span>
                     <span className="font-bold text-blue-600">{formatCount(communityStats?.totalVerified, statsLoading)}</span>
                   </div>
                   <div className="flex justify-between">

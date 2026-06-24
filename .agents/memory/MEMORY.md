@@ -28,3 +28,4 @@
 - [Quality-aware ranking](quality-aware-ranking.md) — server/utils/community-ranking.ts SQL helpers rank/filter PUBLIC results by REAL signals (tier/score/HUD/featured/claimed), NEVER is_verified; NULL-safe; bare cols work in raw+drizzle; ordering-only.
 - [Map verified-only filter](map-verified-only-filter.md) — live map clusters in-browser from /api/communities/markers (NOT supercluster); add ?verifiedOnly to markers+clusters; cache key gets v: prefix.
 - [Canonical community card](community-card-unification.md) — ONE CommunityCard (variants grid/compact/list) replaces FeaturedExcellence/Enhanced/Prioritized on display surfaces; chat + bilingual cards left alone (consent-gated contact reveal = removal rule).
+- [Community data pass must run on live DB](community-data-pass-live-db.md) — bulk classify/score/quarantine is a DATA op that doesn't merge from task-agent DBs; run classify-score against live; directory /api/communities/stats scoped to visible set.

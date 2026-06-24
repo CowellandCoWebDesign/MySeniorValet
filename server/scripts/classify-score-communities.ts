@@ -14,6 +14,15 @@
  *   npx tsx server/scripts/classify-score-communities.ts --batch-size=500
  *   npx tsx server/scripts/classify-score-communities.ts --skip-checked-hours=24
  *   npx tsx server/scripts/classify-score-communities.ts --limit=100
+ *   npx tsx server/scripts/classify-score-communities.ts --max-seconds=90  # time-boxed
+ *
+ * Production cleanup:
+ *   - Full one-time pass (run against the prod DATABASE_URL, ~30-60s for ~34k rows):
+ *       npx tsx server/scripts/classify-score-communities.ts
+ *   - Incremental top-up runs automatically after each merge via scripts/post-merge.sh
+ *     using `--skip-checked-hours=168 --max-seconds=90`, so newly-added or stale rows
+ *     are re-classified in resumable, time-boxed chunks without exceeding the hook's
+ *     timeout. The pass is idempotent and reversible (is_hidden only, no deletes).
  */
 import { runVisibilityPass, type VisibilityPassStats } from "../services/community-visibility";
 
@@ -53,6 +62,7 @@ async function main() {
   const limit = num("limit");
   const batchSize = num("batch-size") ?? 1000;
   const skipCheckedWithinHours = num("skip-checked-hours");
+  const maxSeconds = num("max-seconds");
 
   console.log("🏷️  Classify · score · apply visibility (Task #262)");
   console.log(
@@ -60,7 +70,8 @@ async function main() {
       `  batchSize=${batchSize}` +
       (afterId ? `  afterId=${afterId}` : "") +
       (limit ? `  limit=${limit}` : "") +
-      (skipCheckedWithinHours ? `  skipCheckedWithinHours=${skipCheckedWithinHours}` : ""),
+      (skipCheckedWithinHours ? `  skipCheckedWithinHours=${skipCheckedWithinHours}` : "") +
+      (maxSeconds ? `  maxSeconds=${maxSeconds}` : ""),
   );
 
   const start = Date.now();
@@ -70,6 +81,7 @@ async function main() {
     limit,
     batchSize,
     skipCheckedWithinHours,
+    maxSeconds,
     onBatch: (s) => {
       if (s.processed % 5000 < batchSize) {
         console.log(`  …processed ${s.processed} (id ≤ ${s.lastId})`);

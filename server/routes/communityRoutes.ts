@@ -1553,6 +1553,13 @@ export function registerCommunityRoutes(app: Express) {
   // Get community statistics - COMPREHENSIVE REAL DATA
   app.get("/api/communities/stats", async (req, res) => {
     try {
+      // All directory stats are computed over the PUBLIC, family-visible set
+      // (post-cleanup `is_hidden` + thin-record policy) so the directory hero
+      // and stats panels reflect what families can actually access — never the
+      // raw, un-cleaned total. Verification uses REAL signals (quality tier /
+      // claimed / HUD-with-pricing / featured), never the legacy is_verified.
+      const visible = publicVisibleFilter();
+
       // Basic stats
       const stats = await db
         .select({
@@ -1562,10 +1569,11 @@ export function registerCommunityRoutes(app: Express) {
           totalHUD: sql`COUNT(CASE WHEN ${communities.hudPropertyId} IS NOT NULL THEN 1 END)`,
           stateCount: sql`COUNT(DISTINCT ${communities.state})`,
           countryCount: sql`COUNT(DISTINCT ${communities.country})`,
-          totalVerified: sql`COUNT(CASE WHEN ${communities.isVerified} = true THEN 1 END)`,
+          totalVerified: sql`COUNT(CASE WHEN ${verifiedOnlyFilter()} THEN 1 END)`,
           totalClaimed: sql`COUNT(CASE WHEN ${communities.isClaimed} = true THEN 1 END)`
         })
-        .from(communities);
+        .from(communities)
+        .where(visible);
 
       // State distribution
       const stateDistribution = await db
@@ -1574,6 +1582,7 @@ export function registerCommunityRoutes(app: Express) {
           count: sql`COUNT(*)`
         })
         .from(communities)
+        .where(visible)
         .groupBy(communities.state)
         .orderBy(desc(sql`COUNT(*)`))
         .limit(10);
@@ -1585,7 +1594,7 @@ export function registerCommunityRoutes(app: Express) {
           count: sql`COUNT(*)`
         })
         .from(communities)
-        .where(isNotNull(communities.country))
+        .where(and(isNotNull(communities.country), visible))
         .groupBy(communities.country)
         .orderBy(desc(sql`COUNT(*)`))
         .limit(20);
@@ -1603,7 +1612,8 @@ export function registerCommunityRoutes(app: Express) {
               sql`${communities.data_source} LIKE 'ai_discovered_%'`,
               eq(communities.data_source, 'global_discovery')
             ),
-            sql`${communities.createdAt} > NOW() - INTERVAL '30 days'`
+            sql`${communities.createdAt} > NOW() - INTERVAL '30 days'`,
+            visible
           )
         );
 
@@ -1615,7 +1625,8 @@ export function registerCommunityRoutes(app: Express) {
           memoryCare: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%memory%' THEN 1 END)`,
           skilledNursing: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%skilled%' OR ${communities.careTypes}::text ILIKE '%nursing%' THEN 1 END)`
         })
-        .from(communities);
+        .from(communities)
+        .where(visible);
 
       res.json({
         ...stats[0],
