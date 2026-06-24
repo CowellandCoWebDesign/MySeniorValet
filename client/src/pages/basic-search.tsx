@@ -1065,5 +1065,6 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             updateCount={5}
           />
         </div>
+    </div>
     );
 };
