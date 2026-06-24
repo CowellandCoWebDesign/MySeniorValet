@@ -2,7 +2,8 @@
 - [Email via Gmail connector](email-gmail-transport.md) — all mail routes through Replit google-mail (Workspace account), not SendGrid; @sendgrid/mail.send is monkeypatched.
 - [SendGrid silent email failures](sendgrid-silent-failures.md) — thread emailDelivered flags + log err.response.body; dedupe recipients (dup bcc → 400); validate enum fields before send (DB 23514 → opaque 500).
 - [Free Discovery pipeline](free-discovery-pipeline.md) — DuckDuckGo+Jina replaces Perplexity in all discovery paths; auto-triggers on zero DB results; healthcare/vendors stubs left as dead code.
-- [Discovery has two paths](discovery-dual-path.md) — home communities discovery uses /api/global-discovery/search (not comprehensive-search-engine); SimplifiedMapPanel renders it; switch BOTH engines.
+- [Discovery has two paths](discovery-dual-path.md) — home communities discovery uses /api/global-discovery/search (not comprehensive-search-engine); SimplifiedMapPanel renders it; switch BOTH engines. NOTE: SimplifiedMapPanel removed from home Communities tab (Task #286).
+- [Directory sections shared](community-directory-sections.md) — ONE component CommunityDirectorySections.tsx feeds BOTH /community-directory (showHero) and home Communities tab; edit there, not the pages; queryKeys dedupe.
 - [Sparse-coverage discovery](sparse-coverage-discovery.md) — discovery auto-runs on SPARSE coverage (not just zero); always merges existing+discovered deduped; 24h in-memory cost guard resets on restart.
 - [Search provider failover](search-provider-failover.md) — all free search routes through webSearch(): DDG vqd/JSON primary + Bing HTML fallback; never scrape duckduckgo.com/html (202 challenge).
 - [Sitemap cache staleness](sitemap-cache-staleness.md) — sitemaps file-cached 24h in .cache/sitemaps; clear after URL-format changes or live serves stale URLs; prod has own cache.

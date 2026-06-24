@@ -6,7 +6,7 @@ import heroLighthouseSunset from "@assets/generated_images/hero_lighthouse_sunse
 import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { SimplifiedMapPanel } from "@/components/SimplifiedMapPanel";
+import { CommunityDirectorySections } from "@/components/CommunityDirectorySections";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -2437,9 +2437,9 @@ export default function MySeniorValetHome() {
               <div className="max-w-7xl mx-auto">
                 {/* Communities Tab */}
                 <TabsContent value="communities" className="mt-1">
-              {/* Simplified Map Panel - shown above community directory content */}
-              <div className="mb-8 px-2 sm:px-0" data-sparse-coverage={hasSparseCoverage}>
-                <SimplifiedMapPanel locationQuery={searchQuery} discoveredCommunities={discoveredCommunities} discoveredSources={discoveredSources} onForceDiscovery={() => runDiscovery(searchQuery, { force: true })} isDiscovering={isDiscovering} />
+              {/* Full Community Directory experience mirrored from /community-directory */}
+              <div className="mb-8">
+                <CommunityDirectorySections />
               </div>
 
               {/* Community Directory Card - Moved Above Featured Excellence */}
