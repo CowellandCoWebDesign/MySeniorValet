@@ -1460,7 +1460,14 @@ export default function CommunityDetail() {
     enabled: isSlugBased
       ? !!(stateParam && slug)
       : (!!id && id !== '-1' && !isNaN(Number(id))),
-    staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
+    // Task #300: never treat the community record as fresh. Enrichment (on-view,
+    // self-heal, admin, refresh) persists photos/description/pricing in the
+    // background; a long staleTime would keep serving the pre-enrichment empty
+    // copy on revisit (navigate away & back, later session) until a hard reload.
+    // staleTime:0 makes every mount/refocus refetch the authoritative DB record,
+    // while gcTime keeps the cached copy so it renders instantly then swaps in the
+    // saved data once the background refetch lands.
+    staleTime: 0,
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
 
@@ -1846,7 +1853,12 @@ export default function CommunityDetail() {
             enrichmentCache.set(community.id, freshReport);
             const freshPhotos = freshReport?.verificationResults?.webIntelligence?.images?.length || 0;
             if (freshPhotos > 0) {
-              queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+              // Task #300: the live fetch persisted photos to the DB — refetch the
+              // community by BOTH the slug key (primary SEO route) and the id key so
+              // the carousel swaps in the saved set instead of relying on transient
+              // verificationReport state that is lost on remount.
+              if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
+              queryClient.refetchQueries({ queryKey: [`/api/communities/${community.id}`] });
             }
           } else {
             setVerificationReport(report);
@@ -1858,8 +1870,10 @@ export default function CommunityDetail() {
       
       // Photos will be displayed from the verification report
       if (foundPhotos > 0) {
-        // Trigger a refresh to update the UI
-        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+        // Task #300: refresh the community by BOTH slug + id keys so the persisted
+        // photos render from the authoritative DB record (not transient state).
+        if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
+        queryClient.refetchQueries({ queryKey: [`/api/communities/${community.id}`] });
       }
     } catch (error) {
       console.error('❌ Verification error details:', {

@@ -1893,6 +1893,15 @@ export function registerCommunityRoutes(app: Express) {
       // Get existing enrichment data from cache (skip for now - table doesn't exist yet)
       let enrichedData = null;
 
+      // Task #300: On-view enrichment — fire-and-forget through THE single unified
+      // pipeline, matching the by-ID detail route so the PRIMARY SEO slug path is
+      // also an authoritative enrichment entry point (it previously triggered no
+      // enrichment at all). Cost is bounded by the orchestrator's 7-day cache, so a
+      // freshly-enriched community is served from the DB without a new Perplexity call.
+      enrichCommunityUnified(community.id).catch((error) => {
+        console.error(`Failed to trigger on-view enrichment for community ${community.id}:`, error);
+      });
+
       // Get reviews  
       const communityReviews = await db
         .select()
@@ -1901,13 +1910,38 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
+      // Task #300: filter photos through the read-time enrichment service (drops
+      // stock/placeholder images) so the shown set equals the stored authentic set,
+      // identical to the by-ID route.
+      const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+
+      // Build comprehensiveData from the persisted enrichedContent column so the
+      // frontend reads structured enrichment data identically to the by-ID route.
+      const enrichedCol = (community as any).enrichedContent;
+      const comprehensiveData = enrichedCol
+        ? {
+            rawPerplexityContent: enrichedCol.content || null,
+            photos: (enrichedCommunity.photos && enrichedCommunity.photos.length > 0)
+              ? enrichedCommunity.photos
+              : [],
+            sources: enrichedCol.metadata?.sources?.map((s: any) => s.url) || [],
+            marketData: {
+              description: enrichedCol.content || null,
+              website: community.website || null,
+              phone: community.phone || null,
+            },
+            source: 'database-content' as const,
+          }
+        : null;
+
       // Return all data for server-side rendering
       res.json({
-        ...community,
+        ...enrichedCommunity,
         reviews: communityReviews,
         competitiveAnalysis: enrichedData?.competitiveAnalysis || null,
         webEnrichment: enrichedData?.webEnrichment || null,
         realTimeData: enrichedData?.realTimeData || null,
+        comprehensiveData,
         isClaimed: false
       });
     } catch (error) {
