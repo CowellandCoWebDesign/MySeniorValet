@@ -147,9 +147,6 @@ export interface IStorage {
     };
   }>;
   
-  // Super admin count
-  getSuperAdminCount(): Promise<number>;
-
   // Search suggestions
   getSearchSuggestions(query: string): Promise<string[]>;
 
@@ -819,18 +816,6 @@ export class DatabaseStorage implements IStorage {
       firstName: userRow.first_name as string,
       lastName: userRow.last_name as string
     } as User;
-  }
-
-  async getSuperAdminCount(): Promise<number> {
-    try {
-      const result = await db.execute(
-        sql`SELECT COUNT(*) as count FROM users WHERE role = 'super_admin'`
-      );
-      return parseInt(result.rows[0].count as string) || 0;
-    } catch (error) {
-      console.error("Error getting super admin count:", error);
-      return 0;
-    }
   }
 
   async updateUser(id: string, updates: Partial<any>): Promise<User | undefined> {
