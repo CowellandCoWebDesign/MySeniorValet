@@ -7713,9 +7713,13 @@ export const SECTION_TYPES = [
   'hud',
   'trending',
   'highest_rated',
+  'most_reviewed',
   'featured',
   'coastal',
   'recently_discovered',
+  'brand',
+  'red_tag_deals',
+  'care_spectrum',
 ] as const;
 export type SectionType = (typeof SECTION_TYPES)[number];
 
@@ -7726,11 +7730,19 @@ export const homeSectionConfigs = pgTable("home_section_configs", {
   title: text("title").notNull(),
   subtitle: text("subtitle"),
   sectionType: text("section_type").notNull().$type<SectionType>(),
+  // Stable identifier for additively-seeded default sections. NULL for admin-created
+  // sections. Lets the seeder claim/insert defaults idempotently without clobbering.
+  defaultKey: text("default_key"),
   config: jsonb("config").$type<{
     city?: string;
     state?: string;
     careType?: string;
     country?: string;
+    brand?: string;
+    limit?: number;
+    selectionMode?: "auto" | "curated" | "pinned";
+    communityIds?: number[];
+    excludeIds?: number[];
   }>().default({}),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),

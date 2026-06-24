@@ -3155,7 +3155,50 @@ export function registerAdminRoutes(app: Express) {
 
   // ── HOME PAGE SECTION CONFIGS ──────────────────────────────────────────────
 
-  // Ensure home_section_configs table exists and seed defaults on first use
+  // The full home-page community layout, seeded as editable DEFAULTS.
+  // Each entry has a stable `key` so the seeder is idempotent: it claims any matching
+  // pre-existing row (assigning it the key) and inserts only the ones still missing —
+  // it NEVER renames, reorders, or deletes an admin's customizations.
+  const DEFAULT_HOME_SECTIONS: Array<{
+    key: string;
+    title: string;
+    subtitle: string;
+    sectionType: string;
+    config: Record<string, any>;
+  }> = [
+    { key: 'recently_discovered', title: 'Recently Discovered Communities', subtitle: 'Brand new communities added to our database', sectionType: 'recently_discovered', config: {} },
+    { key: 'hud', title: 'HUD Affordable Communities', subtitle: 'Government-verified affordable housing options', sectionType: 'hud', config: {} },
+    { key: 'red_tag_deals', title: 'Red Tag Deals', subtitle: 'Limited-time savings on select communities', sectionType: 'red_tag_deals', config: {} },
+    { key: 'care_spectrum', title: 'Explore the Complete Care Spectrum', subtitle: 'From independent living to skilled nursing', sectionType: 'care_spectrum', config: {} },
+    { key: 'brand_discovery', title: 'Signature Discovery Communities', subtitle: 'Innovation-led senior living from Discovery Senior Living', sectionType: 'brand', config: { brand: 'Discovery' } },
+    { key: 'brand_lcs', title: 'Award-Winning LCS Communities', subtitle: 'Life Care Services — most awarded in J.D. Power history', sectionType: 'brand', config: { brand: 'Life Care' } },
+    { key: 'brand_atria', title: 'Luxury Atria Communities', subtitle: 'Hospitality-driven senior living from Atria', sectionType: 'brand', config: { brand: 'Atria' } },
+    { key: 'brand_brookdale', title: 'Leading Brookdale Communities', subtitle: "The nation's largest senior living network", sectionType: 'brand', config: { brand: 'Brookdale' } },
+    { key: 'brand_oakmont', title: 'Premier Oakmont Communities', subtitle: 'Resort-style luxury across the West', sectionType: 'brand', config: { brand: 'Oakmont' } },
+    { key: 'loc_hi', title: 'Hawaii Paradise Communities', subtitle: "Exceptional senior living in America's tropical paradise", sectionType: 'location', config: { state: 'HI' } },
+    { key: 'loc_fortworth_tx', title: 'Fort Worth Lone Star Excellence', subtitle: 'Texas-sized luxury and authentic southern hospitality', sectionType: 'location', config: { city: 'Fort Worth', state: 'TX' } },
+    { key: 'loc_fl', title: 'Florida Senior Living Paradise', subtitle: 'Sunshine State living for every lifestyle', sectionType: 'location', config: { state: 'FL' } },
+    { key: 'loc_ny', title: 'New York Empire Excellence', subtitle: 'World-class senior living in the Empire State', sectionType: 'location', config: { state: 'NY' } },
+    { key: 'loc_pr', title: 'Puerto Rico Communities', subtitle: 'Caribbean living as a U.S. territory', sectionType: 'location', config: { state: 'PR' } },
+    { key: 'country_canada', title: 'Canadian Communities', subtitle: 'Trusted senior living across Canada', sectionType: 'location', config: { country: 'Canada' } },
+    { key: 'country_mexico', title: 'Mexico Communities', subtitle: 'Affordable retirement living in Mexico', sectionType: 'location', config: { country: 'Mexico' } },
+    { key: 'country_peru', title: 'Peru Communities', subtitle: 'Senior living options in Peru', sectionType: 'location', config: { country: 'Peru' } },
+    { key: 'country_cuba', title: 'Cuba Communities', subtitle: 'Senior living options in Cuba', sectionType: 'location', config: { country: 'Cuba' } },
+    { key: 'featured', title: 'Featured & Coastal Communities', subtitle: 'Premium communities with exceptional amenities', sectionType: 'featured', config: {} },
+    { key: 'highest_rated', title: 'Highest Rated Communities', subtitle: 'Top performers with exceptional ratings and satisfied families', sectionType: 'highest_rated', config: {} },
+  ];
+
+  // Does an existing row's config "core" (the data-source fields) match a default's?
+  // Selection/curation fields (selectionMode/communityIds/excludeIds) are ignored so a
+  // hand-curated Featured row still gets claimed by the 'featured' default.
+  function configCoreMatches(rowCfg: any, defCfg: Record<string, any>): boolean {
+    const r = rowCfg && typeof rowCfg === 'object' ? rowCfg : {};
+    const norm = (v: any) => (v === undefined || v === null || v === '' ? '' : String(v));
+    const fields = ['city', 'state', 'country', 'careType', 'brand'];
+    return fields.every((f) => norm(r[f]) === norm((defCfg as any)[f]));
+  }
+
+  // Ensure home_section_configs table exists and additively seed the default layout.
   async function ensureHomeSections() {
     try {
       await db.execute(sql`
@@ -3171,19 +3214,41 @@ export function registerAdminRoutes(app: Express) {
           updated_at TIMESTAMP DEFAULT NOW()
         )
       `);
-      const countResult = await db.execute(sql`SELECT COUNT(*)::integer AS count FROM home_section_configs`);
-      const countRow = (countResult as any).rows?.[0] ?? (countResult as any)[0];
-      if (Number(countRow?.count ?? 0) === 0) {
-        await db.execute(sql`
-          INSERT INTO home_section_configs (position, enabled, title, subtitle, section_type, config) VALUES
-          (1, TRUE, 'Recently Discovered Communities', 'Brand new communities added to our database', 'recently_discovered', '{}'),
-          (2, TRUE, 'HUD Affordable Communities', 'Government-verified affordable housing options', 'hud', '{}'),
-          (3, TRUE, 'Hawaii Paradise Communities', 'Exceptional senior living in America''s tropical paradise', 'location', '{"state":"HI"}'),
-          (4, TRUE, 'Fort Worth Lone Star Excellence', 'Texas-sized luxury and authentic southern hospitality', 'location', '{"city":"Fort Worth","state":"TX"}'),
-          (5, TRUE, 'New York Empire Excellence', 'World-class senior living in the Empire State', 'location', '{"state":"NY"}'),
-          (6, TRUE, 'Featured & Coastal Communities', 'Premium communities with exceptional amenities', 'featured', '{}'),
-          (7, TRUE, 'Highest Rated Communities', 'Top performers with exceptional ratings and satisfied families', 'highest_rated', '{}')
-        `);
+      // Additive: stable key column for idempotent default seeding (drift-safe).
+      await db.execute(sql`ALTER TABLE home_section_configs ADD COLUMN IF NOT EXISTS default_key TEXT`);
+
+      // Load current rows once.
+      const existingRes = await db.execute(sql`SELECT id, section_type, config, default_key, position FROM home_section_configs`);
+      const existing: any[] = (existingRes as any).rows ?? (existingRes as any) ?? [];
+      const claimedRowIds = new Set<number>();
+      const keysPresent = new Set<string>(existing.map((r) => r.default_key).filter(Boolean));
+      let maxPos = existing.reduce((m, r) => Math.max(m, Number(r.position) || 0), 0);
+
+      for (const def of DEFAULT_HOME_SECTIONS) {
+        // Already seeded (key present) → nothing to do.
+        if (keysPresent.has(def.key)) continue;
+
+        // Try to claim a pre-existing, unkeyed row with the same type + data source.
+        const match = existing.find(
+          (r) =>
+            !r.default_key &&
+            !claimedRowIds.has(r.id) &&
+            r.section_type === def.sectionType &&
+            configCoreMatches(r.config, def.config),
+        );
+
+        if (match) {
+          await db.execute(sql`UPDATE home_section_configs SET default_key = ${def.key} WHERE id = ${match.id}`);
+          claimedRowIds.add(match.id);
+          keysPresent.add(def.key);
+        } else {
+          maxPos += 1;
+          await db.execute(sql`
+            INSERT INTO home_section_configs (position, enabled, title, subtitle, section_type, config, default_key)
+            VALUES (${maxPos}, TRUE, ${def.title}, ${def.subtitle}, ${def.sectionType}, ${JSON.stringify(def.config)}::jsonb, ${def.key})
+          `);
+          keysPresent.add(def.key);
+        }
       }
     } catch (e) {
       console.warn('⚠️  home_section_configs init skipped:', e);

@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label";
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi } from "lucide-react";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi, type LucideIcon } from "lucide-react";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -1609,6 +1609,88 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
 // Only falls back to hardcoded components when the API itself is unavailable
 // (network error / server error). An intentionally empty active-section list
 // renders nothing — respecting admin intent.
+// Self-contained directory-style search bar shown at the top of the home
+// Communities tab. Mirrors the search experience on /community-directory so
+// families can jump straight into a search without leaving the home page.
+function CommunitiesSearchBar() {
+  const [, navigate] = useLocation();
+  const [term, setTerm] = useState("");
+
+  const { data: stats } = useQuery<{ totalCommunities?: string }>({
+    queryKey: ['/api/communities/stats'],
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const totalLabel = (() => {
+    const n = stats?.totalCommunities ? Number(stats.totalCommunities) : NaN;
+    return Number.isFinite(n) && n > 0 ? n.toLocaleString() : '32,000';
+  })();
+
+  const go = (value: string) => {
+    if (value.trim()) navigate(`/map-search?q=${encodeURIComponent(value.trim())}`);
+  };
+
+  return (
+    <div className="mb-8 rounded-2xl bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 p-5 md:p-7 border border-indigo-100/60 dark:border-gray-800">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
+            Search Communities
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {totalLabel}+ Verified Communities • Transparent Pricing • Real Reviews
+          </p>
+        </div>
+
+        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center p-2">
+            <Search className="ml-3 h-5 w-5 text-gray-400 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <AutocompleteSearch
+                value={term}
+                onChange={setTerm}
+                onSubmit={(value: string) => go(value)}
+                placeholder="Search by name, city, state, or zip..."
+                inputClassName="w-full pl-3 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                hideSearchButton={true}
+              />
+            </div>
+            <Button
+              onClick={() => go(term)}
+              className="mr-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all flex-shrink-0"
+            >
+              Search
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-5 justify-center">
+          <Link href="/map-search?filter=hud" className="inline-flex items-center rounded-md border border-green-300 dark:border-green-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer">
+            <Shield className="h-3 w-3 mr-1 text-green-600" />
+            <span className="text-gray-700 dark:text-gray-300">HUD Verified</span>
+          </Link>
+          <Link href="/map-search?filter=pricing" className="inline-flex items-center rounded-md border border-blue-300 dark:border-blue-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer">
+            <DollarSign className="h-3 w-3 mr-1 text-blue-600" />
+            <span className="text-gray-700 dark:text-gray-300">With Pricing</span>
+          </Link>
+          <Link href="/map-search?filter=5star" className="inline-flex items-center rounded-md border border-yellow-300 dark:border-yellow-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
+            <Star className="h-3 w-3 mr-1 text-yellow-600" />
+            <span className="text-gray-700 dark:text-gray-300">5-Star Rated</span>
+          </Link>
+          <Link href="/map-search?filter=memory" className="inline-flex items-center rounded-md border border-purple-300 dark:border-purple-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer">
+            <Brain className="h-3 w-3 mr-1 text-purple-600" />
+            <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
+          </Link>
+          <Link href="/map-search?filter=assisted" className="inline-flex items-center rounded-md border border-red-300 dark:border-red-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer">
+            <HeartHandshake className="h-3 w-3 mr-1 text-red-600" />
+            <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function HomeSectionRenderer() {
   const { data: sections, isLoading, isError } = useQuery<HomeSectionConfig[]>({
     queryKey: ['/api/home-sections/active'],
@@ -1646,14 +1728,66 @@ function HomeSectionRenderer() {
     );
   }
 
+  // Special "widget" section types render their own rich component instead of the
+  // generic card slider. Everything else flows through DynamicCommunitySection,
+  // which reads its data source (type + config) from the admin section config.
+  // Admin-controlled header (title + optional subtitle) so renaming a widget section
+  // in the admin manager actually changes what shows on the home page.
+  // Polished panel wrapper so widget sections match the restyled
+  // DynamicCommunitySection blocks (and the richer /community-directory look).
+  const widgetPanelClass =
+    "mb-8 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-800/40 p-5 md:p-6 shadow-sm";
+
+  const WidgetHeader = ({
+    section,
+    icon: Icon,
+    accent,
+  }: {
+    section: HomeSectionConfig;
+    icon: LucideIcon;
+    accent: string;
+  }) =>
+    section.title ? (
+      <div className="flex items-center gap-3 mb-5">
+        <span
+          className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md`}
+        >
+          <Icon className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+            {section.title}
+          </h2>
+          {section.subtitle && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{section.subtitle}</p>
+          )}
+        </div>
+      </div>
+    ) : null;
+
+  const renderSection = (section: HomeSectionConfig) => {
+    switch (section.sectionType) {
+      case 'red_tag_deals':
+        return (
+          <section key={section.id} className={widgetPanelClass}>
+            <WidgetHeader section={section} icon={Flame} accent="from-rose-500 to-red-600" />
+            <RedTagDeals hideHeader={true} />
+          </section>
+        );
+      case 'care_spectrum':
+        return (
+          <section key={section.id} className={widgetPanelClass}>
+            <WidgetHeader section={section} icon={Layers} accent="from-blue-500 to-indigo-600" />
+            <CareSpectrumSlider hideHeader={true} />
+          </section>
+        );
+      default:
+        return <DynamicCommunitySection key={section.id} section={section} />;
+    }
+  };
+
   // Empty list means admin deliberately hid/deleted all sections → render nothing
-  return (
-    <>
-      {list.map((section) => (
-        <DynamicCommunitySection key={section.id} section={section} />
-      ))}
-    </>
-  );
+  return <>{list.map(renderSection)}</>;
 }
 
 export default function MySeniorValetHome() {
@@ -2437,10 +2571,13 @@ export default function MySeniorValetHome() {
               <div className="max-w-7xl mx-auto">
                 {/* Communities Tab */}
                 <TabsContent value="communities" className="mt-1">
-              {/* Full Community Directory experience mirrored from /community-directory */}
-              <div className="mb-8">
-                <CommunityDirectorySections />
-              </div>
+              {/* The full home community layout is now ONE admin-driven list rendered by
+                  <HomeSectionRenderer /> below. The hardcoded CommunityDirectorySections
+                  mirror was removed to avoid duplicate sections — the complete rich set
+                  still lives on /community-directory. */}
+
+              {/* Directory-style search bar at the top of the Communities tab */}
+              <CommunitiesSearchBar />
 
               {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">

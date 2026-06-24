@@ -15,17 +15,19 @@ Directory" hero+stats block.
 
 - `client/src/pages/community-directory.tsx` is now a thin wrapper: Helmet (SEO) +
   NavigationHeader + promo banner + `<main><CommunityDirectorySections showHero /></main>`.
-- `client/src/pages/myseniorvalet-home.tsx` Communities tab renders
-  `<CommunityDirectorySections />` (no hero) where the embedded `SimplifiedMapPanel`
-  used to be.
+- `client/src/pages/myseniorvalet-home.tsx` Communities tab NO LONGER renders
+  `<CommunityDirectorySections />` (removed Task #289). The home tab is now ONE
+  admin-driven ordered list (see `home-admin-section-list.md`). `CommunityDirectorySections`
+  is now used ONLY by `/community-directory`.
 
 **Why:** The home Communities tab needed to mirror the full directory richness
 without forking ~3000 lines of JSX. One source prevents the two surfaces from
 drifting.
 
-**How to apply:** To add/change ANY directory section (new region, new brand slider,
-search-bar tweak, filter badge), edit ONLY `CommunityDirectorySections.tsx` — the
-change shows up on both `/community-directory` and the home Communities tab
-automatically. Do not re-add directory sections directly into either page. The
-duplicated react-query queryKeys dedupe network calls, so rendering the component on
-both pages does not double-fetch.
+**How to apply:** To add/change ANY directory section on `/community-directory` (new
+region, new brand slider, search-bar tweak, filter badge), edit
+`CommunityDirectorySections.tsx`. This NO LONGER affects the home Communities tab —
+home is the admin-driven list (`home-admin-section-list.md`), with its own
+`CommunitiesSearchBar` + `DynamicCommunitySection`. Do not re-add
+`CommunityDirectorySections` to home to change its look; restyle the home components
+instead.

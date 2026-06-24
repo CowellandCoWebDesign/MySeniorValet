@@ -3988,11 +3988,12 @@ function MapDefaultCard() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Map className="h-5 w-5 text-blue-500" />
-          Map Default Location
+          Map Search Page — Default Starting View
         </CardTitle>
         <CardDescription>
-          Set the starting center and zoom for fresh visitors to /map-search. Session storage takes
-          priority for returning visitors (2-hour window).
+          Controls the <strong>Map Search page</strong> (/map-search): the center and zoom level the
+          map opens at for fresh visitors. This is separate from the home page sections below.
+          Session storage takes priority for returning visitors (2-hour window).
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -4558,10 +4559,37 @@ const SECTION_TYPE_LABELS: Record<string, string> = {
   featured: "Featured Excellence",
   trending: "Trending (Rating ≥ 4.0)",
   highest_rated: "Highest Rated",
+  most_reviewed: "Most Reviewed",
   coastal: "Coastal Communities",
-  location: "By Location (City + State)",
+  location: "By Location (City / State / Country)",
   care_type: "By Care Type",
+  brand: "By Brand / Operator",
+  red_tag_deals: "Red Tag Deals (widget)",
+  care_spectrum: "Care Spectrum Explorer (widget)",
 };
+
+const SECTION_TYPE_DESCRIPTIONS: Record<string, string> = {
+  recently_discovered: "Newest communities added to the database, freshest first.",
+  hud: "Government-verified HUD affordable communities, lowest price first.",
+  featured: "Hand-picked or auto-selected premium communities.",
+  trending: "Communities rated 4.0 and above.",
+  highest_rated: "Top performers by rating and quality signals.",
+  most_reviewed: "Communities with the most family reviews.",
+  coastal: "Communities in coastal locations.",
+  location: "Filter by city, state, or country (e.g. Hawaii, Fort Worth TX, Canada).",
+  care_type: "Filter by a specific care type (e.g. Memory Care).",
+  brand: "Match communities by brand/operator name (e.g. Atria, Brookdale).",
+  red_tag_deals: "Special widget — limited-time deals carousel (no data-source config).",
+  care_spectrum: "Special widget — interactive care-spectrum explorer (no data-source config).",
+};
+
+// Section types whose data source is fixed (rich self-contained widgets) — admins can
+// reorder/rename/show-hide them, but there are no data-source/selection controls.
+const WIDGET_SECTION_TYPES = new Set(["red_tag_deals", "care_spectrum"]);
+
+// Common countries for the location section's country selector. Values match the
+// server-side countryAliases() expansion so a pick maps to the messy stored variants.
+const COUNTRY_OPTIONS = ["Canada", "Mexico", "Peru", "Cuba", "United States", "Australia"];
 
 const CARE_TYPE_OPTIONS = [
   "Assisted Living", "Memory Care", "Independent Living", "Skilled Nursing",
@@ -4768,10 +4796,27 @@ function SectionConfigFields({ sectionType, config, onChange }: {
     onChange(next);
   };
 
+  const description = SECTION_TYPE_DESCRIPTIONS[sectionType];
+
+  // Widgets (red_tag_deals / care_spectrum) have a fixed data source — no controls.
+  if (WIDGET_SECTION_TYPES.has(sectionType)) {
+    return (
+      <div className="mt-2 rounded border border-dashed border-gray-300 dark:border-gray-600 p-2.5">
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          {description ?? "Special widget — no data-source configuration."}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
+      {description && (
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{description}</p>
+      )}
+
       {sectionType === 'location' && (
-        <div className="grid grid-cols-2 gap-2 mt-2">
+        <div className="grid grid-cols-3 gap-2 mt-2">
           <div>
             <label className="text-xs font-medium text-gray-600 dark:text-gray-400">City (optional)</label>
             <CityAutocomplete
@@ -4791,6 +4836,30 @@ function SectionConfigFields({ sectionType, config, onChange }: {
               {US_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
             </select>
           </div>
+          <div>
+            <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Country</label>
+            <select
+              className="mt-1 w-full border rounded px-2 py-1.5 text-sm dark:bg-gray-700 dark:border-gray-600"
+              value={config?.country ?? ""}
+              onChange={(e) => onChange({ ...config, country: e.target.value || undefined })}
+            >
+              <option value="">— Any country —</option>
+              {COUNTRY_OPTIONS.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+        </div>
+      )}
+
+      {sectionType === 'brand' && (
+        <div className="mt-2">
+          <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Brand / Operator name</label>
+          <Input
+            value={config?.brand ?? ""}
+            placeholder="e.g. Atria, Brookdale, Oakmont"
+            onChange={(e) => onChange({ ...config, brand: e.target.value || undefined })}
+            className="mt-1"
+          />
+          <p className="text-[11px] text-gray-400 mt-1">Matches communities whose name contains this text.</p>
         </div>
       )}
 
@@ -4943,7 +5012,12 @@ function SortableSectionRow({
               <p className="text-xs text-gray-500 truncate">
                 {SECTION_TYPE_LABELS[section.sectionType as string] ?? section.sectionType}
                 {section.config?.city && ` · ${section.config.city}, ${section.config.state}`}
+                {!section.config?.city && section.config?.state && ` · ${section.config.state}`}
+                {section.config?.country && ` · ${section.config.country}`}
+                {section.config?.brand && ` · ${section.config.brand}`}
                 {section.config?.careType && ` · ${section.config.careType}`}
+                {section.config?.selectionMode === 'curated' && ` · curated (${Array.isArray(section.config?.communityIds) ? section.config.communityIds.length : 0})`}
+                {section.config?.selectionMode === 'pinned' && ` · pinned (${Array.isArray(section.config?.communityIds) ? section.config.communityIds.length : 0})`}
               </p>
             </div>
             <Badge variant={section.enabled ? "default" : "secondary"} className="text-xs flex-shrink-0">
@@ -5493,8 +5567,10 @@ function HomeSectionsAdmin() {
                 Home Page Community Sections
               </CardTitle>
               <CardDescription>
-                Manage the home page <strong>community carousels</strong> only — their order, titles, visibility, and data source.
-                This does not control other parts of the home page (hero, search, map, banners, news, etc.).
+                Manage the <strong>entire community section list</strong> on the home page "Communities" tab —
+                order, titles, visibility, and data source for every section (brand sliders, regional/country grids,
+                HUD, Red Tag Deals, Care Spectrum, featured & rated carousels). Does not affect other parts of the home
+                page (hero, search, map, banners, news) or the full /community-directory page.
               </CardDescription>
             </div>
             <Button onClick={() => setShowAddForm(true)} size="sm">

@@ -393,11 +393,34 @@ export function registerCommunityRoutes(app: Express) {
           ? sql` AND "id" NOT IN (${sql.join(ids.map((i) => sql`${i}`), sql`, `)})`
           : sql``;
 
+      // Expand a single country value into the messy real-world variants stored in
+      // the DB (ISO-2 codes + full names) so a "Canada"/"Mexico" section matches all
+      // of its rows. Falls back to the raw value for anything we don't have aliases for.
+      const countryAliases = (input: string): string[] => {
+        const v = input.trim().toLowerCase();
+        const groups: Record<string, string[]> = {
+          canada: ['CA', 'Canada', 'CAN'],
+          ca: ['CA', 'Canada', 'CAN'],
+          mexico: ['Mexico', 'MX', 'México'],
+          mx: ['Mexico', 'MX', 'México'],
+          peru: ['PE', 'Peru', 'Perú'],
+          pe: ['PE', 'Peru', 'Perú'],
+          cuba: ['CU', 'Cuba'],
+          cu: ['CU', 'Cuba'],
+          'united states': ['US', 'USA', 'United States'],
+          us: ['US', 'USA', 'United States'],
+          usa: ['US', 'USA', 'United States'],
+          australia: ['AU', 'Australia'],
+          au: ['AU', 'Australia'],
+        };
+        return groups[v] ?? [input];
+      };
+
       // Auto-fill query by section type, honoring optional exclusions + limit.
       // rating and rent_per_month are DECIMAL columns in the DB — compare directly.
       async function runAutoQuery(
         t: string,
-        opts: { city?: string | null; state?: string | null; careType?: string | null; exclude?: number[]; limit: number },
+        opts: { city?: string | null; state?: string | null; careType?: string | null; country?: string | null; brand?: string | null; exclude?: number[]; limit: number },
       ): Promise<any[]> {
         const ex = excludeClause(opts.exclude ?? []);
         const lim = opts.limit;
@@ -433,9 +456,17 @@ export function registerCommunityRoutes(app: Express) {
         } else if (t === 'location') {
           const cityVal = opts.city || null;
           const stateVal = opts.state || null;
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          const countryVal = opts.country || null;
+          const countryClause = countryVal
+            ? sql` AND "country" IN (${sql.join(countryAliases(countryVal).map((c) => sql`${c}`), sql`, `)})`
+            : sql``;
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${countryClause}${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'care_type' && opts.careType) {
           r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "care_types"::text[] && ARRAY[${opts.careType}]::text[]${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+        } else if (t === 'brand' && opts.brand) {
+          // Brand sliders: match communities whose name contains the brand string.
+          const like = `%${opts.brand.trim()}%`;
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "name" ILIKE ${like}${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else {
           return [];
         }
@@ -467,6 +498,8 @@ export function registerCommunityRoutes(app: Express) {
       let cfgCity: string | null = (city as string) || null;
       let cfgState: string | null = (state as string) || null;
       let cfgCareType: string | null = (careType as string) || null;
+      let cfgCountry: string | null = (req.query.country as string) || null;
+      let cfgBrand: string | null = (req.query.brand as string) || null;
 
       // When a sectionId is supplied, the stored section config is authoritative.
       if (sectionId) {
@@ -480,6 +513,8 @@ export function registerCommunityRoutes(app: Express) {
             cfgCity = cfg.city ?? null;
             cfgState = cfg.state ?? null;
             cfgCareType = cfg.careType ?? null;
+            cfgCountry = cfg.country ?? null;
+            cfgBrand = cfg.brand ?? null;
             mode = cfg.selectionMode === 'curated' || cfg.selectionMode === 'pinned' ? cfg.selectionMode : 'auto';
             communityIds = Array.isArray(cfg.communityIds)
               ? cfg.communityIds.map((n: any) => Number(n)).filter((n: number) => Number.isFinite(n))
@@ -499,7 +534,7 @@ export function registerCommunityRoutes(app: Express) {
         // Pinned communities first, then auto-fill the remaining slots.
         const pinned = await fetchByIds(communityIds, limitNum);
         const auto = await runAutoQuery(cfgType, {
-          city: cfgCity, state: cfgState, careType: cfgCareType,
+          city: cfgCity, state: cfgState, careType: cfgCareType, country: cfgCountry, brand: cfgBrand,
           exclude: Array.from(new Set([...communityIds, ...excludeIds])),
           limit: limitNum - pinned.length,
         });
@@ -507,7 +542,7 @@ export function registerCommunityRoutes(app: Express) {
       } else {
         // Auto-fill, minus any excluded communities.
         rows = await runAutoQuery(cfgType, {
-          city: cfgCity, state: cfgState, careType: cfgCareType,
+          city: cfgCity, state: cfgState, careType: cfgCareType, country: cfgCountry, brand: cfgBrand,
           exclude: excludeIds,
           limit: limitNum,
         });

@@ -1,6 +1,17 @@
 import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Trophy,
+  MapPin,
+  Star,
+  Sparkles,
+  Shield,
+  Building2,
+  Globe,
+  type LucideIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommunityCard } from "@/components/CommunityCard";
@@ -17,6 +28,7 @@ export interface HomeSectionConfig {
     state?: string;
     careType?: string;
     country?: string;
+    brand?: string;
     selectionMode?: "auto" | "curated" | "pinned";
     communityIds?: number[];
     excludeIds?: number[];
@@ -25,6 +37,23 @@ export interface HomeSectionConfig {
 
 interface Props {
   section: HomeSectionConfig;
+}
+
+// Per-section visual treatment so each admin section reads as a distinct,
+// polished block (mirroring the richer /community-directory aesthetic).
+const SECTION_STYLE: Record<string, { icon: LucideIcon; accent: string }> = {
+  featured: { icon: Trophy, accent: "from-amber-400 to-orange-500" },
+  highest_rated: { icon: Star, accent: "from-yellow-400 to-amber-500" },
+  most_reviewed: { icon: Star, accent: "from-orange-400 to-rose-500" },
+  recently_discovered: { icon: Sparkles, accent: "from-fuchsia-500 to-purple-600" },
+  hud: { icon: Shield, accent: "from-emerald-500 to-green-600" },
+  location: { icon: MapPin, accent: "from-sky-500 to-blue-600" },
+  brand: { icon: Building2, accent: "from-indigo-500 to-violet-600" },
+  country: { icon: Globe, accent: "from-teal-500 to-cyan-600" },
+};
+
+function getStyle(sectionType: string) {
+  return SECTION_STYLE[sectionType] ?? { icon: Building2, accent: "from-blue-500 to-indigo-600" };
 }
 
 function buildQueryKey(section: HomeSectionConfig): [string, Record<string, string>] {
@@ -64,37 +93,49 @@ export function DynamicCommunitySection({ section }: Props) {
   };
 
   const list = Array.isArray(communities) ? communities : [];
+  const { icon: Icon, accent } = getStyle(section.sectionType);
+
+  const Header = (
+    <div className="flex items-center gap-3 mb-5">
+      <span
+        className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md`}
+      >
+        <Icon className="h-5 w-5" />
+      </span>
+      <div className="min-w-0">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+          {section.title}
+        </h2>
+        {section.subtitle && (
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{section.subtitle}</p>
+        )}
+      </div>
+    </div>
+  );
+
+  const panelClass =
+    "mb-8 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-800/40 p-5 md:p-6 shadow-sm";
 
   if (!isLoading && list.length === 0) {
     return (
-      <div className="mb-6 space-y-3">
-        <div className="text-center">
-          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">{section.title}</h2>
-          {section.subtitle && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{section.subtitle}</p>}
-        </div>
+      <section className={panelClass}>
+        {Header}
         <p className="text-center text-sm text-gray-400 dark:text-gray-500 py-10 italic">
           No communities found for this section.
         </p>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="mb-6 space-y-3">
-      <div className="text-center">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-          {section.title}
-        </h2>
-        {section.subtitle && (
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{section.subtitle}</p>
-        )}
-      </div>
+    <section className={panelClass}>
+      {Header}
 
       <div className="relative group">
         <Button
           variant="ghost"
           size="icon"
-          className="hidden md:inline-flex absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110"
+          className="hidden md:inline-flex absolute -left-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110"
           onClick={() => scroll("left")}
         >
           <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
@@ -102,7 +143,7 @@ export function DynamicCommunitySection({ section }: Props) {
         <Button
           variant="ghost"
           size="icon"
-          className="hidden md:inline-flex absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110"
+          className="hidden md:inline-flex absolute -right-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110"
           onClick={() => scroll("right")}
         >
           <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
@@ -129,6 +170,6 @@ export function DynamicCommunitySection({ section }: Props) {
               ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
