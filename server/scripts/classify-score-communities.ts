@@ -19,10 +19,11 @@
  * Production cleanup:
  *   - Full one-time pass (run against the prod DATABASE_URL, ~30-60s for ~34k rows):
  *       npx tsx server/scripts/classify-score-communities.ts
- *   - Incremental top-up runs automatically after each merge via scripts/post-merge.sh
- *     using `--skip-checked-hours=168 --max-seconds=90`, so newly-added or stale rows
- *     are re-classified in resumable, time-boxed chunks without exceeding the hook's
- *     timeout. The pass is idempotent and reversible (is_hidden only, no deletes).
+ *   - This is a manual data op. It is intentionally NOT run from the post-merge hook
+ *     (scripts/post-merge.sh): the full pass takes minutes and would exceed the hook's
+ *     hard ~20s timeout, failing every merge's setup. Run it manually (or via the
+ *     production task) whenever newly-added or stale rows need re-classification.
+ *     The pass is idempotent and reversible (is_hidden only, no deletes).
  */
 import { runVisibilityPass, type VisibilityPassStats } from "../services/community-visibility";
 

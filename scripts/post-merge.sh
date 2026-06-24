@@ -3,9 +3,12 @@ set -e
 npm install
 node scripts/post-merge-migrations.mjs
 
-# Data pass: classify/score/quarantine communities incrementally.
-# Time-boxed (--max-seconds) and stale-aware (--skip-checked-hours) so it stays
-# within the hook's timeout and resumes across merges. Idempotent + reversible
-# (writes is_hidden only, never deletes). Never fail the merge on this — the
-# full one-time prod cleanup is run manually (see classify-score-communities.ts).
-npx tsx server/scripts/classify-score-communities.ts --skip-checked-hours=168 --max-seconds=90 || true
+# NOTE: The community classify/score/quarantine data pass is intentionally NOT
+# run here. The full reconciliation takes minutes (~87s for ~34k rows) and would
+# blow the post-merge hook's hard 20s timeout, failing every merge's setup. The
+# hook is for fast, additive schema migrations only.
+#
+# Run the data pass manually (idempotent + reversible, is_hidden only, no deletes):
+#   npx tsx server/scripts/classify-score-communities.ts            # apply to all
+#   npx tsx server/scripts/classify-score-communities.ts --dry-run  # report only
+# See server/scripts/classify-score-communities.ts for full options.
