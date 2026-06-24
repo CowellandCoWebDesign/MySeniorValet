@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Toggle } from '@/components/ui/toggle';
 import { useDebounce } from '@/hooks/use-debounce';
-import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 import { CommunityCard } from '@/components/CommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';

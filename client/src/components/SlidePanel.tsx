@@ -3,7 +3,6 @@ import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { Heart, Star } from "lucide-react";
 import { getCommunityUrl } from "@/lib/community-url";
-import { PrioritizedCommunityCard } from "./PrioritizedCommunityCard";
 import { CommunityCard } from "@/components/CommunityCard";
 
 export default function SlidePanel({

@@ -4,7 +4,6 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Info, ArrowRight, ChevronLeft, ChevronRight, Flag } from "lucide-react";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { CommunityCard } from "@/components/CommunityCard";
 
 export function GeographicCommunitiesSection() {

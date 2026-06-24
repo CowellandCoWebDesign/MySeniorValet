@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { CommunityCard } from "@/components/CommunityCard";
 
 export interface HomeSectionConfig {

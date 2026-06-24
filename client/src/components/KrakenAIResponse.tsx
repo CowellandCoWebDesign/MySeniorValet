@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Brain, Sparkles, MessageCircle, TrendingUp, MapPin, DollarSign, Star, Users, ChevronRight, ExternalLink, Phone, Globe, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EnhancedCommunityCard } from './EnhancedCommunityCard';
 import { CommunityCard } from '@/components/CommunityCard';
 
 interface KrakenAIResponseProps {

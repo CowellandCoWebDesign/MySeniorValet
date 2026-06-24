@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { FamilyShareButton } from '@/components/family-share-button';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { CommunityCard } from '@/components/CommunityCard';
 import { useAuth } from '@/hooks/useAuth';
 import { Link as RouterLink, useLocation } from 'wouter';

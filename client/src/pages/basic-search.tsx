@@ -11,7 +11,6 @@ import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import { SearchingMascot } from "@/components/mascot";
-import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
 import { CommunityCard } from "@/components/CommunityCard";
 // Map imports - GeoJSON integration following Leaflet documentation
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvents } from "react-leaflet";

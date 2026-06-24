@@ -14,9 +14,6 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import Map from '@/components/Map';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
-import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
-import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { CommunityCard } from '@/components/CommunityCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { SEOMetaTags } from '@/components/SEOMetaTags';

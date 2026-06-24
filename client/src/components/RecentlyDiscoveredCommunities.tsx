@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { CommunityCard } from '@/components/CommunityCard';
 
 export function RecentlyDiscoveredCommunities() {

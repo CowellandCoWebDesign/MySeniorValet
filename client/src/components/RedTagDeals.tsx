@@ -7,7 +7,6 @@ import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, 
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { CommunityCard } from "@/components/CommunityCard";
 
 interface RedTagDeal {

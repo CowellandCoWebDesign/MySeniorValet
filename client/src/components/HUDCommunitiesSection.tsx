@@ -4,7 +4,6 @@ import { Link } from 'wouter';
 import { ChevronLeft, ChevronRight, Home, Shield } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { CommunityCard } from '@/components/CommunityCard';
 
 export function HUDCommunitiesSection() {

@@ -185,7 +185,6 @@ import MarketingHub from "@/pages/marketing-hub";
 import AvailabilityHeatmapPage from "@/pages/availability-heatmap";
 import CompetitiveAnalysis from "@/pages/competitive-analysis";
 import TestCommunityCards from "@/pages/test-community-cards";
-import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
 import MoveInCoordination from "@/pages/move-in-coordination";
@@ -443,7 +442,6 @@ function Router() {
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route path="/test-community-cards" component={TestCommunityCards} />
-      <Route path="/enhanced-card-test" component={EnhancedCardTest} />
       <Route path="/perplexity-test" component={PerplexityTest} />
       
       {/* Phase 5 Enterprise Features */}

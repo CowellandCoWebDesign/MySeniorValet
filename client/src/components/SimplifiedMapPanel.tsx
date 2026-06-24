@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import Map from "@/components/Map";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { CommunityCard } from "@/components/CommunityCard";
 import { Button } from "@/components/ui/button";
 import { Rows3, Columns2, MapPin, Sparkles } from "lucide-react";

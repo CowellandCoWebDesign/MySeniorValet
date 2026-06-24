@@ -6,7 +6,6 @@ import heroLighthouseSunset from "@assets/generated_images/hero_lighthouse_sunse
 import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
 import { SimplifiedMapPanel } from "@/components/SimplifiedMapPanel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -20,7 +19,6 @@ import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences
 import { useAuth } from "@/hooks/useAuth";
 import { queryClient } from "@/lib/queryClient";
 import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi } from "lucide-react";
-import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";

@@ -12,7 +12,6 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import Map from '@/components/Map';
-import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
 import { CommunityCard } from '@/components/CommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '@/hooks/use-debounce';

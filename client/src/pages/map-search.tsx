@@ -19,7 +19,6 @@ import { Label } from '@/components/ui/label';
 import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
-import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
 import { CommunityCard } from '@/components/CommunityCard';
 import { VendorCard } from '@/components/VendorCard';
 import EnhancedVendorCard from '@/components/EnhancedVendorCard';

@@ -2,7 +2,6 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
 import { CommunityCard } from '@/components/CommunityCard';
 import { Shield, Home, Heart, CheckCircle } from 'lucide-react';
 import { Link } from 'wouter';
