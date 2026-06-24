@@ -7684,6 +7684,8 @@ export const seniorResources = pgTable("senior_resources", {
   
   metadata: jsonb("metadata").$type<{
     discoveryQuery?: string;
+    discoveryCategory?: string; // Directory category this resource was found under
+    discoveryCounty?: string; // County the discovery was run for (county-aware cache lookup)
     tags?: string[];
     programs?: string[]; // Government programs like SNAP, Meals on Wheels, etc.
     lastEnrichedAt?: string;
