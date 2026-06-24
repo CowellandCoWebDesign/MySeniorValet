@@ -4996,21 +4996,28 @@ function SortableSectionRow({
           </div>
         </div>
       ) : (
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3 min-w-0 sm:flex-1">
             <button
               {...attributes}
               {...listeners}
-              className="cursor-grab active:cursor-grabbing touch-none p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
+              className="cursor-grab active:cursor-grabbing touch-none p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none flex-shrink-0 mt-0.5"
               aria-label="Drag to reorder"
             >
               <GripVertical className="h-4 w-4" />
             </button>
-            <span className="text-xs text-gray-400 w-6 text-center font-mono">{idx + 1}</span>
+            <span className="text-xs text-gray-400 w-6 text-center font-mono flex-shrink-0 mt-0.5">{idx + 1}</span>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{section.title}</p>
-              <p className="text-xs text-gray-500 truncate">
-                {SECTION_TYPE_LABELS[section.sectionType as string] ?? section.sectionType}
+              <div className="flex items-center gap-2 flex-wrap">
+                <p className="font-medium text-sm break-words">{section.title}</p>
+                <Badge variant={section.enabled ? "default" : "secondary"} className="text-xs flex-shrink-0">
+                  {section.enabled ? "Visible" : "Hidden"}
+                </Badge>
+              </div>
+              <p className="text-xs text-gray-500 mt-0.5 break-words">
+                <span className="font-medium text-gray-600 dark:text-gray-400">
+                  {SECTION_TYPE_LABELS[section.sectionType as string] ?? section.sectionType}
+                </span>
                 {section.config?.city && ` · ${section.config.city}, ${section.config.state}`}
                 {!section.config?.city && section.config?.state && ` · ${section.config.state}`}
                 {section.config?.country && ` · ${section.config.country}`}
@@ -5020,11 +5027,8 @@ function SortableSectionRow({
                 {section.config?.selectionMode === 'pinned' && ` · pinned (${Array.isArray(section.config?.communityIds) ? section.config.communityIds.length : 0})`}
               </p>
             </div>
-            <Badge variant={section.enabled ? "default" : "secondary"} className="text-xs flex-shrink-0">
-              {section.enabled ? "Visible" : "Hidden"}
-            </Badge>
           </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
+          <div className="flex items-center gap-1 flex-shrink-0 self-end sm:self-center pl-9 sm:pl-0">
             <Button
               variant="outline"
               size="sm"
