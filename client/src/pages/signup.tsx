@@ -48,11 +48,35 @@ export default function SignupPage() {
     setIsSubmitting(true);
     
     try {
+      // Capture real, optional context about this signup (no fabrication).
+      const params = new URLSearchParams(window.location.search);
+      const utm: Record<string, string> = {};
+      ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].forEach((key) => {
+        const value = params.get(key);
+        if (value) utm[key] = value;
+      });
+      const locale = (() => {
+        try {
+          return localStorage.getItem("language") || undefined;
+        } catch {
+          return undefined;
+        }
+      })();
+
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Include cookies with request
-        body: JSON.stringify({ firstName, lastName, email, password }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password,
+          source: window.location.pathname + window.location.search,
+          referrer: document.referrer || undefined,
+          locale,
+          utm: Object.keys(utm).length ? utm : undefined,
+        }),
       });
       
       const data = await response.json();

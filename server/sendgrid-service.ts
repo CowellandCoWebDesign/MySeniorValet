@@ -82,10 +82,28 @@ export async function sendEmail(params: EmailParams & { disableTracking?: boolea
 }
 
 // Super admin notification specifically
-export async function notifySuperAdmin(title: string, message: string, data?: any) {
+export async function notifySuperAdmin(
+  title: string,
+  message: string,
+  data?: any,
+  options?: { htmlContent?: string; textContent?: string }
+) {
   // Send to CowellandCoWebDesign@gmail.com with BCC to hello
   const recipients = ['CowellandCoWebDesign@gmail.com'];
-  
+
+  // Callers can supply pre-formatted, scannable HTML/text (e.g. labeled rows)
+  // via options; otherwise fall back to dumping `data` as JSON.
+  const detailHtml = options?.htmlContent
+    ? options.htmlContent
+    : data
+      ? `<pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>`
+      : '';
+  const detailText = options?.textContent
+    ? options.textContent
+    : data
+      ? JSON.stringify(data, null, 2)
+      : '';
+
   for (const recipient of recipients) {
     await sendEmail({
       to: recipient,
@@ -97,12 +115,12 @@ export async function notifySuperAdmin(title: string, message: string, data?: an
           <h2 style="color: #1f2937;">${title}</h2>
           <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p>${message}</p>
-            ${data ? `<pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>` : ''}
+            ${detailHtml}
           </div>
           <p style="color: #6b7280; font-size: 12px;">MySeniorValet System - ${new Date().toLocaleString()}</p>
         </div>
       `,
-      text: `${title}\n\n${message}\n\n${data ? JSON.stringify(data, null, 2) : ''}`
+      text: `${title}\n\n${message}\n\n${detailText}`
     });
   }
   return true;
