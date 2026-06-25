@@ -95,13 +95,18 @@ export interface DirectoryResponse {
     discoveredCount: number;
     nationalCount: number;
     isNorCal: boolean;
+    hasCuratedCoverage: boolean;
+    curatedRegion: string | null;
     discoveryRan: boolean;
     timestamp: string;
   };
 }
 
 // ---------------------------------------------------------------------------
-// Northern California curated home base (verified, source-cited)
+// Curated home-base regions (verified, source-cited).
+// Originally Northern-California-only; now generalized to any curated metro so
+// the "Verified Local" badge + coverage banner light up wherever we have
+// hand-verified listings. See CURATED_REGIONS below.
 // ---------------------------------------------------------------------------
 
 type CuratedItem = Omit<ResourceItem, "scope" | "verified"> & {
@@ -225,6 +230,23 @@ const NORCAL_CURATED: CuratedItem[] = [
     counties: ["trinity"],
   },
 
+  // ---- Housing & Placement ----
+  {
+    name: "Housing Authority of the County of Shasta (HCAP)",
+    category: "housing",
+    type: "Public Housing Authority (Senior Housing)",
+    address: "2600 Park Marina Drive",
+    city: "Redding", state: "CA", county: "Shasta",
+    phone: "(530) 225-5160",
+    website: "https://www.shastacounty.gov/housing-community-action-programs",
+    services: ["Senior housing communities (Burney Commons, Cascade Village)", "Housing Choice Vouchers (Section 8)", "Serves Shasta, Siskiyou, Trinity & Modoc counties"],
+    hours: "Mon–Fri 9:00 AM – 4:00 PM",
+    eligibility: "Income-qualified seniors in Shasta, Siskiyou, Trinity & Modoc Counties",
+    isFree: false, pricingSummary: "Income-based rent",
+    source: "Housing Authority of the County of Shasta", sourceUrl: "https://www.shastacounty.gov/housing-community-action-programs",
+    counties: ["shasta", "siskiyou", "trinity", "modoc"],
+  },
+
   // ---- Veterans ----
   {
     name: "Shasta County Veterans Service Office",
@@ -321,6 +343,562 @@ const NORCAL_CURATED: CuratedItem[] = [
   },
 ];
 
+/**
+ * Additional hand-verified metros beyond the NorCal home base. Same structure
+ * and Golden-Data standard (real, source-cited agencies). Each item's `state`
+ * + `counties` decide where it appears; the coverage banner uses CURATED_REGIONS.
+ */
+const EXTENDED_CURATED: CuratedItem[] = [
+  // ===================== Greater Sacramento (CA) =====================
+  {
+    name: "Agency on Aging Area 4 (AAA4)",
+    category: "aging-county",
+    type: "Area Agency on Aging",
+    address: "1401 El Camino Avenue, 4th Floor",
+    city: "Sacramento", state: "CA", county: "Sacramento",
+    phone: "(916) 486-1876",
+    website: "https://www.agencyonaging4.org",
+    services: ["Information & Assistance / ADRC: 1-800-211-4545", "Long-Term Care Ombudsman", "Family Caregiver Support", "HICAP Medicare counseling", "Older Americans Act programs"],
+    hours: "Mon–Fri 9:00 AM – 12:00 PM & 1:00 – 4:00 PM",
+    eligibility: "Adults 60+ in Sacramento, Nevada, Placer, Sierra, Sutter, Yolo & Yuba Counties",
+    isFree: true, pricingSummary: "Free",
+    source: "Agency on Aging Area 4", sourceUrl: "https://www.agencyonaging4.org",
+    counties: ["sacramento", "placer", "yolo"],
+  },
+  {
+    name: "Sacramento County In-Home Supportive Services (IHSS)",
+    category: "aging-county",
+    type: "County Aging & Adult Services",
+    city: "Sacramento", state: "CA", county: "Sacramento",
+    phone: "(916) 874-9471",
+    website: "https://ha.saccounty.gov",
+    services: ["In-Home Supportive Services (IHSS)", "IHSS Public Authority / providers: (916) 874-2888", "Report adult abuse (APS, 24/7): 1-833-401-0832"],
+    hours: "Mon–Fri 9:00 AM – 4:00 PM",
+    eligibility: "Older and dependent adults in Sacramento County",
+    isFree: true, pricingSummary: "Free",
+    source: "Sacramento County Department of Human Assistance", sourceUrl: "https://ha.saccounty.gov",
+    counties: ["sacramento"],
+  },
+  {
+    name: "Sacramento County Veterans Service Office",
+    category: "veterans",
+    type: "County Veterans Service Office",
+    address: "3075 Prospect Park Drive, Suite 170",
+    city: "Rancho Cordova", state: "CA", county: "Sacramento",
+    phone: "(916) 874-6811",
+    website: "https://ha.saccounty.gov",
+    services: ["VA benefits claims assistance", "Aid & Attendance pension help", "Survivor benefits", "Healthcare enrollment"],
+    hours: "Mon–Fri 8:00 AM – 4:00 PM",
+    eligibility: "Veterans and dependents in Sacramento County",
+    isFree: true, pricingSummary: "Free",
+    source: "Sacramento County Veterans Service Office", sourceUrl: "https://ha.saccounty.gov",
+    counties: ["sacramento"],
+  },
+  {
+    name: "Legal Services of Northern California — Sacramento",
+    category: "financial-legal",
+    type: "Free Civil Legal Aid (Senior Legal Services)",
+    address: "515 12th Street",
+    city: "Sacramento", state: "CA", county: "Sacramento",
+    phone: "(916) 551-2150",
+    website: "https://lsnc.net/office/sacramento",
+    services: ["Wills, trusts & powers of attorney", "Elder abuse restraining orders", "Housing preservation", "Public benefits & healthcare"],
+    hours: "Mon–Fri 8:30 AM – 12:00 PM & 1:00 – 5:00 PM",
+    eligibility: "Free Senior Legal Services for adults 60+; serves the greater Sacramento region",
+    isFree: true, pricingSummary: "Free",
+    source: "Legal Services of Northern California", sourceUrl: "https://lsnc.net/office/sacramento",
+    counties: ["sacramento", "placer", "yolo"],
+  },
+  {
+    name: "211 Sacramento — Community Link Capital Region",
+    category: "community-211",
+    type: "Free Information & Referral Line",
+    city: "Sacramento", state: "CA", county: "Sacramento",
+    phone: "211",
+    website: "https://www.211sacramento.org",
+    services: ["24/7 multilingual information line", "Senior services referrals", "Food, housing & utility assistance", "Toll-free: 1-844-546-1464"],
+    hours: "24/7",
+    eligibility: "Open to all — dial 211",
+    isFree: true, pricingSummary: "Free",
+    source: "Community Link Capital Region (211 Sacramento)", sourceUrl: "https://www.211sacramento.org",
+    counties: ["sacramento", "placer", "yolo"],
+  },
+  {
+    name: "Alzheimer's Association — Northern California & Northern Nevada (Sacramento)",
+    category: "events-support",
+    type: "Dementia Support",
+    city: "Sacramento", state: "CA", county: "Sacramento",
+    phone: "1-800-272-3900",
+    website: "https://www.alz.org/norcal",
+    services: ["24/7 helpline", "Caregiver & dementia support groups", "Education programs", "Care consultations"],
+    hours: "24/7 helpline",
+    eligibility: "Families affected by Alzheimer's and dementia",
+    isFree: true, pricingSummary: "Free",
+    source: "Alzheimer's Association", sourceUrl: "https://www.alz.org/norcal",
+    counties: ["sacramento", "placer", "yolo"],
+  },
+  {
+    name: "WelbeHealth PACE — Elk Grove (Sacramento County)",
+    category: "healthcare",
+    type: "PACE — Program of All-Inclusive Care for the Elderly",
+    address: "7560 Sheldon Rd",
+    city: "Elk Grove", state: "CA", county: "Sacramento",
+    phone: "(916) 250-1627",
+    website: "https://welbehealth.com/locations/elk-grove/",
+    services: ["All-inclusive medical & dental care", "Physical & occupational therapy", "Behavioral health", "Transportation, meals & personal care", "Enrollment: (888) 530-4415"],
+    hours: "Mon–Fri 8:00 AM – 4:30 PM",
+    eligibility: "Age 55+, needing nursing-home level care and able to live safely in the community (Sacramento area)",
+    isFree: false, pricingSummary: "No cost with Medi-Cal or Medicare + Medi-Cal",
+    source: "WelbeHealth", sourceUrl: "https://welbehealth.com/locations/elk-grove/",
+    counties: ["sacramento"],
+  },
+  {
+    name: "Sacramento Housing & Redevelopment Agency (SHRA)",
+    category: "housing",
+    type: "Public Housing Authority (Senior Housing)",
+    address: "801 12th Street",
+    city: "Sacramento", state: "CA", county: "Sacramento",
+    phone: "(916) 440-1390",
+    website: "https://www.shra.org",
+    services: ["Elderly public housing (head of household 62+)", "Housing Choice Vouchers (Section 8)", "Waitlists posted at sacwaitlist.com"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM (closed every other Friday)",
+    eligibility: "Income-qualified seniors 62+ in Sacramento County",
+    isFree: false, pricingSummary: "Income-based rent",
+    source: "Sacramento Housing & Redevelopment Agency", sourceUrl: "https://www.shra.org",
+    counties: ["sacramento"],
+  },
+
+  // ===================== Greater Los Angeles (CA) =====================
+  {
+    name: "Los Angeles County Aging & Disabilities Department",
+    category: "aging-county",
+    type: "Area Agency on Aging",
+    address: "510 S. Vermont Ave., 11th Floor",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "(800) 510-2020",
+    website: "https://ad.lacounty.gov",
+    services: ["Information & Assistance for older adults: (626) 414-6439", "Long-Term Care Ombudsman", "Adult Protective Services referrals", "Family caregiver support"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Older adults and adults with disabilities in Los Angeles County",
+    isFree: true, pricingSummary: "Free",
+    source: "Los Angeles County Aging & Disabilities Department", sourceUrl: "https://ad.lacounty.gov",
+    counties: ["los angeles"],
+  },
+  {
+    name: "LA County Adult Protective Services (WDACS)",
+    category: "aging-county",
+    type: "County Aging & Adult Services",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "1-877-477-3646",
+    website: "https://wdacs.lacounty.gov/programs/aps",
+    services: ["24/7 elder & dependent adult abuse hotline", "Long-Term Care Ombudsman: 1-800-334-9473", "Case management"],
+    hours: "24/7 hotline",
+    eligibility: "Older and dependent adults in Los Angeles County",
+    isFree: true, pricingSummary: "Free",
+    source: "LA County Workforce Development, Aging & Community Services (WDACS)", sourceUrl: "https://wdacs.lacounty.gov/programs/aps",
+    counties: ["los angeles"],
+  },
+  {
+    name: "LA County Department of Military & Veterans Affairs",
+    category: "veterans",
+    type: "County Veterans Affairs",
+    address: "1816 S. Figueroa St (Bob Hope Patriotic Hall)",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "(213) 765-9680",
+    website: "https://mva.lacounty.gov",
+    services: ["VA benefits claims assistance", "Aid & Attendance pension help", "Survivor benefits", "Veteran resource navigation"],
+    hours: "Mon–Fri 8:00 AM – 4:00 PM",
+    eligibility: "Veterans and dependents in Los Angeles County",
+    isFree: true, pricingSummary: "Free",
+    source: "LA County Department of Military & Veterans Affairs", sourceUrl: "https://mva.lacounty.gov",
+    counties: ["los angeles"],
+  },
+  {
+    name: "Center for Health Care Rights — HICAP (Los Angeles County)",
+    category: "financial-legal",
+    type: "Free Medicare Counseling (HICAP)",
+    address: "520 S. Lafayette Park Place",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "(213) 383-4519",
+    website: "https://www.healthcarerights.org",
+    services: ["Free Medicare counseling", "Plan comparison (Advantage & Part D)", "Claim & appeal help", "HICAP helpline: 1-800-824-0780"],
+    hours: "Mon–Fri 9:00 AM – 5:00 PM",
+    eligibility: "Medicare beneficiaries in Los Angeles County",
+    isFree: true, pricingSummary: "Free",
+    source: "Center for Health Care Rights (HICAP)", sourceUrl: "https://www.healthcarerights.org",
+    counties: ["los angeles"],
+  },
+  {
+    name: "Bet Tzedek Legal Services",
+    category: "financial-legal",
+    type: "Free Civil Legal Aid (Elder Law)",
+    address: "3250 Wilshire Blvd, 13th Floor",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "(323) 939-0506",
+    website: "https://www.bettzedek.org",
+    services: ["Elder law & conservatorship alternatives", "Wills & powers of attorney", "Elder abuse & fraud", "Housing & public benefits"],
+    hours: "Mon–Fri 9:00 AM – 5:00 PM",
+    eligibility: "Free legal help for low-income residents of Los Angeles County",
+    isFree: true, pricingSummary: "Free",
+    source: "Bet Tzedek Legal Services", sourceUrl: "https://www.bettzedek.org",
+    counties: ["los angeles"],
+  },
+  {
+    name: "211 LA",
+    category: "community-211",
+    type: "Free Information & Referral Line",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "211",
+    website: "https://www.211la.org",
+    services: ["24/7 multilingual information line", "Senior services referrals", "Food, housing & utility assistance", "Outside LA County: (800) 339-6993"],
+    hours: "24/7",
+    eligibility: "Open to all — dial 211",
+    isFree: true, pricingSummary: "Free",
+    source: "211 LA", sourceUrl: "https://www.211la.org",
+    counties: ["los angeles"],
+  },
+  {
+    name: "Alzheimer's Los Angeles",
+    category: "events-support",
+    type: "Dementia Support",
+    address: "2922 Crenshaw Blvd, Suite 125",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "(844) 435-7259",
+    website: "https://www.alzheimersla.org",
+    services: ["24/7 bilingual helpline", "Caregiver & dementia support groups", "Care counseling", "Education programs"],
+    hours: "24/7 helpline",
+    eligibility: "Families affected by Alzheimer's and dementia in Southern California",
+    isFree: true, pricingSummary: "Free",
+    source: "Alzheimer's Los Angeles", sourceUrl: "https://www.alzheimersla.org",
+    counties: ["los angeles"],
+  },
+  {
+    name: "AltaMed PACE — Los Angeles",
+    category: "healthcare",
+    type: "PACE — Program of All-Inclusive Care for the Elderly",
+    address: "5425 E Pomona Blvd",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "(855) 252-7223",
+    website: "https://www.altamed.org/PACE",
+    services: ["All-inclusive senior medical care", "Care coordination & transportation", "Physical & occupational therapy", "Social services", "Intake: (877) 462-2582"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Independent seniors with complex medical needs seeking to avoid nursing-home placement (LA County)",
+    isFree: false, pricingSummary: "Medicare/Medi-Cal based",
+    source: "AltaMed Health Services", sourceUrl: "https://www.altamed.org/PACE",
+    counties: ["los angeles"],
+  },
+  {
+    name: "Housing Authority of the City of Los Angeles (HACLA)",
+    category: "housing",
+    type: "Public Housing Authority (Senior Housing)",
+    address: "2600 Wilshire Blvd",
+    city: "Los Angeles", state: "CA", county: "Los Angeles",
+    phone: "(213) 252-2500",
+    website: "https://www.hacla.org",
+    services: ["Senior public housing", "Section 8 Housing Choice Vouchers", "Application help: application.help@hacla.org", "Toll-free: (833) 422-5248"],
+    hours: "Mon–Fri 8:00 AM – 4:00 PM",
+    eligibility: "Low-income seniors in the City of Los Angeles",
+    isFree: false, pricingSummary: "Income-based rent",
+    source: "Housing Authority of the City of Los Angeles", sourceUrl: "https://www.hacla.org",
+    counties: ["los angeles"],
+  },
+
+  // ===================== Phoenix Metro — Maricopa County (AZ) =====================
+  {
+    name: "Area Agency on Aging, Region One (Phoenix)",
+    category: "aging-county",
+    type: "Area Agency on Aging",
+    address: "1366 E. Thomas Rd, Suite 108",
+    city: "Phoenix", state: "AZ", county: "Maricopa",
+    phone: "(602) 264-4357",
+    website: "https://www.aaaphx.org",
+    services: ["24-hour Senior HELP LINE", "Family caregiver support", "Long-Term Care Ombudsman", "SHIP Medicare counseling"],
+    hours: "Senior Help Line 24/7; office Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Adults 60+ in Maricopa County",
+    isFree: true, pricingSummary: "Free",
+    source: "Area Agency on Aging, Region One", sourceUrl: "https://www.aaaphx.org",
+    counties: ["maricopa"],
+  },
+  {
+    name: "Arizona Adult Protective Services (DES)",
+    category: "aging-county",
+    type: "State Adult Protective Services",
+    city: "Phoenix", state: "AZ", county: "Maricopa",
+    phone: "1-877-767-2385",
+    website: "https://des.az.gov/services/basic-needs/adult-protective-services",
+    services: ["Report abuse, neglect or exploitation of vulnerable adults", "Online reporting available 24/7", "Investigations & protective services"],
+    hours: "Mon–Fri 7:00 AM – 7:00 PM; Sat–Sun 10:00 AM – 6:00 PM",
+    eligibility: "Vulnerable and older adults in Arizona",
+    isFree: true, pricingSummary: "Free",
+    source: "Arizona Department of Economic Security (APS)", sourceUrl: "https://des.az.gov/services/basic-needs/adult-protective-services",
+    counties: ["maricopa"],
+  },
+  {
+    name: "Arizona Department of Veterans' Services",
+    category: "veterans",
+    type: "State Veterans Benefits",
+    address: "1688 W. Adams Street",
+    city: "Phoenix", state: "AZ", county: "Maricopa",
+    phone: "(602) 255-3373",
+    website: "https://dvs.az.gov",
+    services: ["VA benefits claims assistance", "Aid & Attendance pension help", "Survivor benefits", "State Veteran Home referrals"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Veterans and dependents in Arizona",
+    isFree: true, pricingSummary: "Free",
+    source: "Arizona Department of Veterans' Services", sourceUrl: "https://dvs.az.gov",
+    counties: ["maricopa"],
+  },
+  {
+    name: "Community Legal Services (Arizona)",
+    category: "financial-legal",
+    type: "Free Civil Legal Aid",
+    address: "305 S. 2nd Ave",
+    city: "Phoenix", state: "AZ", county: "Maricopa",
+    phone: "(602) 258-3434",
+    website: "https://clsaz.org",
+    services: ["Senior legal assistance", "Wills & powers of attorney", "Consumer & housing law", "Toll-free: 1-800-852-9075"],
+    hours: "Phone intake Mon–Fri 9:00 AM – 2:00 PM",
+    eligibility: "Free civil legal help for low-income & older residents of Maricopa County",
+    isFree: true, pricingSummary: "Free",
+    source: "Community Legal Services", sourceUrl: "https://clsaz.org",
+    counties: ["maricopa"],
+  },
+  {
+    name: "211 Arizona",
+    category: "community-211",
+    type: "Free Information & Referral Line",
+    city: "Phoenix", state: "AZ", county: "Maricopa",
+    phone: "211",
+    website: "https://211arizona.org",
+    services: ["Information & referral line", "Senior services & benefits", "Food, housing & utility assistance", "Toll-free: 877-211-8661"],
+    hours: "7 days a week 9:00 AM – 7:00 PM",
+    eligibility: "Open to all — dial 211",
+    isFree: true, pricingSummary: "Free",
+    source: "211 Arizona", sourceUrl: "https://211arizona.org",
+    counties: ["maricopa"],
+  },
+  {
+    name: "Alzheimer's Association — Desert Southwest Chapter",
+    category: "events-support",
+    type: "Dementia Support",
+    address: "300 W. Clarendon Ave., Suite 350",
+    city: "Phoenix", state: "AZ", county: "Maricopa",
+    phone: "1-800-272-3900",
+    website: "https://www.alz.org/dsw",
+    services: ["24/7 helpline", "Caregiver & dementia support groups", "Education programs", "Care consultations"],
+    hours: "24/7 helpline",
+    eligibility: "Families affected by Alzheimer's and dementia",
+    isFree: true, pricingSummary: "Free",
+    source: "Alzheimer's Association Desert Southwest", sourceUrl: "https://www.alz.org/dsw",
+    counties: ["maricopa"],
+  },
+  {
+    name: "Sun Health — Senior Health & Wellness",
+    category: "healthcare",
+    type: "Nonprofit Senior Health & Wellness",
+    address: "14719 W. Grand Ave.",
+    city: "Surprise", state: "AZ", county: "Maricopa",
+    phone: "(623) 832-5330",
+    website: "https://sunhealth.org",
+    services: ["Care transitions & navigation", "Memory care navigation", "Health & wellness classes", "Chronic disease self-management"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Older adults in the West Valley / Northwest Phoenix metro",
+    isFree: false, pricingSummary: "Many programs free; some fee-based",
+    source: "Sun Health", sourceUrl: "https://sunhealth.org",
+    counties: ["maricopa"],
+  },
+  {
+    name: "City of Phoenix Housing Department — Senior Housing",
+    category: "housing",
+    type: "Public Housing Authority (Senior Housing)",
+    address: "251 W. Washington St., 4th Floor",
+    city: "Phoenix", state: "AZ", county: "Maricopa",
+    phone: "(602) 262-6794",
+    website: "https://www.phoenix.gov/housing",
+    services: ["Senior housing program (priority for 62+)", "55+ and 62+ senior/disabled communities", "Section 8 vouchers", "Senior info: (602) 262-6011"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Income-qualified seniors 62+ (priority) in the Phoenix area",
+    isFree: false, pricingSummary: "Income-based rent",
+    source: "City of Phoenix Housing Department", sourceUrl: "https://www.phoenix.gov/housing",
+    counties: ["maricopa"],
+  },
+
+  // ===================== Las Vegas Metro — Clark County (NV) =====================
+  {
+    name: "Nevada Aging & Disability Services Division (ADSD) — Las Vegas",
+    category: "aging-county",
+    type: "State Aging & Disability Services",
+    address: "1161 S. Valley View Blvd",
+    city: "Las Vegas", state: "NV", county: "Clark",
+    phone: "(702) 486-7670",
+    website: "https://adsd.nv.gov",
+    services: ["Aging & Disability Resource Center", "Referral hotline: (702) 486-9200", "Elder abuse reporting (Clark County): (702) 486-6930", "SHIP Medicare counseling: 1-800-307-4444"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Older adults and people with disabilities in southern Nevada",
+    isFree: true, pricingSummary: "Free",
+    source: "Nevada Aging & Disability Services Division", sourceUrl: "https://adsd.nv.gov",
+    counties: ["clark"],
+  },
+  {
+    name: "Nevada Department of Veterans Services — Las Vegas",
+    category: "veterans",
+    type: "State Veterans Benefits",
+    address: "7220 Bermuda Road",
+    city: "Las Vegas", state: "NV", county: "Clark",
+    phone: "(702) 486-3830",
+    website: "https://veterans.nv.gov",
+    services: ["VA benefits claims assistance", "Aid & Attendance pension help", "Survivor benefits", "Veteran resource navigation"],
+    hours: "Mon–Fri 8:00 AM – 5:00 PM",
+    eligibility: "Veterans and dependents in southern Nevada",
+    isFree: true, pricingSummary: "Free",
+    source: "Nevada Department of Veterans Services", sourceUrl: "https://veterans.nv.gov",
+    counties: ["clark"],
+  },
+  {
+    name: "Legal Aid Center of Southern Nevada",
+    category: "financial-legal",
+    type: "Free Civil Legal Aid",
+    address: "725 E. Charleston Blvd",
+    city: "Las Vegas", state: "NV", county: "Clark",
+    phone: "(702) 386-1070",
+    website: "https://www.lacsn.org",
+    services: ["Guardianship & elder law", "Wills & powers of attorney", "Consumer & housing law", "Self-help center"],
+    hours: "Mon–Fri 8:30 AM – 4:30 PM",
+    eligibility: "Free civil legal help for low-income residents of Clark County",
+    isFree: true, pricingSummary: "Free",
+    source: "Legal Aid Center of Southern Nevada", sourceUrl: "https://www.lacsn.org",
+    counties: ["clark"],
+  },
+  {
+    name: "Nevada 211",
+    category: "community-211",
+    type: "Free Information & Referral Line",
+    city: "Las Vegas", state: "NV", county: "Clark",
+    phone: "211",
+    website: "https://www.nevada211.org",
+    services: ["Information & referral line", "Senior services & benefits", "Food, housing & utility assistance", "Toll-free: 1-866-535-5654"],
+    hours: "Available statewide — dial 211",
+    eligibility: "Open to all — dial 211",
+    isFree: true, pricingSummary: "Free",
+    source: "Nevada 211", sourceUrl: "https://www.nevada211.org",
+    counties: ["clark"],
+  },
+  {
+    name: "Alzheimer's Association — Desert Southwest Chapter (Nevada)",
+    category: "events-support",
+    type: "Dementia Support",
+    city: "Las Vegas", state: "NV", county: "Clark",
+    phone: "1-800-272-3900",
+    website: "https://www.alz.org/dsw",
+    services: ["24/7 helpline", "Caregiver & dementia support groups", "Education programs", "Care consultations"],
+    hours: "24/7 helpline",
+    eligibility: "Families affected by Alzheimer's and dementia",
+    isFree: true, pricingSummary: "Free",
+    source: "Alzheimer's Association Desert Southwest", sourceUrl: "https://www.alz.org/dsw",
+    counties: ["clark"],
+  },
+  {
+    name: "Nevada Senior Services — Adult Day Care Centers",
+    category: "healthcare",
+    type: "Adult Day Health Care",
+    address: "901 N. Jones Blvd",
+    city: "Las Vegas", state: "NV", county: "Clark",
+    phone: "(702) 648-3425",
+    website: "https://nevadaseniorservices.org",
+    services: ["Professional nursing care", "Assistance with activities of daily living", "Meals & nutrition", "Social work & recreation", "Henderson center: (702) 368-2273"],
+    hours: "Mon–Fri 7:30 AM – 5:30 PM; Sat 8:00 AM – 6:00 PM",
+    eligibility: "Older adults needing daytime supervised care in the Las Vegas area",
+    isFree: false, pricingSummary: "Fee-based; Medicaid & assistance may apply",
+    source: "Nevada Senior Services", sourceUrl: "https://nevadaseniorservices.org",
+    counties: ["clark"],
+  },
+  {
+    name: "Southern Nevada Regional Housing Authority (SNRHA)",
+    category: "housing",
+    type: "Public Housing Authority (Senior Housing)",
+    address: "340 N. 11th Street",
+    city: "Las Vegas", state: "NV", county: "Clark",
+    phone: "(702) 477-3100",
+    website: "https://www.snvrha.org",
+    services: ["Senior public housing communities", "Senior Supportive Services: (702) 477-3100 ext. 2", "Housing Choice Vouchers (Section 8)"],
+    hours: "Mon–Thu 8:00 AM – 5:00 PM",
+    eligibility: "Income-qualified seniors in Clark County / southern Nevada",
+    isFree: false, pricingSummary: "Income-based rent",
+    source: "Southern Nevada Regional Housing Authority", sourceUrl: "https://www.snvrha.org",
+    counties: ["clark"],
+  },
+];
+
+/** All curated listings (NorCal home base + extended metros). */
+const ALL_CURATED: CuratedItem[] = [...NORCAL_CURATED, ...EXTENDED_CURATED];
+
+// ---------------------------------------------------------------------------
+// Curated region registry — defines which (state, county) pairs are "home base"
+// curated coverage, the friendly banner label, and city→county aliasing so a
+// city typed into the county field still resolves to its curated county.
+// ---------------------------------------------------------------------------
+
+interface CuratedRegion {
+  id: string;
+  label: string; // banner label, e.g. "Greater Sacramento"
+  stateKey: string; // canonical lowercased postal abbrev, e.g. "ca", "az", "nv"
+  counties: Set<string>; // lowercased county names with curated coverage
+  cityToCounty?: Record<string, string>; // city → county within this region
+}
+
+const CURATED_REGIONS: CuratedRegion[] = [
+  {
+    id: "norcal",
+    label: "Northern California",
+    stateKey: "ca",
+    counties: NORCAL_COUNTIES,
+    cityToCounty: NORCAL_CITY_TO_COUNTY,
+  },
+  {
+    id: "sacramento",
+    label: "Greater Sacramento",
+    stateKey: "ca",
+    counties: new Set(["sacramento", "placer", "yolo"]),
+    cityToCounty: {
+      sacramento: "sacramento", "elk grove": "sacramento", "citrus heights": "sacramento",
+      "rancho cordova": "sacramento", folsom: "sacramento",
+      roseville: "placer", rocklin: "placer", lincoln: "placer", auburn: "placer",
+      davis: "yolo", "west sacramento": "yolo", woodland: "yolo",
+    },
+  },
+  {
+    id: "los-angeles",
+    label: "Greater Los Angeles",
+    stateKey: "ca",
+    counties: new Set(["los angeles"]),
+    cityToCounty: {
+      "los angeles": "los angeles", "long beach": "los angeles", pasadena: "los angeles",
+      glendale: "los angeles", "santa monica": "los angeles", burbank: "los angeles",
+      torrance: "los angeles", "santa clarita": "los angeles", lancaster: "los angeles", palmdale: "los angeles",
+    },
+  },
+  {
+    id: "phoenix",
+    label: "Phoenix Metro (Maricopa County)",
+    stateKey: "az",
+    counties: new Set(["maricopa"]),
+    cityToCounty: {
+      phoenix: "maricopa", mesa: "maricopa", chandler: "maricopa", scottsdale: "maricopa",
+      glendale: "maricopa", gilbert: "maricopa", tempe: "maricopa", peoria: "maricopa", surprise: "maricopa",
+    },
+  },
+  {
+    id: "las-vegas",
+    label: "Las Vegas Metro (Clark County)",
+    stateKey: "nv",
+    counties: new Set(["clark"]),
+    cityToCounty: {
+      "las vegas": "clark", henderson: "clark", "north las vegas": "clark",
+      "boulder city": "clark", mesquite: "clark", paradise: "clark",
+    },
+  },
+];
+
 // ---------------------------------------------------------------------------
 // National programs (apply to every US location — no location is ever empty)
 // ---------------------------------------------------------------------------
@@ -370,6 +948,14 @@ const STATE_ADVANCE_CARE: Record<string, AdvanceCareLink[]> = {
     { name: "Coalition for Compassionate Care of California", description: "Advance care planning resources and the California Advance Health Care Directive.", url: "https://coalitionccc.org/tools-resources/advance-care-planning-resources/", source: "Coalition for Compassionate Care of California", official: true },
     { name: "California Advance Health Care Directive (Attorney General)", description: "State-published Advance Health Care Directive form (Probate Code §4701).", url: "https://oag.ca.gov/consumers/general/care", source: "California Office of the Attorney General", official: true },
   ],
+  AZ: [
+    { name: "Arizona Healthcare Directives Registry (AzHDR)", description: "Arizona's free, secure online registry for storing your living will, health care power of attorney, and other advance directives.", url: "https://azhdr.org", source: "Arizona Healthcare Directives Registry", official: true },
+    { name: "Arizona Attorney General — Life Care Planning", description: "Free Arizona advance directive forms: living will, health care power of attorney, and mental health care power of attorney.", url: "https://www.azag.gov/seniors/life-care-planning", source: "Arizona Office of the Attorney General", official: true },
+  ],
+  NV: [
+    { name: "Nevada Living Will Lockbox (Advance Directive Registry)", description: "Nevada Secretary of State's free electronic registry for advance directives and guardianship nominations.", url: "https://www.nvsos.gov/sos/online-services/nevada-lockbox", source: "Nevada Secretary of State", official: true },
+    { name: "Nevada POLST", description: "Official Nevada Provider Order for Life-Sustaining Treatment form and guidance.", url: "https://www.nevadapolst.org", source: "Nevada POLST", official: true },
+  ],
 };
 
 // ---------------------------------------------------------------------------
@@ -399,26 +985,36 @@ const THIN_COVERAGE_THRESHOLD = 3;
 // Helpers
 // ---------------------------------------------------------------------------
 
-function detectIsNorCal(state: string, county: string): boolean {
-  if (norm(state) !== "ca" && norm(state) !== "california") return false;
+/** Find the curated region (if any) that covers a given state + county/city. */
+function getCuratedRegion(state: string, county: string): CuratedRegion | null {
+  const sk = stateAbbrev(state).toLowerCase();
   const c = norm(county);
-  if (NORCAL_COUNTIES.has(c)) return true;
-  if (NORCAL_CITY_TO_COUNTY[c]) return true;
-  return false;
+  for (const region of CURATED_REGIONS) {
+    if (region.stateKey !== sk) continue;
+    if (region.counties.has(c)) return region;
+    if (region.cityToCounty?.[c]) return region;
+  }
+  return null;
 }
 
-function curatedCountyKey(state: string, county: string): string | null {
-  if (norm(state) !== "ca" && norm(state) !== "california") return null;
+/** Resolve a typed county/city to the canonical curated county key for a region. */
+function resolveCuratedCounty(region: CuratedRegion, county: string): string {
   const c = norm(county);
-  if (NORCAL_COUNTIES.has(c)) return c;
-  return NORCAL_CITY_TO_COUNTY[c] || null;
+  if (region.counties.has(c)) return c;
+  return region.cityToCounty?.[c] ?? c;
+}
+
+/** Backward-compatible NorCal flag (kept for any existing callers). */
+function detectIsNorCal(state: string, county: string): boolean {
+  return getCuratedRegion(state, county)?.id === "norcal";
 }
 
 function getCuratedItems(state: string, county: string): ResourceItem[] {
-  const key = curatedCountyKey(state, county);
-  if (!key) return [];
-  return NORCAL_CURATED
-    .filter((item) => item.counties.includes(key))
+  const region = getCuratedRegion(state, county);
+  if (!region) return [];
+  const countyKey = resolveCuratedCounty(region, county);
+  return ALL_CURATED
+    .filter((item) => stateAbbrev(item.state || "").toLowerCase() === region.stateKey && item.counties.includes(countyKey))
     .map(({ counties, ...rest }) => ({ ...rest, scope: "curated" as const, verified: true }));
 }
 
@@ -692,7 +1288,8 @@ export async function getResourceDirectory(
   state: string,
   county: string,
 ): Promise<DirectoryResponse> {
-  const isNorCal = detectIsNorCal(state, county);
+  const curatedRegion = getCuratedRegion(state, county);
+  const isNorCal = curatedRegion?.id === "norcal";
   const usState = isUsState(state);
 
   const curated = getCuratedItems(state, county);
@@ -738,6 +1335,8 @@ export async function getResourceDirectory(
       discoveredCount: dedupedDiscovered.length,
       nationalCount: national.length,
       isNorCal,
+      hasCuratedCoverage: !!curatedRegion,
+      curatedRegion: curatedRegion?.label ?? null,
       discoveryRan,
       timestamp: new Date().toISOString(),
     },

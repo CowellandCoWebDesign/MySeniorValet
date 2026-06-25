@@ -63,6 +63,8 @@ interface DirectoryResponse {
     discoveredCount: number;
     nationalCount: number;
     isNorCal: boolean;
+    hasCuratedCoverage: boolean;
+    curatedRegion: string | null;
     discoveryRan: boolean;
     timestamp: string;
   };
@@ -375,13 +377,16 @@ export default function SeniorResources() {
           </CardContent>
         </Card>
 
-        {/* Coverage banner */}
-        {directoryData?.meta?.isNorCal && (
+        {/* Coverage banner — shows for any curated home-base region */}
+        {directoryData?.meta?.hasCuratedCoverage && (
           <Card className="mb-6 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
             <CardContent className="py-4 flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5 shrink-0" />
               <p className="text-sm text-emerald-800 dark:text-emerald-200">
-                <strong>Hand-verified local coverage.</strong> This is one of our Northern California home-base areas, so listings below are curated and verified by our team.
+                <strong>Hand-verified local coverage.</strong>{" "}
+                {directoryData.meta.curatedRegion
+                  ? `${directoryData.meta.curatedRegion} is one of our curated home-base regions, so the listings below are hand-verified by our team.`
+                  : "This is one of our curated home-base regions, so the listings below are hand-verified by our team."}
               </p>
             </CardContent>
           </Card>
