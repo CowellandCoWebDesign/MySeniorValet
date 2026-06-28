@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import heroGoldenGate from "@assets/generated_images/hero_golden_gate_bridge.png";
 import heroMtShasta from "@assets/generated_images/hero_mt_shasta.png";
-import heroSundialBridge from "@assets/generated_images/hero_sundial_bridge_redding.png";
+import heroSundialBridge from "@assets/stock_images/hero_sundial_bridge_redding.jpg";
+import heroNewYork from "@assets/stock_images/hero_new_york_city.jpg";
+import heroAtlanta from "@assets/stock_images/hero_atlanta_georgia.jpg";
+import heroFloridaBeach from "@assets/stock_images/hero_florida_beach.jpg";
+import heroTexasDallas from "@assets/stock_images/hero_texas_dallas.jpg";
 import heroLighthouseSunset from "@assets/generated_images/hero_lighthouse_sunset.png";
 import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -103,10 +107,15 @@ if (typeof document !== 'undefined') {
 }
 
 // Cycling hero images for the home page hero (crossfade every ~6s)
+// National coverage: California → New York → Atlanta → Florida → Texas → coastal sunset.
 const HERO_IMAGES = [
   { src: heroGoldenGate, alt: "Golden Gate Bridge framed by rolling hills at golden hour" },
   { src: heroMtShasta, alt: "Snow-capped Mt Shasta rising above an evergreen forest" },
-  { src: heroSundialBridge, alt: "The Sundial Bridge spanning the river in Redding, California" },
+  { src: heroSundialBridge, alt: "The Sundial Bridge, with its distinctive white angled pylon and cable stays, spanning the Sacramento River in Redding, California" },
+  { src: heroNewYork, alt: "The Manhattan skyline at sunset, with the Empire State Building rising above New York City" },
+  { src: heroAtlanta, alt: "Downtown Atlanta, Georgia, with Mercedes-Benz Stadium and the city skyline" },
+  { src: heroFloridaBeach, alt: "A sunlit Florida beach lined with palm trees beside calm turquoise water" },
+  { src: heroTexasDallas, alt: "The downtown Dallas, Texas skyline beneath a bright sky" },
   { src: heroLighthouseSunset, alt: "A coastal lighthouse silhouetted against a vivid sunset sky" },
 ];
 
@@ -1644,14 +1653,13 @@ function CommunitiesSearchBar() {
 
         <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
           <div className="flex items-center p-2">
-            <Search className="ml-3 h-5 w-5 text-gray-400 flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <AutocompleteSearch
                 value={term}
                 onChange={setTerm}
                 onSubmit={(value: string) => go(value)}
                 placeholder="Search by name, city, state, or zip..."
-                inputClassName="w-full pl-3 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                inputClassName="w-full pl-10 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                 hideSearchButton={true}
               />
             </div>

@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "YeAHqMIvBIisGf0kLVwTj"
@@ -24,3 +23,39 @@ id = "G6HRsAYQIHZVrhVsMW0J3"
 uri = "file://attached_assets/generated_images/hero_lighthouse_sunset.png"
 type = "image"
 title = "lighthouse sunset hero"
+
+[[outputs]]
+id = "64guas3RGyT7x1S6AlGay"
+uri = "file://attached_assets/stock_images/hero_atlanta_georgia.jpg"
+type = "image"
+title = "Atlanta Georgia skyline"
+
+[[outputs]]
+id = "mw02LYfQY2vuKju2R565Y"
+uri = "file://attached_assets/stock_images/hero_texas_austin.jpg"
+type = "image"
+title = "Texas Austin skyline at golden hour sunset with Lady Bird Lake, cinematic wide landscape"
+
+[[outputs]]
+id = "kNIpSNs9n-nYNiiE5tg-X"
+uri = "file://attached_assets/stock_images/hero_sundial_bridge_redding.jpg"
+type = "image"
+title = "Sundial Bridge Redding California"
+
+[[outputs]]
+id = "hJGh8H6uuTvrR22rXDCTc"
+uri = "file://attached_assets/stock_images/hero_new_york_city.jpg"
+type = "image"
+title = "New York City skyline at sunset"
+
+[[outputs]]
+id = "4uKPs0znfX1mcR41-PiGX"
+uri = "file://attached_assets/stock_images/hero_florida_beach.jpg"
+type = "image"
+title = "Florida beach with palm trees at sunset"
+
+[[outputs]]
+id = "8Rau_HymVtfROCJfCigwy"
+uri = "file://attached_assets/stock_images/hero_texas_dallas.jpg"
+type = "image"
+title = "Dallas Texas downtown skyline"
