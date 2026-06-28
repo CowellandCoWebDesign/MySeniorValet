@@ -597,10 +597,20 @@ export default function CompetitiveAnalysis() {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {analysisMutation.data.topCommunities.map((community, index) => {
-                  // If community has an ID, link to community page; otherwise search
-                  const linkHref = community.id 
-                    ? `/community/${community.id}`
-                    : `/search?q=${encodeURIComponent(community.name)}`;
+                  // If community has an ID, link to its detail page; otherwise search.
+                  // Parse the "City, State" location string so we can emit the clean
+                  // SEO URL directly and avoid the extra /community/{id} redirect hop.
+                  let linkHref: string;
+                  if (community.id) {
+                    const [cityPart, statePart] = (community.location || '')
+                      .split(',')
+                      .map((s) => s.trim());
+                    linkHref = cityPart && statePart
+                      ? getCommunityUrl({ id: community.id, name: community.name, city: cityPart, state: statePart })
+                      : `/community/${community.id}`;
+                  } else {
+                    linkHref = `/search?q=${encodeURIComponent(community.name)}`;
+                  }
                   
                   return (
                     <Link 
