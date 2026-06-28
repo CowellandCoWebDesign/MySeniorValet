@@ -134,7 +134,8 @@ export default function EnhancedSearch() {
   };
 
   const handleCommunityClick = (communityId: number) => {
-    window.location.href = `/community/${communityId}`;
+    const community = filteredCommunities.find(c => c.id === communityId);
+    window.location.href = community ? getCommunityUrl(community) : `/community/${communityId}`;
   };
 
   if (activeTab === 'updates') {
@@ -296,7 +297,7 @@ export default function EnhancedSearch() {
             </div>
           ) : (
             filteredCommunities.map((community, index) => (
-              <Link key={community.id} href={`/community/${community.id}`}>
+              <Link key={community.id} href={getCommunityUrl(community)}>
                 <Card className="overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
                   <div className="flex">
                     {/* Photo Section */}

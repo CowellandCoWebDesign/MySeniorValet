@@ -85,7 +85,8 @@ export default function SearchWorking() {
   console.log('Search query:', searchQuery, 'Total communities:', communities?.length, 'Filtered communities:', filteredCommunities.length);
 
   const handleCommunityClick = (communityId: number) => {
-    window.location.href = "/community/" + communityId;
+    const community = filteredCommunities.find((c: Community) => c.id === communityId);
+    window.location.href = community ? getCommunityUrl(community) : "/community/" + communityId;
   };
 
   // Bottom Navigation Component

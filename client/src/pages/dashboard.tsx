@@ -41,6 +41,7 @@ import {
   Smartphone
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useOnboarding } from "@/contexts/OnboardingContext";
@@ -198,10 +199,10 @@ export default function Dashboard() {
       navigator.share({
         title: community.name,
         text: shareText,
-        url: `${window.location.origin}/community/${community.id}`
+        url: `${window.location.origin}${getCommunityUrl(community)}`
       });
     } else {
-      navigator.clipboard.writeText(`${shareText} - ${window.location.origin}/community/${community.id}`);
+      navigator.clipboard.writeText(`${shareText} - ${window.location.origin}${getCommunityUrl(community)}`);
       toast({
         title: "Link Copied",
         description: "Community link has been copied to clipboard.",
@@ -739,7 +740,7 @@ export default function Dashboard() {
 
                         {/* Action Buttons */}
                         <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
-                          <Link to={`/community/${community.id}`}>
+                          <Link to={getCommunityUrl(community)}>
                             <Button 
                               size="sm" 
                               className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"

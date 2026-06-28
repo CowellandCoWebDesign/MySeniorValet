@@ -668,7 +668,7 @@ export default function CompetitiveAnalysis() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {analysisMutation.data.matchedCommunities.map((community, index) => (
-                  <Link key={index} href={`/community/${community.id}`}>
+                  <Link key={index} href={getCommunityUrl({ id: Number(community.id), name: community.name, city: community.city, state: community.state_province })}>
                     <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-emerald-200 dark:border-emerald-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02]">
                       <div className="flex items-start gap-3">
                         <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
@@ -737,7 +737,7 @@ export default function CompetitiveAnalysis() {
                   
                   if (isMatched && matchedCommunity) {
                     return (
-                      <Link key={index} href={`/community/${matchedCommunity.id}`}>
+                      <Link key={index} href={getCommunityUrl({ id: Number(matchedCommunity.id), name: matchedCommunity.name, city: matchedCommunity.city, state: matchedCommunity.state_province })}>
                         {content}
                       </Link>
                     );

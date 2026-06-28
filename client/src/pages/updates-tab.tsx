@@ -15,6 +15,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { Link } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 import BottomNavigation from "@/components/BottomNavigation";
 
 interface SavedSearch {
@@ -191,7 +192,7 @@ export default function UpdatesTab() {
 
           <div className="space-y-4">
             {communityUpdates.map((update) => (
-              <Link key={update.id} href={`/community/${update.communityId}`}>
+              <Link key={update.id} href={getCommunityUrl({ id: update.communityId, name: update.communityName, city: update.city, state: update.state })}>
                 <Card className="border border-gray-200 hover:shadow-md transition-shadow cursor-pointer">
                   <CardContent className="p-4">
                     <div className="flex space-x-3">
