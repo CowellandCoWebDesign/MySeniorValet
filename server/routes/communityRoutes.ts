@@ -304,15 +304,25 @@ export function registerCommunityRoutes(app: Express) {
     if (isNaN(communityId)) return next();
     try {
       const [community] = await db
-        .select({ id: communities.id, name: communities.name, city: communities.city, state: communities.state })
+        .select({ id: communities.id, name: communities.name, city: communities.city, state: communities.state, slug: communities.slug, citySlug: communities.citySlug, stateSlug: communities.stateSlug, isHidden: communities.isHidden, isActive: communities.isActive })
         .from(communities)
         .where(eq(communities.id, communityId))
         .limit(1);
+      // Missing or non-public communities must not 301 to a live SEO URL.
+      // Let the SSR middleware / SPA handle them (it returns 404/410 + noindex for crawlers).
       if (!community) return next();
-      const statePart = community.state.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-      const cityPart = community.city.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-      const namePart = community.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || `community-${community.id}`;
-      return res.redirect(301, `/senior-living/${statePart}/${cityPart}/${namePart}`);
+      if (community.isHidden === true || community.isActive === false) return next();
+      // Build the destination from the STORED canonical slug columns — the exact
+      // values the sitemap & getCommunityUrl() emit (preserves dedup suffixes like
+      // "-2"). Fall back to deriving from name/city/state only for legacy null rows.
+      const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+      const statePart = community.stateSlug || slugify(community.state);
+      const cityPart = community.citySlug || slugify(community.city);
+      const namePart = community.slug || slugify(community.name) || `community-${community.id}`;
+      // Preserve the original query string (e.g. ?tab=tour) so deep links survive the redirect
+      const qsIndex = req.originalUrl.indexOf('?');
+      const queryString = qsIndex >= 0 ? req.originalUrl.slice(qsIndex) : '';
+      return res.redirect(301, `/senior-living/${statePart}/${cityPart}/${namePart}${queryString}`);
     } catch {
       return next();
     }

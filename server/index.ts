@@ -9,7 +9,7 @@ import compression from "compression";
 import { registerRoutes } from "./routes";
 import { runStartupMigrations } from "./run-migration";
 import { setupVite, serveStatic, log } from "./vite";
-import { seoSSRMiddleware } from "./seo-ssr-middleware";
+import { seoSSRMiddleware, communityVisibilityGuard } from "./seo-ssr-middleware";
 import { seedDatabase } from "./seed";
 import { 
   securityHeaders, 
@@ -33,8 +33,9 @@ import { advancedAnalytics } from "./infrastructure/advanced-analytics";
 import { notificationSystem } from "./infrastructure/notification-system";
 import { integrationManager } from "./infrastructure/integration-manager";
 import cookieParser from "cookie-parser";
-import { prewarmSitemapCaches } from "./sitemap-generator";
+import { prewarmSitemapCaches, clearSitemapCache } from "./sitemap-generator";
 import { scheduleSitemapWarmup } from "./utils/sitemap-pinger";
+import { hostCanonicalizationMiddleware } from "./middleware/host-canonical";
 
 const app = express();
 
@@ -80,6 +81,12 @@ app.get('/health', (req, res) => {
     version: '1.0.0'
   });
 });
+
+// Host canonicalization (production): collapse all non-canonical, non-exempt
+// hosts to the single canonical origin so search engines don't index the same
+// content under multiple hosts. Runs before route handling so it short-circuits
+// early. Exempts localhost, Replit infra hosts, /health, and white-label domains.
+app.use(hostCanonicalizationMiddleware());
 
 // Security middleware stack (order matters)
 app.use(corsPolicy);
@@ -296,6 +303,12 @@ app.use((req, res, next) => {
     return messages[status] || 'An error occurred';
   }
 
+  // Community visibility guard (ALL user agents): returns a real 404 for
+  // nonexistent community URLs and 410 for hidden/deactivated ones, with a
+  // branded noindex page. Runs before SSR/SPA so missing/hidden URLs never
+  // resolve to the 200 SPA shell (soft-404). Public communities fall through.
+  app.use(communityVisibilityGuard());
+
   // CRITICAL: SSR middleware must run BEFORE all route registration
   // This ensures crawlers get pre-rendered HTML instead of the SPA
   app.use(seoSSRMiddleware());
@@ -344,8 +357,12 @@ app.use((req, res, next) => {
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);
     
-    // Pre-warm all sitemap caches so Google always hits a hot cache
-    prewarmSitemapCaches().catch(e => console.error('[Sitemap] Startup pre-warm error:', e));
+    // Clear any stale on-disk sitemap cache (e.g. from a prior URL format) then
+    // pre-warm fresh caches so Google always hits a hot, correct cache.
+    clearSitemapCache()
+      .catch(e => console.error('[Sitemap] Startup cache clear error:', e))
+      .then(() => prewarmSitemapCaches())
+      .catch(e => console.error('[Sitemap] Startup pre-warm error:', e));
 
     // Schedule recurring 20h warmup to keep caches fresh before 24h TTL expires
     scheduleSitemapWarmup();

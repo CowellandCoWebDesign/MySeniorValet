@@ -5,6 +5,7 @@ import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
 import { generateStructuredData, generateBreadcrumbSchema, generateLocationSchema, generateDirectorySchema } from '../seo/structured-data-generator';
+import { CANONICAL_BASE_URL } from './host-canonical';
 
 // Detect if the request is from a social media crawler
 export function isSocialMediaCrawler(userAgent: string | undefined): boolean {
@@ -745,10 +746,9 @@ export async function injectMetaTags(req: Request, res: Response, next: NextFunc
     // Get page-specific metadata (pass originalUrl so query params reach location-specific branches)
     const metadata = await getPageMetadata(req.originalUrl);
     
-    // Build the full URL
-    const protocol = req.get('x-forwarded-proto') || req.protocol || 'https';
-    const host = req.get('host') || 'www.myseniorvalet.com';
-    const fullUrl = `${protocol}://${host}${req.originalUrl}`;
+    // Build the full URL from the canonical origin — never trust the Host header
+    // for canonical / OG / structured-data URLs (avoids multi-host duplication).
+    const fullUrl = `${CANONICAL_BASE_URL}${req.originalUrl}`;
     
     // Build canonical URL
     const canonicalUrl = metadata.canonicalUrl || fullUrl;

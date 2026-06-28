@@ -61,6 +61,16 @@ class WhiteLabelService {
   }
 
   /**
+   * Check if a hostname is a registered white-label custom domain.
+   * Used by host canonicalization to exempt enterprise custom domains
+   * from being redirected to the platform canonical host.
+   */
+  isWhiteLabelDomain(hostname: string): boolean {
+    if (!hostname) return false;
+    return this.domains.has(hostname.toLowerCase());
+  }
+
+  /**
    * Check if community has white-label access
    */
   async hasWhiteLabelAccess(communityId: number): Promise<boolean> {
