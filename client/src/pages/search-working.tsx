@@ -22,6 +22,7 @@ import {
   Mail
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 
 interface Community {
   id: number;
@@ -84,7 +85,8 @@ export default function SearchWorking() {
   console.log('Search query:', searchQuery, 'Total communities:', communities?.length, 'Filtered communities:', filteredCommunities.length);
 
   const handleCommunityClick = (communityId: number) => {
-    window.location.href = `/community/${communityId}`;
+    const community = filteredCommunities.find((c: Community) => c.id === communityId);
+    window.location.href = community ? getCommunityUrl(community) : "/community/" + communityId;
   };
 
   // Bottom Navigation Component
@@ -376,7 +378,7 @@ export default function SearchWorking() {
               </div>
             ) : (
               filteredCommunities.map((community, index) => (
-                <Link key={community.id} href={`/community/${community.id}`}>
+                <Link key={community.id} href={getCommunityUrl(community)}>
                   <Card className="group bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 shadow-lg rounded-xl overflow-hidden hover:shadow-2xl hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 cursor-pointer">
                     <div className="flex">
                       {/* Photo Section */}

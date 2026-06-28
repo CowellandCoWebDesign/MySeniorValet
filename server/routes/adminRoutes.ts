@@ -9,9 +9,13 @@ import {
   vendors,
   communityClaims,
   claimedCommunities,
-  featuredCommunities
+  featuredCommunities,
+  listingFlags,
+  homeSectionConfigs,
+  SECTION_TYPES,
+  type SectionType
 } from "@shared/schema";
-import { eq, desc, sql, and, or, gte } from "drizzle-orm";
+import { eq, desc, sql, and, or, gte, ilike, inArray, asc } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { 
   getSecurityDashboard, 
@@ -24,6 +28,43 @@ import {
 import { enhancedPlatformStats } from "../enhanced-platform-stats";
 import { communityStatsCache } from "../community-stats-cache";
 import { storage } from "../storage";
+import { DataIntegrityValidator } from "../services/data-integrity-validator";
+import { batchVerifier } from "../services/batch-perplexity-verifier";
+import { cityBatchVerifier } from "../services/city-batch-verifier";
+// All admin enrichment flows through the single unified orchestrator.
+import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+import { recomputeCommunityVisibility } from "../services/community-visibility";
+import multer from "multer";
+import fs from "fs";
+import path from "path";
+import { clearAllCommunityCaches } from "../infrastructure/cache";
+import { superclusterService } from "../services/supercluster";
+
+// Community photos are stored on disk under public/uploads/community-photos/<id>/
+// and served publicly via the existing express.static('public') middleware in server/index.ts.
+// Filenames are generated as <timestamp>.<ext> by multer, ensuring no user-controlled names.
+const PHOTO_UPLOAD_DIR = path.join(process.cwd(), 'public', 'uploads', 'community-photos');
+
+const photoStorage = multer.diskStorage({
+  destination: (req, _file, cb) => {
+    const dir = path.join(PHOTO_UPLOAD_DIR, req.params?.id ?? 'unknown');
+    fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (_req, file, cb) => {
+    const ext = (file.mimetype.split('/')[1] ?? 'jpg').replace('jpeg', 'jpg');
+    cb(null, `${Date.now()}.${ext}`);
+  },
+});
+
+const ALLOWED_MIME = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
+const upload = multer({
+  storage: photoStorage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    cb(null, ALLOWED_MIME.has(file.mimetype));
+  },
+});
 
 export function registerAdminRoutes(app: Express) {
   // Create a separate router for admin routes
@@ -270,10 +311,12 @@ export function registerAdminRoutes(app: Express) {
     try {
       const { page = 1, limit = 50, tier, search } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
+      const searchTerm = search ? `%${String(search).toLowerCase()}%` : null;
 
       // Get all vendors with their details using raw SQL
       const vendorsResult = await db.execute(sql`
         SELECT * FROM vendors
+        ${searchTerm ? sql`WHERE LOWER(business_name) LIKE ${searchTerm} OR LOWER(primary_contact_name) LIKE ${searchTerm}` : sql``}
         ORDER BY created_at DESC
         LIMIT ${parseInt(limit as string)}
         OFFSET ${offset}
@@ -356,32 +399,71 @@ export function registerAdminRoutes(app: Express) {
   // Community management endpoints
   adminRouter.get('/communities', async (req, res) => {
     try {
-      const { page = 1, limit = 50, tier, search } = req.query;
+      const {
+        page = 1,
+        limit = 50,
+        search = '',
+        state = 'all',
+        country = 'all',
+        type = 'all',
+        verification = 'all'
+      } = req.query;
       const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
 
-      // Get communities with their details
+      // Build filter conditions
+      // Always exclude soft-deleted records (isActive=false) from the admin list
+      const conditions = [
+        or(eq(communities.isActive, true), sql`${communities.isActive} IS NULL`)
+      ];
+
+      // Case-insensitive search across name, city, or numeric id
+      if (search) {
+        conditions.push(
+          or(
+            ilike(communities.name, `%${search}%`),
+            ilike(communities.city, `%${search}%`),
+            eq(communities.id, isNaN(Number(search)) ? -1 : Number(search))
+          )
+        );
+      }
+      if (state !== 'all') {
+        conditions.push(eq(communities.state, state as string));
+      }
+      if (country !== 'all') {
+        conditions.push(eq(communities.country, country as string));
+      }
+      if (type !== 'all') {
+        conditions.push(sql`${communities.careTypes} @> ARRAY[${type}]::text[]`);
+      }
+      if (verification === 'verified') {
+        conditions.push(eq(communities.isVerified, true));
+      } else if (verification === 'unverified') {
+        conditions.push(eq(communities.isVerified, false));
+      }
+
+      const whereClause = and(...conditions);
+
+      // Get communities matching the filters
       const communitiesList = await db.select().from(communities)
+        .where(whereClause)
         .orderBy(desc(communities.createdAt))
         .limit(parseInt(limit as string))
         .offset(offset);
 
-      // Get total count
+      // Get total count of matching rows (so pagination reflects filters)
       const [{ count }] = await db
         .select({ count: sql<number>`COUNT(*)::integer` })
-        .from(communities);
+        .from(communities)
+        .where(whereClause);
 
-      // Note: communities don't have a tier field, using placeholder
-      const tierCounts: { tier: string; count: number }[] = [];
-
+      const limitNum = parseInt(limit as string);
+      const pageNum = parseInt(page as string);
       res.json({
         communities: communitiesList,
         total: count,
-        tierCounts: tierCounts.reduce((acc, { tier, count }) => {
-          acc[tier || 'verified'] = count;
-          return acc;
-        }, {} as Record<string, number>),
-        page: parseInt(page as string),
-        limit: parseInt(limit as string)
+        totalPages: Math.ceil(count / limitNum),
+        page: pageNum,
+        limit: limitNum
       });
     } catch (error) {
       console.error('Error fetching communities:', error);
@@ -403,14 +485,117 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // Bulk action on multiple communities
+  adminRouter.post('/communities/bulk', async (req, res) => {
+    try {
+      const { ids, action } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'ids must be a non-empty array' });
+      }
+      if (!['verify', 'hide', 'delete'].includes(action)) {
+        return res.status(400).json({ error: 'action must be verify, hide, or delete' });
+      }
+      const communityIds = ids.map(Number).filter(n => !isNaN(n));
+      if (communityIds.length === 0) {
+        return res.status(400).json({ error: 'No valid community IDs provided' });
+      }
+
+      let updateValues: Record<string, any>;
+      if (action === 'verify') {
+        updateValues = { isVerified: true, updatedAt: new Date() };
+      } else if (action === 'hide') {
+        updateValues = { isHidden: true, updatedAt: new Date() };
+      } else {
+        updateValues = { isActive: false, isHidden: true, updatedAt: new Date() };
+      }
+
+      await db.update(communities)
+        .set(updateValues)
+        .where(inArray(communities.id, communityIds));
+
+      if (action === 'hide' || action === 'delete') {
+        clearAllCommunityCaches();
+        communityStatsCache.invalidateCache();
+        superclusterService.refresh().catch((err: any) => console.error('Supercluster refresh error:', err));
+      }
+
+      console.log(`Admin bulk action: ${action} on ${communityIds.length} communities by ${req.user?.email}`);
+      res.json({ success: true, affected: communityIds.length, action });
+    } catch (error) {
+      console.error('Error performing bulk action:', error);
+      res.status(500).json({ error: 'Failed to perform bulk action' });
+    }
+  });
+
   // Update community
   adminRouter.put('/communities/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      const updates = req.body;
+      const communityId = parseInt(id);
+      const updates = { ...req.body };
+
+      // Never allow these to be overwritten directly
+      delete updates.id;
+      delete updates.createdAt;
+      delete updates.created_at;
+
+      // Coerce empty-string fields to null so blank numeric inputs
+      // (e.g. an empty Monthly Rent) don't crash the numeric columns
+      for (const key of Object.keys(updates)) {
+        if (updates[key] === '') {
+          updates[key] = null;
+        }
+      }
+
+      // Validate adminRatingOverride: must be 1.0–5.0 (1 decimal precision)
+      if (updates.adminRatingOverride !== null && updates.adminRatingOverride !== undefined) {
+        const override = parseFloat(String(updates.adminRatingOverride));
+        if (isNaN(override) || override < 1.0 || override > 5.0) {
+          return res.status(400).json({ error: 'adminRatingOverride must be a number between 1.0 and 5.0' });
+        }
+        updates.adminRatingOverride = Math.round(override * 10) / 10;
+      }
+
+      // Golden Data Rule: reject test/fake patterns and duplicates before persisting
+      const validationResult = await DataIntegrityValidator.performFullValidation({
+        id: communityId,
+        name: updates.name || '',
+        address: updates.address,
+        city: updates.city,
+        state: updates.state,
+        phone: updates.phone,
+        website: updates.website,
+        description: updates.description
+      });
+
+      if (!validationResult.isValid) {
+        return res.status(400).json({
+          message: 'Validation failed',
+          errors: validationResult.errors,
+          warnings: validationResult.warnings
+        });
+      }
+
+      if (validationResult.warnings.length > 0) {
+        console.warn('Community update warnings:', validationResult.warnings);
+      }
+
+      // Strip test phone/website patterns before persisting
+      const sanitizedUpdates = DataIntegrityValidator.sanitizeCommunityData(updates as any);
+
+      // Admin-entered website is authoritative: when an admin sets/edits the
+      // website, mark it protected so on-demand discovery never overwrites it and
+      // always uses this exact URL as the scrape target. (Clearing the website
+      // releases the protection.) Only acts when `website` was actually part of
+      // the submitted update so other field edits don't toggle protection.
+      if (Object.prototype.hasOwnProperty.call(updates, 'website')) {
+        const w = sanitizedUpdates.website;
+        sanitizedUpdates.websiteProtected = typeof w === 'string' && w.trim().length > 0;
+      }
+
       const [updated] = await db.update(communities)
-        .set(updates)
-        .where(eq(communities.id, parseInt(id)))
+        .set(sanitizedUpdates as any)
+        .where(eq(communities.id, communityId))
         .returning();
       res.json(updated);
     } catch (error) {
@@ -419,15 +604,82 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
-  // Delete community
+  // ── ADMIN-ONLY FORCE ENRICHMENT ────────────────────────────────────────────
+  // Admin-gated entry point into THE single unified enrichment pipeline
+  // (Perplexity primary → free scraping fallback → photo validation/Golden-Data).
+  // Persists verified results so all families benefit. 7-day cache: skips
+  // re-billing unless `forceRefresh` is passed.
+  adminRouter.post('/communities/:id/perplexity-enrich', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: 'Invalid community ID' });
+      }
+      const forceRefresh = req.body?.forceRefresh === true;
+
+      const result = await enrichCommunityUnified(communityId, { forceRefresh });
+
+      // Admin force-retry: clear any accrued self-heal backoff and the terminal
+      // "no_data" quiet state so the community can auto-heal again. The counter
+      // is reset to 0 regardless of outcome — the admin explicitly intervened.
+      const foundData = result.cached === true || result.contentSaved === true;
+      await db
+        .update(communities)
+        .set({
+          enrichmentAttempts: 0,
+          enrichmentStatus: foundData ? "completed" : "failed",
+        } as any)
+        .where(eq(communities.id, communityId));
+
+      return res.json({
+        success: true,
+        cached: result.cached,
+        communityId,
+        summary: result.summary,
+        officialWebsite: result.officialWebsite,
+        managementCompany: result.managementCompany,
+        phone: result.phone,
+        pricing: result.pricing,
+        priceRange: result.pricing
+          ? {
+              min: result.pricing.min ?? result.pricing.max,
+              max: result.pricing.max ?? result.pricing.min,
+            }
+          : null,
+        availability: result.availability,
+        photos: result.photos,
+        photoCount: result.photos.length,
+        sources: result.sources,
+        enrichmentData: result.enrichmentData,
+      });
+    } catch (error) {
+      console.error('❌ [Admin Enrich] Failed:', error);
+      return res.status(500).json({
+        error: 'Enrichment failed',
+        message: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
+
+  // Soft-delete community (sets isActive=false + isHidden=true to avoid FK constraint violations)
+  // This removes the record from all public-facing queries and the admin list without
+  // touching child rows in reviews, photos, messages, etc.
   adminRouter.delete('/communities/:id', async (req, res) => {
     try {
       const { id } = req.params;
-      await db.delete(communities)
-        .where(eq(communities.id, parseInt(id)));
-      res.json({ success: true });
+      const communityId = parseInt(id);
+      const [updated] = await db.update(communities)
+        .set({ isActive: false, isHidden: true, updatedAt: new Date() })
+        .where(eq(communities.id, communityId))
+        .returning({ id: communities.id, name: communities.name });
+      if (!updated) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      res.json({ success: true, id: updated.id, name: updated.name });
     } catch (error) {
-      console.error('Error deleting community:', error);
+      console.error('Error soft-deleting community:', error);
       res.status(500).json({ error: 'Failed to delete community' });
     }
   });
@@ -1340,19 +1592,22 @@ export function registerAdminRoutes(app: Express) {
   adminRouter.post('/communities/:id/verify', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { verified, notes } = req.body;
-      
+      // Default to verifying when no explicit value is provided (the verify
+      // button sends an empty body). `is_verified` is the authoritative
+      // verification column used by stats and filters across the platform.
+      const verified = req.body?.verified === undefined ? true : Boolean(req.body.verified);
+      const { notes } = req.body ?? {};
+
       await db
         .update(communities)
         .set({
-          verified,
-          verifiedAt: verified ? new Date() : null,
+          isVerified: verified,
           updatedAt: new Date()
         })
         .where(eq(communities.id, communityId));
       
       // Log admin action
-      console.log(`Admin action: Community ${communityId} ${verified ? 'verified' : 'unverified'} by ${req.user?.email}. Notes: ${notes}`);
+      console.log(`Admin action: Community ${communityId} ${verified ? 'verified' : 'unverified'} by ${req.user?.email}. Notes: ${notes ?? ''}`);
       
       res.json({ success: true, communityId, verified });
     } catch (error) {
@@ -1362,23 +1617,62 @@ export function registerAdminRoutes(app: Express) {
   });
 
   // Community flagging endpoint
+  // Unified with the listing-flags moderation flow: flagging creates a Pending
+  // listing_flags record and sets communities.flagStatus = 'pending'.
+  // Unflagging dismisses any open flags and clears communities.flagStatus.
   adminRouter.post('/communities/:id/flag', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const { flagged, reason, severity } = req.body;
-      
-      await db
-        .update(communities)
-        .set({
-          flagged,
-          flagReason: flagged ? reason : null,
-          updatedAt: new Date()
-        })
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: 'Invalid community id' });
+      }
+
+      const { flagged = true, reason, severity } = req.body ?? {};
+
+      // Ensure the community exists before mutating state
+      const [community] = await db
+        .select({ id: communities.id })
+        .from(communities)
         .where(eq(communities.id, communityId));
-      
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
+      if (flagged) {
+        // Record the flag via the existing listing-flags mechanism
+        await db.insert(listingFlags).values({
+          communityId,
+          userId: req.user?.id ?? null,
+          flagType: 'Other',
+          reason: reason || 'Flagged by admin',
+          details: severity ? `Severity: ${severity}` : null,
+          status: 'Pending',
+          reporterEmail: req.user?.email ?? null,
+        });
+
+        await db
+          .update(communities)
+          .set({ flagStatus: 'pending', updatedAt: new Date() } as any)
+          .where(eq(communities.id, communityId));
+      } else {
+        // Unflag: dismiss any open flags and clear the community flag status
+        await db
+          .update(listingFlags)
+          .set({ status: 'Dismissed', reviewedBy: req.user?.id ?? null, reviewedAt: new Date(), updatedAt: new Date() })
+          .where(and(
+            eq(listingFlags.communityId, communityId),
+            sql`${listingFlags.status} IN ('Pending', 'Under Review')`
+          ));
+
+        await db
+          .update(communities)
+          .set({ flagStatus: null, updatedAt: new Date() } as any)
+          .where(eq(communities.id, communityId));
+      }
+
       // Log admin action
       console.log(`Admin action: Community ${communityId} ${flagged ? 'flagged' : 'unflagged'} by ${req.user?.email}. Reason: ${reason}, Severity: ${severity}`);
-      
+
       res.json({ success: true, communityId, flagged, reason, severity });
     } catch (error) {
       console.error('Error flagging community:', error);
@@ -1851,6 +2145,1398 @@ export function registerAdminRoutes(app: Express) {
     } catch (error) {
       console.error('Error fetching enrichment stats:', error);
       res.status(500).json({ error: 'Failed to fetch enrichment stats' });
+    }
+  });
+
+  // ============================================================
+  // Consolidated community-management endpoints
+  // (merged from former adminCommunityRoutes.ts)
+  // ============================================================
+
+  // Get community statistics — uses aggregate SQL (no full table scan)
+  adminRouter.get('/communities/stats', async (req, res) => {
+    try {
+      const [[totalRow], [verifiedRow], [withPhotosRow], [withPricingRow], [hiddenRow], [flaggedRow], topStatesRows] = await Promise.all([
+        db.select({ count: sql<number>`count(*)` }).from(communities),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(eq(communities.isVerified, true)),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`array_length(${communities.photos}, 1) > 0`),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`${communities.rentPerMonth} IS NOT NULL`),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(eq(communities.isHidden, true)),
+        db.select({ count: sql<number>`count(*)` }).from(communities).where(sql`${communities.flagStatus} IS NOT NULL`),
+        db.select({
+          state: communities.state,
+          count: sql<number>`count(*)`
+        }).from(communities).groupBy(communities.state).orderBy(sql`count(*) DESC`).limit(5),
+      ]);
+
+      res.json({
+        total: Number(totalRow.count),
+        verified: Number(verifiedRow.count),
+        withPhotos: Number(withPhotosRow.count),
+        withPricing: Number(withPricingRow.count),
+        hidden: Number(hiddenRow.count),
+        flagged: Number(flaggedRow.count),
+        topStates: topStatesRows.map(r => ({ state: r.state, count: Number(r.count) })),
+        featured: 0,
+        platinum: 0,
+        standard: 0,
+        premium: 0,
+      });
+    } catch (error) {
+      console.error('Error fetching community stats:', error);
+      res.status(500).json({ message: 'Failed to fetch statistics' });
+    }
+  });
+
+  // Get distinct filter options (states + countries) populated from real data
+  adminRouter.get('/communities/filters', async (req, res) => {
+    try {
+      const [stateRows, countryRows] = await Promise.all([
+        db.select({ value: communities.state, count: sql<number>`count(*)` })
+          .from(communities)
+          .where(sql`${communities.state} IS NOT NULL AND ${communities.state} <> ''`)
+          .groupBy(communities.state)
+          .orderBy(sql`count(*) DESC`),
+        db.select({ value: communities.country, count: sql<number>`count(*)` })
+          .from(communities)
+          .where(sql`${communities.country} IS NOT NULL AND ${communities.country} <> ''`)
+          .groupBy(communities.country)
+          .orderBy(sql`count(*) DESC`),
+      ]);
+
+      res.json({
+        states: stateRows.map(r => ({ value: r.value, count: Number(r.count) })),
+        countries: countryRows.map(r => ({ value: r.value, count: Number(r.count) })),
+      });
+    } catch (error) {
+      console.error('Error fetching community filters:', error);
+      res.status(500).json({ message: 'Failed to fetch filter options' });
+    }
+  });
+
+  // Hide a community (reversible soft-hide)
+  adminRouter.post('/communities/:id/hide', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const [updated] = await db.update(communities)
+        .set({ isHidden: true, updatedAt: new Date() })
+        .where(eq(communities.id, communityId))
+        .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
+      if (!updated) return res.status(404).json({ message: 'Community not found' });
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      superclusterService.invalidateCache().catch((err: any) => console.error('Supercluster cache invalidation error:', err));
+      res.json({ message: 'Community hidden', community: updated });
+    } catch (error) {
+      console.error('Error hiding community:', error);
+      res.status(500).json({ message: 'Failed to hide community' });
+    }
+  });
+
+  // Unhide a community
+  adminRouter.post('/communities/:id/unhide', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      const [updated] = await db.update(communities)
+        .set({ isHidden: false, updatedAt: new Date() })
+        .where(eq(communities.id, communityId))
+        .returning({ id: communities.id, name: communities.name, isHidden: communities.isHidden });
+      if (!updated) return res.status(404).json({ message: 'Community not found' });
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      superclusterService.invalidateCache().catch((err: any) => console.error('Supercluster cache invalidation error:', err));
+      res.json({ message: 'Community unhidden', community: updated });
+    } catch (error) {
+      console.error('Error unhiding community:', error);
+      res.status(500).json({ message: 'Failed to unhide community' });
+    }
+  });
+
+  // ── Quality-flagged communities ──────────────────────────────────────────
+  // Returns communities that have data_quality_flags set (auto-groomed in June 2026)
+  // Uses raw SQL to avoid Drizzle ORM column drift (admin_rating_override missing from DB)
+  adminRouter.get('/communities/quality-flagged', async (req, res) => {
+    try {
+      const { page = '1', limit = '50', flagType, search } = req.query;
+      const pageNum = Math.max(1, parseInt(page as string));
+      const limitNum = Math.min(200, Math.max(1, parseInt(limit as string)));
+      const offset = (pageNum - 1) * limitNum;
+
+      const allowedFlagTypes = ['not_geocoded', 'no_description', 'no_contact', 'no_street_number'];
+
+      let whereParts = [
+        `data_quality_flags IS NOT NULL`,
+        `array_length(data_quality_flags, 1) > 0`
+      ];
+
+      if (flagType && allowedFlagTypes.includes(flagType as string)) {
+        whereParts.push(`'${flagType}' = ANY(data_quality_flags)`);
+      }
+
+      if (search && typeof search === 'string' && search.trim().length > 0) {
+        const safe = search.replace(/'/g, "''").trim();
+        whereParts.push(`(name ILIKE '%${safe}%' OR city ILIKE '%${safe}%')`);
+      }
+
+      const whereClause = whereParts.join(' AND ');
+
+      const [dataResult, countResult] = await Promise.all([
+        db.execute(sql.raw(`
+          SELECT id, name, city, state, care_types, data_quality_flags, is_hidden
+          FROM communities
+          WHERE ${whereClause}
+          ORDER BY name ASC
+          LIMIT ${limitNum} OFFSET ${offset}
+        `)),
+        db.execute(sql.raw(`
+          SELECT COUNT(*)::integer AS total FROM communities WHERE ${whereClause}
+        `)),
+      ]);
+
+      const total = Number(countResult.rows[0]?.total ?? 0);
+
+      res.json({
+        communities: dataResult.rows,
+        total,
+        page: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        limit: limitNum,
+      });
+    } catch (error) {
+      console.error('Error fetching quality-flagged communities:', error);
+      res.status(500).json({ message: 'Failed to fetch quality-flagged communities' });
+    }
+  });
+
+  // Bulk action on quality-flagged communities: delete | restore | clear-flags
+  // Uses raw SQL to avoid Drizzle ORM column drift
+  adminRouter.post('/communities/bulk-quality-action', async (req, res) => {
+    try {
+      const { ids, action } = req.body;
+
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'ids must be a non-empty array' });
+      }
+      if (!['delete', 'restore', 'clear-flags'].includes(action)) {
+        return res.status(400).json({ error: 'action must be delete, restore, or clear-flags' });
+      }
+
+      const communityIds = ids.map(Number).filter(n => !isNaN(n) && n > 0);
+      if (communityIds.length === 0) {
+        return res.status(400).json({ error: 'No valid community IDs provided' });
+      }
+      if (communityIds.length > 500) {
+        return res.status(400).json({ error: 'Maximum 500 IDs per request' });
+      }
+
+      const idList = communityIds.join(',');
+      let result;
+
+      if (action === 'delete') {
+        result = await db.execute(sql.raw(`
+          DELETE FROM communities WHERE id IN (${idList})
+        `));
+      } else if (action === 'restore') {
+        result = await db.execute(sql.raw(`
+          UPDATE communities
+          SET is_hidden = false, data_quality_flags = '{}'
+          WHERE id IN (${idList})
+        `));
+      } else if (action === 'clear-flags') {
+        result = await db.execute(sql.raw(`
+          UPDATE communities
+          SET data_quality_flags = '{}'
+          WHERE id IN (${idList})
+        `));
+      }
+
+      const affected = (result as any)?.rowCount ?? communityIds.length;
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      if (action === 'delete' || action === 'restore') {
+        superclusterService.refresh().catch((err: any) => console.error('Supercluster refresh error:', err));
+      }
+      res.json({ success: true, affected });
+    } catch (error) {
+      console.error('Error performing bulk quality action:', error);
+      res.status(500).json({ message: 'Failed to perform bulk quality action' });
+    }
+  });
+
+  // ── QC Review & Resolution Queue ──────────────────────────────────────────
+  // Adjudication surface for communities hidden from / removed from public view
+  // (is_hidden = true OR is_active = false). Lists the REAL flags, score,
+  // classification, source, and tier each record carries — no invented data.
+  //
+  // Reason buckets map structured signals to human-readable categories; each is
+  // a SQL predicate so per-reason counts and filtering share one source of truth.
+  // "Reviewed" === flag_status = 'confirmed' (set by Keep Hidden); the default
+  // view shows only UNREVIEWED items so the queue visibly drains as it is worked.
+  const QC_REASONS: { id: string; label: string; predicate: string }[] = [
+    {
+      id: 'non_senior',
+      label: 'Non-senior',
+      predicate: `(senior_classification = 'non_senior' OR 'non_senior' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'fake',
+      label: 'Fake / suspect',
+      predicate: `('clearly_fake' = ANY(data_quality_flags) OR 'synthetic_suspected' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'empty',
+      label: 'Empty / no content',
+      predicate: `(quality_tier = 'empty' OR 'no_description' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'thin',
+      label: 'Thin content',
+      predicate: `(quality_tier = 'thin' OR 'thin_description' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'geo',
+      label: 'Geo / location',
+      predicate: `('not_geocoded' = ANY(data_quality_flags) OR 'geo_needs_review' = ANY(data_quality_flags) OR 'no_street_number' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'no_contact',
+      label: 'No contact info',
+      predicate: `('no_contact' = ANY(data_quality_flags))`,
+    },
+    {
+      id: 'flagged',
+      label: 'Flagged (unreviewed)',
+      predicate: `(flag_status IS NOT NULL AND flag_status <> '' AND flag_status <> 'confirmed')`,
+    },
+    {
+      id: 'international',
+      label: 'International',
+      predicate: `(country IS NOT NULL AND trim(country) <> '' AND upper(trim(country)) NOT IN ('US','USA','UNITED STATES','UNITED STATES OF AMERICA','U.S.','U.S.A.'))`,
+    },
+    {
+      id: 'deactivated',
+      label: 'Deactivated',
+      predicate: `(is_active = false)`,
+    },
+  ];
+
+  // GET /api/admin/communities/qc-queue
+  //   ?reason= one of QC_REASONS ids
+  //   ?source= substring match on data_source
+  //   ?seniorClassification= senior|non_senior|unknown|unscored
+  //   ?scoreMin= &scoreMax=  (0-100, against quality_score)
+  //   ?reviewed= true|false  (false = unreviewed default)
+  //   ?search= name/city
+  //   ?page= &limit=
+  // Raw SQL throughout to dodge the known communities Drizzle/DB column drift.
+  adminRouter.get('/communities/qc-queue', async (req, res) => {
+    try {
+      const {
+        reason,
+        source,
+        seniorClassification,
+        scoreMin,
+        scoreMax,
+        tier,
+        reviewed,
+        search,
+        page = '1',
+        limit = '50',
+      } = req.query as Record<string, string>;
+
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const limitNum = Math.min(200, Math.max(1, parseInt(limit) || 50));
+      const offset = (pageNum - 1) * limitNum;
+
+      // Base membership: hidden from public, deactivated, OR carrying a flag
+      // status (e.g. an admin/user problem report). This keeps actively-flagged
+      // records in the review surface even if they are still publicly visible.
+      const baseParts: string[] = [
+        `(is_hidden = true OR is_active = false OR (flag_status IS NOT NULL AND flag_status <> ''))`,
+      ];
+
+      // Reviewed toggle. Default (anything other than explicit "true") shows the
+      // unreviewed backlog so acted-on items leave the working queue.
+      if (reviewed === 'true') {
+        baseParts.push(`flag_status = 'confirmed'`);
+      } else {
+        baseParts.push(`(flag_status IS DISTINCT FROM 'confirmed')`);
+      }
+
+      const baseWhere = baseParts.join(' AND ');
+
+      // Filter clauses layered on top of base membership.
+      const filterParts: string[] = [];
+
+      const reasonDef = QC_REASONS.find((r) => r.id === reason);
+      if (reasonDef) filterParts.push(reasonDef.predicate);
+
+      if (source && source.trim().length > 0) {
+        const safe = source.replace(/'/g, "''").trim();
+        filterParts.push(`data_source ILIKE '%${safe}%'`);
+      }
+
+      if (seniorClassification) {
+        if (seniorClassification === 'unscored') {
+          filterParts.push(`senior_classification IS NULL`);
+        } else if (['senior', 'non_senior', 'unknown'].includes(seniorClassification)) {
+          filterParts.push(`senior_classification = '${seniorClassification}'`);
+        }
+      }
+
+      const minScore = scoreMin !== undefined && scoreMin !== '' ? parseInt(scoreMin) : null;
+      const maxScore = scoreMax !== undefined && scoreMax !== '' ? parseInt(scoreMax) : null;
+      if (minScore !== null && !isNaN(minScore)) {
+        filterParts.push(`quality_score >= ${minScore}`);
+      }
+      if (maxScore !== null && !isNaN(maxScore)) {
+        filterParts.push(`quality_score <= ${maxScore}`);
+      }
+
+      // Quality tier filter (matches the schema enum + an "unscored" bucket for
+      // records the scoring engine has not yet rated).
+      if (tier) {
+        if (tier === 'unscored') {
+          filterParts.push(`quality_tier IS NULL`);
+        } else if (['featured', 'verified', 'good', 'thin', 'empty'].includes(tier)) {
+          filterParts.push(`quality_tier = '${tier}'`);
+        }
+      }
+
+      if (search && search.trim().length > 0) {
+        const safe = search.replace(/'/g, "''").trim();
+        filterParts.push(`(name ILIKE '%${safe}%' OR city ILIKE '%${safe}%')`);
+      }
+
+      const fullWhere = [baseWhere, ...filterParts].join(' AND ');
+
+      // Per-reason counts honor the base membership + the active reviewed toggle
+      // (but NOT the reason filter itself), so the pills always show how much of
+      // the current backlog falls into each bucket.
+      const reasonCountSelects = QC_REASONS.map(
+        (r) => `COUNT(*) FILTER (WHERE ${r.predicate}) AS "${r.id}"`,
+      ).join(',\n            ');
+
+      const [dataResult, countResult, reasonCountsResult] = await Promise.all([
+        db.execute(sql.raw(`
+          SELECT
+            id, name, city, state, country, care_types,
+            data_quality_flags, is_hidden, is_active, flag_status,
+            senior_classification, quality_score, quality_tier,
+            data_source, enrichment_status, website, phone,
+            COALESCE(array_length(photos, 1), 0) AS photo_count,
+            description
+          FROM communities
+          WHERE ${fullWhere}
+          ORDER BY name ASC
+          LIMIT ${limitNum} OFFSET ${offset}
+        `)),
+        db.execute(sql.raw(`
+          SELECT COUNT(*)::integer AS total FROM communities WHERE ${fullWhere}
+        `)),
+        db.execute(sql.raw(`
+          SELECT
+            ${reasonCountSelects},
+            COUNT(*)::integer AS "all"
+          FROM communities
+          WHERE ${baseWhere}
+        `)),
+      ]);
+
+      const total = Number(countResult.rows[0]?.total ?? 0);
+      const rawCounts = reasonCountsResult.rows[0] ?? {};
+      const reasonCounts = QC_REASONS.map((r) => ({
+        id: r.id,
+        label: r.label,
+        count: Number((rawCounts as any)[r.id] ?? 0),
+      }));
+
+      // Trim description for the queue list (full record is one click away).
+      const items = dataResult.rows.map((row: any) => ({
+        ...row,
+        description:
+          typeof row.description === 'string' && row.description.length > 240
+            ? row.description.slice(0, 240) + '…'
+            : row.description,
+      }));
+
+      res.json({
+        communities: items,
+        total,
+        page: pageNum,
+        totalPages: Math.ceil(total / limitNum),
+        limit: limitNum,
+        backlogTotal: Number((rawCounts as any).all ?? 0),
+        reasons: reasonCounts,
+        reviewed: reviewed === 'true',
+      });
+    } catch (error) {
+      console.error('Error fetching QC queue:', error);
+      res.status(500).json({ message: 'Failed to fetch QC review queue' });
+    }
+  });
+
+  // POST /api/admin/communities/qc-action
+  //   body: { ids: number[], action: 'restore' | 'keep-hidden' | 'enrich' }
+  // Single-item and bulk share this endpoint. Removal is intentionally NOT here:
+  // it stays explicit/manual through the existing removal-request flow.
+  //   - restore:     force public (is_hidden=false, is_active=true), clear the
+  //                  quality/protective flags + flag_status so the next
+  //                  visibility pass won't immediately re-hide it.
+  //   - keep-hidden: confirm hidden (is_hidden=true, flag_status='confirmed') —
+  //                  marks the item reviewed so it drops out of the backlog view.
+  //   - enrich:      run the unified enrichment pipeline, then recompute
+  //                  visibility so a record that gained real content auto-restores.
+  adminRouter.post('/communities/qc-action', async (req, res) => {
+    try {
+      const { ids, action } = req.body || {};
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ error: 'ids must be a non-empty array' });
+      }
+      if (!['restore', 'keep-hidden', 'enrich'].includes(action)) {
+        return res
+          .status(400)
+          .json({ error: 'action must be restore, keep-hidden, or enrich' });
+      }
+
+      const communityIds = ids.map(Number).filter((n) => !isNaN(n) && n > 0);
+      if (communityIds.length === 0) {
+        return res.status(400).json({ error: 'No valid community IDs provided' });
+      }
+      if (communityIds.length > 500) {
+        return res.status(400).json({ error: 'Maximum 500 IDs per request' });
+      }
+
+      let affected = 0;
+      let enrichResults: { id: number; restored: boolean; contentSaved: boolean }[] | undefined;
+
+      if (action === 'restore') {
+        // Strip protective + managed quality flags so the record won't be
+        // auto-re-hidden, and clear any admin-confirmed problem report.
+        const result = await db
+          .update(communities)
+          .set({
+            isHidden: false,
+            isActive: true,
+            flagStatus: null,
+            dataQualityFlags: [],
+            updatedAt: new Date(),
+          } as any)
+          .where(inArray(communities.id, communityIds));
+        affected = (result as any)?.rowCount ?? communityIds.length;
+      } else if (action === 'keep-hidden') {
+        const result = await db
+          .update(communities)
+          .set({
+            isHidden: true,
+            flagStatus: 'confirmed',
+            updatedAt: new Date(),
+          } as any)
+          .where(inArray(communities.id, communityIds));
+        affected = (result as any)?.rowCount ?? communityIds.length;
+      } else {
+        // enrich — bounded sequential to respect AI rate limits / cost guards.
+        enrichResults = [];
+        for (const id of communityIds) {
+          try {
+            const result = await enrichCommunityUnified(id, { forceRefresh: true });
+            const foundData = result.cached === true || result.contentSaved === true;
+            await db
+              .update(communities)
+              .set({
+                enrichmentAttempts: 0,
+                enrichmentStatus: foundData ? 'completed' : 'failed',
+              } as any)
+              .where(eq(communities.id, id));
+            // Re-score so a now-enriched record auto-restores (or stays hidden).
+            const recomputed = await recomputeCommunityVisibility(id);
+            enrichResults.push({
+              id,
+              restored: recomputed ? recomputed.hidden === false : false,
+              contentSaved: foundData,
+            });
+            affected += 1;
+          } catch (err) {
+            console.error(`[QC enrich] community ${id} failed:`, err);
+            enrichResults.push({ id, restored: false, contentSaved: false });
+          }
+        }
+      }
+
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      superclusterService
+        .refresh()
+        .catch((err: any) => console.error('Supercluster refresh error:', err));
+
+      console.log(
+        `Admin QC action: ${action} on ${communityIds.length} communities by ${req.user?.email}`,
+      );
+      res.json({ success: true, action, affected, results: enrichResults });
+    } catch (error) {
+      console.error('Error performing QC action:', error);
+      res.status(500).json({ message: 'Failed to perform QC action' });
+    }
+  });
+
+  // Status counts across all statuses (for filter pill badges)
+  adminRouter.get('/listing-flags/counts', async (req, res) => {
+    try {
+      const rows = await db
+        .select({ status: listingFlags.status, count: sql<number>`count(*)` })
+        .from(listingFlags)
+        .groupBy(listingFlags.status);
+      const counts: Record<string, number> = {};
+      for (const row of rows) counts[row.status] = Number(row.count);
+      res.json(counts);
+    } catch (error) {
+      console.error('Error fetching listing flag counts:', error);
+      res.status(500).json({ message: 'Failed to fetch flag counts' });
+    }
+  });
+
+  // Bulk dismiss / confirm / confirm-and-hide
+  adminRouter.post('/listing-flags/bulk', async (req, res) => {
+    try {
+      const { ids, action } = req.body;
+      if (!Array.isArray(ids) || ids.length === 0) {
+        return res.status(400).json({ message: 'ids must be a non-empty array' });
+      }
+      if (!['dismiss', 'confirm', 'confirm-and-hide'].includes(action)) {
+        return res.status(400).json({ message: 'Invalid action' });
+      }
+      const now = new Date();
+      if (action === 'dismiss') {
+        await db.update(listingFlags)
+          .set({ status: 'Dismissed', reviewedAt: now, updatedAt: now })
+          .where(inArray(listingFlags.id, ids));
+      } else {
+        const flagRows = await db.update(listingFlags)
+          .set({ status: 'Resolved', reviewedAt: now, updatedAt: now })
+          .where(inArray(listingFlags.id, ids))
+          .returning({ communityId: listingFlags.communityId });
+        const communityIds = [...new Set(flagRows.map(r => r.communityId))];
+        if (communityIds.length > 0) {
+          const communityUpdates: Record<string, any> = { flagStatus: 'confirmed', updatedAt: now };
+          if (action === 'confirm-and-hide') communityUpdates.isHidden = true;
+          await db.update(communities).set(communityUpdates).where(inArray(communities.id, communityIds));
+        }
+      }
+      if (action === 'confirm-and-hide') {
+        clearAllCommunityCaches();
+        communityStatsCache.invalidateCache();
+        superclusterService.refresh().catch((err: any) => console.error('Supercluster refresh error:', err));
+      }
+      res.json({ message: `${ids.length} flag(s) processed` });
+    } catch (error) {
+      console.error('Error bulk processing flags:', error);
+      res.status(500).json({ message: 'Failed to bulk process flags' });
+    }
+  });
+
+  // Get pending listing flags for admin moderation
+  adminRouter.get('/listing-flags', async (req, res) => {
+    try {
+      const { status = 'Pending', page = '1', limit = '20' } = req.query;
+      const pageNum = parseInt(page as string);
+      const limitNum = parseInt(limit as string);
+      const offset = (pageNum - 1) * limitNum;
+
+      const [flags, [countRow]] = await Promise.all([
+        db.select({
+          id: listingFlags.id,
+          communityId: listingFlags.communityId,
+          communityName: communities.name,
+          communityCity: communities.city,
+          communityState: communities.state,
+          flagType: listingFlags.flagType,
+          reason: listingFlags.reason,
+          details: listingFlags.details,
+          status: listingFlags.status,
+          reporterEmail: listingFlags.reporterEmail,
+          reporterName: listingFlags.reporterName,
+          createdAt: listingFlags.createdAt,
+        })
+          .from(listingFlags)
+          .innerJoin(communities, eq(listingFlags.communityId, communities.id))
+          .where(status === 'all' ? undefined : eq(listingFlags.status, status as string))
+          .orderBy(desc(listingFlags.createdAt))
+          .limit(limitNum)
+          .offset(offset),
+        db.select({ count: sql<number>`count(*)` })
+          .from(listingFlags)
+          .where(status === 'all' ? undefined : eq(listingFlags.status, status as string)),
+      ]);
+
+      res.json({ flags, total: Number(countRow.count), page: pageNum, totalPages: Math.ceil(Number(countRow.count) / limitNum) });
+    } catch (error) {
+      console.error('Error fetching listing flags:', error);
+      res.status(500).json({ message: 'Failed to fetch listing flags' });
+    }
+  });
+
+  // Dismiss a flag (no action on community)
+  adminRouter.post('/listing-flags/:id/dismiss', async (req, res) => {
+    try {
+      const flagId = parseInt(req.params.id);
+      const [updated] = await db.update(listingFlags)
+        .set({ status: 'Dismissed', reviewedAt: new Date(), updatedAt: new Date() })
+        .where(eq(listingFlags.id, flagId))
+        .returning({ id: listingFlags.id, communityId: listingFlags.communityId });
+      if (!updated) return res.status(404).json({ message: 'Flag not found' });
+
+      // Clear communities.flagStatus if no active (Pending) flags remain for this community
+      const [remaining] = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(listingFlags)
+        .where(and(
+          eq(listingFlags.communityId, updated.communityId),
+          sql`${listingFlags.status} IN ('Pending', 'Under Review')`
+        ));
+      if (Number(remaining.count) === 0) {
+        await db.update(communities)
+          .set({ flagStatus: null } as any)
+          .where(eq(communities.id, updated.communityId));
+      }
+
+      res.json({ message: 'Flag dismissed' });
+    } catch (error) {
+      console.error('Error dismissing flag:', error);
+      res.status(500).json({ message: 'Failed to dismiss flag' });
+    }
+  });
+
+  // Confirm a flag: mark flag Resolved + set community flagStatus = 'confirmed'
+  adminRouter.post('/listing-flags/:id/confirm', async (req, res) => {
+    try {
+      const flagId = parseInt(req.params.id);
+      const { hideListingAlso = false } = req.body;
+
+      const [flag] = await db.update(listingFlags)
+        .set({ status: 'Resolved', reviewedAt: new Date(), updatedAt: new Date() })
+        .where(eq(listingFlags.id, flagId))
+        .returning({ id: listingFlags.id, communityId: listingFlags.communityId });
+
+      if (!flag) return res.status(404).json({ message: 'Flag not found' });
+
+      const communityUpdates: Record<string, any> = {
+        flagStatus: 'confirmed',
+        updatedAt: new Date(),
+      };
+      if (hideListingAlso) {
+        communityUpdates.isHidden = true;
+      }
+
+      await db.update(communities).set(communityUpdates).where(eq(communities.id, flag.communityId));
+
+      res.json({ message: hideListingAlso ? 'Flag confirmed and listing hidden' : 'Flag confirmed' });
+    } catch (error) {
+      console.error('Error confirming flag:', error);
+      res.status(500).json({ message: 'Failed to confirm flag' });
+    }
+  });
+
+  // Run batch Perplexity verification
+  adminRouter.post('/verify/batch', async (req, res) => {
+    try {
+      const { limit = 50 } = req.body;
+
+      console.log(`🚀 Starting batch verification for ${limit} communities...`);
+
+      // Start the verification process in the background
+      batchVerifier.runVerificationProcess(limit).catch(error => {
+        console.error('Batch verification failed:', error);
+      });
+
+      res.json({
+        message: `Batch verification started for up to ${limit} communities`,
+        status: 'processing',
+        note: 'Check server logs for progress'
+      });
+    } catch (error) {
+      console.error('Error starting batch verification:', error);
+      res.status(500).json({ message: 'Failed to start batch verification' });
+    }
+  });
+
+  // Get verification statistics
+  adminRouter.get('/verify/stats', async (req, res) => {
+    try {
+      const stats = await batchVerifier.getVerificationStats();
+
+      res.json({
+        total: stats.total,
+        verified: stats.verified || 0,
+        needsVerification: stats.needs_verification || 0,
+        fake: stats.fake || 0,
+        international: stats.international || 0,
+        percentVerified: stats.total > 0 ?
+          Math.round((stats.verified || 0) / stats.total * 100) : 0
+      });
+    } catch (error) {
+      console.error('Error fetching verification stats:', error);
+      res.status(500).json({ message: 'Failed to fetch verification stats' });
+    }
+  });
+
+  // City-based batch verification - MUCH MORE EFFICIENT!
+  adminRouter.post('/verify/cities', async (req, res) => {
+    try {
+      const { cities, limit = 100 } = req.body;
+
+      let targetCities = cities;
+
+      // If no cities provided, get top unverified cities
+      if (!targetCities || targetCities.length === 0) {
+        targetCities = await cityBatchVerifier.getTopUnverifiedCities(10);
+        console.log(`🏙️ Auto-selected top ${targetCities.length} cities with unverified communities`);
+      }
+
+      console.log(`🚀 Starting city-based verification for ${targetCities.length} cities...`);
+
+      // Start verification in background
+      cityBatchVerifier.verifyCitiesBatch(targetCities, limit).catch(error => {
+        console.error('City batch verification failed:', error);
+      });
+
+      res.json({
+        message: `City-based verification started for ${targetCities.length} cities`,
+        cities: targetCities,
+        status: 'processing'
+      });
+    } catch (error) {
+      console.error('Error starting city verification:', error);
+      res.status(500).json({ message: 'Failed to start city verification' });
+    }
+  });
+
+  // Get cities with most unverified communities
+  adminRouter.get('/verify/top-cities', async (req, res) => {
+    try {
+      const { limit = 20 } = req.query;
+      const topCities = await cityBatchVerifier.getTopUnverifiedCities(Number(limit));
+
+      res.json({
+        cities: topCities,
+        total: topCities.reduce((sum, c) => sum + c.count, 0)
+      });
+    } catch (error) {
+      console.error('Error fetching top cities:', error);
+      res.status(500).json({ message: 'Failed to fetch top cities' });
+    }
+  });
+
+  // ─── Photo cleanup endpoint ───────────────────────────────────────────────
+  // POST /api/admin/photos/cleanup-duplicates
+  // Scans every community's photos[] and removes: exact duplicates, UI-chrome
+  // noise (sentsuccessfully, closex, icons …), icon-sized thumbnails (≤150px),
+  // and collapses different-size variants of the same image.
+  adminRouter.post('/photos/cleanup-duplicates', async (req, res) => {
+    const dryRun = req.body?.dryRun === true;
+    const rawCommunityId = req.body?.communityId;
+    const parsedId = rawCommunityId !== undefined && rawCommunityId !== null ? parseInt(String(rawCommunityId), 10) : null;
+    if (parsedId !== null && (!Number.isInteger(parsedId) || parsedId <= 0)) {
+      return res.status(400).json({ error: 'communityId must be a positive integer' });
+    }
+    const singleId: number | null = parsedId;
+
+    try {
+      const { CommunityPhotoEnrichment } = await import('../services/community-photo-enrichment');
+
+      const BATCH_SIZE = 500;
+      let offset = 0;
+      let examined = 0;
+      let updated = 0;
+      let photosRemoved = 0;
+      let photosKept = 0;
+
+      while (true) {
+        const rows = await db.execute(
+          singleId
+            ? sql`SELECT id, photos, photo_attributions FROM communities WHERE id = ${singleId} AND photos IS NOT NULL AND array_length(photos,1) > 0`
+            : sql`SELECT id, photos, photo_attributions FROM communities WHERE photos IS NOT NULL AND array_length(photos,1) > 0 ORDER BY id LIMIT ${BATCH_SIZE} OFFSET ${offset}`
+        );
+        const batch: any[] = (rows as any).rows ?? (rows as any);
+        if (!batch || batch.length === 0) break;
+
+        for (const row of batch) {
+          examined++;
+          const rawPhotos: string[] = row.photos ?? [];
+          const rawAttribs: string[] = row.photo_attributions ?? [];
+          if (rawPhotos.length === 0) continue;
+
+          const cleaned = CommunityPhotoEnrichment.cleanPhotoArray(rawPhotos);
+          const removed = rawPhotos.length - cleaned.length;
+          if (removed === 0) { photosKept += rawPhotos.length; continue; }
+
+          // Re-align attributions
+          const survivorSet = new Set(cleaned);
+          const cleanedAttribs: string[] = rawPhotos
+            .map((url, i) => (survivorSet.has(url) ? (rawAttribs[i] ?? '') : null))
+            .filter((a): a is string => a !== null);
+
+          updated++;
+          photosRemoved += removed;
+          photosKept += cleaned.length;
+
+          if (!dryRun) {
+            // Use Drizzle ORM `.update` so the driver serialises the arrays
+            // correctly — raw `JSON.stringify(arr)::text[]` is rejected by PG
+            // because JSON array syntax ≠ PG array literal syntax.
+            await db.update(communities)
+              .set({ photos: cleaned, photoAttributions: cleanedAttribs, updatedAt: new Date() })
+              .where(eq(communities.id, row.id as number));
+          }
+        }
+
+        if (singleId) break;
+        offset += BATCH_SIZE;
+        if (batch.length < BATCH_SIZE) break;
+      }
+
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+
+      res.json({
+        success: true,
+        dryRun,
+        examined,
+        updated,
+        photosRemoved,
+        photosKept,
+        message: dryRun
+          ? `Dry run complete: would remove ${photosRemoved} photos from ${updated} communities`
+          : `Cleanup complete: removed ${photosRemoved} photos from ${updated} communities`,
+      });
+    } catch (err) {
+      console.error('Photo cleanup error:', err);
+      res.status(500).json({ error: 'Photo cleanup failed', details: String(err) });
+    }
+  });
+
+  // ─── Photo management endpoints ───────────────────────────────────────────
+  // Helper: fetch community photos array
+  async function getCommunityPhotos(communityId: number): Promise<string[]> {
+    const [c] = await db.select({ photos: communities.photos }).from(communities).where(eq(communities.id, communityId));
+    const photos = c?.photos ?? [];
+    // Deduplicate to prevent repeated enrichment runs from adding duplicate URLs
+    return [...new Set(photos)];
+  }
+
+  // Helper: assert community exists, return 404 if not
+  async function assertCommunity(communityId: number, res: any): Promise<boolean> {
+    const [c] = await db.select({ id: communities.id }).from(communities).where(eq(communities.id, communityId));
+    if (!c) { res.status(404).json({ error: 'Community not found' }); return false; }
+    return true;
+  }
+
+  // Upload a photo file → disk, add public URL to community.photos
+  // Files are served by the existing express.static('public') middleware in server/index.ts
+  adminRouter.post('/communities/:id/photos/upload', upload.single('photo'), async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!req.file) return res.status(400).json({ error: 'No file provided or unsupported type' });
+      if (!(await assertCommunity(communityId, res))) return;
+
+      // multer diskStorage already wrote the file with a safe timestamp filename
+      const publicUrl = `/uploads/community-photos/${communityId}/${req.file.filename}`;
+      const photos = await getCommunityPhotos(communityId);
+      photos.push(publicUrl);
+      await db.update(communities).set({ photos, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+
+      res.json({ success: true, url: publicUrl, photos });
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      res.status(500).json({ error: 'Failed to upload photo' });
+    }
+  });
+
+  // Add a photo URL directly (no file upload)
+  adminRouter.post('/communities/:id/photos/add', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { url } = req.body;
+      if (!url || typeof url !== 'string') return res.status(400).json({ error: 'url is required' });
+      if (url.startsWith('/attached_assets/')) return res.status(400).json({ error: 'attached_assets URLs are not allowed. Provide a real hosted photo URL.' });
+
+      const photos = await getCommunityPhotos(communityId);
+      if (photos.includes(url)) return res.status(400).json({ error: 'Photo already exists' });
+      photos.push(url);
+      await db.update(communities).set({ photos, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      res.json({ success: true, photos });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to add photo' });
+    }
+  });
+
+  // Remove a photo by URL
+  adminRouter.delete('/communities/:id/photos', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { url } = req.body;
+      if (!url) return res.status(400).json({ error: 'url is required' });
+
+      const photos = await getCommunityPhotos(communityId);
+      const next = photos.filter(p => p !== url);
+      await db.update(communities).set({ photos: next, updatedAt: new Date() }).where(eq(communities.id, communityId));
+
+      // If the photo was stored on disk, delete the file.
+      // Strict regex ensures only safe timestamp-based filenames are touched — no path traversal.
+      try {
+        const diskMatch = (url as string).match(/^\/uploads\/community-photos\/(\d+)\/(\d+\.(jpg|png|webp|gif))$/i);
+        if (diskMatch) {
+          const filePath = path.join(PHOTO_UPLOAD_DIR, diskMatch[1], diskMatch[2]);
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        }
+      } catch (_) {}
+
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      res.json({ success: true, photos: next });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to remove photo' });
+    }
+  });
+
+  // Reorder photos (accept new ordered array of URLs)
+  adminRouter.put('/communities/:id/photos/reorder', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { photos: newOrder } = req.body;
+      if (!Array.isArray(newOrder)) return res.status(400).json({ error: 'photos must be an array' });
+
+      const current = await getCommunityPhotos(communityId);
+      const currentSet = new Set(current);
+      const valid = newOrder.every(u => typeof u === 'string' && currentSet.has(u));
+      if (!valid || newOrder.length !== current.length) return res.status(400).json({ error: 'Invalid photo list — must contain same URLs as existing set' });
+
+      await db.update(communities).set({ photos: newOrder, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      res.json({ success: true, photos: newOrder });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to reorder photos' });
+    }
+  });
+
+  // Set primary photo (moves URL to index 0)
+  adminRouter.put('/communities/:id/photos/primary', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ error: 'Invalid community ID' });
+      if (!(await assertCommunity(communityId, res))) return;
+      const { url } = req.body;
+      if (!url) return res.status(400).json({ error: 'url is required' });
+
+      const photos = await getCommunityPhotos(communityId);
+      if (!photos.includes(url)) return res.status(404).json({ error: 'Photo not found in community gallery' });
+
+      const next = [url, ...photos.filter(p => p !== url)];
+      await db.update(communities).set({ photos: next, updatedAt: new Date() }).where(eq(communities.id, communityId));
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      res.json({ success: true, photos: next });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to set primary photo' });
+    }
+  });
+  // ──────────────────────────────────────────────────────────────────────────
+
+  // ── HOME PAGE SECTION CONFIGS ──────────────────────────────────────────────
+
+  // The full home-page community layout, seeded as editable DEFAULTS.
+  // Each entry has a stable `key` so the seeder is idempotent: it claims any matching
+  // pre-existing row (assigning it the key) and inserts only the ones still missing —
+  // it NEVER renames, reorders, or deletes an admin's customizations.
+  const DEFAULT_HOME_SECTIONS: Array<{
+    key: string;
+    title: string;
+    subtitle: string;
+    sectionType: string;
+    config: Record<string, any>;
+  }> = [
+    { key: 'recently_discovered', title: 'Recently Discovered Communities', subtitle: 'Brand new communities added to our database', sectionType: 'recently_discovered', config: {} },
+    { key: 'hud', title: 'HUD Affordable Communities', subtitle: 'Government-verified affordable housing options', sectionType: 'hud', config: {} },
+    { key: 'red_tag_deals', title: 'Red Tag Deals', subtitle: 'Limited-time savings on select communities', sectionType: 'red_tag_deals', config: {} },
+    { key: 'care_spectrum', title: 'Explore the Complete Care Spectrum', subtitle: 'From independent living to skilled nursing', sectionType: 'care_spectrum', config: {} },
+    { key: 'brand_discovery', title: 'Signature Discovery Communities', subtitle: 'Innovation-led senior living from Discovery Senior Living', sectionType: 'brand', config: { brand: 'Discovery' } },
+    { key: 'brand_lcs', title: 'Award-Winning LCS Communities', subtitle: 'Life Care Services — most awarded in J.D. Power history', sectionType: 'brand', config: { brand: 'Life Care' } },
+    { key: 'brand_atria', title: 'Luxury Atria Communities', subtitle: 'Hospitality-driven senior living from Atria', sectionType: 'brand', config: { brand: 'Atria' } },
+    { key: 'brand_brookdale', title: 'Leading Brookdale Communities', subtitle: "The nation's largest senior living network", sectionType: 'brand', config: { brand: 'Brookdale' } },
+    { key: 'brand_oakmont', title: 'Premier Oakmont Communities', subtitle: 'Resort-style luxury across the West', sectionType: 'brand', config: { brand: 'Oakmont' } },
+    { key: 'loc_hi', title: 'Hawaii Paradise Communities', subtitle: "Exceptional senior living in America's tropical paradise", sectionType: 'location', config: { state: 'HI' } },
+    { key: 'loc_fortworth_tx', title: 'Fort Worth Lone Star Excellence', subtitle: 'Texas-sized luxury and authentic southern hospitality', sectionType: 'location', config: { city: 'Fort Worth', state: 'TX' } },
+    { key: 'loc_fl', title: 'Florida Senior Living Paradise', subtitle: 'Sunshine State living for every lifestyle', sectionType: 'location', config: { state: 'FL' } },
+    { key: 'loc_ny', title: 'New York Empire Excellence', subtitle: 'World-class senior living in the Empire State', sectionType: 'location', config: { state: 'NY' } },
+    { key: 'loc_pr', title: 'Puerto Rico Communities', subtitle: 'Caribbean living as a U.S. territory', sectionType: 'location', config: { state: 'PR' } },
+    { key: 'country_canada', title: 'Canadian Communities', subtitle: 'Trusted senior living across Canada', sectionType: 'location', config: { country: 'Canada' } },
+    { key: 'country_mexico', title: 'Mexico Communities', subtitle: 'Affordable retirement living in Mexico', sectionType: 'location', config: { country: 'Mexico' } },
+    { key: 'country_peru', title: 'Peru Communities', subtitle: 'Senior living options in Peru', sectionType: 'location', config: { country: 'Peru' } },
+    { key: 'country_cuba', title: 'Cuba Communities', subtitle: 'Senior living options in Cuba', sectionType: 'location', config: { country: 'Cuba' } },
+    { key: 'featured', title: 'Featured & Coastal Communities', subtitle: 'Premium communities with exceptional amenities', sectionType: 'featured', config: {} },
+    { key: 'highest_rated', title: 'Highest Rated Communities', subtitle: 'Top performers with exceptional ratings and satisfied families', sectionType: 'highest_rated', config: {} },
+  ];
+
+  // Does an existing row's config "core" (the data-source fields) match a default's?
+  // Selection/curation fields (selectionMode/communityIds/excludeIds) are ignored so a
+  // hand-curated Featured row still gets claimed by the 'featured' default.
+  function configCoreMatches(rowCfg: any, defCfg: Record<string, any>): boolean {
+    const r = rowCfg && typeof rowCfg === 'object' ? rowCfg : {};
+    const norm = (v: any) => (v === undefined || v === null || v === '' ? '' : String(v));
+    const fields = ['city', 'state', 'country', 'careType', 'brand'];
+    return fields.every((f) => norm(r[f]) === norm((defCfg as any)[f]));
+  }
+
+  // Ensure home_section_configs table exists and additively seed the default layout.
+  async function ensureHomeSections() {
+    try {
+      await db.execute(sql`
+        CREATE TABLE IF NOT EXISTS home_section_configs (
+          id SERIAL PRIMARY KEY,
+          position INTEGER NOT NULL DEFAULT 0,
+          enabled BOOLEAN NOT NULL DEFAULT TRUE,
+          title TEXT NOT NULL,
+          subtitle TEXT,
+          section_type TEXT NOT NULL,
+          config JSONB DEFAULT '{}',
+          created_at TIMESTAMP DEFAULT NOW(),
+          updated_at TIMESTAMP DEFAULT NOW()
+        )
+      `);
+      // Additive: stable key column for idempotent default seeding (drift-safe).
+      await db.execute(sql`ALTER TABLE home_section_configs ADD COLUMN IF NOT EXISTS default_key TEXT`);
+
+      // Load current rows once.
+      const existingRes = await db.execute(sql`SELECT id, section_type, config, default_key, position FROM home_section_configs`);
+      const existing: any[] = (existingRes as any).rows ?? (existingRes as any) ?? [];
+      const claimedRowIds = new Set<number>();
+      const keysPresent = new Set<string>(existing.map((r) => r.default_key).filter(Boolean));
+      let maxPos = existing.reduce((m, r) => Math.max(m, Number(r.position) || 0), 0);
+
+      for (const def of DEFAULT_HOME_SECTIONS) {
+        // Already seeded (key present) → nothing to do.
+        if (keysPresent.has(def.key)) continue;
+
+        // Try to claim a pre-existing, unkeyed row with the same type + data source.
+        const match = existing.find(
+          (r) =>
+            !r.default_key &&
+            !claimedRowIds.has(r.id) &&
+            r.section_type === def.sectionType &&
+            configCoreMatches(r.config, def.config),
+        );
+
+        if (match) {
+          await db.execute(sql`UPDATE home_section_configs SET default_key = ${def.key} WHERE id = ${match.id}`);
+          claimedRowIds.add(match.id);
+          keysPresent.add(def.key);
+        } else {
+          maxPos += 1;
+          await db.execute(sql`
+            INSERT INTO home_section_configs (position, enabled, title, subtitle, section_type, config, default_key)
+            VALUES (${maxPos}, TRUE, ${def.title}, ${def.subtitle}, ${def.sectionType}, ${JSON.stringify(def.config)}::jsonb, ${def.key})
+          `);
+          keysPresent.add(def.key);
+        }
+      }
+    } catch (e) {
+      console.warn('⚠️  home_section_configs init skipped:', e);
+    }
+  }
+  ensureHomeSections();
+
+  // Renumber all home section positions to be contiguous (1, 2, 3, …) while
+  // preserving their current sorted order. Called after every create / delete.
+  async function compactHomeSectionPositions() {
+    const rows = await db
+      .select({ id: homeSectionConfigs.id })
+      .from(homeSectionConfigs)
+      .orderBy(asc(homeSectionConfigs.position));
+    for (let i = 0; i < rows.length; i++) {
+      await db
+        .update(homeSectionConfigs)
+        .set({ position: i + 1 })
+        .where(eq(homeSectionConfigs.id, rows[i].id));
+    }
+  }
+
+  // Normalize the curation-related fields stored inside a section's config JSONB so
+  // we never persist malformed selection rules. Preserves any other config keys.
+  function normalizeSectionConfig(config: any): any {
+    const cfg = (config && typeof config === 'object') ? { ...config } : {};
+    const toIdArray = (v: any): number[] =>
+      Array.isArray(v)
+        ? Array.from(new Set(v.map((n: any) => Number(n)).filter((n: number) => Number.isFinite(n) && n > 0)))
+        : [];
+    cfg.selectionMode = (cfg.selectionMode === 'curated' || cfg.selectionMode === 'pinned') ? cfg.selectionMode : 'auto';
+    cfg.communityIds = (cfg.selectionMode === 'auto') ? [] : toIdArray(cfg.communityIds);
+    cfg.excludeIds = toIdArray(cfg.excludeIds);
+    return cfg;
+  }
+
+  // Search communities for the carousel curation picker.
+  // Returns lightweight {id, name, city, state}. Raw SQL avoids Drizzle column drift.
+  adminRouter.get('/home-sections/community-search', async (req, res) => {
+    try {
+      const q = (req.query.q as string || '').trim();
+      if (q.length < 2) return res.json([]);
+      const like = `%${q}%`;
+      const result = await db.execute(sql`
+        SELECT "id", "name", "city", "state"
+        FROM communities
+        WHERE "is_active" = TRUE AND "is_hidden" IS NOT TRUE
+          AND ("name" ILIKE ${like} OR "city" ILIKE ${like})
+        ORDER BY "name" ASC
+        LIMIT 20
+      `);
+      res.json((result as any).rows ?? []);
+    } catch (error) {
+      console.error('Error searching communities for curation:', error);
+      res.status(500).json({ error: 'Failed to search communities' });
+    }
+  });
+
+  // Resolve a list of community ids back to {id, name, city, state} for rendering chips.
+  adminRouter.get('/home-sections/community-by-ids', async (req, res) => {
+    try {
+      const raw = (req.query.ids as string || '').trim();
+      if (!raw) return res.json([]);
+      const ids = raw
+        .split(',')
+        .map((s) => parseInt(s.trim(), 10))
+        .filter((n) => Number.isFinite(n));
+      if (ids.length === 0) return res.json([]);
+      const idList = sql.join(ids.map((i) => sql`${i}`), sql`, `);
+      const result = await db.execute(sql`
+        SELECT "id", "name", "city", "state"
+        FROM communities
+        WHERE "id" IN (${idList})
+      `);
+      res.json((result as any).rows ?? []);
+    } catch (error) {
+      console.error('Error resolving community ids for curation:', error);
+      res.status(500).json({ error: 'Failed to resolve communities' });
+    }
+  });
+
+  // List all sections (admin)
+  adminRouter.get('/home-sections', async (_req, res) => {
+    try {
+      const sections = await db
+        .select()
+        .from(homeSectionConfigs)
+        .orderBy(asc(homeSectionConfigs.position));
+      res.json(sections);
+    } catch (error) {
+      console.error('Error fetching home sections:', error);
+      res.status(500).json({ error: 'Failed to fetch home sections' });
+    }
+  });
+
+  // Create a new section
+  adminRouter.post('/home-sections', async (req, res) => {
+    try {
+      const { title, subtitle, sectionType, config, position, enabled } = req.body;
+      if (!title || !sectionType) {
+        return res.status(400).json({ error: 'title and sectionType are required' });
+      }
+      if (!(SECTION_TYPES as readonly string[]).includes(sectionType)) {
+        return res.status(400).json({ error: `Invalid sectionType. Must be one of: ${SECTION_TYPES.join(', ')}` });
+      }
+      const maxResult = await db.execute(sql`SELECT COALESCE(MAX(position),0)::integer AS max FROM home_section_configs`);
+      const existingRow = (maxResult as any).rows?.[0] ?? (maxResult as any)[0];
+      const nextPos = position ?? ((existingRow as any).max + 1);
+      const [inserted] = await db
+        .insert(homeSectionConfigs)
+        .values({
+          title,
+          subtitle: subtitle || null,
+          sectionType: sectionType as SectionType,
+          config: normalizeSectionConfig(config),
+          position: nextPos,
+          enabled: enabled !== undefined ? enabled : true,
+        })
+        .returning();
+      await compactHomeSectionPositions();
+      const [refreshed] = await db
+        .select()
+        .from(homeSectionConfigs)
+        .where(eq(homeSectionConfigs.id, inserted.id));
+      res.json(refreshed ?? inserted);
+    } catch (error) {
+      console.error('Error creating home section:', error);
+      res.status(500).json({ error: 'Failed to create home section' });
+    }
+  });
+
+  // Update a section
+  adminRouter.patch('/home-sections/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
+      const { title, subtitle, sectionType, config, position, enabled } = req.body;
+      if (sectionType && !(SECTION_TYPES as readonly string[]).includes(sectionType)) {
+        return res.status(400).json({ error: `Invalid sectionType. Must be one of: ${SECTION_TYPES.join(', ')}` });
+      }
+      const updates: Record<string, any> = { updatedAt: new Date() };
+      if (title !== undefined) updates.title = title;
+      if (subtitle !== undefined) updates.subtitle = subtitle;
+      if (sectionType !== undefined) updates.sectionType = sectionType;
+      if (config !== undefined) updates.config = normalizeSectionConfig(config);
+      if (position !== undefined) updates.position = position;
+      if (enabled !== undefined) updates.enabled = enabled;
+
+      const [updated] = await db
+        .update(homeSectionConfigs)
+        .set(updates)
+        .where(eq(homeSectionConfigs.id, id))
+        .returning();
+      if (!updated) return res.status(404).json({ error: 'Section not found' });
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating home section:', error);
+      res.status(500).json({ error: 'Failed to update home section' });
+    }
+  });
+
+  // Delete a section
+  adminRouter.delete('/home-sections/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
+      await db.delete(homeSectionConfigs).where(eq(homeSectionConfigs.id, id));
+      await compactHomeSectionPositions();
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting home section:', error);
+      res.status(500).json({ error: 'Failed to delete home section' });
+    }
+  });
+
+  // ── END HOME PAGE SECTION CONFIGS ──────────────────────────────────────────
+
+  // Get single community by ID — admin bypass (sees hidden/fake records).
+  // Defined AFTER all literal /communities/* GET routes so it never shadows them.
+  adminRouter.get('/communities/:id', async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id);
+      if (isNaN(communityId)) return res.status(400).json({ message: 'Invalid community ID' });
+
+      const [community] = await db.select().from(communities).where(eq(communities.id, communityId));
+      if (!community) return res.status(404).json({ message: 'Community not found' });
+
+      res.json(community);
+    } catch (error) {
+      console.error('Error fetching community for admin:', error);
+      res.status(500).json({ message: 'Failed to fetch community' });
+    }
+  });
+
+  // Admin: update map default location
+  adminRouter.put('/settings/map-defaults', async (req, res) => {
+    try {
+      const { lat, lng, zoom } = req.body;
+      if (typeof lat !== 'number' || lat < -90 || lat > 90)
+        return res.status(400).json({ error: 'Invalid lat: must be a number between -90 and 90' });
+      if (typeof lng !== 'number' || lng < -180 || lng > 180)
+        return res.status(400).json({ error: 'Invalid lng: must be a number between -180 and 180' });
+      if (typeof zoom !== 'number' || zoom < 1 || zoom > 18)
+        return res.status(400).json({ error: 'Invalid zoom: must be a number between 1 and 18' });
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('map_defaults', ${JSON.stringify({ lat, lng, zoom })}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json({ lat, lng, zoom });
+    } catch (error) {
+      console.error('Error saving map defaults:', error);
+      res.status(500).json({ error: 'Failed to save map defaults' });
+    }
+  });
+
+  // Admin: update Services page settings
+  adminRouter.put('/settings/services-page', async (req, res) => {
+    try {
+      const { featuredBannerEnabled, heroText, pinnedVendorIds } = req.body;
+      if (typeof featuredBannerEnabled !== 'boolean')
+        return res.status(400).json({ error: 'featuredBannerEnabled must be boolean' });
+      if (typeof heroText !== 'string')
+        return res.status(400).json({ error: 'heroText must be a string' });
+      if (!Array.isArray(pinnedVendorIds))
+        return res.status(400).json({ error: 'pinnedVendorIds must be an array' });
+      const validIds = pinnedVendorIds.map(Number).filter(n => !isNaN(n) && n > 0);
+      const value = { featuredBannerEnabled, heroText: heroText.trim(), pinnedVendorIds: validIds };
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('services_page_settings', ${JSON.stringify(value)}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json(value);
+    } catch (error) {
+      console.error('Error saving services page settings:', error);
+      res.status(500).json({ error: 'Failed to save services page settings' });
+    }
+  });
+
+  // Admin: update Healthcare page settings
+  adminRouter.put('/settings/healthcare-page', async (req, res) => {
+    try {
+      const { featuredBannerEnabled, heroText, pinnedProviderIds } = req.body;
+      if (typeof featuredBannerEnabled !== 'boolean')
+        return res.status(400).json({ error: 'featuredBannerEnabled must be boolean' });
+      if (typeof heroText !== 'string')
+        return res.status(400).json({ error: 'heroText must be a string' });
+      if (!Array.isArray(pinnedProviderIds))
+        return res.status(400).json({ error: 'pinnedProviderIds must be an array' });
+      const validIds = pinnedProviderIds.map(Number).filter(n => !isNaN(n) && n > 0);
+      const value = { featuredBannerEnabled, heroText: heroText.trim(), pinnedProviderIds: validIds };
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('healthcare_page_settings', ${JSON.stringify(value)}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json(value);
+    } catch (error) {
+      console.error('Error saving healthcare page settings:', error);
+      res.status(500).json({ error: 'Failed to save healthcare page settings' });
+    }
+  });
+
+  // Admin: update Directory page settings
+  adminRouter.put('/settings/directory-page', async (req, res) => {
+    try {
+      const { defaultSort, promoBannerEnabled, promoBannerText, pinnedCommunityIds } = req.body;
+      const validSorts = ['newest', 'highest-rated', 'most-reviewed'];
+      if (!validSorts.includes(defaultSort))
+        return res.status(400).json({ error: `defaultSort must be one of: ${validSorts.join(', ')}` });
+      if (typeof promoBannerEnabled !== 'boolean')
+        return res.status(400).json({ error: 'promoBannerEnabled must be boolean' });
+      if (typeof promoBannerText !== 'string')
+        return res.status(400).json({ error: 'promoBannerText must be a string' });
+      if (!Array.isArray(pinnedCommunityIds))
+        return res.status(400).json({ error: 'pinnedCommunityIds must be an array' });
+      const validIds = pinnedCommunityIds.map(Number).filter(n => !isNaN(n) && n > 0).slice(0, 5);
+      const value = { defaultSort, promoBannerEnabled, promoBannerText: promoBannerText.trim(), pinnedCommunityIds: validIds };
+      await db.execute(sql`
+        INSERT INTO platform_settings (key, value)
+        VALUES ('directory_page_settings', ${JSON.stringify(value)}::jsonb)
+        ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value
+      `);
+      res.json(value);
+    } catch (error) {
+      console.error('Error saving directory page settings:', error);
+      res.status(500).json({ error: 'Failed to save directory page settings' });
     }
   });
 

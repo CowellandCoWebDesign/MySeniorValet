@@ -175,8 +175,7 @@ export default function Privacy() {
               <div className="p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                 <p className="text-yellow-800 font-medium">Important:</p>
                 <p className="text-yellow-700 text-sm mt-1">
-                  MySeniorValet does not receive referral fees from senior living communities. 
-                  We are an independent information platform.
+                  MySeniorValet may receive referral fees from participating communities when a family selects a community through our platform. This relationship is always transparently disclosed. Family research tools remain free — we never charge families directly.
                 </p>
               </div>
             </CardContent>
@@ -244,13 +243,7 @@ export default function Privacy() {
                   <strong>Email:</strong> hello@myseniorvalet.com
                 </div>
                 <div>
-                  <strong>Phone:</strong> 1-855-MY-VALET (1-855-698-2538)
-                </div>
-                <div>
-                  <strong>Mail:</strong><br />
-                  MySeniorValet Privacy Team<br />
-                  123 Technology Way<br />
-                  San Francisco, CA 94105
+                  <strong>Phone:</strong> 530-776-4220
                 </div>
               </div>
 

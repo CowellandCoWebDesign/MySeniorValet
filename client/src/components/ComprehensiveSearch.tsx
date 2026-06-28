@@ -9,6 +9,7 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MascotLoadingDisplay } from './MascotLoadingDisplay';
+import { queryClient } from '@/lib/queryClient';
 
 interface SearchResult {
   communities: any[];
@@ -157,6 +158,16 @@ export function ComprehensiveSearch({
         
         if (globalResponse.ok) {
           const globalData = await globalResponse.json();
+          
+          // CRITICAL: Invalidate recently-discovered cache after global discovery
+          // This ensures new discoveries appear immediately in the Recently Discovered section
+          if (globalData.metadata?.discoveredCount > 0 || globalData.results?.length > 0) {
+            // Use prefix matching to invalidate all recently-discovered queries regardless of params
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+            // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
+            console.log('🔄 Invalidated recently-discovered cache after discovery search');
+          }
           
           // Format global results to match expected structure
           const formattedResult = {

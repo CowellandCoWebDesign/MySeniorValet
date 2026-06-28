@@ -273,7 +273,7 @@ class ProductionLaunchAudit {
       
       const hasRequiredAdmins = superAdmins.rows.some((u: any) => 
         u.email === 'William.cowell01@gmail.com' || 
-        u.email === 'admin@myseniorvalet.com'
+        u.email === 'CowellandCoWebDesign@gmail.com'
       );
       
       if (hasRequiredAdmins) {

@@ -406,7 +406,7 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
       </Card>
 
       {/* MySeniorValet Reviews Summary */}
-      {msvStats.count > 0 && (
+      {msvStats.count > 0 ? (
         <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-800">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
@@ -429,6 +429,84 @@ export function CommunityReviews({ community, currentUserId, comprehensiveData }
                 </p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-dashed border-2 border-blue-200 dark:border-blue-800">
+          <CardContent className="py-8 text-center">
+            <div className="flex justify-center mb-3">
+              {[1,2,3,4,5].map((s) => (
+                <Star key={s} className="w-6 h-6 text-gray-300 dark:text-gray-600" />
+              ))}
+            </div>
+            <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-1">
+              Not yet rated on MySeniorValet
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Help families make informed decisions — be the first to share your experience.
+            </p>
+            {currentUserId ? (
+              <Dialog open={isSubmitDialogOpen} onOpenChange={setIsSubmitDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button data-testid="button-be-first-review">
+                    <PlusCircle className="w-4 h-4 mr-2" />
+                    Write the First Review
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Share Your Experience</DialogTitle>
+                    <DialogDescription>
+                      Help other families by sharing your experience with {community.name}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit((data) => submitReview.mutate(data))} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="rating"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Overall Rating</FormLabel>
+                            <FormControl>
+                              <div className="flex gap-2">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <button key={star} type="button" onClick={() => field.onChange(star)} className="p-1">
+                                    <Star className={`w-6 h-6 ${star <= field.value ? 'text-yellow-500 fill-current' : 'text-gray-300'}`} />
+                                  </button>
+                                ))}
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField control={form.control} name="title" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Review Title</FormLabel>
+                          <FormControl><Input placeholder="Summarize your experience" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <FormField control={form.control} name="reviewText" render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Your Review</FormLabel>
+                          <FormControl><Textarea placeholder="Share details about your experience..." className="min-h-[120px]" {...field} /></FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )} />
+                      <Button type="submit" className="w-full" disabled={submitReview.isPending}>
+                        {submitReview.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Submitting…</> : 'Submit Review'}
+                      </Button>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+            ) : (
+              <Button variant="outline" asChild>
+                <a href="/auth">Sign in to Write a Review</a>
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}

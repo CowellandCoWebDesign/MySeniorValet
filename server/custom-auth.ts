@@ -11,11 +11,20 @@ import { db } from './db';
 import { users } from '../shared/schema';
 import { eq, and, desc, sql } from 'drizzle-orm';
 import { notifySuperAdmin } from './sendgrid-service';
+import {
+  captureRequestContext,
+  renderAdminDetailTable,
+  renderAdminDetailText,
+  formatAccountType,
+  formatLocale,
+  type AdminDetailRow,
+} from './utils/request-context';
 import session from 'express-session';
 import MemoryStore from 'memorystore';
 import connectPg from 'connect-pg-simple';
 import type { Express } from 'express';
 import { validatePassword } from './auth/password-validator';
+import { authLimiter, createRateLimitMiddleware } from './infrastructure/rateLimiter';
 import { 
   generateTOTPSecret, 
   verifyTOTP, 
@@ -131,7 +140,19 @@ export function setupCustomAuth(app: Express) {
   // Register new user
   router.post('/api/auth/register', async (req, res) => {
     try {
-      const { email, password, firstName, lastName, accountType = 'family' } = req.body;
+      const {
+        email,
+        password,
+        firstName,
+        lastName,
+        accountType = 'family',
+        // Optional frontend-provided context (all backward-compatible)
+        source,
+        referrer: bodyReferrer,
+        locale: bodyLocale,
+        utm,
+        communityContext,
+      } = req.body;
       
       // Validate password strength
       const passwordValidation = validatePassword(password);
@@ -182,17 +203,81 @@ export function setupCustomAuth(app: Express) {
         })
         .returning();
       
-      // Send notification to admin about new registration
-      await notifySuperAdmin(
-        'New User Registration',
-        `A new ${accountType} user has registered on MySeniorValet!`,
-        {
-          name: `${firstName} ${lastName}`,
-          email: email,
-          accountType: accountType,
-          registeredAt: new Date().toISOString()
+      // Send notification to admin about new registration (best-effort — never
+      // block or fail registration if context capture / email send fails).
+      try {
+        const ctx = captureRequestContext(req);
+        const now = new Date();
+        const accountTypeLabel = formatAccountType(accountType);
+
+        // Human-readable timestamp with timezone (keep ISO too for precision)
+        let registeredAtHuman: string;
+        try {
+          registeredAtHuman = now.toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles',
+            dateStyle: 'medium',
+            timeStyle: 'long',
+          });
+        } catch {
+          registeredAtHuman = now.toUTCString();
         }
-      );
+
+        // Prefer the frontend-supplied "came from" referrer (the page before
+        // signup); fall back to the server-captured Referer header.
+        const cameFrom =
+          (typeof bodyReferrer === 'string' && bodyReferrer.trim()) ||
+          ctx.referrer ||
+          'Unknown';
+
+        // Language/locale: prefer the app's language toggle, else Accept-Language.
+        const localeDisplay =
+          typeof bodyLocale === 'string' && bodyLocale.trim()
+            ? formatLocale(bodyLocale)
+            : formatLocale(ctx.acceptLanguage);
+
+        // Campaign params (UTM) — only include those actually present.
+        const utmParts: string[] = [];
+        if (utm && typeof utm === 'object') {
+          for (const key of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content']) {
+            const val = (utm as Record<string, unknown>)[key];
+            if (typeof val === 'string' && val.trim()) {
+              utmParts.push(`${key.replace('utm_', '')}: ${val.trim()}`);
+            }
+          }
+        }
+
+        const fullName = `${firstName || ''} ${lastName || ''}`.trim() || 'Unknown';
+
+        const rows: AdminDetailRow[] = [
+          { label: 'Name', value: fullName },
+          { label: 'Email', value: email || 'Unknown' },
+          { label: 'Account Type', value: accountTypeLabel },
+          { label: 'Registered', value: `${registeredAtHuman} (${now.toISOString()})` },
+          { label: 'Signup Page', value: typeof source === 'string' && source.trim() ? source.trim() : 'Unknown' },
+          { label: 'Came From', value: cameFrom },
+          { label: 'Device / Browser', value: ctx.device },
+          { label: 'Language / Locale', value: localeDisplay },
+          { label: 'IP Address', value: ctx.ipAddress },
+          { label: 'Campaign (UTM)', value: utmParts.length ? utmParts.join(', ') : 'Unknown' },
+        ];
+
+        if (typeof communityContext === 'string' && communityContext.trim()) {
+          rows.push({ label: 'Context', value: communityContext.trim() });
+        }
+
+        await notifySuperAdmin(
+          'New User Registration',
+          `A new ${accountTypeLabel} has registered on MySeniorValet!`,
+          undefined,
+          {
+            htmlContent: renderAdminDetailTable(rows),
+            textContent: renderAdminDetailText(rows),
+          }
+        );
+      } catch (notifyError) {
+        console.error('Error sending registration admin notification:', notifyError);
+        // Best-effort: do not fail registration on notification errors.
+      }
       
       // Send email verification email - use secure base URL
       const baseUrl = getSecureBaseUrl(req.get('host'));
@@ -316,8 +401,8 @@ export function setupCustomAuth(app: Express) {
     }
   });
   
-  // Login
-  router.post('/api/auth/login', async (req, res) => {
+  // Login — exempted from the global rate limiter but protected by its own dedicated authLimiter
+  router.post('/api/auth/login', createRateLimitMiddleware(authLimiter), async (req, res) => {
     try {
       const { email, password, totpCode, backupCode } = req.body;
       
@@ -395,7 +480,7 @@ export function setupCustomAuth(app: Express) {
         .set({ lastLoginAt: new Date() })
         .where(eq(users.id, user.id));
       
-      // Create session
+      // Create session with explicit save to ensure persistence
       (req.session as any).userId = user.id;
       (req.session as any).user = {
         id: user.id,
@@ -405,16 +490,29 @@ export function setupCustomAuth(app: Express) {
         role: user.role,
       };
       
-      res.json({ 
-        success: true, 
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          twoFactorEnabled: user.twoFactorEnabled
+      // Explicitly save session before responding
+      req.session.save((err: Error | null) => {
+        if (err) {
+          console.error('❌ Session save error:', err);
+          return res.status(500).json({ 
+            success: false, 
+            message: 'Login failed - session error' 
+          });
         }
+        
+        console.log('✅ Session saved successfully for:', user.email);
+        
+        res.json({ 
+          success: true, 
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            role: user.role,
+            twoFactorEnabled: user.twoFactorEnabled
+          }
+        });
       });
     } catch (error) {
       console.error('Login error:', error);

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
+import { CommunityCard } from '@/components/CommunityCard';
 
 export function RecentlyDiscoveredCommunities() {
   // Carousel refs and state
@@ -20,16 +20,16 @@ export function RecentlyDiscoveredCommunities() {
     }
   };
 
-  // Scroll navigation functions
+  // Scroll navigation functions - card width 280px + gap 16px
   const scrollLeft = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: -424, behavior: 'smooth' });
+      scrollContainerRef.current.scrollBy({ left: -296, behavior: 'smooth' });
     }
   };
 
   const scrollRight = () => {
     if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollBy({ left: 424, behavior: 'smooth' });
+      scrollContainerRef.current.scrollBy({ left: 296, behavior: 'smooth' });
     }
   };
 
@@ -41,17 +41,26 @@ export function RecentlyDiscoveredCommunities() {
   }, []);
 
   // Fetch recently discovered communities
+  // FIXED: Reduced cache time for real-time discovery updates
+  // INCREASED: Now fetches last 100 discovered communities instead of 20
   const { data: recentCommunities = [], isLoading } = useQuery<any[]>({
-    queryKey: ['/api/communities/recently-discovered?limit=100'],
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
+    queryKey: ['/api/communities/recently-discovered', { limit: 100 }],
+    queryFn: async () => {
+      const response = await fetch('/api/communities/recently-discovered?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch');
+      return response.json();
+    },
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes (was 30 min - too stale for discovery)
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: true, // Refresh when user returns to tab
+    refetchOnMount: 'always', // Always check for fresh data when component mounts
   });
 
   return (
     <div className="space-y-6">
       {/* Section Title */}
       <div className="text-center">
-        <div className="flex items-center justify-center gap-3 mb-2">
+        <div className="flex items-center justify-center gap-3">
           <Sparkles className="w-7 h-7 text-yellow-400 animate-pulse" />
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
             Recently Discovered Communities
@@ -60,9 +69,6 @@ export function RecentlyDiscoveredCommunities() {
             🔥 NEW
           </Badge>
         </div>
-        <p className="text-base text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-          Fresh additions to our database - Real communities discovered through our AI-powered search
-        </p>
       </div>
 
       {/* Communities Carousel */}
@@ -72,7 +78,7 @@ export function RecentlyDiscoveredCommunities() {
           <button
             onClick={scrollLeft}
             data-testid="button-scroll-left-recently-discovered"
-            className="absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
+            className="hidden md:flex items-center justify-center absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
@@ -82,21 +88,22 @@ export function RecentlyDiscoveredCommunities() {
         {/* Carousel Container */}
         <div 
           ref={scrollContainerRef}
-          className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth px-2"
+          className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth px-2"
           onScroll={checkScrollPosition}
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {isLoading ? (
-            // Loading skeleton
+            // Loading skeleton - matching FeaturedExcellenceCard dimensions
             Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[400px]">
-                <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-5 animate-pulse border border-gray-200 dark:border-gray-700">
-                  <div className="h-40 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-lg mb-4"></div>
-                  <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4 mb-3"></div>
-                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-1/2 mb-3"></div>
-                  <div className="flex gap-2 mt-4">
-                    <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-full w-24"></div>
-                    <div className="h-8 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded-full w-24"></div>
+              <div key={i} className="flex-shrink-0 w-[85%] sm:w-[280px] min-w-[85%] sm:min-w-[280px] h-[380px] bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <div className="h-36 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700"></div>
+                <div className="p-3 space-y-3">
+                  <div className="h-5 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-3/4"></div>
+                  <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-1/2"></div>
+                  <div className="h-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-2/3"></div>
+                  <div className="flex gap-2 mt-3">
+                    <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-16"></div>
+                    <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-600 dark:to-gray-700 rounded w-16"></div>
                   </div>
                 </div>
               </div>
@@ -105,17 +112,13 @@ export function RecentlyDiscoveredCommunities() {
             recentCommunities.map((community: any, index: number) => (
               <motion.div 
                 key={community.id} 
-                className="flex-shrink-0"
+                className="flex-shrink-0 h-full"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
               >
-                <div className="hover:scale-[1.02] transition-transform duration-300">
-                  <FeaturedExcellenceCard 
-                    community={community}
-                    compact={true}
-                    disableAutoPhotoLoad={true}
-                  />
+                <div className="hover:scale-[1.02] transition-transform duration-300 h-full">
+                  <CommunityCard community={community} variant="compact" />
                 </div>
               </motion.div>
             ))
@@ -131,7 +134,7 @@ export function RecentlyDiscoveredCommunities() {
           <button
             onClick={scrollRight}
             data-testid="button-scroll-right-recently-discovered"
-            className="absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl opacity-0 md:opacity-100 group-hover:opacity-100 transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
+            className="hidden md:flex items-center justify-center absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white dark:hover:bg-gray-800"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />

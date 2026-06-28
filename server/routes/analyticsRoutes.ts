@@ -112,7 +112,7 @@ analyticsRouter.get("/comprehensive", async (req, res) => {
         searches: count(searchHistory.id),
       })
       .from(searchHistory)
-      .where(gte(searchHistory.searchedAt, start))
+      .where(gte(searchHistory.createdAt, start))
       .execute();
 
     const [tourStats] = await db

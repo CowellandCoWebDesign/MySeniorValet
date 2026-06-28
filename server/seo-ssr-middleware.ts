@@ -73,9 +73,8 @@ import { Request, Response, NextFunction } from 'express';
 import { db } from './db';
 import { communities, reviews, perplexityCache } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
-import { generateCommunitySlug } from './utils/generate-slug';
+import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
-import { communityEnrichmentService } from './services/community-enrichment-service';
 import { 
   findLocationBySlug, 
   generateLocationTitle, 
@@ -83,6 +82,144 @@ import {
   generateLocationKeywords,
   generateLocationCanonicalUrl 
 } from '@shared/location-seo';
+import { CANONICAL_BASE_URL } from './middleware/host-canonical';
+
+// User-friendly noindex HTML for missing / gone community pages. Real status
+// codes (404 / 410) plus a noindex directive tell search engines to drop the URL
+// instead of treating an SPA shell as live content (soft-404), while giving human
+// visitors a branded page with a clear way back into the site. Served for ALL
+// user agents (crawlers and browsers alike).
+function sendCommunityStatusPage(res: Response, status: 404 | 410): Response {
+  const title = status === 410 ? 'Listing No Longer Available' : 'Page Not Found';
+  const message = status === 410
+    ? 'This senior living community listing is no longer available on MySeniorValet.'
+    : 'The page you are looking for could not be found on MySeniorValet.';
+  res.status(status);
+  res.set('Content-Type', 'text/html');
+  res.set('X-Robots-Tag', 'noindex, follow');
+  return res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, follow">
+  <title>${title} | MySeniorValet</title>
+  <style>
+    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background:#0f172a; color:#e2e8f0; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    .card { max-width:520px; padding:48px 32px; text-align:center; }
+    h1 { font-size:1.75rem; margin:0 0 12px; color:#f8fafc; }
+    p { font-size:1.05rem; line-height:1.6; color:#cbd5e1; margin:0 0 28px; }
+    .actions a { display:inline-block; margin:6px; padding:12px 22px; border-radius:9999px; text-decoration:none; font-weight:600; }
+    .primary { background:#6366f1; color:#fff; }
+    .secondary { background:transparent; color:#a5b4fc; border:1px solid #6366f1; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>${title}</h1>
+    <p>${message}</p>
+    <div class="actions">
+      <a class="primary" href="${CANONICAL_BASE_URL}/community-directory">Browse senior living communities</a>
+      <a class="secondary" href="${CANONICAL_BASE_URL}/">Return home</a>
+    </div>
+  </div>
+</body>
+</html>`);
+}
+
+// A community is considered "gone" (410) for SEO when it has been hidden or
+// explicitly deactivated. This mirrors the sitemap inclusion rule
+// (isActive !== false AND isHidden !== true).
+function isCommunityGone(community: { isHidden?: boolean | null; isActive?: boolean | null }): boolean {
+  return community.isHidden === true || community.isActive === false;
+}
+
+/**
+ * Resolve a community from a /senior-living/{state}/{city}/{slug} URL by its
+ * CANONICAL SLUG COLUMNS — the exact values the sitemap & getCommunityUrl() emit:
+ *   stateSlug = community.stateSlug || generateSlug(state)
+ *   citySlug  = community.citySlug  || generateSlug(city)
+ *   slug      = community.slug      || generateCommunitySlug(name)
+ *
+ * We filter by the always-populated citySlug column (no fragile city-text
+ * reconstruction), then require an EXACT match on the composed state + slug.
+ * This handles dedup suffixes ("-2"), punctuation cities ("St. Louis" →
+ * "st-louis"), null legacy columns, and duplicate base-names in one city
+ * (each row is composed independently, so the right listing is selected).
+ */
+async function findCommunityBySlugUrl(
+  stateSlugParam: string,
+  citySlugParam: string,
+  slugParam: string,
+): Promise<typeof communities.$inferSelect | null> {
+  const rows = await db
+    .select()
+    .from(communities)
+    .where(eq(communities.citySlug, citySlugParam));
+  const match = rows.find(c =>
+    (c.stateSlug || generateSlug(c.state)) === stateSlugParam &&
+    (c.slug || generateCommunitySlug(c)) === slugParam
+  );
+  return match || null;
+}
+
+/**
+ * Resolve the SEO visibility status of a community URL.
+ * Returns 'ok' (public, render normally), 'missing' (404), or 'gone' (410).
+ * Used by the visibility guard (all UAs) and the crawler SSR branches.
+ */
+async function resolveCommunityStatus(reqPath: string): Promise<'ok' | 'missing' | 'gone' | 'not-a-community'> {
+  const idMatch = reqPath.match(/^\/community\/(\d+)/);
+  if (idMatch) {
+    const communityId = parseInt(idMatch[1], 10);
+    const result = await db
+      .select({ isHidden: communities.isHidden, isActive: communities.isActive })
+      .from(communities)
+      .where(eq(communities.id, communityId))
+      .limit(1);
+    if (result.length === 0) return 'missing';
+    return isCommunityGone(result[0]) ? 'gone' : 'ok';
+  }
+
+  const slugMatch = reqPath.match(/^\/senior-living\/([^\/]+)\/([^\/]+)\/([^\/]+)$/);
+  if (slugMatch) {
+    const [_, state, city, slug] = slugMatch;
+    const match = await findCommunityBySlugUrl(state, city, slug);
+    if (!match) return 'missing';
+    return isCommunityGone(match) ? 'gone' : 'ok';
+  }
+
+  return 'not-a-community';
+}
+
+/**
+ * Community visibility guard — runs for ALL user agents (not crawler-gated).
+ *
+ * Returns a real 404 for community URLs that don't exist and a real 410 for
+ * communities that have been hidden/deactivated, rendering a branded noindex
+ * page. Public communities fall through (next()) to normal SSR/SPA rendering.
+ *
+ * This closes the "soft-404" gap where missing/hidden URLs would otherwise
+ * resolve to the 200 SPA shell for regular browser traffic.
+ */
+export function communityVisibilityGuard() {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    // Only intercept community detail URL shapes
+    if (!/^\/community\/\d+/.test(req.path) && !/^\/senior-living\/[^\/]+\/[^\/]+\/[^\/]+$/.test(req.path)) {
+      return next();
+    }
+    try {
+      const status = await resolveCommunityStatus(req.path);
+      if (status === 'missing') return sendCommunityStatusPage(res, 404);
+      if (status === 'gone') return sendCommunityStatusPage(res, 410);
+      return next();
+    } catch (err) {
+      // Never block a page on a guard error — fall through to normal handling
+      console.error('[VisibilityGuard] error:', err);
+      return next();
+    }
+  };
+}
 
 // Cache for rendered HTML pages (performance optimization)
 // LRU eviction ensures memory doesn't grow unbounded
@@ -170,23 +307,24 @@ async function getEnrichedCommunityData(communityId: number, community: any) {
       }
     }
     
-    // STEP 2: Use CommunityEnrichmentService to get enriched content
-    // This will check cache, database, or enqueue background job as needed
-    const enrichmentResult = await communityEnrichmentService.getEnrichedContent(communityId);
-    
-    if (enrichmentResult) {
+    // STEP 2: COST CONTROL - Use STALE enrichment content instead of calling service
+    // Even stale enrichment (>7 days) is better than basic description for SEO
+    // This prevents Perplexity API calls while preserving existing enrichment data
+    if (community.enrichedContent) {
+      const enrichment = community.enrichedContent;
+      console.log(`📦 Using stale enrichment for community ${communityId} (cost control - no API call)`);
       return {
-        description: enrichmentResult.content,
+        description: enrichment.content || community.description,
         photos: community.photos || [],
         hasEnrichment: true,
-        enrichmentSource: 'service',
-        seoData: enrichmentResult.seoData,
-        metadata: enrichmentResult.metadata,
-        wordCount: enrichmentResult.metadata.wordCount
+        enrichmentSource: 'stale',
+        seoData: enrichment.seoData || {},
+        metadata: enrichment.metadata || {},
+        wordCount: enrichment.metadata?.wordCount || 0
       };
     }
     
-    // STEP 3: Fall back to database fields if enrichment unavailable
+    // STEP 3: Fall back to database fields only if no enrichment exists at all
     return {
       description: community.description,
       photos: community.photos || [],
@@ -238,7 +376,10 @@ export async function generateCommunityHTMLById(
       .where(eq(reviews.communityId, communityId))
       .limit(5);
     
-    const canonicalUrl = `${baseUrl}/community/${communityId}`;
+    const stateSlug = community.stateSlug || generateSlug(community.state);
+    const citySlugVal = community.citySlug || generateSlug(community.city);
+    const nameSlug = community.slug || generateCommunitySlug(community);
+    const canonicalUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
     
     // Generate price display
     const priceDisplay = community.rentPerMonth 
@@ -462,27 +603,9 @@ export async function generateCommunityHTMLBySlug(
   baseUrl: string
 ): Promise<string | null> {
   try {
-    // Find community
-    const stateUpper = state.toUpperCase();
-    const cityName = city.split('-').map(w => 
-      w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-    ).join(' ');
-    
-    const communities_result = await db
-      .select()
-      .from(communities)
-      .where(
-        and(
-          eq(communities.state, stateUpper),
-          eq(communities.city, cityName)
-        )
-      );
-    
-    // Find best match based on slug
-    const community = communities_result.find(c => {
-      const communitySlug = generateCommunitySlug(c);
-      return communitySlug === slug;
-    }) || communities_result[0];
+    // Resolve by canonical slug columns (exact match required). A wrong slug in
+    // an existing city returns null → caller emits 404, never a sibling listing.
+    const community = await findCommunityBySlugUrl(state, city, slug);
     
     if (!community) return null;
     
@@ -721,8 +844,9 @@ export function seoSSRMiddleware() {
         return res.send(cached.html);
       }
       
-      // Generate fresh HTML
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      // Generate fresh HTML.
+      // Always use the canonical origin — never trust the Host header for SEO URLs.
+      const baseUrl = CANONICAL_BASE_URL;
       const html = await generateLocationHTML(locationSlug, baseUrl);
       
       if (html) {
@@ -755,10 +879,16 @@ export function seoSSRMiddleware() {
         .limit(1);
       
       if (communityResult.length === 0) {
-        return next(); // Community not found, let React handle 404
+        // Real 404 + noindex so crawlers drop the URL instead of indexing an SPA shell (soft-404)
+        return sendCommunityStatusPage(res, 404);
       }
       
       const community = communityResult[0];
+
+      // Hidden / deactivated communities are intentionally not public — serve 410 Gone + noindex
+      if (isCommunityGone(community)) {
+        return sendCommunityStatusPage(res, 410);
+      }
       
       // Check cache and validate against community.updatedAt
       const cached = htmlCache.get(cacheKey);
@@ -774,8 +904,9 @@ export function seoSSRMiddleware() {
         return res.send(cached.html);
       }
       
-      // Generate fresh HTML (cache miss or stale)
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      // Generate fresh HTML (cache miss or stale).
+      // Always use the canonical origin — never trust the Host header for SEO URLs.
+      const baseUrl = CANONICAL_BASE_URL;
       const html = await generateCommunityHTMLById(communityId, baseUrl);
       
       if (html) {
@@ -800,29 +931,17 @@ export function seoSSRMiddleware() {
       const [_, state, city, slug] = slugMatch;
       const cacheKey = `community-slug-${state}-${city}-${slug}`;
       
-      // Find community to check updatedAt
-      const stateUpper = state.toUpperCase();
-      const cityName = city.split('-').map(w => 
-        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-      ).join(' ');
-      
-      const communities_result = await db
-        .select()
-        .from(communities)
-        .where(
-          and(
-            eq(communities.state, stateUpper),
-            eq(communities.city, cityName)
-          )
-        );
-      
-      const community = communities_result.find(c => {
-        const communitySlug = generateCommunitySlug(c);
-        return communitySlug === slug;
-      }) || communities_result[0];
+      // Resolve by canonical slug columns (exact match) to check updatedAt.
+      const community = await findCommunityBySlugUrl(state, city, slug);
       
       if (!community) {
-        return next(); // Community not found
+        // Real 404 + noindex so crawlers drop the URL instead of indexing an SPA shell (soft-404)
+        return sendCommunityStatusPage(res, 404);
+      }
+
+      // Hidden / deactivated communities are intentionally not public — serve 410 Gone + noindex
+      if (isCommunityGone(community)) {
+        return sendCommunityStatusPage(res, 410);
       }
       
       // Check cache and validate against community.updatedAt
@@ -839,8 +958,9 @@ export function seoSSRMiddleware() {
         return res.send(cached.html);
       }
       
-      // Generate fresh HTML
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      // Generate fresh HTML.
+      // Always use the canonical origin — never trust the Host header for SEO URLs.
+      const baseUrl = CANONICAL_BASE_URL;
       const html = await generateCommunityHTMLBySlug(state, city, slug, baseUrl);
       
       if (html) {

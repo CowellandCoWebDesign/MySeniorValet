@@ -33,6 +33,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { Header } from "@/components/header";
+import { PAID_TIERS_DISABLED, PAID_TIER_IDS, CONTACT_SALES_MAILTO } from "@/lib/feature-flags";
 
 interface PaymentTier {
   id: string;
@@ -267,13 +268,20 @@ export default function CommunityPaymentProgram() {
         <div className="mb-16 animate-in fade-in slide-in-from-bottom-6 duration-700 delay-200">
           <h2 className="text-3xl font-bold text-center mb-8">Choose Your Market Position</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {paymentTiers.map((tier, index) => (
+            {paymentTiers.map((tier, index) => {
+              const isPaidDisabled = PAID_TIERS_DISABLED && PAID_TIER_IDS.has(tier.id);
+              return (
               <Card 
                 key={tier.id} 
-                className={`${tier.color} hover:shadow-2xl transition-all duration-500 transform hover:scale-105 cursor-pointer animate-in fade-in slide-in-from-bottom-4 duration-500 ${tier.priority === 1 ? 'ring-2 ring-amber-400' : ''}`}
+                className={`relative ${tier.color} transition-all duration-500 ${isPaidDisabled ? 'opacity-60 cursor-default' : 'hover:shadow-2xl transform hover:scale-105 cursor-pointer'} animate-in fade-in slide-in-from-bottom-4 duration-500 ${tier.priority === 1 ? 'ring-2 ring-amber-400' : ''}`}
                 style={{ animationDelay: `${index * 150}ms` }}
-                onClick={() => setSelectedTier(tier.id)}
+                onClick={() => { if (!isPaidDisabled) setSelectedTier(tier.id); }}
               >
+                {isPaidDisabled && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                    <Badge className="bg-gray-700 text-white px-3 py-1 text-xs">Coming Soon</Badge>
+                  </div>
+                )}
                 <CardHeader className="text-center">
                   <div className="flex justify-center mb-3">
                     <div className={`p-3 rounded-full ${tier.priority === 1 ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-blue-100'}`}>
@@ -315,15 +323,25 @@ export default function CommunityPaymentProgram() {
                     </div>
                   </div>
                   
-                  <Button 
-                    className={`w-full ${tier.priority === 1 ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
-                  >
-                    {tier.priority === 1 ? 'Dominate Market' : 'Choose Plan'}
-                    <ArrowRight className="h-4 w-4 ml-2" />
-                  </Button>
+                  {PAID_TIERS_DISABLED && PAID_TIER_IDS.has(tier.id) ? (
+                    <Button
+                      onClick={() => window.open(CONTACT_SALES_MAILTO, '_blank')}
+                      className="w-full bg-gray-500 hover:bg-gray-600 text-white"
+                    >
+                      Contact Sales →
+                    </Button>
+                  ) : (
+                    <Button 
+                      className={`w-full ${tier.priority === 1 ? 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700' : 'bg-blue-600 hover:bg-blue-700'} text-white`}
+                    >
+                      {tier.priority === 1 ? 'Dominate Market' : 'Choose Plan'}
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         </div>
 

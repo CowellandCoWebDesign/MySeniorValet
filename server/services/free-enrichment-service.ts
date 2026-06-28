@@ -1,0 +1,962 @@
+/**
+ * Free Enrichment Service
+ * =======================
+ * Zero-cost community enrichment using:
+ *   1. Jina AI Reader (https://r.jina.ai/{url}) — free, no API key
+ *   2. DuckDuckGo HTML search — for finding a community's official website
+ *   3. Groq Llama 3.3 70B (optional) — free tier, requires GROQ_API_KEY
+ *
+ * No Perplexity, Claude, or OpenAI calls. Compliant with Golden Data Rule.
+ */
+
+import * as cheerio from "cheerio";
+import { lookup } from "dns/promises";
+import { isIP } from "net";
+import { webSearch } from "./search-provider";
+
+export interface FreeEnrichmentResult {
+  about?: string;
+  amenities?: string[];
+  careTypes?: string[];
+  pricingContext?: string;
+  phone?: string;
+  email?: string;
+  photos?: string[];
+  sourceUrl?: string;
+  /**
+   * Where the text/About content came from:
+   *   - `official_website`: the stored/admin website was scraped.
+   *   - `web_search`: a community-confirmed official site found via search was scraped.
+   *   - `web_snippet`: NO verified official site was found — only loose search-result
+   *     snippets (or a reference/social page) are available, surfaced as a clearly
+   *     labeled text fallback. A `web_snippet` result NEVER carries a `sourceUrl` to
+   *     be saved as the community's website (Golden Data Rule).
+   *   - `none`: nothing usable was found.
+   */
+  sourceType: "official_website" | "web_search" | "web_snippet" | "none";
+  structured: boolean;
+}
+
+const JINA_TIMEOUT_MS = 15_000;
+const GROQ_TIMEOUT_MS = 20_000;
+
+// ── SSRF guard (shared SSRF-safe URL logic) ──────────────────────────────────
+
+async function isSafePublicUrl(rawUrl: string): Promise<boolean> {
+  let parsed: URL;
+  try {
+    parsed = new URL(rawUrl);
+  } catch {
+    return false;
+  }
+
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
+  const port = parsed.port ? parseInt(parsed.port, 10) : parsed.protocol === "https:" ? 443 : 80;
+  if (port !== 80 && port !== 443) return false;
+
+  const host = parsed.hostname.toLowerCase();
+  if (!host || host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) return false;
+
+  if (isIP(host)) return !isPrivateIp(host);
+
+  try {
+    const addresses = await lookup(host, { all: true });
+    if (!addresses.length) return false;
+    return addresses.every((a) => !isPrivateIp(a.address));
+  } catch {
+    return false;
+  }
+}
+
+function isPrivateIp(ip: string): boolean {
+  const v = isIP(ip);
+  if (v === 4) {
+    const p = ip.split(".").map(Number);
+    if (p.length !== 4 || p.some((n) => isNaN(n) || n < 0 || n > 255)) return true;
+    const [a, b] = p;
+    if (a === 0 || a === 10 || a === 127) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true;
+    if (a >= 224) return true;
+    return false;
+  }
+  if (v === 6) {
+    const lower = ip.toLowerCase();
+    if (lower === "::1" || lower === "::") return true;
+    const mapped = lower.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/);
+    if (mapped) return isPrivateIp(mapped[1]);
+    if (/^fe[89ab]/.test(lower)) return true;
+    if (lower.startsWith("fc") || lower.startsWith("fd")) return true;
+    if (lower.startsWith("ff")) return true;
+    return false;
+  }
+  return true;
+}
+
+// ── DuckDuckGo website finder ─────────────────────────────────────────────────
+
+/**
+ * Normalize a URL candidate from DuckDuckGo HTML results into an absolute
+ * https:// URL. DDG returns three common formats:
+ *   1. Redirect wrapper:  //duckduckgo.com/l/?uddg=https%3A%2F%2F...
+ *   2. Protocol-relative: //www.example.com
+ *   3. Bare domain text:  www.example.com  (no scheme, no slashes)
+ *   4. Already absolute:  https://www.example.com
+ * Returns null when the input cannot be resolved to a usable absolute URL.
+ */
+function normalizeDdgUrl(raw: string, keepPath = false): string | null {
+  if (!raw || !raw.includes(".")) return null;
+
+  // Strip leading/trailing whitespace
+  raw = raw.trim();
+
+  // Case 1: DDG redirect wrapper — extract `uddg` query param
+  if (raw.includes("duckduckgo.com/l/") || raw.startsWith("//duckduckgo.com")) {
+    try {
+      const absolute = raw.startsWith("//") ? `https:${raw}` : raw;
+      const parsed = new URL(absolute);
+      const uddg = parsed.searchParams.get("uddg");
+      if (uddg) return normalizeDdgUrl(decodeURIComponent(uddg), keepPath);
+    } catch {
+      return null;
+    }
+    return null;
+  }
+
+  // Case 2: Protocol-relative  //www.example.com
+  if (raw.startsWith("//")) {
+    return normalizeDdgUrl(`https:${raw}`, keepPath);
+  }
+
+  // Case 3: Already absolute http(s)
+  if (raw.startsWith("http://") || raw.startsWith("https://")) {
+    try {
+      const u = new URL(raw);
+      // For directory listing pages we keep the full path (the specific
+      // community page lives at a deep path); for official websites the
+      // homepage origin is all we need.
+      return keepPath ? u.origin + u.pathname : u.origin;
+    } catch {
+      return null;
+    }
+  }
+
+  // Case 4: Bare domain like www.example.com or example.com
+  if (!raw.includes(" ") && raw.includes(".")) {
+    try {
+      const u = new URL(`https://${raw}`);
+      return keepPath ? u.origin + u.pathname : u.origin;
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * A single public directory listing page found for a community, carrying the
+ * search-result metadata (title + snippet) alongside the URL so callers can
+ * confirm the listing is actually about THIS community before scraping/accepting
+ * its photos. `rank` is the photo-reliability rank (lower = preferred).
+ */
+export interface DirectoryListing {
+  url: string;
+  title: string;
+  snippet: string;
+  rank: number;
+}
+
+/**
+ * Result from a DuckDuckGo HTML search — includes both the best website URL
+ * found (if any) and up to 3 search-result snippets that can be used as a
+ * text-only fallback when no official website is available.
+ */
+export interface DdgSearchResult {
+  website: string | null;
+  snippets: string[];
+  /**
+   * Public senior-living directory listing pages (A Place for Mom, Caring.com,
+   * SeniorLiving.com, etc.) found for this community, ranked by how reliably
+   * they host real community photos. Used ONLY as a photo fallback — never as a
+   * source for description text (directory marketing copy must not leak in).
+   * Each entry carries its search title/snippet so the caller can confirm the
+   * listing belongs to this community before accepting its images.
+   */
+  directoryListings: DirectoryListing[];
+}
+
+/**
+ * Search the web for a community via the shared search-provider layer (DuckDuckGo
+ * primary, Bing fallback — see `search-provider.ts`). Returns:
+ *   - `website`: the first non-directory result URL that passes the SSRF guard, or null
+ *   - `snippets`: up to 3 result snippets, a free text-only fallback
+ *   - `directoryListings`: ranked public directory listing pages with title/snippet (photo fallback only)
+ *
+ * The provider layer hardens the DuckDuckGo path (no more `duckduckgo.com/html/`
+ * scraping that triggers the 202 bot challenge) and automatically fails over to
+ * Bing when DuckDuckGo is throttled, so photo discovery keeps working.
+ */
+export async function searchDuckDuckGo(
+  name: string,
+  city: string,
+  state: string,
+): Promise<DdgSearchResult> {
+  try {
+    // Multi-pass search: a strict quoted query first (precise, but misses
+    // communities whose stored name differs slightly from their online listing),
+    // then a looser unquoted query with fewer keywords as a fallback. The loose
+    // pass runs only when the strict pass yields no ACCEPTED website (see below),
+    // so slight name mismatches still resolve without doubling work every search.
+    const strictQuery = `"${name}" senior living ${city} ${state} official website`;
+    const looseQuery = `${name} senior living ${city} ${state}`.replace(/\s+/g, " ").trim();
+
+    const seenResultUrls = new Set<string>();
+    const results: { title: string; url: string; snippet: string }[] = [];
+    const addResults = (rs: { title: string; url: string; snippet: string }[]) => {
+      for (const r of rs) {
+        if (!r.url || seenResultUrls.has(r.url)) continue;
+        seenResultUrls.add(r.url);
+        results.push(r);
+      }
+    };
+
+    // Official website pick: first non-directory result (homepage origin) that is
+    // safe to fetch AND verified to actually reference THIS community. Directory,
+    // reference (Wikipedia, etc.) and social domains are excluded so they never
+    // become the community's "About"/official-website source — Wikipedia would
+    // otherwise get scraped as the community's own description (Golden Data Rule).
+    //
+    // Validation uses the result's TITLE + SNIPPET (the page's own description of
+    // itself), NOT the URL: matching against the URL string lets an unrelated
+    // domain whose host happens to contain a generic name token slip through
+    // (e.g. "sunrise-sunset.org" matching "Sunrise Senior Living"). For names
+    // with fewer than two distinctive tokens (after stripping generic
+    // senior-living words) we additionally require the city to appear, since a
+    // lone generic token is too weak on its own.
+    const distinctiveTokenCount = communityNameTokens(name).length;
+    const requireCityForPick = distinctiveTokenCount < 2;
+    const pickOfficialWebsite = async (): Promise<string | null> => {
+      for (const r of results) {
+        const normalized = normalizeDdgUrl(r.url);
+        if (!normalized) continue;
+        if (isDirectorySite(normalized)) continue;
+        if (isReferenceOrSocialDomain(normalized)) continue;
+        const meta = `${r.title || ""} ${r.snippet || ""}`;
+        if (!textReferencesCommunity(meta, name, city, { requireCity: requireCityForPick })) continue;
+        if (await isSafePublicUrl(normalized)) {
+          return normalized;
+        }
+      }
+      return null;
+    };
+
+    // Multi-pass: run the strict query, then broaden to the loose query whenever
+    // the strict pass did not yield an ACCEPTED website (i.e. one that passes the
+    // name-match + SSRF-safety checks above) — not merely when a plausible-looking
+    // domain was present. This guarantees the looser fallback actually runs before
+    // we give up on a verified website for name-variant communities.
+    const firstPass = await webSearch(strictQuery);
+    addResults(firstPass.results);
+
+    let website: string | null = await pickOfficialWebsite();
+    if (!website) {
+      const secondPass = await webSearch(looseQuery);
+      addResults(secondPass.results);
+      website = await pickOfficialWebsite();
+    }
+
+    if (results.length === 0) {
+      return { website: null, snippets: [], directoryListings: [] };
+    }
+
+    // Directory photo sources: collect public directory listing pages (full
+    // path) ranked by photo reliability, preserving each result's title/snippet
+    // so the caller can confirm the listing is about THIS community before
+    // accepting its images. SSRF validation is deferred to the image scraper
+    // (which checks every hop), so we don't DNS-resolve here.
+    const directorySeen = new Set<string>();
+    const directoryRanked: DirectoryListing[] = [];
+    for (const r of results) {
+      const normalized = normalizeDdgUrl(r.url, true);
+      if (!normalized) continue;
+      const rank = photoDirectoryRank(normalized);
+      if (rank < 0) continue;
+      let key: string;
+      let pathname: string;
+      try {
+        const u = new URL(normalized);
+        pathname = u.pathname;
+        key = u.hostname + u.pathname;
+      } catch {
+        continue;
+      }
+      // Skip directory homepages / index pages — only deep listing pages have
+      // a specific community's photos.
+      if (!pathname || pathname === "/") continue;
+      if (directorySeen.has(key)) continue;
+      directorySeen.add(key);
+      directoryRanked.push({
+        url: normalized,
+        title: (r.title || "").trim(),
+        snippet: (r.snippet || "").trim(),
+        rank,
+      });
+    }
+    directoryRanked.sort((a, b) => a.rank - b.rank);
+    const directoryListings = directoryRanked.slice(0, 6);
+
+    // ── Snippets (text-only fallback) ─────────────────────────────────────────
+    const snippets: string[] = [];
+    for (const r of results) {
+      const text = (r.snippet || "").trim();
+      if (text && text.length > 30) snippets.push(text);
+    }
+
+    return { website, snippets: snippets.slice(0, 3), directoryListings };
+  } catch (err: any) {
+    console.log(`⚠️ Web search failed for "${name}": ${err?.message}`);
+    return { website: null, snippets: [], directoryListings: [] };
+  }
+}
+
+/**
+ * Search DuckDuckGo for a community's official website.
+ * Returns the first plausible result URL, or null if none found.
+ *
+ * @deprecated Use searchDuckDuckGo() for snippet support.
+ */
+export async function findCommunityWebsite(
+  name: string,
+  city: string,
+  state: string,
+): Promise<string | null> {
+  const result = await searchDuckDuckGo(name, city, state);
+  return result.website;
+}
+
+function isDirectorySite(url: string): boolean {
+  const lower = url.toLowerCase();
+  return [
+    "aplaceformom",
+    "caring.com",
+    "seniorliving.com",
+    "senioradvisor",
+    "seniorhousin",
+    "medicare.gov",
+    "yelp.com",
+    "yellowpages",
+    "tripadvisor",
+    "google.com",
+    "bing.com",
+    "facebook.com",
+    "linkedin.com",
+    "indeed.com",
+    // Senior-care referral / advisory aggregators — their pages are marketing
+    // copy ABOUT a community, not the community's own site, so they must never
+    // become the verified official-website / About-text source. Only low-collision
+    // BRANDED names are listed here; generic phrases (e.g. "assistedliving",
+    // "retirementhomes") are deliberately excluded because they appear inside
+    // legitimate community domains (parkviewassistedliving.com) and would
+    // wrongly suppress a real official site.
+    "seniorcareauthority",
+    "seniorly.com",
+    "seniorguidance",
+    "seniorliving.org",
+    "agingcare.com",
+  ].some((d) => lower.includes(d));
+}
+
+/**
+ * Reference encyclopedias, news/wiki aggregators and social platforms that are
+ * NOT a community's official website. These rank well for community-name
+ * queries (Wikipedia especially) but must never be adopted as the verified
+ * official-website / About-text source — scraping a Wikipedia article as the
+ * community's own description violates the Golden Data Rule.
+ *
+ * Scope: this is used ONLY in the official-website/About selection loop. It is
+ * intentionally separate from the photo-directory path, which stays open so
+ * photo reach is not reduced (Wikipedia & social may still contribute PHOTOS).
+ */
+function isReferenceOrSocialDomain(url: string): boolean {
+  const lower = url.toLowerCase();
+  return [
+    "wikipedia.org",
+    "wikimedia.org",
+    "wikidata.org",
+    "fandom.com",
+    "britannica.com",
+    "twitter.com",
+    "x.com",
+    "instagram.com",
+    "youtube.com",
+    "youtu.be",
+    "pinterest.com",
+    "reddit.com",
+    "tiktok.com",
+    "crunchbase.com",
+    "bloomberg.com",
+    "glassdoor.com",
+    "wikitree.com",
+  ].some((d) => lower.includes(d));
+}
+
+/**
+ * Senior-living directory domains that reliably host real, community-specific
+ * photos, ranked best-first. Returns the rank index (lower = preferred) or -1
+ * if the URL is not a usable photo directory.
+ *
+ * Note this is intentionally narrower than isDirectorySite(): generic listing
+ * sites (yellowpages, medicare.gov) and social/search domains (facebook,
+ * google) are excluded because they don't serve usable community photos.
+ */
+function photoDirectoryRank(url: string): number {
+  const lower = url.toLowerCase();
+  const ranked = [
+    "aplaceformom",
+    "caring.com",
+    "seniorliving.com",
+    "senioradvisor",
+    "seniorhousingnet",
+    "seniorhousin",
+    "yelp.com",
+  ];
+  for (let i = 0; i < ranked.length; i++) {
+    if (lower.includes(ranked[i])) return i;
+  }
+  return -1;
+}
+
+// ── Community source confirmation ────────────────────────────────────────────
+
+/**
+ * Generic senior-living words that appear in almost every community name and so
+ * carry no signal for confirming a specific community. Stripped before matching
+ * so "River Commons" is matched on "river"/"commons", not on "senior"/"living".
+ */
+const NAME_STOPWORDS = new Set([
+  "senior", "seniors", "living", "care", "assisted", "memory", "independent",
+  "nursing", "skilled", "community", "communities", "center", "centre", "home",
+  "homes", "house", "housing", "retirement", "village", "villas", "place",
+  "places", "health", "healthcare", "rehabilitation", "rehab", "facility",
+  "the", "of", "at", "and", "for", "llc", "inc", "co", "group", "residence",
+  "residences", "estates", "manor", "gardens", "court", "courts", "lodge",
+]);
+
+/**
+ * Tokenize a community name into distinctive lowercase tokens, dropping generic
+ * senior-living stopwords and short fragments. These tokens are what we look for
+ * when confirming a candidate page is about THIS community.
+ */
+export function communityNameTokens(name: string): string[] {
+  return (name || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((t) => t.length >= 3 && !NAME_STOPWORDS.has(t));
+}
+
+/**
+ * Decide whether a chunk of text (a candidate page's URL + title + snippet +
+ * body) actually references a specific community. Used to reject wrong-source
+ * photos: a directory listing for a *different* community will not contain this
+ * community's distinctive name tokens (and, when required, its city).
+ *
+ *  - Distinctive name tokens: at least 60% present, or (for multi-token names)
+ *    at least two present. This tolerates minor naming differences ("River
+ *    Commons" vs "River Commons Senior Living") without matching unrelated
+ *    listings.
+ *  - City: when `requireCity` is true the city must also appear. Directory
+ *    listings (the wrong-source risk) require the city; the community's own
+ *    official site does not (a homepage may omit the city in matchable text).
+ *  - When the name is entirely generic (no distinctive tokens), fall back to
+ *    requiring the full verbatim name to appear.
+ */
+export function textReferencesCommunity(
+  text: string,
+  name: string,
+  city: string,
+  opts: { requireCity?: boolean } = {},
+): boolean {
+  if (!text) return false;
+  const hay = text.toLowerCase();
+  const cityNorm = (city || "").toLowerCase().trim();
+  const cityOk = !opts.requireCity || cityNorm.length === 0 || hay.includes(cityNorm);
+  if (!cityOk) return false;
+
+  const tokens = communityNameTokens(name);
+  if (tokens.length === 0) {
+    const full = (name || "").toLowerCase().trim();
+    return full.length > 0 && hay.includes(full);
+  }
+  const matched = tokens.filter((t) => hay.includes(t)).length;
+  const ratio = matched / tokens.length;
+  return ratio >= 0.6 || (tokens.length >= 3 && matched >= 2);
+}
+
+// ── Jina AI Reader ────────────────────────────────────────────────────────────
+
+/**
+ * Fetch a URL via Jina AI Reader (https://r.jina.ai/{url}) and return the
+ * clean markdown content. The Jina Reader handles JS-heavy SPAs and returns
+ * the visible text rather than raw HTML boilerplate.
+ *
+ * Free tier, no API key needed.
+ */
+export async function extractContentFromUrl(rawUrl: string): Promise<string | null> {
+  if (!(await isSafePublicUrl(rawUrl))) {
+    console.log(`🚫 Jina extraction blocked: unsafe URL ${rawUrl}`);
+    return null;
+  }
+
+  const jinaUrl = `https://r.jina.ai/${rawUrl}`;
+
+  try {
+    const response = await fetch(jinaUrl, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (compatible; MySeniorValetBot/1.0; +https://myseniorvalet.com/about)",
+        Accept: "text/plain, text/markdown, */*",
+      },
+      signal: AbortSignal.timeout(JINA_TIMEOUT_MS),
+    });
+
+    if (!response.ok) {
+      console.log(`⚠️ Jina Reader returned ${response.status} for ${rawUrl}`);
+      return null;
+    }
+
+    const text = await response.text();
+    if (!text || text.length < 200) return null;
+
+    // Reject obvious error pages / Jina failure messages
+    if (/error fetching|unable to fetch|403 forbidden|access denied|cloudflare/i.test(text.substring(0, 500))) {
+      return null;
+    }
+
+    // Trim to 8 KB — enough for structure extraction, saves Groq tokens
+    return text.slice(0, 8000);
+  } catch (err: any) {
+    console.log(`⚠️ Jina Reader failed for ${rawUrl}: ${err?.message}`);
+    return null;
+  }
+}
+
+// ── Website image scraper ─────────────────────────────────────────────────────
+
+const IMG_FETCH_TIMEOUT_MS = 12_000;
+
+/**
+ * A scraped page: deduplicated absolute image URLs plus a lowercased text blob
+ * (title + meta description + visible body text) used to confirm the page is
+ * about a specific community before its images are accepted.
+ */
+export interface ScrapedPage {
+  images: string[];
+  text: string;
+}
+
+/**
+ * Fetch a page and extract both its images and a confirmation-text blob.
+ *
+ * Jina Reader returns markdown that strips image URLs, so we fetch the raw HTML
+ * directly here. og:image meta tags are present even on JS-heavy SPAs because
+ * they live in the static <head> for social sharing.
+ *
+ * `images` are absolute, deduplicated URLs (up to 30) — the caller filters out
+ * stock/placeholder/icon assets and trims to its display limit. `text` is the
+ * page <title>, meta description, og:title/description and visible body text,
+ * lowercased and capped, so the caller can corroborate the page belongs to a
+ * given community (rejecting wrong-source / multi-community directory listings).
+ */
+export async function scrapeWebsitePage(rawUrl: string): Promise<ScrapedPage> {
+  const empty: ScrapedPage = { images: [], text: "" };
+  try {
+    // SSRF-safe fetch: validate every hop (redirects can point at private/internal
+    // hosts or cloud metadata endpoints, so a single up-front check is not enough).
+    const MAX_REDIRECTS = 5;
+    let currentUrl = rawUrl;
+    let response: Response | null = null;
+
+    for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
+      if (!(await isSafePublicUrl(currentUrl))) {
+        console.log(`🚫 Image scrape blocked: unsafe URL ${currentUrl}`);
+        return empty;
+      }
+
+      const resp = await fetch(currentUrl, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (compatible; MySeniorValetBot/1.0; +https://myseniorvalet.com/about)",
+          Accept:
+            "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        },
+        redirect: "manual",
+        signal: AbortSignal.timeout(IMG_FETCH_TIMEOUT_MS),
+      });
+
+      // Manual redirect: revalidate the target before following it
+      if (resp.status >= 300 && resp.status < 400) {
+        const location = resp.headers.get("location");
+        if (!location) break;
+        const next = new URL(location, currentUrl);
+        if (next.protocol !== "http:" && next.protocol !== "https:") {
+          console.log(`🚫 Image scrape blocked: non-http redirect ${next.href}`);
+          return empty;
+        }
+        currentUrl = next.href;
+        continue;
+      }
+
+      response = resp;
+      break;
+    }
+
+    if (!response) {
+      console.log(`⚠️ Image scrape: too many redirects from ${rawUrl}`);
+      return empty;
+    }
+
+    if (!response.ok) {
+      console.log(`⚠️ Image scrape: ${response.status} for ${currentUrl}`);
+      return empty;
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    const base = new URL(currentUrl);
+    const found: string[] = [];
+
+    const pushAbsolute = (src?: string | null) => {
+      if (!src) return;
+      const trimmed = src.trim();
+      if (!trimmed || trimmed.startsWith("data:")) return;
+      try {
+        const abs = new URL(trimmed, base).href;
+        if (abs.startsWith("http")) found.push(abs);
+      } catch {
+        /* ignore malformed src */
+      }
+    };
+
+    // 1. Social/share meta images (reliable hero image, present even on SPAs)
+    $(
+      'meta[property="og:image"], meta[property="og:image:url"], meta[name="twitter:image"], meta[name="twitter:image:src"]',
+    ).each((_, el) => pushAbsolute($(el).attr("content")));
+
+    // 2. Inline images, including common lazy-loaded variants
+    $("img").each((_, el) => {
+      const $el = $(el);
+      pushAbsolute(
+        $el.attr("src") ||
+          $el.attr("data-src") ||
+          $el.attr("data-lazy-src") ||
+          $el.attr("data-original"),
+      );
+    });
+
+    // Confirmation text: title + meta/og description + visible body text. Strip
+    // scripts/styles so JSON blobs don't pollute the match. Capped for bounded work.
+    $("script, style, noscript").remove();
+    const metaBits = [
+      $("title").text(),
+      $('meta[name="description"]').attr("content") || "",
+      $('meta[property="og:title"]').attr("content") || "",
+      $('meta[property="og:description"]').attr("content") || "",
+    ].join(" ");
+    const bodyText = $("body").text().replace(/\s+/g, " ").trim();
+    const text = `${metaBits} ${bodyText}`.toLowerCase().slice(0, 6000);
+
+    // Dedupe, preserve order (og:image first), cap at 30 — caller filters & trims
+    return { images: Array.from(new Set(found)).slice(0, 30), text };
+  } catch (err: any) {
+    console.log(`⚠️ Image scrape failed for ${rawUrl}: ${err?.message}`);
+    return empty;
+  }
+}
+
+/**
+ * Backwards-compatible thin wrapper: scrape just the image URLs from a page.
+ * Prefer scrapeWebsitePage() when you also need the confirmation text.
+ */
+export async function scrapeWebsiteImages(rawUrl: string): Promise<string[]> {
+  return (await scrapeWebsitePage(rawUrl)).images;
+}
+
+// ── Groq structuring (optional) ───────────────────────────────────────────────
+
+export interface StructuredEnrichment {
+  about: string;
+  amenities: string[];
+  careTypes: string[];
+  pricingContext: string;
+}
+
+/**
+ * Use Groq Llama 3.3 70B to parse raw Jina markdown into a structured
+ * enrichment object. Returns null if GROQ_API_KEY is unset or the call fails
+ * — the caller should fall back to storing raw text.
+ */
+export async function structureWithGroq(
+  rawMarkdown: string,
+  communityName: string,
+): Promise<StructuredEnrichment | null> {
+  const apiKey = process.env.GROQ_API_KEY;
+  if (!apiKey) return null;
+
+  const prompt = `You are a senior living data extraction assistant.
+Parse the following markdown page from the website of "${communityName}" and return ONLY a JSON object with these fields:
+{
+  "about": "<2-4 sentence description of the community, from their own words>",
+  "amenities": ["<amenity 1>", "<amenity 2>", ...],
+  "careTypes": ["<care type 1>", ...],
+  "pricingContext": "<pricing information if mentioned, otherwise empty string>"
+}
+
+Rules:
+- Use only information clearly stated on the page. Never invent data.
+- amenities: list actual amenities mentioned (max 15 items)
+- careTypes: only values from: Independent Living, Assisted Living, Memory Care, Skilled Nursing, Respite Care, Continuing Care, Rehabilitation
+- pricingContext: exact pricing text if present, otherwise ""
+- about: use the community's own description language, not generic text
+- Return ONLY the JSON object, no other text.
+
+MARKDOWN:
+${rawMarkdown.slice(0, 6000)}`;
+
+  try {
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.1,
+        max_tokens: 800,
+        response_format: { type: "json_object" },
+      }),
+      signal: AbortSignal.timeout(GROQ_TIMEOUT_MS),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      console.warn(`⚠️ Groq API error ${response.status}: ${errBody.slice(0, 200)}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) return null;
+
+    const parsed = JSON.parse(content);
+    return {
+      about: typeof parsed.about === "string" ? parsed.about.trim() : "",
+      amenities: Array.isArray(parsed.amenities) ? parsed.amenities.filter((a: any) => typeof a === "string") : [],
+      careTypes: Array.isArray(parsed.careTypes) ? parsed.careTypes.filter((c: any) => typeof c === "string") : [],
+      pricingContext: typeof parsed.pricingContext === "string" ? parsed.pricingContext.trim() : "",
+    };
+  } catch (err: any) {
+    console.warn(`⚠️ Groq structuring failed for "${communityName}": ${err?.message}`);
+    return null;
+  }
+}
+
+// ── Keyword extractors (free fallback when Groq absent) ───────────────────────
+
+const CARE_TYPE_PATTERNS: Array<{ label: string; pattern: RegExp }> = [
+  { label: "Independent Living", pattern: /independent living/i },
+  { label: "Assisted Living", pattern: /assisted living/i },
+  { label: "Memory Care", pattern: /memory care|alzheimer|dementia care/i },
+  { label: "Skilled Nursing", pattern: /skilled nursing|nursing home|long[- ]term care/i },
+  { label: "Respite Care", pattern: /respite care/i },
+  { label: "Continuing Care", pattern: /continuing care|ccrc|life plan community/i },
+  { label: "Rehabilitation", pattern: /rehabilitation|rehab services|short[- ]term rehab/i },
+];
+
+const AMENITY_PATTERNS: Array<{ label: string; pattern: RegExp }> = [
+  { label: "Dining Services", pattern: /dining|restaurant[- ]style|chef[- ]prepared|meals? (?:included|provided)/i },
+  { label: "Fitness Center", pattern: /fitness center|gym|exercise (?:room|classes)/i },
+  { label: "Transportation", pattern: /transportation|scheduled transport|shuttle/i },
+  { label: "Housekeeping", pattern: /housekeeping|laundry service/i },
+  { label: "Pet Friendly", pattern: /pet[- ]friendly|pets? welcome/i },
+  { label: "Salon/Spa", pattern: /salon|spa services|beauty (?:salon|shop)/i },
+  { label: "Library", pattern: /\blibrary\b/i },
+  { label: "Garden/Courtyard", pattern: /garden|courtyard|outdoor (?:space|patio)/i },
+  { label: "Swimming Pool", pattern: /swimming pool|indoor pool|heated pool/i },
+  { label: "24/7 Staff", pattern: /24[\/-]?7|24[- ]hour (?:staff|care|support)|round[- ]the[- ]clock/i },
+  { label: "Social Activities", pattern: /social activities|activity calendar|recreational programs/i },
+  { label: "Medication Management", pattern: /medication management|medication assistance/i },
+];
+
+function extractKeywordCareTypes(text: string): string[] {
+  return CARE_TYPE_PATTERNS.filter((k) => k.pattern.test(text)).map((k) => k.label);
+}
+
+function extractKeywordAmenities(text: string): string[] {
+  return AMENITY_PATTERNS.filter((k) => k.pattern.test(text)).map((k) => k.label);
+}
+
+function extractAboutFromMarkdown(markdown: string): string {
+  // Strip markdown headings, links, images, code blocks
+  const clean = markdown
+    .replace(/!\[.*?\]\(.*?\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/```[\s\S]*?```/g, "")
+    .replace(/^#+\s+.*$/gm, "")
+    .replace(/\*\*([^*]+)\*\*/g, "$1")
+    .replace(/\*([^*]+)\*/g, "$1")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  // Find first 2-3 paragraphs that look like prose
+  const sentences = clean.split(/(?<=[.!?])\s+/);
+  const proseSentences = sentences.filter(
+    (s) => s.length > 40 && !/^(\d+|•|-|\*|#)/.test(s.trim()),
+  );
+
+  let about = "";
+  for (const s of proseSentences) {
+    if (about.length >= 400) break;
+    about += (about ? " " : "") + s.trim();
+  }
+
+  return about.slice(0, 600);
+}
+
+// ── Main pipeline ─────────────────────────────────────────────────────────────
+
+/**
+ * Run the full free enrichment pipeline for a community:
+ * 1. Use stored website URL, or DuckDuckGo to find one
+ * 2. Extract content via Jina AI Reader
+ * 3. Structure with Groq (if API key available) or keyword extraction
+ */
+export async function enrichCommunityFree(params: {
+  name: string;
+  city: string;
+  state: string;
+  websiteUrl?: string | null;
+  // When true, websiteUrl is admin-authoritative (websiteProtected): it is the
+  // ONLY allowed scrape target. We never re-search/substitute a discovered URL,
+  // even if extraction fails — admin intent must not be silently overridden.
+  authoritativeWebsite?: boolean;
+}): Promise<FreeEnrichmentResult> {
+  const { name, city, state, websiteUrl, authoritativeWebsite = false } = params;
+
+  let targetUrl: string | null = websiteUrl || null;
+  let sourceType: FreeEnrichmentResult["sourceType"] = "none";
+
+  // Step 1: Use stored URL or fall back to DuckDuckGo search
+  let ddgSnippets: string[] = [];
+  if (!targetUrl) {
+    console.log(`🔍 DuckDuckGo: searching for "${name}" in ${city}, ${state}`);
+    const ddgResult = await searchDuckDuckGo(name, city, state);
+    targetUrl = ddgResult.website;
+    ddgSnippets = ddgResult.snippets;
+    if (targetUrl) {
+      sourceType = "web_search";
+      console.log(`✅ Found via DuckDuckGo: ${targetUrl}`);
+    } else if (ddgSnippets.length > 0) {
+      console.log(`📝 DuckDuckGo: no website found but got ${ddgSnippets.length} snippets for "${name}"`);
+    }
+  } else {
+    sourceType = "official_website";
+  }
+
+  // Snippet-only fallback: no website found but we have search result snippets
+  if (!targetUrl && ddgSnippets.length > 0) {
+    const snippetText = ddgSnippets.join(" ").slice(0, 600);
+    const careTypes = extractKeywordCareTypes(snippetText);
+    const amenities = extractKeywordAmenities(snippetText);
+    console.log(`📄 Using DuckDuckGo snippets as text-only fallback for "${name}" (${snippetText.length} chars)`);
+    // Labeled fallback ONLY: no verified official site was found. sourceType is
+    // "web_snippet" (not "web_search") and we deliberately omit sourceUrl so this
+    // loose text is never saved as the community's official website (Golden Data
+    // Rule — a Wikipedia/reference/snippet page must never become the website).
+    return {
+      about: snippetText,
+      careTypes: careTypes.length > 0 ? careTypes : undefined,
+      amenities: amenities.length > 0 ? amenities : undefined,
+      sourceType: "web_snippet",
+      structured: false,
+    };
+  }
+
+  if (!targetUrl) {
+    console.log(`📭 No website or snippets found for "${name}" — returning empty enrichment`);
+    return { sourceType: "none", structured: false };
+  }
+
+  // Step 2: Extract content via Jina AI Reader.
+  // If Jina fails on the stored website, fall back to DuckDuckGo discovery + retry.
+  console.log(`📄 Jina Reader: extracting content from ${targetUrl}`);
+  let rawMarkdown = await extractContentFromUrl(targetUrl);
+
+  // Discovery fallback ONLY when the stored website is NOT admin-authoritative.
+  // A protected (websiteProtected) website is the only permitted scrape target —
+  // if Jina fails on it we return empty rather than substituting a discovered URL.
+  if (!rawMarkdown && sourceType === "official_website" && !authoritativeWebsite) {
+    console.log(`⚠️ Jina failed on stored website — trying DuckDuckGo fallback for "${name}"`);
+    const discoveredUrl = await findCommunityWebsite(name, city, state);
+    if (discoveredUrl && discoveredUrl !== targetUrl) {
+      console.log(`🔍 Retrying Jina on DuckDuckGo-discovered URL: ${discoveredUrl}`);
+      rawMarkdown = await extractContentFromUrl(discoveredUrl);
+      if (rawMarkdown) {
+        targetUrl = discoveredUrl;
+        sourceType = "web_search";
+        console.log(`✅ DuckDuckGo fallback succeeded: ${rawMarkdown.length} chars`);
+      }
+    }
+  }
+
+  if (!rawMarkdown) {
+    console.log(`⚠️ Jina extraction returned nothing for ${targetUrl} (all attempts exhausted)`);
+    return { sourceType: "none", structured: false };
+  }
+
+  console.log(`✅ Jina extracted ${rawMarkdown.length} chars from ${targetUrl}`);
+
+  // Step 3: Structure with Groq (optional) or keyword extraction
+  let structured: StructuredEnrichment | null = null;
+  if (process.env.GROQ_API_KEY) {
+    console.log(`🤖 Groq: structuring content for "${name}"`);
+    structured = await structureWithGroq(rawMarkdown, name);
+    if (structured) {
+      console.log(
+        `✅ Groq structured: ${structured.amenities.length} amenities, ` +
+          `${structured.careTypes.length} care types, about: ${structured.about.length} chars`,
+      );
+    }
+  }
+
+  if (structured) {
+    return {
+      about: structured.about || undefined,
+      amenities: structured.amenities.length > 0 ? structured.amenities : undefined,
+      careTypes: structured.careTypes.length > 0 ? structured.careTypes : undefined,
+      pricingContext: structured.pricingContext || undefined,
+      sourceUrl: targetUrl,
+      sourceType,
+      structured: true,
+    };
+  }
+
+  // Keyword fallback (no Groq key or Groq failed)
+  const about = extractAboutFromMarkdown(rawMarkdown);
+  const amenities = extractKeywordAmenities(rawMarkdown);
+  const careTypes = extractKeywordCareTypes(rawMarkdown);
+
+  return {
+    about: about || undefined,
+    amenities: amenities.length > 0 ? amenities : undefined,
+    careTypes: careTypes.length > 0 ? careTypes : undefined,
+    sourceUrl: targetUrl,
+    sourceType,
+    structured: false,
+  };
+}

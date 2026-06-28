@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles } from 'lucide-react';
+import { Search, Filter, List, MapIcon, SlidersHorizontal, X, Star, MapPin, Phone, Globe, Heart, ExternalLink, Home, Moon, Sun, Info, HelpCircle, Flame, Layers, DollarSign, Sparkles, ShieldCheck } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { AutocompleteSearch } from "@/components/AutocompleteSearch";
@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import Map from '@/components/Map';
 import MapTutorial from '@/components/MapTutorial';
 import MapErrorBoundary from '@/components/MapErrorBoundary';
-import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { VendorCard } from '@/components/VendorCard';
 import EnhancedVendorCard from '@/components/EnhancedVendorCard';
 import { HealthcareServiceCard } from '@/components/HealthcareServiceCard';
@@ -109,6 +109,7 @@ interface SearchFilters {
   amenities: string[];
   budget: string;
   availability: string;
+  verifiedOnly: boolean;
 }
 
 export default function MapSearch() {
@@ -143,9 +144,17 @@ export default function MapSearch() {
     }
   };
 
+  // Admin-configured map defaults — used as fallback when no session state exists
+  const { data: adminMapDefaults } = useQuery<{ lat: number; lng: number; zoom: number }>({
+    queryKey: ['/api/settings/map-defaults'],
+    staleTime: Infinity,
+    refetchOnWindowFocus: false,
+  });
+
   // Load saved state from session storage
   const { loadState, saveState } = useMapSessionStorage();
   const savedState = loadState();
+  const hasSavedCenter = useRef(!!savedState?.center);
   
   // Initialize state with saved values or defaults
   const [searchQuery, setSearchQuery] = useState(communityParam || savedState?.searchQuery || initialQuery);
@@ -165,13 +174,24 @@ export default function MapSearch() {
       minRating: 0,
       amenities: [],
       budget: getBudgetFilter(budgetParam),
-      availability: 'All Status'
+      availability: 'All Status',
+      verifiedOnly: false
     }
   );
   const [mapCenter, setMapCenter] = useState<[number, number]>(
     savedState?.center || [37.7749, -122.4194] // Use saved center or default to SF
   );
   const [mapZoom, setMapZoom] = useState(savedState?.zoom || 12); // Use saved zoom or default
+
+  // Apply admin-configured default once loaded — only for fresh visitors with no session state
+  useEffect(() => {
+    if (hasSavedCenter.current) return; // session state takes priority
+    if (adminMapDefaults) {
+      setMapCenter([adminMapDefaults.lat, adminMapDefaults.lng]);
+      setMapZoom(adminMapDefaults.zoom);
+    }
+  }, [adminMapDefaults]);
+
   const [selectedCommunity, setSelectedCommunity] = useState<Community | null>(null);
   const [mapBounds, setMapBounds] = useState<any>(savedState?.bounds || null);
   const [showBottomPanel, setShowBottomPanel] = useState(savedState?.showBottomPanel || false);
@@ -1425,13 +1445,14 @@ export default function MapSearch() {
       minRating: 0,
       amenities: [],
       budget: 'Any Budget',
-      availability: 'All Status'
+      availability: 'All Status',
+      verifiedOnly: false
     });
   };
 
   const activeFiltersCount = Object.values(filters).filter(value => 
     value !== 'All Types' && value !== 'Any Budget' && value !== 'All Status' && 
-    value !== 0 && (Array.isArray(value) ? value.length > 0 : true)
+    value !== 0 && value !== false && (Array.isArray(value) ? value.length > 0 : true)
   ).length;
 
   return (
@@ -1936,6 +1957,25 @@ export default function MapSearch() {
             </PopoverContent>
           </Popover>
 
+          {/* Verified Only Toggle — shows only HUD-verified, claimed, or featured communities */}
+          <Button
+            onClick={() => setFilters({ ...filters, verifiedOnly: !filters.verifiedOnly })}
+            size="sm"
+            variant={filters.verifiedOnly ? 'default' : 'outline'}
+            aria-pressed={filters.verifiedOnly}
+            data-testid="toggle-verified-only"
+            title="Show only HUD government-verified, claimed, or featured communities"
+            className={`flex items-center gap-1 ${filters.verifiedOnly
+              ? 'bg-green-600 text-white hover:bg-green-700 border-green-600'
+              : (isDarkMode
+                ? 'border-gray-600 bg-gray-700 text-white hover:bg-gray-600'
+                : 'border-gray-300 bg-white dark:bg-gray-800 text-gray-900 dark:text-white hover:bg-gray-50')
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span className="text-xs">Verified only</span>
+          </Button>
+
           {/* Legend Button */}
           <Button
             onClick={() => setShowLegend(!showLegend)}
@@ -2195,12 +2235,11 @@ export default function MapSearch() {
                   return a.name.localeCompare(b.name);
                 })
                 .map((community: Community, index: number) => (
-                  <div onClick={() => handleCommunityClick(community)} className="cursor-pointer">
-                    <FeaturedExcellenceCard
-                      key={`community-${community.id}`}
+                  <div key={`community-${community.id}`} className="cursor-pointer">
+                    <CommunityCard
                       community={community}
-                      index={index}
-                      disableAutoPhotoLoad={true}
+                      variant="list"
+                      onSelect={() => handleCommunityClick(community)}
                     />
                   </div>
                 ))}
@@ -2308,12 +2347,11 @@ export default function MapSearch() {
                             {filteredCommunities
                               .slice(0, 5)
                               .map((community: Community, index: number) => (
-                              <div onClick={() => handleCommunityClick(community)} className="cursor-pointer">
-                                <FeaturedExcellenceCard
-                                  key={`all-community-${community.id}`}
+                              <div key={`all-community-${community.id}`} className="cursor-pointer">
+                                <CommunityCard
                                   community={community}
-                                  index={index}
-                                  disableAutoPhotoLoad={true}
+                                  variant="list"
+                                  onSelect={() => handleCommunityClick(community)}
                                 />
                               </div>
                             ))}

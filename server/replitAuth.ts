@@ -97,7 +97,7 @@ async function upsertUser(
     if (!user) {
       // Check if this is William Cowell (guaranteed super admin)
       let userRole = 'user';
-      const superAdminEmails = ['William.cowell01@gmail.com', 'admin@myseniorvalet.com'];
+      const superAdminEmails = ['William.cowell01@gmail.com', 'CowellandCoWebDesign@gmail.com'];
       
       if (superAdminEmails.includes(userEmail)) {
         userRole = 'super_admin';

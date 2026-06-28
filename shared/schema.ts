@@ -1250,7 +1250,11 @@ export const communities = pgTable("communities", {
   lastAvailabilityUpdate: timestamp("last_availability_update"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  
+
+  // Admin manual rating override — for verified external ratings entered by admin only
+  adminRatingOverride: decimal("admin_rating_override", { precision: 3, scale: 1 }),
+  adminRatingNote: text("admin_rating_note"),
+
   // Yelp integration fields
   yelpId: varchar("yelp_id"),
   yelpRating: real("yelp_rating"),
@@ -1268,7 +1272,12 @@ export const communities = pgTable("communities", {
   
   // Enrichment completion tracking
   enrichmentCompleted: boolean("enrichment_completed").default(false), // Tracks if community has been fully enriched
-  enrichmentStatus: text("enrichment_status", { enum: ["pending", "in_progress", "completed", "failed"] }).default("pending"),
+  // "no_data" is a terminal/quiet state: after repeated self-heal runs that find
+  // nothing online, the community stops auto-retrying until an admin forces it.
+  enrichmentStatus: text("enrichment_status", { enum: ["pending", "in_progress", "completed", "failed", "no_data"] }).default("pending"),
+  // Consecutive self-heal runs that persisted NO new content. Drives the
+  // escalating backoff (24h → 7d → 30d → terminal). Reset to 0 on a successful
+  // run (real content saved) or when an admin forces a retry.
   enrichmentAttempts: integer("enrichment_attempts").default(0),
   lastEnrichmentAttempt: timestamp("last_enrichment_attempt"),
   enrichmentHistory: json("enrichment_history").$type<Array<{
@@ -1307,6 +1316,8 @@ export const communities = pgTable("communities", {
       summary: string;
       sources: string[];
     };
+    managementCompany?: string;
+    availability?: string;
     lastFetched?: string;
     validUntil?: string; // Data expires after 7 days
   }>().default({}),
@@ -1533,6 +1544,30 @@ export const communities = pgTable("communities", {
     };
   }>(), // Nullable to support gradual migration
   enrichedAt: timestamp("enriched_at"), // When content was last enriched from Perplexity
+
+  // SEO slug columns for O(1) URL resolution (replaces fragile lower() fuzzy matching)
+  slug: text("slug"),       // slugified community name, e.g. "sunrise-senior-living"
+  citySlug: text("city_slug"),   // slugified city,  e.g. "san-francisco"
+  stateSlug: text("state_slug"), // slugified state, e.g. "california" or "ca"
+
+  // Data-quality flags — non-destructive markers for suspect/guessed AI data.
+  // Values: 'citation_artifact', 'incomplete_address', 'guessed_name',
+  // 'unreachable_website'. Records are FLAGGED for review, never auto-deleted.
+  dataQualityFlags: text("data_quality_flags").array().default([]),
+  dataQualityCheckedAt: timestamp("data_quality_checked_at"), // last scan timestamp
+
+  // Senior classification + quality scoring (Task #262) — single source of truth
+  // for visibility. Computed by evaluateCommunity() in shared/community-classification.ts.
+  seniorClassification: text("senior_classification", { enum: ["senior", "non_senior", "unknown"] }), // null = not yet scored
+  qualityScore: integer("quality_score"),   // 0–100 composite quality score
+  qualityTier: text("quality_tier", { enum: ["featured", "verified", "good", "thin", "empty"] }),
+
+  // Lifecycle flag — deactivated records are excluded from public listings/search
+  isActive: boolean("is_active").default(true),
+
+  // Moderation fields — reversible hide + two-stage flag status
+  isHidden: boolean("is_hidden").default(false).notNull(), // Soft-hide; does NOT delete the record
+  flagStatus: text("flag_status", { enum: ["pending", "confirmed"] }), // null = no active flag
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),
@@ -1545,6 +1580,8 @@ export const communities = pgTable("communities", {
   index("communities_trending_score_idx").on(table.trendingScore),
   // PostGIS spatial index for efficient geo queries (created manually in SQL)
   // index("communities_location_gist_idx").on(table.location).using("gist"),
+  // Slug-based URL lookup index — powers /api/communities/by-slug/:state/:city/:slug
+  uniqueIndex("communities_slug_lookup_idx").on(table.stateSlug, table.citySlug, table.slug),
 ]);
 
 export const inspections = pgTable("inspections", {
@@ -1644,10 +1681,11 @@ export const favorites = pgTable("favorites", {
 // User Searches/History Table  
 export const searchHistory = pgTable("search_history", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  searchQuery: json("search_query").$type<SearchCommunity>().notNull(),
-  resultCount: integer("result_count").notNull(),
-  searchName: text("search_name"), // User can save and name searches
+  userId: integer("user_id").references(() => users.id),
+  searchQuery: json("search_query").$type<SearchCommunity>(),
+  searchText: text("search_text"),
+  resultCount: integer("result_count").notNull().default(0),
+  searchName: text("search_name"),
   isBookmarked: boolean("is_bookmarked").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -3140,6 +3178,10 @@ export const leads = pgTable("leads", {
     budget?: string;
     careNeeds?: string[];
     notes?: string;
+    // Profile-view referral consent fields (Task: contact gating)
+    allowDirectContact?: boolean; // family agreed to be contacted at all
+    allowPhoneContact?: boolean; // false = email/text only, no phone
+    revealedField?: string; // 'phone' | 'website' | 'pricing' | 'overview'
   }>().default({}),
   lastContactedAt: timestamp("last_contacted_at"),
   nextFollowUpAt: timestamp("next_follow_up_at"),
@@ -7543,3 +7585,175 @@ export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts)
   .omit({ id: true, createdAt: true });
 export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
 export type SelectPaymentReceipt = typeof paymentReceipts.$inferSelect;
+
+// ========== HEALTHCARE PROVIDERS (Discovery Mode) ==========
+// Stores discovered healthcare providers from Perplexity searches
+export const healthcareProviders = pgTable("healthcare_providers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  normalizedName: text("normalized_name").notNull(), // Lowercase, trimmed for deduplication
+  description: text("description"),
+  shortDescription: text("short_description"),
+  
+  // Location information
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  
+  // Provider details
+  providerType: text("provider_type"), // 'doctor', 'clinic', 'hospital', 'specialist', 'pharmacy', etc.
+  specialties: text("specialties").array().default([]),
+  
+  // Pricing & Insurance
+  pricingSummary: text("pricing_summary"), // Extracted pricing text
+  pricingConfidence: integer("pricing_confidence").default(0), // 0-100 confidence in pricing data
+  insuranceAccepted: text("insurance_accepted").array().default([]), // Medicare, Medicaid, etc.
+  acceptsMedicare: boolean("accepts_medicare").default(false),
+  acceptsMedicaid: boolean("accepts_medicaid").default(false),
+  
+  // Hours and availability
+  hours: text("hours"),
+  
+  // Discovery metadata
+  source: text("source").notNull(), // 'perplexity_discovery', 'user_submitted', etc.
+  sourceUrl: text("source_url"),
+  confidence: integer("confidence").default(0),
+  isVerified: boolean("is_verified").default(false),
+  
+  metadata: jsonb("metadata").$type<{
+    discoveryQuery?: string;
+    tags?: string[];
+    lastEnrichedAt?: string;
+  }>(),
+  
+  discoveredAt: timestamp("discovered_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_healthcare_providers_normalized_name").on(table.normalizedName),
+  index("idx_healthcare_providers_city_state").on(table.city, table.state),
+  index("idx_healthcare_providers_type").on(table.providerType),
+  index("idx_healthcare_providers_discovered").on(table.discoveredAt),
+]);
+
+export const insertHealthcareProviderSchema = createInsertSchema(healthcareProviders)
+  .omit({ id: true, createdAt: true, updatedAt: true, discoveredAt: true });
+export type InsertHealthcareProvider = z.infer<typeof insertHealthcareProviderSchema>;
+export type SelectHealthcareProvider = typeof healthcareProviders.$inferSelect;
+
+// ========== SENIOR RESOURCES (Discovery Mode) ==========
+// Stores discovered senior resources from Perplexity searches
+export const seniorResources = pgTable("senior_resources", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  normalizedName: text("normalized_name").notNull(), // Lowercase, trimmed for deduplication
+  description: text("description"),
+  shortDescription: text("short_description"),
+  
+  // Location information
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  
+  // Resource details
+  resourceType: text("resource_type"), // 'senior_center', 'food_program', 'legal_aid', 'transportation', etc.
+  services: text("services").array().default([]), // List of services offered
+  
+  // Pricing & Eligibility
+  pricingSummary: text("pricing_summary"), // 'free', 'sliding scale', '$X per visit', etc.
+  isFree: boolean("is_free").default(false),
+  eligibility: text("eligibility"), // Eligibility requirements text
+  incomeRestrictions: text("income_restrictions"), // Income-based eligibility
+  
+  // Hours and availability
+  hours: text("hours"),
+  
+  // Discovery metadata
+  source: text("source").notNull(), // 'perplexity_discovery', 'user_submitted', etc.
+  sourceUrl: text("source_url"),
+  confidence: integer("confidence").default(0),
+  isVerified: boolean("is_verified").default(false),
+  
+  metadata: jsonb("metadata").$type<{
+    discoveryQuery?: string;
+    discoveryCategory?: string; // Directory category this resource was found under
+    discoveryCounty?: string; // County the discovery was run for (county-aware cache lookup)
+    tags?: string[];
+    programs?: string[]; // Government programs like SNAP, Meals on Wheels, etc.
+    lastEnrichedAt?: string;
+  }>(),
+  
+  discoveredAt: timestamp("discovered_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_senior_resources_normalized_name").on(table.normalizedName),
+  index("idx_senior_resources_city_state").on(table.city, table.state),
+  index("idx_senior_resources_type").on(table.resourceType),
+  index("idx_senior_resources_discovered").on(table.discoveredAt),
+]);
+
+export const insertSeniorResourceSchema = createInsertSchema(seniorResources)
+  .omit({ id: true, createdAt: true, updatedAt: true, discoveredAt: true });
+export type InsertSeniorResource = z.infer<typeof insertSeniorResourceSchema>;
+export type SelectSeniorResource = typeof seniorResources.$inferSelect;
+
+// ========== HOME PAGE SECTION CONFIGS ==========
+// Controls which community sections appear on the home page and in what order.
+// Admins can add, reorder, enable/disable sections without a code deploy.
+export const SECTION_TYPES = [
+  'location',
+  'care_type',
+  'hud',
+  'trending',
+  'highest_rated',
+  'most_reviewed',
+  'featured',
+  'coastal',
+  'recently_discovered',
+  'brand',
+  'red_tag_deals',
+  'care_spectrum',
+] as const;
+export type SectionType = (typeof SECTION_TYPES)[number];
+
+export const homeSectionConfigs = pgTable("home_section_configs", {
+  id: serial("id").primaryKey(),
+  position: integer("position").notNull().default(0),
+  enabled: boolean("enabled").notNull().default(true),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  sectionType: text("section_type").notNull().$type<SectionType>(),
+  // Stable identifier for additively-seeded default sections. NULL for admin-created
+  // sections. Lets the seeder claim/insert defaults idempotently without clobbering.
+  defaultKey: text("default_key"),
+  config: jsonb("config").$type<{
+    city?: string;
+    state?: string;
+    careType?: string;
+    country?: string;
+    brand?: string;
+    limit?: number;
+    selectionMode?: "auto" | "curated" | "pinned";
+    communityIds?: number[];
+    excludeIds?: number[];
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_home_section_configs_position").on(table.position),
+  index("idx_home_section_configs_enabled").on(table.enabled),
+]);
+
+export const insertHomeSectionConfigSchema = createInsertSchema(homeSectionConfigs)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertHomeSectionConfig = z.infer<typeof insertHomeSectionConfigSchema>;
+export type SelectHomeSectionConfig = typeof homeSectionConfigs.$inferSelect;

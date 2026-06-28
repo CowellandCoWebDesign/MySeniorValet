@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Heart, Shield, Users, UserPlus, Mail, Lock, User } from "lucide-react";
-import { FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +17,7 @@ export default function SignupPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [zipCode, setZipCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,11 +48,35 @@ export default function SignupPage() {
     setIsSubmitting(true);
     
     try {
+      // Capture real, optional context about this signup (no fabrication).
+      const params = new URLSearchParams(window.location.search);
+      const utm: Record<string, string> = {};
+      ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content"].forEach((key) => {
+        const value = params.get(key);
+        if (value) utm[key] = value;
+      });
+      const locale = (() => {
+        try {
+          return localStorage.getItem("language") || undefined;
+        } catch {
+          return undefined;
+        }
+      })();
+
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", // Include cookies with request
-        body: JSON.stringify({ firstName, lastName, email, password }),
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          password,
+          source: window.location.pathname + window.location.search,
+          referrer: document.referrer || undefined,
+          locale,
+          utm: Object.keys(utm).length ? utm : undefined,
+        }),
       });
       
       const data = await response.json();
@@ -62,6 +86,13 @@ export default function SignupPage() {
           title: "Account created!",
           description: "Welcome to MySeniorValet",
         });
+
+        // Flag this as a brand-new signup so the dashboard fires the onboarding wizard
+        sessionStorage.setItem('newSignup', 'true');
+        // Carry the ZIP code (if provided) into the onboarding wizard
+        if (zipCode.trim()) {
+          sessionStorage.setItem('pendingZipCode', zipCode.trim());
+        }
         
         // Check for pending community payment
         const pendingCommunityTier = sessionStorage.getItem('pendingCommunityTier');
@@ -126,29 +157,6 @@ export default function SignupPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Google Signup */}
-            <Button
-              onClick={() => window.location.href = "/api/auth/google"}
-              className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium flex items-center justify-center gap-3"
-              type="button"
-              data-testid="button-google-signup"
-            >
-              <FaGoogle className="h-5 w-5 text-red-500" />
-              Sign up with Google
-            </Button>
-            
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-                  Or sign up with email
-                </span>
-              </div>
-            </div>
-            
             {/* Registration Form - No Replit Account Required */}
             <form onSubmit={handleSignup} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -192,6 +200,23 @@ export default function SignupPage() {
                   disabled={isSubmitting}
                   className="mt-1"
                 />
+              </div>
+
+              <div>
+                <Label htmlFor="zipCode">ZIP Code <span className="text-gray-400 font-normal">(optional)</span></Label>
+                <Input
+                  id="zipCode"
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Where are you searching? e.g. 90210"
+                  value={zipCode}
+                  onChange={(e) => setZipCode(e.target.value)}
+                  disabled={isSubmitting}
+                  className="mt-1"
+                />
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  We'll use this to personalize your community search.
+                </p>
               </div>
               
               <div>
@@ -262,7 +287,7 @@ export default function SignupPage() {
             <div className="space-y-3">
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                 <Shield className="h-4 w-4 mr-3 text-green-500" />
-                Industry-standard OAuth security
+                Your information is always private and secure
               </div>
               <div className="flex items-center text-sm text-gray-600 dark:text-gray-300">
                 <Users className="h-4 w-4 mr-3 text-blue-500" />

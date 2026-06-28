@@ -140,17 +140,22 @@ export class BatchPerplexityVerifier {
   
   /**
    * Verify a single community using Perplexity
+   * Improved to be more effective at finding facilities - matches discovery approach
    */
   private async verifyCommunity(community: any): Promise<VerificationResult> {
     console.log(`🔍 Verifying: ${community.name} in ${community.city}, ${community.state}`);
     
-    // Build intelligent search query
-    const searchQuery = `"${community.name}" senior living assisted living ${community.city} ${community.state} address phone website 2025`;
+    // Build intelligent search query - improved to match discovery's effectiveness
+    // Uses multiple search strategies for better coverage
+    const searchQuery = `Find "${community.name}" senior living facility located in ${community.city}, ${community.state}. Please provide their phone number (strongly preferred), official website URL (strongly preferred), and full address. This is a senior care facility - search for their contact information.`;
     
     try {
       const searchResults = await perplexityService.searchRealTime(searchQuery);
       const text = searchResults.summary || '';
       const sources = searchResults.sources || [];
+      
+      // Log what Perplexity returned for debugging
+      console.log(`📄 Perplexity response length: ${text.length} chars, ${sources.length} sources`);
       
       // Check if community exists based on search results
       const nameFound = text.toLowerCase().includes(community.name.toLowerCase());

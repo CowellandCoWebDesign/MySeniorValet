@@ -23,6 +23,7 @@ export interface EmailOptions {
 // Default sender email
 const DEFAULT_FROM_EMAIL = 'hello@myseniorvalet.com';
 const DEFAULT_FROM_NAME = 'MySeniorValet';
+const DEFAULT_REPLY_TO = 'CowellandCoWebDesign@gmail.com';
 
 export class EmailService {
   // Helper to generate unsubscribe footer
@@ -44,7 +45,7 @@ export class EmailService {
           </a>
         </p>
         <p style="margin: 5px 0;">
-          MySeniorValet | hello@myseniorvalet.com
+          MySeniorValet | CowellandCoWebDesign@gmail.com
         </p>
       </div>
     `;
@@ -67,7 +68,7 @@ export class EmailService {
           name: DEFAULT_FROM_NAME
         },
         subject: options.subject,
-        replyTo: options.replyTo
+        replyTo: options.replyTo || DEFAULT_REPLY_TO
       };
       
       // Disable click and open tracking for transactional/security emails
@@ -168,7 +169,7 @@ export class EmailService {
           </div>
           
           <p style="color: #666; font-size: 14px;">
-            If you have any questions, our team is here to help at hello@myseniorvalet.com
+            If you have any questions, our team is here to help at CowellandCoWebDesign@gmail.com
           </p>
         </div>
       `
@@ -228,7 +229,7 @@ export class EmailService {
           </div>
           <p style="color: #666; font-size: 14px;">
             This is an automated notification from MySeniorValet. 
-            If you have questions, contact us at hello@myseniorvalet.com
+            If you have questions, contact us at CowellandCoWebDesign@gmail.com
           </p>
         </div>
       `
@@ -263,7 +264,7 @@ export class EmailService {
 
     return this.sendEmail({
       to: email,
-      cc: ['hello@myseniorvalet.com'], // Always CC for tour tracking
+      cc: ['CowellandCoWebDesign@gmail.com'], // Always CC for tour tracking
       subject: `Tour Confirmed - ${communityName} - ${formattedDate}`,
       isTransactional: true, // Tour confirmations are transactional
       html: `
@@ -357,7 +358,7 @@ export class EmailService {
           
           <div style="background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 14px; color: #666;">
             <p style="margin: 5px 0;">MySeniorValet - Clarity in Senior Living</p>
-            <p style="margin: 5px 0;">Questions? Email us at hello@myseniorvalet.com</p>
+            <p style="margin: 5px 0;">Questions? Email us at CowellandCoWebDesign@gmail.com</p>
           </div>
         </div>
       `

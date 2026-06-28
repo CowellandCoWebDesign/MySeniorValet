@@ -15,9 +15,9 @@ interface PaymentNotification {
 }
 
 export class PaymentNotificationService {
-  private readonly adminEmail = 'admin@myseniorvalet.com';
+  private readonly adminEmail = 'CowellandCoWebDesign@gmail.com';
   private readonly billingEmail = 'billing@myseniorvalet.com';
-  private readonly supportEmail = 'hello@myseniorvalet.com';
+  private readonly supportEmail = 'CowellandCoWebDesign@gmail.com';
 
   async sendPaymentNotification(notification: PaymentNotification): Promise<void> {
     try {

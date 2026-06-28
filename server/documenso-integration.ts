@@ -154,7 +154,7 @@ export class DocumensoService {
             signingOrder: 1
           },
           {
-            email: community.email || 'admin@myseniorvalet.com',
+            email: community.email || 'CowellandCoWebDesign@gmail.com',
             name: `${community.name} Management`,
             role: 'signer',
             signingOrder: 2

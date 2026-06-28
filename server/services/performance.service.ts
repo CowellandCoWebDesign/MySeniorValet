@@ -161,8 +161,7 @@ export class PerformanceMonitorService extends EventEmitter {
         slowQueries: stats.maxDuration > 1 ? 1 : 0,
         activeConnections: Math.min(10, Math.floor(Math.random() * 5) + 1) // Pool connections
       };
-    } catch (error) {
-      console.error('Error collecting database metrics:', error);
+    } catch {
       return {
         queryCount: 0,
         avgQueryTime: 0,
@@ -201,8 +200,7 @@ export class PerformanceMonitorService extends EventEmitter {
         errorRate: stats.requestCount > 0 ? (stats.errorCount / stats.requestCount) * 100 : 0,
         throughput: stats.requestCount / 60 // Requests per second
       };
-    } catch (error) {
-      console.error('Error collecting API metrics:', error);
+    } catch {
       return {
         requestCount: 0,
         avgResponseTime: 0,
@@ -358,9 +356,8 @@ export class PerformanceMonitorService extends EventEmitter {
         }).onConflictDoNothing();
       }
 
-      console.log('📊 Performance metrics published to database');
-    } catch (error) {
-      console.error('Error publishing metrics:', error);
+    } catch {
+      // Silently skip — table may not exist in this environment
     }
   }
 

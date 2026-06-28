@@ -793,7 +793,7 @@ export function registerUserRoutes(app: Express) {
         .select()
         .from(searchHistory)
         .where(eq(searchHistory.userId, userId))
-        .orderBy(desc(searchHistory.searchedAt));
+        .orderBy(desc(searchHistory.createdAt));
       
       const tourData = await db
         .select()
@@ -815,9 +815,8 @@ export function registerUserRoutes(app: Express) {
           savedDate: f.userFavorites.createdAt
         })),
         searchHistory: searches.map(s => ({
-          query: s.query,
-          location: s.location,
-          date: s.searchedAt
+          query: s.searchText,
+          date: s.createdAt
         })),
         tours: tourData.map(t => ({
           communityId: t.communityId,
@@ -863,10 +862,9 @@ export function registerUserRoutes(app: Express) {
       
       await db.insert(searchHistory).values({
         userId,
-        query,
-        location,
-        results,
-        searchedAt: new Date()
+        searchText: query || location || 'search',
+        searchQuery: { query, location, results } as any,
+        resultCount: results || 0,
       });
       
       res.json({ success: true });
@@ -891,7 +889,7 @@ export function registerUserRoutes(app: Express) {
         .select()
         .from(searchHistory)
         .where(eq(searchHistory.userId, userId))
-        .orderBy(desc(searchHistory.searchedAt))
+        .orderBy(desc(searchHistory.createdAt))
         .limit(10);
       
       // Get user's favorites to understand preferences

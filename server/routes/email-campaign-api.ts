@@ -124,7 +124,7 @@ const launchEmailHtml = `
       
       <p>Questions? We're here to help!</p>
       <ul>
-        <li>Email: hello@myseniorvalet.com</li>
+        <li>Email: CowellandCoWebDesign@gmail.com</li>
         <li>Call: 1-800-XXX-XXXX</li>
         <li>Live Chat: Available on our website</li>
       </ul>
@@ -173,7 +173,7 @@ router.post("/send-launch", async (req, res) => {
     const messages = recipients.map(email => ({
       to: email,
       from: {
-        email: 'hello@myseniorvalet.com',
+        email: 'CowellandCoWebDesign@gmail.com',
         name: 'MySeniorValet'
       },
       subject: subject || "🎉 Introducing MySeniorValet - Your Trusted Guide to Senior Living",

@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import heroGoldenGate from "@assets/generated_images/hero_golden_gate_bridge.png";
+import heroMtShasta from "@assets/generated_images/hero_mt_shasta.png";
+import heroSundialBridge from "@assets/generated_images/hero_sundial_bridge_redding.png";
+import heroLighthouseSunset from "@assets/generated_images/hero_lighthouse_sunset.png";
 import { useTheme } from "@/components/theme-provider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { CommunityDirectorySections } from "@/components/CommunityDirectorySections";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,8 +16,9 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 // Removed useDebounce - not needed with UnifiedSearch component
 import { useAccessibilityPreferences } from "@/hooks/useAccessibilityPreferences";
-import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi } from "lucide-react";
-import { PrioritizedCommunityCard } from "@/components/PrioritizedCommunityCard";
+import { useAuth } from "@/hooks/useAuth";
+import { queryClient } from "@/lib/queryClient";
+import { Search, Heart, MapPin, Star, Home, Building2, DollarSign, Users, Info, MessageCircle, Link2, Truck, Sofa, Pill, Eye, Clock, Phone, Brain, Sparkles, Building, Ambulance, Package, CheckCircle, CheckSquare, Stethoscope, Activity, ShieldCheck, Scale, Utensils, UtensilsCrossed, Car, Bus, Scissors, Users2, FileText, Calculator, ShoppingCart, Trash2, Flower, TrendingUp, Shield, ArrowRight, Shirt as ShirtIcon, RefreshCw, ExternalLink, Globe, HeartHandshake, ChevronRight, ChevronLeft, BarChart, BarChart3, Calendar, X, Flag, Languages, Layers, ShoppingBasket, AlertCircle, AlertTriangle, AlertOctagon, Briefcase, LogIn, UserCheck, Smartphone, BookOpen, ShoppingBag, GraduationCap, MessageSquare, Monitor, Flame, Filter, XCircle, Unlock, Book, Music, Send, List, Wrench, Video, Gift, Hospital, Wifi, type LucideIcon } from "lucide-react";
 import { VendorServiceCard } from "@/components/VendorServiceCard";
 import { ServiceBadges, commonBadges } from "@/components/ServiceBadges";
 import { Link, useLocation } from "wouter";
@@ -31,11 +36,14 @@ import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
 import { RemovalRequestModal } from "@/components/RemovalRequestModal";
 import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
+import { RedTagDeals } from "@/components/RedTagDeals";
+import { GeographicCommunitiesSection } from "@/components/GeographicCommunitiesSection";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
-import { RedTagDeals } from "@/components/RedTagDeals";
 import { RecentlyDiscoveredCommunities } from "@/components/RecentlyDiscoveredCommunities";
 import { HUDCommunitiesSection } from "@/components/HUDCommunitiesSection";
+import { DynamicCommunitySection, type HomeSectionConfig } from "@/components/DynamicCommunitySection";
+import { CommunityCard } from "@/components/CommunityCard";
 import { AidAndAttendance } from "@/components/AidAndAttendance";
 import { CostComparisonWorksheet } from "@/components/CostComparisonWorksheet";
 import HospitalCarousel from "@/components/HospitalCarousel";
@@ -69,18 +77,19 @@ import RetroGrandHotelMarquee from '@assets/generated_images/Retro_grand_hotel_m
 import RetroVendorMarketplace from '@assets/generated_images/Retro_vendor_marketplace_sign_b412c8cc.png';
 import RetroGuestServices from '@assets/generated_images/Retro_guest_services_sign_b951be1b.png';
 import LuxuryValet from '@assets/generated_images/Luxury_valet_silhouette_b48f3fbd.png';
+import BusinessDistrictBg from '@assets/generated_images/Business_district_twilight_a2a388f0.png';
 
 import { EmergencyButton } from "@/components/EmergencyButton";
 import { VendorMarketplaceTabs } from "@/components/VendorMarketplaceTabs";
 
 // Preload critical images immediately for faster loading
 if (typeof document !== 'undefined') {
-  // Preload hero background image with highest priority
+  // Preload first cycling hero image with highest priority
   const heroLink = document.createElement('link');
   heroLink.rel = 'preload';
   heroLink.as = 'image';
-  heroLink.href = "https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg";
-  heroLink.type = 'image/jpeg';
+  heroLink.href = heroGoldenGate;
+  heroLink.type = 'image/png';
   heroLink.fetchPriority = 'high';
   document.head.appendChild(heroLink);
   
@@ -92,6 +101,14 @@ if (typeof document !== 'undefined') {
   thinkerLink.type = 'image/png';
   document.head.appendChild(thinkerLink);
 }
+
+// Cycling hero images for the home page hero (crossfade every ~6s)
+const HERO_IMAGES = [
+  { src: heroGoldenGate, alt: "Golden Gate Bridge framed by rolling hills at golden hour" },
+  { src: heroMtShasta, alt: "Snow-capped Mt Shasta rising above an evergreen forest" },
+  { src: heroSundialBridge, alt: "The Sundial Bridge spanning the river in Redding, California" },
+  { src: heroLighthouseSunset, alt: "A coastal lighthouse silhouetted against a vivid sunset sky" },
+];
 
 // Dynamic placeholder texts for search box
 const SEARCH_PLACEHOLDERS = {
@@ -124,7 +141,7 @@ const SEARCH_PLACEHOLDERS = {
       "🌍 Explore 'Senior help in Spain' or 'Care info in Italy'...",
       "🌍 Discover 'Support in Singapore' or 'Resources in Netherlands'..."
     ],
-    vendors: [
+    marketplace: [
       "🌍 Try 'Medical supplies' or 'Mobility aids'...",
       "🌍 Search 'Senior products' or 'Healthcare equipment'...",
       "🌍 Find 'Daily living aids' or 'Safety devices'...",
@@ -161,7 +178,7 @@ const SEARCH_PLACEHOLDERS = {
       "📍 Explore 'Recreation centers' or 'Local programs'...",
       "📍 Discover 'Volunteer opportunities' or 'Neighborhood help'..."
     ],
-    vendors: [
+    marketplace: [
       "📍 Try 'Medical supply stores' or 'Pharmacy nearby'...",
       "📍 Search 'Equipment rental' or 'Home medical supplies'...",
       "📍 Find 'Mobility stores' or 'Senior shops nearby'...",
@@ -198,7 +215,7 @@ const SEARCH_PLACEHOLDERS = {
       "🔍 Explore 'Caregiver support' or 'Senior benefits'...",
       "🔍 Discover 'Support groups' or 'Crisis hotlines'..."
     ],
-    vendors: [
+    marketplace: [
       "🔍 Try 'Wheelchairs' or 'Walking aids'...",
       "🔍 Search 'Hospital beds' or 'Lift chairs'...",
       "🔍 Find 'Bathroom safety' or 'Grab bars'...",
@@ -230,18 +247,369 @@ const TAB_GRADIENTS = {
     borderColor: '#fdba74',
     shadowColor: 'rgba(249, 115, 22, 0.5)',
   },
-  vendors: {
+  marketplace: {
     gradient: 'linear-gradient(to bottom right, #6366f1, #7c3aed, #a855f7)',
     borderColor: '#a5b4fc',
     shadowColor: 'rgba(99, 102, 241, 0.5)',
   },
 };
 
+// Recently Discovered Services Carousel Component for Services Tab
+function RecentlyDiscoveredServicesCarousel() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Fetch recently discovered services
+  const { data: recentServices, isLoading } = useQuery({
+    queryKey: ['/api/services/recently-discovered'],
+    queryFn: async () => {
+      const response = await fetch('/api/services/recently-discovered?limit=100');
+      if (!response.ok) throw new Error('Failed to fetch recent services');
+      return response.json();
+    }
+  });
+
+  // Check scroll position
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  // Scroll handlers
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [recentServices]);
+
+  return (
+    <div className="relative">
+      {/* Left Scroll Button */}
+      {canScrollLeft && (
+        <button
+          onClick={scrollLeft}
+          className="hidden md:flex items-center justify-center absolute md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6 text-purple-600" />
+        </button>
+      )}
+
+      {/* Services Carousel */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+        onScroll={checkScrollPosition}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-72">
+              <div className="bg-white rounded-lg p-4 shadow-xl animate-pulse">
+                <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : recentServices && recentServices.length > 0 ? (
+          recentServices.map((vendor: any, index: number) => (
+            <motion.div 
+              key={vendor.id} 
+              className="flex-shrink-0 w-72"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+            >
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <VendorServiceCard 
+                  vendor={vendor} 
+                  variant="grid"
+                  onSelect={() => {
+                    window.location.href = `/service/${vendor.id}`;
+                  }}
+                />
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="text-white/80 text-center py-8 w-full">
+            No services discovered yet. Try searching for businesses above!
+          </div>
+        )}
+      </div>
+
+      {/* Right Scroll Button */}
+      {canScrollRight && (
+        <button
+          onClick={scrollRight}
+          className="hidden md:flex items-center justify-center absolute md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6 text-purple-600" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Recently Discovered Healthcare Carousel Component for Healthcare Tab
+function RecentlyDiscoveredHealthcareCarousel() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Fetch recently discovered healthcare providers - use simple key for consistent cache invalidation
+  const { data: recentHealthcare, isLoading } = useQuery({
+    queryKey: ['/api/healthcare/recently-discovered?limit=100'],
+  });
+
+  // Check scroll position
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  // Scroll handlers
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [recentHealthcare]);
+
+  return (
+    <div className="relative">
+      {/* Left Scroll Button */}
+      {canScrollLeft && (
+        <button
+          onClick={scrollLeft}
+          className="hidden md:flex items-center justify-center absolute md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6 text-teal-600" />
+        </button>
+      )}
+
+      {/* Healthcare Carousel */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+        onScroll={checkScrollPosition}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-72">
+              <div className="bg-white rounded-lg p-4 shadow-xl animate-pulse">
+                <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : recentHealthcare && recentHealthcare.length > 0 ? (
+          recentHealthcare.map((provider: any, index: number) => (
+            <motion.div 
+              key={provider.id} 
+              className="flex-shrink-0 w-72"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+            >
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <VendorServiceCard 
+                  vendor={provider} 
+                  variant="grid"
+                  onSelect={() => {
+                    if (provider.website) {
+                      window.open(provider.website, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                />
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="text-white/80 text-center py-8 w-full">
+            No healthcare providers discovered yet. Try searching for providers above!
+          </div>
+        )}
+      </div>
+
+      {/* Right Scroll Button */}
+      {canScrollRight && (
+        <button
+          onClick={scrollRight}
+          className="hidden md:flex items-center justify-center absolute md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6 text-teal-600" />
+        </button>
+      )}
+    </div>
+  );
+}
+
+// Recently Discovered Resources Carousel Component for Resources Tab
+function RecentlyDiscoveredResourcesCarousel() {
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  // Fetch recently discovered resources - use simple key for consistent cache invalidation
+  const { data: recentResources, isLoading } = useQuery({
+    queryKey: ['/api/resources/recently-discovered?limit=100'],
+  });
+
+  // Check scroll position
+  const checkScrollPosition = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  // Scroll handlers
+  const scrollLeft = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: -320, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollBy({ left: 320, behavior: 'smooth' });
+    }
+  };
+
+  useEffect(() => {
+    checkScrollPosition();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollPosition);
+      return () => container.removeEventListener('scroll', checkScrollPosition);
+    }
+  }, [recentResources]);
+
+  return (
+    <div className="relative">
+      {/* Left Scroll Button */}
+      {canScrollLeft && (
+        <button
+          onClick={scrollLeft}
+          className="hidden md:flex items-center justify-center absolute md:-left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll left"
+        >
+          <ChevronLeft className="w-6 h-6 text-orange-600" />
+        </button>
+      )}
+
+      {/* Resources Carousel */}
+      <div 
+        ref={scrollContainerRef}
+        className="flex gap-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
+        onScroll={checkScrollPosition}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {isLoading ? (
+          // Loading skeleton
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex-shrink-0 w-72">
+              <div className="bg-white rounded-lg p-4 shadow-xl animate-pulse">
+                <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))
+        ) : recentResources && recentResources.length > 0 ? (
+          recentResources.map((resource: any, index: number) => (
+            <motion.div 
+              key={resource.id} 
+              className="flex-shrink-0 w-72"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+            >
+              <div className="bg-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <VendorServiceCard 
+                  vendor={resource} 
+                  variant="grid"
+                  onSelect={() => {
+                    if (resource.website) {
+                      window.open(resource.website, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                />
+              </div>
+            </motion.div>
+          ))
+        ) : (
+          <div className="text-white/80 text-center py-8 w-full">
+            No resources discovered yet. Try searching for resources above!
+          </div>
+        )}
+      </div>
+
+      {/* Right Scroll Button */}
+      {canScrollRight && (
+        <button
+          onClick={scrollRight}
+          className="hidden md:flex items-center justify-center absolute md:-right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+          aria-label="Scroll right"
+        >
+          <ChevronRight className="w-6 h-6 text-orange-600" />
+        </button>
+      )}
+    </div>
+  );
+}
+
 // Simplified Hero Section with Fixed Search Bar
 function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeTab: string, onTabChange: (value: string) => void }) {
   const { theme } = useTheme();
+  const { isAuthenticated } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
-  const [classicSearchValue, setClassicSearchValue] = useState(''); // Separate state for classic search input
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [searchResults, setSearchResults] = useState<any>({ results: [], metadata: null });
   const [isLoading, setIsLoading] = useState(false);
@@ -274,6 +642,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   const [globalDiscoveryResults, setGlobalDiscoveryResults] = useState<any>(null);
   const [forceClearAutocomplete, setForceClearAutocomplete] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [heroIndex, setHeroIndex] = useState(0); // Index of the currently displayed cycling hero image
   const [isSearchFocused, setIsSearchFocused] = useState(false); // Track search focus state
   const [visibleResults, setVisibleResults] = useState(10); // Start with 10 visible results
   const [, setLocation] = useLocation();
@@ -281,21 +650,45 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   
   // New state for search mode toggle (AI Assistant vs Classic Search)
   const [searchMode, setSearchMode] = useState<'ai' | 'classic'>(() => {
-    // Load from localStorage or default to 'ai'
+    // Load from localStorage or default to 'classic' (Classic Search is the primary experience)
     // Check if we're in the browser to prevent SSR errors
     if (typeof window !== 'undefined') {
-      const savedMode = localStorage.getItem('searchMode');
-      return (savedMode === 'classic' || savedMode === 'ai') ? savedMode : 'ai';
+      const savedMode = sessionStorage.getItem('searchMode');
+      return (savedMode === 'classic' || savedMode === 'ai') ? savedMode : 'classic';
     }
-    return 'ai';
+    return 'classic';
   });
   
   // Save search mode to localStorage whenever it changes
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('searchMode', searchMode);
+      sessionStorage.setItem('searchMode', searchMode);
     }
   }, [searchMode]);
+
+  // Cycle the hero background image every 6s with a crossfade.
+  // Respect prefers-reduced-motion: do not auto-cycle, show the first image.
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+    const interval = setInterval(() => {
+      setHeroIndex((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, 6000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Listen for search mode changes from the navbar
+  useEffect(() => {
+    const handleSearchModeChange = (e: CustomEvent) => {
+      const newMode = e.detail as 'ai' | 'classic';
+      if (newMode === 'ai' || newMode === 'classic') {
+        setSearchMode(newMode);
+      }
+    };
+    window.addEventListener('searchModeChange', handleSearchModeChange as EventListener);
+    return () => window.removeEventListener('searchModeChange', handleSearchModeChange as EventListener);
+  }, []);
   
   // Update placeholder text when view mode or category changes
   useEffect(() => {
@@ -315,6 +708,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   // Handle search from AutoExpandingSearch component
   const handleAutoExpandingSearch = async (query: string, isResearchMode?: boolean) => {
     setSearchQuery(query);
+    window.dispatchEvent(new CustomEvent('homeSearchQuery', { detail: { query } }));
     
     // Set loading state immediately for better UX
     if (query && query.length >= 2) {
@@ -359,6 +753,17 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         
         if (response.ok) {
           const data = await response.json();
+          
+          // CRITICAL: Invalidate recently-discovered cache after discovery search
+          // This ensures new discoveries appear immediately in the Recently Discovered section
+          if (data.results?.length > 0 || data.metadata?.discoveredCount > 0) {
+            // Use prefix matching to invalidate all recently-discovered queries regardless of params
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+            // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
+            queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
+            console.log('🔄 Invalidated recently-discovered cache after Discovery Mode search');
+          }
+          
           // Clear loading state first to remove loading modal
           setIsLoading(false);
           setSearchResults({ results: [], metadata: null });
@@ -448,132 +853,77 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
     setIsLoading(true);
 
     try {
-      // Discovery mode for Communities - use global discovery to find facilities
-      // This handles BOTH international and regular discovery searches
-      if (viewMode === 'discover' && activeTab === 'communities') {
-        // For international searches or explicit discovery mode, use Perplexity to search the web
-        const shouldUsePerplexity = isInternationalSearch || true; // Always use discovery in discover mode
+      if (false && viewMode === 'discover' && (activeTab === 'services' || activeTab === 'healthcare' || activeTab === 'resources' || activeTab === 'vendors')) {
+        // (Discovery mode for non-community tabs kept but hidden - no longer exposed in UI)
+        // Services, Healthcare, Resources, and Marketplace Discovery Mode - unified global discovery
+        console.log(`🌍 ${activeTab} Discovery Mode for:`, query);
         
-        console.log('🌍 Discovery Mode search for:', query, 'International:', isInternationalSearch);
+        const categoryLabel = activeTab === 'services' ? 'service providers' 
+          : activeTab === 'healthcare' ? 'healthcare providers' 
+          : activeTab === 'resources' ? 'resources' 
+          : 'vendors';
         
-        // Call global discovery endpoint to find actual facilities
-        const response = await fetch('/api/global-discovery/search', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            query: query,
-            searchType: 'location',
-            limit: 20,
-            discoveryMode: shouldUsePerplexity  // Set based on international or discovery mode
-          }),
-          signal: AbortSignal.timeout(120000) // 120 second timeout for Discovery Mode
-        });
-
-        if (!response.ok) throw new Error('Discovery search failed');
-        
-        const data = await response.json();
-        
-        // Show discovered facilities in modal
-        if (data.results && data.results.length > 0) {
-          // Clear loading state first
-          setIsLoading(false);
-          setSearchResults({ results: [], metadata: null });
-          // Then set results and show modal
-          setGlobalDiscoveryResults({
-            query,
-            results: data.results,
-            metadata: {...data.metadata, discoveryType: 'communities'}
-          });
-          setForceClearAutocomplete(true);
-          setShowGlobalDiscoveryModal(true);
-        } else {
-          // No facilities found, show message
-          setSearchResults({ 
-            results: [],
-            metadata: {
-              aiResponse: `No senior living facilities found in ${query} yet. Try a different city or check back later as we expand our coverage.`,
-              isResearchMode: false
-            }
-          });
-        }
-        
-      } else if (viewMode === 'discover' && activeTab === 'services') {
-        // For services, use NLP search which searches both services and vendors tables
-        // This will find hotels, restaurants, and other discovered businesses
-        
-        // Show immediate loading feedback for services search
         setSearchResults({ 
           results: [],
           metadata: {
             isLoading: true,
-            loadingMessage: `Searching for service providers related to "${query}"...`,
+            loadingMessage: `🔍 Searching for ${categoryLabel} matching "${query}"...`,
             isResearchMode: false
           }
         });
         
-        // Use NLP search for services (searches both services and vendors tables)
         try {
-          const response = await fetch('/api/nlp/search', {
+          const response = await fetch('/api/global-discovery/search', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ 
               query: query,
-              limit: 50,
-              category: 'services'
+              searchType: activeTab,
+              limit: 30,
+              discoveryMode: true
             }),
-            signal: AbortSignal.timeout(30000) // 30 second timeout
+            signal: AbortSignal.timeout(60000)
           });
-
-          if (!response.ok) {
-            throw new Error(`Service search failed: ${response.status}`);
-          }
+          
+          if (!response.ok) throw new Error(`${activeTab} discovery failed`);
           
           const data = await response.json();
           
-          // Extract the actual data from the NLP search results
-          const results = data.results?.map((r: any) => r.data || r) || [];
-          
-          // Show discovered services
-          if (results.length > 0) {
-            setSearchResults({ 
-              results: results,
-              metadata: {
-                intent: data.intent,
-                facets: data.facets,
-                suggestions: data.suggestions
-              }
+          if (data.results && data.results.length > 0) {
+            // Show discovered results in modal
+            setIsLoading(false);
+            setSearchResults({ results: [], metadata: null });
+            setGlobalDiscoveryResults({
+              query,
+              results: data.results,
+              metadata: {...data.metadata, discoveryType: activeTab, aiNarrative: data.aiNarrative, citations: data.citations}
             });
+            setForceClearAutocomplete(true);
+            setShowGlobalDiscoveryModal(true);
           } else {
-            // No services found, show helpful message with suggestions
+            // No results found, show message
             setSearchResults({ 
               results: [],
               metadata: {
-                aiResponse: `No service providers found for "${query}". Try searching for:\n• A specific city (e.g., "plumbers in Dallas")\n• A service type (e.g., "home health care")\n• A business name (e.g., "Visiting Angels")`,
-                isResearchMode: false,
-                suggestions: [
-                  'home health care',
-                  'medical supplies',
-                  'senior transportation',
-                  'meal delivery services'
-                ]
+                aiResponse: `No ${categoryLabel} found for "${query}". Try a more specific location or different search terms.`,
+                isResearchMode: false
               }
             });
           }
-          
         } catch (error) {
-          console.error('Service discovery search failed:', error);
+          console.error(`${activeTab} discovery failed:`, error);
           setSearchResults({ 
             results: [],
             metadata: {
-              aiResponse: `Unable to search for services at the moment. Please try again in a few seconds.`,
+              aiResponse: `Unable to search for ${categoryLabel} at the moment. Please try again.`,
               error: true,
               isResearchMode: false
             }
           });
         }
         
-      } else if (isResearchMode || (viewMode === 'discover' && activeTab !== 'communities' && activeTab !== 'services')) {
-        // Use Public AI Chat for research mode or non-implemented discovery categories
+      } else if (isResearchMode) {
+        // Use Public AI Chat for pure research mode (not discovery)
         const response = await fetch('/api/public/ai-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -601,31 +951,24 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         });
 
       } else {
-        // Regular search for list/map view - use comprehensive search for communities
+        // Regular search - use comprehensive search for communities
         if (activeTab === 'communities') {
-          // Use the comprehensive search endpoint for community searches
-          const response = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
+          const dbResponse = await fetch(`/api/search/comprehensive?q=${encodeURIComponent(query)}&limit=50`);
           
-          if (!response.ok) {
+          if (!dbResponse.ok) {
             // Fallback to unified search
             await handleUnifiedSearch(query);
           } else {
-            const data = await response.json();
-            const communities = data.communities || [];
-            
-            // Extract Discovery Mode data from searchMetadata
+            const data = await dbResponse.json();
+            const dbCommunities: any[] = data.communities || [];
             const metadata = data.searchMetadata || {};
-            
+
             setSearchResults({ 
-              results: communities, 
+              results: dbCommunities, 
               metadata: {
                 total: data.total,
                 searchMetadata: metadata,
                 suggestions: data.suggestions,
-                // Discovery Mode specific data
-                discoveryMode: metadata.discoveryMode,
-                discoveryMessage: metadata.discoveryMessage,
-                aiSuggestions: metadata.aiSuggestions
               }
             });
           }
@@ -760,9 +1103,11 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
         />
       )}
       
-      <section className={`relative ${isSearchActive ? 'min-h-[280px] sm:min-h-[300px] md:min-h-[50vh] pb-2 md:pb-4' : 'h-auto min-h-[260px] sm:min-h-[280px] md:min-h-[45vh]'} mt-16`}
+      <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : 'pb-28 sm:pb-32'} mt-16`}
         style={{
-          background: 'linear-gradient(135deg, #1a1c3d 0%, #0f1224 25%, #0a0d1a 50%, #0f1224 75%, #1a1c3d 100%)'
+          background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
+          minHeight: 'calc(70vh - 4rem)',
+          height: isSearchActive ? 'auto' : 'calc(70vh - 4rem)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
@@ -781,28 +1126,33 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             }
           }}
         >
-          <img
-            src="https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg"
-            alt="Cosmic space background - Infinite possibilities in senior living"
-            className={`w-full h-full object-cover object-center transition-opacity duration-500 ${
-              imageLoaded ? 'opacity-100' : 'opacity-0'
-            }`}
-            loading="eager"
-            decoding="sync"
-            onLoad={() => setImageLoaded(true)}
-            style={{ 
-              willChange: imageLoaded ? 'auto' : 'opacity',
-              contentVisibility: 'auto',
-              transform: 'translateZ(0)' // Force GPU acceleration
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 sm:via-transparent to-black/60"></div>
+          {HERO_IMAGES.map((image, index) => {
+            const isActive = index === heroIndex;
+            return (
+              <img
+                key={image.src}
+                src={image.src}
+                alt={image.alt}
+                className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-1000 ${
+                  isActive && imageLoaded ? 'opacity-100' : 'opacity-0'
+                }`}
+                loading={index === 0 ? 'eager' : 'lazy'}
+                decoding={index === 0 ? 'sync' : 'async'}
+                onLoad={index === 0 ? () => setImageLoaded(true) : undefined}
+                style={{
+                  willChange: 'opacity',
+                  transform: 'translateZ(0)' // Force GPU acceleration
+                }}
+              />
+            );
+          })}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 sm:via-black/10 to-black/65"></div>
         </div>
         
         <div className="relative z-10 flex flex-col h-full">
         
-        {/* Category Tabs at Top - Original styling preserved, centered */}
-        <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
+        {/* Category Tabs at Top - Only shown when logged in */}
+        {isAuthenticated && <div className="w-full px-2 sm:px-4 md:px-8 lg:px-16 pt-2 sm:pt-3 md:pt-4 pb-1 flex justify-center overflow-x-auto scrollbar-hide">
           <TabsList className="flex justify-center items-center gap-1.5 sm:gap-2 md:gap-3 bg-transparent h-auto p-0">
             <TabsTrigger
               value="communities"
@@ -813,166 +1163,66 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
               <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Senior Living</span>
             </TabsTrigger>
             
-            <TabsTrigger
-              value="services"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('services')}
-            >
-              <span className="text-lg sm:text-xl">👥</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Services</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="healthcare"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('healthcare')}
-            >
-              <span className="text-lg sm:text-xl">🩺</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Healthcare</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="resources"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('resources')}
-            >
-              <span className="text-lg sm:text-xl">📚</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
-            </TabsTrigger>
-            
-            <TabsTrigger
-              value="vendors"
-              className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
-              style={getTabStyle('vendors')}
-            >
-              <span className="text-lg sm:text-xl">🛍️</span>
-              <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Vendors</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
-        
-        {/* Content Container - Search First, Then Value Props - Minimal bottom padding */}
-        <div className={`flex-grow flex flex-col justify-start ${isSearchActive ? 'pt-1 md:pt-2' : 'pt-1 md:pt-2'} pb-4 px-2 sm:px-4`}>
-        
-        {/* Search Mode Toggle Button - Higher z-index with isolation to prevent content overlap */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-1 sm:mb-2" style={{ isolation: 'isolate' }}>
-          <div className="flex justify-center">
-            <button
-              onClick={() => setSearchMode(searchMode === 'ai' ? 'classic' : 'ai')}
-              className="group flex items-center gap-3 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 hover:border-white/40 rounded-full px-4 py-2 transition-all duration-300"
-            >
-              {/* AI Assistant Icon & Label */}
-              <div className={`flex items-center gap-1.5 transition-all duration-300 ${searchMode === 'ai' ? 'opacity-100 font-semibold' : 'opacity-60'}`}>
-                <span className="text-lg">🤖</span>
-                <span className="text-sm text-white">AI Assistant</span>
-              </div>
-              
-              {/* Toggle Switch */}
-              <div className="relative w-14 h-7 bg-black/30 rounded-full border border-white/20">
-                <div 
-                  className={`absolute top-0.5 left-0.5 h-6 w-6 rounded-full shadow-lg transition-all duration-300 ease-in-out ${
-                    searchMode === 'ai' 
-                      ? 'translate-x-0 bg-gradient-to-r from-blue-400 to-purple-400 shadow-blue-500/50' 
-                      : 'translate-x-7 bg-gradient-to-r from-green-400 to-teal-400 shadow-green-500/50'
-                  }`}
-                />
-              </div>
-              
-              {/* Classic Search Icon & Label */}
-              <div className={`flex items-center gap-1.5 transition-all duration-300 ${searchMode === 'classic' ? 'opacity-100 font-semibold' : 'opacity-60'}`}>
-                <span className="text-sm text-white">Classic Search</span>
-                <span className="text-lg">🔍</span>
-              </div>
-            </button>
-          </div>
-        </div>
-        
-        {/* Conditional Rendering: AI Assistant or Classic Search - Higher z-index with isolation */}
-        <div className="w-full max-w-full sm:max-w-3xl md:max-w-2xl lg:max-w-3xl mx-auto px-2 sm:px-0 relative z-50 mb-3 sm:mb-4" style={{ isolation: 'isolate' }}>
-          <AnimatePresence mode="wait">
-            {searchMode === 'ai' ? (
-              <motion.div
-                key="ai-assistant"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+            {isAuthenticated && (
+              <TabsTrigger
+                value="services"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('services')}
               >
-                <MySeniorValetChatKit 
-                  category={activeTab as 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors'}
-                  onCategoryChange={(cat) => onTabChange(cat)}
-                />
-              </motion.div>
-            ) : (
-              <motion.div
-                key="classic-search"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 p-4"
-              >
-                {/* Classic Search Bar with View Mode Buttons */}
-                <div className="flex flex-col gap-3">
-                  {/* View Mode Buttons */}
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        viewMode === 'list'
-                          ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      📋 Database Search
-                    </button>
-                    <button
-                      onClick={() => setViewMode('map')}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        viewMode === 'map'
-                          ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      🗺️ Map View
-                    </button>
-                    <button
-                      onClick={() => setViewMode('discover')}
-                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                        viewMode === 'discover'
-                          ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg'
-                          : 'bg-white/10 text-white/80 hover:bg-white/20'
-                      }`}
-                    >
-                      🌍 Discovery Mode
-                    </button>
-                  </div>
-                  
-                  {/* Search Input with Autocomplete */}
-                  <AutocompleteSearch
-                    value={classicSearchValue}
-                    onChange={setClassicSearchValue}
-                    onSubmit={(query) => {
-                      setSearchQuery(query);
-                      handleAutoExpandingSearch(query);
-                    }}
-                    placeholder={searchPlaceholder}
-                    isLoading={isLoading}
-                    forceClearSuggestions={forceClearAutocomplete}
-                  />
-                </div>
-              </motion.div>
+                <span className="text-lg sm:text-xl">👥</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Services</span>
+              </TabsTrigger>
             )}
-          </AnimatePresence>
-        </div>
+            
+            {isAuthenticated && (
+              <TabsTrigger
+                value="healthcare"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('healthcare')}
+              >
+                <span className="text-lg sm:text-xl">🩺</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Healthcare</span>
+              </TabsTrigger>
+            )}
+            
+            {isAuthenticated && (
+              <TabsTrigger
+                value="resources"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('resources')}
+              >
+                <span className="text-lg sm:text-xl">📚</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Resources</span>
+              </TabsTrigger>
+            )}
+            
+            {isAuthenticated && (
+              <TabsTrigger
+                value="marketplace"
+                className="flex flex-col items-center gap-0.5 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl backdrop-blur-md shadow-md transition-all duration-300"
+                style={getTabStyle('marketplace')}
+              >
+                <span className="text-lg sm:text-xl">🛍️</span>
+                <span className="text-[10px] sm:text-xs font-semibold whitespace-nowrap">Marketplace</span>
+              </TabsTrigger>
+            )}
+          </TabsList>
+        </div>}
         
+        <div className="w-full px-4 sm:px-8 md:px-16 pt-4 sm:pt-6 md:pt-8 text-center">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
+            style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.4)' }}
+          >
+            From affordable options to luxury resorts — Find Senior Living that's right for you!
+          </h1>
         </div>
+
         </div>
       </section>
       
           
       {/* Search Results - Premium Glass Design */}
-          {isSearchActive && (viewMode === 'list' || viewMode === 'discover') && (
+          {isSearchActive && viewMode !== 'map' && activeTab !== 'communities' && (
             <div className="w-full max-w-2xl mx-auto mt-12 md:mt-16 mb-8">
               {/* Show AI Response directly in results area for Research mode */}
               {searchResults?.metadata?.isResearchMode && searchResults?.metadata?.aiResponse ? (
@@ -1243,11 +1493,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
                                 </div>
                               </div>
                             ) : (
-                              <FeaturedExcellenceCard
-                                community={item}
-                                index={index}
-                                disableAutoPhotoLoad={true}
-                              />
+                              <CommunityCard community={item} variant="grid" />
                             )}
                           </motion.div>
                         ))}
@@ -1359,6 +1605,191 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
   );
 }
 
+// Renders all DB-driven home page community sections.
+// Only falls back to hardcoded components when the API itself is unavailable
+// (network error / server error). An intentionally empty active-section list
+// renders nothing — respecting admin intent.
+// Self-contained directory-style search bar shown at the top of the home
+// Communities tab. Mirrors the search experience on /community-directory so
+// families can jump straight into a search without leaving the home page.
+function CommunitiesSearchBar() {
+  const [, navigate] = useLocation();
+  const [term, setTerm] = useState("");
+
+  const { data: stats } = useQuery<{ totalCommunities?: string }>({
+    queryKey: ['/api/communities/stats'],
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const totalLabel = (() => {
+    const n = stats?.totalCommunities ? Number(stats.totalCommunities) : NaN;
+    return Number.isFinite(n) && n > 0 ? n.toLocaleString() : '32,000';
+  })();
+
+  const go = (value: string) => {
+    if (value.trim()) navigate(`/map-search?q=${encodeURIComponent(value.trim())}`);
+  };
+
+  return (
+    <div className="mb-8 rounded-2xl bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 p-5 md:p-7 border border-indigo-100/60 dark:border-gray-800">
+      <div className="max-w-3xl mx-auto">
+        <div className="text-center mb-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
+            Search Communities
+          </h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {totalLabel}+ Verified Communities • Transparent Pricing • Real Reviews
+          </p>
+        </div>
+
+        <div className="relative bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center p-2">
+            <Search className="ml-3 h-5 w-5 text-gray-400 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <AutocompleteSearch
+                value={term}
+                onChange={setTerm}
+                onSubmit={(value: string) => go(value)}
+                placeholder="Search by name, city, state, or zip..."
+                inputClassName="w-full pl-3 pr-3 py-3 text-base border-0 bg-transparent focus:outline-none focus:ring-0 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                hideSearchButton={true}
+              />
+            </div>
+            <Button
+              onClick={() => go(term)}
+              className="mr-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-lg transition-all flex-shrink-0"
+            >
+              Search
+            </Button>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2 mt-5 justify-center">
+          <Link href="/map-search?filter=hud" className="inline-flex items-center rounded-md border border-green-300 dark:border-green-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-green-50 dark:hover:bg-green-900/20 cursor-pointer">
+            <Shield className="h-3 w-3 mr-1 text-green-600" />
+            <span className="text-gray-700 dark:text-gray-300">HUD Verified</span>
+          </Link>
+          <Link href="/map-search?filter=pricing" className="inline-flex items-center rounded-md border border-blue-300 dark:border-blue-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-blue-50 dark:hover:bg-blue-900/20 cursor-pointer">
+            <DollarSign className="h-3 w-3 mr-1 text-blue-600" />
+            <span className="text-gray-700 dark:text-gray-300">With Pricing</span>
+          </Link>
+          <Link href="/map-search?filter=5star" className="inline-flex items-center rounded-md border border-yellow-300 dark:border-yellow-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-yellow-50 dark:hover:bg-yellow-900/20 cursor-pointer">
+            <Star className="h-3 w-3 mr-1 text-yellow-600" />
+            <span className="text-gray-700 dark:text-gray-300">5-Star Rated</span>
+          </Link>
+          <Link href="/map-search?filter=memory" className="inline-flex items-center rounded-md border border-purple-300 dark:border-purple-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-purple-50 dark:hover:bg-purple-900/20 cursor-pointer">
+            <Brain className="h-3 w-3 mr-1 text-purple-600" />
+            <span className="text-gray-700 dark:text-gray-300">Memory Care</span>
+          </Link>
+          <Link href="/map-search?filter=assisted" className="inline-flex items-center rounded-md border border-red-300 dark:border-red-600 px-2.5 py-0.5 text-xs font-semibold transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 cursor-pointer">
+            <HeartHandshake className="h-3 w-3 mr-1 text-red-600" />
+            <span className="text-gray-700 dark:text-gray-300">Assisted Living</span>
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HomeSectionRenderer() {
+  const { data: sections, isLoading, isError } = useQuery<HomeSectionConfig[]>({
+    queryKey: ['/api/home-sections/active'],
+    staleTime: 0,
+    gcTime: 60 * 1000,
+    retry: 2,
+    // Always re-check on mount so admin show/hide & reorder changes appear on next load.
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: false,
+  });
+
+  const list = Array.isArray(sections) ? sections : [];
+
+  // Initial load with no data yet → show a clean skeleton (never flash the fallback).
+  if (isLoading && list.length === 0 && !isError) {
+    return (
+      <div className="space-y-6 mb-6">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="h-64 bg-gray-100 dark:bg-gray-800 rounded-xl animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+
+  // Genuine API failure AND no data to show → fall back to hardcoded carousels.
+  // Once we have admin-configured sections, we always render those (never swap back).
+  if (isError && list.length === 0) {
+    return (
+      <>
+        <div className="mb-6"><RecentlyDiscoveredCommunities /></div>
+        <div className="mb-6"><HUDCommunitiesSection /></div>
+        <div className="mb-6"><RedTagDeals hideHeader={true} /></div>
+        <div className="mb-6"><GeographicCommunitiesSection /></div>
+      </>
+    );
+  }
+
+  // Special "widget" section types render their own rich component instead of the
+  // generic card slider. Everything else flows through DynamicCommunitySection,
+  // which reads its data source (type + config) from the admin section config.
+  // Admin-controlled header (title + optional subtitle) so renaming a widget section
+  // in the admin manager actually changes what shows on the home page.
+  // Polished panel wrapper so widget sections match the restyled
+  // DynamicCommunitySection blocks (and the richer /community-directory look).
+  const widgetPanelClass =
+    "mb-8 rounded-2xl border border-gray-100 dark:border-gray-800 bg-gradient-to-br from-white to-gray-50/80 dark:from-gray-900 dark:to-gray-800/40 p-5 md:p-6 shadow-sm";
+
+  const WidgetHeader = ({
+    section,
+    icon: Icon,
+    accent,
+  }: {
+    section: HomeSectionConfig;
+    icon: LucideIcon;
+    accent: string;
+  }) =>
+    section.title ? (
+      <div className="flex items-center gap-3 mb-5">
+        <span
+          className={`inline-flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${accent} text-white shadow-md`}
+        >
+          <Icon className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white leading-tight">
+            {section.title}
+          </h2>
+          {section.subtitle && (
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{section.subtitle}</p>
+          )}
+        </div>
+      </div>
+    ) : null;
+
+  const renderSection = (section: HomeSectionConfig) => {
+    switch (section.sectionType) {
+      case 'red_tag_deals':
+        return (
+          <section key={section.id} className={widgetPanelClass}>
+            <WidgetHeader section={section} icon={Flame} accent="from-rose-500 to-red-600" />
+            <RedTagDeals hideHeader={true} />
+          </section>
+        );
+      case 'care_spectrum':
+        return (
+          <section key={section.id} className={widgetPanelClass}>
+            <WidgetHeader section={section} icon={Layers} accent="from-blue-500 to-indigo-600" />
+            <CareSpectrumSlider hideHeader={true} />
+          </section>
+        );
+      default:
+        return <DynamicCommunitySection key={section.id} section={section} />;
+    }
+  };
+
+  // Empty list means admin deliberately hid/deleted all sections → render nothing
+  return <>{list.map(renderSection)}</>;
+}
+
 export default function MySeniorValetHome() {
   const { t, language } = useLanguage();
   const [, setLocation] = useLocation();
@@ -1411,7 +1842,113 @@ export default function MySeniorValetHome() {
       : 'https://www.myseniorvalet.com/'
   });
   
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const param = new URLSearchParams(window.location.search).get('location');
+      if (param) return param.replace(/-/g, ' ');
+    }
+    return "";
+  });
+  const [discoveredCommunities, setDiscoveredCommunities] = useState<any[]>([]);
+  const [discoveredSources, setDiscoveredSources] = useState<string[]>([]);
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  // Whether the last location search reported SPARSE/incomplete DB coverage, so the
+  // self-healing pipeline should validate+repair (not just fill zero results).
+  const [hasSparseCoverage, setHasSparseCoverage] = useState(false);
+  // Per-query guard so the sparse-coverage auto-trigger fires at most once per
+  // location and can never loop.
+  const sparseTriggeredRef = useRef<Set<string>>(new Set());
+
+  // Self-healing community discovery via Perplexity (server: /api/global-discovery/search).
+  // force=false → cost-controlled: the server runs Perplexity when the DB has zero
+  //   communities OR when coverage is SPARSE/incomplete, gated by its own 24h cost
+  //   guard. The merged ("Newly Found" + "In Database") results come back in this
+  //   single call — the frontend never bypasses the guard.
+  // force=true → "Search the web for more" button deliberately forces a Perplexity
+  //   discovery even when DB rows exist (and bypasses the server-side 24h cost guard).
+  const runDiscovery = useCallback(async (query: string, opts: { force?: boolean } = {}) => {
+    const q = (query || '').trim();
+    if (q.length < 2) return;
+    setIsDiscovering(true);
+    try {
+      const resp = await fetch('/api/global-discovery/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: q,
+          searchType: 'location',
+          limit: 15,
+          discoveryMode: opts.force === true,
+        }),
+        signal: AbortSignal.timeout(90000)
+      });
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const found: any[] = data?.results || [];
+      const newlyDiscovered = found.filter((c: any) => c.isDiscovered);
+      const sources: string[] = data?.metadata?.sources || [];
+      const sparseCoverage = data?.metadata?.sparseCoverage === true;
+      setHasSparseCoverage(sparseCoverage);
+
+      if (newlyDiscovered.length > 0) {
+        setDiscoveredCommunities(newlyDiscovered);
+        setDiscoveredSources(sources);
+        queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+      } else if (opts.force === true) {
+        // Forced search completed but found nothing new — clear so the UI reflects it.
+        setDiscoveredCommunities([]);
+        setDiscoveredSources([]);
+      }
+
+      // Self-healing trigger: when the backend reports SPARSE coverage but this
+      // (non-forced) call returned nothing new — i.e. the server's 24h cost guard
+      // already skipped discovery for this city — re-run a NON-forced discovery so
+      // the merged DB results stay fresh. force:false means the server guard still
+      // decides whether Perplexity actually runs, so the API is never hammered. The
+      // per-query ref ensures this fires at most once per location.
+      if (sparseCoverage && newlyDiscovered.length === 0 && opts.force !== true
+          && !sparseTriggeredRef.current.has(q.toLowerCase())) {
+        sparseTriggeredRef.current.add(q.toLowerCase());
+        setIsDiscovering(false);
+        runDiscovery(q, { force: false });
+        return;
+      }
+    } catch {
+      // Swallow — empty state + button remain available for retry.
+    } finally {
+      setIsDiscovering(false);
+    }
+  }, []);
+
+  // Listen for search queries dispatched from HeroSectionWithTransformingSearch
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const query = (e as CustomEvent).detail?.query;
+      if (!query) return;
+      setSearchQuery(query);
+      setActiveTab('communities');
+      setDiscoveredCommunities([]); // reset on new search
+      setDiscoveredSources([]);
+      // Auto path: NOT forced — server self-heals on zero OR sparse coverage.
+      runDiscovery(query, { force: false });
+    };
+    window.addEventListener('homeSearchQuery', handler);
+    return () => window.removeEventListener('homeSearchQuery', handler);
+  }, [runDiscovery]);
+
+  // URL-driven path: when the page loads with a location already in the URL
+  // (e.g. SEO deep link /?location=Sacramento-CA), kick off self-healing discovery
+  // once without any user click. force:false → server's 24h cost guard decides
+  // whether Perplexity runs, and it auto-discovers on zero OR sparse coverage.
+  useEffect(() => {
+    const initial = (searchQuery || '').trim();
+    if (initial.length >= 2) {
+      runDiscovery(initial, { force: false });
+    }
+    // Intentionally run ONCE on mount with the URL-provided query.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const [isMobile, setIsMobile] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [showProtectionModal, setShowProtectionModal] = useState(false);
@@ -2015,17 +2552,17 @@ export default function MySeniorValetHome() {
       
       {/* Old header removed - using ProfessionalNavbar */}
       {/* Unified Tab System for Hero and Content */}
+      <main>
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
         {/* Transforming Hero Section with Search - Mobile optimized */}
-        {/* Lowered z-index to z-0 so content below isn't clipped; search capsule handles its own z-index */}
-        <div className="relative z-0">
+        {/* Hero section needs higher z-index so search dropdown appears above content */}
+        <div className="relative z-20">
           <HeroSectionWithTransformingSearch activeTab={activeTab} onTabChange={handleTabChange} />
           
-          {/* Tab Content - Positioned below hero with proper spacing */}
-          {/* Removed negative margins completely to prevent content sliding under hero */}
-          <div className="relative mt-0 z-10">
+          {/* Tab Content - Peeks up into hero bottom */}
+          <div className="relative -mt-[80px] sm:-mt-[100px] z-30">
             {/* Single unified content container */}
-            <section className="px-4 pt-2 pb-8 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            <section className="px-4 pt-0 pb-8 rounded-t-2xl overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
               {/* Personalized Banner - Compact */}
               <div className="max-w-6xl mx-auto mb-4">
                 <PersonalizedBanner />
@@ -2034,6 +2571,14 @@ export default function MySeniorValetHome() {
               <div className="max-w-7xl mx-auto">
                 {/* Communities Tab */}
                 <TabsContent value="communities" className="mt-1">
+              {/* The full home community layout is now ONE admin-driven list rendered by
+                  <HomeSectionRenderer /> below. The hardcoded CommunityDirectorySections
+                  mirror was removed to avoid duplicate sections — the complete rich set
+                  still lives on /community-directory. */}
+
+              {/* Directory-style search bar at the top of the Communities tab */}
+              <CommunitiesSearchBar />
+
               {/* Community Directory Card - Moved Above Featured Excellence */}
               <div className="mb-12">
                 <div className="grid grid-cols-1">
@@ -2041,53 +2586,14 @@ export default function MySeniorValetHome() {
                   <Card className="h-full hover:shadow-2xl transition-all duration-300 border-2 border-blue-500 relative overflow-hidden group md:hover:scale-[1.02] cursor-pointer" onClick={(e) => {
               // Only navigate if clicking on the card background, not buttons
               const target = e.target as HTMLElement;
-              if (e.target === e.currentTarget || !target.closest('button')) {
+              if (e.target === e.currentTarget || (!target.closest('button') && !target.closest('a'))) {
                 window.location.href = '/community-directory';
               }
             }}>
-                {/* Title ABOVE the image */}
-                <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-bold">Global Senior Living Directory</CardTitle>
-                </CardHeader>
-                {/* Full-size Vacancy Sign Image */}
-                <div className="relative h-48 sm:h-56 md:h-64 w-full">
-                  <img 
-                    src={MotelVacancySign} 
-                    alt="Retro motel vacancy sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg">
-                    <span className="text-3xl">🏢</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-3 py-1">
-                    PRIMARY DATABASE
-                  </Badge>
-                  {/* Community count overlay in bottom-right */}
-                  <div className="absolute bottom-4 right-4 flex items-center gap-2 p-3 bg-black/70 backdrop-blur-sm rounded-lg shadow-lg border border-green-500/30">
-                    <TrendingUp className="h-5 w-5 text-green-500" />
-                    <span className="text-2xl font-bold text-white">
-                      {communityStats?.communities || '33,863'}
-                    </span>
-                    <span className="text-sm text-gray-200">Senior Living Communities</span>
-                  </div>
-                </div>
-                <CardContent className="relative z-10">
-                  {/* Featured Excellence Communities - Moved from below */}
-                  <div className="mb-6">
-                    <RedTagDeals />
-                  </div>
+                <CardContent className="relative z-10 pt-4">
 
-                  {/* Recently Discovered Communities Section */}
-                  <div className="mb-6">
-                    <RecentlyDiscoveredCommunities />
-                  </div>
-
-                  {/* HUD Communities & Government Verified Section */}
-                  <div className="mb-6">
-                    <HUDCommunitiesSection />
-                  </div>
+                  {/* DB-driven community sections — fully configurable from the Admin → Home Page tab */}
+                  <HomeSectionRenderer />
 
                   {/* 3D Care Spectrum Mini Carousel */}
                   <div className="mb-6 overflow-hidden rounded-lg bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/20 dark:to-indigo-900/20 p-4">
@@ -2101,33 +2607,24 @@ export default function MySeniorValetHome() {
                       <div className="flex gap-1.5 overflow-x-auto pb-2 scrollbar-hide scroll-smooth">
                         {careTypes.map((careType, index) => {
                           const Icon = careType.icon;
+                          const careTypeHref =
+                            careType.id === 'memory' ? '/care-types/memory-care' :
+                            careType.id === 'assisted' ? '/care-types/assisted-living' :
+                            careType.id === 'independent' ? '/care-types/independent-living' :
+                            `/map-search?careType=${encodeURIComponent(careType.name)}`;
                           return (
-                            <div
+                            <a
                               key={careType.id}
+                              href={careTypeHref}
                               data-testid={`care-type-${careType.id}`}
-                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform`}
-                              onClick={(e) => {
-                                // Stop event from bubbling to parent card
-                                e.stopPropagation();
-                                // Navigate to appropriate page based on care type
-                                if (careType.id === 'memory') {
-                                  window.location.href = '/care-types/memory-care';
-                                } else if (careType.id === 'assisted') {
-                                  window.location.href = '/care-types/assisted-living';
-                                } else if (careType.id === 'independent') {
-                                  window.location.href = '/care-types/independent-living';
-                                } else {
-                                  // For other care types, navigate to map search with filter
-                                  window.location.href = `/map-search?careType=${encodeURIComponent(careType.name)}`;
-                                }
-                              }}
+                              className={`flex-shrink-0 ${careType.color} rounded-lg p-2 sm:p-3 w-28 sm:w-32 cursor-pointer hover:scale-105 transition-transform no-underline`}
                             >
                               <div className="flex flex-col items-center">
                                 <Icon className="w-6 sm:w-8 h-6 sm:h-8 text-white mb-1" />
                                 <p className="text-[10px] sm:text-xs font-bold text-white text-center leading-tight">{careType.name}</p>
                                 <p className="text-[8px] sm:text-[9px] text-white/80 text-center mt-1">{careType.avgCost}</p>
                               </div>
-                            </div>
+                            </a>
                           );
                         })}
                       </div>
@@ -2140,491 +2637,535 @@ export default function MySeniorValetHome() {
                   {/* Traditional Browse and Side-by-Side Buttons */}
                   <div className="grid grid-cols-2 gap-2 mb-4">
                     {/* Traditional Browse */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/map-search';
-                      }}
+                    <Button asChild
                       className="h-auto bg-gray-800 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200 border border-gray-600">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xl mb-1">🔍</span>
-                        <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
-                        <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
-                      </div>
+                      <Link to="/map-search">
+                        <div className="flex flex-col items-center">
+                          <span className="text-xl mb-1">🔍</span>
+                          <div className="text-xs sm:text-sm font-semibold leading-tight">Traditional Browse</div>
+                          <div className="text-[10px] sm:text-xs text-gray-400 leading-tight">Filter & Sort</div>
+                        </div>
+                      </Link>
                     </Button>
 
                     {/* Side-by-Side Search */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        window.location.href = '/ai-search-intelligence?mode=simplified';
-                      }}
+                    <Button asChild
                       className="h-auto bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <span className="text-xl mb-1">⚖️</span>
-                        <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
-                        <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
-                      </div>
+                      <Link to="/ai-search-intelligence?mode=simplified">
+                        <div className="flex flex-col items-center">
+                          <span className="text-xl mb-1">⚖️</span>
+                          <div className="text-xs sm:text-sm font-semibold leading-tight">Side-by-Side</div>
+                          <div className="text-[10px] sm:text-xs text-white/80 leading-tight">Compare Communities</div>
+                        </div>
+                      </Link>
                     </Button>
                   </div>
 
-                  <Button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.location.href = '/community-directory';
-                    }}
+                  <Button asChild
                     className="w-full bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
-                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                    <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
-                    <span className="font-semibold">Launch AI-Enhanced Directory</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    <Link to="/community-directory">
+                      <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                      <Sparkles className="mr-2 h-4 w-4 animate-pulse" />
+                      <span className="font-semibold">Launch AI-Enhanced Directory</span>
+                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
                 </div>
               </div>
               
-              {/* Remaining Directory Cards Grid - Seamlessly Connected */}
-              <section className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-                <div className="max-w-7xl mx-auto">
-                  {/* Remaining Directory Cards in Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-                    {/* Other cards will go here */}
-                  </div>
+              {/* Community Portal & Dashboard Section */}
+              <section className="py-12 px-4 bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20">
+                <div className="max-w-4xl mx-auto">
+                  <Link to="/community-portal">
+                    <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-[1.02]">
+                      {/* Full-size Retro Real Estate Sign Image at top of card */}
+                      <div className="relative h-64 w-full">
+                        <img 
+                          src={RetroGrandHotelMarquee} 
+                          alt="Retro grand hotel marquee sign" 
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                        {/* Overlay elements on the image */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                        <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
+                          <span className="text-3xl">🏢</span>
+                        </div>
+                        <Badge className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
+                          COMMUNITIES
+                        </Badge>
+                      </div>
+                      <CardHeader className="relative z-10">
+                        <CardTitle className="text-2xl mb-2">Community Portal & Dashboard</CardTitle>
+                        <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                          Your Complete Community Management Experience
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent className="relative z-10">
+                        <p className="text-gray-600 dark:text-gray-400 mb-6">
+                          {isLoading ? (
+                            <span className="animate-pulse">Loading community count...</span>
+                          ) : (
+                            `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
+                          )} - Reach qualified families actively searching for senior care.
+                        </p>
+                        
+                        {/* Flex container for side-by-side layout - stacks on mobile */}
+                        <div className="flex flex-col md:flex-row gap-4 mb-6">
+                          {/* Left side - Pricing and Checkmarks */}
+                          <div className="space-y-2 md:flex-shrink-0 md:min-w-fit">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
+                              <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $399+/mo</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">TourMate™ Scheduler</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">AI Lease Generation</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">Resident Management</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Reservations</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                              <span className="text-sm text-gray-700 dark:text-gray-300">Insurance Tracking</span>
+                            </div>
+                          </div>
+                          
+                          {/* Right side - Pricing Tiers Preview */}
+                          <div className="flex-1 md:ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
+                            <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                              <span>💰</span> 5 Tier Options
+                            </p>
+                            <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
+                              <div className="p-2 bg-gradient-to-r from-gray-50/70 to-green-50/70 dark:from-gray-900/20 dark:to-green-900/20 rounded border-2 border-green-400 dark:border-green-600">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">✅ Free</p>
+                                  <p className="text-xs font-bold text-green-600 dark:text-green-400">$0/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic unverified listing, AI photos (10), contact info, TourTracker™ access</p>
+                              </div>
+                              <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🚀 Starter</p>
+                                  <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$149/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Verified badge, payment processing, reservations, 20 photos, email support</p>
+                              </div>
+                              <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded border border-green-300 dark:border-green-700">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">📈 Growth</p>
+                                  <p className="text-xs font-bold text-green-600 dark:text-green-400">$249/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tour scheduling, messaging, 2 AI docs/mo (+$45 ea), analytics, priority support</p>
+                              </div>
+                              <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border-2 border-purple-400 dark:border-purple-600">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">💼 Premium ⭐</p>
+                                  <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$399/mo</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Advanced analytics, 4 AI docs/mo (+$45 ea), custom branding, multi-property</p>
+                              </div>
+                              <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
+                                <div className="flex justify-between items-center">
+                                  <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🏢 Enterprise</p>
+                                  <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Coming Soon</p>
+                                </div>
+                                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Custom toolset, API access, dedicated support, unlimited AI docs</p>
+                              </div>
+                              <div className="mt-3 p-2 bg-gradient-to-r from-yellow-500/20 to-orange-600/20 dark:from-yellow-500/10 dark:to-orange-600/10 rounded border border-yellow-300 dark:border-yellow-700">
+                                <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-300 text-center">💡 SAVE 20% WITH ANNUAL BILLING</p>
+                                <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center mt-1">All plans include annual discount!</p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Button 
+                            className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              window.location.href = '/community-claim';
+                            }}
+                          >
+                            <Gift className="mr-2 h-4 w-4" />
+                            <span className="font-semibold">Claim Your Free Listing</span>
+                          </Button>
+                          <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                            <span className="font-semibold">Access Portal & Dashboard</span>
+                            <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 </div>
               </section>
             </TabsContent>
 
       {/* Services Tab */}
       <TabsContent value="services" className="mt-1">
-        <div className="grid grid-cols-1 gap-8">
-          {/* Senior Marketplace */}
-          <Link to="/senior-marketplace">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Title ABOVE the image */}
-                <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="text-xl sm:text-2xl">🌍 Global Business & Services Directory</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Market Transparency Through Public Data Citations
-                  </CardDescription>
-                </CardHeader>
-                {/* Full-size Retro Shopping Sign Image */}
-                <div className="relative h-48 sm:h-56 md:h-64 w-full">
-                  <img 
-                    src={RetroShoppingSign} 
-                    alt="Retro shopping center neon sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
-                    <span className="text-3xl">🛍️</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
-                    COMMERCIAL
+          {/* Recently Discovered Services Section */}
+          <section className="relative overflow-hidden py-12 mt-8 rounded-xl">
+            {/* Business District Twilight Background Image */}
+            <div 
+              className="absolute inset-0 z-0 rounded-xl"
+              style={{
+                backgroundImage: `url(${BusinessDistrictBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-900/70 via-indigo-900/60 to-black/80 rounded-xl"></div>
+            </div>
+            
+            <div className="relative z-10 container mx-auto px-4">
+              {/* Section Title */}
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-center mb-8"
+              >
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <Flame className="w-6 h-6 text-orange-400 animate-pulse" />
+                  <h2 className="text-xl sm:text-2xl font-medium text-white/90">Recently Discovered Services</h2>
+                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-3 py-1 text-xs font-bold uppercase tracking-wider">
+                    HOT
                   </Badge>
                 </div>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    🌍 Research global businesses & services - All information cited from public sources for transparency
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Premium Partners & Public Listings */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      {/* Affiliate Partners Section */}
-                      <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Star className="h-4 w-4 text-purple-500 animate-pulse" />
-                          <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
-                          <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
-                        </div>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <ShoppingCart className="h-3 w-3 text-purple-500" />
-                            <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Gift className="h-3 w-3 text-purple-500" />
-                            <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Public Research Data */}
+              </motion.div>
+
+              {/* Services Carousel - Using VendorMarketplaceTabs for browsing */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="relative max-w-7xl mx-auto"
+              >
+                <RecentlyDiscoveredServicesCarousel />
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Browse Vendors by Category Section */}
+          <section className="py-12 mt-8">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              className="mb-8"
+            >
+              <h2 className="text-3xl font-bold text-center mb-8 text-gray-900 dark:text-white">
+                Browse Vendors by Category
+              </h2>
+              <VendorMarketplaceTabs />
+            </motion.div>
+          </section>
+
+      {/* Global Business & Services Discovery Section */}
+      <section className="py-12 px-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20">
+        <div className="max-w-6xl mx-auto">
+          <Link to="/senior-marketplace">
+            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-amber-400 relative overflow-hidden group transform hover:scale-[1.02]">
+              <CardHeader className="relative z-10 pb-2">
+                <CardTitle className="text-2xl sm:text-3xl">🌍 Global Business & Services Directory</CardTitle>
+                <CardDescription className="text-base font-semibold text-gray-700 dark:text-gray-300">
+                  Market Transparency Through Public Data Citations
+                </CardDescription>
+              </CardHeader>
+              <div className="relative h-48 sm:h-56 md:h-64 w-full">
+                <img 
+                  src={RetroShoppingSign} 
+                  alt="Retro shopping center neon sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 text-white shadow-lg">
+                  <span className="text-3xl">🛍️</span>
+                </div>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1">
+                  COMMERCIAL
+                </Badge>
+              </div>
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  🌍 Research global businesses & services - All information cited from public sources for transparency
+                </p>
+                
+                <div className="flex gap-3 mb-6">
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="mb-3 p-2 bg-purple-50 dark:bg-purple-950 rounded-lg border border-purple-300 dark:border-purple-700">
                       <div className="flex items-center gap-2 mb-2">
-                        <Globe className="h-4 w-4 text-green-500" />
-                        <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
-                        <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
+                        <Star className="h-4 w-4 text-purple-500 animate-pulse" />
+                        <span className="text-sm font-bold text-purple-700 dark:text-purple-300">Affiliate Partners</span>
+                        <Badge className="bg-purple-500 text-white text-[9px] px-1 py-0">AFFILIATE</Badge>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <ShoppingCart className="h-3 w-3 text-purple-500" />
+                          <span className="text-xs text-gray-700 dark:text-gray-300">Amazon Services</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Gift className="h-3 w-3 text-purple-500" />
+                          <span className="text-xs text-gray-700 dark:text-gray-300">1-800-Flowers™</span>
+                        </div>
                       </div>
                     </div>
                     
-                    {/* Right side - Maximum Height Scrollable Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>📊</span> Research Categories (Citation-Based)
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚚</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">⚖️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💼</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏛️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚗</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🌸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Florists & Gift Shops</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏠</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Home Modification</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔒</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Insurance Brokers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏦</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Veterans Benefits Assistance</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏡</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Real Estate Agents</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🧹</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Cleaning Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">✂️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Beauty & Barber Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">👕</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Laundry Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📸</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Portrait Photography</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎉</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Event Planning</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🐕</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Pet Care Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">⛪</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Spiritual Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📚</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Library Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎭</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Entertainment Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🍴</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Catering Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📱</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Tech Support Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏋️</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Fitness Trainers</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎨</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Art & Craft Supplies</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🏪</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Grocery Delivery</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">💐</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Memorial Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">📝</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Notary Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🔧</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Handyman Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🚐</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Shuttle Services</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <span className="text-xs">🎁</span>
-                          <p className="text-xs text-gray-700 dark:text-gray-300">Gift Concierge</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
-                        +more vendors
-                      </p>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Globe className="h-4 w-4 text-green-500" />
+                      <span className="text-sm font-bold text-gray-900 dark:text-gray-100">1,500+</span>
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Public Listings</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Moving & Relocation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Legal & Financial</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Transportation</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-3 w-3 text-green-500 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 dark:text-gray-300">Personal Services</span>
                     </div>
                   </div>
-
-                  {/* Additional Legal Notice */}
-                  <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
-                    <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
-                      <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
-                      <span>
-                        <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
-                        All sources are cited. Premium partnerships are transparently disclosed. We protect against false steering claims through complete transparency.
-                      </span>
+                  
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-amber-50/50 to-orange-50/50 dark:from-amber-900/10 dark:to-orange-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>📊</span> Research Categories (Citation-Based)
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-amber-300 dark:scrollbar-thumb-amber-600 scrollbar-track-transparent">
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🚚</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Senior Moving Companies</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">📦</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Downsizing Specialists</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">⚖️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Elder Law Attorneys</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">💼</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Estate Planning</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🏛️</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Financial Advisors</p>
+                      </div>
+                      <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                        <span className="text-xs">🚗</span>
+                        <p className="text-xs text-gray-700 dark:text-gray-300">Medical Transportation</p>
+                      </div>
+                    </div>
+                    <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2 font-medium">
+                      +more vendors
                     </p>
                   </div>
+                </div>
+
+                <div className="mb-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400 flex items-start gap-1">
+                    <Info className="h-3 w-3 flex-shrink-0 mt-0.5" />
+                    <span>
+                      <strong>Research Methodology:</strong> Data aggregated from Google Maps, Yelp, public directories, and government databases. 
+                      All sources are cited. Premium partnerships are transparently disclosed.
+                    </span>
+                  </p>
+                </div>
+                
+                <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
+                  <Search className="mr-2 h-4 w-4" />
+                  <span className="font-semibold">Research Businesses & Services</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
+      </section>
+
+      {/* Vendor Portal & Partner CTAs Section */}
+      <section className="py-12 px-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
+        <div className="max-w-6xl mx-auto">
+          {/* Vendor Portal Card */}
+          <Link to="/vendor-marketplace-tiers">
+            <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-[1.02] mb-8">
+              <div className="relative h-64 w-full">
+                <img 
+                  src={RetroVendorMarketplace} 
+                  alt="Retro vendor marketplace sign" 
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
+                <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
+                  <span className="text-3xl">🤝</span>
+                </div>
+                <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
+                  VENDORS
+                </Badge>
+              </div>
+              <CardHeader className="relative z-10">
+                <CardTitle className="text-2xl mb-2">Vendor Portal & Dashboard</CardTitle>
+                <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Your Complete Vendor Management Experience
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="relative z-10">
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Join 1,500+ Service Providers - Reach families nationwide with your senior care services.
+                </p>
+                
+                <div className="flex gap-3 mb-6">
+                  <div className="space-y-2 flex-shrink-0 min-w-fit">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
+                      <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$499/mo</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Verified Badge</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300">API Integration</span>
+                    </div>
+                  </div>
                   
-                  <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                    <Search className="mr-2 h-4 w-4" />
-                    <span className="font-semibold">Research Businesses & Services</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
+                  <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
+                    <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
+                      <span>🌎</span> 3 Partnership Tiers
+                    </p>
+                    <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic</p>
+                          <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, up to 10 leads/mo</p>
+                      </div>
+                      <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Featured ⭐</p>
+                          <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$249/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium placement, up to 50 leads/mo</p>
+                      </div>
+                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">National Partner</p>
+                          <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Unlimited leads, API access, white-label</p>
+                      </div>
+                      <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
+                        <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
+                        <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
+                      </div>
+                      <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
+                        <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-4 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
+                  <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">🚀 Vendor Features Roadmap</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Smart Lead Routing</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">ROI Analytics</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Service Scheduler</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Contract Manager</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">Multi-Territory</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <CheckSquare className="h-3 w-3 text-green-500" />
+                      <span className="text-gray-700 dark:text-gray-300">White-Label</span>
+                    </div>
+                  </div>
+                </div>
+
+                <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
+                  <span className="font-semibold">Access Portal & Dashboard</span>
+                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </CardContent>
+            </Card>
+          </Link>
+
+          {/* Partner CTAs */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <Button asChild size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <Link to="/vendor-signup">
+                <Briefcase className="w-5 h-5 mr-2" />
+                Become a Vendor Partner
+              </Link>
+            </Button>
+            
+            <Button asChild size="lg" variant="outline" className="border-2 border-purple-500 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <Link to="/vendor-marketplace">
+                <LogIn className="w-5 h-5 mr-2" />
+                Vendor Login Portal
+              </Link>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
       </TabsContent>
 
       {/* Resources Tab */}
       <TabsContent value="resources" className="mt-1">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {/* Resident Portal - Comprehensive Dashboard */}
-            <Link to="/resident-dashboard">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Title ABOVE the image */}
-                <CardHeader className="relative z-10 pb-2">
-                  <CardTitle className="text-xl sm:text-2xl">Resident Portal & Dashboard</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Your Complete Community Living Experience
-                  </CardDescription>
-                </CardHeader>
-                {/* Full-size Cosmic Image */}
-                <div className="relative h-48 sm:h-56 md:h-64 w-full">
-                  <img 
-                    src={RetroFamilyLivingRoom}
-                    alt="Home Sweet Home - Your warm welcome" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
-                    <Home className="h-8 w-8" />
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1">
-                    RESIDENT ACCESS
-                  </Badge>
-                </div>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Access all resident services in one place - billing, dining, transportation, maintenance, activities & more
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Service Categories */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Activity className="h-5 w-5 text-indigo-500" />
-                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">All Services</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Billing & Payments</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Dining Menus</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Transportation</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Maintenance Requests</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Features Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🏠</span> Quick Access
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <DollarSign className="h-3 w-3 text-green-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Pay Monthly Rent</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Calendar className="h-3 w-3 text-blue-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Daily Activities Schedule</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <UtensilsCrossed className="h-3 w-3 text-orange-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Today's Menu</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Bus className="h-3 w-3 text-purple-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Book Transportation</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Wrench className="h-3 w-3 text-gray-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Submit Maintenance Request</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Heart className="h-3 w-3 text-red-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Wellness Check-In</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Users className="h-3 w-3 text-indigo-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Family Communication</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <FileText className="h-3 w-3 text-teal-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">View Statements</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <MessageSquare className="h-3 w-3 text-yellow-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Community Announcements</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Shield className="h-3 w-3 text-emerald-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Emergency Contacts</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Video className="h-3 w-3 text-pink-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Video Call Family</p>
-                        </div>
-                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
-                          <Briefcase className="h-3 w-3 text-brown-600" />
-                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Personal Documents</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-center text-indigo-600 dark:text-indigo-400 mt-2 font-medium">
-                        Your Community Life • All in One Place
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Horizontal Action Buttons Row */}
-                  <div className="mb-4 grid grid-cols-4 gap-2">
-                    {/* Quick Bill Pay */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        window.location.href = '/resident-billing-portal';
-                      }}
-                      className="h-auto bg-green-600 hover:bg-green-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <DollarSign className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Pay Bill</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Quick Pay</div>
-                      </div>
-                    </Button>
-
-                    {/* Dining Menu */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        window.location.href = '/dining-menu-viewer';
-                      }}
-                      className="h-auto bg-orange-600 hover:bg-orange-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <UtensilsCrossed className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Dining</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Today's Menu</div>
-                      </div>
-                    </Button>
-
-                    {/* Transportation */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        window.location.href = '/transportation-scheduler';
-                      }}
-                      className="h-auto bg-purple-600 hover:bg-purple-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <Bus className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Transport</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Book Ride</div>
-                      </div>
-                    </Button>
-
-                    {/* Maintenance */}
-                    <Button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        window.location.href = '/maintenance-request-portal';
-                      }}
-                      className="h-auto bg-gray-600 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
-                      <div className="flex flex-col items-center">
-                        <Wrench className="h-5 w-5 mb-1" />
-                        <div className="text-[10px] font-semibold leading-tight">Maintenance</div>
-                        <div className="text-[8px] text-white/80 leading-tight">Request</div>
-                      </div>
-                    </Button>
-                  </div>
-
-                  <Button className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
-                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
-                    <Home className="mr-2 h-4 w-4" />
-                    <span className="font-semibold">Access Your Resident Dashboard</span>
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
-
             {/* Senior Resources and Support Center */}
             <Link to="/senior-resources-center">
               <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-purple-400 relative overflow-hidden group transform hover:scale-105">
@@ -2997,6 +3538,21 @@ export default function MySeniorValetHome() {
             </Link>
 
           </div>
+
+          {/* Recently Discovered Resources Section */}
+          <div className="mt-12">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent">
+                Recently Discovered Resources
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+                Real-time discoveries from across the web with verified pricing information
+              </p>
+            </div>
+            <div className="bg-gradient-to-r from-orange-500/10 to-amber-500/10 rounded-xl p-6">
+              <RecentlyDiscoveredResourcesCarousel />
+            </div>
+          </div>
       </TabsContent>
 
       {/* Healthcare Tab */}
@@ -3202,381 +3758,219 @@ export default function MySeniorValetHome() {
             </Card>
           </Link>
         </div>
+
+        {/* Recently Discovered Healthcare Section */}
+        <div className="mt-12">
+          <div className="text-center mb-6">
+            <h3 className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-blue-500 bg-clip-text text-transparent">
+              Recently Discovered Healthcare Providers
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 text-sm mt-1">
+              Real-time discoveries from across the web with verified pricing information
+            </p>
+          </div>
+          <div className="bg-gradient-to-r from-teal-500/10 to-blue-500/10 rounded-xl p-6">
+            <RecentlyDiscoveredHealthcareCarousel />
+          </div>
+        </div>
       </TabsContent>
 
-      {/* Vendors Tab - Consumer Products */}
-      <TabsContent value="vendors" className="mt-1">
+      {/* Marketplace Tab - Consumer Products */}
+      <TabsContent value="marketplace" className="mt-1">
         <div className="space-y-8">
-          {/* Portal Section - Community and Vendor Portals */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {/* Community Portal */}
-            <Link to="/community-portal">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-emerald-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Real Estate Sign Image at top of card */}
-                <div className="relative h-64 w-full">
+          {/* Resident Portal Section at Top */}
+          <div className="max-w-4xl mx-auto">
+            <Link to="/resident-dashboard">
+              <Card className="hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-[1.02]">
+                {/* Title ABOVE the image */}
+                <CardHeader className="relative z-10 pb-2">
+                  <CardTitle className="text-xl sm:text-2xl">Resident Portal & Dashboard</CardTitle>
+                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Your Complete Community Living Experience
+                  </CardDescription>
+                </CardHeader>
+                {/* Full-size Cosmic Image */}
+                <div className="relative h-48 sm:h-56 md:h-64 w-full">
                   <img 
-                    src={RetroGrandHotelMarquee} 
-                    alt="Retro grand hotel marquee sign" 
+                    src={RetroFamilyLivingRoom}
+                    alt="Home Sweet Home - Your warm welcome" 
                     className="absolute inset-0 w-full h-full object-cover"
                   />
                   {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg">
-                    <span className="text-3xl">🏢</span>
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/40 to-transparent"></div>
+                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg">
+                    <Home className="h-8 w-8" />
                   </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-3 py-1">
-                    COMMUNITIES
+                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-3 py-1">
+                    RESIDENT ACCESS
                   </Badge>
                 </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Community Portal & Dashboard</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Your Complete Community Management Experience
-                  </CardDescription>
-                </CardHeader>
                 <CardContent className="relative z-10">
                   <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    {isLoading ? (
-                      <span className="animate-pulse">Loading community count...</span>
-                    ) : (
-                      `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
-                    )} - Reach qualified families actively searching for senior care.
+                    Access all resident services in one place - billing, dining, transportation, maintenance, activities & more
                   </p>
                   
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Pricing and Checkmarks */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
+                  {/* Flex container for side-by-side layout - stacks on mobile */}
+                  <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    {/* Left side - Service Categories */}
+                    <div className="space-y-2 md:flex-shrink-0 md:min-w-fit">
                       <div className="flex items-center gap-2 mb-3">
-                        <Star className="h-5 w-5 text-yellow-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">FREE - $399+/mo</span>
+                        <Activity className="h-5 w-5 text-indigo-500" />
+                        <span className="text-lg font-bold text-gray-900 dark:text-gray-100">All Services</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">TourMate™ Scheduler</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Billing & Payments</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">AI Lease Generation</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Dining Menus</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Resident Management</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Transportation</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Real-Time Reservations</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Insurance Tracking</span>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">Maintenance Requests</span>
                       </div>
                     </div>
                     
-                    {/* Right side - Pricing Tiers Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 dark:from-emerald-900/10 dark:to-teal-900/10 rounded-lg">
-                      <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>💰</span> 5 Tier Options
-                      </p>
-                      <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-emerald-300 dark:scrollbar-thumb-emerald-600 scrollbar-track-transparent">
-                        <div className="p-2 bg-gradient-to-r from-gray-50/70 to-green-50/70 dark:from-gray-900/20 dark:to-green-900/20 rounded border-2 border-green-400 dark:border-green-600">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">✅ Free</p>
-                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$0/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Basic unverified listing, AI photos (10), contact info, TourTracker™ access</p>
-                        </div>
-                        <div className="p-2 bg-blue-50/70 dark:bg-blue-900/20 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🚀 Starter</p>
-                            <p className="text-xs font-bold text-blue-600 dark:text-blue-400">$149/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Verified badge, payment processing, reservations, 20 photos, email support</p>
-                        </div>
-                        <div className="p-2 bg-green-50/70 dark:bg-green-900/20 rounded border border-green-300 dark:border-green-700">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">📈 Growth</p>
-                            <p className="text-xs font-bold text-green-600 dark:text-green-400">$249/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Tour scheduling, messaging, 2 AI docs/mo (+$45 ea), analytics, priority support</p>
-                        </div>
-                        <div className="p-2 bg-purple-50/70 dark:bg-purple-900/20 rounded border-2 border-purple-400 dark:border-purple-600">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">💼 Premium ⭐</p>
-                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$399/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Advanced analytics, 4 AI docs/mo (+$45 ea), custom branding, multi-property</p>
-                        </div>
-                        <div className="p-2 bg-gradient-to-r from-purple-50/70 to-blue-50/70 dark:from-purple-900/20 dark:to-blue-900/20 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">🏢 Enterprise</p>
-                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">Coming Soon</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Custom toolset, API access, dedicated support, unlimited AI docs</p>
-                        </div>
-                        <div className="mt-3 p-2 bg-gradient-to-r from-yellow-500/20 to-orange-600/20 dark:from-yellow-500/10 dark:to-orange-600/10 rounded border border-yellow-300 dark:border-yellow-700">
-                          <p className="text-xs font-semibold text-yellow-700 dark:text-yellow-300 text-center">💡 SAVE 20% WITH ANNUAL BILLING</p>
-                          <p className="text-xs text-yellow-600 dark:text-yellow-400 text-center mt-1">All plans include annual discount!</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Comprehensive Features Section */}
-                  <div className="mt-4 p-3 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/10 dark:to-indigo-900/10 rounded-lg">
-                    <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-2">📊 Complete Feature Breakdown</p>
-                    <div className="space-y-2">
-                      
-                      {/* Free Tier */}
-                      <div className="text-xs font-medium text-green-700 dark:text-green-300">✅ Free ($0/mo):</div>
-                      <div className="grid grid-cols-2 gap-1 text-xs mb-2">
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Basic listing</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">10 AI photos</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Contact info</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">TourTracker™ access</span>
-                        </div>
-                      </div>
-                      
-                      {/* Starter Tier */}
-                      <div className="text-xs font-medium text-blue-700 dark:text-blue-300">🚀 Starter ($149/mo):</div>
-                      <div className="grid grid-cols-2 gap-1 text-xs mb-2">
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Verified badge</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Payment processing</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Reservation system</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">20 AI photos</span>
-                        </div>
-                      </div>
-                      
-                      {/* Growth Tier */}
-                      <div className="text-xs font-medium text-emerald-700 dark:text-emerald-300">📈 Growth ($249/mo):</div>
-                      <div className="grid grid-cols-2 gap-1 text-xs mb-2">
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Tour scheduling</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Family messaging</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">2 AI docs/mo</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Analytics dashboard</span>
-                        </div>
-                      </div>
-                      
-                      {/* Premium Tier */}
-                      <div className="text-xs font-medium text-purple-700 dark:text-purple-300">💼 Premium ($399/mo):</div>
-                      <div className="grid grid-cols-2 gap-1 text-xs">
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">4 AI docs/mo</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Custom branding</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Multi-property</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <CheckSquare className="h-3 w-3 text-green-500" />
-                          <span className="text-gray-700 dark:text-gray-300">Phone support</span>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-2 p-2 bg-yellow-50/70 dark:bg-yellow-900/20 rounded">
-                        <p className="text-xs text-center text-yellow-700 dark:text-yellow-400">
-                          📄 Additional AI documents: $45 each after monthly limit
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Button 
-                      className="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        window.location.href = '/community-claim';
-                      }}
-                    >
-                      <Gift className="mr-2 h-4 w-4" />
-                      <span className="font-semibold">Claim Your Free Listing</span>
-                    </Button>
-                    <Button className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all">
-                      <span className="font-semibold">Access Portal & Dashboard</span>
-                      <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {/* Vendor Portal */}
-            <Link to="/vendor-marketplace-tiers">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 border-indigo-400 relative overflow-hidden group transform hover:scale-105">
-                {/* Full-size Retro Partnership Sign Image at top of card */}
-                <div className="relative h-64 w-full">
-                  <img 
-                    src={RetroVendorMarketplace} 
-                    alt="Retro vendor marketplace sign" 
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                  {/* Overlay elements on the image */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent"></div>
-                  <div className="absolute top-4 left-4 p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-lg">
-                    <span className="text-3xl">🤝</span>
-                  </div>
-                  <Badge className="absolute top-4 right-4 bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-3 py-1">
-                    VENDORS
-                  </Badge>
-                </div>
-                <CardHeader className="relative z-10">
-                  <CardTitle className="text-2xl mb-2">Vendor Portal & Dashboard</CardTitle>
-                  <CardDescription className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Your Complete Vendor Management Experience
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-gray-600 dark:text-gray-400 mb-6">
-                    Join 1,500+ Service Providers - Reach families nationwide with your senior care services.
-                  </p>
-                  
-                  {/* Flex container for side-by-side layout */}
-                  <div className="flex gap-3 mb-6">
-                    {/* Left side - Special Offer and Checkmarks */}
-                    <div className="space-y-2 flex-shrink-0 min-w-fit">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Sparkles className="h-5 w-5 text-purple-500 animate-pulse" />
-                        <span className="text-xl font-bold text-gray-900 dark:text-gray-100">$99-$499/mo</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Nationwide Coverage</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Verified Badge</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Lead Management</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">Premium Analytics</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                        <span className="text-sm text-gray-700 dark:text-gray-300">API Integration</span>
-                      </div>
-                    </div>
-                    
-                    {/* Right side - Coverage Tiers Preview */}
-                    <div className="flex-1 ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
+                    {/* Right side - Features Preview */}
+                    <div className="flex-1 md:ml-2 p-3 bg-gradient-to-br from-indigo-50/50 to-purple-50/50 dark:from-indigo-900/10 dark:to-purple-900/10 rounded-lg">
                       <p className="text-xs font-semibold text-indigo-700 dark:text-indigo-300 mb-2 uppercase tracking-wide flex items-center gap-1">
-                        <span>🌎</span> 3 Partnership Tiers
+                        <span>🏠</span> Quick Access
                       </p>
                       <div className="h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin scrollbar-thumb-indigo-300 dark:scrollbar-thumb-indigo-600 scrollbar-track-transparent">
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-gray-800 dark:text-gray-200">Basic</p>
-                            <p className="text-xs font-bold text-indigo-600 dark:text-indigo-400">$99/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Nationwide, up to 10 leads/mo</p>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <DollarSign className="h-3 w-3 text-green-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Pay Monthly Rent</p>
                         </div>
-                        <div className="p-2 bg-white/70 dark:bg-gray-800/70 rounded border border-purple-300 dark:border-purple-600">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">Featured ⭐</p>
-                            <p className="text-xs font-bold text-purple-600 dark:text-purple-400">$249/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Premium placement, up to 50 leads/mo</p>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Calendar className="h-3 w-3 text-blue-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Daily Activities Schedule</p>
                         </div>
-                        <div className="p-2 bg-gradient-to-r from-purple-500/20 to-blue-500/20 dark:from-purple-500/10 dark:to-blue-500/10 rounded">
-                          <div className="flex justify-between items-center">
-                            <p className="text-xs font-semibold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">National Partner</p>
-                            <p className="text-xs font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">$499/mo</p>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Unlimited leads, API access, white-label</p>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <UtensilsCrossed className="h-3 w-3 text-orange-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Today's Menu</p>
                         </div>
-                        <div className="mt-3 p-2 bg-gradient-to-r from-amber-500/20 to-orange-600/20 dark:from-amber-500/10 dark:to-orange-600/10 rounded border border-amber-300 dark:border-amber-700">
-                          <p className="text-xs font-semibold text-amber-700 dark:text-amber-300 text-center">🚀 LIMITED TIME</p>
-                          <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Bus className="h-3 w-3 text-purple-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Book Transportation</p>
                         </div>
-                        <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
-                          <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Wrench className="h-3 w-3 text-gray-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Submit Maintenance Request</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Heart className="h-3 w-3 text-red-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Wellness Check-In</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Users className="h-3 w-3 text-indigo-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Family Communication</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <FileText className="h-3 w-3 text-teal-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">View Statements</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <MessageSquare className="h-3 w-3 text-yellow-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Community Announcements</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Shield className="h-3 w-3 text-emerald-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Emergency Contacts</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Video className="h-3 w-3 text-pink-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Video Call Family</p>
+                        </div>
+                        <div className="p-1.5 bg-white/70 dark:bg-gray-800/70 rounded flex items-center gap-2 hover:bg-white dark:hover:bg-gray-800 transition-colors">
+                          <Briefcase className="h-3 w-3 text-brown-600" />
+                          <p className="text-xs text-gray-700 dark:text-gray-300 font-semibold">Personal Documents</p>
                         </div>
                       </div>
+                      <p className="text-xs text-center text-indigo-600 dark:text-indigo-400 mt-2 font-medium">
+                        Your Community Life • All in One Place
+                      </p>
                     </div>
                   </div>
 
-                  {/* Roadmap Features Section */}
-                  <div className="mt-4 p-3 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-900/10 dark:to-pink-900/10 rounded-lg">
-                    <p className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-2">🚀 Vendor Features Roadmap</p>
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Smart Lead Routing</span>
+                  {/* Horizontal Action Buttons Row */}
+                  <div className="mb-4 grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {/* Quick Bill Pay */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/resident-billing-portal';
+                      }}
+                      className="h-auto bg-green-600 hover:bg-green-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <DollarSign className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Pay Bill</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Quick Pay</div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">ROI Analytics</span>
+                    </Button>
+
+                    {/* Dining Menu */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/dining-menu-viewer';
+                      }}
+                      className="h-auto bg-orange-600 hover:bg-orange-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <UtensilsCrossed className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Dining</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Today's Menu</div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Service Scheduler</span>
+                    </Button>
+
+                    {/* Transportation */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/transportation-scheduler';
+                      }}
+                      className="h-auto bg-purple-600 hover:bg-purple-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <Bus className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Transport</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Book Ride</div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Contract Manager</span>
+                    </Button>
+
+                    {/* Maintenance */}
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        window.location.href = '/maintenance-request-portal';
+                      }}
+                      className="h-auto bg-gray-600 hover:bg-gray-700 text-white px-2 py-2 rounded-md font-medium shadow-md hover:shadow-lg transform hover:scale-[1.02] transition-all duration-200">
+                      <div className="flex flex-col items-center">
+                        <Wrench className="h-5 w-5 mb-1" />
+                        <div className="text-[10px] font-semibold leading-tight">Maintenance</div>
+                        <div className="text-[8px] text-white/80 leading-tight">Request</div>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">Multi-Territory</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckSquare className="h-3 w-3 text-green-500" />
-                        <span className="text-gray-700 dark:text-gray-300">White-Label</span>
-                      </div>
-                    </div>
+                    </Button>
                   </div>
 
-                  <Button className="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:opacity-90 group-hover:shadow-lg transition-all mt-4">
-                    <span className="font-semibold">Access Portal & Dashboard</span>
+                  <Button className="w-full bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 text-white hover:opacity-90 group-hover:shadow-lg transition-all relative overflow-hidden">
+                    <span className="absolute inset-0 bg-white/20 transform translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-500"></span>
+                    <Home className="mr-2 h-4 w-4" />
+                    <span className="font-semibold">Access Your Resident Dashboard</span>
                     <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </CardContent>
               </Card>
             </Link>
           </div>
-          
+
           {/* Vendor Categories Title */}
           <div className="text-center">
             <Badge className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-1 mb-4">
@@ -3841,456 +4235,6 @@ export default function MySeniorValetHome() {
         </div>
       </Tabs>
 
-{/* Senior Living Command Center Section - Moved after Resources */}
-      <section className="relative overflow-hidden">
-        {/* Command Center Header with Beautiful Gradient - matching marketplace page */}
-        <div className="px-4 py-12 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
-          {/* Animated gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/20 to-pink-900/20 animate-pulse"></div>
-          
-          <div className="max-w-7xl mx-auto relative z-10">
-            <div className="text-center">
-              <h2 className="text-5xl font-bold text-white mb-4">
-                Senior Living Command Center
-              </h2>
-              <div className="flex flex-col items-center gap-3 mb-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-white">
-                  <Brain className="w-5 h-5" />
-                  <span className="text-sm font-semibold">AI-Powered Platform • FREE FOR FAMILIES ALWAYS</span>
-                </div>
-                <div className="flex flex-wrap items-center justify-center gap-2 px-4">
-                  <span className="text-xs text-white/80">Powered by:</span>
-                  <div className="flex flex-wrap items-center justify-center gap-2">
-                    <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-2 py-0.5 text-xs">
-                      1. Perplexity AI (Web Search & Discovery)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-gray-700 to-gray-500 text-white px-2 py-0.5 text-xs">
-                      2. Grok (Reviews & Live Intelligence)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-2 py-0.5 text-xs">
-                      3. Claude Sonnet 4.0 (Analysis & Reasoning)
-                    </Badge>
-                    <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-2 py-0.5 text-xs">
-                      4. ChatGPT-4o (Verification & Backup)
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              <div className="text-xl text-blue-100 max-w-4xl mx-auto mb-8">
-                <p className="mb-6">Access the most comprehensive senior living ecosystem ever assembled - over 42,000 resources spanning communities, vendors, healthcare, and education. Every listing enhanced by AI-powered search, Red Tag specials, and real-time market intelligence.</p>
-                <div className="space-y-2 text-lg">
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏘️</span>
-                    <span className="font-semibold">34,181+ Communities</span> with verified HUD pricing
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🛍️</span>
-                    <span className="font-semibold">1,500+ Vendor Services</span> for senior living needs
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">🏥</span>
-                    <span className="font-semibold">6,800+ Healthcare Providers</span> nationwide
-                  </div>
-                  <div className="flex items-center justify-center gap-2">
-                    <span className="text-2xl">📚</span>
-                    <span className="font-semibold">100+ Educational Resources</span> for informed decisions
-                  </div>
-                </div>
-              </div>
-              
-              {/* Feature Badges */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white px-4 py-2 text-sm font-bold shadow-lg">
-                  <Flame className="w-4 h-4 mr-2" />
-                  Red Tag Specials
-                </Badge>
-                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Brain className="w-4 h-4 mr-2" />
-                  AI Market Intelligence
-                </Badge>
-                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Calculator className="w-4 h-4 mr-2" />
-                  Cost Calculators
-                </Badge>
-                <Badge className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <MapPin className="w-4 h-4 mr-2" />
-                  42,481+ Total Resources
-                </Badge>
-                <Badge className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 text-sm font-semibold shadow-lg">
-                  <Shield className="w-4 h-4 mr-2" />
-                  Complete Care Spectrum
-                </Badge>
-              </div>
-              
-              {/* Quick Stats Bar - like marketplace page */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">34,181+</div>
-                    <div className="text-xs text-blue-100">Communities</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">1,500+</div>
-                    <div className="text-xs text-blue-100">Vendors</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">6,800+</div>
-                    <div className="text-xs text-blue-100">Healthcare</div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="p-3 text-center">
-                    <div className="text-2xl font-bold text-white">100+</div>
-                    <div className="text-xs text-blue-100">Resources</div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Senior Living News & Research Section - SEO Optimized Articles */}
-      <section className="py-12 px-4 bg-gradient-to-br from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <Card className="border-2 border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
-            <CardHeader>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 text-white">
-                    <FileText className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-2xl mb-1">Senior Living Research & City Guides</CardTitle>
-                    <CardDescription className="font-semibold">Data-Driven Insights from 33,657 Verified Communities</CardDescription>
-                  </div>
-                </div>
-                <Badge className="bg-blue-500 text-white animate-pulse">NEW RESEARCH</Badge>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Article 1: Best Senior Living in San Francisco */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-blue-600 dark:text-blue-400 mb-3">
-                    Best Senior Living in San Francisco (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Comprehensive Guide to San Francisco's 287 Senior Communities
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>287 verified communities</strong> in San Francisco Bay Area</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>Average cost: <strong>$7,800-$12,500/month</strong> for assisted living</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>42 HUD-subsidized</strong> affordable options available</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span>Top neighborhoods: <strong>Pacific Heights, Marina, Sunset</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-blue-500">•</span>
-                        <span><strong>89% occupancy rate</strong> - book early for best locations</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Based on analysis of 287 San Francisco communities
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/senior-living-san-francisco'}
-                      >
-                        Read Full Article →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 2: Best Senior Living in San Diego */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-green-600 dark:text-green-400 mb-3">
-                    Best Senior Living in San Diego (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Complete Directory of San Diego's 412 Senior Communities
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span><strong>412 verified communities</strong> across San Diego County</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span>Average cost: <strong>$5,200-$8,900/month</strong> for assisted living</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span><strong>67 HUD-subsidized</strong> affordable communities</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span>Top areas: <strong>La Jolla, Del Mar, Carlsbad</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-500">•</span>
-                        <span><strong>Memory care specialists:</strong> 124 dedicated facilities</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Based on analysis of 412 San Diego communities
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/senior-living-san-diego'}
-                      >
-                        Read Full Article →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 3: Platform Announcement - FEATURED */}
-                <article className="p-4 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg shadow-lg hover:shadow-xl transition-shadow border-2 border-purple-300 dark:border-purple-700">
-                  <Badge className="mb-2 bg-purple-600 text-white">FEATURED</Badge>
-                  <h3 className="font-bold text-lg text-purple-600 dark:text-purple-400 mb-3">
-                    Complete Senior Living Platform: Search to Support
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      The Google of Senior Care - ALL Levels, WORLDWIDE Coverage
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>ALL 9 Care Levels</strong> from Independent to Hospice</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>Complete Journey</strong> - Search to Move-in to Support</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>Healthcare Network</strong> - 6,800+ providers</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>Resident Portals</strong> & ongoing support tools</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-purple-500">⭐</span>
-                        <span><strong>100% Free</strong> - No referral fees ever</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet: Complete platform from search to settled
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-purple-600 hover:text-purple-800 font-bold"
-                        onClick={() => window.location.href = '/senior-living-worldwide'}
-                      >
-                        Read Complete Platform Overview →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 4: Best Senior Living in Los Angeles */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-orange-600 dark:text-orange-400 mb-3">
-                    Best Senior Living in Los Angeles (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      Explore 892 Verified LA Senior Communities
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>892 communities</strong> from Downtown to the Valley</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span>Price range: <strong>$3,500-$15,000/month</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>156 HUD-subsidized</strong> affordable options</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span>Top areas: <strong>Beverly Hills, Pasadena, Santa Monica</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-500">•</span>
-                        <span><strong>Luxury options:</strong> 89 five-star communities</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Based on 892 verified LA communities
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/'}
-                      >
-                        View All Los Angeles Communities →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 5: Affordable Senior Living Guide */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-red-600 dark:text-red-400 mb-3">
-                    Complete Guide to Affordable Senior Living
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      How to Find HUD & Section 8 Senior Housing
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>4,771 HUD properties</strong> in our database</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span>Income-based rent: <strong>30% of income</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>Section 202</strong> specifically for seniors 62+</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span>Average wait: <strong>1-3 years</strong> (apply early!)</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-red-500">•</span>
-                        <span><strong>LIHTC properties:</strong> Tax credit affordable housing</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Verified HUD.gov data integration
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/'}
-                      >
-                        Find Affordable Housing Now →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-
-                {/* Article 6: Best Senior Living in New York */}
-                <article className="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg hover:shadow-xl transition-shadow">
-                  <h3 className="font-bold text-lg text-indigo-600 dark:text-indigo-400 mb-3">
-                    Best Senior Living in New York City (2025)
-                  </h3>
-                  <div className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                    <p className="font-medium text-gray-900 dark:text-gray-100">
-                      NYC's 524 Senior Communities Analyzed
-                    </p>
-                    <ul className="space-y-1.5 mt-3">
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>524 communities</strong> across five boroughs</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span>Manhattan average: <strong>$8,000-$18,000/month</strong></span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>Brooklyn & Queens:</strong> 40% more affordable</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>198 NYCHA</strong> senior developments</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-indigo-500">•</span>
-                        <span><strong>Kosher options:</strong> 47 specialized communities</span>
-                      </li>
-                    </ul>
-                    <div className="mt-4 pt-3 border-t">
-                      <p className="text-xs text-gray-600 dark:text-gray-400 font-semibold">
-                        MySeniorValet Research: Complete NYC senior living database
-                      </p>
-                      <Button 
-                        variant="link" 
-                        className="p-0 h-auto text-xs text-blue-500 hover:text-blue-700"
-                        onClick={() => window.location.href = '/'}
-                      >
-                        View All NYC Communities →
-                      </Button>
-                    </div>
-                  </div>
-                </article>
-              </div>
-
-              {/* Action Bar */}
-              <div className="mt-6 p-4 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 rounded-lg">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-6 w-6 text-green-600 dark:text-green-400" />
-                    <div>
-                      <p className="font-bold text-gray-900 dark:text-gray-100">The Google of Senior Care</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">33,657 Communities | 100% Free | No Referral Fees</p>
-                    </div>
-                  </div>
-                  <Button 
-                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:opacity-90"
-                    onClick={() => window.location.href = '/'}
-                  >
-                    <Search className="mr-2 h-4 w-4" />
-                    Search All 33,657 Communities
-                  </Button>
-                </div>
-              </div>
-
-              {/* SEO Keywords Ticker for Search Engines */}
-              <div className="mt-4 p-2 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden">
-                <div className="flex items-center gap-2 text-xs">
-                  <Badge className="bg-blue-500 text-white">TRENDING</Badge>
-                  <div className="animate-marquee whitespace-nowrap">
-                    <span className="text-gray-700 dark:text-gray-300">
-                      🔍 Best senior living San Francisco • 🔍 Senior living San Diego • 
-                      🔍 Affordable senior housing Los Angeles • 🔍 NYC senior communities • 
-                      🔍 HUD senior housing • 🔍 Section 8 for seniors • 
-                      🔍 Memory care facilities near me • 🔍 Assisted living costs 2025
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
       {/* Partnership Information Section - Simplified */}
       <section className="py-12 px-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
@@ -4454,37 +4398,29 @@ export default function MySeniorValetHome() {
                 Quick Access Tools
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/emergency-contacts')}
-                >
-                  <AlertCircle className="h-6 w-6 text-red-500" />
-                  <span className="text-xs">Emergency</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/emergency-contacts">
+                    <AlertCircle className="h-6 w-6 text-red-500" />
+                    <span className="text-xs">Emergency</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/tours')}
-                >
-                  <Calendar className="h-6 w-6 text-blue-500" />
-                  <span className="text-xs">Schedule Tour</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/tours">
+                    <Calendar className="h-6 w-6 text-blue-500" />
+                    <span className="text-xs">Schedule Tour</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/senior-healthcare-directory')}
-                >
-                  <Brain className="h-6 w-6 text-purple-500" />
-                  <span className="text-xs">Care Guide</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/senior-healthcare-directory">
+                    <Brain className="h-6 w-6 text-purple-500" />
+                    <span className="text-xs">Care Guide</span>
+                  </Link>
                 </Button>
-                <Button 
-                  variant="outline"
-                  className="flex flex-col items-center gap-2 h-auto py-4"
-                  onClick={() => setLocation('/ai-support')}
-                >
-                  <HeartHandshake className="h-6 w-6 text-green-500" />
-                  <span className="text-xs">AI Support</span>
+                <Button asChild variant="outline" className="flex flex-col items-center gap-2 h-auto py-4">
+                  <Link to="/ai-support">
+                    <HeartHandshake className="h-6 w-6 text-green-500" />
+                    <span className="text-xs">AI Support</span>
+                  </Link>
                 </Button>
               </div>
             </CardContent>
@@ -4492,28 +4428,7 @@ export default function MySeniorValetHome() {
         </div>
       </section>
 
-      {/* Legal Notice Section - Repositioned to Bottom */}
-      <section className="px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="p-4 bg-red-50 dark:bg-red-950 border-2 border-red-300 dark:border-red-700 rounded-lg">
-            <p className="text-sm font-bold text-red-700 dark:text-red-300 mb-3 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              IMPORTANT LEGAL NOTICE
-            </p>
-            <ul className="text-sm text-red-600 dark:text-red-400 space-y-2">
-              <li>• MySeniorValet is a FREE platform for families providing transparency in senior care</li>
-              <li>• We aggregate and display public information from verified sources with citations</li>
-              <li>• We facilitate connections between families and communities - NOT a placement agency</li>
-              <li>• All family features are FREE: research, tour scheduling, emergency contacts, collaboration tools</li>
-              <li>• Communities and vendors pay for business services (listing management, tour management, etc.)</li>
-              <li>• We may receive affiliate commissions from marketplace partners (Amazon, 1-800-Flowers)</li>
-              <li>• We do NOT charge families any fees or commissions</li>
-              <li>• Always verify information independently and consult professionals before making care decisions</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
+      </main>
       {/* Enhanced Footer with Dashboard Login Buttons */}
       <Footer />
       

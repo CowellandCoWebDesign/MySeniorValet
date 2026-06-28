@@ -2,7 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { users, userSessions } from "@shared/schema";
 import { eq } from "drizzle-orm";
-import { loginSchema, signupSchema } from "@shared/schema";
+import { signupSchema } from "@shared/schema";
 import { authService } from "../auth";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { z } from "zod";
@@ -12,10 +12,22 @@ import { EmailService } from "../services/email";
 import { passwordResetEmail } from "../templates/emailTemplates";
 import { handleAdminSetupStatus, handleCreateFirstAdmin } from "../setup-admin";
 
+/**
+ * Auth Routes - Supplementary endpoints
+ * 
+ * NOTE: The primary auth endpoints (login, logout, status, user GET) are handled by
+ * custom-auth.ts which is registered first. This file provides additional endpoints:
+ * - /api/auth/signup - Alternative signup with notifications
+ * - /api/auth/user PATCH - Profile update
+ * - /api/auth/forgot-password - Password reset request
+ * - /api/auth/reset-password - Password reset completion
+ * - /api/auth/verify-email - Email verification
+ */
 export function registerAuthRoutes(app: Express) {
   // Auth limiter is already imported from infrastructure/rateLimiter
 
-  // User signup
+  // User signup (alternative to /api/auth/register in custom-auth.ts)
+  // This version sends internal notifications
   app.post("/api/auth/signup", createRateLimitMiddleware(authLimiter), async (req, res) => {
     try {
       const validatedData = signupSchema.parse(req.body);
@@ -34,35 +46,44 @@ export function registerAuthRoutes(app: Express) {
       const result = await authService.signup(validatedData);
       const { user: newUser, sessionId } = result;
       
-      res.cookie('sessionId', sessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      // Set session data for consistent session management
+      (req as any).session.userId = newUser.id;
+      (req as any).session.user = {
+        id: newUser.id,
+        email: newUser.email,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        role: newUser.role
+      };
+
+      // Send internal notification (async, don't block response)
+      internalNotifications.notifyUserRegistered({
+        userId: newUser.id,
+        userName: `${newUser.firstName} ${newUser.lastName}`.trim() || newUser.email,
+        userEmail: newUser.email,
+        role: newUser.role,
+        signupMethod: 'standard'
+      }).catch(notificationError => {
+        console.error('Error sending internal user registration notification:', notificationError);
       });
 
-      // Send internal notification
-      try {
-        await internalNotifications.notifyUserRegistered({
-          userId: newUser.id,
-          userName: `${newUser.firstName} ${newUser.lastName}`.trim() || newUser.email,
-          userEmail: newUser.email,
-          role: newUser.role,
-          signupMethod: 'standard'
-        });
-      } catch (notificationError) {
-        console.error('Error sending internal user registration notification:', notificationError);
-        // Don't fail the registration if internal notification fails
-      }
-
-      res.status(201).json({
-        user: {
-          id: newUser.id,
-          email: newUser.email,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          role: newUser.role
+      // Explicitly save session before responding (consistent with login flow)
+      (req as any).session.save((err: Error | null) => {
+        if (err) {
+          console.error('Session save error:', err);
+          return res.status(500).json({ message: 'Failed to create account - session error' });
         }
+        
+        res.status(201).json({
+          success: true,
+          user: {
+            id: newUser.id,
+            email: newUser.email,
+            firstName: newUser.firstName,
+            lastName: newUser.lastName,
+            role: newUser.role
+          }
+        });
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -73,113 +94,10 @@ export function registerAuthRoutes(app: Express) {
     }
   });
 
-  // User login
-  app.post("/api/auth/login", createRateLimitMiddleware(authLimiter), async (req: any, res) => {
-    try {
-      console.log("Login attempt for:", req.body.email);
-      const validatedData = loginSchema.parse(req.body);
-      
-      const result = await authService.login(validatedData);
-      if (!result) {
-        console.error("Login failed: authService.login returned null");
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-
-      const { user, sessionId } = result;
-      console.log("Login successful for user:", user.email, "with role:", user.role);
-      
-      // Set session data for req.session
-      req.session.userId = user.id;
-      req.session.user = {
-        id: user.id,
-        email: user.email,
-        name: `${user.firstName} ${user.lastName}`.trim() || user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        role: user.role
-      };
-      
-      res.cookie('sessionId', sessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-      });
-
-      res.json({
-        success: true,
-        requires2FA: false, // Critical: Frontend checks this flag, not twoFactorEnabled
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          twoFactorEnabled: false
-        }
-      });
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: "Invalid data", errors: error.errors });
-      }
-      console.error("Login error:", error);
-      res.status(401).json({ message: "Invalid credentials" });
-    }
-  });
-
-  // Get current user
-  app.get("/api/auth/user", requireAuth, async (req: any, res) => {
-    try {
-      // Get user ID from session (custom auth)
-      const userId = req.session?.userId;
-      if (!userId) {
-        return res.status(401).json({ message: "Not authenticated", _version: "v4_auth_fixed" });
-      }
-
-      // Get user from database
-      const [user] = await db
-        .select({
-          id: users.id,
-          email: users.email,
-          firstName: users.firstName,
-          lastName: users.lastName,
-          phone: users.phone,
-          role: users.role,
-          relationshipToCare: users.relationshipToCare,
-          careNeeds: users.careNeeds,
-          searchPreferences: users.searchPreferences,
-          notifications: users.notifications,
-          dashboardPreferences: users.dashboardPreferences,
-          createdAt: users.createdAt
-        })
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
-
-      if (!user) {
-        return res.status(401).json({ message: "User not found" });
-      }
-
-      // Return user data including role for admin dashboard access control
-      return res.json({
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        phone: user.phone,
-        role: user.role,
-        relationshipToCare: user.relationshipToCare,
-        careNeeds: user.careNeeds,
-        searchPreferences: user.searchPreferences,
-        notifications: user.notifications,
-        dashboardPreferences: user.dashboardPreferences,
-        createdAt: user.createdAt
-      });
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // NOTE: /api/auth/login is handled by custom-auth.ts (registered first)
+  // NOTE: /api/auth/user GET is handled by custom-auth.ts (registered first)
+  // NOTE: /api/auth/status is handled by custom-auth.ts (registered first)
+  // NOTE: /api/auth/logout is handled by custom-auth.ts (registered first)
 
   // Update user profile
   app.patch("/api/auth/user", requireAuth, async (req: any, res) => {
@@ -231,72 +149,8 @@ export function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Logout
-  app.post("/api/auth/logout", requireAuth, async (req: any, res) => {
-    try {
-      const sessionId = req.cookies?.sessionId;
-      if (sessionId) {
-        await authService.logout(sessionId);
-      }
-      
-      res.clearCookie('sessionId');
-      res.json({ message: "Logged out successfully" });
-    } catch (error) {
-      console.error("Logout error:", error);
-      res.status(500).json({ message: "Failed to logout" });
-    }
-  });
-
-  // Auth status check
-  app.get("/api/auth/status", async (req: any, res) => {
-    try {
-      const sessionId = req.cookies?.sessionId;
-      
-      if (!sessionId) {
-        return res.json({ isAuthenticated: false, authenticated: false, user: null });
-      }
-
-      const userId = await authService.validateSession(sessionId);
-      
-      if (!userId) {
-        return res.json({ isAuthenticated: false, authenticated: false, user: null });
-      }
-
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
-
-      if (!user) {
-        return res.json({ isAuthenticated: false, authenticated: false, user: null });
-      }
-
-      // Check if user is super admin by email
-      const SUPER_ADMIN_EMAILS = [
-        'william.cowell01@gmail.com',
-        'cowellandcowebdesign@gmail.com'
-      ];
-      
-      const isSuperAdmin = SUPER_ADMIN_EMAILS.includes(user.email?.toLowerCase() || '');
-      
-      res.json({
-        isAuthenticated: true,
-        authenticated: true, // Keep for backward compatibility
-        user: {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          role: user.role,
-          isAdmin: user.role === 'admin' || isSuperAdmin
-        }
-      });
-    } catch (error) {
-      console.error("Auth status error:", error);
-      res.json({ isAuthenticated: false, authenticated: false, user: null });
-    }
-  });
+  // NOTE: /api/auth/logout is handled by custom-auth.ts (registered first)
+  // NOTE: /api/auth/status is handled by custom-auth.ts (registered first)
 
   // Password reset request
   app.post("/api/auth/forgot-password", createRateLimitMiddleware(authLimiter), async (req, res) => {
@@ -462,38 +316,5 @@ export function registerAuthRoutes(app: Express) {
     }
   });
 
-  // Resend verification email
-  app.post("/api/auth/resend-verification", requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id;
-      if (!userId) {
-        return res.status(401).json({ message: "Unauthorized" });
-      }
-
-      const [user] = await db
-        .select()
-        .from(users)
-        .where(eq(users.id, userId))
-        .limit(1);
-
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
-      }
-
-      if (user.emailVerified) {
-        return res.status(400).json({ message: "Email already verified" });
-      }
-
-      // Generate new verification token
-      const verificationToken = await authService.generateEmailVerificationToken(userId);
-      
-      // TODO: Send verification email with token
-      console.log(`Email verification token for ${user.email}: ${verificationToken}`);
-
-      res.json({ message: "Verification email sent" });
-    } catch (error) {
-      console.error("Resend verification error:", error);
-      res.status(500).json({ message: "Failed to resend verification email" });
-    }
-  });
+  // NOTE: /api/auth/resend-verification is handled by custom-auth.ts (registered first)
 }

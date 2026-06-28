@@ -202,7 +202,8 @@ export async function sendCommunityWelcomeEmail(
     const msg = {
       to: customerEmail,
       from: 'hello@myseniorvalet.com',
-      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
+      replyTo: 'CowellandCoWebDesign@gmail.com',
+      bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `🎉 Welcome to MySeniorValet ${tierInfo.name} - ${community.name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -318,7 +319,8 @@ export async function sendVendorWelcomeEmail(
     const msg = {
       to: customerEmail,
       from: 'hello@myseniorvalet.com',
-      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
+      replyTo: 'CowellandCoWebDesign@gmail.com',
+      bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `🎉 Welcome to MySeniorValet ${tierInfo.name} - ${vendor.businessName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

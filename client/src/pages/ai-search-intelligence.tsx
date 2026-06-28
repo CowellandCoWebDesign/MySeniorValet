@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
+import heroImagePath from "@assets/generated_images/seniors_garden_celebration.png";
 import { Link } from 'wouter';
 import { NavigationHeader } from '@/components/NavigationHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,14 +14,15 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import Map from '@/components/Map';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
-import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
-import { FeaturedExcellenceCard } from '@/components/FeaturedExcellenceCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { AutocompleteSearch } from '@/components/AutocompleteSearch';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
 import { useLocationSEO } from '@/hooks/useLocationSEO';
+import { useAuth } from '@/hooks/useAuth';
 import { LocationSEOHead } from '@/components/LocationSEOHead';
 import { LocationInfo, LocationSEOService } from '@/services/locationSEO.service';
+import { MascotLoadingDisplay } from '@/components/MascotLoadingDisplay';
+import { GracefulFallbackMessage } from '@/components/GracefulFallbackMessage';
 import { 
   Brain, 
   MapPin, 
@@ -182,6 +184,7 @@ const getCityCoordinates = (city: string, state: string): [number, number] | nul
 export default function AISearchIntelligence() {
   // Location SEO hook
   const { location, isLocationPage, locationContent } = useLocationSEO();
+  const { isAuthenticated } = useAuth();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -191,10 +194,7 @@ export default function AISearchIntelligence() {
   const [mapZoom, setMapZoom] = useState(10);
   const [mapCommunities, setMapCommunities] = useState<any[]>([]);
   const [mapBounds, setMapBounds] = useState<{ north: number; south: number; east: number; west: number } | null>(null);
-  const [activeTab, setActiveTab] = useState(() => {
-    // Default to 'simplified' tab if coming from a location search
-    return isLocationPage ? 'simplified' : 'search';
-  });
+  const [activeTab, setActiveTab] = useState('simplified');
   const [searchType, setSearchType] = useState<'housing' | 'services' | 'marketplace' | 'resources'>('housing');
   const [useSemanticSearch, setUseSemanticSearch] = useState(true); // Enable semantic search by default
 
@@ -255,18 +255,24 @@ export default function AISearchIntelligence() {
     const city = urlParams.get('city');
     const state = urlParams.get('state');
     const country = urlParams.get('country');
+    // Company / brand / free-text query (used by the Community Directory's
+    // "Explore all" brand & section buttons). Any of these acts as the search term.
+    const company = urlParams.get('company');
+    const brand = urlParams.get('brand');
+    const query = urlParams.get('query');
+    const searchTerm = location || company || brand || query;
     
     if (mode === 'simplified') {
       setActiveTab('simplified');
     }
     
-    // Set location if provided
-    if (location) {
+    // Set the search term if provided (location, company, brand, or query)
+    if (searchTerm) {
       setSimplifiedFilters(prev => ({
         ...prev,
-        location: location
+        location: searchTerm
       }));
-      setSearchQuery(location);
+      setSearchQuery(searchTerm);
       
       // Try to set map center based on location
       if (city && state) {
@@ -492,23 +498,30 @@ export default function AISearchIntelligence() {
   // Simplified Search Mutation with Fallback Logic
   const simplifiedSearchMutation = useMutation({
     mutationFn: async (filters: typeof simplifiedFilters) => {
-      // Trim the location to handle spaces added by keyboards
+      // Trim the location/term to handle spaces added by keyboards
       const trimmedLocation = filters.location.trim();
       console.log('🔍 Searching for:', trimmedLocation);
       
-      // Primary search with all filters
+      // Primary search via the live unified search engine. The old
+      // /api/communities/search/unified path no longer exists (it returned the
+      // SPA HTML shell, silently breaking every search). /api/search/unified
+      // matches by location, community name AND management company, so brand /
+      // company "Explore all" buttons return results too.
       const primarySearchParams = new URLSearchParams({
-        location: trimmedLocation,
-        careType: filters.typeOfLiving.join(',') || 'All Types',
-        priceMin: filters.priceRange[0].toString(),
-        priceMax: filters.priceRange[1].toString(),
+        q: trimmedLocation,
         limit: '50',
         offset: '0'
       });
 
-      let response = await fetch(`/api/communities/search/unified?${primarySearchParams}`);
+      let response = await fetch(`/api/search/unified?${primarySearchParams}`);
       if (!response.ok) throw new Error('Simplified search failed');
       let data = await response.json();
+
+      // Normalize: the unified endpoint returns { communities: [...] }; the rest
+      // of this page expects a `results` array.
+      if (data && !Array.isArray(data.results) && Array.isArray(data.communities)) {
+        data.results = data.communities;
+      }
 
       // If no results and filters are restrictive, try fallback searches
       if (!data.results || data.results.length === 0) {
@@ -517,17 +530,17 @@ export default function AISearchIntelligence() {
         // Fallback 1: Remove price restrictions
         if (filters.priceRange[0] > 500 || filters.priceRange[1] < 8000) {
           const fallbackParams1 = new URLSearchParams({
-            location: trimmedLocation,
-            careType: filters.typeOfLiving.join(',') || 'All Types',
-            priceMin: '0',
-            priceMax: '15000',
+            q: trimmedLocation,
             limit: '25',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams1}`);
+          response = await fetch(`/api/search/unified?${fallbackParams1}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
@@ -541,17 +554,17 @@ export default function AISearchIntelligence() {
         // Fallback 2: Expand care types if specific types were selected
         if (filters.typeOfLiving.length > 0 && filters.typeOfLiving.length < 4) {
           const fallbackParams2 = new URLSearchParams({
-            location: trimmedLocation,
-            careType: 'All Types',
-            priceMin: filters.priceRange[0].toString(),
-            priceMax: filters.priceRange[1].toString(),
+            q: trimmedLocation,
             limit: '25',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams2}`);
+          response = await fetch(`/api/search/unified?${fallbackParams2}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
@@ -565,17 +578,17 @@ export default function AISearchIntelligence() {
         // Fallback 3: Location only (remove all other filters)
         if (trimmedLocation) {
           const fallbackParams3 = new URLSearchParams({
-            location: trimmedLocation,
-            careType: 'All Types',
-            priceMin: '0',
-            priceMax: '15000',
+            q: trimmedLocation,
             limit: '25',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams3}`);
+          response = await fetch(`/api/search/unified?${fallbackParams3}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
@@ -589,17 +602,17 @@ export default function AISearchIntelligence() {
         // Fallback 4: National search with care type only
         if (filters.typeOfLiving.length > 0) {
           const fallbackParams4 = new URLSearchParams({
-            location: '',
-            careType: filters.typeOfLiving.join(','),
-            priceMin: '0',
-            priceMax: '15000',
+            q: filters.typeOfLiving.join(' '),
             limit: '20',
             offset: '0'
           });
           
-          response = await fetch(`/api/communities/search/unified?${fallbackParams4}`);
+          response = await fetch(`/api/search/unified?${fallbackParams4}`);
           if (response.ok) {
             const fallbackData = await response.json();
+            if (!Array.isArray(fallbackData.results) && Array.isArray(fallbackData.communities)) {
+              fallbackData.results = fallbackData.communities;
+            }
             if (fallbackData.results && fallbackData.results.length > 0) {
               return {
                 ...fallbackData,
@@ -778,18 +791,17 @@ export default function AISearchIntelligence() {
         />
       )}
       
-      {/* Cosmic background image - same as hero page */}
+      {/* Background image - matching home page hero */}
       <div 
         className="fixed inset-0 z-0"
         style={{
-          backgroundImage: 'url(https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg)',
+          backgroundImage: `url(${heroImagePath})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed'
         }}
       >
-        {/* Enhanced overlay for better text readability in both modes */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 to-black/80 dark:from-black/60 dark:to-black/75" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/75 dark:from-black/55 dark:to-black/70" />
       </div>
       
       {/* Content */}
@@ -814,20 +826,22 @@ export default function AISearchIntelligence() {
 
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
-            <TabsTrigger value="search" className="flex items-center gap-2">
-              <Search className="w-4 h-4" />
-              AI Search
-            </TabsTrigger>
-            <TabsTrigger value="simplified" className="flex items-center gap-2">
-              <Filter className="w-4 h-4" />
-              Simplified
-            </TabsTrigger>
-            <TabsTrigger value="compare" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              AI Compare
-            </TabsTrigger>
-          </TabsList>
+          {isAuthenticated && (
+            <TabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
+              <TabsTrigger value="search" className="flex items-center gap-2">
+                <Search className="w-4 h-4" />
+                AI Search
+              </TabsTrigger>
+              <TabsTrigger value="simplified" className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                Simplified
+              </TabsTrigger>
+              <TabsTrigger value="compare" className="flex items-center gap-2">
+                <BarChart3 className="w-4 h-4" />
+                AI Compare
+              </TabsTrigger>
+            </TabsList>
+          )}
 
           {/* Intelligent Search Tab */}
           <TabsContent value="search" className="space-y-6">
@@ -1158,18 +1172,7 @@ export default function AISearchIntelligence() {
                           </p>
                         </div>
                       )}
-                      <PrioritizedCommunityCard
-                        community={community}
-                        variant="list"
-                        onSelect={() => {
-                          // Navigate to community detail page
-                          window.location.href = `/community/${community.id}`;
-                        }}
-                        onToggleFavorite={() => {
-                          console.log(`Toggled favorite: ${community.name}`);
-                        }}
-                        isFavorite={false}
-                      />
+                      <CommunityCard community={community} variant="list" />
                       <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
                           size="sm"
@@ -1307,82 +1310,8 @@ export default function AISearchIntelligence() {
             )}
           </TabsContent>
 
-          {/* Simplified Search Tab - New Layout Matching Screenshot */}
+          {/* Simplified Search Tab */}
           <TabsContent value="simplified" className="space-y-4 -mx-4">
-            {/* Header Section with Badges or Location-Specific Content */}
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
-              {isLocationPage && locationContent ? (
-                // Location-specific content when coming from a location search
-                <div className="space-y-4">
-                  <div className="flex flex-col lg:flex-row justify-between items-start gap-4">
-                    <div className="flex-1">
-                      <h1 className="text-3xl font-bold mb-2">{locationContent.headline}</h1>
-                      <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">{locationContent.subheadline}</p>
-                      
-                      <div className="space-y-2">
-                        {locationContent.highlights && locationContent.highlights.map((highlight, index) => (
-                          <div key={index} className="flex items-start gap-2">
-                            <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                            <span className="text-sm text-gray-700 dark:text-gray-300">{highlight}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-col gap-3">
-                      <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                        <Users className="w-4 h-4 mr-2" />
-                        Create A Profile
-                      </Button>
-                      <Button variant="outline">
-                        <MapPin className="w-4 h-4 mr-2" />
-                        View Map
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                // Default generic content when no location is specified
-                <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-2xl font-bold">Senior Living Research</h2>
-                    <span className="text-2xl font-bold text-blue-600">Simplified</span>
-                  </div>
-                  
-                  <div className="flex flex-wrap items-center gap-4">
-                    <div className="flex items-center gap-1">
-                      <Shield className="w-5 h-5 text-gray-600" />
-                      <div className="text-sm">
-                        <div className="font-semibold">Privacy</div>
-                        <div className="text-xs text-gray-500">We Don't Sell Your Personal Information To Facilities</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <Eye className="w-5 h-5 text-gray-600" />
-                      <div className="text-sm">
-                        <div className="font-semibold">Transparency</div>
-                        <div className="text-xs text-gray-500">Each Listing Has A Starting Price, Average Price, And Current Availability</div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-1">
-                      <CheckCircle className="w-5 h-5 text-gray-600" />
-                      <div className="text-sm">
-                        <div className="font-semibold">Convenience</div>
-                        <div className="text-xs text-gray-500">Have Questions? Direct Message The Facility Right From Their Listing</div>
-                      </div>
-                    </div>
-                    
-                    <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                      <Users className="w-4 h-4 mr-2" />
-                      Create A Profile
-                    </Button>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Search Bar with Predictive Text */}
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm p-4 mx-4">
               <AutocompleteSearch
@@ -1397,6 +1326,18 @@ export default function AISearchIntelligence() {
                     ...prev,
                     location: trimmedValue
                   }));
+                  // Geocode the location and move the map immediately
+                  if (trimmedValue) {
+                    fetch(`/api/geocode?location=${encodeURIComponent(trimmedValue)}`)
+                      .then(r => r.json())
+                      .then(geo => {
+                        if (geo?.lat && geo?.lng) {
+                          setMapCenter([geo.lat, geo.lng]);
+                          setMapZoom(12);
+                        }
+                      })
+                      .catch(() => {});
+                  }
                   // Execute search immediately with trimmed value
                   setTimeout(() => {
                     simplifiedSearchMutation.mutate({
@@ -1409,6 +1350,244 @@ export default function AISearchIntelligence() {
               />
             </div>
 
+
+            {/* Map and List Layout - Responsive */}
+            <div className="px-4">
+              {/* Horizontal Layout - Side by Side */}
+              {layoutMode === 'horizontal' && (
+              <div className="grid grid-cols-2 gap-2 sm:gap-4">
+                {/* List Section - Left Side */}
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col h-[400px] sm:h-[500px] md:h-[600px]">
+                  {/* Header with result count */}
+                  <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2 sm:py-3">
+                    <div className="flex items-center justify-between mb-1 sm:mb-2">
+                      <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
+                        {(() => {
+                          let count = 0;
+                          if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                            count = filterCommunitiesInBounds(simplifiedSearchMutation.data.results, mapBounds).length;
+                          } else if (simplifiedSearchMutation.data?.results?.length > 0) {
+                            count = simplifiedSearchMutation.data.results.length;
+                          } else {
+                            count = mapCommunities.length;
+                          }
+                          
+                          return count > 0 
+                            ? `${count} Communities in View`
+                            : 'Search Results';
+                        })()}
+                      </h3>
+                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs">
+                        Live Data
+                      </Badge>
+                    </div>
+                    
+                    {/* Regional Theme Legend - Hidden on mobile in horizontal mode for space */}
+                    <div className="hidden sm:flex flex-wrap gap-2 text-xs">
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-green-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">HUD</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-red-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">CAN</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">HI</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-yellow-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">FL</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <div className="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded"></div>
+                        <span className="text-gray-600 dark:text-gray-400">TX</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto">
+                    {simplifiedSearchMutation.isPending ? (
+                      <div className="flex items-center justify-center h-full py-8">
+                        <MascotLoadingDisplay
+                          title="Searching..."
+                          subtitle={`Finding senior communities${simplifiedFilters.location ? ` in ${simplifiedFilters.location}` : ' across our database and the web'}`}
+                          showProgress={true}
+                          progressDuration={10}
+                          compact={true}
+                          processStages={[
+                            "Searching our database of 32,970+ communities",
+                            "Scanning web sources for new communities",
+                            "Verifying addresses and contact details",
+                            "Ranking results by relevance"
+                          ]}
+                        />
+                      </div>
+                    ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
+                      <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                        {(() => {
+                          // Get the base list of communities to display
+                          let communitiesToShow = simplifiedSearchMutation.data?.results?.length > 0 
+                            ? simplifiedSearchMutation.data.results 
+                            : mapCommunities;
+                          
+                          // Filter by map bounds if we have search results
+                          if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                            communitiesToShow = filterCommunitiesInBounds(communitiesToShow, mapBounds);
+                          }
+                          
+                          return communitiesToShow.map((community: any, index: number) => {
+                          // Determine special styling based on community type
+                          const isHUD = community.hudPropertyId || community.communitySubtype === 'hud_senior_housing';
+                          const isCanadian = community.state === 'AB' || community.state === 'BC' || community.state === 'ON' || community.state === 'QC';
+                          const isHawaiian = community.state === 'HI';
+                          const isMexican = community.country === 'MX';
+                          const isFlorida = community.state === 'FL';
+                          const isTexas = community.state === 'TX';
+                          const isNewYork = community.state === 'NY';
+                          const isArizona = community.state === 'AZ';
+                          const hasOccupancy = community.occupancyRate || community.occupancyRateHud;
+                          const isFeatured = community.priceTier === 'featured' || community.priceTier === 'platinum';
+                          const hasSpecialOffer = community.specialOffer || community.monthlyDiscount;
+                          
+                          return (
+                            <div 
+                              key={community.id}
+                              id={`community-${community.id}`}
+                              className="p-2"
+                            >
+                              <CommunityCard community={community} variant="list" />
+                            </div>
+                          );
+                        });
+                        })()}
+                    </div>
+                  ) : (
+                    <GracefulFallbackMessage
+                      message="We searched our entire database and the web but couldn't find senior communities matching this location. Try a nearby city, the full state name, or contact us for personal assistance."
+                      originalResultCount={0}
+                      totalFallbackResults={0}
+                      searchQuery={simplifiedFilters.location || ''}
+                      location={simplifiedFilters.location}
+                    />
+                  )}
+                  </div>
+                </div>
+                
+                {/* Map Section - Right Side */}
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden h-[400px] sm:h-[500px] md:h-[600px]">
+                  <Map
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  searchFilters={{
+                    careType: simplifiedFilters.typeOfLiving.join(','),
+                    budget: `${simplifiedFilters.priceRange[0]}-${simplifiedFilters.priceRange[1]}`,
+                    availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
+                  }}
+                  onBoundsChange={(bounds) => {
+                    // Always load communities when map bounds change
+                    if (bounds) {
+                      const west = bounds.getWest ? bounds.getWest() : bounds.west;
+                      const east = bounds.getEast ? bounds.getEast() : bounds.east;
+                      const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
+                      const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
+                      
+                      // Store bounds for filtering
+                      setMapBounds({ north, south, east, west });
+                      
+                      console.log('📍 Fetching communities for bounds:', { west, east, south, north });
+                      // Use the map-data endpoint to get communities within bounds
+                      fetch(`/api/communities/map-data?bounds=${west},${south},${east},${north}`)
+                        .then(res => {
+                          if (!res.ok) throw new Error(`Failed: ${res.status}`);
+                          return res.json();
+                        })
+                        .then(data => {
+                          console.log('📍 Bounds response for list:', data);
+                          if (Array.isArray(data)) {
+                            console.log(`📍 Setting ${data.length} communities to list from map bounds`);
+                            setMapCommunities(data);
+                          } else {
+                            console.log('📍 Unexpected response format from map-data endpoint');
+                            setMapCommunities([]);
+                          }
+                        })
+                        .catch(err => {
+                          console.error('Error fetching map communities:', err.message || err);
+                        });
+                    }
+                  }}
+                  onCommunityClick={(community: any) => {
+                    // Scroll to community in list
+                    const element = document.getElementById(`community-${community.id}`);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                  height='100%'
+                  />
+                </div>
+              </div>
+              )}
+
+              {/* Vertical Layout - Map Above, List Below */}
+              {layoutMode === 'vertical' && (
+              <div className="space-y-4">
+                {/* Map Section */}
+                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
+                  <Map
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  searchFilters={{
+                    careType: simplifiedFilters.typeOfLiving.join(','),
+                    budget: `${simplifiedFilters.priceRange[0]}-${simplifiedFilters.priceRange[1]}`,
+                    availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
+                  }}
+                  onBoundsChange={(bounds) => {
+                    // Always load communities when map bounds change
+                    if (bounds) {
+                      const west = bounds.getWest ? bounds.getWest() : bounds.west;
+                      const east = bounds.getEast ? bounds.getEast() : bounds.east;
+                      const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
+                      const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
+                      
+                      // Store bounds for filtering
+                      setMapBounds({ north, south, east, west });
+                      
+                      console.log('📍 Fetching communities for bounds:', { west, east, south, north });
+                      // Use the map-data endpoint to get communities within bounds
+                      fetch(`/api/communities/map-data?bounds=${west},${south},${east},${north}`)
+                        .then(res => {
+                          if (!res.ok) throw new Error(`Failed: ${res.status}`);
+                          return res.json();
+                        })
+                        .then(data => {
+                          console.log('📍 Bounds response for list:', data);
+                          if (Array.isArray(data)) {
+                            console.log(`📍 Setting ${data.length} communities to list from map bounds`);
+                            setMapCommunities(data);
+                          } else {
+                            console.log('📍 Unexpected response format from map-data endpoint');
+                            setMapCommunities([]);
+                          }
+                        })
+                        .catch(err => {
+                          console.error('Error fetching map communities:', err.message || err);
+                        });
+                    }
+                  }}
+                  onCommunityClick={(community: any) => {
+                    // Scroll to community in list
+                    const element = document.getElementById(`community-${community.id}`);
+                    if (element) {
+                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                  }}
+                  height='400px'
+                  />
+                </div>
+                
             {/* Filter Bar with Type of Living First */}
             <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 mx-4">
               {/* Filters Header with Collapse Toggle */}
@@ -2404,250 +2583,6 @@ export default function AISearchIntelligence() {
               </div>
             </div>
 
-            {/* Map and List Layout - Responsive */}
-            <div className="px-4">
-              {/* Horizontal Layout - Side by Side */}
-              {layoutMode === 'horizontal' && (
-              <div className="grid grid-cols-2 gap-2 sm:gap-4">
-                {/* List Section - Left Side */}
-                <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col h-[400px] sm:h-[500px] md:h-[600px]">
-                  {/* Header with result count */}
-                  <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-2 sm:px-4 py-2 sm:py-3">
-                    <div className="flex items-center justify-between mb-1 sm:mb-2">
-                      <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
-                        {(() => {
-                          let count = 0;
-                          if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
-                            count = filterCommunitiesInBounds(simplifiedSearchMutation.data.results, mapBounds).length;
-                          } else if (simplifiedSearchMutation.data?.results?.length > 0) {
-                            count = simplifiedSearchMutation.data.results.length;
-                          } else {
-                            count = mapCommunities.length;
-                          }
-                          
-                          return count > 0 
-                            ? `${count} Communities in View`
-                            : 'Search Results';
-                        })()}
-                      </h3>
-                      <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-xs">
-                        Live Data
-                      </Badge>
-                    </div>
-                    
-                    {/* Regional Theme Legend - Hidden on mobile in horizontal mode for space */}
-                    <div className="hidden sm:flex flex-wrap gap-2 text-xs">
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-green-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">HUD</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-red-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">CAN</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-cyan-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">HI</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-gradient-to-r from-orange-500 to-yellow-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">FL</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded"></div>
-                        <span className="text-gray-600 dark:text-gray-400">TX</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 overflow-y-auto">
-                    {simplifiedSearchMutation.isPending ? (
-                      <div className="flex items-center justify-center h-full">
-                        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-                      </div>
-                    ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
-                      <div className="divide-y divide-gray-200 dark:divide-gray-700">
-                        {(() => {
-                          // Get the base list of communities to display
-                          let communitiesToShow = simplifiedSearchMutation.data?.results?.length > 0 
-                            ? simplifiedSearchMutation.data.results 
-                            : mapCommunities;
-                          
-                          // Filter by map bounds if we have search results
-                          if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
-                            communitiesToShow = filterCommunitiesInBounds(communitiesToShow, mapBounds);
-                          }
-                          
-                          return communitiesToShow.map((community: any, index: number) => {
-                          // Determine special styling based on community type
-                          const isHUD = community.hudPropertyId || community.communitySubtype === 'hud_senior_housing';
-                          const isCanadian = community.state === 'AB' || community.state === 'BC' || community.state === 'ON' || community.state === 'QC';
-                          const isHawaiian = community.state === 'HI';
-                          const isMexican = community.country === 'MX';
-                          const isFlorida = community.state === 'FL';
-                          const isTexas = community.state === 'TX';
-                          const isNewYork = community.state === 'NY';
-                          const isArizona = community.state === 'AZ';
-                          const hasOccupancy = community.occupancyRate || community.occupancyRateHud;
-                          const isFeatured = community.priceTier === 'featured' || community.priceTier === 'platinum';
-                          const hasSpecialOffer = community.specialOffer || community.monthlyDiscount;
-                          
-                          return (
-                            <div 
-                              key={community.id}
-                              id={`community-${community.id}`}
-                              className="p-2"
-                            >
-                              <FeaturedExcellenceCard 
-                                community={{
-                                  ...community,
-                                  name: community.name || 'Community',
-                                  city: community.city || 'City',
-                                  state: community.state || 'State',
-                                  rating: community.rating || 4.5,
-                                  photos: community.photos || [],
-                                  careTypes: community.careTypes || [],
-                                  amenities: community.amenities || [],
-                                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                                  priceRange: community.priceRange,
-                                  phone: community.phone,
-                                  website: community.website
-                                }}
-                                index={index}
-                                compact={true}
-                                disableAutoPhotoLoad={true}
-                              />
-                            </div>
-                          );
-                        });
-                        })()}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                      <MapPin className="w-12 h-12 text-gray-400 mb-4" />
-                      <h3 className="font-semibold text-lg mb-2">No Results Found</h3>
-                      <p className="text-sm text-gray-500">
-                        Try adjusting your filters, search in a different location, or navigate the map to see available communities
-                      </p>
-                    </div>
-                  )}
-                  </div>
-                </div>
-                
-                {/* Map Section - Right Side */}
-                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden h-[400px] sm:h-[500px] md:h-[600px]">
-                  <Map
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  searchFilters={{
-                    careType: simplifiedFilters.typeOfLiving.join(','),
-                    budget: `${simplifiedFilters.priceRange[0]}-${simplifiedFilters.priceRange[1]}`,
-                    availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
-                  }}
-                  onBoundsChange={(bounds) => {
-                    // Always load communities when map bounds change
-                    if (bounds) {
-                      const west = bounds.getWest ? bounds.getWest() : bounds.west;
-                      const east = bounds.getEast ? bounds.getEast() : bounds.east;
-                      const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
-                      const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
-                      
-                      // Store bounds for filtering
-                      setMapBounds({ north, south, east, west });
-                      
-                      console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      // Use the map-data endpoint to get communities within bounds
-                      fetch(`/api/communities/map-data?bounds=${west},${south},${east},${north}`)
-                        .then(res => {
-                          if (!res.ok) throw new Error(`Failed: ${res.status}`);
-                          return res.json();
-                        })
-                        .then(data => {
-                          console.log('📍 Bounds response for list:', data);
-                          if (Array.isArray(data)) {
-                            console.log(`📍 Setting ${data.length} communities to list from map bounds`);
-                            setMapCommunities(data);
-                          } else {
-                            console.log('📍 Unexpected response format from map-data endpoint');
-                            setMapCommunities([]);
-                          }
-                        })
-                        .catch(err => {
-                          console.error('Error fetching map communities:', err.message || err);
-                        });
-                    }
-                  }}
-                  onCommunityClick={(community: any) => {
-                    // Scroll to community in list
-                    const element = document.getElementById(`community-${community.id}`);
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }}
-                  height='100%'
-                  />
-                </div>
-              </div>
-              )}
-
-              {/* Vertical Layout - Map Above, List Below */}
-              {layoutMode === 'vertical' && (
-              <div className="space-y-4">
-                {/* Map Section */}
-                <div className="bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden">
-                  <Map
-                  center={mapCenter}
-                  zoom={mapZoom}
-                  searchFilters={{
-                    careType: simplifiedFilters.typeOfLiving.join(','),
-                    budget: `${simplifiedFilters.priceRange[0]}-${simplifiedFilters.priceRange[1]}`,
-                    availability: simplifiedFilters.immediateAvailability ? 'immediate' : 'any'
-                  }}
-                  onBoundsChange={(bounds) => {
-                    // Always load communities when map bounds change
-                    if (bounds) {
-                      const west = bounds.getWest ? bounds.getWest() : bounds.west;
-                      const east = bounds.getEast ? bounds.getEast() : bounds.east;
-                      const south = bounds.getSouth ? bounds.getSouth() : bounds.south;
-                      const north = bounds.getNorth ? bounds.getNorth() : bounds.north;
-                      
-                      // Store bounds for filtering
-                      setMapBounds({ north, south, east, west });
-                      
-                      console.log('📍 Fetching communities for bounds:', { west, east, south, north });
-                      // Use the map-data endpoint to get communities within bounds
-                      fetch(`/api/communities/map-data?bounds=${west},${south},${east},${north}`)
-                        .then(res => {
-                          if (!res.ok) throw new Error(`Failed: ${res.status}`);
-                          return res.json();
-                        })
-                        .then(data => {
-                          console.log('📍 Bounds response for list:', data);
-                          if (Array.isArray(data)) {
-                            console.log(`📍 Setting ${data.length} communities to list from map bounds`);
-                            setMapCommunities(data);
-                          } else {
-                            console.log('📍 Unexpected response format from map-data endpoint');
-                            setMapCommunities([]);
-                          }
-                        })
-                        .catch(err => {
-                          console.error('Error fetching map communities:', err.message || err);
-                        });
-                    }
-                  }}
-                  onCommunityClick={(community: any) => {
-                    // Scroll to community in list
-                    const element = document.getElementById(`community-${community.id}`);
-                    if (element) {
-                      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                  }}
-                  height='400px'
-                  />
-                </div>
-                
                 {/* List Section - Below Map */}
               <div className="w-full bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 rounded-lg shadow-sm overflow-hidden flex flex-col">
                 {/* Header with result count */}
@@ -2701,8 +2636,20 @@ export default function AISearchIntelligence() {
                 
                 <div className="flex-1 overflow-y-auto">
                   {simplifiedSearchMutation.isPending ? (
-                    <div className="flex items-center justify-center h-full">
-                      <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+                    <div className="flex items-center justify-center h-full py-8">
+                      <MascotLoadingDisplay
+                        title="Searching..."
+                        subtitle={`Finding senior communities${simplifiedFilters.location ? ` in ${simplifiedFilters.location}` : ' across our database and the web'}`}
+                        showProgress={true}
+                        progressDuration={10}
+                        compact={true}
+                        processStages={[
+                          "Searching our database of 32,970+ communities",
+                          "Scanning web sources for new communities",
+                          "Verifying addresses and contact details",
+                          "Ranking results by relevance"
+                        ]}
+                      />
                     </div>
                   ) : (simplifiedSearchMutation.data?.results?.length > 0 || mapCommunities.length > 0) ? (
                     <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -2793,26 +2740,7 @@ export default function AISearchIntelligence() {
                             
                             {/* Enhanced card with featured styling */}
                             <div className="p-3">
-                              <FeaturedExcellenceCard 
-                                community={{
-                                  ...community,
-                                  name: community.name || 'Community',
-                                  city: community.city || 'City', 
-                                  state: community.state || 'State',
-                                  rating: community.rating || 4.5,
-                                  photos: community.photos || [],
-                                  careTypes: community.careTypes || [],
-                                  amenities: community.amenities || [],
-                                  occupancyRate: community.occupancyRate || community.occupancyRateHud || 0,
-                                  totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                                  priceRange: community.priceRange,
-                                  phone: community.phone,
-                                  website: community.website
-                                }}
-                                index={index}
-                                compact={true}
-                                disableAutoPhotoLoad={true}
-                              />
+                              <CommunityCard community={community} variant="compact" />
                             </div>
                           </div>
                         );
@@ -2820,19 +2748,20 @@ export default function AISearchIntelligence() {
                       })()}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-                    <MapPin className="w-12 h-12 text-gray-400 mb-4" />
-                    <h3 className="font-semibold text-lg mb-2">No Results Found</h3>
-                    <p className="text-sm text-gray-500">
-                      Try adjusting your filters, search in a different location, or navigate the map to see available communities
-                    </p>
-                  </div>
+                  <GracefulFallbackMessage
+                    message="We searched our entire database and the web but couldn't find senior communities matching this location. Try a nearby city, the full state name, or contact us for personal assistance."
+                    originalResultCount={0}
+                    totalFallbackResults={0}
+                    searchQuery={simplifiedFilters.location || ''}
+                    location={simplifiedFilters.location}
+                  />
                 )}
                 </div>
               </div>
               </div>
               )}
             </div>
+
           </TabsContent>
 
 

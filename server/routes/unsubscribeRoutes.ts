@@ -49,7 +49,7 @@ router.post('/api/unsubscribe', async (req: Request, res: Response) => {
             <p style="margin-top: 30px;">If you unsubscribed by mistake, you can <a href="https://myseniorvalet.com/email-preferences" style="color: #1e40af;">update your email preferences</a> anytime.</p>
             <p style="color: #666; font-size: 14px; margin-top: 30px;">
               MySeniorValet - Clarity in Senior Living<br>
-              hello@myseniorvalet.com
+              CowellandCoWebDesign@gmail.com
             </p>
           </div>
         `
@@ -74,7 +74,7 @@ router.get('/api/unsubscribe', async (req: Request, res: Response) => {
         <html>
           <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
             <h1>Invalid Unsubscribe Link</h1>
-            <p>The unsubscribe link appears to be invalid. Please contact hello@myseniorvalet.com for assistance.</p>
+            <p>The unsubscribe link appears to be invalid. Please contact CowellandCoWebDesign@gmail.com for assistance.</p>
           </body>
         </html>
       `);
@@ -109,7 +109,7 @@ router.get('/api/unsubscribe', async (req: Request, res: Response) => {
             <p style="margin-top: 30px;">If you unsubscribed by mistake, you can <a href="https://myseniorvalet.com/email-preferences" style="color: #1e40af;">update your email preferences</a> anytime.</p>
             <p style="color: #666; font-size: 14px; margin-top: 30px;">
               MySeniorValet - Clarity in Senior Living<br>
-              hello@myseniorvalet.com
+              CowellandCoWebDesign@gmail.com
             </p>
           </div>
         `
@@ -150,7 +150,7 @@ router.get('/api/unsubscribe', async (req: Request, res: Response) => {
       <html>
         <body style="font-family: Arial, sans-serif; text-align: center; padding: 50px;">
           <h1>Unsubscribe Error</h1>
-          <p>We encountered an error processing your request. Please contact hello@myseniorvalet.com for assistance.</p>
+          <p>We encountered an error processing your request. Please contact CowellandCoWebDesign@gmail.com for assistance.</p>
         </body>
       </html>
     `);

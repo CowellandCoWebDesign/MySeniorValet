@@ -51,6 +51,7 @@ import { apiRequest } from "@/lib/queryClient";
 import { Header } from "@/components/header";
 import { useToast } from "@/hooks/use-toast";
 import { CRMIntegrationPanel } from "@/components/CRMIntegrationPanel";
+import { PAID_TIERS_DISABLED, CONTACT_SALES_MAILTO } from "@/lib/feature-flags";
 
 export default function CommunityPortal() {
   const [selectedTier, setSelectedTier] = useState<string>('featured');
@@ -627,14 +628,23 @@ export default function CommunityPortal() {
           )}
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {plans.map((plan) => (
+            {plans.map((plan) => {
+              const isPaidDisabled = PAID_TIERS_DISABLED && plan.tier !== 'free';
+              return (
               <Card
                 key={plan.id}
-                className={`relative transform transition-all duration-300 hover:scale-105 ${
+                className={`relative transform transition-all duration-300 ${isPaidDisabled ? 'opacity-60' : 'hover:scale-105'} ${
                   tierColors[plan.tier as keyof typeof tierColors]
                 } ${plan.popular ? 'shadow-2xl' : 'shadow-lg'}`}
               >
-                {plan.popular && (
+                {isPaidDisabled && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                    <Badge className="bg-gray-700 text-white px-3 py-1 text-xs">
+                      Coming Soon
+                    </Badge>
+                  </div>
+                )}
+                {!isPaidDisabled && plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-gradient-to-r from-purple-600 to-violet-600 text-white px-4 py-1">
                       <Sparkles className="w-3 h-3 mr-1" />
@@ -670,30 +680,40 @@ export default function CommunityPortal() {
                     </div>
                   ))}
                   
-                  <Button
-                    onClick={() => handleUpgrade(plan.name)}
-                    disabled={(() => {
-                      if (!existingCommunityData) return false;
-                      const currentTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(existingCommunityData.currentTier);
-                      const planTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(plan.tier);
-                      return planTierIndex <= currentTierIndex;
-                    })()}
-                    className={`w-full mt-6 ${
-                      plan.tier === 'verified' 
-                        ? 'bg-gray-600 hover:bg-gray-700' 
-                        : plan.tier === 'standard'
-                        ? 'bg-blue-600 hover:bg-blue-700'
-                        : plan.tier === 'featured'
-                        ? 'bg-purple-600 hover:bg-purple-700'
-                        : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
-                    } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
-                  >
-                    {plan.buttonText}
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  {isPaidDisabled ? (
+                    <Button
+                      onClick={() => window.open(CONTACT_SALES_MAILTO, '_blank')}
+                      className="w-full mt-6 bg-gray-500 hover:bg-gray-600 text-white"
+                    >
+                      Contact Sales →
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => handleUpgrade(plan.name)}
+                      disabled={(() => {
+                        if (!existingCommunityData) return false;
+                        const currentTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(existingCommunityData.currentTier);
+                        const planTierIndex = ['verified', 'standard', 'featured', 'platinum'].indexOf(plan.tier);
+                        return planTierIndex <= currentTierIndex;
+                      })()}
+                      className={`w-full mt-6 ${
+                        plan.tier === 'verified' 
+                          ? 'bg-gray-600 hover:bg-gray-700' 
+                          : plan.tier === 'standard'
+                          ? 'bg-blue-600 hover:bg-blue-700'
+                          : plan.tier === 'featured'
+                          ? 'bg-purple-600 hover:bg-purple-700'
+                          : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600'
+                      } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+                    >
+                      {plan.buttonText}
+                      <ChevronRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
-            ))}
+              );
+            })}
           </div>
         </div>
 

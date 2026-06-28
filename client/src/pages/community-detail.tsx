@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { HumanVerificationGate } from '@/components/HumanVerificationGate';
+import ReactMarkdown from 'react-markdown';
 import { useParams, useLocation, Link } from 'wouter';
 import { useResponsive } from '@/contexts/ResponsiveContext';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -38,7 +40,6 @@ import {
 } from "@/lib/amenities-checklists";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
-import { AutocompleteSearch } from "@/components/AutocompleteSearch";
 import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
 import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
@@ -52,6 +53,9 @@ import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { ReservationSection } from "@/components/ReservationSection";
 import { HealthcarePartnerships } from "@/components/HealthcarePartnerships";
 import { useFavorites, useAddFavorite, useRemoveFavorite } from "@/hooks/useFavorites";
+import { useAuth } from "@/hooks/useAuth";
+import { useContactReveal } from "@/hooks/useContactReveal";
+import { LockedField } from "@/components/LockedField";
 import valetMascot from '@/assets/valet-mascot.png';
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { ReservationDialog } from '@/components/ReservationDialog';
@@ -628,11 +632,11 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
 
   return (
     <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
-      {/* Perplexity AI Badge */}
+      {/* Web Intelligence Badge */}
       <div className="absolute top-4 right-4 z-10">
         <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
           <Sparkles className="w-3 h-3 mr-1" />
-          Powered by Perplexity AI
+          Free Web Intelligence
         </div>
       </div>
 
@@ -706,7 +710,13 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
                     <div>
                       <p className="font-medium text-green-800 dark:text-green-200">Pricing Information Found:</p>
-                      <p className="text-lg font-bold text-green-900 dark:text-green-100">{validPricing}</p>
+                      <LockedField
+                        revealed={isDetailRevealed('pricing')}
+                        onReveal={() => revealDetail('pricing')}
+                        label="Unlock pricing"
+                      >
+                        <p className="text-lg font-bold text-green-900 dark:text-green-100">{validPricing}</p>
+                      </LockedField>
                       <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                         Contact community to verify current pricing
                       </p>
@@ -795,7 +805,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 <h4 className="font-semibold text-lg mb-3 flex items-center">
                   <Info className="w-5 h-5 mr-2 text-blue-600" />
                   Recent News & Updates
-                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Web Search</span>
                 </h4>
                 <div className="space-y-2">
                   {news.map((item: string, idx: number) => (
@@ -818,7 +828,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 <h4 className="font-semibold text-lg mb-3 flex items-center">
                   <CalendarIcon className="w-5 h-5 mr-2 text-orange-600" />
                   Upcoming Events
-                  <span className="ml-2 text-xs font-normal text-gray-500">via Perplexity AI</span>
+                  <span className="ml-2 text-xs font-normal text-gray-500">via Web Search</span>
                 </h4>
                 <div className="space-y-2">
                   {events.map((item: string, idx: number) => (
@@ -838,7 +848,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
             <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                  🔍 Verified by Perplexity AI from {realTimeData?.sources.length} trusted sources
+                  🔍 Verified from {realTimeData?.sources.length} trusted web sources
                 </p>
                 <div className="flex items-center text-xs text-gray-500">
                   <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
@@ -887,7 +897,7 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                     <Globe className="w-5 h-5 mr-2 text-indigo-600" />
                     What We Found About {community?.name}
                   </h4>
-                  <p className="text-xs text-muted-foreground">Powered by Perplexity AI</p>
+                  <p className="text-xs text-muted-foreground">Powered by Free Web Intelligence</p>
                 </div>
                 <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
                   Live Web Search
@@ -945,13 +955,20 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                 {(() => {
                   // Check all possible data paths for Perplexity content
                   // CRITICAL FIX: Backend returns content in searchResults.summary (primary source)
-                  const perplexityContent = 
+                  // Prefer the clean, persisted community.description. The live
+                  // verify content is only used as a fallback and only when it is
+                  // NOT legacy conversational AI output (hallucinated date / wrong
+                  // phone) — that blob must never render as the overview.
+                  const liveVerifyContent =
                     localVerificationReport?.verificationResults?.searchResults?.summary ||
                     localVerificationReport?.searchResults?.summary ||
                     localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
                     localVerificationReport?.perplexityData?.searchContent ||
                     localVerificationReport?.searchContent ||
                     localVerificationReport?.content;
+                  const perplexityContent =
+                    community?.description ||
+                    (isLegacyVerifyBlob(liveVerifyContent) ? undefined : liveVerifyContent);
                   
                   const perplexitySources = 
                     localVerificationReport?.verificationResults?.perplexityData?.sources ||
@@ -982,9 +999,44 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                       {/* ALWAYS show full Perplexity search content if available - this is the primary source */}
                       {perplexityContent && (
                         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
-                          {/* Full unfiltered response in a structured format */}
-                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
-                            {perplexityContent}
+                          {/* Rendered markdown response */}
+                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                            <ReactMarkdown
+                              components={{
+                                strong: ({ children }) => (
+                                  <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>
+                                ),
+                                p: ({ children }) => (
+                                  <p className="mb-2 last:mb-0">{children}</p>
+                                ),
+                                ul: ({ children }) => (
+                                  <ul className="list-disc list-inside space-y-1 mb-2">{children}</ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol className="list-decimal list-inside space-y-1 mb-2">{children}</ol>
+                                ),
+                                li: ({ children }) => (
+                                  <li className="text-gray-700 dark:text-gray-300">{children}</li>
+                                ),
+                                h1: ({ children }) => (
+                                  <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1 mt-3">{children}</h1>
+                                ),
+                                h2: ({ children }) => (
+                                  <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1 mt-3">{children}</h2>
+                                ),
+                                h3: ({ children }) => (
+                                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1 mt-2">{children}</h3>
+                                ),
+                                a: ({ href, children }) => (
+                                  <a href={href} target="_blank" rel="noopener noreferrer"
+                                    className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300">
+                                    {children}
+                                  </a>
+                                ),
+                              }}
+                            >
+                              {perplexityContent}
+                            </ReactMarkdown>
                           </div>
                           
                           {/* Show sources if available */}
@@ -1346,24 +1398,79 @@ const calculateCompositeRating = (community: Community): string => {
     yelpScore: 0.2       // 20% weight for Yelp reviews
   };
 
-  // Get individual scores - tour properties will be added to schema
-  const tourScore = parseFloat((community as any).tourAverageRating || '4.5');
-  const googleScore = parseFloat(community.googleRating?.toString() || '4.2');
-  const yelpScore = parseFloat((community as any).yelpRating || '4.0');
+  // Only use scores from verified real sources — no fabricated fallbacks
+  const realTour = (community as any).tourAverageRating ? parseFloat((community as any).tourAverageRating) : null;
+  const realGoogle = community.googleRating ? parseFloat(community.googleRating.toString()) : null;
+  const realYelp = (community as any).yelpRating ? parseFloat((community as any).yelpRating) : null;
 
-  // Calculate weighted average
-  const compositeScore = 
-    (tourScore * weights.tourScore) +
-    (googleScore * weights.googleScore) +
-    (yelpScore * weights.yelpScore);
+  if (!realTour && !realGoogle && !realYelp) return '';
 
+  let totalWeight = 0;
+  let weightedSum = 0;
+  if (realTour !== null) { weightedSum += realTour * weights.tourScore; totalWeight += weights.tourScore; }
+  if (realGoogle !== null) { weightedSum += realGoogle * weights.googleScore; totalWeight += weights.googleScore; }
+  if (realYelp !== null) { weightedSum += realYelp * weights.yelpScore; totalWeight += weights.yelpScore; }
+
+  const compositeScore = weightedSum / totalWeight;
   return compositeScore.toFixed(1);
 };
 
+/**
+ * Detect legacy conversational AI output from the old verify path — e.g.
+ * "I have conducted a real-time web search ... as of my search on November 20,
+ * 2023 ...". This text was never persisted to community.description; it lives
+ * only in the browser enrichment cache and contains hallucinated dates / wrong
+ * contact info. We must never render it as the headline Community Overview.
+ */
+const LEGACY_VERIFY_BLOB_PATTERNS = [
+  /i have conducted/i,
+  /real-?time web search/i,
+  /as of my (search|knowledge)/i,
+  /knowledge cut-?off/i,
+  /as an ai\b/i,
+  /i (don'?t|do not) have (access|real-?time)/i,
+  /i (cannot|can'?t) (browse|access)/i,
+  /based on my search/i,
+  /my (search|training) (on|data)/i,
+];
+
+function isLegacyVerifyBlob(text: unknown): boolean {
+  if (typeof text !== 'string' || text.length === 0) return false;
+  return LEGACY_VERIFY_BLOB_PATTERNS.some((re) => re.test(text));
+}
+
 export default function CommunityDetail() {
-  const { id } = useParams<{ id: string }>();
+  const params = useParams<{ id?: string; state?: string; city?: string; slug?: string }>();
+  const { id, state: stateParam, city: cityParam, slug } = params;
+  const isSlugBased = !!(stateParam && slug);
   const [, setLocation] = useLocation();
   
+  // Auth state — used to gate the favorite button and the admin Perplexity path
+  const { isAuthenticated, user } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+
+  // Always call useQuery hook regardless of ID validity to maintain consistent hook order
+  const slugQueryKey = isSlugBased ? `/api/communities/by-slug/${stateParam}/${cityParam}/${slug}` : null;
+  const idQueryKey = !isSlugBased ? `/api/communities/${id}` : null;
+  const { data: community, isLoading, error } = useQuery<Community>({
+    queryKey: isSlugBased
+      ? [slugQueryKey]
+      : [idQueryKey],
+    enabled: isSlugBased
+      ? !!(stateParam && slug)
+      : (!!id && id !== '-1' && !isNaN(Number(id))),
+    // Task #300: never treat the community record as fresh. Enrichment (on-view,
+    // self-heal, admin, refresh) persists photos/description/pricing in the
+    // background; a long staleTime would keep serving the pre-enrichment empty
+    // copy on revisit (navigate away & back, later session) until a hard reload.
+    // staleTime:0 makes every mount/refocus refetch the authoritative DB record,
+    // while gcTime keeps the cached copy so it renders instantly then swaps in the
+    // saved data once the background refetch lands.
+    staleTime: 0,
+    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
+  });
+
   // Favorites functionality - using hooks for persistence
   const { data: favorites = [], isLoading: favoritesLoading } = useFavorites();
   const addFavoriteMutation = useAddFavorite();
@@ -1371,7 +1478,7 @@ export default function CommunityDetail() {
   
   // Check if this community is already in favorites
   // FIXED: communityId is INTEGER in database, compare as numbers
-  const existingFavorite = favorites.find(f => Number(f.communityId) === Number(id));
+  const existingFavorite = favorites.find(f => Number(f.communityId) === Number(community?.id ?? id));
   const isFavorite = !!existingFavorite;
   
   // Debug log for favorites matching
@@ -1388,6 +1495,12 @@ export default function CommunityDetail() {
   // Handle favorite toggle (actual API call)
   const handleFavoriteToggle = () => {
     if (!id) return;
+
+    // Prompt unauthenticated users to log in before saving
+    if (!isAuthenticated) {
+      setShowLoginDialog(true);
+      return;
+    }
     
     // Prevent double-clicks while mutation is in progress
     if (isFavoriteMutating) {
@@ -1408,12 +1521,27 @@ export default function CommunityDetail() {
     }
   };
   
+  // Self-heal: when a community loads with no photos / no description, fire the
+  // public self-heal endpoint ONCE per session to enrich it without admin login.
+  const [selfHealAttempted, setSelfHealAttempted] = useState(false);
+  const [isSelfHealing, setIsSelfHealing] = useState(false);
+
+  // Human verification gate — checked once per browser session
+  const [humanVerified, setHumanVerified] = useState<boolean>(() => {
+    try { return sessionStorage.getItem('msv_human_verified') === 'true'; } catch { return false; }
+  });
+
+  const handleHumanVerified = useCallback(() => {
+    try { sessionStorage.setItem('msv_human_verified', 'true'); } catch {}
+    setHumanVerified(true);
+  }, []);
+
   // Legacy state for backward compatibility (will be removed)
   const [isFavoriteLegacy, setIsFavoriteLegacy] = useState(false);
   const [isScheduleTourOpen, setIsScheduleTourOpen] = useState(false);
   const [showReservationDialog, setShowReservationDialog] = useState(false);
   const [showInfoRequestDialog, setShowInfoRequestDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState('market-data');
+  const [activeTab, setActiveTab] = useState('community-info');
 
   const [isWaitlistOpen, setIsWaitlistOpen] = useState(false);
   const [waitlistName, setWaitlistName] = useState('');
@@ -1472,28 +1600,27 @@ export default function CommunityDetail() {
   
   const { toast } = useToast();
   
-  // Move useResponsive and searchQuery state here to ensure they're called before any conditional returns
+  // Move useResponsive here to ensure it's called before any conditional returns
   const { isMobile, isTablet, isDesktop } = useResponsive();
-  const [searchQuery, setSearchQuery] = useState("");
   const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
-  // Always call useQuery hook regardless of ID validity to maintain consistent hook order
-  const { data: community, isLoading, error } = useQuery<Community>({
-    queryKey: [`/api/communities/${id}`],
-    enabled: !!id && id !== '-1' && !isNaN(Number(id)),
-    staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
-  });
+  // Contact gating: blur detailed pricing & overview until login/consent (reveal + referral lead).
+  const {
+    isRevealed: isDetailRevealed,
+    reveal: revealDetail,
+    consentDialog: detailConsentDialog,
+  } = useContactReveal(community?.id ?? 0, community?.name);
 
   // Get comprehensive data from the community response (no longer a separate endpoint)
   const comprehensiveData = (community as any)?.comprehensiveData || null;
 
   // Detect virtual tour using our enhanced detection service
+  const communityId = community?.id ?? (id ? Number(id) : undefined);
   const { virtualTour, isLoading: isDetectingTour, refreshDetection } = useVirtualTourDetection({
-    communityId: Number(id),
+    communityId: Number(communityId),
     communityName: community?.name || '',
     website: community?.website || undefined,
-    enabled: !!community && !!id && id !== '-1'
+    enabled: !!community && !!communityId
   });
 
   // Reset all state when community ID changes (but don't return early)
@@ -1502,7 +1629,6 @@ export default function CommunityDetail() {
     if (id && id !== '-1' && !isNaN(Number(id))) {
       // Reset all component state when navigating to a new community
       console.log('Community ID changed to:', id, '- Resetting all state');
-      // Note: isFavorite is now derived from query data, no need to reset
       setIsScheduleTourOpen(false);
       setIsWaitlistOpen(false);
       setWaitlistName('');
@@ -1519,25 +1645,35 @@ export default function CommunityDetail() {
       setUpgradeFeature('');
       setHasStartedVerification(false);
       setIsVerifying(false);
+      setHasAutoScrolled(false); // T003: reset scroll state per community
+      setSelfHealAttempted(false);
+      setIsSelfHealing(false);
     }
   }, [id]);
   
   // AUTO-LOAD MARKET DATA: Automatically fetch on page load (debugged and working)
   useEffect(() => {
     if (!community?.id || hasStartedVerification || isVerifying) return;
+
+    // T001: Guard against stale TanStack Query data — only proceed when the
+    // resolved community matches the URL param. While a new community is loading,
+    // TanStack Query briefly serves the previous community's cached data, which
+    // would cause wrong data/photos to be loaded for the new community.
+    if (Number(community.id) !== Number(id)) {
+      console.log('⏳ Waiting for community data to resolve — URL id:', id, 'community.id:', community.id);
+      return;
+    }
     
     // Force clear stale cached data for community 76372
     if (community.id === 76372) {
-      // Clear both the enrichment cache and localStorage
       enrichmentCache.clearCommunity(community.id);
       if (typeof window !== 'undefined' && window.localStorage) {
-        const verifyKey = `verify-${community.id}`;
         const storageKey = 'enrichment-cache-v1';
         try {
           const stored = localStorage.getItem(storageKey);
           if (stored) {
             const parsed = JSON.parse(stored);
-            delete parsed[verifyKey];
+            delete parsed[`verify-${community.id}`];
             delete parsed[`community-${community.id}`];
             localStorage.setItem(storageKey, JSON.stringify(parsed));
             console.log('🔄 Cleared all cached data for community 76372');
@@ -1546,7 +1682,6 @@ export default function CommunityDetail() {
           console.error('Failed to clear localStorage', e);
         }
       }
-      // Always fetch fresh for this community
       handleInitialLoad();
       return;
     }
@@ -1555,6 +1690,17 @@ export default function CommunityDetail() {
     const cachedData = enrichmentCache.get(community.id);
     
     if (cachedData && cachedData.communityId) {
+      // T002: Validate the cached entry belongs to this community, not a previous one
+      if (Number(cachedData.communityId) !== Number(community.id)) {
+        console.warn('⚠️ Cache entry communityId mismatch — discarding stale cached data', {
+          cached: cachedData.communityId,
+          current: community.id,
+        });
+        enrichmentCache.clearCommunity(community.id);
+        handleInitialLoad();
+        return;
+      }
+
       // Check if cached data is the truncated version
       const searchContent = cachedData?.verificationResults?.perplexityData?.searchContent || '';
       if (searchContent.length < 1000 && searchContent.includes("A residential care facility")) {
@@ -1573,7 +1719,76 @@ export default function CommunityDetail() {
     // Auto-trigger verification on first load - check backend cache first
     console.log('🚀 Auto-loading market data for:', community.name);
     handleInitialLoad();
-  }, [community?.id, community?.name]);
+  }, [community?.id, community?.name, id, hasStartedVerification]);
+
+  // SELF-HEAL: when a sparse community (no photos / no real description) loads,
+  // silently fire the public self-heal endpoint in the background (no admin login
+  // required). Runs at most ONCE per session per community; respects the backend's
+  // skipped/rate-limit responses. Patches the cached community record in place on
+  // success so the carousel + About section fill without a page reload.
+  useEffect(() => {
+    if (!community?.id || selfHealAttempted) return;
+
+    // Guard against stale TanStack Query data — only act on the resolved community
+    // that matches the URL param (slug routes have no numeric id to compare).
+    if (!isSlugBased && Number(community.id) !== Number(id)) return;
+
+    const dbPhotoCount = (community.photos || []).filter(
+      (p: any) => typeof p === 'string' && p.trim().length > 0,
+    ).length;
+    const descLen = (community.description || '').trim().length;
+    const isSparse = dbPhotoCount === 0 || descLen < 100;
+    const alreadyEnriched = (community as any).enrichmentStatus === 'completed';
+
+    if (!isSparse || alreadyEnriched) return;
+
+    setSelfHealAttempted(true);
+    setIsSelfHealing(true);
+
+    (async () => {
+      try {
+        const response = await fetch(`/api/communities/${community.id}/self-heal`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data?.skipped || !data?.community) return;
+
+        const result = data.community;
+        const freshPhotos: string[] = (result.photos || []).filter(
+          (u: any) => typeof u === 'string' && /^https?:\/\//i.test(u),
+        );
+        const isValidWebsite = (w: any) => typeof w === 'string' && /^https?:\/\//i.test(w);
+        const buildPatch = (old: any) => {
+          if (!old) return old;
+          const patch: any = { ...old };
+          if (freshPhotos.length > 0) patch.photos = freshPhotos;
+          if (typeof result.description === 'string' && result.description.length > 50) {
+            patch.description = result.description;
+          }
+          if (isValidWebsite(result.website)) patch.website = result.website;
+          if (typeof result.phone === 'string' && result.phone.trim()) patch.phone = result.phone;
+          patch.enrichmentStatus = 'completed';
+          return patch;
+        };
+
+        // Patch the cache immediately so the UI updates without a reload.
+        if (slugQueryKey) queryClient.setQueryData([slugQueryKey], buildPatch);
+        if (idQueryKey) queryClient.setQueryData([idQueryKey], buildPatch);
+        queryClient.setQueryData([`/api/communities/${community.id}`], buildPatch);
+
+        // Force a background re-sync once the DB write has propagated.
+        if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
+        if (idQueryKey) queryClient.refetchQueries({ queryKey: [idQueryKey] });
+      } catch (err) {
+        console.warn('Self-heal enrichment failed (non-blocking):', err);
+      } finally {
+        setIsSelfHealing(false);
+      }
+    })();
+  }, [community?.id, community?.photos, community?.description, id, isSlugBased, selfHealAttempted]);
 
   // INITIAL LOAD: Check backend cache first, don't force refresh
   const handleInitialLoad = async () => {
@@ -1620,18 +1835,45 @@ export default function CommunityDetail() {
       if (hasPerplexityContent || foundPhotos > 0) {
         console.log('✨ Found cached data from backend');
         setVerificationReport(report);
-        
-        // Use getOrFetch to cache the report properly
-        enrichmentCache.getOrFetch(community.id, async () => report, false);
+        enrichmentCache.set(community.id, report);
       } else {
-        console.log('⚠️ No backend cache found, will show empty state');
-        setVerificationReport(report);
+        // No cached data — automatically escalate to a live Perplexity fetch
+        // so the user sees the full page on first visit without having to click the button
+        console.log('⚡ No cached data found — auto-fetching live data for:', community.name);
+        try {
+          const freshResponse = await fetch(`/api/communities/${community.id}/verify`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ forceRefresh: true, websiteUrl: community.website })
+          });
+          if (freshResponse.ok) {
+            const freshReport = await freshResponse.json();
+            console.log('✅ Auto live-fetch complete for:', community.name);
+            setVerificationReport(freshReport);
+            enrichmentCache.set(community.id, freshReport);
+            const freshPhotos = freshReport?.verificationResults?.webIntelligence?.images?.length || 0;
+            if (freshPhotos > 0) {
+              // Task #300: the live fetch persisted photos to the DB — refetch the
+              // community by BOTH the slug key (primary SEO route) and the id key so
+              // the carousel swaps in the saved set instead of relying on transient
+              // verificationReport state that is lost on remount.
+              if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
+              queryClient.refetchQueries({ queryKey: [`/api/communities/${community.id}`] });
+            }
+          } else {
+            setVerificationReport(report);
+          }
+        } catch {
+          setVerificationReport(report);
+        }
       }
       
       // Photos will be displayed from the verification report
       if (foundPhotos > 0) {
-        // Trigger a refresh to update the UI
-        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
+        // Task #300: refresh the community by BOTH slug + id keys so the persisted
+        // photos render from the authoritative DB record (not transient state).
+        if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
+        queryClient.refetchQueries({ queryKey: [`/api/communities/${community.id}`] });
       }
     } catch (error) {
       console.error('❌ Verification error details:', {
@@ -1648,39 +1890,108 @@ export default function CommunityDetail() {
   // MANUAL VERIFICATION: User-triggered search with force refresh
   const handleManualVerification = async () => {
     if (!community?.id || isVerifying) return;
-    
-    console.log('🔍 Force refreshing Market Data for:', community.name);
-    console.log('📌 Community website:', community.website || 'none');
+
     setHasStartedVerification(true);
     setIsVerifying(true);
-    
+
     try {
+      if (isAdmin) {
+        // ── ADMIN PATH: paid Perplexity deep research (persists to DB) ──────────
+        console.log('🧠 Admin Perplexity research for:', community.name);
+        // Always force a fresh Perplexity research run when an admin explicitly
+        // clicks the button — they need current data and the ability to fix
+        // wrong/stale information (including photos).
+        const response = await fetch(`/api/admin/communities/${community.id}/perplexity-enrich`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ forceRefresh: true }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`Perplexity enrichment failed: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('✅ Perplexity research complete — photos:', (data.photos || []).length,
+          '| pricing:', !!data.pricing, '| website:', data.officialWebsite || 'none');
+
+        // Data is now persisted to the DB. Clear any stale verificationReport so the
+        // Live Intelligence / market-data tab doesn't show enrichment data, then
+        // refetch the community record — the About section, contact info, and pricing
+        // will all render from the persisted community fields (description, phone,
+        // website, priceRange) in the correct Info & Tours tab.
+        setVerificationReport(null);
+        enrichmentCache.clearCommunity(community.id);
+
+        // Patch the FULL fresh result into the cached community record so the
+        // carousel, About section, contact info, and pricing all update
+        // instantly — no network round-trip. We intentionally do NOT refetch
+        // immediately afterward: an immediate refetch was returning an empty/
+        // partial record and wiping the just-applied photos back to zero.
+        const freshPhotos: string[] = (data.photos || []).filter(
+          (u: any) => typeof u === 'string' && /^https?:\/\//i.test(u),
+        );
+        const isValidWebsite = (w: any) =>
+          typeof w === 'string' && /^https?:\/\//i.test(w);
+        const buildPatch = (old: any) => {
+          if (!old) return old;
+          const patch: any = { ...old };
+          // A forced refresh always returns the authoritative photo set, which may
+          // be EMPTY when unconfirmed photos were cleared (Contact for details) —
+          // apply it even when empty so wrong photos disappear immediately.
+          if (Array.isArray(data.photos)) patch.photos = freshPhotos;
+          if (typeof data.summary === 'string' && data.summary.length > 50) {
+            patch.description = data.summary;
+          }
+          if (isValidWebsite(data.officialWebsite)) patch.website = data.officialWebsite;
+          if (typeof data.phone === 'string' && data.phone.trim()) patch.phone = data.phone;
+          if (data.priceRange) patch.priceRange = data.priceRange;
+          return patch;
+        };
+
+        if (slugQueryKey) queryClient.setQueryData([slugQueryKey], buildPatch);
+        if (idQueryKey) queryClient.setQueryData([idQueryKey], buildPatch);
+        queryClient.setQueryData([`/api/communities/${community.id}`], buildPatch);
+
+        // Mark the queries stale WITHOUT forcing an immediate refetch, so the
+        // patched data stays on screen and only re-syncs on the next natural
+        // mount/refocus (when the DB write has fully propagated).
+        const markStale = { refetchType: 'none' as const };
+        if (slugQueryKey) queryClient.invalidateQueries({ queryKey: [slugQueryKey], ...markStale });
+        if (idQueryKey) queryClient.invalidateQueries({ queryKey: [idQueryKey], ...markStale });
+        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`], ...markStale });
+        return;
+      }
+
+      // ── NON-ADMIN PATH: should not happen (button hidden), but keep the free
+      //    verify flow as a safe fallback ─────────────────────────────────────
+      console.log('🔍 Force refreshing Market Data for:', community.name);
       const response = await fetch(`/api/communities/${community.id}/verify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          forceRefresh: true,  // TRUE = force fresh data
-          websiteUrl: community.website  // Pass the website URL from database
+        body: JSON.stringify({
+          forceRefresh: true,
+          websiteUrl: community.website,
         })
       });
-      
+
       if (!response.ok) {
         throw new Error(`Verification failed: ${response.status}`);
       }
-      
+
       const report = await response.json();
       const foundPhotos = report?.verificationResults?.webIntelligence?.images?.length || 0;
       console.log('✅ Fresh data fetched, photos found:', foundPhotos);
       setVerificationReport(report);
-      
-      // Use getOrFetch to cache the report properly
-      enrichmentCache.getOrFetch(community.id, async () => report, false);
-      
-      // Photos will be displayed from the verification report
-      if (foundPhotos > 0) {
-        // Trigger a refresh to update the UI
-        queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
-      }
+      enrichmentCache.set(community.id, report);
+
+      // A forced refresh may ADD confirmed photos OR CLEAR unconfirmed ones, so
+      // always re-sync the community record (slug + id keys) — invalidating only
+      // when photos were found would leave wrong/cleared photos on screen.
+      if (slugQueryKey) queryClient.invalidateQueries({ queryKey: [slugQueryKey] });
+      if (idQueryKey) queryClient.invalidateQueries({ queryKey: [idQueryKey] });
+      queryClient.invalidateQueries({ queryKey: [`/api/communities/${community.id}`] });
     } catch (error) {
       console.error('❌ Verification error details:', {
         error,
@@ -1693,48 +2004,101 @@ export default function CommunityDetail() {
     }
   };
 
-  // Combine photos from community and verification report
+  // Combine photos from community and verification report.
+  // Admin-uploaded photos (/uploads/...) are the most authoritative source and always shown first.
   const allPhotos = React.useMemo(() => {
-    const photos = [];
-    
-    // Add verification photos first (they're usually better quality)
+    const photos: string[] = [];
+
+    // 1. Admin-uploaded photos first — these are the ground truth set by the admin
+    const adminUploaded = (community?.photos || []).filter((p: string) => p.startsWith('/uploads/'));
+    photos.push(...adminUploaded);
+
+    // 2. Verification / web-intelligence photos next
     if (verificationReport?.verificationResults?.webIntelligence?.images) {
       const verifiedPhotos = verificationReport.verificationResults.webIntelligence.images
         .map((img: any) => typeof img === 'string' ? img : img.image_url || img.url)
         .filter(Boolean);
       photos.push(...verifiedPhotos);
     }
-    
-    // Add community photos if no verification photos
-    if (photos.length === 0 && community?.photos && community.photos.length > 0) {
-      photos.push(...community.photos);
-    }
-    
+
+    // 3. All other DB photos (scraped/enriched) as supplemental sources
+    const otherDbPhotos = (community?.photos || []).filter((p: string) => !p.startsWith('/uploads/'));
+    photos.push(...otherDbPhotos);
+
     // Remove duplicates
     return [...new Set(photos)];
   }, [community?.photos, verificationReport]);
 
   // Navigate away if invalid ID (after all hooks have been called)
+  // Skip this guard for slug-based routes where id is intentionally undefined
   React.useEffect(() => {
-    if (!id || id === '-1' || isNaN(Number(id))) {
+    if (!isSlugBased && (!id || id === '-1' || isNaN(Number(id)))) {
       console.warn('Invalid community ID:', id);
       setLocation('/map-search');
     }
-  }, [id, setLocation]);
+  }, [id, isSlugBased, setLocation]);
 
   // Now we can safely do conditional returns (after ALL hooks have been called)
-  if (!id || id === '-1' || isNaN(Number(id))) {
+  if (!isSlugBased && (!id || id === '-1' || isNaN(Number(id)))) {
     return <div className="flex justify-center items-center h-64">Invalid community ID</div>;
   }
 
   // CRITICAL SEO FIX: Don't block rendering with full-page loading screen
   // Crawlers were indexing the loading screen instead of actual content
   // Now render content immediately, even if still loading enrichment in background
-  if (error) return <div className="text-red-500">Error loading community</div>;
+  if (error) return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="max-w-md w-full text-center shadow-lg">
+        <CardHeader>
+          <div className="flex justify-center mb-2">
+            <AlertCircle className="h-10 w-10 text-amber-500" />
+          </div>
+          <CardTitle className="text-xl">Community Not Available</CardTitle>
+          <CardDescription className="text-base">
+            We couldn't load this community — it may have moved or been removed.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <Button variant="default" onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> Go Back
+          </Button>
+          <Link href="/">
+            <Button variant="outline" className="w-full">
+              <Home className="h-4 w-4 mr-2" /> Return Home
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
   
   // Only show "not found" if we've finished loading and there's truly no community
   // Don't show it during initial load (prevents flash of "not found" message)
-  if (!isLoading && !community) return <div>Community not found</div>;
+  if (!isLoading && !community) return (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <Card className="max-w-md w-full text-center shadow-lg">
+        <CardHeader>
+          <div className="flex justify-center mb-2">
+            <AlertCircle className="h-10 w-10 text-amber-500" />
+          </div>
+          <CardTitle className="text-xl">Community Not Found</CardTitle>
+          <CardDescription className="text-base">
+            This community listing doesn't exist or may have been removed from our directory.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-3">
+          <Button variant="default" onClick={() => window.history.back()}>
+            <ArrowLeft className="h-4 w-4 mr-2" /> Go Back
+          </Button>
+          <Link href="/">
+            <Button variant="outline" className="w-full">
+              <Home className="h-4 w-4 mr-2" /> Return Home
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
   
   // CRITICAL SEO FIX: If still loading, render minimal skeleton with SEO metadata
   // This prevents TypeErrors while still allowing crawlers to index basic content
@@ -2093,6 +2457,9 @@ export default function CommunityDetail() {
   
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Human verification gate — shown once per session to block bots */}
+      {!humanVerified && <HumanVerificationGate onVerified={handleHumanVerified} />}
+
       {/* SEO Meta Tags - Include full Perplexity content for search engine indexing */}
       {community && (
         <SEOMetaTags
@@ -2207,24 +2574,6 @@ export default function CommunityDetail() {
       
       {/* Add padding-top to account for fixed navbar */}
       <div className="bg-gray-50 dark:bg-gray-900 pt-20">      
-      {/* Search Bar - Consistent with home page */}
-      <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 py-4">
-        <div className="container-responsive">
-          <div className="max-w-2xl mx-auto">
-            <AutocompleteSearch
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onSubmit={(query) => {
-                // Navigate to map search with the query
-                window.location.href = `/map-search?q=${encodeURIComponent(query)}`;
-              }}
-              placeholder="Search for communities, cities, or states..."
-              inputClassName="w-full"
-            />
-          </div>
-        </div>
-      </div>
-      
       {/* Breadcrumb Navigation */}
       <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="container-responsive">
@@ -2283,6 +2632,8 @@ export default function CommunityDetail() {
                 // Open tour scheduler dialog directly
                 setIsScheduleTourOpen(true);
               }}
+              onRefetch={handleManualVerification}
+              isRefetching={isVerifying}
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
             
@@ -2383,27 +2734,14 @@ export default function CommunityDetail() {
                   className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-blue-300 dark:hover:border-blue-500 text-gray-600 dark:text-gray-400 font-medium hover:text-blue-600 dark:hover:text-blue-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-blue-400 data-[state=active]:font-bold data-[state=active]:z-10"
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl">🏘️</span>
-                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Community Info</span>
-                    <span className="text-xs sm:text-sm font-bold sm:hidden">Info</span>
+                    <span className="text-lg sm:text-xl">📋</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Info & Tours</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Info & Tours</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
-                    Details & Overview
+                    Info and Tours
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="tours" 
-                  className="relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-teal-300 dark:hover:border-teal-500 text-gray-600 dark:text-gray-400 font-medium hover:text-teal-600 dark:hover:text-teal-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-teal-500 data-[state=active]:to-cyan-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-teal-400 data-[state=active]:font-bold data-[state=active]:z-10"
-                >
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl">🗓️</span>
-                    <span className="text-xs sm:text-sm font-bold">Tours</span>
-                  </div>
-                  <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
-                    Schedule Visit
-                  </span>
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-teal-500/10 to-cyan-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
                 <TabsTrigger 
                   value="availability" 
@@ -2411,10 +2749,11 @@ export default function CommunityDetail() {
                 >
                   <div className="flex items-center gap-1.5">
                     <span className="text-lg sm:text-xl">🏠</span>
-                    <span className="text-xs sm:text-sm font-bold">Availability</span>
+                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Floorplans & Pricing</span>
+                    <span className="text-xs sm:text-sm font-bold sm:hidden">Floorplans</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal hidden sm:block">
-                    Units & Pricing
+                    Units & Floorplans
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </TabsTrigger>
@@ -2424,36 +2763,13 @@ export default function CommunityDetail() {
                   className={`relative shrink-0 flex flex-col items-center justify-center gap-0.5 sm:gap-1 py-3 sm:py-4 px-3 sm:px-4 min-h-[70px] sm:min-h-[85px] rounded-xl transition-all duration-300 bg-white dark:bg-gray-800 border-2 border-transparent hover:border-purple-300 dark:hover:border-purple-500 text-gray-600 dark:text-gray-400 font-medium hover:text-purple-600 dark:hover:text-purple-400 data-[state=active]:bg-gradient-to-br data-[state=active]:from-purple-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white data-[state=active]:shadow-2xl data-[state=active]:scale-[1.08] data-[state=active]:border-purple-400 data-[state=active]:font-bold data-[state=active]:z-10 ${liveIntelligenceReady ? 'animate-pulse-once ring-2 ring-purple-400 ring-offset-2 ring-offset-white dark:ring-offset-gray-900' : ''}`}
                 >
                   <div className="flex items-center gap-1.5">
-                    <span className="text-lg sm:text-xl">📊</span>
-                    <span className="text-xs sm:text-sm font-bold hidden sm:inline">Market Data</span>
-                    <span className="text-xs sm:text-sm font-bold sm:hidden">Market</span>
-                    {liveIntelligenceLoading && !liveIntelligenceReady && (
-                      <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
-                    )}
-                    {liveIntelligenceReady && (
-                      <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-[10px] px-1 py-0">
-                          NEW
-                        </Badge>
-                      </div>
-                    )}
+                    <span className="text-lg sm:text-xl">🏥</span>
+                    <span className="text-xs sm:text-sm font-bold">Healthcare</span>
                   </div>
                   <span className="text-[10px] sm:text-xs opacity-75 font-normal">
-                    {liveIntelligenceReady ? 
-                      "🔥 Live Intelligence Ready!" : 
-                      liveIntelligenceLoading ? 
-                      "Loading Intelligence..." : 
-                      "Market Analysis"
-                    }
+                    Healthcare Partners
                   </span>
                   <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-purple-500/10 to-indigo-500/10 opacity-0 data-[state=active]:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                  {liveIntelligenceReady && (
-                    <div className="absolute -top-2 -right-2 flex items-center justify-center">
-                      <span className="absolute inline-flex h-5 w-5 rounded-full bg-purple-400 opacity-75 animate-ping"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-purple-500"></span>
-                    </div>
-                  )}
                 </TabsTrigger>
                 <TabsTrigger 
                   value="reviews" 
@@ -2474,529 +2790,9 @@ export default function CommunityDetail() {
               </TabsList>
               </div>
 
-              {/* Tours Tab - NEW DEDICATED TAB */}
-              <TabsContent value="tours" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-                <Card className="bg-gradient-to-br from-teal-50 to-cyan-50 dark:from-teal-900/20 dark:to-cyan-900/20">
-                  <CardHeader>
-                    <CardTitle className="text-xl font-bold flex items-center">
-                      <Calendar className="w-6 h-6 mr-2 text-teal-600" />
-                      Schedule Your Visit
-                    </CardTitle>
-                    <CardDescription>
-                      Book a personalized tour and discover what makes {community.name} special
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="tour-scheduler-form">
-                        <TourScheduler
-                          communityId={community.id}
-                          communityName={community.name}
-                          communityAddress={community.address ? `${community.address}, ${community.city}, ${community.state} ${community.zipCode || ''}`.trim() : `${community.city}, ${community.state}`}
-                          communityPhone={community.phone || ''}
-                          buttonText="Schedule In-Person Tour"
-                          buttonVariant="default"
-                          hasEmail={!!(community.communityManagerEmail || community.email || community.managementEmail)}
-                          onSuccess={() => {
-                            toast({
-                              title: "Tour Scheduled Successfully!",
-                              description: `Your tour at ${community.name} has been confirmed.`,
-                            });
-                          }}
-                        />
-                      </div>
-                      
-                      {/* Virtual Tour Options */}
-                      <div className="space-y-3">
-                        {(() => {
-                          // Check multiple sources for virtual tour URLs
-                          const webIntel = verificationReport?.webIntelligence || verificationReport?.verificationResults?.webIntelligence;
-                          const virtualTourFromPerplexity = comprehensiveData?.marketData?.virtualTourUrl;
-                          // Add our enhanced virtual tour detection results
-                          const hasDetectedTour = virtualTour?.found && virtualTour?.tourUrl;
-                          const hasVirtualOptions = webIntel?.videoTour || webIntel?.virtualTour || virtualTourFromPerplexity || hasDetectedTour;
-                          
-                          // Show loading state while detecting tours
-                          if (isDetectingTour) {
-                            return (
-                              <>
-                                <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
-                                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                  <span>Searching for virtual tours...</span>
-                                </div>
-                              </>
-                            );
-                          }
-                          
-                          if (hasVirtualOptions) {
-                            return (
-                              <>
-                                <h4 className="font-semibold text-sm">Virtual Tour Options</h4>
-                                
-                                {/* 3D Tour from enhanced detection (highest priority) */}
-                                {hasDetectedTour && virtualTour?.tourUrl && (
-                                  <div className="space-y-3">
-                                    <MatterportEmbed
-                                      tourId={`tour-${community.id}`}
-                                      tourUrl={virtualTour.embedUrl || virtualTour.tourUrl}
-                                      communityName={community.name}
-                                      showControls={true}
-                                      metadata={{
-                                        tourDescription: `Experience ${community.name} with an interactive ${virtualTour.platform || '3D'} virtual tour`,
-                                        features: community.amenities?.slice(0, 6)
-                                      }}
-                                    />
-                                    {virtualTour.confidence === 'low' && (
-                                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                        Note: Virtual tour may require navigation on the community's website
-                                      </p>
-                                    )}
-                                  </div>
-                                )}
-                                
-                                {/* 3D Tour from Perplexity (fallback if no detected tour) */}
-                                {!hasDetectedTour && virtualTourFromPerplexity && (
-                                  <div className="space-y-3">
-                                    <MatterportEmbed
-                                      tourId={`tour-${community.id}`}
-                                      tourUrl={virtualTourFromPerplexity}
-                                      communityName={community.name}
-                                      showControls={true}
-                                      metadata={{
-                                        tourDescription: `Experience ${community.name} with an interactive 3D virtual tour`,
-                                        features: community.amenities?.slice(0, 6)
-                                      }}
-                                    />
-                                  </div>
-                                )}
-                                
-                                {/* Video Tour from Web Intelligence */}
-                                {webIntel?.videoTour && !virtualTourFromPerplexity && (
-                                  <ExternalLinkWarning
-                                    href={webIntel.videoTour.includes('://') ? webIntel.videoTour : `https://${webIntel.videoTour}`}
-                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                  >
-                                    <span>🎥</span>
-                                    <span>Watch Video Tour</span>
-                                  </ExternalLinkWarning>
-                                )}
-                                
-                                {/* Virtual Tour from Web Intelligence (as fallback) */}
-                                {webIntel?.virtualTour && !virtualTourFromPerplexity && (
-                                  <ExternalLinkWarning
-                                    href={webIntel.virtualTour.includes('://') ? webIntel.virtualTour : `https://${webIntel.virtualTour}`}
-                                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                                  >
-                                    <span>🏠</span>
-                                    <span>Take 3D Virtual Tour</span>
-                                  </ExternalLinkWarning>
-                                )}
-                              </>
-                            );
-                          }
-                          
-                          return (
-                            <div className="text-sm text-gray-600 dark:text-gray-400">
-                              <p>Virtual tours not yet available for this community.</p>
-                              <p className="mt-2">Contact the community directly for more information.</p>
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    </div>
-                    
-                    {/* Tour Tips */}
-                    <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mt-4">
-                      <h4 className="font-semibold text-sm mb-2 flex items-center">
-                        <Info className="w-4 h-4 mr-2 text-blue-600" />
-                        What to Ask During Your Tour
-                      </h4>
-                      <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                        <li>• Staff-to-resident ratio and caregiver qualifications</li>
-                        <li>• Available care services and medical support</li>
-                        <li>• Activities calendar and social programs</li>
-                        <li>• Dining options and meal customization</li>
-                        <li>• Pricing details and what's included</li>
-                        <li>• Move-in process and timeline</li>
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-                {/* Contact & Tour Section */}
-            <Card>
-              <CardContent className="p-0">
-                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-4 sm:p-6 lg:p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
-                  <div className="text-center mb-4 sm:mb-6">
-                    <h3 className="text-responsive-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ready to Visit?</h3>
-                    <p className="text-responsive-base text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
-                  </div>
-
-                  {/* Community Contact Info */}
-                  <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-sm border border-blue-200 dark:border-blue-700 mb-4 sm:mb-6">
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-full flex items-center justify-center text-white font-bold text-responsive-xl mr-3 sm:mr-4">
-                        <Phone className="w-6 h-6 sm:w-8 sm:h-8" />
-                      </div>
-                      <div className="flex-1">
-                        {/* Show live contact data if available, otherwise show community phone */}
-                        {(community as any).salesDirector?.name ? (
-                          <>
-                            <h4 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">
-                              {(community as any).salesDirector.name}
-                            </h4>
-                            <p className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                              {(community as any).salesDirector.title || 'Sales Director'}
-                            </p>
-                            <div className="flex items-center mt-2">
-                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                                {(community as any).salesDirector.phone || community.phone}
-                              </span>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <h4 className="text-responsive-lg font-bold text-gray-900 dark:text-gray-100">
-                              Community Main Office
-                            </h4>
-                            <p className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                              Call for sales and leasing information
-                            </p>
-                            <div className="flex items-center mt-2">
-                              <Phone className="w-4 h-4 text-blue-600 dark:text-blue-400 mr-2" />
-                              <span className="text-responsive-base text-gray-900 dark:text-gray-100 font-medium">
-                                {community.phone}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-1">
-                              Ask to speak with a leasing manager or sales director
-                            </p>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg mb-4">
-                      <div className="flex items-center">
-                        <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400 mr-2" />
-                        <span className="text-blue-800 dark:text-blue-200 font-medium">Usually responds within 2 hours</span>
-                      </div>
-                    </div>
-
-                    {/* Enhanced Tour Section - Combined Ready to Tour & Tour Tracker */}
-                    <div className="space-y-6">
-                      {/* Comprehensive Tour Tracker Integration */}
-                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-600 rounded-lg p-4">
-                        <div className="flex items-center mb-3">
-                          <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
-                          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">Tour Tracker™ Pro</h3>
-                          <Badge className="ml-2 bg-blue-600 text-white text-xs">Comprehensive</Badge>
-                        </div>
-                        <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
-                          Grade every aspect of your visit with our 360° evaluation system
-                        </p>
-                        
-                        {/* Main Evaluation Categories - Mobile Responsive */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-4">
-                          {/* Units & Living Spaces */}
-                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-600">
-                            <Home className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Units & Living Spaces</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">Size, layout, condition, storage</p>
-                            </div>
-                          </div>
-
-                          {/* Common Areas & Amenities */}
-                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
-                            <Users className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Common Areas</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">Dining, lobby, activities, library</p>
-                            </div>
-                          </div>
-
-                          {/* Outdoor Spaces */}
-                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200 dark:border-emerald-600">
-                            <MapIcon className="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Outdoor Spaces</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">Gardens, patios, walking paths</p>
-                            </div>
-                          </div>
-
-                          {/* Staff & Care Quality */}
-                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-600">
-                            <UserCheck className="w-4 h-4 text-purple-600 mr-2 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Staff & Care</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">Friendliness, knowledge, ratio</p>
-                            </div>
-                          </div>
-
-                          {/* Food & Dining */}
-                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-600">
-                            <UtensilsCrossed className="w-4 h-4 text-orange-600 mr-2 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Food & Dining</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">Quality, variety, atmosphere</p>
-                            </div>
-                          </div>
-
-                          {/* Safety & Security */}
-                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-600">
-                            <Shield className="w-4 h-4 text-red-600 mr-2 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Safety & Security</p>
-                              <p className="text-xs text-gray-600 dark:text-gray-400">Emergency systems, access control</p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Additional Evaluation Areas */}
-                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-3 mb-4">
-                          <h4 className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-2">Additional Evaluation Areas:</h4>
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
-                            <div className="flex items-center">
-                              <Activity className="w-3 h-3 text-indigo-600 mr-1" />
-                              <span className="text-indigo-700 dark:text-indigo-300">Activities & Programs</span>
-                            </div>
-                            <div className="flex items-center">
-                              <Car className="w-3 h-3 text-indigo-600 mr-1" />
-                              <span className="text-indigo-700 dark:text-indigo-300">Transportation</span>
-                            </div>
-                            <div className="flex items-center">
-                              <DollarSign className="w-3 h-3 text-indigo-600 mr-1" />
-                              <span className="text-indigo-700 dark:text-indigo-300">Value for Money</span>
-                            </div>
-                            <div className="flex items-center">
-                              <Heart className="w-3 h-3 text-indigo-600 mr-1" />
-                              <span className="text-indigo-700 dark:text-indigo-300">Overall Atmosphere</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Grading System Preview */}
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
-                          <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">A-F Grading System</h4>
-                            <div className="flex space-x-1">
-                              <span className="px-2 py-1 text-xs font-bold bg-green-100 text-green-800 rounded">A</span>
-                              <span className="px-2 py-1 text-xs font-bold bg-blue-100 text-blue-800 rounded">B</span>
-                              <span className="px-2 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded">C</span>
-                              <span className="px-2 py-1 text-xs font-bold bg-orange-100 text-orange-800 rounded">D</span>
-                              <span className="px-2 py-1 text-xs font-bold bg-red-100 text-red-800 rounded">F</span>
-                            </div>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400">
-                            Grade each category during your visit. Your scores help future families and contribute to community transparency.
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Main Action Buttons - Mobile Responsive */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                        <Button
-                          data-testid="button-schedule-tour"
-                          className="py-3 sm:py-4 text-responsive-base font-semibold bg-teal-600 hover:bg-teal-700 text-white touch-target"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('📅 Schedule Tour button clicked');
-                            // Switch to Tours tab using setActiveTab
-                            setActiveTab('tours');
-                            setTimeout(() => {
-                              // Scroll to tours section
-                              const toursSection = document.querySelector('[value="tours"]');
-                              if (toursSection) {
-                                toursSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                              }
-                            }, 100);
-                          }}
-                        >
-                          <Calendar className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Schedule Tour
-                        </Button>
-                        
-                        <Button 
-                          data-testid="button-call-now"
-                          variant="outline" 
-                          className="py-3 sm:py-4 text-responsive-base font-semibold border-2 border-blue-600 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 touch-target"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('📞 Call Now button clicked, phone:', community.phone);
-                            if (community.phone) {
-                              window.location.href = `tel:${community.phone}`;
-                            } else {
-                              alert('Phone number not available. Please visit the website or check back later for updated contact information.');
-                            }
-                          }}
-                        >
-                          <Phone className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                          Call Now
-                        </Button>
-                      </div>
-
-                      {/* Move-In Coordination Section */}
-                      <Card className="mt-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center mb-2">
-                                <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" />
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                                  Moving Soon? We'll Help Coordinate Everything
-                                </h3>
-                              </div>
-                              <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                                Our Move-In Coordination Center helps you manage every aspect of the transition - from hiring movers to setting up healthcare providers and utilities.
-                              </p>
-                              <div className="flex flex-wrap gap-2 mb-4">
-                                <Badge variant="outline" className="text-xs">
-                                  <Package className="w-3 h-3 mr-1" />
-                                  Moving Services
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <Stethoscope className="w-3 h-3 mr-1" />
-                                  Healthcare Setup
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <Home className="w-3 h-3 mr-1" />
-                                  Utilities Transfer
-                                </Badge>
-                                <Badge variant="outline" className="text-xs">
-                                  <CheckCircle className="w-3 h-3 mr-1" />
-                                  Checklist Tracking
-                                </Badge>
-                              </div>
-                              <Button 
-                                variant="default"
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                                onClick={() => {
-                                  // Save community info to localStorage for Move-In Coordination
-                                  localStorage.setItem('moveInCommunity', JSON.stringify({
-                                    id: community.id,
-                                    name: community.name,
-                                    address: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
-                                    phone: community.phone
-                                  }));
-                                  window.location.href = '/move-in-coordination';
-                                }}
-                              >
-                                <Truck className="w-4 h-4 mr-2" />
-                                Start Move-In Planning
-                              </Button>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* Waitlist Dialog */}
-                      <Dialog open={isWaitlistOpen} onOpenChange={setIsWaitlistOpen}>
-                        <DialogContent className="sm:max-w-[425px]">
-                          <DialogHeader>
-                            <DialogTitle>Join Waitlist</DialogTitle>
-                            <DialogDescription>
-                              {selectedUnitType ? (
-                                `You'll be notified when ${selectedUnitType} units become available.`
-                              ) : (
-                                "Complete this form to be notified when units become available."
-                              )}
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="waitlist-name" className="text-gray-900 dark:text-gray-100">Your Name</Label>
-                              <Input
-                                id="waitlist-name"
-                                placeholder="Enter your full name"
-                                value={waitlistName}
-                                onChange={(e) => setWaitlistName(e.target.value)}
-                                className="text-gray-900 dark:text-gray-100"
-                              />
-                            </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label htmlFor="waitlist-email" className="text-gray-900 dark:text-gray-100">Email</Label>
-                                <Input
-                                  id="waitlist-email"
-                                  type="email"
-                                  placeholder="your.email@example.com"
-                                  value={waitlistEmail}
-                                  onChange={(e) => setWaitlistEmail(e.target.value)}
-                                  className="text-gray-900 dark:text-gray-100"
-                                />
-                              </div>
-                              <div>
-                                <Label htmlFor="waitlist-phone" className="text-gray-900 dark:text-gray-100">Phone</Label>
-                                <Input
-                                  id="waitlist-phone"
-                                  type="tel"
-                                  placeholder="(555) 123-4567"
-                                  value={waitlistPhone}
-                                  onChange={(e) => setWaitlistPhone(e.target.value)}
-                                  className="text-gray-900 dark:text-gray-100"
-                                />
-                              </div>
-                            </div>
-
-                            <div>
-                              <Label htmlFor="waitlist-preferences" className="text-gray-900 dark:text-gray-100">Preferred Unit Type & Other Preferences</Label>
-                              <textarea
-                                id="waitlist-preferences"
-                                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                                placeholder={selectedUnitType ? 
-                                  `Interested in ${selectedUnitType} units. Add any additional preferences...` :
-                                  "e.g., 1 bedroom, ground floor, pet-friendly..."
-                                }
-                                value={waitlistPreferences || (selectedUnitType ? `Interested in ${selectedUnitType} units.` : '')}
-                                onChange={(e) => setWaitlistPreferences(e.target.value)}
-                                rows={3}
-                              />
-                            </div>
-
-                            <Button 
-                              onClick={handleWaitlistSubmit}
-                              className="w-full bg-orange-600 hover:bg-orange-700"
-                              disabled={!waitlistName || !waitlistEmail || !waitlistPhone}
-                            >
-                              <Users className="w-4 h-4 mr-2" />
-                              Join Waitlist
-                            </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
-
-
-
-
-
-                    {/* Comprehensive Tour Grading Button */}
-                    <div className="mt-4">
-                      <Button 
-                        onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
-                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 font-semibold"
-                      >
-                        <ClipboardList className="w-4 h-4 mr-2" />
-                        Start Comprehensive Tour Grading
-                      </Button>
-                      <p className="text-xs text-center text-gray-700 dark:text-gray-300 mt-2">
-                        Grade 10+ categories with A-F scoring • Your evaluations help future families make informed decisions
-                      </p>
-                    </div>
-                  </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
                 {/* Community Information & Amenities */}
                 <Card>
                   <CardHeader>
@@ -3004,22 +2800,87 @@ export default function CommunityDetail() {
                       <Building className="w-5 h-5 mr-2 text-blue-600" />
                       About {community.name}
                     </CardTitle>
-                    <CardDescription>
+                    <CardDescription className="flex items-center gap-2">
                       Community details, amenities, and services available
+                      {(() => {
+                        const sources: Array<{source: string}> = (community as any).enrichmentSources || [];
+                        const lastSource = sources.length > 0 ? sources[sources.length - 1].source : null;
+                        const enriched = (community as any).enrichmentCompleted;
+                        if (lastSource === 'jina_official_website') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 px-2 py-0.5 rounded-full border border-green-200 dark:border-green-700">
+                              <Globe className="w-3 h-3" />
+                              Enriched from official website
+                            </span>
+                          );
+                        }
+                        if (lastSource === 'jina_web_search') {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full border border-blue-200 dark:border-blue-700">
+                              <Search className="w-3 h-3" />
+                              Enriched from web search
+                            </span>
+                          );
+                        }
+                        if (!enriched || lastSource === 'no_source' || !lastSource) {
+                          return (
+                            <span className="inline-flex items-center gap-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-2 py-0.5 rounded-full border border-gray-200 dark:border-gray-700">
+                              <Info className="w-3 h-3" />
+                              Contact for details
+                            </span>
+                          );
+                        }
+                        return null;
+                      })()}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     {/* Community Description - Use enriched data when available */}
                     {(() => {
+                      // Prefer the clean, persisted community.description (correct
+                      // address/phone). Only fall back to the live verify description
+                      // when it is NOT legacy conversational AI output.
                       const enrichedDescription = verificationReport?.description || 
                                                   verificationReport?.verificationResults?.description;
-                      const displayDescription = enrichedDescription || community.description;
+                      const displayDescription =
+                        community.description ||
+                        (isLegacyVerifyBlob(enrichedDescription) ? undefined : enrichedDescription);
                       
                       if (displayDescription) {
+                        const overviewRevealed = isDetailRevealed('overview');
                         return (
                           <div className="mb-6">
                             <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
-                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
+                            {overviewRevealed ? (
+                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
+                            ) : (
+                              <div className="relative">
+                                {/* Show the first ~6 lines free, blur the rest until revealed */}
+                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-6">
+                                  {displayDescription}
+                                </p>
+                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white dark:from-gray-800 to-transparent" />
+                                <button
+                                  type="button"
+                                  onClick={() => revealDetail('overview')}
+                                  className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                                  data-testid="button-reveal-overview"
+                                >
+                                  <Lock className="w-3.5 h-3.5" />
+                                  See full details
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+                      // Self-heal in flight: subtle "finding more information" hint
+                      // while the background enrichment populates the description.
+                      if (isSelfHealing) {
+                        return (
+                          <div className="mb-6 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Finding more information…
                           </div>
                         );
                       }
@@ -3191,6 +3052,315 @@ export default function CommunityDetail() {
                         </div>
                       </div>
                     )}
+                  </CardContent>
+                </Card>
+
+
+                {/* Contact & Tour Section */}
+            <Card>
+              <CardContent className="p-0">
+                <div className="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 p-4 sm:p-6 lg:p-8 rounded-lg border-2 border-blue-100 dark:border-blue-700">
+                  <div className="text-center mb-4 sm:mb-6">
+                    <h3 className="text-responsive-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Ready to Visit?</h3>
+                    <p className="text-responsive-base text-gray-900 dark:text-gray-100">Connect with our community team to schedule your tour</p>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="mb-4 sm:mb-6 space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <button
+                        onClick={() => setShowInfoRequestDialog(true)}
+                        className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+                      >
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <span className="font-bold text-lg">📋 Request More Information</span>
+                          <span className="text-xs opacity-90 font-medium">Get Pricing, Availability & Details</span>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setIsScheduleTourOpen(true)}
+                        className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
+                      >
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <span className="font-bold text-lg">📅 Schedule Tour</span>
+                          <span className="text-xs opacity-90 font-medium">🤝 Schedule with Tour Tracker & TourMate™</span>
+                        </div>
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      {community.website ? (
+                        <button
+                          onClick={() => window.open(community.website!.startsWith('http') ? community.website! : `https://${community.website}`, '_blank')}
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                        >
+                          <Globe className="w-4 h-4" />
+                          <span className="font-medium">Visit Website</span>
+                          <ExternalLink className="w-3 h-3 opacity-70" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
+
+                    {/* Enhanced Tour Section - Combined Ready to Tour & Tour Tracker */}
+                    <div className="space-y-6">
+                      {/* Comprehensive Tour Tracker Integration */}
+                      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200 dark:border-blue-600 rounded-lg p-4">
+                        <div className="flex items-center mb-3">
+                          <ClipboardList className="w-5 h-5 mr-2 text-blue-600" />
+                          <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200">Tour Tracker™ Pro</h3>
+                          <Badge className="ml-2 bg-blue-600 text-white text-xs">Comprehensive</Badge>
+                        </div>
+                        <p className="text-sm text-blue-700 dark:text-blue-300 mb-4">
+                          Grade every aspect of your visit with our 360° evaluation system
+                        </p>
+                        
+                        {/* Main Evaluation Categories - Mobile Responsive */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 mb-4">
+                          {/* Units & Living Spaces */}
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-green-200 dark:border-green-600">
+                            <Home className="w-4 h-4 text-green-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Units & Living Spaces</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Size, layout, condition, storage</p>
+                            </div>
+                          </div>
+
+                          {/* Common Areas & Amenities */}
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-blue-200 dark:border-blue-600">
+                            <Users className="w-4 h-4 text-blue-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Common Areas</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Dining, lobby, activities, library</p>
+                            </div>
+                          </div>
+
+                          {/* Outdoor Spaces */}
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-emerald-200 dark:border-emerald-600">
+                            <MapIcon className="w-4 h-4 text-emerald-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Outdoor Spaces</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Gardens, patios, walking paths</p>
+                            </div>
+                          </div>
+
+                          {/* Staff & Care Quality */}
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-purple-200 dark:border-purple-600">
+                            <UserCheck className="w-4 h-4 text-purple-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Staff & Care</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Friendliness, knowledge, ratio</p>
+                            </div>
+                          </div>
+
+                          {/* Food & Dining */}
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-orange-200 dark:border-orange-600">
+                            <UtensilsCrossed className="w-4 h-4 text-orange-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Food & Dining</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Quality, variety, atmosphere</p>
+                            </div>
+                          </div>
+
+                          {/* Safety & Security */}
+                          <div className="flex items-center p-2 sm:p-3 bg-white dark:bg-gray-800 rounded-lg border border-red-200 dark:border-red-600">
+                            <Shield className="w-4 h-4 text-red-600 mr-2 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">Safety & Security</p>
+                              <p className="text-xs text-gray-600 dark:text-gray-400">Emergency systems, access control</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Additional Evaluation Areas */}
+                        <div className="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg p-3 mb-4">
+                          <h4 className="text-sm font-semibold text-indigo-800 dark:text-indigo-200 mb-2">Additional Evaluation Areas:</h4>
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            <div className="flex items-center">
+                              <Activity className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Activities & Programs</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Car className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Transportation</span>
+                            </div>
+                            <div className="flex items-center">
+                              <DollarSign className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Value for Money</span>
+                            </div>
+                            <div className="flex items-center">
+                              <Heart className="w-3 h-3 text-indigo-600 mr-1" />
+                              <span className="text-indigo-700 dark:text-indigo-300">Overall Atmosphere</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Grading System Preview */}
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 border border-gray-200 dark:border-gray-600">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-semibold text-gray-900 dark:text-gray-100">A-F Grading System</h4>
+                            <div className="flex space-x-1">
+                              <span className="px-2 py-1 text-xs font-bold bg-green-100 text-green-800 rounded">A</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-blue-100 text-blue-800 rounded">B</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-yellow-100 text-yellow-800 rounded">C</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-orange-100 text-orange-800 rounded">D</span>
+                              <span className="px-2 py-1 text-xs font-bold bg-red-100 text-red-800 rounded">F</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            Grade each category during your visit. Your scores help future families and contribute to community transparency.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Waitlist Dialog */}
+                      <Dialog open={isWaitlistOpen} onOpenChange={setIsWaitlistOpen}>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Join Waitlist</DialogTitle>
+                            <DialogDescription>
+                              {selectedUnitType ? (
+                                `You'll be notified when ${selectedUnitType} units become available.`
+                              ) : (
+                                "Complete this form to be notified when units become available."
+                              )}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div>
+                              <Label htmlFor="waitlist-name" className="text-gray-900 dark:text-gray-100">Your Name</Label>
+                              <Input
+                                id="waitlist-name"
+                                placeholder="Enter your full name"
+                                value={waitlistName}
+                                onChange={(e) => setWaitlistName(e.target.value)}
+                                className="text-gray-900 dark:text-gray-100"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                              <div>
+                                <Label htmlFor="waitlist-email" className="text-gray-900 dark:text-gray-100">Email</Label>
+                                <Input
+                                  id="waitlist-email"
+                                  type="email"
+                                  placeholder="your.email@example.com"
+                                  value={waitlistEmail}
+                                  onChange={(e) => setWaitlistEmail(e.target.value)}
+                                  className="text-gray-900 dark:text-gray-100"
+                                />
+                              </div>
+                              <div>
+                                <Label htmlFor="waitlist-phone" className="text-gray-900 dark:text-gray-100">Phone</Label>
+                                <Input
+                                  id="waitlist-phone"
+                                  type="tel"
+                                  placeholder="(555) 123-4567"
+                                  value={waitlistPhone}
+                                  onChange={(e) => setWaitlistPhone(e.target.value)}
+                                  className="text-gray-900 dark:text-gray-100"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <Label htmlFor="waitlist-preferences" className="text-gray-900 dark:text-gray-100">Preferred Unit Type & Other Preferences</Label>
+                              <textarea
+                                id="waitlist-preferences"
+                                className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                                placeholder={selectedUnitType ? 
+                                  `Interested in ${selectedUnitType} units. Add any additional preferences...` :
+                                  "e.g., 1 bedroom, ground floor, pet-friendly..."
+                                }
+                                value={waitlistPreferences || (selectedUnitType ? `Interested in ${selectedUnitType} units.` : '')}
+                                onChange={(e) => setWaitlistPreferences(e.target.value)}
+                                rows={3}
+                              />
+                            </div>
+
+                            <Button 
+                              onClick={handleWaitlistSubmit}
+                              className="w-full bg-orange-600 hover:bg-orange-700"
+                              disabled={!waitlistName || !waitlistEmail || !waitlistPhone}
+                            >
+                              <Users className="w-4 h-4 mr-2" />
+                              Join Waitlist
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+
+
+
+
+
+                    {/* Comprehensive Tour Grading Button */}
+                    <div className="mt-4">
+                      <Button 
+                        onClick={() => window.location.href = `/tour-tracker?communityId=${community.id}`}
+                        className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 font-semibold"
+                      >
+                        <ClipboardList className="w-4 h-4 mr-2" />
+                        Start Comprehensive Tour Grading
+                      </Button>
+                      <p className="text-xs text-center text-gray-700 dark:text-gray-300 mt-2">
+                        Grade 10+ categories with A-F scoring • Your evaluations help future families make informed decisions
+                      </p>
+                    </div>
+                  </div>
+                  </div>
+              </CardContent>
+            </Card>
+
+                {/* Move-In Coordination Section */}
+                <Card className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center mb-2">
+                          <Truck className="w-6 h-6 text-blue-600 dark:text-blue-400 mr-2" />
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                            Moving Soon? We'll Help Coordinate Everything
+                          </h3>
+                        </div>
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                          Our Move-In Coordination Center helps you manage every aspect of the transition - from hiring movers to setting up healthcare providers and utilities.
+                        </p>
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          <Badge variant="outline" className="text-xs">
+                            <Package className="w-3 h-3 mr-1" />
+                            Moving Services
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            <Stethoscope className="w-3 h-3 mr-1" />
+                            Healthcare Setup
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            <Home className="w-3 h-3 mr-1" />
+                            Utilities Transfer
+                          </Badge>
+                          <Badge variant="outline" className="text-xs">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Checklist Tracking
+                          </Badge>
+                        </div>
+                        <Button
+                          variant="default"
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          onClick={() => {
+                            localStorage.setItem('moveInCommunity', JSON.stringify({
+                              id: community.id,
+                              name: community.name,
+                              address: `${community.address}, ${community.city}, ${community.state} ${community.zipCode}`,
+                              phone: community.phone
+                            }));
+                            window.location.href = '/move-in-coordination';
+                          }}
+                        >
+                          <Truck className="w-4 h-4 mr-2" />
+                          Start Move-In Planning
+                        </Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
 
@@ -3498,6 +3668,16 @@ export default function CommunityDetail() {
                   </CardContent>
                 </Card>
 
+                {/* Real-Time AI Insights - What We Found About */}
+                <RealTimeInsights 
+                  key={`real-time-insights-${community.id}`}
+                  community={community}
+                  marketAnalysisData={marketAnalysisData} 
+                  onVerificationReport={setVerificationReport}
+                  onPhotosUpdate={undefined}
+                  verificationReport={verificationReport}
+                />
+
                 {/* Reservation Information */}
                 <Card>
                   <CardHeader>
@@ -3554,87 +3734,11 @@ export default function CommunityDetail() {
                   </CardContent>
                 </Card>
 
-                {/* Healthcare Partnerships Section */}
-                <HealthcarePartnerships community={community} isAdminView={false} />
               </TabsContent>
 
-              {/* Live Market Data Tab */}
+              {/* Healthcare Tab */}
               <TabsContent value="market-data" className="space-y-6 mt-6">
-                {/* Market Data Tab Header - Centralized Hub */}
-                <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-900/20 dark:via-indigo-900/20 dark:to-purple-900/20 border-2 border-blue-200 dark:border-blue-800">
-                  <CardHeader className="text-center">
-                    <CardTitle className="text-2xl font-bold flex items-center justify-center gap-3">
-                      <BarChart3 className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                      <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                        Market Intelligence Center
-                      </span>
-                    </CardTitle>
-                    <CardDescription className="text-lg mt-2">
-                      Complete market analysis, competitive pricing, and real-time intelligence for {community.name}
-                    </CardDescription>
-                    {((community.priceRange?.min && community.priceRange.min > 0) || (community as any).rentPerMonth || verificationReport?.pricing?.verified) && (
-                      <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200 mx-auto mt-3">
-                        <CheckCircle className="h-4 w-4 mr-2" />
-                        Live Market Data Available
-                      </Badge>
-                    )}
-                    
-                    {/* Refresh Market Data Button */}
-                    <div className="mt-4">
-                      <Button
-                        onClick={() => {
-                          console.log('🔄 User clicked Refresh Market Data for:', community.name);
-                          handleManualVerification();
-                        }}
-                        disabled={isVerifying}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors flex items-center gap-2 shadow-lg mx-auto"
-                        variant="default"
-                        size="default"
-                      >
-                        {isVerifying ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                            Refreshing...
-                          </>
-                        ) : (
-                          <>
-                            <RefreshCw className="w-4 h-4" />
-                            Refresh Market Data & Photos
-                          </>
-                        )}
-                      </Button>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2 max-w-md mx-auto">
-                        Get the latest pricing, availability, and photos from official sources
-                      </p>
-                    </div>
-                  </CardHeader>
-                </Card>
-
-                {/* Real-Time AI Insights - Uses shared comprehensive data */}
-                <RealTimeInsights 
-                  key={`real-time-insights-${community.id}`}
-                  community={community}
-                  marketAnalysisData={marketAnalysisData} 
-                  onVerificationReport={setVerificationReport}
-                  onPhotosUpdate={undefined}
-                  verificationReport={verificationReport}
-                />
-
-                {/* Competitive Analysis Component - Auto-enriches if database has no fresh data */}
-                <CommunityCompetitiveAnalysis
-                  key={`competitive-analysis-${community.id}`}
-                  community={community}
-                  onAnalysisUpdate={setMarketAnalysisData}
-                  onVerificationReport={setVerificationReport}
-                />
-
-                {/* Intelligent Pricing Prediction - Now uses data from verification report */}
-                <IntelligentPricingPrediction 
-                  key={`pricing-prediction-${community.id}`}
-                  community={community}
-                  verificationReport={verificationReport}
-                />
-
+                <HealthcarePartnerships community={community} isAdminView={false} />
               </TabsContent>
               
               {/* Reviews Tab Content - Uses shared comprehensive data */}
@@ -4365,6 +4469,36 @@ export default function CommunityDetail() {
       communityName={community?.name || ''}
       />
       
+      {/* Login prompt — shown when unauthenticated user clicks the heart button */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Heart className="w-5 h-5 text-red-500" />
+              Save this community
+            </DialogTitle>
+            <DialogDescription>
+              Create a free account or sign in to save communities to your favorites and compare them later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-3 pt-2">
+            <Button
+              className="w-full"
+              onClick={() => { setShowLoginDialog(false); setLocation('/login'); }}
+            >
+              Sign In
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => { setShowLoginDialog(false); setLocation('/register'); }}
+            >
+              Create Free Account
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       {/* Reservation Dialog */}
       {community && (
         <ReservationDialog 
@@ -4403,6 +4537,7 @@ export default function CommunityDetail() {
           }}
         />
       )}
+      {detailConsentDialog}
       </div>
     </div>
   );

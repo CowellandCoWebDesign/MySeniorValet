@@ -3,9 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { Home, Heart } from 'lucide-react';
 import { Link } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 export function FeaturedAndCoastalSection() {
   // Fetch trending communities for featured section
@@ -82,11 +83,10 @@ export function FeaturedAndCoastalSection() {
               ))
             ) : (
               premiumCommunities.slice(0, 8).map((community: any, index) => (
-                <EnhancedCommunityCard
+                <CommunityCard
                   key={`premium-${community.id}-${index}`}
                   community={community}
-                  index={index}
-                  variant={index < 4 ? 'coastal' : 'featured'}
+                  variant="grid"
                 />
               ))
             )}
@@ -108,49 +108,11 @@ export function FeaturedAndCoastalSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Show remaining discovered communities */}
               {((featuredCommunities as any[]).slice(4, 8)).map((community: any, index: number) => (
-                <Link key={`more-featured-${community.id}-${index}`} href={`/community/${community.id}`}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm dark:bg-gray-700">
-                    <div className="relative">
-                      <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                        <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
-                      </div>
-                      
-                      {/* Heart Icon */}
-                      <div className="absolute top-3 right-3">
-                        <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                          <Heart className="w-4 h-4 text-gray-600" />
-                        </div>
-                      </div>
-                      
-                      {/* Featured Badge */}
-                      <div className="absolute top-3 left-3">
-                        <Badge className="bg-amber-500 text-white px-2 py-1 text-xs font-medium">
-                          🏆 Featured
-                        </Badge>
-                      </div>
-                    </div>
-                    
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1 truncate">
-                        {community?.name || 'Community Name'}
-                      </h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-300 mb-2 truncate">
-                        {community?.city || 'City'}, {community?.state || 'State'}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                          {community?.priceRange?.min && community?.priceRange?.max ? 
-                            `$${community.priceRange.min.toLocaleString()}-$${community.priceRange.max.toLocaleString()}` :
-                            '$2,800-$4,200'
-                          }
-                        </div>
-                        <Badge variant="secondary" className="text-xs">
-                          {community?.careTypes?.[0] || 'Senior Living'}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
+                <CommunityCard
+                  key={`more-featured-${community.id}-${index}`}
+                  community={community}
+                  variant="grid"
+                />
               ))}
             </div>
           </div>

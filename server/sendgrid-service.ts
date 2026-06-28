@@ -16,6 +16,8 @@ interface EmailParams {
   subject: string;
   text?: string;
   html?: string;
+  bcc?: string | string[];
+  replyTo?: string;
 }
 
 interface MessageNotificationParams {
@@ -42,6 +44,14 @@ export async function sendEmail(params: EmailParams & { disableTracking?: boolea
       html: html
     };
     
+    if (params.replyTo) {
+      msg.replyTo = params.replyTo;
+    }
+    
+    if (params.bcc) {
+      msg.bcc = params.bcc;
+    }
+    
     // Disable click and open tracking for security-critical emails
     // This prevents SendGrid from rewriting URLs through tracking domains
     // which can cause SSL certificate errors if link branding isn't configured
@@ -63,35 +73,54 @@ export async function sendEmail(params: EmailParams & { disableTracking?: boolea
     return response.statusCode >= 200 && response.statusCode < 300;
 
   } catch (error: any) {
-    console.error('SendGrid email error:', error);
-    if (error.response && error.response.body) {
-      console.error('SendGrid error details:', error.response.body);
+    console.error(`❌ SendGrid email error sending to ${params.to} (subject: "${params.subject}"):`, error?.message || error);
+    if (error?.response?.body) {
+      console.error('SendGrid error details:', JSON.stringify(error.response.body));
     }
     return false;
   }
 }
 
 // Super admin notification specifically
-export async function notifySuperAdmin(title: string, message: string, data?: any) {
-  // Send to admin@myseniorvalet.com with BCC to hello
-  const recipients = ['admin@myseniorvalet.com'];
-  
+export async function notifySuperAdmin(
+  title: string,
+  message: string,
+  data?: any,
+  options?: { htmlContent?: string; textContent?: string }
+) {
+  // Send to CowellandCoWebDesign@gmail.com with BCC to hello
+  const recipients = ['CowellandCoWebDesign@gmail.com'];
+
+  // Callers can supply pre-formatted, scannable HTML/text (e.g. labeled rows)
+  // via options; otherwise fall back to dumping `data` as JSON.
+  const detailHtml = options?.htmlContent
+    ? options.htmlContent
+    : data
+      ? `<pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>`
+      : '';
+  const detailText = options?.textContent
+    ? options.textContent
+    : data
+      ? JSON.stringify(data, null, 2)
+      : '';
+
   for (const recipient of recipients) {
     await sendEmail({
       to: recipient,
       from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `MySeniorValet Alert: ${title}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #1f2937;">${title}</h2>
           <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p>${message}</p>
-            ${data ? `<pre style="background: #f3f4f6; padding: 10px; border-radius: 4px; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>` : ''}
+            ${detailHtml}
           </div>
           <p style="color: #6b7280; font-size: 12px;">MySeniorValet System - ${new Date().toLocaleString()}</p>
         </div>
       `,
-      text: `${title}\n\n${message}\n\n${data ? JSON.stringify(data, null, 2) : ''}`
+      text: `${title}\n\n${message}\n\n${detailText}`
     });
   }
   return true;
@@ -104,6 +133,7 @@ export async function sendPasswordResetEmail(email: string, resetToken: string):
   return await sendEmail({
     to: email,
     from: 'hello@myseniorvalet.com',
+    replyTo: 'CowellandCoWebDesign@gmail.com',
     subject: 'MySeniorValet - Password Reset Request',
     disableTracking: true, // Security-critical email - prevent URL rewriting
     html: `
@@ -134,8 +164,9 @@ export async function notifyNewCustomer(customerType: 'community' | 'vendor', cu
     : `A new vendor has registered on MySeniorValet!`;
   
   return await sendEmail({
-    to: 'admin@myseniorvalet.com',
+    to: 'CowellandCoWebDesign@gmail.com',
     from: 'hello@myseniorvalet.com',
+    replyTo: 'CowellandCoWebDesign@gmail.com',
     subject: title,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -232,6 +263,7 @@ export async function sendMessageNotification(params: MessageNotificationParams)
     const emailSent = await sendEmail({
       to: recipientEmail,
       from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `New message from ${params.senderName} on MySeniorValet`,
       text: `
 New Message on MySeniorValet

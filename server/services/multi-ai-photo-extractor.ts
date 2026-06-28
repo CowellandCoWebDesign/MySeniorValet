@@ -537,8 +537,8 @@ Be lenient - mark as authentic unless clearly stock photos.`
             console.log(`📸 Extracted ${htmlPhotos.length} photo candidates from HTML content`);
           }
         }
-      } catch (error) {
-        console.log(`⚠️ Could not fetch HTML for quick extraction: ${error.message}`);
+      } catch (error: any) {
+        console.log(`⚠️ Could not fetch HTML for quick extraction: ${error?.message || error}`);
       }
     }
     

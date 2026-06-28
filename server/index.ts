@@ -1,9 +1,15 @@
 import 'dotenv/config';
+// Route all outbound email through the connected Gmail account (Replit
+// google-mail connector). This import self-installs the transport at
+// module-evaluation time — before any mail-sending modules load — replacing
+// the @sendgrid/mail singleton's send so every existing caller uses Gmail.
+import "./services/gmail-sender";
 import express, { type Request, Response, NextFunction } from "express";
 import compression from "compression";
 import { registerRoutes } from "./routes";
+import { runStartupMigrations } from "./run-migration";
 import { setupVite, serveStatic, log } from "./vite";
-import { seoSSRMiddleware } from "./seo-ssr-middleware";
+import { seoSSRMiddleware, communityVisibilityGuard } from "./seo-ssr-middleware";
 import { seedDatabase } from "./seed";
 import { 
   securityHeaders, 
@@ -12,7 +18,8 @@ import {
   sqlInjectionProtection,
   securityLogger,
   enhanceSessionSecurity,
-  createRateLimit 
+  createRateLimit,
+  isRateLimitExempt 
 } from "./security";
 import { cacheBuster, devModeHeaders } from "./cache-buster";
 import { devCacheKiller, clearViteCache } from "./dev-cache-killer";
@@ -26,6 +33,9 @@ import { advancedAnalytics } from "./infrastructure/advanced-analytics";
 import { notificationSystem } from "./infrastructure/notification-system";
 import { integrationManager } from "./infrastructure/integration-manager";
 import cookieParser from "cookie-parser";
+import { prewarmSitemapCaches, clearSitemapCache } from "./sitemap-generator";
+import { scheduleSitemapWarmup } from "./utils/sitemap-pinger";
+import { hostCanonicalizationMiddleware } from "./middleware/host-canonical";
 
 const app = express();
 
@@ -72,6 +82,12 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Host canonicalization (production): collapse all non-canonical, non-exempt
+// hosts to the single canonical origin so search engines don't index the same
+// content under multiple hosts. Runs before route handling so it short-circuits
+// early. Exempts localhost, Replit infra hosts, /health, and white-label domains.
+app.use(hostCanonicalizationMiddleware());
+
 // Security middleware stack (order matters)
 app.use(corsPolicy);
 app.use(securityHeaders);
@@ -86,9 +102,11 @@ app.use(securityDashboard.middleware());
 
 // Apply rate limiting only to API routes (excluding map operations)
 app.use('/api', (req, res, next) => {
-  // Skip rate limiting for map operations and clusters
-  if (req.path.includes('/clusters') || 
-      req.path.includes('/spatial')) {
+  // Skip rate limiting for read-only browse/map endpoints and login.
+  // Use the shared isRateLimitExempt() (which matches req.originalUrl, the full
+  // path) instead of re-checking req.path here — inside app.use('/api', ...)
+  // Express strips the /api prefix, so req.path-based checks silently miss.
+  if (isRateLimitExempt(req)) {
     return next();
   }
   return createRateLimit()(req, res, next);
@@ -123,7 +141,6 @@ app.use((req, res, next) => {
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    console.log('🚫 Cache disabled for:', req.path);
   }
   next();
 });
@@ -165,6 +182,9 @@ app.use((req, res, next) => {
 
 (async () => {
   try {
+    // Run idempotent schema migrations (adds community trust columns if absent)
+    await runStartupMigrations();
+
     const server = await registerRoutes(app);
 
   // NO SEEDING - GOLDEN DATA RULE ENFORCED
@@ -283,6 +303,12 @@ app.use((req, res, next) => {
     return messages[status] || 'An error occurred';
   }
 
+  // Community visibility guard (ALL user agents): returns a real 404 for
+  // nonexistent community URLs and 410 for hidden/deactivated ones, with a
+  // branded noindex page. Runs before SSR/SPA so missing/hidden URLs never
+  // resolve to the 200 SPA shell (soft-404). Public communities fall through.
+  app.use(communityVisibilityGuard());
+
   // CRITICAL: SSR middleware must run BEFORE all route registration
   // This ensures crawlers get pre-rendered HTML instead of the SPA
   app.use(seoSSRMiddleware());
@@ -331,37 +357,17 @@ app.use((req, res, next) => {
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);
     
-    console.log('🚀 ALL ENTERPRISE INFRASTRUCTURE SYSTEMS ACTIVATED:');
-    console.log('  ✅ Redis Caching System - Lightning-fast performance');
-    console.log('  ✅ Security Dashboard & Monitoring - Real-time threat detection');
-    console.log('  ✅ Performance Monitor - System health tracking');
-    console.log('  ✅ Real-time Communication (WebSockets) - Family collaboration');
-    console.log('  ✅ Document Management System - Secure file handling');
-    console.log('  ✅ Advanced Authentication (Ready) - Multi-tier user system');
-    console.log('  ✅ Business Intelligence - Revenue & analytics dashboard');
-    console.log('  ✅ Advanced Analytics - User behavior & predictive modeling');
-    console.log('  ✅ Notification System - Multi-channel messaging');
-    console.log('  ✅ Integration Manager - 10 external service connections');
-    console.log('');
-    console.log('🤖 AI PRIORITY ORCHESTRATOR ACTIVATED (August 27, 2025):');
-    console.log('  1️⃣ Perplexity (Primary - Web Search) - ' + (process.env.PERPLEXITY_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  2️⃣ Claude (Secondary - Analysis) - ' + (process.env.ANTHROPIC_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  3️⃣ ChatGPT (Tertiary - Backup) - ' + (process.env.OPENAI_API_KEY ? '✅ Configured' : '❌ Not configured'));
-    console.log('  Note: Claude provides superior analysis capabilities as secondary AI');
-    console.log('');
-    console.log('📄 DOCUMENSO DOCUMENT SIGNING:');
-    console.log('  ' + (process.env.DOCUMENSO_API_KEY ? '✅ Self-hosted document signing ready' : '⚠️ Document signing not configured'));
-    console.log('');
-    console.log('💼 ENTERPRISE FEATURES NOW AVAILABLE:');
-    console.log('  • Premium business intelligence dashboards');
-    console.log('  • Advanced user behavior analytics');
-    console.log('  • Multi-channel notification system');
-    console.log('  • 10+ external service integrations (CRM, Marketing, Healthcare)');
-    console.log('  • Predictive analytics & revenue forecasting');
-    console.log('  • Professional document management');
-    console.log('  • Real-time performance monitoring');
-    console.log('');
-    console.log('🌟 MySeniorValet now has Fortune 500-level infrastructure!');
+    // Clear any stale on-disk sitemap cache (e.g. from a prior URL format) then
+    // pre-warm fresh caches so Google always hits a hot, correct cache.
+    clearSitemapCache()
+      .catch(e => console.error('[Sitemap] Startup cache clear error:', e))
+      .then(() => prewarmSitemapCaches())
+      .catch(e => console.error('[Sitemap] Startup pre-warm error:', e));
+
+    // Schedule recurring 20h warmup to keep caches fresh before 24h TTL expires
+    scheduleSitemapWarmup();
+    
+    console.log('🚀 MySeniorValet server ready — all systems active');
   });
   
   } catch (error) {

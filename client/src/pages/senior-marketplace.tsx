@@ -239,7 +239,7 @@ export default function SeniorMarketplace() {
               {canScrollLeft && (
                 <button
                   onClick={scrollLeft}
-                  className="absolute -left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+                  className="hidden md:flex items-center justify-center absolute -left-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
                   aria-label="Scroll left"
                 >
                   <ChevronLeft className="w-6 h-6 text-purple-600" />
@@ -296,7 +296,7 @@ export default function SeniorMarketplace() {
               {canScrollRight && (
                 <button
                   onClick={scrollRight}
-                  className="absolute -right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
+                  className="hidden md:flex items-center justify-center absolute -right-12 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl hover:bg-white transition-all duration-200 hover:scale-110"
                   aria-label="Scroll right"
                 >
                   <ChevronRight className="w-6 h-6 text-purple-600" />
@@ -312,19 +312,19 @@ export default function SeniorMarketplace() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="flex flex-col sm:flex-row gap-4 justify-center mt-12"
           >
-            <Link href="/vendor-partner">
-              <Button size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+            <Button asChild size="lg" className="bg-white text-purple-700 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <Link href="/vendor-signup">
                 <Briefcase className="w-5 h-5 mr-2" />
                 Become a Vendor Partner
-              </Button>
-            </Link>
+              </Link>
+            </Button>
             
-            <Link href="/vendor-login">
-              <Button size="lg" variant="outline" className="border-2 border-white/90 text-white hover:bg-white/20 backdrop-blur px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+            <Button asChild size="lg" variant="outline" className="border-2 border-white/90 text-white hover:bg-white/20 backdrop-blur px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+              <Link href="/vendor-marketplace">
                 <LogIn className="w-5 h-5 mr-2" />
                 Vendor Login Portal
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </motion.div>
         </div>
       </section>

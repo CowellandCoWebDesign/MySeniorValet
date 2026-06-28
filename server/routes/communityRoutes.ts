@@ -1,9 +1,10 @@
 import { type Express } from "express";
 import { db } from "../db";
-import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities } from "@shared/schema";
+import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities, searchHistory, analyticsEvents } from "@shared/schema";
+import { isClearlyFake } from "../../shared/community-classification";
 import { generateCommunitySlug } from "../utils/generate-slug";
-import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull } from "drizzle-orm";
-import { insertCommunitySchema } from "@shared/schema";
+import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull, isNull, not } from "drizzle-orm";
+import { insertCommunitySchema, insertListingFlagSchema } from "@shared/schema";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
 import { storage } from "../storage";
 import { enhancedSearchService } from "../enhanced-search-service";
@@ -18,15 +19,315 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
-import { PerplexityAIService, perplexityService } from "../perplexity-ai-service";
-import { multiAIVerificationService } from "../multi-ai-verification-service";
-import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
-import { optimizedEnrichmentService } from "../services/optimized-enrichment-service";
-import { simpleEnrichmentService } from "../services/simple-enrichment-service";
+import { normalizePhotoUrls } from "../utils/photo-urls";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
 import { vendors } from "@shared/schema";
+// THE single enrichment pipeline. All enrichment entry points route through this.
+import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
+import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter } from "../utils/community-ranking";
+
+/**
+ * Single shared predicate for ALL public community queries.
+ *
+ * Hides records that are:
+ *  a) manually hidden by an admin (is_hidden = true), OR
+ *  b) "clearly fake" — is_verified = false AND none of {phone, website,
+ *     description, meaningful data_source} is present.
+ *
+ * Because this is evaluated at query time against live column values, the
+ * filter is auto-reversible: a record re-appears the moment real data
+ * (phone, website, description, or a verified status) is added.
+ */
+function publicVisibleFilter() {
+  return sql`(
+    "communities"."is_hidden" IS NOT TRUE
+    AND NOT (
+      ("communities"."is_verified" IS NOT TRUE OR "communities"."is_verified" IS NULL)
+      AND ("communities"."phone" IS NULL OR trim("communities"."phone") = '')
+      AND ("communities"."website" IS NULL OR trim("communities"."website") = '')
+      AND ("communities"."description" IS NULL OR trim("communities"."description") = '')
+      AND (
+        "communities"."data_source" IS NULL
+        OR trim(lower("communities"."data_source")) = ''
+        OR trim(lower("communities"."data_source")) IN ('government database', 'placeholder', 'unknown')
+      )
+    )
+  )`;
+}
 
 export function registerCommunityRoutes(app: Express) {
+  // Public listing flag: families report inaccurate / fake / closed listings.
+  // Persists to listing_flags for admin review. Anonymous reports allowed
+  // (reporterEmail/Name optional); userId attached when signed in.
+  app.post("/api/communities/:id/flag", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id, 10);
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      const [community] = await db
+        .select({ id: communities.id })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Identity is derived from the authenticated session only — never trust a
+      // client-supplied userId (prevents impersonation in moderation records).
+      const sessionUserId = (req.user as any)?.id ?? null;
+
+      const parsed = insertListingFlagSchema.safeParse({
+        communityId,
+        userId: sessionUserId,
+        flagType: req.body.flagType,
+        reason: req.body.reason,
+        details: req.body.details || null,
+        reporterEmail: req.body.reporterEmail || null,
+        reporterName: req.body.reporterName || null,
+      });
+
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: "Invalid flag submission",
+          details: parsed.error.flatten().fieldErrors,
+        });
+      }
+
+      const flag = await storage.createListingFlag(parsed.data);
+
+      // Set community flagStatus to 'pending' so it shows an "Under review" note publicly
+      await db.update(communities)
+        .set({ flagStatus: 'pending' } as any)
+        .where(eq(communities.id, communityId));
+
+      if (parsed.data.userId) {
+        try {
+          await storage.trackUserActivity({
+            userId: parsed.data.userId,
+            activityType: "Flag Listing",
+            details: { communityId, flagType: parsed.data.flagType, reason: parsed.data.reason },
+          });
+        } catch (activityErr) {
+          console.warn("⚠️ Failed to track flag activity:", activityErr);
+        }
+      }
+
+      console.log(`🚩 Community ${communityId} flagged (${parsed.data.flagType})`);
+      return res.status(201).json({ message: "Flag submitted successfully", flagId: flag.id });
+    } catch (error) {
+      console.error("Flag submission error:", error);
+      return res.status(500).json({ error: "Failed to submit flag" });
+    }
+  });
+
+  // ── PUBLIC SELF-HEAL ENRICHMENT ────────────────────────────────────────────
+  // Lets a community detail page that loads with no photos / no description
+  // silently fill itself in WITHOUT an admin being logged in. Routes through THE
+  // single unified enrichment pipeline (`enrichCommunityUnified`) — the same one
+  // the admin force-refresh uses — so results persist permanently and benefit all
+  // future visitors. The admin route is unchanged.
+  //
+  // Gates (priority order):
+  //   1. Content-complete (photos AND a real description ≥100 chars) → skipped,
+  //      no Perplexity call. Enrichment runs ONCE and is never repeated for
+  //      content-complete communities.
+  //   2. In-flight de-dup: enrichmentStatus='in_progress' OR a self-heal attempt
+  //      within the last 10 min → skipped (two browser tabs can't both fire).
+  //   3. Terminal "no data" state: enrichmentStatus='no_data' → skipped forever
+  //      (community repeatedly found to have nothing online). An admin force
+  //      refresh clears this and resets the counter.
+  //   4. Escalating backoff rate limit: a run that persists NO new content widens
+  //      the cooldown via the `enrichment_attempts` counter — 24h → 7d → 30d →
+  //      terminal — instead of a fixed 24h. A successful run (real content saved)
+  //      resets the counter to 0. Enforced via the DB `last_enrichment_attempt`
+  //      timestamp + `enrichment_attempts` (no in-memory state; survives restarts).
+  app.post("/api/communities/:id/self-heal", async (req, res) => {
+    try {
+      // Validate :id is a real integer community ID (reject non-numeric).
+      const communityId = parseInt(req.params.id, 10);
+      if (isNaN(communityId) || String(communityId) !== req.params.id.trim()) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      const [community] = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          description: communities.description,
+          photos: communities.photos,
+          enrichmentStatus: communities.enrichmentStatus,
+          enrichmentAttempts: communities.enrichmentAttempts,
+          lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
+        })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // Gate 1 — content-complete: enrichment already ran and saved permanently.
+      const photoCount = (community.photos || []).filter(
+        (p: string) => typeof p === "string" && p.trim().length > 0,
+      ).length;
+      const descLen = (community.description || "").trim().length;
+      const isContentComplete = photoCount > 0 && descLen >= 100;
+      if (isContentComplete) {
+        return res.json({ skipped: true, reason: "already has content" });
+      }
+
+      const now = Date.now();
+      const lastAttempt = community.lastEnrichmentAttempt
+        ? new Date(community.lastEnrichmentAttempt).getTime()
+        : 0;
+      const minsSinceAttempt = lastAttempt ? (now - lastAttempt) / 60000 : Infinity;
+
+      // Gate 2 — in-flight de-dup (10 min). NOT a data TTL.
+      if (community.enrichmentStatus === "in_progress" || minsSinceAttempt < 10) {
+        return res.json({ skipped: true, reason: "enrichment in progress" });
+      }
+
+      // Gate 3 — terminal "no data" state. Repeated runs found nothing online,
+      // so we stop auto-retrying entirely until an admin forces a refresh.
+      if (community.enrichmentStatus === "no_data") {
+        return res.json({ skipped: true, reason: "no data found (terminal)" });
+      }
+
+      // Gate 4 — escalating backoff rate limit. The required cooldown widens with
+      // each consecutive no-content run: 24h → 7d → 30d (then terminal). A fresh
+      // or just-succeeded community (attempts=0) keeps the original 24h floor.
+      const failedAttempts = community.enrichmentAttempts || 0;
+      const requiredCooldownHours = selfHealCooldownHours(failedAttempts);
+      if (minsSinceAttempt < requiredCooldownHours * 60) {
+        return res.json({
+          skipped: true,
+          reason: "rate limited",
+          retryAfterHours: requiredCooldownHours,
+          consecutiveNoDataAttempts: failedAttempts,
+        });
+      }
+
+      // Mark in-flight BEFORE the (slow) pipeline runs so a concurrent tab hits
+      // gate 2 and does not fire a duplicate Perplexity call.
+      const startedAt = new Date();
+      await db
+        .update(communities)
+        .set({ enrichmentStatus: "in_progress", lastEnrichmentAttempt: startedAt } as any)
+        .where(eq(communities.id, communityId));
+
+      console.log(
+        `🩺 [Self-Heal] Triggered for community ${communityId} ("${community.name}") at ${startedAt.toISOString()}`,
+      );
+
+      try {
+        const result = await enrichCommunityUnified(communityId);
+
+        // "Found data" = real new content persisted this run, OR the community
+        // already had meaningful content (cache hit). Anything else is a
+        // no-data run that escalates the backoff.
+        const foundData = result.cached === true || result.contentSaved === true;
+
+        if (foundData) {
+          // Success: clear any accrued backoff so future visits behave normally.
+          await db
+            .update(communities)
+            .set({
+              enrichmentStatus: "completed",
+              enrichmentAttempts: 0,
+              lastEnrichmentDate: new Date(),
+            } as any)
+            .where(eq(communities.id, communityId));
+        } else {
+          // No content found: widen the cooldown. Once the consecutive no-data
+          // count crosses the terminal threshold, mark it quiet ("no_data") so it
+          // stops auto-retrying until an admin forces a refresh.
+          const newAttempts = failedAttempts + 1;
+          const terminal = newAttempts >= SELF_HEAL_TERMINAL_ATTEMPTS;
+          await db
+            .update(communities)
+            .set({
+              enrichmentStatus: terminal ? "no_data" : "failed",
+              enrichmentAttempts: newAttempts,
+            } as any)
+            .where(eq(communities.id, communityId));
+          console.log(
+            `🩺 [Self-Heal] No content for community ${communityId} ` +
+              `(attempt ${newAttempts}/${SELF_HEAL_TERMINAL_ATTEMPTS})` +
+              (terminal ? " → marked terminal (no_data)" : ` → next retry in ${selfHealCooldownHours(newAttempts)}h`),
+          );
+        }
+
+        console.log(
+          `🩺 [Self-Heal] Completed for community ${communityId}: ${result.photos.length} photo(s), ` +
+            `${(result.summary || "").length} desc chars, foundData=${foundData}`,
+        );
+
+        return res.json({
+          success: true,
+          skipped: false,
+          foundData,
+          community: {
+            id: communityId,
+            photos: result.photos,
+            description: result.summary,
+            phone: result.phone,
+            website: result.officialWebsite,
+            careTypes: result.careTypes,
+          },
+        });
+      } catch (pipelineErr) {
+        // A thrown error is treated as transient (network/API), NOT a "no data"
+        // outcome — it must not escalate the backoff toward the terminal state.
+        await db
+          .update(communities)
+          .set({ enrichmentStatus: "failed" } as any)
+          .where(eq(communities.id, communityId));
+        throw pipelineErr;
+      }
+    } catch (error) {
+      console.error("❌ [Self-Heal] Failed:", error);
+      return res.status(500).json({
+        error: "Self-heal enrichment failed",
+        message: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
+  // 301 redirect: /community/:id → SEO-friendly URL /senior-living/:state/:city/:slug
+  app.get("/community/:id", async (req, res, next) => {
+    const communityId = parseInt(req.params.id, 10);
+    if (isNaN(communityId)) return next();
+    try {
+      const [community] = await db
+        .select({ id: communities.id, name: communities.name, city: communities.city, state: communities.state, slug: communities.slug, citySlug: communities.citySlug, stateSlug: communities.stateSlug, isHidden: communities.isHidden, isActive: communities.isActive })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+      // Missing or non-public communities must not 301 to a live SEO URL.
+      // Let the SSR middleware / SPA handle them (it returns 404/410 + noindex for crawlers).
+      if (!community) return next();
+      if (community.isHidden === true || community.isActive === false) return next();
+      // Build the destination from the STORED canonical slug columns — the exact
+      // values the sitemap & getCommunityUrl() emit (preserves dedup suffixes like
+      // "-2"). Fall back to deriving from name/city/state only for legacy null rows.
+      const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+      const statePart = community.stateSlug || slugify(community.state);
+      const cityPart = community.citySlug || slugify(community.city);
+      const namePart = community.slug || slugify(community.name) || `community-${community.id}`;
+      // Preserve the original query string (e.g. ?tab=tour) so deep links survive the redirect
+      const qsIndex = req.originalUrl.indexOf('?');
+      const queryString = qsIndex >= 0 ? req.originalUrl.slice(qsIndex) : '';
+      return res.redirect(301, `/senior-living/${statePart}/${cityPart}/${namePart}${queryString}`);
+    } catch {
+      return next();
+    }
+  });
+
   // IMPORTANT: Specific routes must come BEFORE the /:id route
   
   // Get community and services count (dynamic, includes discovered entities)
@@ -64,7 +365,215 @@ export function registerCommunityRoutes(app: Express) {
   });
   
   // Search endpoint moved to unifiedSearchRoutes.ts for better functionality
-  
+
+  // Unified section-data endpoint — powers the DB-driven home page sections.
+  // Uses raw SQL SELECT * to avoid Drizzle expanding schema columns that may
+  // not yet exist in the actual DB (e.g. admin_rating_override).
+  // ?type=location&city=Redding&state=CA&limit=12
+  // ?type=care_type&careType=Memory+Care
+  // ?type=hud | trending | highest_rated | featured | coastal | recently_discovered
+  app.get("/api/communities/section-data", async (req, res) => {
+    try {
+      const { type, city, state, careType, limit = "12", sectionId, verifiedOnly } = req.query;
+      const limitNum = Math.min(parseInt(limit as string) || 12, 30);
+
+      // Optional family-facing "verified only" toggle — real signals only.
+      const verifiedClause = verifiedOnly === 'true' ? sql` AND ${verifiedOnlyFilter()}` : sql``;
+
+      // Shared visibility WHERE clause (raw SQL so we skip Drizzle column expansion).
+      const baseWhere = sql`
+        "is_active" = TRUE
+        AND "is_hidden" IS NOT TRUE
+        AND NOT (
+          ("is_verified" IS NOT TRUE OR "is_verified" IS NULL)
+          AND ("phone" IS NULL OR trim("phone") = '')
+          AND ("website" IS NULL OR trim("website") = '')
+          AND ("description" IS NULL OR trim("description") = '')
+          AND (
+            "data_source" IS NULL
+            OR trim(lower("data_source")) = ''
+            OR trim(lower("data_source")) IN ('government database', 'placeholder', 'unknown')
+          )
+        )${verifiedClause}
+      `;
+
+      // Builds an "AND id NOT IN (…)" fragment, or empty SQL when nothing to exclude.
+      const excludeClause = (ids: number[]) =>
+        ids.length > 0
+          ? sql` AND "id" NOT IN (${sql.join(ids.map((i) => sql`${i}`), sql`, `)})`
+          : sql``;
+
+      // Expand a single country value into the messy real-world variants stored in
+      // the DB (ISO-2 codes + full names) so a "Canada"/"Mexico" section matches all
+      // of its rows. Falls back to the raw value for anything we don't have aliases for.
+      const countryAliases = (input: string): string[] => {
+        const v = input.trim().toLowerCase();
+        const groups: Record<string, string[]> = {
+          canada: ['CA', 'Canada', 'CAN'],
+          ca: ['CA', 'Canada', 'CAN'],
+          mexico: ['Mexico', 'MX', 'México'],
+          mx: ['Mexico', 'MX', 'México'],
+          peru: ['PE', 'Peru', 'Perú'],
+          pe: ['PE', 'Peru', 'Perú'],
+          cuba: ['CU', 'Cuba'],
+          cu: ['CU', 'Cuba'],
+          'united states': ['US', 'USA', 'United States'],
+          us: ['US', 'USA', 'United States'],
+          usa: ['US', 'USA', 'United States'],
+          australia: ['AU', 'Australia'],
+          au: ['AU', 'Australia'],
+        };
+        return groups[v] ?? [input];
+      };
+
+      // Auto-fill query by section type, honoring optional exclusions + limit.
+      // rating and rent_per_month are DECIMAL columns in the DB — compare directly.
+      async function runAutoQuery(
+        t: string,
+        opts: { city?: string | null; state?: string | null; careType?: string | null; country?: string | null; brand?: string | null; exclude?: number[]; limit: number },
+      ): Promise<any[]> {
+        const ex = excludeClause(opts.exclude ?? []);
+        const lim = opts.limit;
+        if (lim <= 0) return [];
+        let r: any;
+        if (t === 'hud') {
+          // Cheapest HUD pricing first (the section's intent); quality breaks ties.
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL${ex} ORDER BY "rent_per_month" ASC NULLS LAST, ${qualityRankExpr()} DESC LIMIT ${lim}`);
+        } else if (t === 'trending') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+        } else if (t === 'highest_rated') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 3.5${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+        } else if (t === 'featured') {
+          const featuredRecords = await storage.getFeaturedCommunities();
+          if (featuredRecords.length > 0) {
+            const ids: number[] = featuredRecords.map((f: any) => f.communityId);
+            const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          } else {
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          }
+        } else if (t === 'coastal') {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+        } else if (t === 'most_reviewed') {
+          // Order by review count (most-reviewed first) but DO NOT hard-exclude
+          // communities with zero/null reviews — most of the 33k+ communities have
+          // no reviews yet, and excluding them blanks the directory grid. Quality
+          // rank breaks ties so verified/featured listings surface within each band.
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere}${ex} ORDER BY "review_count" DESC NULLS LAST, ${qualityRankExpr()} DESC, "rating" DESC NULLS LAST LIMIT ${lim}`);
+        } else if (t === 'recently_discovered') {
+          // Newest first (the section's intent); quality breaks ties.
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex} ORDER BY "created_at" DESC, ${qualityRankExpr()} DESC LIMIT ${lim}`);
+        } else if (t === 'location') {
+          const cityVal = opts.city || null;
+          const stateVal = opts.state || null;
+          const countryVal = opts.country || null;
+          const countryClause = countryVal
+            ? sql` AND "country" IN (${sql.join(countryAliases(countryVal).map((c) => sql`${c}`), sql`, `)})`
+            : sql``;
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${countryClause}${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+        } else if (t === 'care_type' && opts.careType) {
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "care_types"::text[] && ARRAY[${opts.careType}]::text[]${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+        } else if (t === 'brand' && opts.brand) {
+          // Brand sliders: match communities whose name contains the brand string.
+          const like = `%${opts.brand.trim()}%`;
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "name" ILIKE ${like}${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+        } else {
+          return [];
+        }
+        return (r as any).rows ?? r ?? [];
+      }
+
+      // Fetch specific communities by id, preserving the requested order and
+      // dropping any that fail the visibility filter (hidden / inactive / invalid).
+      async function fetchByIds(ids: number[], lim: number): Promise<any[]> {
+        if (!ids.length || lim <= 0) return [];
+        const idList = sql.join(ids.map((i) => sql`${i}`), sql`, `);
+        const r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})`);
+        const rows: any[] = (r as any).rows ?? r ?? [];
+        const byId = new Map<number, any>(rows.map((c) => [Number(c.id), c]));
+        const ordered: any[] = [];
+        for (const id of ids) {
+          const c = byId.get(Number(id));
+          if (c) ordered.push(c);
+          if (ordered.length >= lim) break;
+        }
+        return ordered;
+      }
+
+      // Defaults from query params (backward-compatible callers without a sectionId).
+      let mode = 'auto';
+      let communityIds: number[] = [];
+      let excludeIds: number[] = [];
+      let cfgType = (type as string) || '';
+      let cfgCity: string | null = (city as string) || null;
+      let cfgState: string | null = (state as string) || null;
+      let cfgCareType: string | null = (careType as string) || null;
+      let cfgCountry: string | null = (req.query.country as string) || null;
+      let cfgBrand: string | null = (req.query.brand as string) || null;
+
+      // When a sectionId is supplied, the stored section config is authoritative.
+      if (sectionId) {
+        const sid = parseInt(sectionId as string, 10);
+        if (!isNaN(sid)) {
+          const cfgRes = await db.execute(sql`SELECT section_type, config FROM home_section_configs WHERE id = ${sid} LIMIT 1`);
+          const cfgRow = (cfgRes as any).rows?.[0] ?? (cfgRes as any)[0];
+          if (cfgRow) {
+            const cfg = cfgRow.config || {};
+            cfgType = cfgRow.section_type;
+            cfgCity = cfg.city ?? null;
+            cfgState = cfg.state ?? null;
+            cfgCareType = cfg.careType ?? null;
+            cfgCountry = cfg.country ?? null;
+            cfgBrand = cfg.brand ?? null;
+            mode = cfg.selectionMode === 'curated' || cfg.selectionMode === 'pinned' ? cfg.selectionMode : 'auto';
+            communityIds = Array.isArray(cfg.communityIds)
+              ? cfg.communityIds.map((n: any) => Number(n)).filter((n: number) => Number.isFinite(n))
+              : [];
+            excludeIds = Array.isArray(cfg.excludeIds)
+              ? cfg.excludeIds.map((n: any) => Number(n)).filter((n: number) => Number.isFinite(n))
+              : [];
+          }
+        }
+      }
+
+      let rows: any[] = [];
+      if (mode === 'curated') {
+        // Exactly the chosen communities, in the chosen order — nothing else.
+        rows = await fetchByIds(communityIds, limitNum);
+      } else if (mode === 'pinned') {
+        // Pinned communities first, then auto-fill the remaining slots.
+        const pinned = await fetchByIds(communityIds, limitNum);
+        const auto = await runAutoQuery(cfgType, {
+          city: cfgCity, state: cfgState, careType: cfgCareType, country: cfgCountry, brand: cfgBrand,
+          exclude: Array.from(new Set([...communityIds, ...excludeIds])),
+          limit: limitNum - pinned.length,
+        });
+        rows = [...pinned, ...auto];
+      } else {
+        // Auto-fill, minus any excluded communities.
+        rows = await runAutoQuery(cfgType, {
+          city: cfgCity, state: cfgState, careType: cfgCareType, country: cfgCountry, brand: cfgBrand,
+          exclude: excludeIds,
+          limit: limitNum,
+        });
+      }
+
+      const enriched = await Promise.all(
+        rows.map(async (c) => {
+          const e = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(c);
+          return eliminateCallForPricing(e);
+        })
+      );
+
+      // Short cache so admin curation changes surface on the next home-page load.
+      res.set('Cache-Control', 'public, max-age=15');
+      res.json(enriched);
+    } catch (error) {
+      console.error("Error fetching section-data:", error);
+      res.status(500).json({ error: "Failed to fetch section data" });
+    }
+  });
+
   // HUD featured communities
   app.get("/api/communities/hud-featured", async (req, res) => {
     try {
@@ -81,6 +590,8 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
+            eq(communities.isActive, true),
+            publicVisibleFilter(),
             isNotNull(communities.hudPropertyId),
             sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 150`
           )
@@ -88,12 +599,15 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(sql`CAST(${communities.rentPerMonth} AS DECIMAL) ASC`)
         .limit(8);
 
+      // Optimized: Process all communities in parallel using Promise.all
+      // Note: enrichCommunityIfNeeded is marked async so we must await it
       const enrichedHudFeatured = await Promise.all(
         hudFeatured.map(async community => {
           const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
           return eliminateCallForPricing(enriched);
         })
       );
+      
       res.json(enrichedHudFeatured);
     } catch (error) {
       console.error("Error fetching HUD featured communities:", error);
@@ -107,16 +621,19 @@ export function registerCommunityRoutes(app: Express) {
       const trending = await db
         .select()
         .from(communities)
-        .where(sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`)
+        .where(and(eq(communities.isActive, true), publicVisibleFilter(), sql`CAST(${communities.rating} AS DECIMAL) >= 4.0`))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(20);
 
+      // Optimized: Process all communities in parallel using Promise.all
+      // Note: enrichCommunityIfNeeded is marked async so we must await it
       const enrichedTrending = await Promise.all(
         trending.map(async community => {
           const enriched = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
           return eliminateCallForPricing(enriched);
         })
       );
+      
       res.json(enrichedTrending);
     } catch (error) {
       console.error("Error fetching trending communities:", error);
@@ -140,7 +657,7 @@ export function registerCommunityRoutes(app: Express) {
       const featuredCommunities = await db
         .select()
         .from(communities)
-        .where(inArray(communities.id, featuredIds));
+        .where(and(publicVisibleFilter(), inArray(communities.id, featuredIds)));
 
       // Enrich each community with photos and use database metadata
       const enrichedFeatured = await Promise.all(
@@ -280,11 +797,15 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(
-          or(
-            eq(communities.state, 'CA'),
-            eq(communities.state, 'FL'),
-            eq(communities.state, 'OR'),
-            eq(communities.state, 'WA')
+          and(
+            eq(communities.isActive, true),
+            publicVisibleFilter(),
+            or(
+              eq(communities.state, 'CA'),
+              eq(communities.state, 'FL'),
+              eq(communities.state, 'OR'),
+              eq(communities.state, 'WA')
+            )
           )
         )
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -331,8 +852,9 @@ export function registerCommunityRoutes(app: Express) {
       let query = db.select().from(communities);
       const conditions = [];
 
-      // Exclude pending communities - status field doesn't exist
-      // All communities are considered active
+      // Always filter to active + publicly visible communities
+      conditions.push(eq(communities.isActive, true));
+      conditions.push(publicVisibleFilter());
 
       // Care type filter
       if (careTypes) {
@@ -402,19 +924,29 @@ export function registerCommunityRoutes(app: Express) {
       );
 
       res.json(enrichedResults);
+
+      // Fire-and-forget: record search history when meaningful filters are used
+      const hasFilters = careTypes || state || city || rating || features || subtypes || priceMin || priceMax;
+      if (hasFilters) {
+        const userId = (req as any).user?.id || null;
+        const parts = [city, state, careTypes, subtypes].filter(Boolean);
+        const searchText = parts.join(', ') || 'filtered search';
+        db.insert(searchHistory).values({
+          userId,
+          searchText,
+          searchQuery: { state, city, careTypes, features, subtypes, priceMin, priceMax } as any,
+          resultCount: enrichedResults.length,
+        }).catch(() => {});
+      }
     } catch (error) {
       console.error("Error fetching communities:", error);
       res.status(500).json({ error: "Failed to fetch communities" });
     }
   });
 
-  // Get communities by location with Perplexity AI real-time enhancement
+  // Get communities by location
   app.get("/api/communities/by-location/:location", async (req, res) => {
     try {
-      // Import Perplexity service
-      const { PerplexityAIService } = await import('../perplexity-ai-service');
-      const perplexityService = new PerplexityAIService();
-      
       // Add caching headers for better performance
       res.set({
         'Cache-Control': 'public, max-age=1800', // Cache for 30 minutes
@@ -433,10 +965,13 @@ export function registerCommunityRoutes(app: Express) {
           .select()
           .from(communities)
           .where(
-            or(
-              eq(communities.state, searchTerm),
-              eq(communities.city, location),
-              sql`LOWER(${communities.name}) LIKE '%hawaii%'`
+            and(
+              publicVisibleFilter(),
+              or(
+                eq(communities.state, searchTerm),
+                eq(communities.city, location),
+                sql`LOWER(${communities.name}) LIKE '%hawaii%'`
+              )
             )
           )
           .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -447,153 +982,47 @@ export function registerCommunityRoutes(app: Express) {
           .select()
           .from(communities)
           .where(
-            or(
-              sql`LOWER(${communities.name}) LIKE '%mexico%'`,
-              sql`LOWER(${communities.city}) LIKE '%mexico%'`,
-              sql`LOWER(${communities.name}) LIKE '%tijuana%'`,
-              sql`LOWER(${communities.name}) LIKE '%guadalajara%'`,
-              sql`LOWER(${communities.name}) LIKE '%puerto vallarta%'`,
-              sql`LOWER(${communities.name}) LIKE '%cancun%'`,
-              sql`LOWER(${communities.name}) LIKE '%playa del carmen%'`,
-              sql`LOWER(${communities.city}) LIKE '%tijuana%'`,
-              sql`LOWER(${communities.city}) LIKE '%guadalajara%'`,
-              sql`LOWER(${communities.city}) LIKE '%puerto vallarta%'`,
-              sql`LOWER(${communities.city}) LIKE '%cancun%'`,
-              sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`
+            and(
+              publicVisibleFilter(),
+              or(
+                sql`LOWER(${communities.name}) LIKE '%mexico%'`,
+                sql`LOWER(${communities.city}) LIKE '%mexico%'`,
+                sql`LOWER(${communities.name}) LIKE '%tijuana%'`,
+                sql`LOWER(${communities.name}) LIKE '%guadalajara%'`,
+                sql`LOWER(${communities.name}) LIKE '%puerto vallarta%'`,
+                sql`LOWER(${communities.name}) LIKE '%cancun%'`,
+                sql`LOWER(${communities.name}) LIKE '%playa del carmen%'`,
+                sql`LOWER(${communities.city}) LIKE '%tijuana%'`,
+                sql`LOWER(${communities.city}) LIKE '%guadalajara%'`,
+                sql`LOWER(${communities.city}) LIKE '%puerto vallarta%'`,
+                sql`LOWER(${communities.city}) LIKE '%cancun%'`,
+                sql`LOWER(${communities.city}) LIKE '%playa del carmen%'`
+              )
             )
           )
           .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
           .limit(20);
           
-        // If no Mexico communities found, use Perplexity to get real-time data
-        if (locationCommunities.length === 0 && perplexityService.isConfigured()) {
-          try {
-            const searchResult = await perplexityService.searchRealTime(
-              'List top senior living communities in Mexico for American retirees with current pricing and availability 2025',
-              'Focus on Tijuana, Guadalajara, Puerto Vallarta, Cancun, Playa del Carmen'
-            );
-            
-            // Create synthetic Mexico communities from Perplexity data
-            const mexicoCommunities = [
-              {
-                id: 99001,
-                name: 'Casa de la Tercera Edad - Tijuana',
-                city: 'Tijuana',
-                state: 'MX',
-                address: 'Zona Rio, Tijuana, Mexico',
-                rating: '4.5',
-                rentPerMonth: '$1,800',
-                careTypes: ['Assisted Living', 'Memory Care'],
-                description: 'Premier senior care facility near US border with bilingual staff',
-                phone: '+52 664-123-4567',
-                amenitiesCount: 8,
-                latitude: 32.5149,
-                longitude: -117.0382
-              },
-              {
-                id: 99002,
-                name: 'Residencia Dorada - Guadalajara',
-                city: 'Guadalajara',
-                state: 'MX',
-                address: 'Providencia, Guadalajara, Mexico',
-                rating: '4.6',
-                rentPerMonth: '$1,500',
-                careTypes: ['Independent Living', 'Assisted Living'],
-                description: 'Luxury retirement community in the heart of Guadalajara',
-                phone: '+52 33-1234-5678',
-                amenitiesCount: 10,
-                latitude: 20.6597,
-                longitude: -103.3496
-              },
-              {
-                id: 99003,
-                name: 'Paradise Senior Living - Puerto Vallarta',
-                city: 'Puerto Vallarta',
-                state: 'MX',
-                address: 'Marina Vallarta, Puerto Vallarta, Mexico',
-                rating: '4.7',
-                rentPerMonth: '$2,200',
-                careTypes: ['Independent Living', 'Assisted Living'],
-                description: 'Beachfront senior community with ocean views',
-                phone: '+52 322-234-5678',
-                amenitiesCount: 12,
-                latitude: 20.6534,
-                longitude: -105.2253
-              },
-              {
-                id: 99004,
-                name: 'Cancun Senior Resort',
-                city: 'Cancun',
-                state: 'MX',
-                address: 'Hotel Zone, Cancun, Mexico',
-                rating: '4.4',
-                rentPerMonth: '$2,500',
-                careTypes: ['Independent Living', 'Luxury Care'],
-                description: 'Resort-style senior living in tropical paradise',
-                phone: '+52 998-345-6789',
-                amenitiesCount: 15,
-                latitude: 21.1619,
-                longitude: -86.8515
-              }
-            ];
-            
-            // Add Perplexity summary to each community
-            mexicoCommunities.forEach(comm => {
-              (comm as any).perplexityData = searchResult.summary;
-              (comm as any).dataSource = 'Real-time Perplexity AI';
-            });
-            
-            locationCommunities = mexicoCommunities;
-          } catch (error) {
-            console.error('Perplexity search failed for Mexico:', error);
-          }
-        }
+        // Golden Data Rule: No synthetic fallback data - only return real database records
+        // If no Mexico communities in database, return empty array
       } else {
         // Standard location search
         locationCommunities = await db
           .select()
           .from(communities)
           .where(
-            or(
-              eq(communities.state, searchTerm),
-              eq(communities.city, location)
+            and(
+              publicVisibleFilter(),
+              or(
+                eq(communities.state, searchTerm),
+                eq(communities.city, location)
+              )
             )
           )
           .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
           .limit(20);
       }
       
-      // Enhance with Perplexity real-time data if available
-      if (perplexityService.isConfigured() && locationCommunities.length > 0) {
-        const enhancedCommunities = await Promise.all(
-          locationCommunities.slice(0, 5).map(async (community) => {
-            try {
-              const enhancedData = await perplexityService.enhanceCommunityData(
-                community.name,
-                `${community.city}, ${community.state}`
-              );
-              
-              return {
-                ...community,
-                realTimeData: {
-                  currentPricing: enhancedData.currentPricing || community.rentPerMonth,
-                  availability: enhancedData.availability || 'Contact for availability',
-                  recentReviews: enhancedData.recentReviews,
-                  marketComparison: enhancedData.marketComparison,
-                  lastUpdated: new Date().toISOString()
-                }
-              };
-            } catch (error) {
-              return community;
-            }
-          })
-        );
-        
-        // Combine enhanced and non-enhanced communities
-        const remainingCommunities = locationCommunities.slice(5);
-        locationCommunities = [...enhancedCommunities, ...remainingCommunities];
-      }
-
       // Enrich communities with stock photos if needed
       const enrichedLocationCommunities = await Promise.all(
         locationCommunities.map(async community => {
@@ -602,6 +1031,15 @@ export function registerCommunityRoutes(app: Express) {
         })
       );
       res.json(enrichedLocationCommunities);
+
+      // Fire-and-forget: record location search in search history
+      const locUserId = (req as any).user?.id || null;
+      db.insert(searchHistory).values({
+        userId: locUserId,
+        searchText: location,
+        searchQuery: { location } as any,
+        resultCount: enrichedLocationCommunities.length,
+      }).catch(() => {});
     } catch (error) {
       console.error("Error fetching communities by location:", error);
       res.status(500).json({ error: "Failed to fetch communities by location" });
@@ -632,12 +1070,18 @@ export function registerCommunityRoutes(app: Express) {
           longitude: communities.longitude,
           city: communities.city,
           state: communities.state,
+          address: communities.address,
           careTypes: communities.careTypes,
-          rating: communities.rating
+          rating: communities.rating,
+          description: communities.description,
+          amenities: communities.amenities,
+          rentPerMonth: communities.rentPerMonth,
+          photos: communities.photos
         })
         .from(communities)
         .where(
           and(
+            publicVisibleFilter(),
             gte(communities.latitude, south),
             lte(communities.latitude, north),
             gte(communities.longitude, west),
@@ -678,7 +1122,7 @@ export function registerCommunityRoutes(app: Express) {
           hudPropertyId: communities.hudPropertyId
         })
         .from(communities)
-        .where(eq(communities.country, 'MX'))
+        .where(and(publicVisibleFilter(), eq(communities.country, 'MX')))
         .limit(100);
       
       // Transform data for frontend compatibility
@@ -892,192 +1336,84 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      // Check if this community is featured (for cache duration)
-      const [featuredRecord] = await db
-        .select()
-        .from(featuredCommunities)
-        .where(
-          and(
-            eq(featuredCommunities.communityId, communityId),
-            eq(featuredCommunities.isActive, true)
-          )
-        )
-        .limit(1);
-      
-      const isFeatured = featuredRecord ? true : false;
-      
-      // Use the website URL from the request (from discovery) or fall back to community's stored website
-      // CRITICAL FIX: Filter out invalid website values like "No", "Not", "N/A", etc.
-      let communityWebsite = websiteUrl || community.website;
-      if (communityWebsite) {
-        // Check if it's a valid URL (must start with http or https or www)
-        const isValidUrl = communityWebsite.startsWith('http://') || 
-                          communityWebsite.startsWith('https://') || 
-                          communityWebsite.startsWith('www.');
-        
-        // Also check for common invalid values
-        const invalidValues = ['no', 'not', 'n/a', 'none', 'null', 'undefined', ''];
-        const isInvalid = invalidValues.includes(communityWebsite.toLowerCase().trim());
-        
-        if (!isValidUrl || isInvalid) {
-          console.log(`⚠️ Invalid website URL detected: "${communityWebsite}" - ignoring`);
-          communityWebsite = undefined;
-        } else {
-          console.log(`📌 Using website URL for photo search: ${communityWebsite}`);
-        }
-      }
-      
-      // Use unified cache with improved auto-fetch logic
-      // The cache layer now automatically fetches when data quality is poor
-      const { unifiedPerplexityCache } = await import('../unified-perplexity-cache');
-      
-      // Get comprehensive data - cache layer handles quality assessment and auto-fetch
-      const comprehensiveData = await unifiedPerplexityCache.getComprehensiveCommunityData(
-        communityId.toString(),
-        community.name,
-        `${community.city}, ${community.state}`,
-        isFeatured,
-        forceRefresh,  // Pass through to allow manual photo search from button
-        communityWebsite  // Pass website URL for better photo discovery
-      );
-      
-      // Log the result for debugging
-      console.log(`📝 Verify endpoint for ${community.name}: {`);
-      console.log(`  forceRefresh: ${forceRefresh},`);
-      console.log(`  cacheSource: '${comprehensiveData.source}',`);
-      console.log(`  hasRawContent: ${!!comprehensiveData.rawPerplexityContent},`);
-      console.log(`  rawContentLength: ${comprehensiveData.rawPerplexityContent?.length || 0},`);
-      console.log(`  photosCount: ${comprehensiveData.photos?.length || 0}`);
-      console.log(`}`);
-      
-      // Note: The cache layer now automatically:
-      // 1. Fetches when data is completely missing
-      // 2. Fetches when data quality score is below 60% (missing photos, pricing, description)
-      // 3. Respects forceRefresh for manual updates
-      
-      // No need for additional save - getComprehensiveCommunityData already saves to both cache and communities table
-      // The saveCacheToDatabase function in unified-perplexity-cache.ts handles all persistence
-      
-      // Create enrichmentResult from unified cache data
-      // Always include basic community data even if cache is empty
-      // CRITICAL FIX: Use actual database timestamp, not new Date()
-      // CRITICAL FIX: Merge photos and description from BOTH cache AND database
-      const enrichmentResult = {
-        communityId: communityId,
-        communityName: community.name,
-        lastUpdated: community.lastSuccessfulEnrichment?.toISOString() || 
-                     (comprehensiveData.timestamp ? new Date(comprehensiveData.timestamp).toISOString() : null),
-        verificationStatus: 'verified' as const,
-        confidence: 85,
-        officialWebsite: comprehensiveData.marketData?.website || community.website || '',
-        phoneNumber: comprehensiveData.marketData?.phone || community.phone || '',
-        pricing: comprehensiveData.marketData?.pricing || '',
-        // CRITICAL: Prefer database photos first (most reliable), then cache
-        photos: (community.photos && community.photos.length > 0) ? community.photos : (comprehensiveData.photos || []),
-        searchResults: {
-          // CRITICAL FIX: Prioritize fresh cached data over stale database description
-          // Use rawPerplexityContent FIRST (most current, comprehensive data)
-          // Only fall back to database description if cache is truly empty
-          summary: comprehensiveData.rawPerplexityContent || 
-                   comprehensiveData.marketData?.description ||
-                   community.description || 
-                   '',
-          sources: comprehensiveData.sources || []
-        }
-      };
-      
-      // Debug logging to trace the issue
-      console.log(`📝 Verify endpoint for ${community.name}:`, {
-        forceRefresh,
-        cacheSource: comprehensiveData.source,
-        hasRawContent: !!comprehensiveData.rawPerplexityContent,
-        rawContentLength: comprehensiveData.rawPerplexityContent ? comprehensiveData.rawPerplexityContent.length : 0,
-        photosCount: comprehensiveData.photos ? comprehensiveData.photos.length : 0
-      });
-      
-      // Update database with discovered information
-      if (enrichmentResult.searchResults?.summary) {
-        const updates: any = {};
-        let hasUpdates = false;
-        
-        // Get current community data
-        const [current] = await db.select().from(communities).where(eq(communities.id, communityId)).limit(1);
-        
-        if (current) {
-          // Update website if found and different
-          if (enrichmentResult.officialWebsite && current.website !== enrichmentResult.officialWebsite) {
-            updates.website = enrichmentResult.officialWebsite;
-            hasUpdates = true;
-            console.log(`✅ Updating website to: ${enrichmentResult.officialWebsite}`);
+      const result = await enrichCommunityUnified(communityId, { forceRefresh, websiteUrl });
+
+      // Served from the 7-day cache — no enrichment/billing happened.
+      if (result.cached) {
+        return res.json({
+          communityId: result.communityId,
+          communityName: result.communityName,
+          timestamp: result.lastUpdated,
+          cached: true,
+          verificationResults: {
+            webIntelligence: {
+              images: result.photos,
+              imageAttributions: result.photoAttributions,
+              sources: result.sources
+            },
+            perplexityData: {
+              lastUpdated: result.lastUpdated,
+              searchContent: result.summary || 'Contact for details.',
+              sources: result.sources
+            }
+          },
+          consensus: {
+            agreementLevel: 'strong',
+            verifiedFacts: [],
+            disputedFacts: [],
+            confidenceScore: 75,
+            transparencyNotes: 'Served from cached enrichment data'
+          },
+          pricing: result.pricingContext,
+          contactInfo: {
+            phone: result.phone,
+            website: result.officialWebsite
           }
-          
-          // Update phone if found and different
-          if (enrichmentResult.phoneNumber && current.phone !== enrichmentResult.phoneNumber) {
-            updates.phone = enrichmentResult.phoneNumber;
-            hasUpdates = true;
-            console.log(`✅ Updating phone to: ${enrichmentResult.phoneNumber}`);
-          }
-          
-          // Update description with FULL content for SEO - no truncation
-          if (enrichmentResult.searchResults?.summary && 
-              enrichmentResult.searchResults.summary.length > 100 &&
-              (!current.description || current.description.length < 50)) {
-            updates.description = enrichmentResult.searchResults.summary; // Full content, no substring!
-            hasUpdates = true;
-            console.log(`✅ Updating description with FULL enriched content (${enrichmentResult.searchResults.summary.length} chars)`);
-          }
-          
-          // Apply updates if any
-          if (hasUpdates) {
-            await db.update(communities)
-              .set({
-                ...updates,
-                updatedAt: new Date()
-              })
-              .where(eq(communities.id, communityId));
-            console.log(`✅ On-demand enrichment completed for community ${communityId}:`, { 
-              fieldsUpdated: Object.keys(updates),
-              protectedFieldsSkipped: []
-            });
-          }
-        }
+        });
       }
 
-      // Transform to match expected frontend format
+      // Transform the unified result into the frontend verification report shape.
       const verificationReport = {
-        communityId: enrichmentResult.communityId,
-        communityName: enrichmentResult.communityName,
-        timestamp: enrichmentResult.lastUpdated,
-        
-        // Core verification data
+        communityId: result.communityId,
+        communityName: result.communityName,
+        timestamp: result.lastUpdated,
+
         verificationResults: {
           webIntelligence: {
-            images: enrichmentResult.photos,
-            sources: enrichmentResult.searchResults?.sources || []
+            images: result.photos,
+            // Per-photo source attribution (index-aligned with `images`).
+            imageAttributions: result.photoAttributions || [],
+            sources: result.sources || [],
+            careTypes: result.careTypes,
+            amenities: result.amenities
+          },
+          searchResults: {
+            summary: result.summary,
+            sources: result.sources || []
           },
           perplexityData: {
-            lastUpdated: enrichmentResult.lastUpdated,
-            searchContent: enrichmentResult.searchResults?.summary,
-            sources: enrichmentResult.searchResults?.sources || []
+            lastUpdated: result.lastUpdated,
+            searchContent: result.summary,
+            sources: result.sources || []
           }
         },
-        
-        // Consensus data
+
+        careTypes: result.careTypes,
+        amenities: result.amenities,
+
         consensus: {
-          agreementLevel: enrichmentResult.verificationStatus === 'verified' ? 'strong' : 'weak',
+          agreementLevel: result.verificationStatus === 'verified' ? 'strong' : 'weak',
           verifiedFacts: [],
           disputedFacts: [],
-          confidenceScore: enrichmentResult.confidence,
-          transparencyNotes: `Verification status: ${enrichmentResult.verificationStatus}`
+          confidenceScore: result.confidence,
+          transparencyNotes: `Verification status: ${result.verificationStatus}`
         },
-        
-        // Pricing data
-        pricing: enrichmentResult.pricing,
-        
-        // Contact info
+
+        pricing: result.pricingContext,
+
         contactInfo: {
-          phone: enrichmentResult.phoneNumber,
-          website: enrichmentResult.officialWebsite
+          phone: result.phone,
+          website: result.officialWebsite
         }
       };
 
@@ -1104,7 +1440,7 @@ export function registerCommunityRoutes(app: Express) {
       const stateCommunities = await db
         .select()
         .from(communities)
-        .where(eq(communities.state, state as string))
+        .where(and(publicVisibleFilter(), eq(communities.state, state as string)))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1129,12 +1465,13 @@ export function registerCommunityRoutes(app: Express) {
       if (city && state) {
         query = query.where(
           and(
+            publicVisibleFilter(),
             eq(communities.city, city as string),
             eq(communities.state, state as string)
           )
         );
       } else {
-        query = query.where(eq(communities.city, city as string));
+        query = query.where(and(publicVisibleFilter(), eq(communities.city, city as string)));
       }
       
       const cityCommunities = await query
@@ -1160,7 +1497,7 @@ export function registerCommunityRoutes(app: Express) {
       const countryCommunities = await db
         .select()
         .from(communities)
-        .where(eq(communities.country, country as string))
+        .where(and(publicVisibleFilter(), eq(communities.country, country as string)))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1177,7 +1514,7 @@ export function registerCommunityRoutes(app: Express) {
       const hudProperties = await db
         .select()
         .from(communities)
-        .where(isNotNull(communities.hudPropertyId))
+        .where(and(publicVisibleFilter(), isNotNull(communities.hudPropertyId)))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1195,20 +1532,23 @@ export function registerCommunityRoutes(app: Express) {
         .select()
         .from(communities)
         .where(
-          or(
-            eq(communities.state, 'ON'),
-            eq(communities.state, 'QC'),
-            eq(communities.state, 'BC'),
-            eq(communities.state, 'AB'),
-            eq(communities.state, 'MB'),
-            eq(communities.state, 'SK'),
-            eq(communities.state, 'NS'),
-            eq(communities.state, 'NB'),
-            eq(communities.state, 'NL'),
-            eq(communities.state, 'PE'),
-            eq(communities.state, 'NT'),
-            eq(communities.state, 'YT'),
-            eq(communities.state, 'NU')
+          and(
+            publicVisibleFilter(),
+            or(
+              eq(communities.state, 'ON'),
+              eq(communities.state, 'QC'),
+              eq(communities.state, 'BC'),
+              eq(communities.state, 'AB'),
+              eq(communities.state, 'MB'),
+              eq(communities.state, 'SK'),
+              eq(communities.state, 'NS'),
+              eq(communities.state, 'NB'),
+              eq(communities.state, 'NL'),
+              eq(communities.state, 'PE'),
+              eq(communities.state, 'NT'),
+              eq(communities.state, 'YT'),
+              eq(communities.state, 'NU')
+            )
           )
         )
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
@@ -1227,9 +1567,7 @@ export function registerCommunityRoutes(app: Express) {
       const puertoRicoCommunities = await db
         .select()
         .from(communities)
-        .where(
-          eq(communities.state, 'PR')
-        )
+        .where(and(publicVisibleFilter(), eq(communities.state, 'PR')))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1246,9 +1584,7 @@ export function registerCommunityRoutes(app: Express) {
       const mexicanCommunities = await db
         .select()
         .from(communities)
-        .where(
-          eq(communities.country, 'Mexico')
-        )
+        .where(and(publicVisibleFilter(), eq(communities.country, 'Mexico')))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1259,32 +1595,90 @@ export function registerCommunityRoutes(app: Express) {
     }
   });
 
-  // Get community statistics
+  // Get community statistics - COMPREHENSIVE REAL DATA
   app.get("/api/communities/stats", async (req, res) => {
     try {
+      // All directory stats are computed over the PUBLIC, family-visible set
+      // (post-cleanup `is_hidden` + thin-record policy) so the directory hero
+      // and stats panels reflect what families can actually access — never the
+      // raw, un-cleaned total. Verification uses REAL signals (quality tier /
+      // claimed / HUD-with-pricing / featured), never the legacy is_verified.
+      const visible = publicVisibleFilter();
+
+      // Basic stats
       const stats = await db
         .select({
           totalCommunities: sql`COUNT(*)`,
           avgRating: sql`AVG(CAST(${communities.rating} AS FLOAT))`,
           totalWithPhotos: sql`COUNT(CASE WHEN ${communities.photos}::text[] != '{}' THEN 1 END)`,
           totalHUD: sql`COUNT(CASE WHEN ${communities.hudPropertyId} IS NOT NULL THEN 1 END)`,
-          stateCount: sql`COUNT(DISTINCT ${communities.state})`
+          stateCount: sql`COUNT(DISTINCT ${communities.state})`,
+          countryCount: sql`COUNT(DISTINCT ${communities.country})`,
+          totalVerified: sql`COUNT(CASE WHEN ${verifiedOnlyFilter()} THEN 1 END)`,
+          totalClaimed: sql`COUNT(CASE WHEN ${communities.isClaimed} = true THEN 1 END)`
         })
-        .from(communities);
+        .from(communities)
+        .where(visible);
 
+      // State distribution
       const stateDistribution = await db
         .select({
           state: communities.state,
           count: sql`COUNT(*)`
         })
         .from(communities)
+        .where(visible)
         .groupBy(communities.state)
         .orderBy(desc(sql`COUNT(*)`))
         .limit(10);
 
+      // Country distribution - real counts
+      const countryDistribution = await db
+        .select({
+          country: communities.country,
+          count: sql`COUNT(*)`
+        })
+        .from(communities)
+        .where(and(isNotNull(communities.country), visible))
+        .groupBy(communities.country)
+        .orderBy(desc(sql`COUNT(*)`))
+        .limit(20);
+
+      // Recently discovered stats (last 30 days)
+      const recentlyDiscoveredStats = await db
+        .select({
+          count: sql`COUNT(*)`
+        })
+        .from(communities)
+        .where(
+          and(
+            or(
+              sql`${communities.data_source} LIKE 'AI Discovery%'`,
+              sql`${communities.data_source} LIKE 'ai_discovered_%'`,
+              eq(communities.data_source, 'global_discovery')
+            ),
+            sql`${communities.createdAt} > NOW() - INTERVAL '30 days'`,
+            visible
+          )
+        );
+
+      // Care type distribution - parse from careTypes array
+      const careTypeStats = await db
+        .select({
+          independentLiving: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%independent%' THEN 1 END)`,
+          assistedLiving: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%assisted%' THEN 1 END)`,
+          memoryCare: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%memory%' THEN 1 END)`,
+          skilledNursing: sql`COUNT(CASE WHEN ${communities.careTypes}::text ILIKE '%skilled%' OR ${communities.careTypes}::text ILIKE '%nursing%' THEN 1 END)`
+        })
+        .from(communities)
+        .where(visible);
+
       res.json({
         ...stats[0],
-        topStates: stateDistribution
+        topStates: stateDistribution,
+        countryDistribution: countryDistribution,
+        recentlyDiscovered30d: Number(recentlyDiscoveredStats[0]?.count) || 0,
+        careTypeDistribution: careTypeStats[0] || {}
       });
     } catch (error) {
       console.error("Error fetching community statistics:", error);
@@ -1295,22 +1689,35 @@ export function registerCommunityRoutes(app: Express) {
   // Get recently discovered communities (those found via Discovery Mode)
   app.get('/api/communities/recently-discovered', async (req, res) => {
     try {
+      // CRITICAL: No caching for recently-discovered to ensure real-time updates
+      // New discoveries should appear immediately after being saved
+      res.set({
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'Surrogate-Control': 'no-store'
+      });
+      
       const limit = parseInt(req.query.limit as string) || 20;
       
       // Get communities that were discovered through AI/Discovery Mode
-      // These have data_source like 'AI Discovery (Perplexity Global Search)' or similar
+      // Includes all variations of discovery data sources
       const recentCommunities = await db.select()
         .from(communities)
         .where(
-          or(
-            sql`${communities.data_source} LIKE 'AI Discovery%'`,
-            sql`${communities.data_source} LIKE 'ai_discovered_%'`,
-            eq(communities.data_source, 'discovered_community'),
-            eq(communities.data_source, 'global_discovery'),
-            eq(communities.data_source, 'ai_discovered_global_search')
+          and(
+            publicVisibleFilter(),
+            or(
+              sql`${communities.data_source} LIKE 'AI Discovery%'`,
+              sql`${communities.data_source} LIKE 'ai_discovered_%'`,
+              sql`${communities.data_source} LIKE 'Verified via Global Discovery%'`,
+              eq(communities.data_source, 'discovered_community'),
+              eq(communities.data_source, 'global_discovery'),
+              eq(communities.data_source, 'ai_discovered_global_search')
+            )
           )
         )
-        .orderBy(desc(communities.id))
+        .orderBy(desc(communities.createdAt), desc(communities.id))
         .limit(limit);
       
       console.log(`🌍 Recently discovered communities query returned ${recentCommunities.length} results`);
@@ -1372,26 +1779,18 @@ export function registerCommunityRoutes(app: Express) {
       // Process photos from database only - NO external API calls
       let normalizedPhotos = [];
       
-      // Use existing database photos
+      // Use existing database photos.
+      // normalizePhotoUrls repairs legacy corruption at serve time: it extracts
+      // URLs from object entries, decodes HTML entities (&amp; → &), and drops
+      // "[object Object]"/non-http junk so only fetchable URLs reach the proxy.
       if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
-        console.log(`✅ Found ${community.photos.length} photos in database`);
-        normalizedPhotos = community.photos.map(photo => {
-          // Handle various photo formats in database
-          if (typeof photo === 'string') {
-            // If it's already a full URL, use it with proxy
-            if (photo.includes('http')) {
-              return `/api/image-proxy?url=${encodeURIComponent(photo)}`;
-            }
-            return photo;
-          }
-          if (typeof photo === 'object' && photo !== null) {
-            const url = photo.url || photo.imageUrl || photo.src || '';
-            if (url && url.includes('http')) {
-              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
-            }
-          }
-          return '';
-        }).filter(url => url && url.trim() !== '');
+        const cleanUrls = normalizePhotoUrls(community.photos);
+        console.log(`✅ Found ${community.photos.length} photos in database (${cleanUrls.length} valid after normalize)`);
+        normalizedPhotos = cleanUrls.map(url =>
+          url.startsWith('/uploads/')
+            ? url
+            : `/api/image-proxy?url=${encodeURIComponent(url)}`
+        );
       }
 
       // Build market data from existing database fields only
@@ -1447,53 +1846,71 @@ export function registerCommunityRoutes(app: Express) {
     const { state, city, slug } = req.params;
     
     try {
-      // Convert URL params back to searchable format
-      const stateUpper = state.toUpperCase();
-      const cityName = city.split('-').map(w => 
-        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-      ).join(' ');
-      
-      // Find community by location and name (since we don't have slug column yet)
-      // Try exact match first
+      // 1. Fast O(1) indexed lookup using dedicated slug columns (primary path)
       let [community] = await db
         .select()
         .from(communities)
         .where(
           and(
-            eq(communities.state, stateUpper),
-            eq(communities.city, cityName),
-            eq(communities.name, slug.split('-').map((w: string) => 
-              w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-            ).join(' '))
+            eq(communities.stateSlug, state),
+            eq(communities.citySlug, city),
+            eq(communities.slug, slug)
           )
         )
         .limit(1);
       
-      // If no exact match, try to find by partial match
+      // 2. Fallback: lower() fuzzy match for rows not yet backfilled with slugs
       if (!community) {
-        const results = await db
+        const stateLower = state.replace(/-/g, ' ').toLowerCase();
+        const cityLower = city.replace(/-/g, ' ').toLowerCase();
+
+        let [exactMatch] = await db
           .select()
           .from(communities)
           .where(
             and(
-              eq(communities.state, stateUpper),
-              eq(communities.city, cityName)
+              sql`lower(${communities.state}) = ${stateLower}`,
+              sql`lower(${communities.city}) = ${cityLower}`,
+              sql`lower(${communities.name}) = ${slug.replace(/-/g, ' ').toLowerCase()}`
             )
-          );
-        
-        // Find best match based on slug similarity
-        community = results.find(c => {
-          const communitySlug = generateCommunitySlug(c);
-          return communitySlug === slug;
-        }) || results[0]; // Fallback to first result if no perfect match
+          )
+          .limit(1);
+
+        if (!exactMatch) {
+          const results = await db
+            .select()
+            .from(communities)
+            .where(
+              and(
+                sql`lower(${communities.state}) = ${stateLower}`,
+                sql`lower(${communities.city}) = ${cityLower}`
+              )
+            );
+          exactMatch = results.find(c => generateCommunitySlug(c) === slug) || results[0];
+        }
+        community = exactMatch;
       }
 
       if (!community) {
         return res.status(404).json({ error: "Community not found" });
       }
 
+      // Block publicly-hidden communities from the public detail page
+      if (community.isHidden || isClearlyFake(community)) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
       // Get existing enrichment data from cache (skip for now - table doesn't exist yet)
       let enrichedData = null;
+
+      // Task #300: On-view enrichment — fire-and-forget through THE single unified
+      // pipeline, matching the by-ID detail route so the PRIMARY SEO slug path is
+      // also an authoritative enrichment entry point (it previously triggered no
+      // enrichment at all). Cost is bounded by the orchestrator's 7-day cache, so a
+      // freshly-enriched community is served from the DB without a new Perplexity call.
+      enrichCommunityUnified(community.id).catch((error) => {
+        console.error(`Failed to trigger on-view enrichment for community ${community.id}:`, error);
+      });
 
       // Get reviews  
       const communityReviews = await db
@@ -1503,13 +1920,38 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
+      // Task #300: filter photos through the read-time enrichment service (drops
+      // stock/placeholder images) so the shown set equals the stored authentic set,
+      // identical to the by-ID route.
+      const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+
+      // Build comprehensiveData from the persisted enrichedContent column so the
+      // frontend reads structured enrichment data identically to the by-ID route.
+      const enrichedCol = (community as any).enrichedContent;
+      const comprehensiveData = enrichedCol
+        ? {
+            rawPerplexityContent: enrichedCol.content || null,
+            photos: (enrichedCommunity.photos && enrichedCommunity.photos.length > 0)
+              ? enrichedCommunity.photos
+              : [],
+            sources: enrichedCol.metadata?.sources?.map((s: any) => s.url) || [],
+            marketData: {
+              description: enrichedCol.content || null,
+              website: community.website || null,
+              phone: community.phone || null,
+            },
+            source: 'database-content' as const,
+          }
+        : null;
+
       // Return all data for server-side rendering
       res.json({
-        ...community,
+        ...enrichedCommunity,
         reviews: communityReviews,
         competitiveAnalysis: enrichedData?.competitiveAnalysis || null,
         webEnrichment: enrichedData?.webEnrichment || null,
         realTimeData: enrichedData?.realTimeData || null,
+        comprehensiveData,
         isClaimed: false
       });
     } catch (error) {
@@ -1667,11 +2109,18 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(404).json({ error: "Community not found" });
       }
 
-      // DISABLED: On-demand enrichment to prevent duplicate Perplexity API calls
-      // The community is already enriched via CommunityPhotoEnrichment.enrichCommunityIfNeeded below
-      // onDemandEnrichmentService.onCommunityView(communityId).catch(error => {
-      //   console.error(`Failed to trigger enrichment for community ${communityId}:`, error);
-      // });
+      // Block publicly-hidden communities and clearly-fake listings from the public by-ID detail page
+      if (community.isHidden || isClearlyFake(community)) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      // On-view enrichment: fire-and-forget through THE single unified pipeline.
+      // Cost is bounded by the orchestrator's 7-day cache (ENRICHMENT_CACHE_TTL_MS) —
+      // a freshly-enriched community is served from DB without a new Perplexity call,
+      // so this shares the exact same path as the Refresh button and admin force-refresh.
+      enrichCommunityUnified(communityId).catch((error) => {
+        console.error(`Failed to trigger on-view enrichment for community ${communityId}:`, error);
+      });
 
       // Get reviews for the community
       const communityReviews = await db
@@ -1681,8 +2130,10 @@ export function registerCommunityRoutes(app: Express) {
         .orderBy(desc(reviews.createdAt))
         .limit(10);
 
-      // Initialize Perplexity real-time data
-      let realTimeData = {
+      // Response is served immediately from the DB column; the on-view enrichment above
+      // refreshes it in the background (cache-bounded) for the next view.
+      console.log(`📖 Community detail GET for ${community.name}: serving data from database`);
+      const realTimeData = {
         lastUpdated: new Date().toISOString(),
         currentAvailability: null as string | null,
         recentNews: [] as string[],
@@ -1692,240 +2143,59 @@ export function registerCommunityRoutes(app: Express) {
         upcomingEvents: [] as string[],
         staffUpdates: [] as string[],
         sources: [] as string[],
-        photos: [] as string[]  // Add photos from Perplexity search
+        photos: [] as string[]
       };
 
-      // Only fetch real-time data if explicitly requested (to prevent 39-second delays)
-      const fetchRealtime = req.query.realtime === 'true';
-      
-      // Use Perplexity to get real-time information about the community (only when requested)
-      const perplexityService = new PerplexityAIService();
-      if (fetchRealtime && perplexityService.isConfigured()) {
-        try {
-          // Define sentence splitting function that handles abbreviations
-          const splitSentences = (text: string): string[] => {
-            // Replace common abbreviations with placeholders to prevent splitting
-            const abbrevs = [
-              ['St.', '__ST__'],
-              ['Dr.', '__DR__'],
-              ['Mr.', '__MR__'],
-              ['Mrs.', '__MRS__'],
-              ['Ms.', '__MS__'],
-              ['Sr.', '__SR__'],
-              ['Jr.', '__JR__'],
-              ['Ave.', '__AVE__'],
-              ['Blvd.', '__BLVD__'],
-              ['Co.', '__CO__'],
-              ['Inc.', '__INC__'],
-              ['Ltd.', '__LTD__'],
-              ['vs.', '__VS__'],
-              ['U.S.', '__US__'],
-              ['U.K.', '__UK__'],
-              ['Ph.D.', '__PHD__'],
-              ['M.D.', '__MD__'],
-              ['R.N.', '__RN__'],
-              ['B.A.', '__BA__'],
-              ['M.A.', '__MA__'],
-              ['D.C.', '__DC__'],
-              ['Ph.D', '__PHD__'],
-              ['M.D', '__MD__'],
-              ['CA.', '__CA__'],
-              ['CA,', '__CACOMMA__']
-            ];
-            
-            let processedText = text;
-            for (const [abbrev, placeholder] of abbrevs) {
-              processedText = processedText.replace(new RegExp(abbrev.replace('.', '\\.'), 'gi'), placeholder);
-            }
-            
-            // Split by sentence-ending punctuation followed by space and capital letter
-            const rawSentences = processedText.split(/(?<=[.!?])\s+(?=[A-Z])/);
-            
-            // Restore abbreviations and clean up
-            return rawSentences.map(sentence => {
-              let restored = sentence;
-              for (const [abbrev, placeholder] of abbrevs) {
-                restored = restored.replace(new RegExp(placeholder, 'g'), abbrev);
-              }
-              return restored.trim();
-            }).filter(s => s.length > 10);
-          };
+      // Filter photos through enrichment service to remove non-photo content
+      const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
 
-          // CONSOLIDATED SINGLE QUERY - Reduced from 3 calls to 1 for cost optimization
-          const careTypesStr = community.careTypes?.join(', ') || 'senior living';
-          const communityDetails = `${community.name} ${community.communitySubtype || 'senior living'} community offering ${careTypesStr} in ${community.city}, ${community.state} ${community.zipCode || ''}`;
-          
-          const comprehensiveQuery = `Provide comprehensive real-time information for ${communityDetails}:
-
-**PRICING & AVAILABILITY (2024-2025):**
-- Current monthly pricing ranges for ${careTypesStr}
-- Any waitlist information or room availability
-- Market rates for similar communities in ${community.city}
-- Pricing for different care levels if available
-
-**RECENT UPDATES & NEWS:**
-- Recent pricing changes or promotions
-- Any events, staff changes, or renovations from 2024-2025
-- Awards, recognitions, or certifications
-- Upcoming events or activities
-
-**VISUAL CONTENT:**
-- Photo gallery URLs from their website
-- Virtual tour links if available
-- Interior photos (rooms, dining, common areas)
-- Exterior photos (building and grounds)
-- Activity and amenity photos
-
-Provide specific, factual information with current pricing and availability.`;
-          
-          // SINGLE API CALL instead of 3 separate calls
-          const comprehensiveResult = await perplexityService.searchRealTime(
-            comprehensiveQuery,
-            `Comprehensive real-time data for ${community.name}`
-          );
-
-          // Parse the SINGLE comprehensive response
-          if (comprehensiveResult.summary) {
-            const fullContent = comprehensiveResult.summary;
-            const sentences = splitSentences(fullContent);
-            
-            // Extract pricing information
-            const priceMatch = fullContent.match(/\$[\d,]+(?:\s*-\s*\$[\d,]+)?(?:\s*(?:per|\/)\s*month)?/gi);
-            if (priceMatch) {
-              realTimeData.currentPricing = priceMatch[0];
-            }
-
-            // Extract availability status
-            if (fullContent.toLowerCase().includes('available') || 
-                fullContent.toLowerCase().includes('availability')) {
-              const availSentences = sentences.filter(s => 
-                s.toLowerCase().includes('available') || s.toLowerCase().includes('availability')
-              );
-              if (availSentences.length > 0) {
-                realTimeData.currentAvailability = availSentences[0];
-              }
-            }
-
-            // Extract waitlist information
-            if (fullContent.toLowerCase().includes('waitlist') || 
-                fullContent.toLowerCase().includes('waiting list')) {
-              const waitlistSentences = sentences.filter(s => 
-                s.toLowerCase().includes('waitlist') || s.toLowerCase().includes('waiting')
-              );
-              if (waitlistSentences.length > 0) {
-                realTimeData.waitlistStatus = waitlistSentences[0];
-              }
-            }
-            
-            // Extract recent news (sentences mentioning dates, events, updates)
-            const newsSentences = sentences.filter(s => 
-              s.match(/202[4-5]/) || 
-              s.toLowerCase().includes('recent') ||
-              s.toLowerCase().includes('update') ||
-              s.toLowerCase().includes('new')
-            );
-            realTimeData.recentNews = newsSentences.slice(0, 3);
-            
-            // Extract highlights (awards, recognitions)
-            if (fullContent.toLowerCase().includes('award') || 
-                fullContent.toLowerCase().includes('recognition') ||
-                fullContent.toLowerCase().includes('certified')) {
-              const highlightSentences = sentences.filter(s => 
-                s.toLowerCase().includes('award') || 
-                s.toLowerCase().includes('recognition') ||
-                s.toLowerCase().includes('certified')
-              );
-              realTimeData.communityHighlights = highlightSentences.slice(0, 2);
-            }
-
-            // Extract upcoming events
-            if (fullContent.toLowerCase().includes('event') || 
-                fullContent.toLowerCase().includes('upcoming')) {
-              const eventSentences = sentences.filter(s => 
-                s.toLowerCase().includes('event') || 
-                s.toLowerCase().includes('upcoming')
-              );
-              realTimeData.upcomingEvents = eventSentences.slice(0, 2);
-            }
+      // Build comprehensiveData from the persisted enrichedContent column so the
+      // frontend can still read structured enrichment data without Perplexity.
+      const enrichedCol = (community as any).enrichedContent;
+      const comprehensiveData = enrichedCol
+        ? {
+            rawPerplexityContent: enrichedCol.content || null,
+            photos: (enrichedCommunity.photos && enrichedCommunity.photos.length > 0)
+              ? enrichedCommunity.photos
+              : [],
+            sources: enrichedCol.metadata?.sources?.map((s: any) => s.url) || [],
+            marketData: {
+              description: enrichedCol.content || null,
+              website: community.website || null,
+              phone: community.phone || null,
+            },
+            source: 'database-content' as const,
           }
+        : null;
 
-          // Use images from the single comprehensive result
-          const allImages = comprehensiveResult.images || [];
-          
-          // Filter out placeholder images and deduplicate
-          realTimeData.photos = [...new Set(allImages)].filter(url => {
-            if (!url || typeof url !== 'string') return false;
-            const placeholderPatterns = [
-              '/api/placeholder/',
-              'placeholder.com',
-              'via.placeholder.com',
-              'placehold.it',
-              'placeimg.com',
-              'dummyimage.com',
-              'lorempixel.com'
-            ];
-            return !placeholderPatterns.some(pattern => url.toLowerCase().includes(pattern));
-          });
-
-          // Use sources from the single comprehensive result
-          realTimeData.sources = comprehensiveResult.sources.slice(0, 6).filter(Boolean);
-
-        } catch (perplexityError) {
-          console.log("Perplexity enrichment skipped:", perplexityError);
-          // Continue without real-time data if Perplexity fails
-        }
-      }
-
-      // ALWAYS filter photos through enrichment service to remove non-photo content
-      // This is the ONLY enrichment that should happen to avoid duplicate Perplexity calls
-      let enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
-      
-      // If we have real-time photos, combine them with filtered community photos
-      if (realTimeData.photos && realTimeData.photos.length > 0) {
-        // Combine and deduplicate photos
-        const allPhotos = [...(enrichedCommunity.photos || []), ...realTimeData.photos];
-        enrichedCommunity.photos = [...new Set(allPhotos)].slice(0, 15); // Limit to 15 photos
-      }
-      
-      // Check for cached comprehensive data from unified_perplexity_cache
-      let cachedComprehensiveData = null;
-      if (!fetchRealtime) {  // Only check cache if not doing real-time fetch
-        try {
-          const UnifiedPerplexityCache = (await import('../unified-perplexity-cache')).default;
-          const cacheService = UnifiedPerplexityCache.getInstance();
-          
-          // Get cached data without forcing a refresh
-          cachedComprehensiveData = await cacheService.getComprehensiveCommunityData(
-            String(communityId),
-            community.name,
-            `${community.city}, ${community.state}`,
-            false,  // isFeatured
-            false,  // forceRefresh
-            community.website
-          );
-          
-          // If we have cached photos, add them to the enriched community
-          if (cachedComprehensiveData && cachedComprehensiveData.photos && cachedComprehensiveData.photos.length > 0) {
-            console.log(`📸 Found ${cachedComprehensiveData.photos.length} cached photos for community ${communityId}`);
-            // Combine cached photos with existing photos (deduplicate)
-            const allPhotos = [...(enrichedCommunity.photos || []), ...cachedComprehensiveData.photos];
-            enrichedCommunity.photos = [...new Set(allPhotos)].slice(0, 30); // Allow more photos from cache
-          }
-        } catch (error) {
-          console.error(`Failed to retrieve cached data for community ${communityId}:`, error);
-        }
-      }
-      
       // Skip claimed community check for now - table doesn't exist
-      
+
       res.json({
         ...enrichedCommunity,
         reviews: communityReviews,
         isClaimed: false,
         claimInfo: null,
         realTimeData: realTimeData,
-        comprehensiveData: cachedComprehensiveData  // Include cached comprehensive data
+        comprehensiveData,
       });
+
+      // Fire-and-forget: record community detail view for conversion funnel
+      const viewUserId = (req as any).user?.id || null;
+      const sessionId = req.headers['x-session-id'] as string || null;
+      db.insert(analyticsEvents).values({
+        communityId,
+        userId: viewUserId,
+        sessionId: sessionId || `anon-${Date.now()}`,
+        eventType: 'page_view',
+        eventCategory: 'community',
+        eventAction: 'view_community',
+        eventLabel: community.name,
+        pageUrl: req.headers.referer || `/communities/${communityId}`,
+        pageTitle: community.name,
+        userAgent: req.headers['user-agent'] || '',
+        ipAddress: req.ip || '',
+        timestamp: new Date(),
+      } as any).catch(() => {});
     } catch (error) {
       console.error("Error fetching community:", error);
       res.status(500).json({ error: "Failed to fetch community" });
@@ -1991,90 +2261,24 @@ Provide specific, factual information with current pricing and availability.`;
   });
 
   // Perplexity AI Community Insights endpoint
-  app.post("/api/perplexity/community-insights", async (req, res) => {
-    try {
-      const { communityName, city, state } = req.body;
-      
-      if (!communityName || !city || !state) {
-        return res.status(400).json({ 
-          error: "Missing required fields: communityName, city, and state are required" 
-        });
-      }
-
-      const perplexityService = new PerplexityAIService();
-      
-      if (!perplexityService.isConfigured()) {
-        return res.status(200).json({
-          recentNews: [],
-          reputation: "Real-time web search is currently unavailable. Please check back later.",
-          areaInsights: "Unable to fetch current area information. Contact the community directly for the latest updates."
-        });
-      }
-
-      try {
-        // Construct search query for web search
-        const searchQuery = `"${communityName}" senior living community ${city} ${state} recent news updates reviews 2024 2025`;
-        
-        // Fetch real-time insights
-        const searchResults = await perplexityService.searchRealTime(searchQuery, 
-          `Finding current information about ${communityName} in ${city}, ${state}`
-        );
-        
-        // Parse the results into structured format
-        const insights = {
-          recentNews: [],
-          reputation: "",
-          areaInsights: ""
-        };
-
-        // Extract key information from search results
-        if (searchResults && searchResults.summary) {
-          // Simple parsing - in production this would be more sophisticated
-          const lines = searchResults.summary.split('\n').filter((line: string) => line.trim());
-          
-          // Try to identify news items
-          const newsItems = lines.slice(0, 2).map((line: any) => ({
-            summary: line.trim(),
-            source: "Web Search"
-          }));
-          
-          if (newsItems.length > 0) {
-            insights.recentNews = newsItems;
-          }
-
-          // Extract reputation and area insights
-          insights.reputation = lines.find((line: any) => 
-            line.toLowerCase().includes('rating') || 
-            line.toLowerCase().includes('review') || 
-            line.toLowerCase().includes('reputation')
-          ) || `${communityName} is a senior living community in ${city}, ${state}. Contact them directly for the most current information.`;
-
-          insights.areaInsights = lines.find((line: any) => 
-            line.toLowerCase().includes('area') || 
-            line.toLowerCase().includes('location') || 
-            line.toLowerCase().includes('neighborhood')
-          ) || `Located in ${city}, ${state}, this community offers senior living services. Visit or call for detailed area information.`;
-        }
-
-        res.json(insights);
-      } catch (perplexityError) {
-        console.error('Perplexity search error:', perplexityError);
-        res.json({
-          recentNews: [],
-          reputation: `${communityName} is located in ${city}, ${state}. For current information, please contact the community directly.`,
-          areaInsights: `This community serves the ${city} area. Contact them for detailed local information and availability.`
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching community insights:", error);
-      res.status(500).json({ error: "Failed to fetch community insights" });
-    }
+  app.post("/api/perplexity/community-insights", async (_req, res) => {
+    res.status(503).json({ status: "disabled", message: "AI insights temporarily unavailable" });
   });
 
   // Create new community (admin only)
   app.post("/api/communities", requireAuth, isAdmin, async (req, res) => {
     try {
       const validatedData = insertCommunitySchema.parse(req.body);
+
+      // Prevent non-senior-living properties from entering the database
+      const { isSeniorLivingFacility } = await import('./global-discovery');
+      if (!isSeniorLivingFacility(validatedData.name, validatedData.careTypes || [])) {
+        return res.status(422).json({
+          error: 'Non-senior-living facility rejected',
+          message: `"${validatedData.name}" does not appear to be a senior living facility. ` +
+            'Add a senior-specific care type or update the name to include a senior indicator.'
+        });
+      }
       
       const [newCommunity] = await db
         .insert(communities)
@@ -2259,11 +2463,15 @@ Provide specific, factual information with current pricing and availability.`;
 
 
 
-  // Enrich community data (admin only)
+  // Enrich community data (admin only) — routes through THE single unified pipeline.
   app.post("/api/communities/:id/enrich", requireAuth, isAdmin, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
       const { enrichmentType = 'all' } = req.body;
+
+      if (isNaN(communityId)) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
 
       const [community] = await db
         .select()
@@ -2277,39 +2485,26 @@ Provide specific, factual information with current pricing and availability.`;
 
       const enrichmentResults: any = {};
 
-      // Google Places enrichment
-      if (enrichmentType === 'all' || enrichmentType === 'google') {
+      // Description + photos + contact/pricing all come from the unified pipeline
+      // (Perplexity primary → free scraping fallback → photo validation).
+      if (enrichmentType === 'all' || enrichmentType === 'photos' || enrichmentType === 'google') {
         try {
-          const googleData = await googlePlacesIntegration.enrichCommunityWithGooglePlaces(community);
-          enrichmentResults.google = {
-            success: !!googleData,
-            data: googleData
+          const result = await enrichCommunityUnified(communityId, { forceRefresh: true });
+          enrichmentResults.enrichment = {
+            success: true,
+            cached: result.cached,
+            photosAdded: result.photos.length,
+            summary: result.summary,
           };
-        } catch (error) {
-          enrichmentResults.google = {
+        } catch (error: any) {
+          enrichmentResults.enrichment = {
             success: false,
-            error: error.message
+            error: error?.message ?? 'Unknown error',
           };
         }
       }
 
-      // Photo enrichment
-      if (enrichmentType === 'all' || enrichmentType === 'photos') {
-        try {
-          const photoData = await systematicPhotoEnrichment.enrichSingleCommunity(community);
-          enrichmentResults.photos = {
-            success: !!photoData,
-            photosAdded: photoData?.photosAdded || 0
-          };
-        } catch (error) {
-          enrichmentResults.photos = {
-            success: false,
-            error: error.message
-          };
-        }
-      }
-
-      // Care type classification
+      // Care type classification (separate, free heuristic — not paid enrichment).
       if (enrichmentType === 'all' || enrichmentType === 'careTypes') {
         try {
           const careTypes = await careTypeClassifier.classifyCommunity(community);
@@ -2324,10 +2519,10 @@ Provide specific, factual information with current pricing and availability.`;
               careTypes
             };
           }
-        } catch (error) {
+        } catch (error: any) {
           enrichmentResults.careTypes = {
             success: false,
-            error: error.message
+            error: error?.message ?? 'Unknown error',
           };
         }
       }
@@ -2372,9 +2567,9 @@ Provide specific, factual information with current pricing and availability.`;
         try {
           let enriched = false;
 
-          // Enrich based on type
+          // Photos/description via the single unified pipeline.
           if (enrichmentType === 'all' || enrichmentType === 'photos') {
-            await systematicPhotoEnrichment.enrichSingleCommunity(community);
+            await enrichCommunityUnified(community.id, { forceRefresh: true });
             enriched = true;
           }
 
@@ -2397,13 +2592,15 @@ Provide specific, factual information with current pricing and availability.`;
               status: 'success'
             });
           }
-        } catch (error) {
+          // Gentle pacing between communities to avoid hammering upstream APIs.
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        } catch (error: any) {
           results.failed++;
           results.details.push({
             id: community.id,
             name: community.name,
             status: 'failed',
-            error: error.message
+            error: error?.message ?? 'Unknown error'
           });
         }
       }
@@ -2415,80 +2612,9 @@ Provide specific, factual information with current pricing and availability.`;
     }
   });
 
-  // Verify service endpoint - uses same photo loading as communities
-  app.post('/api/verify-service', async (req, res) => {
-    try {
-      const { serviceId, serviceName, city, state, serviceType, website } = req.body;
-      
-      if (!serviceName) {
-        return res.status(400).json({ error: 'Service name is required' });
-      }
-
-      console.log(`🔍 Verifying service: ${serviceName} (ID: ${serviceId})`);
-      
-      // Construct location string
-      const location = city && state ? `${city}, ${state}` : city || state || 'Unknown Location';
-      
-      // Use the unified cache with the same logic as communities
-      const UnifiedPerplexityCache = (await import('../unified-perplexity-cache')).default;
-      const unifiedCache = UnifiedPerplexityCache.getInstance();
-      
-      // Check if this is a manual refresh (user clicked button)
-      const forceRefresh = req.query.forceRefresh === 'true';
-      
-      // Get comprehensive data from cache or fetch if needed
-      const comprehensiveData = await unifiedCache.getComprehensiveCommunityData(
-        serviceId || `service_${serviceName.replace(/\s+/g, '_').toLowerCase()}`, // Create ID if not provided
-        serviceName,
-        location,
-        false, // Not featured
-        forceRefresh, // Use force refresh flag
-        website // Pass website URL if available
-      );
-      
-      // Format response for service detail page
-      const response = {
-        serviceName,
-        timestamp: new Date().toISOString(),
-        verificationResults: {
-          webIntelligence: {
-            images: comprehensiveData.photos || [],
-            sources: comprehensiveData.sources || []
-          },
-          perplexityData: {
-            lastUpdated: new Date().toISOString(),
-            searchContent: comprehensiveData.rawPerplexityContent || '',
-            sources: comprehensiveData.sources || []
-          }
-        },
-        photos: comprehensiveData.photos || [],
-        photoSources: {}, // Could be enhanced later
-        citations: comprehensiveData.sources || [],
-        sources: comprehensiveData.sources || [],
-        contactInfo: {
-          phone: comprehensiveData.marketData?.phone || null,
-          website: comprehensiveData.marketData?.website || website || null,
-          address: comprehensiveData.marketData?.address || null
-        },
-        consensus: {
-          agreementLevel: 'strong',
-          verifiedFacts: [],
-          disputedFacts: [],
-          confidenceScore: 85,
-          transparencyNotes: 'Service verification complete'
-        }
-      };
-      
-      console.log(`✅ Service verification complete for ${serviceName} - Found ${response.photos.length} photos`);
-      res.json(response);
-      
-    } catch (error) {
-      console.error('Service verification error:', error);
-      res.status(500).json({ 
-        error: 'Failed to verify service information',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      });
-    }
+  // Verify service endpoint - AI enrichment disabled
+  app.post('/api/verify-service', async (_req, res) => {
+    res.status(503).json({ status: "disabled", message: "AI insights temporarily unavailable" });
   });
 
 

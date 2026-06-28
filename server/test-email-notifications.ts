@@ -25,7 +25,7 @@ async function testEmailNotifications() {
       lastName: users.lastName
     })
       .from(users)
-      .where(eq(users.email, "hello@myseniorvalet.com"));
+      .where(eq(users.email, "CowellandCoWebDesign@gmail.com"));
 
     if (!testUser1) {
       console.log("⚠️ Test user 1 not found. Creating test data...");

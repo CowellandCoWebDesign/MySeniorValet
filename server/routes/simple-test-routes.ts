@@ -31,8 +31,9 @@ router.post('/test/email', async (req, res) => {
     
     // Send a simple test email with both text and html
     const success = await sendEmail({
-      to: 'admin@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: '[PRODUCTION TEST] MySeniorValet Email System',
       text: `Production Email Test\n\nThis is a test of the MySeniorValet production email system.\n\nTimestamp: ${new Date().toISOString()}\n\nIf you received this email, the system is working correctly.`,
       html: `
@@ -101,8 +102,9 @@ router.post('/test/comprehensive', async (req, res) => {
     // Test 1: Direct email
     try {
       const directSuccess = await sendEmail({
-        to: email || 'admin@myseniorvalet.com',
+        to: email || 'CowellandCoWebDesign@gmail.com',
         from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: '[TEST 1/3] Direct Email Test',
         text: 'Test 1: Direct Email\n\nTesting direct SendGrid delivery.',
         html: '<h3>Test 1: Direct Email</h3><p>Testing direct SendGrid delivery.</p>'
@@ -118,7 +120,7 @@ router.post('/test/comprehensive', async (req, res) => {
         communityId: 99999,
         communityName: 'Test Community',
         claimantName: 'Test User',
-        claimantEmail: email || 'admin@myseniorvalet.com',
+        claimantEmail: email || 'CowellandCoWebDesign@gmail.com',
         claimantPhone: '555-TEST',
         message: 'Comprehensive test suite'
       });
@@ -131,7 +133,7 @@ router.post('/test/comprehensive', async (req, res) => {
     try {
       await ComprehensiveNotificationService.notifyEmergencyContact({
         userName: 'Test User',
-        userEmail: email || 'admin@myseniorvalet.com',
+        userEmail: email || 'CowellandCoWebDesign@gmail.com',
         userLocation: 'Test Location',
         message: 'TEST ONLY - Not a real emergency',
         contactNumber: '555-TEST',

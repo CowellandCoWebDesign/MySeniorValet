@@ -271,9 +271,9 @@ router.post("/send", async (req: Request, res: Response) => {
     // Send email notification if configured
     if (process.env.SENDGRID_API_KEY) {
       const msg = {
-        to: "admin@myseniorvalet.com",
+        to: 'CowellandCoWebDesign@gmail.com',
         from: "hello@myseniorvalet.com",
-        cc: "hello@myseniorvalet.com",
+        replyTo: "CowellandCoWebDesign@gmail.com",
         subject: "🚨 Emergency Alert from MySeniorValet",
         html: `
           <div style="font-family: Arial, sans-serif;">
@@ -330,9 +330,9 @@ router.post("/button-pressed", async (req: Request, res: Response) => {
       });
       
       const msg = {
-        to: "admin@myseniorvalet.com",
+        to: 'CowellandCoWebDesign@gmail.com',
         from: "hello@myseniorvalet.com",
-        cc: "hello@myseniorvalet.com",
+        replyTo: "CowellandCoWebDesign@gmail.com",
         subject: "🚨 URGENT: Emergency Button Pressed on MySeniorValet",
         html: `
           <div style="font-family: Arial, sans-serif; padding: 20px; background: #f8f9fa; border-radius: 10px;">

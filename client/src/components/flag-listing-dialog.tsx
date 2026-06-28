@@ -55,9 +55,14 @@ interface FlagListingDialogProps {
   communityId: number;
   communityName: string;
   userId?: number;
+  /** Optional custom trigger element (e.g. a small icon button on a card or
+   *  photo carousel). Falls back to the default "Report Issue" button. */
+  trigger?: React.ReactNode;
+  /** Pre-select an issue type, e.g. "Inappropriate Content" for a wrong photo. */
+  defaultFlagType?: FlagFormData["flagType"];
 }
 
-export function FlagListingDialog({ communityId, communityName, userId }: FlagListingDialogProps) {
+export function FlagListingDialog({ communityId, communityName, userId, trigger, defaultFlagType }: FlagListingDialogProps) {
   const [open, setOpen] = useState(false);
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -65,7 +70,7 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
   const form = useForm<FlagFormData>({
     resolver: zodResolver(flagSchema),
     defaultValues: {
-      flagType: undefined,
+      flagType: defaultFlagType,
       reason: "",
       details: "",
       reporterEmail: "",
@@ -88,7 +93,13 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
         description: "Thank you for your report. Our team will review this listing.",
       });
       setOpen(false);
-      form.reset();
+      form.reset({
+        flagType: defaultFlagType,
+        reason: "",
+        details: "",
+        reporterEmail: "",
+        reporterName: "",
+      });
     },
     onError: (error) => {
       toast({
@@ -106,10 +117,12 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Flag className="h-4 w-4" />
-          Report Issue
-        </Button>
+        {trigger ?? (
+          <Button variant="outline" size="sm" className="gap-2">
+            <Flag className="h-4 w-4" />
+            Report Issue
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
@@ -134,12 +147,13 @@ export function FlagListingDialog({ communityId, communityName, userId }: FlagLi
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
                       <SelectItem value="Incorrect Information">Incorrect Information</SelectItem>
-                      <SelectItem value="Spam/Duplicate">Spam/Duplicate Listing</SelectItem>
-                      <SelectItem value="Closed/No Longer Operating">Closed/No Longer Operating</SelectItem>
-                      <SelectItem value="Safety Concerns">Safety Concerns</SelectItem>
-                      <SelectItem value="Pricing Issues">Pricing Issues</SelectItem>
+                      <SelectItem value="Duplicate Listing">Duplicate Listing</SelectItem>
+                      <SelectItem value="Inappropriate Content">Inappropriate Content</SelectItem>
+                      <SelectItem value="Spam">Spam</SelectItem>
+                      <SelectItem value="Closed/Out of Business">Closed/Out of Business</SelectItem>
+                      <SelectItem value="Wrong Location">Wrong Location</SelectItem>
+                      <SelectItem value="Pricing Error">Pricing Error</SelectItem>
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>

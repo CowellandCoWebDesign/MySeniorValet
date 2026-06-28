@@ -2,19 +2,19 @@
 MySeniorValet is an AI-powered "Google of Senior Care" platform designed to bring transparency to senior living. It features a "Learn Mode" and a unified AI search engine. The platform provides comprehensive care spectrum education, real pricing without paywalls, and tools for saving and sharing research. Key capabilities include the TourMate™ tour scheduling system, One-Touch Emergency Contact Shortcut, trilingual support (English, French, Spanish), and self-healing mechanisms. The business model provides free platform access to families, with revenue generated from B2B clients.
 
 ## User Preferences
-- **Authentication Priority**: William.cowell01@gmail.com and admin@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
+- **Authentication Priority**: William.cowell01@gmail.com and hello@myseniorvalet.com have super admin access. Platform configured for production Replit Auth integration.
 - **Notification Email Configuration**:
-  - Primary Admin Notifications: admin@myseniorvalet.com (system events, emergency alerts, privacy inquiries)
+  - Primary Admin Notifications: hello@myseniorvalet.com (system events, emergency alerts, privacy inquiries)
   - Personal Emergency/Backup Access: William.cowell01@gmail.com (private, secondary notifications, security concerns)
   - Technical Support: CowellandCoWebDesign@gmail.com (private, technical issues)
   - General Inquiries: hello@myseniorvalet.com (public, press inquiries, community onboarding)
   - Billing & Reservations: billing@myseniorvalet.com (public, payments, reservation confirmations)
-  - Emergency button alerts sent to both admin@myseniorvalet.com (primary) and William.cowell01@gmail.com (backup)
+  - Emergency button alerts sent to both hello@myseniorvalet.com (primary) and William.cowell01@gmail.com (backup)
   - NOTE: ALL emails standardized across entire platform - no legacy addresses remain
 - **Data Integrity Standards**: Maintain strict Golden Data Rule enforcement. HUD properties show verified government pricing only. Communities without verified pricing display "Contact for pricing." Multi-AI verification system for absolute accuracy. Never claim partnerships, verifications, or certifications unless legally verified and documented. Service recommendations must be clearly labeled as such, not as partnerships.
 - **Accurate Platform Messaging**: Use "Complete Care Spectrum & Live Market Intelligence" to describe our national pricing insights and verified HUD data system. Avoid claiming "live pricing from all communities" as this is our goal, not current capability. Market Intelligence fills gaps with national reported averages while building toward full live pricing coverage. Be cautious with analytics claims during launch phase.
 - **Documentation Preferences**: Keep documentation clean and consolidated. Remove outdated files to prevent confusion. Focus on current operational status over historical details.
-- **Visual Design Preferences**: Hero image should be a beautiful space/astronomy image (https://cdn.pixabay.com/photo/2016/11/29/05/45/astronomy-1867616_1280.jpg). The user specifically prefers cosmic space imagery over senior living villa photos, symbolizing infinite possibilities in senior living. Dark mode is enabled by default for better user experience.
+- **Visual Design Preferences**: The home hero now cycles (crossfades, ~6s each) through four scenic photos in order: Golden Gate Bridge, Mt Shasta, Sundial Bridge (Redding), and a lighthouse at sunset (`attached_assets/generated_images/hero_*.png`). This intentionally supersedes the earlier cosmic/space hero preference per the user's explicit request — do not revert the hero to the static astronomy image. Reduced-motion users see the first image (Golden Gate) without auto-cycling. Dark mode is enabled by default for better user experience.
 - **Critical Branding Rule**: NEVER USE "TRUEVIEW" - The brand name is MySeniorValet. All references to "TrueView" must be replaced with "MySeniorValet".
 - **CRITICAL MASCOT RULE**: The MySeniorValet mascot must ALWAYS be the gentleman valet IMAGE (valet-mascot.png), NEVER an emoji. This is a non-negotiable brand requirement. Photo carousel displays friendly valet mascot with personalized message while searching for authentic photos (10-15 second expectation).
 - **Mission Messaging**: Include official mission statement in email communications: "The trusted platform for authentic senior living community information. Helping families make informed decisions with verified data and transparent pricing."
@@ -33,6 +33,15 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - Shared location SEO module (`shared/location-seo.ts`) provides consistent SEO metadata for both client and server
 - SSR middleware detects search engine crawlers and serves pre-rendered HTML while maintaining SPA experience for regular users
 - Sitemap generation includes thousands of city-specific URLs for comprehensive search coverage
+
+**SEO URL Migration (March 10, 2026)**:
+- All community links now use keyword-rich SEO URLs: `/senior-living/{state}/{city}/{community-name}` instead of `/community/{id}`
+- `getCommunityUrl()` utility in `client/src/lib/community-url.ts` generates consistent SEO URLs from community name/city/state
+- Route `/senior-living/:state/:city/:slug` renders `CommunityDetail` component (not the old `CommunitySEO` stub)
+- `CommunityDetail` supports both slug-based (`/senior-living/...`) and ID-based (`/community/:id`) URLs using `isSlugBased` flag
+- Backend API: `GET /api/communities/by-slug/:state/:city/:slug` looks up community by location + name match
+- Server-side 301 redirect registered at `GET /community/:id` — looks up community, redirects to SEO URL in production
+- Updated 20+ components and pages to use `getCommunityUrl()` including: Map, SlidePanel, community cards, search pages, chat kit, AI components, structured data, share buttons
 
 **Technical Implementations**:
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components, using Vite.

@@ -3,11 +3,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, Star, 
-         MapPin, Wifi, Car, Utensils, Activity, Heart, Users, Shield } from "lucide-react";
+         MapPin, Wifi, Car, Utensils, Activity, Heart, Users, Shield, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { FeaturedExcellenceCard } from "@/components/FeaturedExcellenceCard";
+import { CommunityCard } from "@/components/CommunityCard";
 
 interface RedTagDeal {
   id: number;
@@ -22,7 +22,12 @@ interface RedTagDeal {
   whyFeatured: string[];
 }
 
-export function RedTagDeals() {
+interface RedTagDealsProps {
+  communityCount?: string;
+  hideHeader?: boolean;
+}
+
+export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsProps) {
   const [fallbackDeals, setFallbackDeals] = useState<RedTagDeal[]>([]);
   
   // Fetch featured communities from API
@@ -92,7 +97,7 @@ export function RedTagDeals() {
       highlights: ["Ocean views in Hawaii", "Premium island lifestyle", "Resort-style amenities"],
       rating: 4.8,
       heroImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&q=80",
-      availability: "Limited Availability",
+      availability: "Limited Spots",
       amenities: ["Ocean Views", "Tropical Gardens", "Fine Dining", "Island Activities"],
       whyFeatured: ["Hawaii's premier senior community", "Paradise island living", "Exceptional tropical lifestyle"]
     },
@@ -182,29 +187,52 @@ export function RedTagDeals() {
   
   return (
     <div className="space-y-4">
-      <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-4 text-center">
-        Outstanding senior living communities showcasing excellence across five countries
-      </p>
+      {/* Section Title - Always visible */}
+      <div className="text-center">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <Star className="w-7 h-7 text-orange-500" />
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+            Featured Excellence Communities
+          </h2>
+          <Badge className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-3 py-1 text-sm font-bold">
+            Premium
+          </Badge>
+        </div>
+        <p className="text-base text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+          Hand-picked exceptional senior living communities across 5 countries
+        </p>
+      </div>
 
-      {/* Featured Communities Alert - Compact */}
-      <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
-        <CardContent className="py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-full">
-                <Star className="w-4 h-4 text-orange-600" />
+      {/* Featured Communities Alert - Extra details (hidden when hideHeader is true) */}
+      {!hideHeader && (
+        <Card className="border-orange-200 dark:border-orange-800 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-950 dark:to-amber-950">
+          <CardContent className="py-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-full">
+                  <Star className="w-4 h-4 text-orange-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-sm">Excellence Showcase</p>
+                  <p className="text-xs text-muted-foreground">Premium communities across 5 countries</p>
+                </div>
               </div>
-              <div>
-                <p className="font-medium text-sm">Excellence Showcase</p>
-                <p className="text-xs text-muted-foreground">Premium communities across 5 countries</p>
+              <div className="flex items-center gap-3">
+                {communityCount && (
+                  <div className="flex items-center gap-1.5 bg-green-100 dark:bg-green-900/50 px-2 py-1 rounded-full">
+                    <TrendingUp className="h-3.5 w-3.5 text-green-600" />
+                    <span className="text-sm font-bold text-green-700 dark:text-green-400">{communityCount}</span>
+                    <span className="text-xs text-green-600 dark:text-green-500 hidden sm:inline">Total</span>
+                  </div>
+                )}
+                <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
+                  {redTagDeals.length} Featured
+                </Badge>
               </div>
             </div>
-            <Badge className="bg-orange-600 text-white text-sm px-2 py-1">
-              {redTagDeals.length} Featured
-            </Badge>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Enhanced Deal Cards with Horizontal Scroll Carousel */}
       <div className="relative">
@@ -212,28 +240,33 @@ export function RedTagDeals() {
         <div className="overflow-x-auto pb-4 -mx-4 px-4">
           <div className="flex gap-4" style={{ width: 'max-content' }}>
             {redTagDeals.map((deal, index) => {
+              // Get API data for this community to include contact info
+              const apiData = apiDataMap.get(deal.id);
+              const apiCommunity = apiData?.community;
+              
               // Transform deal data to community format for FeaturedExcellenceCard
               const community = {
                 id: deal.id,
                 name: deal.communityName,
                 city: deal.location.split(',')[0]?.trim() || '',
                 state: deal.location.split(',')[1]?.trim() || '',
+                address: apiCommunity?.address || apiCommunity?.streetAddress,
+                phone: apiCommunity?.phone || apiCommunity?.phoneNumber,
+                website: apiCommunity?.website || apiCommunity?.url,
                 rating: deal.rating,
                 amenities: deal.amenities,
                 careTypes: deal.highlights,
-                photos: apiDataMap.get(deal.id)?.community?.photos || [], // Use real photos from API
+                photos: apiCommunity?.photos || [],
                 occupancyRate: deal.availability === "Available Now" ? 75 : 
                               deal.availability === "Limited Spots" ? 85 : 
                               deal.availability === "Waitlist" ? 95 : 80
               };
               
               return (
-                <div key={deal.id} className="w-[280px] sm:w-[320px] lg:w-[360px] flex-shrink-0">
-                  <FeaturedExcellenceCard
+                <div key={deal.id} className="flex-shrink-0">
+                  <CommunityCard
                     community={community}
-                    index={index}
-                    compact={true}
-                    disableAutoPhotoLoad={true}
+                    variant="compact"
                   />
                 </div>
               );

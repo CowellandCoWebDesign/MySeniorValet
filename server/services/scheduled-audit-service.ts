@@ -275,7 +275,7 @@ export class ScheduledAuditService {
     console.log(`📧 Audit Report: ${report.duplicatesFound} duplicates, ${report.testDataFound} test data found`);
     console.log(`   Total Communities: ${report.totalCommunities}, Deactivated: ${report.deactivated}`);
     
-    // In production, this would send an email to admin@myseniorvalet.com
+    // In production, this would send an email to CowellandCoWebDesign@gmail.com
     // with a detailed HTML report of the audit findings
   }
 

@@ -1,15 +1,19 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { Search, MapPin, Building2, Heart, Users, Loader2, Phone, Star, Shield, DollarSign, Home, Brain, CheckCircle } from 'lucide-react';
+import { Search, MapPin, Building2, Heart, Users, Loader2, Phone, Star, Shield, DollarSign, Home, Brain, CheckCircle, Lock } from 'lucide-react';
 import { useDebounce } from '@/hooks/use-debounce';
 import { apiRequest } from '@/lib/queryClient';
 import { useAddFavorite, useRemoveFavorite, useFavorites } from '@/hooks/useFavorites';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
+import { useContactReveal } from '@/hooks/useContactReveal';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AutocompleteSuggestion {
   label: string;
@@ -35,6 +39,59 @@ interface AutocompleteSuggestion {
   rentPerMonth?: number;
   availabilityStatus?: string;
   photos?: string[];
+}
+
+/**
+ * Phone line for a community suggestion in the autocomplete dropdown.
+ * Gated behind the contact-reveal flow when the suggestion has a community id;
+ * if there is no id (can't fire a referral), the raw number is hidden from
+ * logged-out visitors instead of being exposed.
+ */
+function SuggestionPhoneReveal({
+  communityId,
+  communityName,
+  phone,
+}: {
+  communityId?: number;
+  communityName?: string;
+  phone: string;
+}) {
+  const { isAuthenticated } = useAuth();
+  const { isRevealed, reveal, consentDialog } = useContactReveal(communityId ?? 0, communityName);
+
+  // No community id → can't gate/track a referral; only show to logged-in users.
+  if (!communityId) {
+    if (!isAuthenticated) return null;
+    return (
+      <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+        <Phone className="h-3 w-3 mr-1" />
+        <a href={`tel:${phone}`} onClick={(e) => e.stopPropagation()} className="font-medium">
+          {phone}
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
+      <Phone className="h-3 w-3 mr-1" />
+      {isRevealed('phone') ? (
+        <a href={`tel:${phone}`} onClick={(e) => e.stopPropagation()} className="font-medium">
+          {phone}
+        </a>
+      ) : (
+        <button
+          type="button"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); reveal('phone'); }}
+          className="flex items-center gap-1 font-medium hover:underline"
+          data-testid={`button-reveal-phone-${communityId}`}
+        >
+          <Lock className="h-3 w-3" /> Tap to reveal phone
+        </button>
+      )}
+      {consentDialog}
+    </div>
+  );
 }
 
 interface AutocompleteSearchProps {
@@ -66,6 +123,28 @@ export function AutocompleteSearch({
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const [location, setLocation] = useLocation();
   const justSelectedRef = useRef(false);
+  const [dropdownRect, setDropdownRect] = useState<{ top: number; left: number; width: number } | null>(null);
+
+  // Recalculate dropdown position whenever it becomes visible or window resizes/scrolls
+  useEffect(() => {
+    const updateRect = () => {
+      if (inputRef.current && showSuggestions) {
+        const rect = inputRef.current.getBoundingClientRect();
+        setDropdownRect({
+          top: rect.bottom + window.scrollY + 4,
+          left: rect.left + window.scrollX,
+          width: rect.width,
+        });
+      }
+    };
+    updateRect();
+    window.addEventListener('resize', updateRect);
+    window.addEventListener('scroll', updateRect, true);
+    return () => {
+      window.removeEventListener('resize', updateRect);
+      window.removeEventListener('scroll', updateRect, true);
+    };
+  }, [showSuggestions]);
   
   const debouncedValue = useDebounce(value, 300);
   
@@ -182,7 +261,7 @@ export function AutocompleteSearch({
     if (suggestion.type === 'community' && suggestion.id) {
       setShowSuggestions(false);
       setSelectedIndex(-1);
-      setLocation(`/community/${suggestion.id}`);
+      setLocation(getCommunityUrl({ id: suggestion.id!, name: suggestion.value, city: suggestion.city || '', state: suggestion.state || '' }));
     } else {
       // For other types (city, state, care_type, etc.), perform the search
       justSelectedRef.current = true; // Prevent double-triggering autocomplete
@@ -320,7 +399,7 @@ export function AutocompleteSearch({
           onKeyDown={handleKeyDown}
           onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
           placeholder={placeholder}
-          className={inputClassName || "w-full pl-10 pr-6 py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"}
+          className={inputClassName || `w-full pl-10 ${hideSearchButton ? 'pr-6' : 'pr-20'} py-3 text-base border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400`}
           disabled={isLoading}
         />
         {!hideSearchButton && (
@@ -344,12 +423,18 @@ export function AutocompleteSearch({
         )}
       </div>
 
-      {/* Enhanced Autocomplete Suggestions Dropdown */}
-      {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && (
+      {/* Enhanced Autocomplete Suggestions Dropdown — rendered via Portal to escape stacking contexts */}
+      {showSuggestions && (suggestions.length > 0 || loadingSuggestions) && dropdownRect && createPortal(
         <Card 
           ref={suggestionsRef}
-          className="absolute w-full mt-2 max-h-[400px] overflow-y-auto shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
-          style={{ zIndex: 999999, position: 'absolute', top: '100%', left: 0, right: 0 }}
+          className="max-h-[400px] overflow-y-auto shadow-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+          style={{
+            position: 'absolute',
+            zIndex: 2147483647,
+            top: dropdownRect.top,
+            left: dropdownRect.left,
+            width: dropdownRect.width,
+          }}
         >
           {loadingSuggestions ? (
             <div className="p-4 text-center">
@@ -364,31 +449,19 @@ export function AutocompleteSearch({
                 const others = suggestions.filter(s => s.type !== 'city' && s.type !== 'location' && s.type !== 'community');
                 
                 let currentIndex = 0;
-                const allSuggestions: any[] = [];
+                const allSuggestions: Array<{ isHeader: true; headerKey: string; iconType: string; label: string } | (AutocompleteSuggestion & { index: number })> = [];
                 
-                // Add cities first with a header
+                // Add cities first with a header marker object (not JSX - avoids React key conflicts)
                 if (cities.length > 0) {
-                  allSuggestions.push(
-                    <div key="cities-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                      <MapPin className="inline h-3 w-3 mr-1" />
-                      LOCATIONS
-                    </div>
-                  );
+                  allSuggestions.push({ isHeader: true, headerKey: 'cities-header', iconType: 'location', label: 'LOCATIONS' });
                   cities.forEach(city => {
                     allSuggestions.push({ ...city, index: currentIndex++ });
                   });
                 }
                 
-                // Add communities with a header
+                // Add communities with a header marker object
                 if (communities.length > 0) {
-                  if (cities.length > 0) {
-                    allSuggestions.push(
-                      <div key="communities-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 border-t">
-                        <Home className="inline h-3 w-3 mr-1" />
-                        COMMUNITIES
-                      </div>
-                    );
-                  }
+                  allSuggestions.push({ isHeader: true, headerKey: 'communities-header', iconType: 'community', label: 'COMMUNITIES' });
                   communities.forEach(community => {
                     allSuggestions.push({ ...community, index: currentIndex++ });
                   });
@@ -396,27 +469,29 @@ export function AutocompleteSearch({
                 
                 // Add other suggestions if any
                 if (others.length > 0) {
-                  if (cities.length > 0 || communities.length > 0) {
-                    allSuggestions.push(
-                      <div key="others-header" className="px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 border-t">
-                        <Search className="inline h-3 w-3 mr-1" />
-                        OTHER RESULTS
-                      </div>
-                    );
-                  }
+                  allSuggestions.push({ isHeader: true, headerKey: 'others-header', iconType: 'other', label: 'OTHER RESULTS' });
                   others.forEach(other => {
                     allSuggestions.push({ ...other, index: currentIndex++ });
                   });
                 }
                 
-                return allSuggestions.map((item, idx) => {
-                  // If it's a header, return it as-is
-                  if (typeof item === 'object' && !item.type) {
-                    return item;
+                return allSuggestions.map((item) => {
+                  // Render section header JSX for header marker objects
+                  if ('isHeader' in item && item.isHeader) {
+                    const headerIcon = item.iconType === 'location' ? <MapPin className="inline h-3 w-3 mr-1" /> :
+                                       item.iconType === 'community' ? <Home className="inline h-3 w-3 mr-1" /> :
+                                       <Search className="inline h-3 w-3 mr-1" />;
+                    const borderTop = item.headerKey !== 'cities-header' ? 'border-t' : '';
+                    return (
+                      <div key={item.headerKey} className={`px-4 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 ${borderTop}`}>
+                        {headerIcon}
+                        {item.label}
+                      </div>
+                    );
                   }
                   
-                  const suggestion = item;
-                  const index = item.index;
+                  const suggestion = item as AutocompleteSuggestion & { index: number };
+                  const index = suggestion.index;
                 // Render rich card for community suggestions
                 if (suggestion.type === 'community') {
                   const careTypeBadge = getCareTypeBadge(suggestion.communitySubtype);
@@ -508,16 +583,11 @@ export function AutocompleteSearch({
                       
                       {/* Contact Information */}
                       {suggestion.phone && (
-                        <div className="flex items-center text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
-                          <Phone className="h-3 w-3 mr-1" />
-                          <a 
-                            href={`tel:${suggestion.phone}`} 
-                            onClick={(e) => e.stopPropagation()}
-                            className="font-medium"
-                          >
-                            {suggestion.phone}
-                          </a>
-                        </div>
+                        <SuggestionPhoneReveal
+                          communityId={suggestion.id}
+                          communityName={suggestion.label}
+                          phone={suggestion.phone}
+                        />
                       )}
                     </div>
                   );
@@ -554,7 +624,7 @@ export function AutocompleteSearch({
             </div>
           )}
         </Card>
-      )}
+      , document.body)}
     </div>
   );
 }

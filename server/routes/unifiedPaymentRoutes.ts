@@ -481,7 +481,7 @@ async function handleWebhookEvent(event: Stripe.Event) {
         }
       }
       
-      // Send email notification to hello@myseniorvalet.com
+      // Send email notification to CowellandCoWebDesign@gmail.com
       try {
         const { EmailService } = await import('../services/email');
         const emailHtml = `
@@ -502,12 +502,12 @@ async function handleWebhookEvent(event: Stripe.Event) {
         `;
         
         await EmailService.sendEmail({
-          to: 'hello@myseniorvalet.com',
+          to: 'CowellandCoWebDesign@gmail.com',
           subject: `✅ Payment Received: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
           html: emailHtml
         });
         
-        console.log('Payment success notification sent to hello@myseniorvalet.com');
+        console.log('Payment success notification sent to CowellandCoWebDesign@gmail.com');
       } catch (emailError) {
         console.error('Failed to send payment success notification:', emailError);
       }
@@ -598,7 +598,7 @@ async function handleWebhookEvent(event: Stripe.Event) {
       console.log(`   Type: ${paymentIntent.metadata.type}`);
       console.log(`   Amount: $${paymentIntent.amount / 100}`);
       
-      // Send email notification to hello@myseniorvalet.com
+      // Send email notification to CowellandCoWebDesign@gmail.com
       try {
         const { EmailService } = await import('../services/email');
         const emailHtml = `
@@ -620,12 +620,12 @@ async function handleWebhookEvent(event: Stripe.Event) {
         `;
         
         await EmailService.sendEmail({
-          to: 'hello@myseniorvalet.com',
+          to: 'CowellandCoWebDesign@gmail.com',
           subject: `⚠️ Payment Failed: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
           html: emailHtml
         });
         
-        console.log('Payment failure notification sent to hello@myseniorvalet.com');
+        console.log('Payment failure notification sent to CowellandCoWebDesign@gmail.com');
       } catch (emailError) {
         console.error('Failed to send payment failure notification:', emailError);
       }

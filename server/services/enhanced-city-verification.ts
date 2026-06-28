@@ -1,12 +1,14 @@
 /**
  * Enhanced City Verification Service
  * Uses Perplexity's web search to find ALL communities in a city at once
+ * MIGRATED: Uses Search API ($5/1K) instead of Sonar Pro
  */
 
 import { db } from '../db';
 import { eq, and, sql, inArray } from 'drizzle-orm';
 import { communities } from '../../shared/schema';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
+import { perplexitySearchAPI } from './perplexity-search-api';
 
 interface BulkCommunityData {
   name: string;
@@ -37,8 +39,16 @@ export class EnhancedCityVerification {
   
   /**
    * Search for ALL communities in a city using a single comprehensive Perplexity search
+   * COST CONTROL: Requires ENABLE_CITY_VERIFICATION=true to run
    */
   async searchAllCommunitiesInCity(city: string, state: string): Promise<BulkCommunityData[]> {
+    // COST CONTROL: Guard against automatic city verification calls
+    // This uses Perplexity API which is expensive - only enable for explicit admin actions
+    if (process.env.ENABLE_CITY_VERIFICATION !== 'true') {
+      console.log(`⚠️ City verification DISABLED for ${city}, ${state} - set ENABLE_CITY_VERIFICATION=true to enable`);
+      return [];
+    }
+    
     console.log(`\n🌐 ENHANCED BULK SEARCH: ${city}, ${state}`);
     console.log(`Using Perplexity's live web search to discover ALL communities...`);
     
@@ -96,54 +106,26 @@ export class EnhancedCityVerification {
     Expected: 50-200+ communities for major cities, 10-50 for smaller cities.`;
     
     try {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar-pro',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a comprehensive data collector for senior living communities. 
-Your goal is to find EVERY SINGLE senior living community in the specified city.
-Be thorough, check multiple sources, and provide complete listings.
-Format each entry consistently for easy parsing.`
-            },
-            {
-              role: 'user',
-              content: searchQuery
-            }
-          ],
-          temperature: 0.1,
-          max_tokens: 4000, // Increased for comprehensive results
-          stream: false,
-          return_citations: true,
-          search_domain_filter: [],
-          top_k: 20, // Get more search results
-          web_search_options: {
-            search_context_size: 'low'  // Low context for 70% cost reduction
-          }
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`Perplexity API error: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      const content = data.choices[0]?.message?.content || '';
-      const citations = data.citations || [];
+      // MIGRATED: Use Search API ($5/1K) instead of Sonar Pro
+      const results = await perplexitySearchAPI.discoverCommunities(`${city}, ${state}`);
       
-      console.log(`📚 Sources consulted: ${citations.length}`);
-      citations.forEach((cite: string, i: number) => {
-        console.log(`  ${i + 1}. ${cite}`);
+      console.log(`📚 Search API found ${results.communities.length} communities`);
+      console.log(`📚 Sources consulted: ${results.sources.length}`);
+      results.sources.slice(0, 5).forEach((source, i) => {
+        console.log(`  ${i + 1}. ${source}`);
       });
       
-      // Parse the response to extract community data
-      const communities = this.parseCommunitiesFromResponse(content);
+      // Convert Search API results to BulkCommunityData format
+      const communities: BulkCommunityData[] = results.communities.map((c: any) => ({
+        name: c.name,
+        address: c.address || '',
+        city: c.city || city,
+        state: c.state || state,
+        zipCode: c.zipCode,
+        phone: c.phone,
+        website: c.website,
+        careTypes: c.careTypes
+      }));
       
       console.log(`✅ Found ${communities.length} communities in ${city}, ${state}`);
       

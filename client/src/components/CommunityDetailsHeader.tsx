@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -6,11 +6,12 @@ import {
   Star, MapPin, Phone, Globe, Heart, Share2, 
   Activity, Users, Utensils, Car, Music, Book,
   CheckCircle, XCircle, AlertCircle, DollarSign, MessageSquare,
-  Flag, RefreshCw, TrendingUp, Info, ExternalLink, Loader2
+  Flag, RefreshCw, TrendingUp, Info, ExternalLink, Loader2, Lock, Calendar
 } from "lucide-react";
-import { ExternalLinkWarning } from "./ExternalLinkWarning";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { MessagingInterface } from "./MessagingInterface";
+import { useContactReveal } from "@/hooks/useContactReveal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface CommunityDetailsHeaderProps {
   community: any;
@@ -27,6 +28,8 @@ interface CommunityDetailsHeaderProps {
   onPhotoChange?: (index: number) => void;
   currentPhotoIndex?: number;
   onStartVerification?: () => void;
+  onRefetch?: () => void;
+  isRefetching?: boolean;
 }
 
 export function CommunityDetailsHeader({ 
@@ -43,9 +46,16 @@ export function CommunityDetailsHeader({
   onTourClick,
   onPhotoChange,
   currentPhotoIndex,
-  onStartVerification
+  onStartVerification,
+  onRefetch,
+  isRefetching = false
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+  const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
+  // Admin-only: the Perplexity research/refresh button is hidden entirely for
+  // non-admins and logged-out visitors (paid path, cost control).
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
   
   // Determine if community needs data quality review
   const needsDataReview = () => {
@@ -65,33 +75,29 @@ export function CommunityDetailsHeader({
     return false;
   };
   
-  const handleFlagCommunity = async () => {
+  const [isFlagged, setIsFlagged] = useState(false);
+
+  const handleFlagCommunity = useCallback(async () => {
+    if (isFlagged) return;
     try {
-      const response = await fetch('/api/admin/flag-community', {
+      const response = await fetch(`/api/communities/${community.id}/flag`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           communityId: community.id,
-          communityName: community.name,
-          city: community.city,
-          state: community.state,
-          reason: 'needs_review',
-          flaggedAt: new Date().toISOString()
+          flagType: 'Incorrect Information',
+          reason: 'User reported inaccurate or outdated information',
+          details: `Flagged from community page: ${community.name}, ${community.city}, ${community.state}`,
         })
       });
       
       if (response.ok) {
-        // Show brief confirmation without reloading
-        const flagBtn = document.querySelector('.flag-button');
-        if (flagBtn) {
-          flagBtn.classList.add('text-orange-500');
-          flagBtn.setAttribute('title', 'Community flagged for admin review');
-        }
+        setIsFlagged(true);
       }
     } catch (error) {
       console.error('Failed to flag community:', error);
     }
-  };
+  }, [isFlagged, community]);
   // Get amenity icon
   const getAmenityIcon = (amenity: string) => {
     const lowerAmenity = amenity.toLowerCase();
@@ -301,8 +307,8 @@ export function CommunityDetailsHeader({
     <>
       <Card className="overflow-hidden shadow-2xl border-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <CardContent className="p-0">
-        {/* Photo Carousel - Full Height Without Overlays */}
-        <div className="relative h-[250px] sm:h-[300px] md:h-[350px] lg:h-[400px]">
+        {/* Photo Carousel - natural height so the built-in thumbnail gallery is visible */}
+        <div className="relative">
           <EnhancedPhotoCarousel 
             photos={getCombinedPhotos()} 
             communityName={community.name}
@@ -310,7 +316,7 @@ export function CommunityDetailsHeader({
             community={community}
             verificationReport={verificationReport}
             isVerifying={isVerifying}
-            className="w-full h-full"
+            className="w-full"
             currentPhotoIndex={currentPhotoIndex}
             onPhotoIndexChange={onPhotoChange}
             showSourceIndicator={true}
@@ -354,51 +360,32 @@ export function CommunityDetailsHeader({
           </div>
         )}
         
-        {/* Featured Badge, Photo Thumbnails and Action Buttons - Combined Row */}
-        <div className="flex justify-between items-center px-3 sm:px-6 py-2 bg-gradient-to-r from-gray-50 to-white dark:from-gray-850 dark:to-gray-800 border-b border-gray-200 dark:border-gray-700">
-          {/* Photo Thumbnails - Compact Strip */}
-          <div className="flex-1 flex items-center space-x-1 overflow-x-auto max-w-[60%] sm:max-w-[70%]">
-            {getCombinedPhotos().length > 1 && getCombinedPhotos().slice(0, 10).map((photo, index) => (
+        {/* Name + Action Buttons Row */}
+        <div className="flex justify-between items-center gap-3 px-3 sm:px-6 py-2 border-b border-gray-200 dark:border-gray-700">
+          {/* Community Name */}
+          <h1 className="min-w-0 flex-1 text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words leading-tight">
+            {community.name}
+          </h1>
+          {/* Action Buttons */}
+          <div className="flex flex-shrink-0 items-center space-x-2">
+            {/* Re-fetch latest data — admin-only (paid Perplexity research) */}
+            {onRefetch && isAdmin && (
               <button
-                key={index}
-                onClick={() => {
-                  // Call the photo change handler if provided
-                  if (onPhotoChange) {
-                    onPhotoChange(index);
-                  }
-                }}
-                className={`relative flex-shrink-0 w-10 h-8 sm:w-12 sm:h-10 rounded overflow-hidden border-2 transition-all hover:scale-110 ${
-                  index === 0 
-                    ? "border-blue-500 shadow-md" 
-                    : "border-gray-300 dark:border-gray-600 opacity-80 hover:opacity-100"
+                onClick={onRefetch}
+                disabled={isRefetching}
+                title="Re-fetch latest data"
+                className={`p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform transition-all duration-200 border border-gray-200 dark:border-gray-700 ${
+                  isRefetching ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'
                 }`}
-                title={`View photo ${index + 1}`}
               >
-                <img
-                  src={typeof photo === 'string' ? photo : photo.image_url || photo.url}
-                  alt={`Thumbnail ${index + 1}`}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    const img = e.target as HTMLImageElement;
-                    img.style.filter = 'brightness(0.5)';
-                  }}
-                />
-                {index === 0 && (
-                  <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center">
-                    <div className="w-1 h-1 bg-white rounded-full"></div>
-                  </div>
+                {isRefetching ? (
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                ) : (
+                  <RefreshCw className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                 )}
               </button>
-            ))}
-            {getCombinedPhotos().length > 10 && (
-              <div className="flex-shrink-0 px-2 text-xs text-gray-500 dark:text-gray-400 font-medium">
-                +{getCombinedPhotos().length - 10} more
-              </div>
             )}
-          </div>
-          
-          {/* Action Buttons */}
-          <div className="flex items-center space-x-2 ml-3">
+
             {onFavoriteToggle && (
               <button
                 onClick={onFavoriteToggle}
@@ -436,16 +423,15 @@ export function CommunityDetailsHeader({
               <Share2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
             </button>
             
-            {/* Flag for Review Button */}
-            {needsDataReview() && (
-              <button
-                onClick={handleFlagCommunity}
-                className="flag-button p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700"
-                title="Flag this community for admin review"
-              >
-                <Flag className="w-5 h-5 text-orange-500 hover:text-orange-600" />
-              </button>
-            )}
+            {/* Flag for Review Button — always visible so users can report inaccurate info */}
+            <button
+              onClick={handleFlagCommunity}
+              disabled={isFlagged}
+              className="p-2 bg-white dark:bg-gray-800 rounded-full shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-200 border border-gray-200 dark:border-gray-700 disabled:opacity-60 disabled:cursor-default"
+              title={isFlagged ? "Flagged for review — thank you!" : "Report incorrect information"}
+            >
+              <Flag className={`w-5 h-5 transition-colors ${isFlagged ? 'text-orange-500' : 'text-gray-500 hover:text-orange-500'}`} />
+            </button>
           </div>
         </div>
         
@@ -456,24 +442,43 @@ export function CommunityDetailsHeader({
             
             {/* Community Details - Full width with better spacing */}
             <div>
-              <div className="mb-3">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent break-words leading-tight">
-                  {community.name}
-                </h1>
+              {/* Rating, Care Type and HUD Badges */}
+              <div className="flex flex-wrap items-center gap-3 mb-3">
+                {community.googleRating && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
+                    <Star className="w-4 h-4 text-yellow-500 fill-current" />
+                    <span className="font-bold text-gray-900 dark:text-white text-sm">
+                      {community.googleRating}
+                    </span>
+                    {community.googleReviewCount > 0 && (
+                      <span className="text-gray-600 dark:text-gray-400 text-xs">
+                        ({community.googleReviewCount} reviews)
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {community.flagStatus === 'confirmed' && (
+                  <Badge className="bg-orange-100 text-orange-800 border border-orange-300 px-3 py-1.5 text-xs font-medium">
+                    ⚠️ Listing Flagged
+                  </Badge>
+                )}
+                {(isFlagged || community.flagStatus === 'pending') && (
+                  <Badge variant="outline" className="border-yellow-400 text-yellow-700 dark:text-yellow-400 px-3 py-1.5 text-xs font-medium">
+                    🔍 Under Review
+                  </Badge>
+                )}
+
+                <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 py-1.5 text-xs font-bold">
+                  {formatCareType ? formatCareType(community.careTypes) : "Nursing Home"}
+                </Badge>
+
+                {community.hudPropertyId && (
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-3 py-1.5 text-xs font-bold">
+                    🏛️ HUD Property
+                  </Badge>
+                )}
               </div>
-              
-              {/* Website URL with crystal ball emoji - properly spaced */}
-              {displayWebsite && (
-                <div className="flex items-start gap-2 mb-3">
-                  <span className="text-xl flex-shrink-0">🔮</span>
-                  <ExternalLinkWarning
-                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                    className="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors font-medium underline decoration-purple-400/30 hover:decoration-purple-600 break-all text-sm sm:text-base"
-                  >
-                    {displayWebsite.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                  </ExternalLinkWarning>
-                </div>
-              )}
               
               <div className="flex items-start gap-2 mb-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">📌</span>
@@ -481,167 +486,74 @@ export function CommunityDetailsHeader({
                   {enrichedContact?.address || community.address}, {community.city}, {community.state} {community.zipCode}
                 </span>
               </div>
-              
-              {/* Contact Information Section */}
-              <div className="space-y-3 mb-4">
-                {/* Phone */}
-                <div className="flex items-center gap-3">
-                  <span className="text-xl flex-shrink-0">☎️</span>
-                  {displayPhone ? (
-                    <a 
-                      href={`tel:${displayPhone}`}
-                      className="text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors font-medium"
+
+              {/* Primary actions: Call & Website are gated; Tour is always open */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                {displayPhone && (
+                  isRevealed('phone') ? (
+                    <Button
+                      asChild
+                      className="bg-green-600 hover:bg-green-700 text-white"
                     >
-                      {displayPhone}
-                    </a>
+                      <a href={`tel:${displayPhone}`} data-testid="link-call-community">
+                        <Phone className="w-4 h-4 mr-2" />
+                        {displayPhone}
+                      </a>
+                    </Button>
                   ) : (
-                    <span className="text-gray-500 dark:text-gray-400 italic">
-                      Contact for phone number
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              {/* Action Buttons for Contact */}
-              <div className="flex flex-wrap gap-3">
-                {displayPhone ? (
-                  <a 
-                    href={`tel:${displayPhone}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span className="font-medium">Call Now</span>
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => alert('Phone number not available. Please visit the website or check back later for updated contact information.')}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-400 to-gray-500 text-white rounded-lg hover:from-gray-500 hover:to-gray-600 transition-all duration-200 shadow-md hover:shadow-lg"
-                  >
-                    <Phone className="w-4 h-4" />
-                    <span className="font-medium">Contact for Phone</span>
-                  </button>
+                    <Button
+                      className="bg-green-600 hover:bg-green-700 text-white"
+                      onClick={() => reveal('phone')}
+                      data-testid="button-reveal-phone"
+                    >
+                      <Lock className="w-4 h-4 mr-2" />
+                      Reveal Phone
+                    </Button>
+                  )
                 )}
-                
-                <button
-                  onClick={() => setIsMessagingOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                >
-                  <MessageSquare className="w-4 h-4" />
-                  <span className="font-medium">Direct Message</span>
-                </button>
-                
+
                 {displayWebsite && (
-                  <ExternalLinkWarning
-                    href={displayWebsite.includes('://') ? displayWebsite : `https://${displayWebsite}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                  isRevealed('website') ? (
+                    <Button
+                      asChild
+                      variant="outline"
+                      data-testid="button-visit-website"
+                    >
+                      <a
+                        href={displayWebsite?.includes('://') ? displayWebsite : `https://${displayWebsite}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Globe className="w-4 h-4 mr-2" />
+                        Visit Website
+                      </a>
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      onClick={() => reveal('website')}
+                      data-testid="button-reveal-website"
+                    >
+                      <Lock className="w-4 h-4 mr-2" />
+                      Reveal Website
+                    </Button>
+                  )
+                )}
+
+                {onTourClick && (
+                  <Button
+                    variant="outline"
+                    onClick={onTourClick}
+                    data-testid="button-schedule-tour"
                   >
-                    <Globe className="w-4 h-4" />
-                    <span className="font-medium">Visit Website</span>
-                  </ExternalLinkWarning>
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Schedule Tour
+                  </Button>
                 )}
               </div>
+
             </div>
           </div>
-          
-          {/* Rating, Care Type and Badges Section */}
-          <div className="px-6 pb-4">
-            <div className="flex flex-wrap items-center gap-4">
-              {/* Rating Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-100 to-amber-100 dark:from-yellow-900/30 dark:to-amber-900/30 rounded-full border border-yellow-300 dark:border-yellow-700">
-                <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                <span className="font-bold text-gray-900 dark:text-white">
-                  {community.googleRating || '4.2'}
-                </span>
-                <span className="text-gray-600 dark:text-gray-400 text-sm">
-                  ({community.googleReviewCount || '47'} reviews)
-                </span>
-              </div>
-              
-              {/* Care Type Badge */}
-              <Badge className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 text-sm font-bold">
-                {formatCareType ? formatCareType(community.careTypes) : "Nursing Home"}
-              </Badge>
-              
-              {/* HUD Property Badge */}
-              {community.hudPropertyId && (
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 text-sm font-bold">
-                  🏛️ HUD Property
-                </Badge>
-              )}
-            </div>
-          </div>
-          
-          {/* Action Buttons Section - Professional and Prominent */}
-          <div className="px-6 py-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button
-                onClick={() => {
-                  // If callback provided, trigger info request dialog directly
-                  if (onReserveClick) {
-                    onReserveClick();
-                  }
-                }}
-                className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
-              >
-                <div className="flex flex-col items-center justify-center gap-1">
-                  <span className="font-bold text-lg">📋 Request More Information</span>
-                  <span className="text-xs opacity-90 font-medium">
-                    Get Pricing, Availability & Details
-                  </span>
-                </div>
-              </button>
-              
-              <button
-                onClick={() => {
-                  // If callback provided, trigger tour scheduler directly
-                  if (onTourClick) {
-                    onTourClick();
-                  } else {
-                    // Improved fallback to tab navigation
-                    let toursTab = document.querySelector('button[role="tab"][value="tours"]') as HTMLElement;
-                    
-                    // Try alternative selectors if first one fails
-                    if (!toursTab) {
-                      const allTabs = document.querySelectorAll('button[role="tab"]');
-                      allTabs.forEach(tab => {
-                        if (tab.textContent?.includes('Tours')) {
-                          toursTab = tab as HTMLElement;
-                        }
-                      });
-                    }
-                    
-                    if (toursTab) {
-                      toursTab.click();
-                      setTimeout(() => {
-                        const tabsSection = toursTab.closest('[role="tablist"]')?.parentElement;
-                        if (tabsSection) {
-                          tabsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }
-                        
-                        // Also try to click the tour scheduler button
-                        setTimeout(() => {
-                          const schedulerButton = document.querySelector('.tour-scheduler-form button');
-                          if (schedulerButton) {
-                            (schedulerButton as HTMLElement).click();
-                          }
-                        }, 300);
-                      }, 50);
-                    }
-                  }
-                }}
-                className="w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all duration-200"
-              >
-                <div className="flex flex-col items-center justify-center gap-1">
-                  <span className="font-bold text-lg">📅 Schedule Tour</span>
-                  <span className="text-xs opacity-90 font-medium">
-                    🤝 Schedule with Tour Tracker & TourMate™
-                  </span>
-                </div>
-              </button>
-            </div>
-          </div>
-          
-          {/* Removed non-functional sections (Top Amenities, Why Featured, Key Services) per user request */}
         </div>
       </CardContent>
     </Card>
@@ -653,6 +565,8 @@ export function CommunityDetailsHeader({
       communityId={community.id}
       communityName={community.name}
     />
+
+    {consentDialog}
     </>
   );
 }

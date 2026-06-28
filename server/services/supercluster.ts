@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { and, sql, gte, lte, isNotNull } from 'drizzle-orm';
 import { cache } from '../cache';
+import { qualityOrderBy, verifiedOnlyFilter } from '../utils/community-ranking';
 
 interface GeoJSONFeature {
   type: 'Feature';
@@ -89,36 +90,40 @@ class SuperclusterService {
    * OPTION 1: Dynamic Viewport Loading
    * Only load communities visible in the current map viewport
    */
-  async getClusters(bbox: [number, number, number, number], zoom: number): Promise<ClusterFeature[]> {
+  async getClusters(bbox: [number, number, number, number], zoom: number, verifiedOnly = false): Promise<ClusterFeature[]> {
     const [west, south, east, north] = bbox;
     
     // OPTION 4: Progressive Loading based on zoom level
     if (zoom < 5) {
       // Country level: Show major city summaries only
-      return this.getMajorCitySummaries(bbox);
+      return this.getMajorCitySummaries(bbox, verifiedOnly);
     } else if (zoom < 8) {
       // State level: Use pre-computed state clusters
-      return this.getStateClusters(bbox, zoom);
+      return this.getStateClusters(bbox, zoom, verifiedOnly);
     } else if (zoom < 12) {
       // County level: Use regional clusters
-      return this.getRegionalClusters(bbox, zoom);
+      return this.getRegionalClusters(bbox, zoom, verifiedOnly);
     } else {
       // Local level: Show actual communities
-      return this.getLocalCommunities(bbox, zoom);
+      return this.getLocalCommunities(bbox, zoom, verifiedOnly);
     }
   }
 
   /**
    * OPTION 4: Progressive Loading - Major cities only for zoom < 5
    */
-  private async getMajorCitySummaries(bbox: [number, number, number, number]): Promise<ClusterFeature[]> {
-    const cacheKey = `cities:${bbox.join(',')}`;
+  private async getMajorCitySummaries(bbox: [number, number, number, number], verifiedOnly = false): Promise<ClusterFeature[]> {
+    const cacheKey = `cities:${verifiedOnly ? 'v:' : ''}${bbox.join(',')}`;
     
     // Check cache first
     const cached = await cache.get(cacheKey);
     if (cached) {
       return JSON.parse(cached as string);
     }
+
+    // Optional family "verified only" filter — keeps cluster counts honest by
+    // counting only verified/featured/HUD/claimed communities.
+    const verifiedClause = verifiedOnly ? sql` AND ${verifiedOnlyFilter()}` : sql``;
 
     try {
       // Get major cities with community counts
@@ -135,10 +140,11 @@ class SuperclusterService {
         WHERE 
           latitude IS NOT NULL 
           AND longitude IS NOT NULL
+          AND (is_hidden IS NULL OR is_hidden = false)
           AND CAST(latitude AS float) >= ${bbox[1]}
           AND CAST(latitude AS float) <= ${bbox[3]}
           AND CAST(longitude AS float) >= ${bbox[0]}
-          AND CAST(longitude AS float) <= ${bbox[2]}
+          AND CAST(longitude AS float) <= ${bbox[2]}${verifiedClause}
         GROUP BY city, state
         HAVING COUNT(*) > 10
         ORDER BY community_count DESC
@@ -176,14 +182,18 @@ class SuperclusterService {
   /**
    * OPTION 3: Pre-computed Regional Clusters - State level (zoom 5-8)
    */
-  private async getStateClusters(bbox: [number, number, number, number], zoom: number): Promise<ClusterFeature[]> {
-    const cacheKey = `state:${zoom}:${bbox.join(',')}`;
+  private async getStateClusters(bbox: [number, number, number, number], zoom: number, verifiedOnly = false): Promise<ClusterFeature[]> {
+    const cacheKey = `state:${verifiedOnly ? 'v:' : ''}${zoom}:${bbox.join(',')}`;
     
     // Check cache first
     const cached = await cache.get(cacheKey);
     if (cached) {
       return JSON.parse(cached as string);
     }
+
+    // Optional family "verified only" filter — recomputes cluster counts so they
+    // only reflect verified/featured/HUD/claimed communities.
+    const verifiedClause = verifiedOnly ? sql` AND ${verifiedOnlyFilter()}` : sql``;
 
     try {
       // Get state-level clusters
@@ -201,10 +211,11 @@ class SuperclusterService {
           WHERE 
             latitude IS NOT NULL 
             AND longitude IS NOT NULL
+            AND (is_hidden IS NULL OR is_hidden = false)
             AND CAST(latitude AS float) >= ${bbox[1]}
             AND CAST(latitude AS float) <= ${bbox[3]}
             AND CAST(longitude AS float) >= ${bbox[0]}
-            AND CAST(longitude AS float) <= ${bbox[2]}
+            AND CAST(longitude AS float) <= ${bbox[2]}${verifiedClause}
           GROUP BY lat_bucket, lng_bucket
         )
         SELECT * FROM grid WHERE community_count > 0
@@ -239,14 +250,18 @@ class SuperclusterService {
   /**
    * OPTION 2: Database Spatial Clustering - County level (zoom 8-12)
    */
-  private async getRegionalClusters(bbox: [number, number, number, number], zoom: number): Promise<ClusterFeature[]> {
-    const cacheKey = `region:${zoom}:${bbox.join(',')}`;
+  private async getRegionalClusters(bbox: [number, number, number, number], zoom: number, verifiedOnly = false): Promise<ClusterFeature[]> {
+    const cacheKey = `region:${verifiedOnly ? 'v:' : ''}${zoom}:${bbox.join(',')}`;
     
     // Check cache first
     const cached = await cache.get(cacheKey);
     if (cached) {
       return JSON.parse(cached as string);
     }
+
+    // Optional family "verified only" filter — applied to BOTH the cluster-count
+    // query and the individual-marker query so counts and pins stay consistent.
+    const verifiedClause = verifiedOnly ? sql` AND ${verifiedOnlyFilter()}` : sql``;
 
     try {
       // Use database clustering with finer grid
@@ -266,10 +281,11 @@ class SuperclusterService {
           WHERE 
             latitude IS NOT NULL 
             AND longitude IS NOT NULL
+            AND (is_hidden IS NULL OR is_hidden = false)
             AND CAST(latitude AS float) >= ${bbox[1]}
             AND CAST(latitude AS float) <= ${bbox[3]}
             AND CAST(longitude AS float) >= ${bbox[0]}
-            AND CAST(longitude AS float) <= ${bbox[2]}
+            AND CAST(longitude AS float) <= ${bbox[2]}${verifiedClause}
           GROUP BY lat_bucket, lng_bucket
         )
         SELECT * FROM grid 
@@ -314,10 +330,11 @@ class SuperclusterService {
           WHERE 
             latitude IS NOT NULL 
             AND longitude IS NOT NULL
+            AND (is_hidden IS NULL OR is_hidden = false)
             AND CAST(latitude AS float) >= ${bbox[1]}
             AND CAST(latitude AS float) <= ${bbox[3]}
             AND CAST(longitude AS float) >= ${bbox[0]}
-            AND CAST(longitude AS float) <= ${bbox[2]}
+            AND CAST(longitude AS float) <= ${bbox[2]}${verifiedClause}
         )
         SELECT * FROM grid 
         WHERE cluster_count = 1
@@ -369,8 +386,8 @@ class SuperclusterService {
    * OPTION 1: Dynamic Viewport Loading - Local level (zoom >= 12)
    * Load actual communities without clustering
    */
-  private async getLocalCommunities(bbox: [number, number, number, number], zoom: number): Promise<ClusterFeature[]> {
-    const cacheKey = `local:${zoom}:${bbox.join(',')}`;
+  private async getLocalCommunities(bbox: [number, number, number, number], zoom: number, verifiedOnly = false): Promise<ClusterFeature[]> {
+    const cacheKey = `local:${verifiedOnly ? 'v:' : ''}${zoom}:${bbox.join(',')}`;
     
     // Check cache first
     const cached = await cache.get(cacheKey);
@@ -379,19 +396,26 @@ class SuperclusterService {
     }
 
     try {
-      // Query only communities within viewport
+      // Query only active communities within viewport
       const viewportCommunities = await db.select()
         .from(communities)
         .where(
           and(
+            sql`${communities.isActive} = true`,
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
             isNotNull(communities.latitude),
             isNotNull(communities.longitude),
             sql`CAST(${communities.latitude} AS float) >= ${bbox[1]}`,
             sql`CAST(${communities.latitude} AS float) <= ${bbox[3]}`,
             sql`CAST(${communities.longitude} AS float) >= ${bbox[0]}`,
-            sql`CAST(${communities.longitude} AS float) <= ${bbox[2]}`
+            sql`CAST(${communities.longitude} AS float) <= ${bbox[2]}`,
+            // Optional family "verified only" filter
+            verifiedOnly ? verifiedOnlyFilter() : undefined
           )
         )
+        // Quality-aware: when the viewport holds >500 communities, keep the
+        // verified/featured/good-quality ones rather than an arbitrary 500.
+        .orderBy(qualityOrderBy())
         .limit(500); // Cap at 500 for performance
 
       const features: ClusterFeature[] = viewportCommunities.map(community => ({
@@ -452,6 +476,7 @@ class SuperclusterService {
           AVG(CAST(longitude AS float)) as lng
         FROM communities
         WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+          AND (is_hidden IS NULL OR is_hidden = false)
         GROUP BY city, state
         HAVING COUNT(*) > 50
         ORDER BY count DESC
@@ -480,11 +505,30 @@ class SuperclusterService {
   }
 
   /**
-   * Refresh caches
+   * Invalidate all supercluster caches immediately.
+   * Clears both in-memory service maps and the shared cache store entries
+   * (keys prefixed with cities:, state:, region:, local:).
+   * Call this after any admin hide/unhide action so the map reflects the
+   * change on the next request rather than waiting for TTL expiry.
    */
-  async refresh(): Promise<void> {
+  async invalidateCache(): Promise<void> {
     this.regionalCaches.clear();
     this.zoomLevelClusters.clear();
+    this.citySummaries.clear();
+    await Promise.all([
+      cache.deleteByPrefix('cities:'),
+      cache.deleteByPrefix('state:'),
+      cache.deleteByPrefix('region:'),
+      cache.deleteByPrefix('local:'),
+    ]);
+    console.log('Supercluster caches invalidated');
+  }
+
+  /**
+   * Refresh caches (reinitializes city summaries after invalidation)
+   */
+  async refresh(): Promise<void> {
+    await this.invalidateCache();
     await this.initializeCitySummaries();
     console.log('Supercluster caches refreshed');
   }

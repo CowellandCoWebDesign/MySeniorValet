@@ -1,4 +1,5 @@
-import { Check, Star, Zap, Brain, Building2, Users, Sparkles } from "lucide-react";
+import { Check, Star, Zap, Brain, Building2, Users, Sparkles, Clock } from "lucide-react";
+import { PAID_TIERS_DISABLED, CONTACT_SALES_MAILTO } from "@/lib/feature-flags";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -150,7 +151,21 @@ export default function PricingPage() {
 
           {/* Professional Tiers */}
           <TabsContent value="professional">
-            <div className="grid md:grid-cols-3 gap-6">
+            {PAID_TIERS_DISABLED && (
+              <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-gray-800 dark:text-gray-200">Professional Plans — Coming Soon</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">These tiers are not yet available for purchase. Contact us to be notified at launch.</p>
+                  </div>
+                </div>
+                <a href={CONTACT_SALES_MAILTO} className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2">
+                  Contact Sales →
+                </a>
+              </div>
+            )}
+            <div className={`grid md:grid-cols-3 gap-6 ${PAID_TIERS_DISABLED ? 'opacity-60 pointer-events-none' : ''}`}>
               {/* Starter */}
               <Card>
                 <CardHeader>
@@ -268,7 +283,21 @@ export default function PricingPage() {
 
           {/* Community Tiers */}
           <TabsContent value="community">
-            <div className="grid md:grid-cols-4 gap-6">
+            {PAID_TIERS_DISABLED && (
+              <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-gray-800 dark:text-gray-200">Community Plans — Coming Soon</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">These tiers are not yet available for purchase. Contact us to be notified at launch.</p>
+                  </div>
+                </div>
+                <a href={CONTACT_SALES_MAILTO} className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2">
+                  Contact Sales →
+                </a>
+              </div>
+            )}
+            <div className={`grid md:grid-cols-4 gap-6 ${PAID_TIERS_DISABLED ? 'opacity-60 pointer-events-none' : ''}`}>
               {/* Starter */}
               <Card>
                 <CardHeader>
@@ -476,7 +505,21 @@ export default function PricingPage() {
 
           {/* Enterprise Tiers */}
           <TabsContent value="enterprise">
-            <div className="grid md:grid-cols-3 gap-6">
+            {PAID_TIERS_DISABLED && (
+              <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-gray-800 dark:text-gray-200">Enterprise Plans — Coming Soon</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">These tiers are not yet available for purchase. Contact us to be notified at launch.</p>
+                  </div>
+                </div>
+                <a href={CONTACT_SALES_MAILTO} className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2">
+                  Contact Sales →
+                </a>
+              </div>
+            )}
+            <div className={`grid md:grid-cols-3 gap-6 ${PAID_TIERS_DISABLED ? 'opacity-60 pointer-events-none' : ''}`}>
               {/* Healthcare */}
               <Card>
                 <CardHeader>
@@ -589,7 +632,21 @@ export default function PricingPage() {
 
           {/* API Tiers */}
           <TabsContent value="api">
-            <div className="space-y-8">
+            {PAID_TIERS_DISABLED && (
+              <div className="mb-6 flex items-center justify-between gap-4 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 px-6 py-4">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-500 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-gray-800 dark:text-gray-200">API Plans — Coming Soon</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">These tiers are not yet available for purchase. Contact us to be notified at launch.</p>
+                  </div>
+                </div>
+                <a href={CONTACT_SALES_MAILTO} className="shrink-0 inline-flex items-center gap-1 rounded-lg bg-gray-700 hover:bg-gray-800 text-white text-sm font-medium px-4 py-2">
+                  Contact Sales →
+                </a>
+              </div>
+            )}
+            <div className={`space-y-8 ${PAID_TIERS_DISABLED ? 'opacity-60 pointer-events-none' : ''}`}>
               {/* Standard API */}
               <div>
                 <h3 className="text-2xl font-bold mb-4">Standard API Access</h3>

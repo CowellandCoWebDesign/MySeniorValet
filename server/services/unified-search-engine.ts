@@ -21,7 +21,6 @@ import { EnhancedAIEnrichmentService } from './enhanced-ai-enrichment';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
 import { multiAIOrchestrator } from './multi-ai-orchestrator';
 import { cache } from '../cache';
-import { weaviateService } from './weaviate-service';
 import type { Community } from '@shared/schema';
 
 interface SearchIntent {
@@ -62,7 +61,6 @@ export class UnifiedSearchEngine {
   private aiEnrichment: EnhancedAIEnrichmentService;
   private perplexity: SimplifiedPerplexityService;
   private multiAI: any;
-  private weaviate: any;
   
   // Search strategy weights (self-adjusting based on success)
   private strategyWeights = {
@@ -82,7 +80,6 @@ export class UnifiedSearchEngine {
     this.aiEnrichment = new EnhancedAIEnrichmentService();
     this.perplexity = new SimplifiedPerplexityService();
     this.multiAI = multiAIOrchestrator;  // Use imported instance
-    this.weaviate = weaviateService;  // Use imported instance
   }
   
   /**
@@ -116,12 +113,6 @@ export class UnifiedSearchEngine {
     // 1. Database search (always run)
     searchPromises.push(this.databaseSearch(intent, options));
     sourcesUsed.push('database');
-    
-    // 2. Semantic search (if Weaviate available)
-    if (this.weaviate && intent.confidence > 0.5) {
-      searchPromises.push(this.semanticSearch(query, options));
-      sourcesUsed.push('semantic');
-    }
     
     // 3. Fuzzy search (if low confidence or few results)
     if (intent.confidence < 0.7) {
@@ -369,7 +360,9 @@ export class UnifiedSearchEngine {
         );
       }
       
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      // Always filter to active communities only (is_active = true)
+      conditions.push(sql`${communities.isActive} = true`);
+      const whereClause = and(...conditions);
       
       const results = await db
         .select()
@@ -384,31 +377,6 @@ export class UnifiedSearchEngine {
     }
   }
   
-  /**
-   * Semantic vector search using Weaviate
-   */
-  private async semanticSearch(query: string, options?: any): Promise<Community[]> {
-    if (!this.weaviate) return [];
-    
-    try {
-      const results = await this.weaviate.semanticSearch(query, {
-        limit: typeof options?.limit === 'number' ? options.limit : 50,
-        certainty: 0.7
-      });
-      
-      // Convert Weaviate results to Community format
-      return results.map((r: any) => ({
-        id: r.id,
-        name: r.name,
-        city: r.city,
-        state: r.state,
-        ...r
-      }));
-    } catch (error) {
-      console.error('Semantic search error:', error);
-      return [];
-    }
-  }
   
   /**
    * Fuzzy search with enhanced matching
@@ -419,10 +387,11 @@ export class UnifiedSearchEngine {
       const fuzzyResults = await db
         .select()
         .from(communities)
+        .where(sql`${communities.isActive} = true`)
         .limit(1000); // Get larger set for fuzzy matching
       
-      // Calculate similarity scores
-      const scoredResults = fuzzyResults.map(community => {
+      // Calculate similarity scores — only active communities
+      const scoredResults = fuzzyResults.filter(c => c.isActive !== false).map(community => {
         const nameScore = this.calculateSimilarity(query.toLowerCase(), community.name.toLowerCase());
         const cityScore = community.city ? 
           this.calculateSimilarity(query.toLowerCase(), community.city.toLowerCase()) : 0;

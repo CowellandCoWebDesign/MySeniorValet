@@ -72,8 +72,8 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Main Navigation Columns - All 4 on same horizontal line */}
-        <div className="grid grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-8">
+        {/* Main Navigation Columns */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 md:gap-6 mb-8">
           {/* For Communities */}
           <div className="min-w-[120px]">
             <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">For Communities</h3>
@@ -123,6 +123,24 @@ export function Footer() {
               <li><Link to="/disclaimer" className="hover:text-blue-400 transition-colors">Disclaimer</Link></li>
               <li><Link to="/legal-notice" className="hover:text-blue-400 transition-colors">Legal Notice</Link></li>
               <li><Link to="/accessibility" className="hover:text-blue-400 transition-colors">Accessibility</Link></li>
+            </ul>
+          </div>
+
+          {/* Affiliates */}
+          <div className="min-w-[120px]">
+            <h3 className="text-xs sm:text-sm font-semibold mb-3 text-white">Affiliates</h3>
+            <ul className="space-y-2 text-xs text-gray-300">
+              <li>
+                <a
+                  href="https://www.norcalseniorplacementservices.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-blue-400 transition-colors"
+                >
+                  NorCal Senior Placement Services
+                </a>
+                <p className="text-gray-500 mt-1 leading-tight">Licensed placement services for Northern California families</p>
+              </li>
             </ul>
           </div>
         </div>

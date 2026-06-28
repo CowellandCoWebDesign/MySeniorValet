@@ -20,15 +20,18 @@ router.post('/api/search/comprehensive', async (req, res) => {
       query = '', 
       filters = {},
       limit = 1000, 
-      offset = 0 
+      offset = 0,
+      discover = false,
+      forceDiscovery = false
     } = req.body;
     
-    // NORMAL DATABASE SEARCH ONLY - No global discovery here
-    // Global discovery is reserved for the dedicated "🌍 Discovery mode" button
+    // Self-healing discovery runs automatically for location queries with no
+    // local matches; `discover`/`forceDiscovery` forces it (e.g. the explicit
+    // "Search the web for this area" button).
     const results = await comprehensiveSearchEngine.search(
       query, 
       filters as SearchFilters,
-      { limit, offset }
+      { limit, offset, discover: Boolean(discover || forceDiscovery) }
     );
     
     res.json({
@@ -62,8 +65,11 @@ router.get('/api/search/comprehensive', async (req, res) => {
       priceMin,
       priceMax,
       rating,
+      verifiedOnly,
       limit = '1000', 
-      offset = '0' 
+      offset = '0',
+      discover,
+      forceDiscovery
     } = req.query;
     
     const filters: SearchFilters = {};
@@ -74,13 +80,15 @@ router.get('/api/search/comprehensive', async (req, res) => {
     if (priceMin) filters.priceMin = parseInt(priceMin as string);
     if (priceMax) filters.priceMax = parseInt(priceMax as string);
     if (rating) filters.rating = parseFloat(rating as string);
+    if (verifiedOnly === 'true') filters.verifiedOnly = true;
     
-    // NORMAL DATABASE SEARCH ONLY - No global discovery here
-    // Global discovery is reserved for the dedicated "🌍 Discovery mode" button
+    // Self-healing discovery runs automatically for location queries with no
+    // local matches; `discover=true` forces it (the "Search the web" button).
+    const shouldDiscover = discover === 'true' || forceDiscovery === 'true';
     const results = await comprehensiveSearchEngine.search(
       query as string,
       filters,
-      { limit: parseInt(limit as string), offset: parseInt(offset as string) }
+      { limit: parseInt(limit as string), offset: parseInt(offset as string), discover: shouldDiscover }
     );
     
     res.json({
@@ -184,7 +192,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   try {
     const { db } = await import('../db');
     const { communities } = await import('@shared/schema');
-    const { ilike, sql, or, and, ne } = await import('drizzle-orm');
+    const { ilike, sql, or, and, ne, eq } = await import('drizzle-orm');
     
     // 1. EXACT & PREFIX COMMUNITY NAME MATCHES (highest priority)
     const exactMatches = await db
@@ -197,6 +205,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       .from(communities)
       .where(
         and(
+          eq(communities.isActive, true),
           ilike(communities.name, `${normalizedQuery}%`),  // Starts with (highest priority)
           // Filter out bad data - require valid state and exclude "Unknown"
           ne(communities.state, 'Unknown'),
@@ -231,6 +240,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
+            eq(communities.isActive, true),
             ilike(communities.name, `%${normalizedQuery}%`),  // Contains
             // Filter out bad data
             ne(communities.state, 'Unknown'),
@@ -268,7 +278,10 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         })
         .from(communities)
         .where(
-          ilike(communities.city, `${normalizedQuery}%`)   // Starts with only for cities
+          and(
+            eq(communities.isActive, true),
+            ilike(communities.city, `${normalizedQuery}%`)   // Starts with only for cities
+          )
         )
         .groupBy(communities.city, communities.state)
         .orderBy(sql`count DESC`)
@@ -314,6 +327,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
+            eq(communities.isActive, true),
             ilike(communities.managementCompany, `${normalizedQuery}%`),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`

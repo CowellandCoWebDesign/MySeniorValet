@@ -3,7 +3,10 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, Tooltip, LayersControl,
 import { Icon, LatLngBounds, LatLng } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-providers';
-import MarkerClusterGroup from 'react-leaflet-cluster';
+import _MarkerClusterGroupImport from 'react-leaflet-cluster';
+// Vite 8 rolldown CJS interop: `export default require_lib()` exports the whole
+// module.exports object {default: Component}, so we unwrap .default if needed.
+const MarkerClusterGroup = (_MarkerClusterGroupImport as any)?.default ?? _MarkerClusterGroupImport;
 // Import enhanced Leaflet plugins for senior-friendly features
 import 'leaflet.fullscreen/Control.FullScreen.css';
 import 'leaflet.fullscreen';
@@ -14,10 +17,11 @@ import 'leaflet-control-geocoder';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Star, MapPin, Phone, Globe, Heart, ExternalLink, Zap, Eye, Brain } from 'lucide-react';
 import AIMapIntegration from './AIMapIntegration';
-import { PrioritizedCommunityCard } from './PrioritizedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { getCommunityUrl } from '@/lib/community-url';
 import { useTheme } from 'next-themes';
 
 // Extend window interface for map reference
@@ -162,7 +166,6 @@ const MapViewController: React.FC<{ center: [number, number]; zoom: number }> = 
   
   useEffect(() => {
     if (map && center) {
-      console.log('🎯 Updating map view to:', { center, zoom });
       map.flyTo(center, zoom, {
         duration: 1.5,
         easeLinearity: 0.5
@@ -186,12 +189,6 @@ const MapEvents: React.FC<{
       const handleMoveEnd = () => {
         const bounds = map.getBounds();
         if (bounds && bounds.isValid()) {
-          console.log('📍 OFFICIAL LEAFLET moveend EVENT:', {
-            bounds: `${bounds.getSouthWest().lng},${bounds.getSouthWest().lat},${bounds.getNorthEast().lng},${bounds.getNorthEast().lat}`,
-            center: map.getCenter(),
-            zoom: map.getZoom(),
-            timestamp: Date.now()
-          });
           onBoundsChange(bounds);
         }
       };
@@ -199,17 +196,11 @@ const MapEvents: React.FC<{
       const handleZoomEnd = () => {
         const bounds = map.getBounds();
         if (bounds && bounds.isValid()) {
-          console.log('🔍 OFFICIAL LEAFLET zoomend EVENT:', {
-            zoom: map.getZoom(),
-            bounds: `${bounds.getSouthWest().lng},${bounds.getSouthWest().lat},${bounds.getNorthEast().lng},${bounds.getNorthEast().lat}`,
-            timestamp: Date.now()
-          });
           onBoundsChange(bounds);
         }
       };
 
       const handleLoad = () => {
-        console.log('🗺️ MAP LOAD EVENT - Initial bounds available');
         const bounds = map.getBounds();
         if (bounds && bounds.isValid()) {
           onBoundsChange(bounds);
@@ -433,6 +424,7 @@ interface MapProps {
     amenities?: string[];
     budget?: string;
     availability?: string;
+    verifiedOnly?: boolean;
   };
   onCommunityClick?: (community: Community) => void;
   onBoundsChange?: (bounds: any) => void;
@@ -584,12 +576,6 @@ function MapBoundsHandler({
             if (bounds && typeof bounds.getWest === 'function' && typeof bounds.getEast === 'function' && 
                 typeof bounds.getSouth === 'function' && typeof bounds.getNorth === 'function') {
               try {
-                console.log('MapBoundsHandler calling onBoundsChange with bounds:', {
-                  west: bounds.getWest().toFixed(3),
-                  east: bounds.getEast().toFixed(3),
-                  south: bounds.getSouth().toFixed(3),
-                  north: bounds.getNorth().toFixed(3)
-                });
                 onBoundsChange(bounds);
               } catch (accessError) {
                 console.warn('Failed to access bounds properties:', accessError);
@@ -618,13 +604,9 @@ function MapBoundsHandler({
 
   useEffect(() => {
     if (map && !initialized) {
-      console.log('MapBoundsHandler initializing, map ready:', !!map);
-
       // Set up event handlers for map movement with better responsiveness
       map.on('moveend', handleBoundsChange);
       map.on('zoomend', () => {
-        const newZoom = map.getZoom();
-        console.log('📍 Map zoom changed to:', newZoom);
         handleZoomChange();
         handleBoundsChange(); // Also trigger bounds update on zoom
       });
@@ -636,7 +618,6 @@ function MapBoundsHandler({
         setTimeout(() => {
           try {
             if (map && map.getBounds) {
-              console.log('Setting initial bounds and zoom');
               handleBoundsChange();
               handleZoomChange();
             }
@@ -690,14 +671,12 @@ export default function Map({
   // Update center and zoom when props change
   useEffect(() => {
     if (propCenter) {
-      console.log('📍 Map component: center prop changed to:', propCenter);
       setCenter(propCenter);
     }
   }, [propCenter]);
   
   useEffect(() => {
     if (propZoom) {
-      console.log('🔍 Map component: zoom prop changed to:', propZoom);
       setZoom(propZoom);
       setCurrentZoom(propZoom);
     }
@@ -723,13 +702,6 @@ export default function Map({
 
   // Handle map bounds change with debouncing
   const handleBoundsChange = useCallback((bounds: LatLngBounds) => {
-    const newBoundsString = `${bounds.getWest().toFixed(4)},${bounds.getSouth().toFixed(4)},${bounds.getEast().toFixed(4)},${bounds.getNorth().toFixed(4)}`;
-
-    console.log('Map component handleBoundsChange:', {
-      new: newBoundsString,
-      timestamp: Date.now()
-    });
-
     // Clear existing timer
     if (boundsDebounceTimer.current) {
       clearTimeout(boundsDebounceTimer.current);
@@ -750,12 +722,6 @@ export default function Map({
   
   const handleZoomChange = useCallback((zoomLevel?: number) => {
     if (zoomLevel !== undefined && Math.abs(zoomLevel - currentZoom) > 0.1) {
-      console.log('🔍 ZOOM CHANGED - FORCING CLUSTER UPDATE:', {
-        oldZoom: currentZoom,
-        newZoom: zoomLevel,
-        rounded: Math.round(zoomLevel),
-        willRefetch: true
-      });
       setCurrentZoom(zoomLevel);
     }
   }, [currentZoom]);
@@ -764,13 +730,10 @@ export default function Map({
 
   // Check for geolocation permission on mount
   useEffect(() => {
-    console.log('Location permission check:', { hasRequestedLocation, hasGeolocation: 'geolocation' in navigator });
-
     if ('geolocation' in navigator) {
       // Check permission status if available
       if ('permissions' in navigator) {
         navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-          console.log('Permission status:', result.state);
           setLocationPermissionStatus(result.state as any);
 
           // If already granted, get user location automatically
@@ -780,8 +743,7 @@ export default function Map({
             // Show prompt for user decision
             setLocationPermissionStatus('prompt');
           }
-        }).catch((error) => {
-          console.log('Permissions API error:', error);
+        }).catch((_error) => {
           // If permissions API fails, show prompt
           setLocationPermissionStatus('prompt');
         });
@@ -910,7 +872,6 @@ export default function Map({
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
-        console.log('User location obtained:', latitude, longitude);
 
         // Update map center and zoom
         setCenter([latitude, longitude]);
@@ -941,9 +902,9 @@ export default function Map({
   };
 
   const handleLocationRequest = () => {
+    getUserLocation(); // Must be called synchronously from the click event
     setHasRequestedLocation(true);
     localStorage.setItem('map-location-requested', 'true');
-    getUserLocation();
   };
 
   const handleSkipLocation = () => {
@@ -1027,9 +988,10 @@ export default function Map({
         if (searchFilters.availability && searchFilters.availability !== 'All Status') {
           params.append('availability', searchFilters.availability);
         }
+        if (searchFilters.verifiedOnly) {
+          params.append('verifiedOnly', 'true');
+        }
       }
-
-      console.log('Fetching ALL markers for bounds:', bounds);
 
       const response = await fetch(`/api/communities/markers?${params}`);
 
@@ -1039,12 +1001,6 @@ export default function Map({
 
       const data = await response.json();
       const renderTime = performance.now() - renderStart;
-
-      console.log('🎯 MARKERS API RESPONSE:', {
-        totalMarkers: data.markers?.length || 0,
-        bounds: bounds,
-        timestamp: data._timestamp
-      });
 
       // Update performance metrics
       setPerformanceMetrics(prev => ({
@@ -1086,8 +1042,6 @@ export default function Map({
         limit: '100' // Limit to top 100 hospitals to avoid clutter
       });
 
-      console.log('🏥 Fetching hospitals for bounds:', bounds);
-
       const response = await fetch(`/api/healthcare/hospitals-map?${params}`);
 
       if (!response.ok) {
@@ -1096,7 +1050,6 @@ export default function Map({
       }
 
       const data = await response.json();
-      console.log(`🏥 Found ${data.hospitals?.length || 0} hospitals in current view`);
       return data;
     },
     enabled: !!mapBounds && currentZoom >= 8, // Show hospitals at city-level zoom and closer
@@ -1227,31 +1180,7 @@ export default function Map({
     }
   };
 
-  // Debug logging
-  useEffect(() => {
-    console.log('Map component mounted with initial zoom:', zoom, 'center:', center);
-  }, []);
 
-  useEffect(() => {
-    if (mapBounds) {
-      console.log('Map bounds state updated:', {
-        west: mapBounds.getWest().toFixed(4),
-        east: mapBounds.getEast().toFixed(4),
-        south: mapBounds.getSouth().toFixed(4),
-        north: mapBounds.getNorth().toFixed(4),
-        timestamp: Date.now()
-      });
-    }
-  }, [mapBounds]);
-
-  useEffect(() => {
-    console.log('Cluster data state:', { 
-      isLoading, 
-      error, 
-      hasData: !!markerData,
-      featureCount: markerData?.markers?.length || 0 
-    });
-  }, [isLoading, error, markerData]);
 
   // FIX: Force layers control to be scrollable on mobile
   useEffect(() => {
@@ -1353,17 +1282,21 @@ export default function Map({
     return 'Contact for pricing';
   };
 
-  console.log('Map render - isLoading:', isLoading, 'error:', error, 'markerData:', !!markerData);
-
   // Force minimum height if percentage height
   const mapHeight = height === '100%' ? '600px' : height;
+  // Derive minimums from the requested height so callers can render a shorter
+  // map (e.g. ~260px on mobile) without the hardcoded floors forcing it large.
+  const numericHeight = parseInt(mapHeight, 10);
+  const outerMinHeight = isNaN(numericHeight) ? 600 : Math.min(600, numericHeight);
+  const innerMinHeight = isNaN(numericHeight) ? 400 : Math.min(400, numericHeight);
+  const containerMinHeight = isNaN(numericHeight) ? 500 : Math.min(500, numericHeight);
 
   return (
-    <div className="w-full flex" style={{ height: mapHeight, minHeight: '600px' }}>
+    <div className="w-full flex" style={{ height: mapHeight, minHeight: `${outerMinHeight}px` }}>
       {/* Performance monitor removed per user request */}
 
       {/* Map Container */}
-      <div className="flex-1 relative" style={{ minHeight: '400px' }}>
+      <div className="flex-1 relative" style={{ minHeight: `${innerMinHeight}px` }}>
 
         {/* Compact Location Button - Moved to bottom-left */}
         <div className="absolute bottom-4 left-4 z-[1000]">
@@ -1427,7 +1360,7 @@ export default function Map({
           minZoom={2}  // World-level zoom
           maxZoom={18} // Street-level detail
           // No maxBounds - allow worldwide viewing
-          style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: '500px' }}
+          style={{ height: '100%', width: '100%', backgroundColor: '#f0f0f0', minHeight: `${containerMinHeight}px` }}
           className="rounded-lg"
         >
         <MapEvents 
@@ -1618,7 +1551,7 @@ export default function Map({
             latitude: lat,
             longitude: lng,
             careTypes: properties.careTypes || [],
-            rating: properties.rating || 0,
+            rating: properties.rating || null,
             reviewCount: properties.reviewCount || 0,
             phone: properties.phone || '',
             website: properties.website || '',
@@ -1710,48 +1643,9 @@ export default function Map({
                 maxWidth={450}
               >
                 <div className="w-full max-w-md">
-                  <PrioritizedCommunityCard
-                    community={{
-                      ...community,
-                      // Transform priceRange to object format if needed
-                      priceRange: (function() {
-                        if (!community.priceRange) {
-                          return { min: 0, max: 0 };
-                        }
-                        if (typeof community.priceRange === 'object' && 'min' in community.priceRange && 'max' in community.priceRange) {
-                          return community.priceRange;
-                        }
-                        if (typeof community.priceRange === 'string') {
-                          // Try to parse string format like "$3000 - $5000"
-                          const match = community.priceRange.match(/\$?(\d+(?:,\d+)?)\s*[-–]\s*\$?(\d+(?:,\d+)?)/);
-                          if (match) {
-                            return {
-                              min: parseInt(match[1].replace(',', '')),
-                              max: parseInt(match[2].replace(',', ''))
-                            };
-                          }
-                          return { min: 0, max: 0 };
-                        }
-                        return { min: 0, max: 0 };
-                      })(),
-                      // Add enriched occupancy data
-                      occupancyRate: community.occupancyRate || community.occupancyRateHud || Math.floor(Math.random() * 30) + 70,
-                      totalUnits: community.totalUnits || community.totalUnitsHud || 100,
-                      availableUnits: community.availableUnits || Math.floor(Math.random() * 10) + 1,
-                      waitListLength: community.waitListLength || 0
-                    }}
+                  <CommunityCard
+                    community={community}
                     variant="list"
-                    onSelect={() => window.location.href = `/community/${community.id}`}
-                    onToggleFavorite={() => {
-                      const newFavorites = new Set(favorites);
-                      if (favorites.has(community.id)) {
-                        newFavorites.delete(community.id);
-                      } else {
-                        newFavorites.add(community.id);
-                      }
-                      setFavorites(newFavorites);
-                    }}
-                    isFavorite={favorites.has(community.id)}
                   />
                 </div>
                   </Popup>
@@ -1787,8 +1681,7 @@ export default function Map({
                 mouseover: () => setHoveredCommunity(null),
                 mouseout: () => setHoveredCommunity(null),
                 click: () => {
-                  // You can add click handler for hospitals if needed
-                  console.log('Hospital clicked:', hospital.name);
+                  // Hospital marker clicked
                 }
               }}
             >

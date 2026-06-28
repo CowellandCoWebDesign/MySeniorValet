@@ -3,7 +3,19 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, desc, sql, isNull, or, lt, and, gte } from "drizzle-orm";
 import { isAdmin } from "../auth-middleware";
-import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
+// All enrichment flows through the single unified orchestrator.
+import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+
+/** Derive a human-readable list of fields the unified enrichment populated. */
+function fieldsFromResult(result: Awaited<ReturnType<typeof enrichCommunityUnified>>): string[] {
+  const fields: string[] = [];
+  if (result.summary) fields.push("description");
+  if (result.photos.length > 0) fields.push("photos");
+  if (result.phone) fields.push("phone");
+  if (result.officialWebsite) fields.push("website");
+  if (result.pricing) fields.push("pricing");
+  return fields;
+}
 
 export function registerCommunityEnrichmentRoutes(app: Express) {
   // Admin endpoint to manually trigger enrichment for a specific community
@@ -15,14 +27,16 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
       
-      // Force enrichment regardless of cache
-      const result = await onDemandEnrichmentService.enrichCommunity(communityId);
+      // Force enrichment regardless of cache — routes through the single pipeline.
+      const result = await enrichCommunityUnified(communityId, { forceRefresh: true });
       
       res.json({
-        success: result.success,
-        fieldsUpdated: result.fieldsUpdated,
-        protectedFieldsSkipped: result.protectedFieldsSkipped,
-        error: result.error
+        success: true,
+        cached: result.cached,
+        fieldsUpdated: fieldsFromResult(result),
+        protectedFieldsSkipped: [],
+        summary: result.summary,
+        photoCount: result.photos.length,
       });
     } catch (error) {
       console.error("Error triggering enrichment:", error);
@@ -30,7 +44,7 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
     }
   });
   
-  // Admin endpoint to refresh dynamic content only (photos, availability, promotions)
+  // Admin endpoint to refresh dynamic content (photos) — same unified pipeline.
   app.post("/api/admin/communities/:id/refresh-dynamic", isAdmin, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
@@ -39,12 +53,13 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
       
-      const result = await onDemandEnrichmentService.refreshDynamicContent(communityId);
+      const result = await enrichCommunityUnified(communityId, { forceRefresh: true });
       
       res.json({
-        success: result.success,
-        fieldsUpdated: result.fieldsUpdated,
-        error: result.error
+        success: true,
+        cached: result.cached,
+        fieldsUpdated: fieldsFromResult(result),
+        photoCount: result.photos.length,
       });
     } catch (error) {
       console.error("Error refreshing dynamic content:", error);
@@ -57,8 +72,30 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
     try {
       const limit = parseInt(req.body.limit as string) || 10;
       
-      // Start batch enrichment asynchronously
-      onDemandEnrichmentService.enrichHighPriorityCommunities(limit).catch(error => {
+      // Start batch enrichment asynchronously through the unified pipeline.
+      (async () => {
+        const toEnrich = await db
+          .select({ id: communities.id })
+          .from(communities)
+          .where(sql`
+            (enrichment_status = 'pending' OR enrichment_status = 'failed' OR
+             last_successful_enrichment < NOW() - INTERVAL '7 days')
+            AND view_count > 0
+            AND website IS NOT NULL AND length(website) > 5
+          `)
+          .orderBy(sql`popularity_score DESC, view_count DESC`)
+          .limit(limit);
+        console.log(`🔄 Starting unified batch enrichment for ${toEnrich.length} communities`);
+        for (const c of toEnrich) {
+          try {
+            await enrichCommunityUnified(c.id, { forceRefresh: true });
+          } catch (err) {
+            console.error(`Batch enrichment failed for community ${c.id}:`, err);
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+        console.log(`✅ Unified batch enrichment completed for ${toEnrich.length} communities`);
+      })().catch(error => {
         console.error("Batch enrichment failed:", error);
       });
       

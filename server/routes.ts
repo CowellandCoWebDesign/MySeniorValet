@@ -24,7 +24,7 @@ import { eq, or, like, desc, and, sql } from "drizzle-orm";
 import cookieParser from "cookie-parser";
 import { isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
-import { vendors, users, services } from "../shared/schema";
+import { vendors, users, services, healthcareProviders, seniorResources } from "../shared/schema";
 import * as schema from "../shared/schema";
 import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
@@ -84,762 +84,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     return [];
   }
 
-  // Import the service enrichment cache
-  const { serviceEnrichmentCache } = await import('./unified-perplexity-cache');
-
-  // API endpoint for service web intelligence  
-  app.post('/api/service-intelligence', async (req, res) => {
-    try {
-      const { serviceName, city, state, serviceType, website, serviceId } = req.body;  // Accept serviceId too
-
-      // Only require service name, be flexible about location
-      if (!serviceName) {
-        return res.status(400).json({ error: 'Service name is required' });
-      }
-
-      // Construct location string flexibly
-      const locationParts = [];
-      if (city) locationParts.push(city);
-      if (state) locationParts.push(state);
-      const location = locationParts.length > 0 ? locationParts.join(', ') : undefined;
-
-      console.log(`🔍 Fetching web intelligence for business: ${serviceName} in ${location || 'unspecified location'}`);
-      console.log(`📊 Business type: ${serviceType || 'restaurant/business'}`);
-
-      // Use the ServiceEnrichmentCache for cached data
-      const cacheKey = serviceId || serviceName; // Use ID if available
-      try {
-        const cachedData = await serviceEnrichmentCache.getServiceEnrichment(
-          cacheKey,
-          serviceName,
-          location,
-          false // Don't force refresh for now
-        );
-
-        // Return cached/enriched data in the format the client expects
-        return res.json({
-          success: true,
-          serviceName,
-          location: location || 'United States',
-          description: cachedData.rawPerplexityContent || '',
-          website: cachedData.businessInfo.website || website || '',
-          photos: cachedData.photos.map(url => {
-            // Add proxy URL if needed
-            if (url.includes('http') && !url.includes('/api/image-proxy')) {
-              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
-            }
-            return url;
-          }),
-          contactInfo: {
-            phone: cachedData.businessInfo.phone,
-            email: cachedData.businessInfo.email,
-            website: cachedData.businessInfo.website || website,
-            address: cachedData.businessInfo.address,
-            hours: cachedData.businessInfo.hours
-          },
-          services: cachedData.businessInfo.services || [],
-          citations: cachedData.sources,
-          found: true,
-          fromCache: cachedData.timestamp > 0
-        });
-      } catch (cacheError) {
-        console.error('Cache enrichment failed, falling back to direct Perplexity call:', cacheError);
-        // Continue with the existing direct Perplexity call below if cache fails
-      }
-
-      // Call Perplexity API directly for business searches (not senior living)
-      const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
-      if (!perplexityApiKey) {
-        return res.status(500).json({ error: 'Perplexity API key not configured' });
-      }
-
-      const perplexityPrompt = `Find ALL of the following information about ${serviceName} (a ${serviceType || 'restaurant/business'}) in ${city}, ${state} in ONE comprehensive search:
-
-**COMPLETE BUSINESS PROFILE:**
-1. Full business name, exact street address, zip code
-2. Phone, website, email, social media handles
-3. Business hours for all 7 days
-4. Complete service/product offerings with pricing
-5. ${serviceType === 'restaurant' ? 'Full menu with prices, dietary options, specialties' : 'All services with pricing, packages, special offers'}
-
-**RATINGS & REVIEWS (from all platforms):**
-6. Google: rating, review count, recent reviews
-7. Yelp: rating, review count, key feedback
-8. TripAdvisor: rating if applicable
-9. Facebook: rating, reviews
-10. Industry-specific sites ratings
-
-**PHOTOS (CRITICAL - MUST include direct image URLs):**
-11. Find and include DIRECT IMAGE URLs (ending in .jpg, .jpeg, .png, .webp)
-12. Business's OFFICIAL WEBSITE photo URLs - actual image file URLs, not page URLs
-13. Google Business photo URLs - direct links to images
-14. Yelp CDN image URLs (e.g., s3-media*.fl.yelpcdn.com)
-15. TripAdvisor image URLs (e.g., media-cdn.tripadvisor.com)
-16. Facebook/Instagram CDN URLs (e.g., scontent.*.fbcdn.net)
-17. OpenTable image URLs (e.g., resizer.otstatic.com)
-18. Include ALL found image URLs in your response
-19. Format: List each image URL on a separate line prefixed with IMAGE_URL:
-20. Example: IMAGE_URL: https://example.com/photos/restaurant-interior.jpg
-
-**COMPLETE ONLINE PRESENCE:**
-Google Maps: [exact URL]
-Yelp: [exact URL]
-TripAdvisor: [exact URL if exists]
-Facebook: [exact URL]
-Instagram: [exact URL]
-Official Website: [exact URL]
-${serviceType === 'restaurant' ? 'OpenTable/Resy: [booking URL]' : 'Booking/Appointment: [URL]'}
-
-**ADDITIONAL DETAILS:**
-- Current promotions/deals
-- Awards/certifications
-- Accessibility features
-- Parking availability
-- ${serviceType === 'restaurant' ? 'Delivery/takeout options' : 'Online services'}
-
-Gather ALL this information from EVERY available source in this SINGLE response.
-
-CRITICAL FOR PHOTOS - YOU MUST:
-1. Find ACTUAL IMAGE FILE URLs (not web pages)
-2. Include every image URL you find in the format: IMAGE_URL: [actual_image_url]
-3. Look for patterns like:
-   - .jpg, .jpeg, .png, .webp, .gif extensions
-   - CDN URLs from yelpcdn.com, fbcdn.net, tripadvisor.com, etc.
-   - Google images URLs (lh3.googleusercontent.com, etc.)
-4. List AT LEAST 10-20 actual image URLs if available
-5. DO NOT just mention "photos available on Yelp" - give me the actual Yelp image URLs
-6. DO NOT just say "see website gallery" - give me the actual image file URLs
-
-EXAMPLE FORMAT FOR PHOTOS:
-IMAGE_URL: https://s3-media2.fl.yelpcdn.com/bphoto/abc123/o.jpg
-IMAGE_URL: https://lh3.googleusercontent.com/p/AF1QipM...
-IMAGE_URL: https://media-cdn.tripadvisor.com/media/photo-s/...
-
-Provide complete business data with ALL actual image URLs found.`;
-
-      const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${perplexityApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'sonar-pro',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a business information specialist with access to photos and images. Always prioritize finding and returning real photos of businesses. Include direct image URLs from Google Maps, Yelp, TripAdvisor, and the business website. Return actual photo URLs whenever possible.'
-            },
-            {
-              role: 'user',
-              content: perplexityPrompt
-            }
-          ],
-          temperature: 0.2,
-          max_tokens: 2000,
-          return_images: true,  // Enable real image URLs
-          web_search_options: {
-            search_context_size: 'low'  // Low context for cost optimization with sonar-pro
-          }
-          // NO image_domain_filter - search EVERYWHERE for photos
-        })
-      });
-
-      if (!perplexityResponse.ok) {
-        throw new Error(`Perplexity API error: ${perplexityResponse.status}`);
-      }
-
-      const data = await perplexityResponse.json();
-      const answer = data.choices?.[0]?.message?.content || '';
-      const citations = data.citations || [];
-
-      console.log(`📝 Perplexity response length: ${answer.length} characters`);
-
-      // Check for real images in provider_metadata (return_images feature)
-      let realPhotosFromProvider: string[] = [];
-      if (data.provider_metadata?.images) {
-        console.log(`📸 Found ${data.provider_metadata.images.length} real images from Perplexity provider_metadata`);
-        realPhotosFromProvider = data.provider_metadata.images.map((img: any) => img.imageUrl);
-        console.log(`📸 Real photo URLs:`, realPhotosFromProvider);
-      } else {
-        console.log(`⚠️ No provider_metadata.images found in Perplexity response`);
-      }
-
-      // Parse the response to extract business information
-      let businessData: {
-        success: boolean;
-        serviceName: string;
-        location: string;
-        description: string;
-        website: string;
-        photos: string[];
-        services: string[];
-        hours: string;
-        pricing: string;
-        citations: string[];
-        found: boolean;
-        photoSources?: {
-          googleMaps: string | null;
-          yelp: string | null;
-          tripAdvisor: string | null;
-          searchQuery: string;
-        };
-      } = {
-        success: true,
-        serviceName,
-        location: `${city}, ${state}`,
-        description: answer,
-        website: '',
-        photos: [],
-        services: [],
-        hours: '',
-        pricing: '',
-        citations: citations.map((c: any) => c.url || c),
-        found: answer.length > 0
-      };
-
-      // Use the website from database if provided, otherwise extract from Perplexity
-      let extractedWebsite: string | undefined = website;  // Prioritize database website
-
-      // If we have a database website, validate and clean it
-      if (extractedWebsite) {
-        // Ensure it has a protocol
-        if (!extractedWebsite.startsWith('http')) {
-          extractedWebsite = 'https://' + extractedWebsite;
-        }
-        // Skip if it's just a Google Maps URL (not a real website)
-        if (extractedWebsite.includes('google.com/maps')) {
-          extractedWebsite = undefined;
-        }
-      }
-
-      // Only extract from Perplexity if we don't have a valid website from database
-      if (!extractedWebsite) {
-        console.log(`🔍 No database website found, extracting from Perplexity response...`);
-
-        // Look for explicitly mentioned website URLs in the response
-        const websitePatterns = [
-          /(?:website|Website|WEBSITE|Official website|Visit)[\s:]+([https?:\/\/]*(?:www\.)?[^\s,\)]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery|biz|info)[^\s,\)]*)/gi,
-          /(?:Visit them at|Find them at|Check out)[\s:]+([https?:\/\/]*(?:www\.)?[^\s,\)]+\.(?:com|net|org|co|io)[^\s,\)]*)/gi,
-          /((?:www\.)?[a-zA-Z0-9-]+\.(?:com|net|org|co|io|restaurant|bar|cafe|menu|app|delivery|biz|info)[^\s,\)]*)/gi
-        ];
-
-        for (const pattern of websitePatterns) {
-          const matches = answer.matchAll(pattern);
-          for (const match of matches) {
-            const candidateUrl = match[1];
-            // Skip directory sites and Google Maps
-            if (!candidateUrl.includes('google.com') && 
-                !candidateUrl.includes('yelp.com') && 
-                !candidateUrl.includes('tripadvisor.com') &&
-                !candidateUrl.includes('facebook.com') &&
-                !candidateUrl.includes('instagram.com')) {
-              extractedWebsite = candidateUrl;
-              if (extractedWebsite && !extractedWebsite.startsWith('http')) {
-                extractedWebsite = 'https://' + extractedWebsite;
-              }
-              console.log(`✅ Found website from Perplexity: ${extractedWebsite}`);
-              break;
-            }
-          }
-          if (extractedWebsite) break;
-        }
-      }
-
-      // Clean URL of any citation markers like [1], [2], etc. and trailing brackets
-      if (extractedWebsite) {
-        extractedWebsite = extractedWebsite.replace(/\[\d+\].*$/, '').trim();
-        // Also remove any trailing asterisks or special characters
-        extractedWebsite = extractedWebsite.replace(/\*+$/, '').trim();
-        // Remove any trailing brackets or parentheses
-        extractedWebsite = extractedWebsite.replace(/[\]\)]+$/, '').trim();
-        // Remove any leading brackets
-        extractedWebsite = extractedWebsite.replace(/^[\[\(]+/, '').trim();
-      }
-
-      console.log(`🌐 Using website: ${extractedWebsite || 'None found'} (database provided: ${website || 'None'})`);
-
-      // Extract photos - Use Cheerio-based website scraping FIRST (most reliable)
-      let extractedPhotos: string[] = [];
-      let triedWebsiteScraping = false;
-
-      try {
-        // PRIORITY 1: Always try scraping the website FIRST using Cheerio (works without browser dependencies)
-        if (extractedWebsite && extractedWebsite.includes('http') && !extractedWebsite.includes('google.com/maps')) {
-          try {
-            console.log(`🕸️ Primary method: Scraping website for real photos using Cheerio: ${extractedWebsite}`);
-            const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
-            
-            // Use MultiAIPhotoExtractor for consolidated photo extraction
-            const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
-              serviceName,
-              'service', // service type
-              city || 'Unknown', 
-              state || 'Unknown',
-              `${serviceName} photos`,
-              extractedWebsite,
-              []
-            );
-
-            const scrapedData = {
-              photos: photoResult?.authenticPhotos?.map(p => typeof p === 'string' ? p : p.url || p) || []
-            };
-            triedWebsiteScraping = true;
-
-            if (scrapedData.photos && scrapedData.photos.length > 0) {
-              // Use proxied URLs for external images
-              extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
-                if (photoUrl.includes('http')) {
-                  return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                }
-                return photoUrl;
-              });
-              console.log(`✅ Successfully scraped ${extractedPhotos.length} real photos from website`);
-            } else {
-              console.log(`📷 Website scraper found no photos`);
-            }
-          } catch (scrapeError) {
-            console.error(`Website scraping failed, will try additional fallback methods:`, scrapeError);
-          }
-        }
-
-        // PRIORITY 2: Try Perplexity provider_metadata photos (often corrupted, use as fallback)
-        if (extractedPhotos.length === 0 && realPhotosFromProvider.length > 0) {
-          console.log(`⚠️ Falling back to Perplexity provider_metadata photos (may be corrupted)`);
-          extractedPhotos = realPhotosFromProvider.slice(0, 50).map(photoUrl => {
-            if (photoUrl.includes('http')) {
-              return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-            }
-            return photoUrl;
-          });
-        }
-
-        // PRIORITY 3: Try to extract photos from Perplexity response text
-        if (extractedPhotos.length === 0) {
-          console.log(`🔍 Extracting photos from Perplexity response text...`);
-
-          // Look for IMAGE_URL: prefixed URLs first (our new format)
-          const imageUrlPrefixRegex = /IMAGE_URL:\s*(https?:\/\/[^\s\n]+)/gi;
-          const prefixMatches = answer.matchAll(imageUrlPrefixRegex) || [];
-          const prefixedUrls = Array.from(prefixMatches).map(match => match[1]);
-
-          // Look for direct image URLs in the response content - including WordPress
-          const imageUrlPatterns = [
-            // WordPress uploads with flexible year/date patterns
-            /https?:\/\/[^\s\]\)"']+\/wp-content\/uploads\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)/gi,
-            // Standard image URLs
-            /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)(\?[^\s\]\)"']*)?(#[^\s\]\)"']*)?/gi,
-          ];
-
-          const foundUrls: string[] = [];
-          for (const pattern of imageUrlPatterns) {
-            const matches = answer.match(pattern) || [];
-            foundUrls.push(...matches);
-          }
-
-          // Look for photo URLs from known image CDNs
-          const cdnPatterns = [
-            /https?:\/\/s3-media[\d]*\.fl\.yelpcdn\.com\/[^\s\]\)"']+/gi,
-            /https?:\/\/media-cdn\.tripadvisor\.com\/[^\s\]\)"']+/gi,
-            /https?:\/\/lh[\d]\.googleusercontent\.com\/[^\s\]\)"']+/gi,
-            /https?:\/\/scontent[^\s]*\.fbcdn\.net\/[^\s\]\)"']+/gi,
-            /https?:\/\/resizer\.otstatic\.com\/[^\s\]\)"']+/gi,
-            /https?:\/\/[^\s]*\.cloudinary\.com\/[^\s\]\)"']+/gi,
-            /https?:\/\/d[\w]+\.cloudfront\.net\/[^\s\]\)"']+/gi
-          ];
-
-          const cdnUrls: string[] = [];
-          for (const pattern of cdnPatterns) {
-            const matches: RegExpMatchArray | null = answer.match(pattern);
-            if (matches) {
-              cdnUrls.push(...matches);
-            }
-          }
-
-          const allPhotoUrls = [...prefixedUrls, ...foundUrls, ...cdnUrls];
-          const processedUrls: string[] = [];
-
-          // Process each URL and try variations for WordPress
-          for (const url of allPhotoUrls) {
-            // Clean the URL
-            const cleanUrl = url.replace(/[\]\)"']+$/, '').trim();
-
-            // Skip obvious corrupted URLs with enhanced detection
-            if (cleanUrl.includes('QwQwQw') || 
-                cleanUrl.includes('kQz8kQz8') ||
-                cleanUrl.includes('QwQwQwQwQwQwQwQw') ||
-                cleanUrl.includes('...[TRUNCATED]') ||
-                cleanUrl.length > 1500) {
-              console.log(`🚫 Blocking corrupted URL from enrichment: ${cleanUrl.substring(0, 100)}...`);
-              continue;
-            }
-
-            // Validate URL format
-            try {
-              new URL(cleanUrl);
-            } catch {
-              console.log(`🚫 Invalid URL format: ${cleanUrl.substring(0, 100)}...`);
-              continue;
-            }
-
-            // For WordPress URLs, try multiple year variations
-            if (cleanUrl.includes('/wp-content/uploads/')) {
-              const yearMatch = cleanUrl.match(/\/uploads\/(\d{4})\//);
-              if (yearMatch) {
-                // Add original
-                processedUrls.push(cleanUrl);
-
-                // Try adjacent years (in case the URL has an outdated year)
-                const currentYear = new Date().getFullYear();
-                const yearsToTry = [currentYear, currentYear - 1, currentYear - 2];
-                for (const year of yearsToTry) {
-                  if (year.toString() !== yearMatch[1]) {
-                    const altUrl = cleanUrl.replace(`/uploads/${yearMatch[1]}/`, `/uploads/${year}/`);
-                    processedUrls.push(altUrl);
-                  }
-                }
-              } else {
-                processedUrls.push(cleanUrl);
-              }
-            } else {
-              processedUrls.push(cleanUrl);
-            }
-          }
-
-          const uniqueUrls = [...new Set(processedUrls)]; // Remove duplicates
-
-          if (uniqueUrls.length > 0) {
-            console.log(`✅ Found ${uniqueUrls.length} image URLs in response text`);
-            extractedPhotos = uniqueUrls.slice(0, 50).map(url => {
-              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
-            });
-          }
-
-          // Also try to find photos from any directory listings mentioned
-          const directoryUrls = [
-            'yelp.com',
-            'tripadvisor.com',
-            'google.com/maps',
-            'facebook.com',
-            'instagram.com'
-          ];
-
-          // Extract any directory URLs mentioned in the response
-          const urlMatches = answer.match(/https?:\/\/[^\s]+/gi) || [];
-          const directoryListings = urlMatches.filter((url: string) => 
-            directoryUrls.some(dir => url.includes(dir))
-          );
-
-          if (directoryListings.length > 0 && extractedPhotos.length === 0) {
-            console.log(`📍 Found ${directoryListings.length} directory listings for ${serviceName}`);
-            // Note: We can't scrape these directly due to blocking, but we log them for reference
-          }
-        }
-
-        // PRIORITY 4: Try text-based extraction as last resort
-        if (extractedPhotos.length === 0) {
-          console.log(`📷 Trying text-based photo extraction as final fallback...`);
-          const photoExtractor = new MultiAIPhotoExtractor();
-          const photoCandidates = await MultiAIPhotoExtractor.extractPhotosFromServiceDirectorySites(
-            answer, 
-            serviceName, 
-            serviceType || 'service'
-          );
-
-          // Also try to extract directly from HTML content
-          const contentPhotos = MultiAIPhotoExtractor.extractPhotosFromContent(answer, serviceName);
-
-          // Extract listing pages marked with LISTING: in the response
-        const listingMatches = answer.match(/LISTING:\s*([^\n]+)/gi) || [];
-        const listingPages: string[] = [];
-
-        for (const match of listingMatches) {
-          const listingInfo = match.replace(/^LISTING:\s*/i, '').trim();
-          // Extract URL from format "Platform - URL"
-          const urlMatch = listingInfo.match(/https?:\/\/[^\s]+/);
-          if (urlMatch) {
-            listingPages.push(urlMatch[0]);
-            console.log(`📍 Found listing page: ${urlMatch[0]}`);
-          }
-        }
-
-        // Scrape each listing page for real photos
-        const scrapedPhotos: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
-        for (const listingUrl of listingPages) {
-          try {
-            console.log(`🕸️ Scraping listing page for photos: ${listingUrl}`);
-            const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
-            
-            // Use MultiAIPhotoExtractor for consolidated photo extraction
-            const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
-              serviceName,
-              'service', // service type
-              city || 'Unknown',
-              state || 'Unknown', 
-              `${serviceName} photos`,
-              listingUrl,
-              []
-            );
-            
-            const scrapedData = {
-              photos: photoResult?.authenticPhotos?.map(p => typeof p === 'string' ? p : p.url || p) || []
-            };
-
-            if (scrapedData.photos && scrapedData.photos.length > 0) {
-              for (const photoUrl of scrapedData.photos) {
-                scrapedPhotos.push({ 
-                  url: photoUrl, 
-                  source: new URL(listingUrl).hostname, 
-                  confidence: 0.9, 
-                  isAuthentic: true 
-                });
-              }
-              console.log(`✅ Found ${scrapedData.photos.length} photos from ${new URL(listingUrl).hostname}`);
-            }
-          } catch (error) {
-            console.error(`Failed to scrape listing page ${listingUrl}:`, error);
-          }
-        }
-
-        const markedPhotos = scrapedPhotos;
-
-        // Skip pattern extraction to avoid hallucinated URLs
-        // We now only trust real photos from scraped listing pages
-        const extractedUrls: { url: string; source: string; confidence: number; isAuthentic: boolean }[] = [];
-
-        // Combine all photo candidates
-        const allPhotoCandidates = [...photoCandidates, ...contentPhotos, ...markedPhotos, ...extractedUrls];
-        const uniquePhotos = new Map<string, any>();
-
-        for (const photo of allPhotoCandidates) {
-          if (photo.url && !uniquePhotos.has(photo.url)) {
-            uniquePhotos.set(photo.url, photo);
-          }
-        }
-
-        // Helper function to detect synthetic/fake URLs - BUT NOT FOR SERVICES
-        const isSyntheticUrl = (url: string): boolean => {
-          // FOR SERVICES: Never reject photos as synthetic - accept everything
-          // Services need photos from directories like TripAdvisor, Yelp, Google Maps
-          if (serviceType === 'service' || serviceType === 'restaurant' || serviceType === 'hotel') {
-            return false; // Never treat service photos as synthetic
-          }
-
-          // Only check for obviously synthetic patterns
-          const syntheticPatterns = [
-            /QwQwQwQw/i,  // Obvious repeating test pattern
-            /kQz8kQz8/i,  // Another test pattern
-            /([a-zA-Z0-9]{2})\1{8,}/,  // Very long repeating patterns (8+ repetitions)
-            /^(test|fake|dummy|placeholder|sample)/i,  // Obviously fake prefixes
-          ];
-
-          // Check for synthetic patterns in the full URL
-          for (const pattern of syntheticPatterns) {
-            if (pattern.test(url)) {
-              console.log(`🚫 Detected synthetic URL pattern in: ${url}`);
-              return true;
-            }
-          }
-
-          // Check for obviously fake Google Photos with impossible patterns
-          if (url.includes('googleusercontent.com') && 
-              (url.includes('QwQwQwQw') || url.includes('kQz8kQz8'))) {
-            console.log(`🚫 Detected fake Google Photos URL: ${url}`);
-            return true;
-          }
-
-          return false;
-        };
-
-        // Convert to array of photo URLs for frontend, filtering out placeholders and synthetic URLs
-        extractedPhotos = Array.from(uniquePhotos.values())
-          .filter(photo => {
-            // Filter out placeholder URLs that aren't real photos
-            const url = photo.url.toLowerCase();
-            const isValid = !url.includes('-photos-needed') && 
-                   !url.includes('placeholder') &&
-                   !url.includes('example.com') &&
-                   !url.includes('123456') &&
-                   !url.includes('654321') &&
-                   url.startsWith('http') &&
-                   !isSyntheticUrl(photo.url);
-
-            if (!isValid) {
-              console.log(`🚫 Filtered out invalid/synthetic photo URL: ${photo.url}`);
-            }
-            return isValid;
-          })
-          .map(photo => {
-            // Use proxy for external images to bypass CORS
-            const url = photo.url;
-            if (url.includes('tripadvisor.com') || 
-                url.includes('yelp.com') || 
-                url.includes('yelpcdn.com') ||
-                url.includes('googleusercontent.com') ||
-                url.includes('otstatic.com')) {
-              return `/api/image-proxy?url=${encodeURIComponent(url)}`;
-            }
-            return url;
-          });
-
-        console.log(`📸 Extracted ${extractedPhotos.length} real photos for ${serviceName} (filtered from ${allPhotoCandidates.length} candidates)`);
-
-        // Log if all candidates were filtered as synthetic
-        if (allPhotoCandidates.length > 0 && extractedPhotos.length === 0) {
-          console.log(`⚠️ All ${allPhotoCandidates.length} photo URLs appeared to be synthetic/fake and were filtered out`);
-
-          // Try website scraping one more time if we haven't already
-          if (!triedWebsiteScraping && extractedWebsite && extractedWebsite.includes('http')) {
-            try {
-              console.log(`🕸️ Final attempt: Scraping website for real photos: ${extractedWebsite}`);
-              const { MultiAIPhotoExtractor } = await import('./services/multi-ai-photo-extractor');
-              
-              // Use MultiAIPhotoExtractor for consolidated photo extraction
-              const photoResult = await MultiAIPhotoExtractor.findAuthenticServicePhotos(
-                serviceName,
-                'service', // service type
-                city || 'Unknown',
-                state || 'Unknown',
-                `${serviceName} photos`,
-                extractedWebsite,
-                []
-              );
-              
-              const scrapedData = {
-                photos: photoResult?.authenticPhotos?.map(p => typeof p === 'string' ? p : p.url || p) || []
-              };
-
-              if (scrapedData.photos && scrapedData.photos.length > 0) {
-                // Use proxied URLs for external images
-                extractedPhotos = scrapedData.photos.slice(0, 50).map(photoUrl => {
-                  if (photoUrl.includes('http')) {
-                    return `/api/image-proxy?url=${encodeURIComponent(photoUrl)}`;
-                  }
-                  return photoUrl;
-                });
-                console.log(`✅ Final attempt succeeded: scraped ${extractedPhotos.length} real photos from website`);
-              }
-            } catch (scrapeError) {
-              console.error(`Final website scraping attempt failed:`, scrapeError);
-            }
-          }
-        }
-        }  // Add missing closing bracket for the if (extractedPhotos.length === 0) block
-
-        // If still no photos, log but DON'T provide fake fallback photos
-        if (extractedPhotos.length === 0) {
-          console.log(`📷 No real photos found for ${serviceName}`);
-          console.log(`📊 Debug: Had website? ${!!extractedWebsite}, Tried scraping? ${triedWebsiteScraping}`);
-          console.log(`ℹ️ Following Golden Data Rule - returning empty photo array instead of fake stock photos`);
-          // Per Golden Data Rule: Return empty array instead of fake stock photos
-          extractedPhotos = [];
-        }
-      } catch (error) {
-        console.error('Failed to extract photos:', error);
-      }
-
-      businessData.photos = extractedPhotos;
-
-      // Set website if found
-      if (extractedWebsite) {
-        businessData.website = extractedWebsite;
-      }
-
-      // Extract hours
-      const hoursMatch = answer.match(/(?:hours?|Hours?|HOURS?)[:\s]*([^.\n]+)/i);
-      if (hoursMatch) {
-        businessData.hours = hoursMatch[1].trim();
-      }
-
-      // Extract services/menu items if mentioned
-      const menuMatch = answer.match(/(?:menu|Menu|popular items|specialties|serves)[:\s]*([^.\n]+)/i);
-      if (menuMatch) {
-        businessData.services = [menuMatch[1].trim()];
-      }
-
-      // Extract phone number from answer - try multiple patterns
-      let extractedPhone = null;
-
-      // Pattern 1: Look for "phone:" or similar followed by number
-      const phoneMatch = answer.match(/(?:phone|Phone|PHONE|tel|Tel|TEL|call|Call|contact|Contact)[:\s]*([+\d\s\-\(\)\.]+)/i);
-      if (phoneMatch) {
-        extractedPhone = phoneMatch[1].trim();
-      }
-
-      // Pattern 2: Look for standard US phone number patterns
-      if (!extractedPhone) {
-        const usPhoneMatch = answer.match(/(\(?\d{3}\)?[\s\-\.]?\d{3}[\s\-\.]?\d{4})/);
-        if (usPhoneMatch) {
-          extractedPhone = usPhoneMatch[1];
-        }
-      }
-
-      // Pattern 3: Look for international format
-      if (!extractedPhone) {
-        const intlPhoneMatch = answer.match(/(\+\d{1,3}[\s\-]?\d{1,4}[\s\-]?\d{1,4}[\s\-]?\d{1,4})/);
-        if (intlPhoneMatch) {
-          extractedPhone = intlPhoneMatch[1];
-        }
-      }
-
-      // Clean up the phone number format
-      if (extractedPhone) {
-        // Remove trailing punctuation that might be captured
-        extractedPhone = extractedPhone.replace(/[,\.\s]+$/, '').trim();
-      }
-
-      // Extract address from answer
-      const addressMatch = answer.match(/(?:address|Address|ADDRESS)[:\s]*([^.\n]+)/i);
-      let extractedAddress = null;
-      if (addressMatch) {
-        extractedAddress = addressMatch[1].trim();
-      }
-
-      console.log(`✅ Found business information for ${serviceName}`);
-      console.log(`📸 Found ${businessData.photos.length} photos`);
-      console.log(`🌐 Website: ${businessData.website || 'Not found'}`);
-      console.log(`📞 Phone: ${extractedPhone || 'Not found'}`);
-
-      // Debug logging to see what we're extracting
-      if (!extractedWebsite && !extractedPhone) {
-        console.log('⚠️ Failed to extract contact info. Raw response snippet:');
-        console.log(answer.substring(0, 500));
-      }
-
-      // Create the proper response structure expected by frontend
-      const response = {
-        photos: businessData.photos,
-        sources: businessData.citations,
-        description: businessData.description,
-        services: businessData.services,
-        contactInfo: {
-          phone: extractedPhone,
-          email: null, // Email not typically in Perplexity results
-          website: businessData.website,
-          address: extractedAddress,
-          hours: businessData.hours
-        },
-        businessInfo: {
-          description: businessData.description,
-          services: businessData.services,
-          website: businessData.website,
-          phone: extractedPhone,
-          address: extractedAddress,
-          hours: businessData.hours
-        },
-        confidence: businessData.photos.length > 0 ? 80 : 40,
-        debug: {
-          searchQuery: `${serviceName} ${city} ${state}`,
-          photoCount: businessData.photos.length,
-          sourcesFound: businessData.citations.length
-        }
-      };
-
-      res.json(response);
-    } catch (error) {
-      console.error('Error fetching service intelligence:', error);
-      res.status(500).json({ error: 'Failed to fetch service intelligence' });
-    }
+  // API endpoint for service web intelligence — AI disabled
+  app.post('/api/service-intelligence', (_req, res) => {
+    res.status(503).json({ status: 'disabled', message: 'AI chat temporarily unavailable' });
   });
 
   // Get recently discovered services (from services table)
@@ -944,6 +191,92 @@ Provide complete business data with ALL actual image URLs found.`;
     } catch (error) {
       console.error('Error fetching recently discovered services:', error);
       res.status(500).json({ error: 'Failed to fetch recent services' });
+    }
+  });
+
+  // Get recently discovered healthcare providers (from healthcareProviders table)
+  app.get('/api/healthcare/recently-discovered', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      // Get recent healthcare providers ordered by discovery date
+      const recentProviders = await db.select()
+        .from(healthcareProviders)
+        .orderBy(desc(healthcareProviders.discoveredAt))
+        .limit(limit);
+
+      // Transform to match the card display format
+      const transformedProviders = recentProviders.map(provider => {
+        const metadata = provider.metadata as any || {};
+
+        return {
+          id: provider.id,
+          businessName: provider.name,
+          description: provider.description,
+          shortDescription: provider.shortDescription,
+          businessCity: provider.city || '',
+          businessState: provider.state || '',
+          businessType: provider.providerType || 'Healthcare',
+          website: provider.website || '',
+          primaryContactPhone: provider.phone || '',
+          pricing: provider.pricingSummary || '',
+          hours: provider.hours || '',
+          acceptsMedicare: provider.acceptsMedicare,
+          acceptsMedicaid: provider.acceptsMedicaid,
+          logoUrl: '',
+          createdAt: provider.createdAt,
+          discoveredAt: provider.discoveredAt,
+          entityType: 'healthcare'
+        };
+      });
+
+      res.json(transformedProviders);
+    } catch (error) {
+      console.error('Error fetching recently discovered healthcare providers:', error);
+      res.status(500).json({ error: 'Failed to fetch recent healthcare providers' });
+    }
+  });
+
+  // Get recently discovered senior resources (from seniorResources table)
+  app.get('/api/resources/recently-discovered', async (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 20;
+
+      // Get recent senior resources ordered by discovery date
+      const recentResources = await db.select()
+        .from(seniorResources)
+        .orderBy(desc(seniorResources.discoveredAt))
+        .limit(limit);
+
+      // Transform to match the card display format
+      const transformedResources = recentResources.map(resource => {
+        const metadata = resource.metadata as any || {};
+
+        return {
+          id: resource.id,
+          businessName: resource.name,
+          description: resource.description,
+          shortDescription: resource.shortDescription,
+          businessCity: resource.city || '',
+          businessState: resource.state || '',
+          businessType: resource.resourceType || 'Resource',
+          website: resource.website || '',
+          primaryContactPhone: resource.phone || '',
+          pricing: resource.pricingSummary || '',
+          hours: resource.hours || '',
+          isFree: resource.isFree,
+          eligibility: resource.eligibility || '',
+          logoUrl: '',
+          createdAt: resource.createdAt,
+          discoveredAt: resource.discoveredAt,
+          entityType: 'resources'
+        };
+      });
+
+      res.json(transformedResources);
+    } catch (error) {
+      console.error('Error fetching recently discovered resources:', error);
+      res.status(500).json({ error: 'Failed to fetch recent resources' });
     }
   });
 
@@ -1393,6 +726,17 @@ Provide complete business data with ALL actual image URLs found.`;
         return res.status(400).json({ error: 'All fields are required' });
       }
 
+      // Validate subject against the allowed values (mirrors the DB check
+      // constraint on contact_submissions.subject). Without this, an out-of-enum
+      // subject throws a Postgres check-constraint violation that surfaces as an
+      // opaque 500 with no lead saved and no email sent.
+      const ALLOWED_SUBJECTS = ['general', 'support', 'community', 'partnership', 'feedback'];
+      if (!ALLOWED_SUBJECTS.includes(subject)) {
+        return res.status(400).json({
+          error: `Invalid subject. Must be one of: ${ALLOWED_SUBJECTS.join(', ')}.`,
+        });
+      }
+
       // Get IP address and user agent for tracking
       const ipAddress = req.ip || req.connection.remoteAddress || '';
       const userAgent = req.headers['user-agent'] || '';
@@ -1407,11 +751,14 @@ Provide complete business data with ALL actual image URLs found.`;
         userAgent
       });
 
-      // Send email notification to admin
+      // Send email notification to admin + confirmation to visitor.
+      // Track delivery so the client can tell when the lead was saved but the
+      // email failed, instead of silently returning success.
+      let emailDelivered = false;
       try {
         const sgMail = await import('@sendgrid/mail');
         sgMail.default.setApiKey(process.env.SENDGRID_API_KEY!);
-        const emailHtml = `
+        const adminEmailHtml = `
           <h2>New Contact Form Submission</h2>
           <p><strong>From:</strong> ${name} (${email})</p>
           <p><strong>Subject:</strong> ${subject}</p>
@@ -1421,25 +768,79 @@ Provide complete business data with ALL actual image URLs found.`;
           <p><small>Submitted at ${new Date().toISOString()}</small></p>
         `;
 
+        // Admin notification
         await sgMail.default.send({
           to: 'hello@myseniorvalet.com',
-          from: 'admin@myseniorvalet.com',
+          from: 'hello@myseniorvalet.com',
+          replyTo: email,
           subject: `Contact Form: ${subject} - from ${name}`,
-          html: emailHtml
+          html: adminEmailHtml
         });
-      } catch (emailError) {
-        console.error('Error sending contact form email notification:', emailError);
-        // Don't fail the request if email fails
+
+        // Visitor confirmation email
+        const { contactConfirmationEmail } = await import('./templates/emailTemplates');
+        await sgMail.default.send({
+          to: email,
+          from: 'hello@myseniorvalet.com',
+          subject: contactConfirmationEmail.subject,
+          html: contactConfirmationEmail.html({ name, subject, message }),
+          text: contactConfirmationEmail.text ? contactConfirmationEmail.text({ name, subject, message }) : undefined
+        });
+        emailDelivered = true;
+      } catch (emailError: any) {
+        // Log the FULL SendGrid error (not just the message) so failures are
+        // diagnosable instead of silent. Do NOT fail the request — lead is saved.
+        console.error('Error sending contact form email notification:', emailError?.message || emailError);
+        if (emailError?.response?.body) {
+          console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+        }
       }
 
-      res.json({ 
-        success: true, 
-        message: 'Thank you for contacting us! We will respond within 24 hours.',
-        submissionId: submission.id 
+      res.json({
+        success: true,
+        emailDelivered,
+        message: emailDelivered
+          ? 'Thank you for contacting us! We will respond within 24 hours.'
+          : 'Thank you for contacting us! Your message was received — our email confirmation is delayed but our team has your request.',
+        submissionId: submission.id
       });
     } catch (error) {
       console.error('Error processing contact form submission:', error);
       res.status(500).json({ error: 'Failed to submit contact form. Please try again.' });
+    }
+  });
+
+  // Admin endpoints for contact form submissions
+  app.get('/api/admin/contact-submissions', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const { status, limit } = req.query;
+      const submissions = await storage.getContactSubmissions({
+        status: status as string | undefined,
+        limit: limit ? parseInt(limit as string) : undefined,
+      });
+      res.json(submissions);
+    } catch (error) {
+      console.error('Error fetching contact submissions:', error);
+      res.status(500).json({ error: 'Failed to fetch contact submissions' });
+    }
+  });
+
+  app.patch('/api/admin/contact-submissions/:id/status', isAuthenticated, isAdmin, async (req: AuthenticatedRequest, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { status } = req.body;
+      const validStatuses = ['pending', 'read', 'responded', 'archived'];
+      if (!status || !validStatuses.includes(status)) {
+        return res.status(400).json({ error: `Status must be one of: ${validStatuses.join(', ')}` });
+      }
+      const updated = await storage.updateContactSubmissionStatus(id, status);
+      if (!updated) {
+        return res.status(404).json({ error: 'Submission not found' });
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error('Error updating contact submission status:', error);
+      res.status(500).json({ error: 'Failed to update submission status' });
     }
   });
 
@@ -1496,6 +897,15 @@ Provide complete business data with ALL actual image URLs found.`;
   // SEO Location Pages (hybrid approach - real content for bots, redirect for users)
   const seoLocationPages = await import('./routes/seo-location-pages');
   app.get('/senior-living/:state/:city?', seoLocationPages.renderSEOLocationPage);
+
+  // /directory/:location is a legacy URL that was published as a canonical target.
+  // It has no standalone content (only a JS redirect shell on the client).
+  // Issue a permanent server-side redirect to the real serving URL so crawlers
+  // never land on the empty shell.
+  app.get('/directory/:location', (req, res) => {
+    const location = req.params.location;
+    return res.redirect(301, `/community-directory?location=${encodeURIComponent(location)}`);
+  });
   
   // SEO Location Data APIs
   const seoLocationApi = await import('./routes/seo-location-api');
@@ -1759,9 +1169,9 @@ Disallow: /`;
   const { registerResidentPaymentRoutes } = await import('./routes/resident-payments');
   registerResidentPaymentRoutes(app);
 
-  // Register admin community management routes
-  const adminCommunityRoutes = await import('./routes/adminCommunityRoutes');
-  app.use('/api', adminCommunityRoutes.default);
+  // Register data-quality detection/flagging/cleanup routes (admin-only)
+  const dataQualityRoutes = await import('./routes/dataQualityRoutes');
+  app.use('/api', dataQualityRoutes.default);
 
   const adminHeatmapRoutes = await import('./routes/adminHeatmapRoutes');
   app.use('/api', adminHeatmapRoutes.default);
@@ -2229,7 +1639,7 @@ Disallow: /`;
       // Check if user is admin
       if (!req.session?.user || 
           (req.session.user.email !== 'william.cowell01@gmail.com' && 
-           req.session.user.email !== 'admin@myseniorvalet.com')) {
+           req.session.user.email !== 'CowellandCoWebDesign@gmail.com')) {
         return res.status(403).json({ error: 'Admin access required' });
       }
 
@@ -2385,6 +1795,37 @@ Disallow: /`;
   // Disabled to ensure zero automatic API calls on page load
   // app.get('/api/community/:id/comprehensive-data', async (req, res) => { ... })
 
+  // Public community flag endpoint — no auth required, supports anonymous reports
+  // Legacy route — kept for backwards compatibility; all new UI uses /api/communities/:id/flag
+  app.post('/api/community-flag', async (req, res) => {
+    try {
+      const { communityId, communityName, city, state } = req.body;
+      if (!communityId) {
+        return res.status(400).json({ error: 'communityId is required' });
+      }
+      const id = Number(communityId);
+
+      await db.insert(schema.listingFlags).values({
+        communityId: id,
+        flagType: 'Incorrect Information',
+        reason: `User reported from community page: ${communityName || id}${city ? `, ${city}` : ''}${state ? `, ${state}` : ''}`,
+        status: 'Pending',
+        userId: null,
+      });
+
+      // Also set flagStatus on the community so it shows "Under Review" on its detail page
+      await db.update(schema.communities)
+        .set({ flagStatus: 'pending' } as any)
+        .where(eq(schema.communities.id, id));
+
+      console.log(`🚩 Community flagged by user: #${id} ${communityName || ''}`);
+      return res.json({ success: true });
+    } catch (error) {
+      console.error('Failed to save community flag:', error);
+      return res.status(500).json({ error: 'Failed to save flag' });
+    }
+  });
+
   // Re-verify community data using AI
   app.post('/api/communities/re-verify', async (req, res) => {
     try {
@@ -2461,7 +1902,7 @@ Disallow: /`;
       console.log(`✅ Community #${communityId} re-verified and updated`);
 
       // Send notification to admins
-      const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
+      const adminEmails = ['CowellandCoWebDesign@gmail.com', 'William.cowell01@gmail.com'];
       adminEmails.forEach(email => {
         sendEmail({
           to: email,
@@ -2593,7 +2034,7 @@ Disallow: /`;
       }
 
       // Send notification emails to BOTH admin addresses
-      const adminEmails = ['admin@myseniorvalet.com', 'William.cowell01@gmail.com'];
+      const adminEmails = ['CowellandCoWebDesign@gmail.com', 'William.cowell01@gmail.com'];
       const emailSubject = aiFixSuccessful 
         ? '✅ Incorrect Link Auto-Fixed - MySeniorValet'
         : '🚨 Incorrect Link Reported (Manual Review Needed) - MySeniorValet';
@@ -2690,7 +2131,7 @@ Disallow: /`;
       console.error('Error processing link feedback:', error);
       res.status(500).json({ 
         error: 'Failed to process feedback',
-        message: 'Please try again later or contact hello@myseniorvalet.com' 
+        message: 'Please try again later or contact CowellandCoWebDesign@gmail.com' 
       });
     }
   });
@@ -2906,7 +2347,7 @@ Disallow: /`;
     if (req.session?.user) {
       const user = req.session.user;
       const isAdmin = user.email === 'william.cowell01@gmail.com' || 
-                      user.email === 'admin@myseniorvalet.com';
+                      user.email === 'CowellandCoWebDesign@gmail.com';
 
       return res.json({
         role: isAdmin ? 'super_admin' : (user.role || 'user'),
@@ -2923,7 +2364,7 @@ Disallow: /`;
 
       // Grant super admin to specific users
       const isAdmin = userEmail === 'william.cowell01@gmail.com' || 
-                      userEmail === 'admin@myseniorvalet.com';
+                      userEmail === 'CowellandCoWebDesign@gmail.com';
 
       return res.json({
         role: isAdmin ? 'super_admin' : 'user',

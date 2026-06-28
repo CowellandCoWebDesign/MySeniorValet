@@ -15,7 +15,7 @@ export default function SeniorLivingWorldwidePage() {
   // Critical SEO optimization for Google rankings - comprehensive platform coverage
   useSEO({
     title: 'MySeniorValet: Complete Senior Living Platform | 33,657 Communities Worldwide | All Care Levels',
-    description: 'The Google of Senior Care. Search 33,657 verified communities worldwide. All care levels: Independent Living, Assisted Living, Memory Care, Skilled Nursing, Home Care, Adult Day Care. Complete journey support from search to move-in services, healthcare providers, resident portals. 100% free, no referral fees.',
+    description: 'The Google of Senior Care. Search 33,657 verified communities worldwide. All care levels: Independent Living, Assisted Living, Memory Care, Skilled Nursing, Home Care, Adult Day Care. Complete journey support from search to move-in services, healthcare providers, resident portals. Family research tools always free.',
     keywords: 'senior living worldwide, all senior care levels, complete senior living platform, independent living, assisted living, memory care, skilled nursing, home care, adult day care, CCRC, HUD senior housing, Section 8 seniors, senior move-in services, senior healthcare providers, resident portal, senior living search',
     canonicalUrl: 'https://www.myseniorvalet.com/senior-living-worldwide'
   });
@@ -79,7 +79,7 @@ export default function SeniorLivingWorldwidePage() {
             </div>
             <div>
               <div className="text-3xl font-bold">100% Free</div>
-              <div className="text-sm opacity-90">No Referral Fees</div>
+              <div className="text-sm opacity-90">Free for Families</div>
             </div>
           </div>
         </div>
@@ -401,7 +401,7 @@ export default function SeniorLivingWorldwidePage() {
                   <h3 className="text-lg font-bold">100% Independent</h3>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  No referral fees, no hidden commissions, no steering. We work for families, not facilities.
+                  Fully transparent referral partnerships — any fees from communities are always disclosed. Family research tools are always free.
                 </p>
               </CardContent>
             </Card>
@@ -473,7 +473,7 @@ export default function SeniorLivingWorldwidePage() {
             </Button>
           </div>
           <p className="mt-8 text-sm opacity-75">
-            100% Free for Families • No Referral Fees • Independent Platform • Available in English, French & Spanish
+            100% Free for Families • Transparent Referral Disclosures • Available in English, French & Spanish
           </p>
         </div>
       </section>

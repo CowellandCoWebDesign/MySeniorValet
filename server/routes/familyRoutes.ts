@@ -1011,7 +1011,7 @@ router.post("/groups/:groupId/invite", async (req: Request, res: Response) => {
         const emailContent = {
           to: email,
           from: {
-            email: 'hello@myseniorvalet.com',
+            email: 'CowellandCoWebDesign@gmail.com',
             name: 'MySeniorValet'
           },
           subject: `${inviterName} invited you to join "${groupName}" on MySeniorValet`,

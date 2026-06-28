@@ -441,7 +441,7 @@ export default function SeniorResourcesCenter() {
       name: "Legal Resources",
       description: "Elder law and legal documents",
       icon: Briefcase,
-      link: "/legal-resources",
+      link: "/legal-notice",
       color: "from-gray-500 to-slate-600"
     },
     {
@@ -465,7 +465,7 @@ export default function SeniorResourcesCenter() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <NavigationHeader />
-      
+      <main>
       {/* Page Header */}
       <section className="px-4 py-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
         <div className="max-w-6xl mx-auto text-center">
@@ -1111,22 +1111,17 @@ export default function SeniorResourcesCenter() {
                 Contact us for personalized assistance.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => setLocation('/contact')}
-                >
-                  <Phone className="mr-2 h-5 w-5" />
-                  Contact Support Team
+                <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Link href="/contact">
+                    <Phone className="mr-2 h-5 w-5" />
+                    Contact Support Team
+                  </Link>
                 </Button>
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/ai-matching-assistant')}
-                >
-                  <Brain className="mr-2 h-5 w-5" />
-                  Get AI Assistance
+                <Button asChild size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                  <Link href="/ai-matching-assistant">
+                    <Brain className="mr-2 h-5 w-5" />
+                    Get AI Assistance
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -1147,26 +1142,17 @@ export default function SeniorResourcesCenter() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {quickTools.map((tool) => (
-                  <Button 
+                  <Button asChild
                     key={tool.id}
                     variant="outline"
                     className="h-full flex flex-col items-center gap-2 py-4 hover:shadow-lg transition-all hover:border-indigo-400"
-                    onClick={() => {
-                      if (tool.link === '/map-search') {
-                        setLocation('/map-search');
-                      } else if (tool.link === '/saved') {
-                        setLocation('/saved');
-                      } else if (tool.link === '/contact') {
-                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                      } else if (tool.link === '/faq') {
-                        setLocation('/faq');
-                      }
-                    }}
                   >
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${tool.color} text-white`}>
-                      <tool.icon className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-semibold text-center">{tool.name}</span>
+                    <Link href={tool.link}>
+                      <div className={`p-2 rounded-lg bg-gradient-to-br ${tool.color} text-white`}>
+                        <tool.icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-xs font-semibold text-center">{tool.name}</span>
+                    </Link>
                   </Button>
                 ))}
               </div>
@@ -1185,26 +1171,22 @@ export default function SeniorResourcesCenter() {
             Our AI assistant can help you navigate all these resources
           </p>
           <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg"
-              className="bg-white text-purple-600 hover:bg-gray-100 font-semibold shadow-xl"
-              onClick={() => setLocation('/ai-matching-assistant')}
-            >
-              <Brain className="mr-2 h-5 w-5" />
-              Get AI Assistance
+            <Button asChild size="lg" className="bg-white text-purple-600 hover:bg-gray-100 font-semibold shadow-xl">
+              <Link href="/ai-matching-assistant">
+                <Brain className="mr-2 h-5 w-5" />
+                Get AI Assistance
+              </Link>
             </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="text-white border-white hover:bg-white/20"
-              onClick={() => setLocation('/family-collaboration')}
-            >
-              <Users className="mr-2 h-5 w-5" />
-              Collaborate with Family
+            <Button asChild size="lg" variant="outline" className="text-white border-white hover:bg-white/20">
+              <Link href="/family-collaboration">
+                <Users className="mr-2 h-5 w-5" />
+                Collaborate with Family
+              </Link>
             </Button>
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }

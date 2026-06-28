@@ -61,8 +61,6 @@ import { registerAnalyticsRoutes } from "./analyticsRoutes";
 import { setupVAResourcesRoutes } from "./vaResourcesRoutes";
 import { setupSeniorResourcesRoutes } from "./seniorResourcesRoutes";
 import authenticPricingRoutes from "./authentic-pricing-routes";
-import weaviateRoutes from "./weaviate-routes";
-import enhancedWeaviateRoutes from "./enhanced-weaviate-routes";
 import naturalLanguageSearchRoutes from "./naturalLanguageSearch";
 import nlpSearchRoutes from "./nlpSearchRoutes";
 import comprehensiveSearchRoutes from "./comprehensiveSearchRoutes";
@@ -104,6 +102,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     console.error('Failed to initialize community stats cache:', error);
   });
 
+  // Public: active home page sections (no auth required)
+  // Returns only enabled sections ordered by position.
+  // Columns are aliased to camelCase so the frontend can use them directly.
+  app.get('/api/home-sections/active', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`
+        SELECT
+          id,
+          title,
+          subtitle,
+          section_type   AS "sectionType",
+          config,
+          position,
+          enabled,
+          created_at     AS "createdAt",
+          updated_at     AS "updatedAt"
+        FROM home_section_configs
+        WHERE enabled = TRUE
+        ORDER BY position ASC
+      `);
+      // Short cache so admin show/hide & reorder changes surface on next page load.
+      res.set('Cache-Control', 'public, max-age=3');
+      res.json(result.rows || []);
+    } catch (error) {
+      console.error('Error fetching active home sections:', error);
+      res.status(500).json({ error: 'Failed to load home sections' });
+    }
+  });
+
   // Create HTTP server
   const httpServer = createServer(app);
 
@@ -119,7 +148,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     // Redirect super admins to admin dashboard server-side
     if (userRole === 'super_admin' || 
         userEmail === 'william.cowell01@gmail.com' || 
-        userEmail === 'admin@myseniorvalet.com') {
+        userEmail === 'CowellandCoWebDesign@gmail.com') {
       console.log('🚀 SERVER-SIDE REDIRECT: Super admin detected, redirecting to /admin-mega-dashboard');
       return res.redirect(307, '/admin-mega-dashboard');
     }
@@ -228,11 +257,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register authentic pricing routes
   app.use('/api/authentic-pricing', authenticPricingRoutes);
 
-  // Register Weaviate semantic search routes
-  app.use('/api/weaviate', weaviateRoutes);
-  
-  // Register Enhanced Weaviate AI-native routes
-  app.use('/api/weaviate-enhanced', enhancedWeaviateRoutes);
   
   // Register Natural Language Search routes (Wave 1 Enhancement)
   app.use('/api/natural-language', naturalLanguageSearchRoutes);
@@ -305,6 +329,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Register Image Proxy route (for CORS-free image loading)
   const imageProxyRoutes = await import('./imageProxy');
   app.use('/', imageProxyRoutes.default);
+
+  // Public: admin-configured map default location (no auth — map calls on every fresh load)
+  app.get('/api/settings/map-defaults', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'map_defaults'`);
+      if (result.rows.length > 0) {
+        res.json(result.rows[0].value);
+      } else {
+        res.json({ lat: 37.7749, lng: -122.4194, zoom: 12 });
+      }
+    } catch {
+      res.json({ lat: 37.7749, lng: -122.4194, zoom: 12 });
+    }
+  });
+
+  // Public: Services page settings
+  app.get('/api/settings/services-page', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'services_page_settings'`);
+      res.json(result.rows.length > 0 ? result.rows[0].value : { featuredBannerEnabled: false, heroText: '', pinnedVendorIds: [] });
+    } catch {
+      res.json({ featuredBannerEnabled: false, heroText: '', pinnedVendorIds: [] });
+    }
+  });
+
+  // Public: Healthcare page settings
+  app.get('/api/settings/healthcare-page', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'healthcare_page_settings'`);
+      res.json(result.rows.length > 0 ? result.rows[0].value : { featuredBannerEnabled: false, heroText: '', pinnedProviderIds: [] });
+    } catch {
+      res.json({ featuredBannerEnabled: false, heroText: '', pinnedProviderIds: [] });
+    }
+  });
+
+  // Public: Directory page settings
+  app.get('/api/settings/directory-page', async (_req, res) => {
+    try {
+      const { db } = await import('../db');
+      const { sql } = await import('drizzle-orm');
+      const result = await db.execute(sql`SELECT value FROM platform_settings WHERE key = 'directory_page_settings'`);
+      res.json(result.rows.length > 0 ? result.rows[0].value : { defaultSort: 'newest', promoBannerEnabled: false, promoBannerText: '', pinnedCommunityIds: [] });
+    } catch {
+      res.json({ defaultSort: 'newest', promoBannerEnabled: false, promoBannerText: '', pinnedCommunityIds: [] });
+    }
+  });
 
   return httpServer;
 }

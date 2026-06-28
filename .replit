@@ -1,10 +1,10 @@
-modules = ["nodejs-20", "web", "python-3.11", "python3", "postgresql-16"]
+modules = ["nodejs-20", "web", "python-3.11", "postgresql-16"]
 run = "npm run dev"
 hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
 
 [nix]
 channel = "stable-24_05"
-packages = ["chromium", "geckodriver", "gitFull", "glibcLocales", "jq", "libxcrypt", "playwright", "playwright-driver", "xcodebuild", "zlib", "glib", "nspr", "nss", "dbus", "atk", "at-spi2-atk", "at-spi2-core", "xorg.libX11", "xorg.libxcb", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "mesa", "libxkbcommon"]
+packages = ["at-spi2-atk", "at-spi2-core", "atk", "dbus", "geckodriver", "gitFull", "gitMinimal", "glib", "glibcLocales", "libxcrypt", "libxkbcommon", "nspr", "nss", "xcodebuild", "xorg.libX11", "xorg.libXcomposite", "xorg.libXdamage", "xorg.libXext", "xorg.libXfixes", "xorg.libXrandr", "xorg.libxcb", "zlib"]
 
 [deployment]
 deploymentTarget = "autoscale"
@@ -14,111 +14,6 @@ run = ["npm", "run", "start"]
 [[ports]]
 localPort = 5000
 externalPort = 80
-
-[[ports]]
-localPort = 32799
-externalPort = 3003
-
-[[ports]]
-localPort = 33881
-externalPort = 3001
-
-[[ports]]
-localPort = 34011
-
-[[ports]]
-localPort = 34331
-
-[[ports]]
-localPort = 34803
-
-[[ports]]
-localPort = 36261
-
-[[ports]]
-localPort = 37575
-
-[[ports]]
-localPort = 37707
-externalPort = 9000
-
-[[ports]]
-localPort = 38679
-externalPort = 8008
-
-[[ports]]
-localPort = 38789
-
-[[ports]]
-localPort = 38883
-
-[[ports]]
-localPort = 39437
-
-[[ports]]
-localPort = 39517
-
-[[ports]]
-localPort = 40087
-
-[[ports]]
-localPort = 40545
-externalPort = 5173
-
-[[ports]]
-localPort = 40833
-externalPort = 8081
-
-[[ports]]
-localPort = 40905
-externalPort = 4200
-
-[[ports]]
-localPort = 41003
-
-[[ports]]
-localPort = 41197
-
-[[ports]]
-localPort = 42497
-externalPort = 8000
-
-[[ports]]
-localPort = 42965
-externalPort = 6800
-
-[[ports]]
-localPort = 43003
-
-[[ports]]
-localPort = 43251
-externalPort = 8080
-
-[[ports]]
-localPort = 43505
-externalPort = 3002
-
-[[ports]]
-localPort = 44077
-externalPort = 6000
-
-[[ports]]
-localPort = 44083
-externalPort = 3000
-
-[[ports]]
-localPort = 45193
-externalPort = 5000
-
-[[ports]]
-localPort = 45711
-externalPort = 8099
-
-[[ports]]
-localPort = 45901
-
-[[ports]]
-localPort = 46519
 
 [workflows]
 runButton = "Project"
@@ -132,6 +27,10 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Geocode fix"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -141,11 +40,22 @@ task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
+[[workflows.workflow]]
+name = "Geocode fix"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx server/scripts/fix-community-geocoding.ts --phase=geocode"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
 [objectStorage]
 defaultBucketID = "replit-objstore-95854b9e-eb33-4c6f-8a69-9fa78da9152c"
 
 [agent]
-integrations = ["javascript_sendgrid:1.0.0", "javascript_websocket:1.0.0", "javascript_stripe:1.0.0", "javascript_log_in_with_replit:1.0.0", "javascript_anthropic:1.0.0", "javascript_object_storage:1.0.0", "perplexity_v0:1.0.0", "javascript_openai:1.0.0", "javascript_database:1.0.0", "javascript_google_analytics:1.0.0", "javascript_xai:1.0.0"]
+integrations = ["javascript_sendgrid:1.0.0", "javascript_websocket:1.0.0", "javascript_stripe:1.0.0", "javascript_log_in_with_replit:1.0.0", "javascript_anthropic:1.0.0", "javascript_object_storage:1.0.0", "perplexity_v0:1.0.0", "javascript_openai:1.0.0", "javascript_database:1.0.0", "javascript_google_analytics:1.0.0", "javascript_xai:1.0.0", "google-mail:1.0.0"]
 
 [userenv]
 
@@ -154,3 +64,13 @@ APP_URL = "https://myseniorvalet.com"
 
 [userenv.development]
 APP_URL = "https://7a9daf58-f7c7-49c7-b4de-a709c13987b5-00-3l1b8tvcpa4bp.janeway.replit.dev"
+
+[userenv.shared]
+PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true"
+PLAYWRIGHT_BROWSERS_PATH = "0"
+PUBLIC_OBJECT_SEARCH_PATHS = "community-photos/"
+PRIVATE_OBJECT_DIR = ".private"
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000

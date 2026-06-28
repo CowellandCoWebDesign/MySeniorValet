@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, AlertCircle, Sparkles, Search, Code, ChevronDown, ChevronUp } from 'lucide-react';
+import { Loader2, MapPin, Globe, Building, Phone, Mail, Link2, CheckCircle, AlertCircle, Sparkles, Search, Code, ChevronDown, ChevronUp, DollarSign, Clock } from 'lucide-react';
 import { ScrollArea } from './ui/scroll-area';
 import { Separator } from './ui/separator';
 import { useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
+import { queryClient } from '@/lib/queryClient';
 
 interface GlobalDiscoveryResult {
   id: number;
@@ -26,6 +28,11 @@ interface GlobalDiscoveryResult {
   isDiscovered?: boolean;
   needsApproval?: boolean;
   data_source?: string;
+  pricing?: string;
+  hours?: string;
+  entityType?: string;
+  confidence?: number;
+  hasDatabaseId?: boolean;
 }
 
 interface GlobalDiscoveryModalProps {
@@ -40,7 +47,9 @@ interface GlobalDiscoveryModalProps {
     sources?: string[];
     searchLocation: string;
     aiConfidence?: number;
-    discoveryType?: 'communities' | 'services' | 'healthcare' | 'resources';
+    discoveryType?: 'communities' | 'services' | 'healthcare' | 'resources' | 'vendors';
+    aiNarrative?: string;
+    citations?: string[];
     rawPerplexityResponse?: string;
     perplexityQuery?: string;
     timeout?: boolean;
@@ -62,19 +71,45 @@ export function GlobalDiscoveryModal({
   const [isLoading, setIsLoading] = useState(false);
   const [showRawResponse, setShowRawResponse] = useState(false);
   
+  // CRITICAL: Invalidate recently-discovered cache when modal opens with results
+  // This ensures new discoveries appear immediately in Recently Discovered section
+  useEffect(() => {
+    if (isOpen && results && results.length > 0) {
+      // Use prefix matching to invalidate all recently-discovered queries regardless of params
+      queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered'] });
+      // Also invalidate with the specific limit param used by RecentlyDiscoveredCommunities component
+      queryClient.invalidateQueries({ queryKey: ['/api/communities/recently-discovered', { limit: 100 }] });
+      // Invalidate services, healthcare, and resources caches - match exact queryKey format used by components
+      queryClient.invalidateQueries({ queryKey: ['/api/services/recently-discovered'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/healthcare/recently-discovered?limit=100'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/resources/recently-discovered?limit=100'] });
+      console.log('🔄 GlobalDiscoveryModal: Invalidated recently-discovered caches for', results.length, 'results');
+    }
+  }, [isOpen, results]);
+  
   const handleSelectCommunity = (community: GlobalDiscoveryResult) => {
     setSelectedCommunity(community);
     setIsLoading(true);
     
-    // Navigate to the appropriate detail page based on discovery type
+    // Navigate based on discovery type and whether result has a database ID
     setTimeout(() => {
       if (metadata?.discoveryType === 'services') {
-        // For services, use slug or ID
-        const slug = community.id.toString();
-        setLocation(`/service/${slug}?discovery=true`);
+        // Services are saved to database - navigate to service detail page
+        setLocation(`/service/${community.id}?discovery=true`);
+      } else if (metadata?.discoveryType === 'healthcare' || 
+                 metadata?.discoveryType === 'resources' || 
+                 metadata?.discoveryType === 'vendors') {
+        // Healthcare/resources/vendors use hasDatabaseId flag to determine navigation
+        if (community.hasDatabaseId !== false && community.id > 100) {
+          // Has valid database ID - navigate to service page
+          setLocation(`/service/${community.id}?discovery=true&type=${metadata.discoveryType}`);
+        } else if (community.website) {
+          // No database ID - open external website
+          window.open(community.website, '_blank', 'noopener,noreferrer');
+        }
       } else {
-        // For communities, use the existing community detail page
-        setLocation(`/community/${community.id}?discovery=true`);
+        // Communities go to community detail page
+        setLocation(getCommunityUrl(community) + '?discovery=true');
       }
       onClose();
     }, 500);
@@ -96,7 +131,13 @@ export function GlobalDiscoveryModal({
               </span>
             ) : (
               <>
-                Found {metadata?.totalFound || results.length} {metadata?.discoveryType === 'services' ? 'service providers' : 'communities'} for "{searchQuery}"
+                Found {metadata?.totalFound || results.length} {
+                  metadata?.discoveryType === 'services' ? 'service providers' 
+                  : metadata?.discoveryType === 'healthcare' ? 'healthcare providers'
+                  : metadata?.discoveryType === 'resources' ? 'resources'
+                  : metadata?.discoveryType === 'vendors' ? 'vendors'
+                  : 'communities'
+                } for "{searchQuery}"
                 {metadata?.discoveredCount && metadata.discoveredCount > 0 && (
                   <span className="ml-2 text-green-600 dark:text-green-400">
                     ({metadata.discoveredCount} newly discovered!)
@@ -176,6 +217,34 @@ export function GlobalDiscoveryModal({
                     }
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+          
+          {/* AI Narrative Section */}
+          {metadata?.aiNarrative && (
+            <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-lg border border-purple-200 dark:border-purple-700">
+              <div className="flex items-start gap-3">
+                <Sparkles className="w-5 h-5 text-purple-600 dark:text-purple-400 mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-800 dark:text-gray-200">
+                    {metadata.aiNarrative}
+                  </p>
+                  {metadata.citations && metadata.citations.length > 0 && (
+                    <div className="text-xs text-gray-600 dark:text-gray-400">
+                      <span className="font-medium">Sources: </span>
+                      {metadata.citations.slice(0, 3).map((citation, idx) => (
+                        <span key={idx}>
+                          {idx > 0 && ', '}
+                          <a href={citation} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">
+                            {new URL(citation).hostname.replace('www.', '')}
+                          </a>
+                        </span>
+                      ))}
+                      {metadata.citations.length > 3 && ` +${metadata.citations.length - 3} more`}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -283,6 +352,18 @@ export function GlobalDiscoveryModal({
                           <span className="truncate text-blue-600 dark:text-blue-400">
                             {community.website}
                           </span>
+                        </div>
+                      )}
+                      <div className="flex items-center gap-2 text-sm">
+                        <DollarSign className={`w-3 h-3 ${community.pricing ? 'text-green-600 dark:text-green-400' : 'text-gray-400'}`} />
+                        <span className={community.pricing ? 'text-green-700 dark:text-green-300 font-medium' : 'text-gray-500 dark:text-gray-400 italic'}>
+                          {community.pricing || 'Contact for pricing'}
+                        </span>
+                      </div>
+                      {community.hours && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock className="w-3 h-3 text-blue-500" />
+                          <span>{community.hours}</span>
                         </div>
                       )}
                     </div>

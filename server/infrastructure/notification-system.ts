@@ -51,7 +51,7 @@ class NotificationSystem {
         isActive: true,
         configuration: {
           provider: 'sendgrid',
-          fromEmail: 'admin@myseniorvalet.com',
+          fromEmail: 'hello@myseniorvalet.com',
           fromName: 'MySeniorValet'
         }
       },
@@ -62,7 +62,7 @@ class NotificationSystem {
         isActive: true,
         configuration: {
           provider: 'twilio',
-          fromNumber: '+1-855-MY-VALET'
+          fromNumber: '530-776-4220'
         }
       },
       {

@@ -222,6 +222,7 @@ export default function Contact() {
         title="Contact Us" 
         subtitle="Get in touch with MySeniorValet"
       />
+      <main>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -242,6 +243,16 @@ export default function Contact() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h2>
                 
                 <div className="space-y-4">
+                  <div className="flex items-center">
+                    <Phone className="w-5 h-5 text-blue-600 mr-3" />
+                    <div>
+                      <div className="font-medium">Phone</div>
+                      <a href="tel:+15307764220" className="text-blue-600 hover:text-blue-700">
+                        (530) 776-4220
+                      </a>
+                    </div>
+                  </div>
+
                   <div className="flex items-center">
                     <Mail className="w-5 h-5 text-blue-600 mr-3" />
                     <div>
@@ -524,6 +535,7 @@ export default function Contact() {
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }

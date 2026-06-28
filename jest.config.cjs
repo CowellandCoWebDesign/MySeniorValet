@@ -5,6 +5,7 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.{ts,tsx}', '**/*.{test,spec}.{ts,tsx}'],
   transform: {
     '^.+\\.tsx?$': ['ts-jest', {
+      isolatedModules: true,
       tsconfig: {
         jsx: 'react',
         esModuleInterop: true,
@@ -20,7 +21,9 @@ module.exports = {
     '^@assets/(.*)$': '<rootDir>/attached_assets/$1',
     '^@shared/(.*)$': '<rootDir>/shared/$1',
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js'
+    '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
+    '^cheerio$': '<rootDir>/tests/__mocks__/cheerioMock.js',
+    '^duck-duck-scrape$': '<rootDir>/tests/__mocks__/duckDuckScrapeMock.js'
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
   collectCoverageFrom: [

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Phone, Globe, Clock, Users, Package, Home, Heart, Utensils, Search, ChevronRight, ExternalLink, Building } from "lucide-react";
+import { MapPin, Phone, Globe, Clock, Users, Package, Home, Heart, Utensils, Search, ChevronRight, ExternalLink, Building, Stethoscope, Shield, Scale, HandHeart, FileText, CheckCircle2, Sparkles, Info } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -15,6 +15,71 @@ import {
 } from "@/components/ui/select";
 import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
 
+// Directory response shapes (mirror server/services/senior-resources-service.ts)
+interface ResourceItem {
+  name: string;
+  category: string;
+  type?: string;
+  address?: string;
+  city?: string;
+  county?: string;
+  state?: string;
+  phone?: string;
+  website?: string;
+  email?: string;
+  services?: string[];
+  hours?: string;
+  eligibility?: string;
+  isFree?: boolean;
+  pricingSummary?: string;
+  source: string;
+  sourceUrl?: string;
+  verified: boolean;
+  scope: "national" | "state" | "curated" | "discovered";
+  lastFound?: string;
+}
+interface AdvanceCareLink {
+  name: string;
+  description: string;
+  url: string;
+  source: string;
+  official: boolean;
+}
+interface ResourceCategoryDef {
+  id: string;
+  label: string;
+  description: string;
+  icon: string;
+}
+interface DirectoryResponse {
+  location: { state: string; county: string };
+  categories: ResourceCategoryDef[];
+  items: ResourceItem[];
+  advanceCare: AdvanceCareLink[];
+  fallback: ResourceItem[];
+  meta: {
+    curatedCount: number;
+    cachedCount: number;
+    discoveredCount: number;
+    nationalCount: number;
+    isNorCal: boolean;
+    hasCuratedCoverage: boolean;
+    curatedRegion: string | null;
+    discoveryRan: boolean;
+    timestamp: string;
+  };
+}
+
+const CATEGORY_ICONS: Record<string, any> = {
+  healthcare: Stethoscope,
+  veterans: Shield,
+  housing: Home,
+  "financial-legal": Scale,
+  "aging-county": Building,
+  "community-211": Users,
+  "events-support": HandHeart,
+};
+
 // Location data structure - all states, provinces, and countries
 const counties: Record<string, string[]> = {
   // United States - All 50 States
@@ -22,7 +87,7 @@ const counties: Record<string, string[]> = {
     "Alaska": ["Anchorage", "Fairbanks North Star", "Matanuska-Susitna"],
     "Arizona": ["Maricopa", "Pima", "Pinal", "Yavapai"],
     "Arkansas": ["Pulaski", "Benton", "Washington", "Sebastian"],
-    "California": ["Los Angeles", "San Diego", "Orange", "Sacramento", "San Francisco", "Alameda", "Riverside", "San Bernardino", "Santa Clara", "Shasta", "Fresno", "Ventura", "Kern", "San Joaquin", "Contra Costa", "Monterey", "San Mateo", "Solano", "Sonoma", "Stanislaus", "Tulare", "Santa Barbara", "Placer", "San Luis Obispo", "Marin"],
+    "California": ["Shasta", "Tehama", "Butte", "Trinity", "Los Angeles", "San Diego", "Orange", "Sacramento", "San Francisco", "Alameda", "Riverside", "San Bernardino", "Santa Clara", "Fresno", "Ventura", "Kern", "San Joaquin", "Contra Costa", "Monterey", "San Mateo", "Solano", "Sonoma", "Stanislaus", "Tulare", "Santa Barbara", "Placer", "San Luis Obispo", "Marin"],
     "Colorado": ["Denver", "El Paso", "Arapahoe", "Jefferson", "Adams"],
     "Connecticut": ["Fairfield", "Hartford", "New Haven", "New London"],
     "Delaware": ["New Castle", "Kent", "Sussex"],
@@ -100,10 +165,116 @@ const counties: Record<string, string[]> = {
     "New Zealand": ["Auckland", "Wellington", "Christchurch", "Hamilton"]
 };
 
+function ScopeBadge({ scope }: { scope: ResourceItem["scope"] }) {
+  if (scope === "curated") {
+    return (
+      <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 flex items-center gap-1">
+        <CheckCircle2 className="h-3 w-3" /> Verified Local
+      </Badge>
+    );
+  }
+  if (scope === "discovered") {
+    return (
+      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 flex items-center gap-1">
+        <Sparkles className="h-3 w-3" /> Found on the web
+      </Badge>
+    );
+  }
+  return (
+    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 flex items-center gap-1">
+      <Shield className="h-3 w-3" /> National Program
+    </Badge>
+  );
+}
+
+function ResourceCard({ item }: { item: ResourceItem }) {
+  return (
+    <Card className="hover:shadow-lg transition-shadow">
+      <CardHeader>
+        <div className="flex justify-between items-start gap-3 flex-wrap">
+          <div>
+            <CardTitle className="text-lg">{item.name}</CardTitle>
+            {item.type && <Badge variant="secondary" className="mt-2">{item.type}</Badge>}
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <ScopeBadge scope={item.scope} />
+            {item.isFree && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200">Free</Badge>}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            {(item.address || item.city) && (
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-gray-500 mt-1 shrink-0" />
+                <div>
+                  {item.address && <p className="text-sm">{item.address}</p>}
+                  {(item.city || item.state) && (
+                    <p className="text-sm">{[item.city, item.state].filter(Boolean).join(", ")}</p>
+                  )}
+                </div>
+              </div>
+            )}
+            {item.phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-gray-500 shrink-0" />
+                <a href={`tel:${item.phone.replace(/[^0-9+]/g, "")}`} className="text-sm text-blue-600 hover:underline">{item.phone}</a>
+              </div>
+            )}
+            {item.website && (
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-gray-500 shrink-0" />
+                <a href={item.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                  Visit Website <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            )}
+            {item.hours && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-gray-500 shrink-0" />
+                <p className="text-sm">{item.hours}</p>
+              </div>
+            )}
+          </div>
+          <div className="space-y-2">
+            {item.services && item.services.length > 0 && (
+              <>
+                <h4 className="font-semibold text-sm">Services:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {item.services.map((service, i) => (
+                    <Badge key={`${service}-${i}`} variant="outline" className="text-xs">{service}</Badge>
+                  ))}
+                </div>
+              </>
+            )}
+            {item.eligibility && (
+              <div className="pt-1">
+                <h4 className="font-semibold text-sm">Eligibility:</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{item.eligibility}</p>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Source citation (Golden Data Rule: every listing is traceable) */}
+        <div className="border-t pt-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <Info className="h-3 w-3 shrink-0" />
+          <span>Source: </span>
+          {item.sourceUrl ? (
+            <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{item.source}</a>
+          ) : (
+            <span>{item.source}</span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function SeniorResources() {
   const [selectedState, setSelectedState] = useState("California");
-  const [selectedCounty, setSelectedCounty] = useState("Los Angeles");
-  const [activeTab, setActiveTab] = useState<"food-banks" | "ihss" | "sls">("food-banks");
+  const [selectedCounty, setSelectedCounty] = useState("Shasta");
+  const [activeTab, setActiveTab] = useState<string>("aging-county");
   
   // Reset county to first option when state changes
   useEffect(() => {
@@ -112,6 +283,16 @@ export default function SeniorResources() {
       setSelectedCounty(availableCounties[0]);
     }
   }, [selectedState]);
+
+  // Fetch the comprehensive directory (curated NorCal-first, cached + live web
+  // discovery, official advance-care links, and 211/AAA fallback).
+  const { data: directoryData, isLoading: directoryLoading } = useQuery<DirectoryResponse>({
+    queryKey: ["/api/senior-resources/directory", selectedState, selectedCounty],
+    queryFn: async () => {
+      const response = await fetch(`/api/senior-resources/directory?state=${encodeURIComponent(selectedState)}&county=${encodeURIComponent(selectedCounty)}`);
+      return response.json();
+    },
+  });
 
   // Fetch food banks
   const { data: foodBanksData, isLoading: foodBanksLoading } = useQuery({
@@ -196,8 +377,48 @@ export default function SeniorResources() {
           </CardContent>
         </Card>
 
+        {/* Coverage banner — shows for any curated home-base region */}
+        {directoryData?.meta?.hasCuratedCoverage && (
+          <Card className="mb-6 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800">
+            <CardContent className="py-4 flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5 shrink-0" />
+              <p className="text-sm text-emerald-800 dark:text-emerald-200">
+                <strong>Hand-verified local coverage.</strong>{" "}
+                {directoryData.meta.curatedRegion
+                  ? `${directoryData.meta.curatedRegion} is one of our curated home-base regions, so the listings below are hand-verified by our team.`
+                  : "This is one of our curated home-base regions, so the listings below are hand-verified by our team."}
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Resource Tabs */}
         <div className="flex flex-wrap gap-2 mb-6">
+          {/* New comprehensive categories (directory-driven) */}
+          {(directoryData?.categories || []).map((cat) => {
+            const Icon = CATEGORY_ICONS[cat.id] || Users;
+            return (
+              <Button
+                key={cat.id}
+                onClick={() => setActiveTab(cat.id)}
+                variant={activeTab === cat.id ? "default" : "outline"}
+                className="flex items-center gap-2"
+              >
+                <Icon className="h-4 w-4" />
+                {cat.label}
+              </Button>
+            );
+          })}
+          <Button
+            onClick={() => setActiveTab("advance-care")}
+            variant={activeTab === "advance-care" ? "default" : "outline"}
+            className="flex items-center gap-2"
+          >
+            <FileText className="h-4 w-4" />
+            Advance-Care Documents
+          </Button>
+
+          {/* Existing dedicated tabs (preserved) */}
           <Button 
             onClick={() => setActiveTab("food-banks")}
             variant={activeTab === "food-banks" ? "default" : "outline"}
@@ -224,6 +445,115 @@ export default function SeniorResources() {
           </Button>
         </div>
 
+        {/* Category Sections (directory-driven) */}
+        {(directoryData?.categories || []).map((cat) => {
+          if (activeTab !== cat.id) return null;
+          const Icon = CATEGORY_ICONS[cat.id] || Users;
+          const categoryItems = (directoryData?.items || []).filter((i) => i.category === cat.id);
+          return (
+            <div key={cat.id} className="space-y-6">
+              <div className="mb-2">
+                <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                  <Icon className="h-6 w-6 text-blue-600" />
+                  {cat.label}
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400">{cat.description}</p>
+              </div>
+
+              {directoryLoading ? (
+                <div className="text-center py-8">Finding resources for {selectedCounty}, {selectedState}…</div>
+              ) : categoryItems.length > 0 ? (
+                <div className="grid gap-4">
+                  {categoryItems.map((item, idx) => (
+                    <ResourceCard key={`${item.name}-${idx}`} item={item} />
+                  ))}
+                </div>
+              ) : (
+                <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
+                  <CardContent className="py-4">
+                    <p className="text-blue-800 dark:text-blue-200">
+                      We're still building verified {cat.label.toLowerCase()} listings for {selectedCounty}, {selectedState}. The resources below can connect you right away.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Always-available 211 / Area Agency on Aging fallback */}
+              {(directoryData?.fallback?.length || 0) > 0 && (
+                <Card className="bg-gray-50 dark:bg-gray-800/50">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <HandHeart className="h-5 w-5 text-rose-500" />
+                      Need help right now? Start here
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid md:grid-cols-2 gap-4">
+                    {directoryData?.fallback?.map((item, idx) => (
+                      <div key={`fb-${idx}`} className="bg-white dark:bg-gray-900 p-4 rounded border dark:border-gray-700">
+                        <div className="font-semibold">{item.name}</div>
+                        {item.phone && (
+                          <a href={`tel:${item.phone.replace(/[^0-9+]/g, "")}`} className="text-blue-600 hover:underline text-sm block mt-1">{item.phone}</a>
+                        )}
+                        {item.website && (
+                          <a href={item.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-1 mt-1">
+                            {item.source} <ExternalLink className="h-3 w-3" />
+                          </a>
+                        )}
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          );
+        })}
+
+        {/* Advance-Care Documents (official sources only) */}
+        {activeTab === "advance-care" && (
+          <div className="space-y-6">
+            <div className="mb-2">
+              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
+                <FileText className="h-6 w-6 text-blue-600" />
+                Advance-Care Documents
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400">
+                POLST, advance directives, and durable power of attorney for health care — linked directly to official government and state sources.
+              </p>
+            </div>
+            <Card className="bg-amber-50 dark:bg-amber-900/20 border-amber-200">
+              <CardContent className="py-4 flex items-start gap-3">
+                <Info className="h-5 w-5 text-amber-600 mt-0.5 shrink-0" />
+                <p className="text-sm text-amber-800 dark:text-amber-200">
+                  These are legal medical documents. A POLST must be completed with a healthcare provider. We link only to official sources — MySeniorValet does not generate or store these forms.
+                </p>
+              </CardContent>
+            </Card>
+            <div className="grid gap-4 md:grid-cols-2">
+              {(directoryData?.advanceCare || []).map((link, idx) => (
+                <Card key={`ac-${idx}`} className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-start justify-between gap-2">
+                      <span>{link.name}</span>
+                      {link.official && (
+                        <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 shrink-0">Official</Badge>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">{link.description}</p>
+                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline text-sm flex items-center gap-1">
+                      Open official source <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <div className="border-t pt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <Info className="h-3 w-3 shrink-0" /> {link.source}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Food Banks Tab */}
         {activeTab === "food-banks" && (
           <div className="space-y-6">
@@ -247,7 +577,7 @@ export default function SeniorResources() {
                     <CardContent className="py-4">
                       <p className="text-blue-800 dark:text-blue-200">{foodBanksData.message}</p>
                       <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
-                        Call 211 for local resources or contact admin@myseniorvalet.com to help us add data for your area.
+                        Call 211 for local resources or contact hello@myseniorvalet.com to help us add data for your area.
                       </p>
                     </CardContent>
                   </Card>

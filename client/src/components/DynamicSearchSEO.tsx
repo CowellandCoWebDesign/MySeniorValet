@@ -96,7 +96,7 @@ export function DynamicSearchSEO({
       if (canadianProvinces[locationName]) {
         const provinceName = canadianProvinces[locationName];
         dynamicTitle = `Senior Living ${provinceName} - ${totalResults || 'All'} Communities | MySeniorValet`;
-        dynamicDescription = `Explore ${totalResults || 'all'} senior living communities in ${provinceName}, Canada. Compare retirement homes, assisted living, long-term care facilities with transparent pricing. No referral fees.`;
+        dynamicDescription = `Explore ${totalResults || 'all'} senior living communities in ${provinceName}, Canada. Compare retirement homes, assisted living, long-term care facilities with transparent pricing. Family research tools free.`;
         dynamicKeywords = `senior living ${provinceName}, retirement homes ${provinceName}, ${provinceName} assisted living, ${provinceName} nursing homes, elderly care ${provinceName} Canada`;
       } else if (australianStates[locationName]) {
         const stateName = australianStates[locationName];

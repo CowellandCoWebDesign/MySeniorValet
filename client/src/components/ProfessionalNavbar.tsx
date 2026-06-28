@@ -48,6 +48,13 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
   const { toast } = useToast();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchMode, setSearchModeState] = useState<'ai' | 'classic'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('searchMode');
+      return (saved === 'ai' || saved === 'classic') ? saved : 'classic';
+    }
+    return 'classic';
+  });
   
   // Check for unread notifications
   const { data: unreadCount } = useQuery({
@@ -62,6 +69,18 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
+  // Listen for search mode changes from other components (e.g., home page toggle)
+  useEffect(() => {
+    const handleSearchModeChange = (e: CustomEvent) => {
+      const newMode = e.detail as 'ai' | 'classic';
+      if (newMode === 'ai' || newMode === 'classic') {
+        setSearchModeState(newMode);
+      }
+    };
+    window.addEventListener('searchModeChange', handleSearchModeChange as EventListener);
+    return () => window.removeEventListener('searchModeChange', handleSearchModeChange as EventListener);
   }, []);
 
   // Apply accessibility preferences to the document
@@ -139,7 +158,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
   const navigationItems = {
     main: [
       { label: "Home", icon: Home, href: "/", emoji: "🏠" },
-      { label: "Search", icon: Search, href: "/simplified-search", emoji: "🔍" },
+      { label: "Search", icon: Search, href: "/ai-search-intelligence", emoji: "🔍" },
       { label: "Map View", icon: MapPin, href: "/map-search", emoji: "🗺️" },
       { label: "Communities", icon: Building2, href: "/community-directory", emoji: "🏘️" },
     ],
@@ -212,13 +231,50 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     <SheetTitle className="text-xl font-bold text-gray-900 dark:text-white">MySeniorValet</SheetTitle>
                   </div>
                 </SheetHeader>
+                
+                {/* Search Mode Toggle - AI Assistant vs Classic Search */}
+                <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-gray-850 dark:to-gray-900">
+                  <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest mb-2">
+                    Search Mode
+                  </p>
+                  <div 
+                    className="flex items-center justify-between bg-gray-800 dark:bg-gray-700 rounded-full p-1 cursor-pointer"
+                    onClick={() => {
+                      const newMode = searchMode === 'ai' ? 'classic' : 'ai';
+                      setSearchModeState(newMode);
+                      sessionStorage.setItem('searchMode', newMode);
+                      window.dispatchEvent(new CustomEvent('searchModeChange', { detail: newMode }));
+                      setIsMobileMenuOpen(false);
+                    }}
+                  >
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      searchMode === 'ai' 
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' 
+                        : 'text-gray-400'
+                    }`}>
+                      <span className="text-sm">🤖</span>
+                      <span className="text-xs font-medium">AI Assistant</span>
+                    </div>
+                    <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
+                      searchMode === 'classic' 
+                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white' 
+                        : 'text-gray-400'
+                    }`}>
+                      <span className="text-xs font-medium">Classic Search</span>
+                      <Search className="h-3 w-3" />
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="py-4 flex-1 overflow-y-auto overflow-x-hidden">
                   {/* Mobile Navigation - Enhanced Professional */}
                   <div className="space-y-1 px-4">
                     <p className="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest px-3 py-3">
                       Main Navigation
                     </p>
-                    {navigationItems.main.map((item) => (
+                    {navigationItems.main
+                      .filter(item => isAuthenticated || (item.href !== '/ai-search-intelligence' && item.href !== '/map-search'))
+                      .map((item) => (
                       <Link 
                         key={item.href} 
                         href={item.href}
@@ -291,7 +347,9 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
             {/* Desktop Navigation - Compact with Icons */}
             <div className="hidden lg:flex items-center space-x-1">
-              {navigationItems.main.map((item) => (
+              {navigationItems.main
+                .filter(item => isAuthenticated || (item.href !== '/ai-search-intelligence' && item.href !== '/map-search'))
+                .map((item) => (
                 <Link 
                   key={item.href} 
                   href={item.href}
@@ -353,35 +411,6 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
 
           {/* Right Section: Language, Notifications, User, Theme, Accessibility */}
           <div className="flex items-center space-x-1 lg:space-x-2">
-            {/* Language Selector - Hidden on small screens to save space */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className="hidden sm:block text-2xl hover:scale-110 transition-transform duration-200 cursor-pointer focus:outline-none p-1"
-                  aria-label="Select language"
-                >
-                  {currentLanguage.flag}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>Select Language</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {languages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onClick={() => setLanguage(lang.code as any)}
-                    className={cn(
-                      "flex items-center space-x-2",
-                      language === lang.code && "bg-purple-100 dark:bg-purple-900/30"
-                    )}
-                  >
-                    <span className="text-lg">{lang.flag}</span>
-                    <span>{lang.label}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             {/* Notifications */}
             {isAuthenticated && (
               <Button variant="ghost" size="icon" className="relative text-gray-700 dark:text-gray-300">
@@ -460,19 +489,21 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     size="sm" 
                     className="text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 font-medium px-3 py-2 rounded-lg transition-all duration-200 text-sm"
                   >
-                    <LogIn className="h-4 w-4 mr-1.5" />
-                    Sign In
+                    <LogIn className="h-4 w-4 sm:mr-1.5" />
+                    <span className="hidden sm:inline">Sign In</span>
                   </Button>
                 </Link>
-                <Link href="/signup">
-                  <Button 
-                    size="sm" 
-                    className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-md hover:shadow-lg px-3 py-2 rounded-lg transition-all duration-200 text-sm"
-                  >
-                    <UserPlus className="h-4 w-4 mr-1.5" />
-                    Get Started
-                  </Button>
-                </Link>
+                <div className="hidden sm:block">
+                  <Link href="/signup">
+                    <Button 
+                      size="sm" 
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium shadow-md hover:shadow-lg px-3 py-2 rounded-lg transition-all duration-200 text-sm"
+                    >
+                      <UserPlus className="h-4 w-4 mr-1.5" />
+                      Get Started
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -547,6 +578,29 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
                     })}
                   </div>
                   
+                  <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center space-x-2 mb-3">
+                      <Languages className="h-4 w-4 text-gray-700 dark:text-gray-300" />
+                      <span className="font-semibold text-gray-900 dark:text-white text-sm">Language</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1">
+                      {languages.map((lang) => (
+                        <button
+                          key={lang.code}
+                          onClick={() => setLanguage(lang.code as any)}
+                          className={`flex items-center space-x-2 px-2 py-1.5 rounded-lg text-sm transition-all duration-150 ${
+                            language === lang.code
+                              ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-900 dark:text-purple-300 font-medium'
+                              : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          <span>{lang.flag}</span>
+                          <span>{lang.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       These settings are saved locally and will persist across sessions.

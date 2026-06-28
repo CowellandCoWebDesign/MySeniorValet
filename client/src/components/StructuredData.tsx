@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface StructuredDataProps {
   data: any | any[];
@@ -31,6 +32,7 @@ export const organizationSchema = {
   name: 'MySeniorValet',
   url: 'https://www.myseniorvalet.com',
   logo: 'https://www.myseniorvalet.com/logo.png',
+  image: 'https://www.myseniorvalet.com/og-image.jpg',
   description: 'The trusted platform for authentic senior living community information. Helping families make informed decisions with verified data and transparent pricing.',
   foundingDate: '2024',
   founder: {
@@ -52,7 +54,7 @@ export const organizationSchema = {
     {
       '@type': 'ContactPoint',
       contactType: 'emergency',
-      email: 'admin@myseniorvalet.com',
+      email: 'hello@myseniorvalet.com',
       availableLanguage: ['English'],
       areaServed: ['US', 'CA', 'AU', 'JP', 'SG', 'GB', 'MX', 'PE', 'CU', 'CR', 'PA', 'PR']
     }
@@ -108,10 +110,10 @@ export function createCommunitySchema(community: any) {
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': schemaType,
-    '@id': `https://www.myseniorvalet.com/community/${community.id}`,
+    '@id': `https://www.myseniorvalet.com${getCommunityUrl(community)}`,
     name: community.name,
     description: community.description || `${community.name} is a senior living community in ${community.city}, ${community.state}`,
-    url: `https://www.myseniorvalet.com/community/${community.id}/${community.name.toLowerCase().replace(/\s+/g, '-')}`,
+    url: `https://www.myseniorvalet.com${getCommunityUrl(community)}`,
     address: {
       '@type': 'PostalAddress',
       streetAddress: community.address,

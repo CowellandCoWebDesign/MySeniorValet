@@ -187,7 +187,7 @@ export async function sendSubscriptionCancelledEmail(data: SubscriptionCancelled
 
             <a href="https://myseniorvalet.com/pricing" class="button">Reactivate Subscription</a>
 
-            <p>If you have any feedback about your experience, we'd love to hear from you at admin@myseniorvalet.com</p>
+            <p>If you have any feedback about your experience, we'd love to hear from you at CowellandCoWebDesign@gmail.com</p>
 
             <div class="footer">
               <p>Thank you for using MySeniorValet</p>
@@ -230,7 +230,7 @@ export async function sendAdminPaymentAlert(data: {
   };
 
   const msg = {
-    to: 'admin@myseniorvalet.com',
+    to: 'CowellandCoWebDesign@gmail.com',
     cc: 'william.cowell01@gmail.com',
     from: 'billing@myseniorvalet.com',
     subject: `⚠️ ${typeLabels[type]} - ${customerEmail}`,

@@ -87,9 +87,9 @@ export default function Team() {
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold text-blue-600">Anti-Referral Fee Mission</h4>
+                <h4 className="font-semibold text-blue-600">Transparency-First Mission</h4>
                 <p className="text-gray-700">
-                  "We never accept referral fees or commissions. This platform exists to serve families, not to generate sales leads for communities."
+                  "Our platform exists to serve families with complete transparency. When we receive referral fees from participating communities, we disclose it openly — families deserve to know exactly how this platform works."
                 </p>
               </div>
               <div>

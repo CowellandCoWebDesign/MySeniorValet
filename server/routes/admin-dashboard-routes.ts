@@ -3,14 +3,16 @@
 
 import { Router, Request, Response } from 'express';
 import { db } from '../db';
-import { communities, users, messages, vendors, auditLogs, communitySubscriptions, vendorSubscriptions } from '../../shared/schema';
+import { communities, users, messages, vendors, marketplaceVendors, auditLogs, communitySubscriptions, vendorSubscriptions } from '../../shared/schema';
+import { ilike } from 'drizzle-orm';
 import { eq, sql, desc, and, gte, lte, count, avg, sum, not, isNull } from 'drizzle-orm';
 import { requireAuth } from '../middleware/auth';
 import { performanceMonitor } from '../infrastructure/performance-monitor';
 
 const router = Router();
 
-// Middleware to check super admin permissions
+// Middleware to check admin/super admin permissions
+// Allows both 'admin' and 'super_admin' roles to access the dashboard
 const requireSuperAdmin = async (req: Request, res: Response, next: any) => {
   if (!req.user) {
     return res.status(401).json({ error: 'Authentication required' });
@@ -19,13 +21,15 @@ const requireSuperAdmin = async (req: Request, res: Response, next: any) => {
   const userEmail = (req.user as any).email || '';
   const userRole = (req.user as any).role || '';
   
-  // Check super admin access
-  const isSuperAdmin = userRole === 'super_admin' || 
-                       userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com';
+  // Check admin or super admin access
+  const hasAdminAccess = userRole === 'super_admin' || 
+                         userRole === 'admin' ||
+                         userEmail === 'william.cowell01@gmail.com' || 
+                         userEmail === 'cowellandcowebdesign@gmail.com' ||
+                         userEmail === 'CowellandCoWebDesign@gmail.com';
   
-  if (!isSuperAdmin) {
-    return res.status(403).json({ error: 'Super admin access required' });
+  if (!hasAdminAccess) {
+    return res.status(403).json({ error: 'Admin access required' });
   }
   
   next();
@@ -965,6 +969,260 @@ router.get('/api/admin/data/quality-metrics', requireAuth, requireSuperAdmin, as
   } catch (error) {
     console.error('Error fetching quality metrics:', error);
     res.status(500).json({ error: 'Failed to fetch quality metrics' });
+  }
+});
+
+// ========== DATA QUALITY REPORT ==========
+
+// GET /api/admin/data-quality/report — live data quality breakdown for super-admins
+router.get('/api/admin/data-quality/report', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
+  try {
+    const [totals] = await db
+      .select({
+        total: count(),
+        active: count(sql`CASE WHEN ${communities.isActive} = true THEN 1 END`),
+        deactivated: count(sql`CASE WHEN ${communities.isActive} = false THEN 1 END`),
+        deactivatedHud: count(sql`CASE WHEN ${communities.isActive} = false AND ${communities.data_source} LIKE '%deactivated: non-senior-living HUD%' THEN 1 END`),
+        deactivatedNoSource: count(sql`CASE WHEN ${communities.isActive} = false AND ${communities.data_source} LIKE '%deactivated: no-source non-senior%' THEN 1 END`),
+        hudProperties: count(sql`CASE WHEN ${communities.hudPropertyId} IS NOT NULL AND ${communities.isActive} = true THEN 1 END`),
+        noDataSource: count(sql`CASE WHEN (${communities.data_source} IS NULL OR ${communities.data_source} = '') AND ${communities.isActive} = true THEN 1 END`),
+        freeDiscovery: count(sql`CASE WHEN ${communities.data_source} LIKE '%Free Discovery%' AND ${communities.isActive} = true THEN 1 END`),
+        verified: count(sql`CASE WHEN ${communities.isVerified} = true AND ${communities.isActive} = true THEN 1 END`)
+      })
+      .from(communities);
+
+    // Care type breakdown for active communities
+    const careTypeBreakdown = await db.execute(sql`
+      SELECT 
+        ct AS care_type,
+        COUNT(*) AS community_count
+      FROM communities, UNNEST(care_types) AS ct
+      WHERE is_active = true
+      GROUP BY ct
+      ORDER BY community_count DESC
+      LIMIT 20
+    `);
+
+    console.log('[Data Quality Report] Generated report:', {
+      total: totals.total,
+      active: totals.active,
+      deactivated: totals.deactivated,
+      deactivatedHud: totals.deactivatedHud,
+      deactivatedNoSource: totals.deactivatedNoSource
+    });
+
+    res.json({
+      summary: {
+        totalCommunities: Number(totals.total),
+        activeCommunities: Number(totals.active),
+        deactivatedCommunities: Number(totals.deactivated),
+        activeRate: ((Number(totals.active) / Number(totals.total)) * 100).toFixed(1) + '%'
+      },
+      deactivatedByReason: {
+        nonSeniorHudProperty: Number(totals.deactivatedHud),
+        noSourceNonSenior: Number(totals.deactivatedNoSource),
+        other: Number(totals.deactivated) - Number(totals.deactivatedHud) - Number(totals.deactivatedNoSource)
+      },
+      activeDataSources: {
+        hudProperties: Number(totals.hudProperties),
+        freeDiscovery: Number(totals.freeDiscovery),
+        noDataSource: Number(totals.noDataSource),
+        verified: Number(totals.verified)
+      },
+      careTypeBreakdown: careTypeBreakdown.rows,
+      generatedAt: new Date().toISOString()
+    });
+  } catch (error) {
+    console.error('Error generating data quality report:', error);
+    res.status(500).json({ error: 'Failed to generate data quality report' });
+  }
+});
+
+/**
+ * POST /api/admin/data-quality/deactivate-non-senior
+ *
+ * Idempotent batch deactivation endpoint.  Sets is_active = false on
+ * communities that match the non-senior-living criteria:
+ *
+ *   Criteria A — HUD Housing-only properties with generic names:
+ *     - care_types contains ONLY the value "HUD Housing"
+ *     - name matches a non-senior pattern (APTS, APARTMENTS, HOUSING AUTHORITY,
+ *       HOUSING PROJ, HOUSING COMPLEX, APT COMPLEX, PUBLIC HOUSING, SECTION 8)
+ *     - name does NOT contain a hard senior qualifier (SENIOR, ELDERLY,
+ *       RETIREMENT, ASSISTED, MEMORY, SKILLED NURSING, HOSPICE, ADULT CARE,
+ *       202, HUD-VASH, CCRC)
+ *
+ *   Criteria B — No-data-source properties with generic names:
+ *     - data_source IS NULL or empty
+ *     - same name pattern + no senior qualifier checks as Criteria A
+ *
+ * Each updated row gets a bracketed note appended to data_source so the reason
+ * is auditable and the report endpoint can count by reason.
+ *
+ * This endpoint is idempotent — running it twice does not double-tag rows.
+ */
+router.post('/api/admin/data-quality/deactivate-non-senior', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
+  try {
+    const NON_SENIOR_NAME_SQL = `
+      (
+        name ~* '\\mAPTS\\M'
+        OR name ~* '\\mAPARTMENTS\\M'
+        OR name ~* '\\mAPARTMENT\\M'
+        OR name ~* '\\mHOUSING AUTHORITY\\M'
+        OR name ~* 'HOUSING PROJ'
+        OR name ~* 'HOUSING COMPLEX'
+        OR name ~* 'APT COMPLEX'
+        OR name ~* '\\mPUBLIC HOUSING\\M'
+        OR name ~* '\\mSECTION 8\\M'
+      )
+    `;
+
+    const SENIOR_QUALIFIER_SQL = `
+      (
+        name ~* '\\mSENIOR\\M'
+        OR name ~* '\\mELDERLY\\M'
+        OR name ~* '\\mRETIREMENT\\M'
+        OR name ~* '\\mASSISTED\\M'
+        OR name ~* '\\mMEMORY\\M'
+        OR name ~* '\\mSKILLED NURSING\\M'
+        OR name ~* '\\mNURSING HOME\\M'
+        OR name ~* '\\mHOSPICE\\M'
+        OR name ~* '\\mADULT CARE\\M'
+        OR name ~* '202'
+        OR name ~* 'HUD-VASH'
+        OR name ~* '\\mCCRC\\M'
+      )
+    `;
+
+    // Count before
+    // db.execute returns { rows: [...], rowCount: N } — use .rows[0], not array destructuring
+    const beforeResult = await db.execute(sql`
+      SELECT COUNT(*) AS active_before FROM communities WHERE is_active = true
+    `);
+    const beforeCount = beforeResult.rows[0] as { active_before: string };
+
+    // Criteria A: HUD-only non-senior
+    // COALESCE in both the concatenation and NOT LIKE guard ensures NULL data_source
+    // rows are handled correctly (NULL || text = NULL in Postgres without COALESCE).
+    const hudResult = await db.execute(sql`
+      UPDATE communities
+      SET
+        is_active = false,
+        data_source = COALESCE(data_source, '') ||
+          CASE WHEN COALESCE(data_source, '') NOT LIKE '%deactivated: non-senior-living HUD property%'
+               THEN ' [deactivated: non-senior-living HUD property]'
+               ELSE '' END
+      WHERE
+        is_active = true
+        AND ${sql.raw(NON_SENIOR_NAME_SQL)}
+        AND NOT ${sql.raw(SENIOR_QUALIFIER_SQL)}
+        AND care_types::text[] @> ARRAY['HUD Housing']
+        AND array_length(care_types, 1) = 1
+    `);
+
+    // Criteria B: No-data-source records with no senior signals anywhere.
+    //
+    // Deactivates no-source records that have NEITHER a senior indicator in
+    // the name NOR a recognised senior care type.  The care-type list covers
+    // both US terminology and Australian/international aged-care labels
+    // (high_care, dementia_care, etc.) so that the ~1,600 international
+    // aged-care facilities in the database are correctly preserved.
+    //
+    // Empirical data (June 2026): of 4,206 no-source active records:
+    //   • 4,205 have a senior signal (name or care type) → preserved
+    //   • ~0 records lack any senior signal after Australian types are included
+    // Running this in future will catch any newly admitted non-senior
+    // no-source properties while leaving all genuine facilities intact.
+    //
+    // COALESCE guards ensure NULL data_source rows are handled correctly
+    // (NULL LIKE ... = NULL in Postgres, not false).
+    // SENIOR_CARE_TYPE_SQL recognises all forms of senior-care type labels:
+    //  - US standard (Title Case)
+    //  - Australian/international (snake_case)
+    //  - Legacy lowercase variants stored by older imports
+    //  - Specialised residential types (Adult Foster Home, Palliative Care, etc.)
+    const SENIOR_CARE_TYPE_SQL = `
+      EXISTS (
+        SELECT 1 FROM unnest(care_types) AS ct
+        WHERE ct IN (
+          'Independent Living','Assisted Living','Memory Care','Skilled Nursing',
+          'Continuing Care','CCRC','Active Adult','Respite Care','Hospice Care',
+          'Board and Care','Senior Living','VA Housing','HUD Senior Housing',
+          'Senior Housing','Veterans Housing','Adult Day Care','Home Care',
+          'Palliative Care','Adult Foster Home','Affordable Senior Housing',
+          'high_care','low_care','dementia_care','respite_care','home_care',
+          'aged_care','residential_care','palliative_care','memory_care',
+          'nursing_care','retirement_living',
+          'skilled nursing','nursing home','nursing center','post-acute care',
+          'rehabilitation','companion care','senior care','non-medical home care'
+        )
+      )
+    `;
+    const noSourceResult = await db.execute(sql`
+      UPDATE communities
+      SET
+        is_active = false,
+        data_source = '[deactivated: no-source non-senior-living]'
+      WHERE
+        is_active = true
+        AND (data_source IS NULL OR data_source = '')
+        AND COALESCE(data_source, '') NOT LIKE '%deactivated%'
+        AND NOT ${sql.raw(SENIOR_QUALIFIER_SQL)}
+        AND NOT ${sql.raw(SENIOR_CARE_TYPE_SQL)}
+    `);
+
+    // Count after
+    const afterResult = await db.execute(sql`
+      SELECT COUNT(*) AS active_after FROM communities WHERE is_active = true
+    `);
+    const afterCount = afterResult.rows[0] as { active_after: string };
+
+    const hudDeactivated = Number((hudResult as any).rowCount ?? 0);
+    const noSourceDeactivated = Number((noSourceResult as any).rowCount ?? 0);
+    const totalDeactivated = hudDeactivated + noSourceDeactivated;
+
+    console.log(`[Data Quality] Deactivation run: HUD=${hudDeactivated}, noSource=${noSourceDeactivated}, total=${totalDeactivated}`);
+
+    res.json({
+      success: true,
+      deactivated: {
+        hudNonSenior: hudDeactivated,
+        noSourceNonSenior: noSourceDeactivated,
+        total: totalDeactivated
+      },
+      activeBefore: Number(beforeCount?.active_before ?? 0),
+      activeAfter: Number(afterCount?.active_after ?? 0),
+      message: `Deactivated ${totalDeactivated} non-senior-living properties (${hudDeactivated} HUD-only, ${noSourceDeactivated} no-source).`
+    });
+  } catch (error) {
+    console.error('Error running non-senior deactivation:', error);
+    res.status(500).json({ error: 'Deactivation failed', details: String(error) });
+  }
+});
+
+// ========== MARKETPLACE VENDOR SEARCH (for pinned vendor picker) ==========
+
+router.get('/api/admin/marketplace-vendors', requireAuth, requireSuperAdmin, async (req: Request, res: Response) => {
+  try {
+    const search = (req.query.search as string || '').trim();
+    const limit = Math.min(parseInt(req.query.limit as string) || 20, 50);
+
+    const conditions: any[] = [];
+    if (search) {
+      conditions.push(ilike(marketplaceVendors.name, `%${search}%`));
+    }
+
+    const results = await db
+      .select({ id: marketplaceVendors.id, name: marketplaceVendors.name, slug: marketplaceVendors.slug })
+      .from(marketplaceVendors)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(marketplaceVendors.name)
+      .limit(limit);
+
+    res.json({ vendors: results });
+  } catch (error) {
+    console.error('Error searching marketplace vendors:', error);
+    res.status(500).json({ error: 'Failed to search vendors' });
   }
 });
 

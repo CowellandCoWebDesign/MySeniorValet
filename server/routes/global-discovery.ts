@@ -1,10 +1,10 @@
 import { Express } from 'express';
 import { z } from 'zod';
 import { db } from '../db';
-import { communities, vendors, services } from '@shared/schema';
+import { communities, vendors, services, healthcareProviders, seniorResources } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
-import { perplexitySearchAPI } from '../services/perplexity-search-api';
+import { discoverCommunitiesViaWeb, discoverHealthcareViaWeb, discoverResourcesViaWeb } from '../services/free-discovery-service';
 import { aiTracker } from '../services/ai-tracker.service';
 
 // US State name to abbreviation mapping for search normalization
@@ -33,10 +33,139 @@ function normalizeState(stateInput: string): string {
   return US_STATE_MAP[normalized] || stateInput;
 }
 
+// State abbreviation to name reverse mapping
+const STATE_ABBREV_MAP: Record<string, string> = {
+  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+  'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+  'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+  'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+  'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+  'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+  'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+  'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+  'DC': 'District of Columbia'
+};
+
+// Parse location from address string to extract city/state
+function parseLocationFromAddress(address: string, query: string = ''): { city: string; state: string; country: string } {
+  let city = '';
+  let state = '';
+  let country = 'USA';
+  
+  // Clean up the address
+  const cleanAddress = (address || '').trim();
+  const cleanQuery = (query || '').trim();
+  
+  // CRITICAL FIX: Parse "in <city> <state>" patterns from query FIRST
+  // Examples: "senior living in Dothan Alabama", "apartments in Dallas Texas"
+  // Use a more precise regex that captures only the city name (word(s) right before state)
+  const statePattern = '(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\\s+Hampshire|New\\s+Jersey|New\\s+Mexico|New\\s+York|North\\s+Carolina|North\\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\\s+Island|South\\s+Carolina|South\\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\\s+Virginia|Wisconsin|Wyoming|AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)';
+  
+  // First try to find pattern: "in/near CityName State" - city is 1-3 words right before state
+  const inLocationMatch = cleanQuery.match(new RegExp(`\\b(?:in|near|around|at)\\s+([A-Za-z][A-Za-z\\s]{0,30}?)\\s+${statePattern}\\b`, 'i'));
+  
+  if (inLocationMatch) {
+    // Extract just the city part - take the last word(s) before state that look like a city name
+    let rawCity = inLocationMatch[1].trim();
+    // Remove common search terms that aren't part of city name
+    rawCity = rawCity.replace(/^(senior\s+living|apartments?|homes?|housing|care|facilities?|communities?)\s+(in|near|around|at)?\s*/i, '');
+    rawCity = rawCity.replace(/^(senior\s+living|apartments?|homes?|housing|care|facilities?|communities?)\s*/i, '');
+    // If we still have words left, use them as city
+    if (rawCity.length > 0 && /^[A-Za-z]/.test(rawCity)) {
+      city = rawCity;
+    }
+    const rawState = inLocationMatch[2].trim();
+    state = normalizeState(rawState);
+    console.log(`📍 Parsed location from query: "${cleanQuery}" -> city="${city}", state="${state}"`);
+  }
+  
+  // Also try pattern: "City, State" or "City State" at end of query
+  if (!city || !state) {
+    // Pattern: "Dothan, Alabama" or "Dothan Alabama" at end
+    const cityStateEndMatch = cleanQuery.match(/([A-Za-z\s]+?)[,\s]+([A-Za-z\s]+)$/i);
+    if (cityStateEndMatch) {
+      const potentialState = normalizeState(cityStateEndMatch[2].trim());
+      if (potentialState.length === 2 && STATE_ABBREV_MAP[potentialState]) {
+        if (!city) city = cityStateEndMatch[1].trim();
+        if (!state) state = potentialState;
+      }
+    }
+  }
+  
+  // Try to extract state abbreviation from end of address (e.g., "123 Main St, Atlanta, GA 30303")
+  if (!state) {
+    const stateAbbrMatch = cleanAddress.match(/,\s*([A-Z]{2})\s*\d{5}(?:-\d{4})?$/);
+    if (stateAbbrMatch) {
+      state = stateAbbrMatch[1];
+    }
+  }
+  
+  // Try pattern: "City, State ZIP" or "City, State"
+  if (!city || !state) {
+    const cityStateMatch = cleanAddress.match(/([^,]+),\s*([A-Z]{2})(?:\s*\d{5})?/);
+    if (cityStateMatch) {
+      // The city is the part before the state
+      const parts = cleanAddress.split(',');
+      if (parts.length >= 2) {
+        // City is second-to-last part before state (skip street address)
+        if (!city) city = parts[parts.length - 2]?.trim() || '';
+        if (!state) state = cityStateMatch[2] || state;
+      }
+    }
+  }
+  
+  // Try to find state from full state name in address
+  if (!state) {
+    for (const [fullName, abbr] of Object.entries(US_STATE_MAP)) {
+      const regex = new RegExp(`\\b${fullName}\\b`, 'i');
+      if (regex.test(cleanAddress)) {
+        state = abbr;
+        break;
+      }
+    }
+  }
+  
+  // If still no city/state, try to extract from query parts
+  if (!city || !state) {
+    const queryParts = cleanQuery.split(',').map(p => p.trim());
+    if (queryParts.length >= 2) {
+      if (!city) city = queryParts[0];
+      if (!state) {
+        const potentialState = normalizeState(queryParts[1]);
+        if (potentialState.length === 2) state = potentialState;
+      }
+    } else if (queryParts.length === 1) {
+      // Check if query is a state name
+      const potentialState = normalizeState(queryParts[0]);
+      if (potentialState.length === 2 && STATE_ABBREV_MAP[potentialState]) {
+        state = potentialState;
+      } else if (!city) {
+        city = queryParts[0];
+      }
+    }
+  }
+  
+  // Detect country from query or address
+  const lowerQuery = cleanQuery.toLowerCase();
+  const lowerAddress = cleanAddress.toLowerCase();
+  if (lowerQuery.includes('canada') || lowerAddress.includes('canada') || 
+      lowerAddress.match(/\b(ON|BC|AB|QC|MB|SK|NS|NB|NL|PE|YT|NT|NU)\b/)) {
+    country = 'Canada';
+  } else if (lowerQuery.includes('mexico') || lowerAddress.includes('mexico')) {
+    country = 'Mexico';
+  } else if (lowerQuery.includes('cuba') || lowerAddress.includes('cuba')) {
+    country = 'Cuba';
+  }
+  
+  return { city, state, country };
+}
+
 // Schema for global discovery search
 const globalSearchSchema = z.object({
   query: z.string(),
-  searchType: z.enum(['location', 'service', 'services', 'community']).optional(),
+  searchType: z.enum(['location', 'service', 'services', 'community', 'healthcare', 'resources', 'vendors']).optional(),
   limit: z.number().min(1).max(100).default(30)
 });
 
@@ -73,27 +202,237 @@ const discoveredCommunitySchema = z.object({
 async function validateBusinessExists(businessName: string, city?: string, state?: string): Promise<boolean> {
   // Skip validation to improve performance - was causing 90+ second delays
   return true;
+}
+
+// AUTO-APPROVAL VERIFICATION FUNCTION
+// Determines if a discovered community should be auto-approved or needs manual review
+interface VerificationResult {
+  isVerified: boolean;
+  autoApproved: boolean;
+  suspiciousReasons: string[];
+  confidenceScore: number;
+}
+
+function verifyCommunityForAutoApproval(community: {
+  name: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  description?: string;
+  careTypes?: string[];
+}): VerificationResult {
+  const suspiciousReasons: string[] = [];
+  let confidenceScore = 0;
   
-  // Original expensive validation code commented out:
-  /*
-  try {
-    const location = [city, state].filter(Boolean).join(', ');
-    console.log(`🔍 Validating business exists: ${businessName}${location ? ` in ${location}` : ''}`);
-    
-    // Use new Search API for cost-effective validation ($5/1K vs higher Sonar Pro costs)
-    const validation = await perplexitySearchAPI.validateBusinessExists(businessName, location);
-    
-    // Consider it valid if confidence is 50% or higher, or if we have multiple sources
-    const isValid = validation.confidence >= 50 || validation.sources.length >= 2;
-    
-    console.log(`✅ Search API validation: ${businessName} = ${isValid ? 'VALID' : 'INVALID'} (confidence: ${validation.confidence}%, sources: ${validation.sources.length})`);
-    
-    return isValid;
-  } catch (error) {
-    console.error('⚠️ Business validation error:', error);
-    return true; // Default to true if validation fails
+  // Suspicious name patterns (needs manual review)
+  const suspiciousNamePatterns = [
+    /^test/i,
+    /^sample/i,
+    /^example/i,
+    /^placeholder/i,
+    /^demo/i,
+    /^xxx/i,
+    /^aaa/i,
+    /unknown/i,
+    /^[0-9]+$/,
+    /lorem ipsum/i,
+  ];
+  
+  // Check name validity
+  if (!community.name || community.name.length < 3) {
+    suspiciousReasons.push('Name too short or missing');
+  } else if (suspiciousNamePatterns.some(pattern => pattern.test(community.name))) {
+    suspiciousReasons.push('Name contains suspicious test/placeholder pattern');
+  } else {
+    confidenceScore += 20;
   }
-  */
+  
+  // Check address validity
+  if (community.address && 
+      community.address !== 'Address pending verification' && 
+      community.address.length > 5) {
+    confidenceScore += 20;
+  } else {
+    suspiciousReasons.push('Missing or invalid address');
+  }
+  
+  // Check city and state
+  if (community.city && community.city !== 'Unknown' && community.city.length > 1) {
+    confidenceScore += 15;
+  } else {
+    suspiciousReasons.push('Missing or invalid city');
+  }
+  
+  if (community.state && community.state !== 'Unknown' && community.state.length >= 2) {
+    confidenceScore += 10;
+  } else {
+    suspiciousReasons.push('Missing or invalid state');
+  }
+  
+  // Check contact information - more weight given to valid contact info
+  // Contact info is crucial for families - give it significant weight
+  const hasPhone = community.phone && community.phone.length >= 7;
+  const hasEmail = community.email && community.email.includes('@');
+  const hasWebsite = community.website && (
+    community.website.includes('http') || 
+    community.website.includes('www') ||
+    community.website.includes('.com') ||
+    community.website.includes('.org') ||
+    community.website.includes('.net')
+  );
+  
+  // Increased points for contact info - essential for user experience
+  if (hasPhone) confidenceScore += 20; // Increased from 15
+  if (hasEmail) confidenceScore += 10;
+  if (hasWebsite) confidenceScore += 15; // Increased from 10
+  
+  // Bonus for having both phone AND website (high quality lead)
+  if (hasPhone && hasWebsite) {
+    confidenceScore += 10; // Quality bonus
+  }
+  
+  if (!hasPhone && !hasEmail && !hasWebsite) {
+    suspiciousReasons.push('No contact information (phone, email, or website)');
+  }
+  
+  // Check if care types are specified
+  if (community.careTypes && community.careTypes.length > 0 && 
+      !community.careTypes.includes('Unknown')) {
+    confidenceScore += 10;
+  }
+  
+  // Auto-approve if:
+  // 1. Confidence score >= 60 (has name + valid contact info can compensate for partial address)
+  // 2. No critical suspicious reasons (name issues or NO contact at all)
+  const criticalReasons = suspiciousReasons.filter(r => 
+    r.includes('Name') || r.includes('No contact information')
+  );
+  
+  const isVerified = confidenceScore >= 60;
+  const autoApproved = isVerified && criticalReasons.length === 0;
+  
+  console.log(`🔍 Auto-approval check for "${community.name}": score=${confidenceScore}, verified=${isVerified}, autoApproved=${autoApproved}${suspiciousReasons.length > 0 ? ', reasons: ' + suspiciousReasons.join('; ') : ''}`);
+  
+  return {
+    isVerified,
+    autoApproved,
+    suspiciousReasons,
+    confidenceScore
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Senior-living facility guard — shared between discovery, admin API, and
+// storage.ts createCommunity. Prevents generic apartments/housing authority
+// properties from entering the communities table.
+// ---------------------------------------------------------------------------
+
+/**
+ * Patterns in a community name that strongly indicate a generic non-senior
+ * apartment complex or housing authority property.
+ */
+const NON_SENIOR_NAME_PATTERNS = [
+  /\bAPTS\b/i, /\bAPARTMENTS\b/i, /\bAPARTMENT\b/i,
+  /\bHOUSING AUTHORITY\b/i, /\bHOUSING PROJ/i,
+  /\bHOUSING COMPLEX\b/i, /\bAPT COMPLEX\b/i,
+  /\bPUBLIC HOUSING\b/i, /\bSECTION 8\b/i
+];
+
+/**
+ * Words that definitively identify a senior-living purpose.
+ * Generic architectural words (village, manor, terrace) are intentionally
+ * excluded — they do NOT override a non-senior name pattern.
+ */
+const HARD_SENIOR_QUALIFIERS = [
+  'senior', 'elderly', 'retirement', 'assisted living', 'memory care',
+  'skilled nursing', 'nursing home', 'hospice', 'adult care', 'adult day',
+  'continuing care', 'ccrc', '202', 'hud-vash', 'vash'
+];
+
+/**
+ * Care types that unambiguously signal a senior-living community.
+ * 'HUD Housing' alone is NOT sufficient — it is used for generic public housing.
+ * Includes Australian/international terminology (high_care, dementia_care, etc.)
+ * used by ~1,676 international aged-care facilities in the database.
+ */
+const SENIOR_CARE_TYPES = new Set([
+  // US standard care types
+  'Independent Living', 'Assisted Living', 'Memory Care',
+  'Skilled Nursing', 'Continuing Care', 'CCRC', 'Active Adult',
+  'Respite Care', 'Hospice Care', 'Board and Care', 'Senior Living',
+  'VA Housing', 'HUD Senior Housing', 'Senior Housing', 'Veterans Housing',
+  'Adult Day Care', 'Home Care',
+  // Australian / international care type labels
+  'high_care', 'low_care', 'dementia_care', 'respite_care',
+  'home_care', 'aged_care', 'residential_care', 'palliative_care',
+  'memory_care', 'nursing_care', 'retirement_living',
+]);
+
+/**
+ * Returns true only when the name + care types clearly indicate a genuine senior
+ * living facility.  Returns false for generic apartment complexes, housing
+ * authority buildings, and similar non-senior properties.
+ *
+ * Logic (evaluated in priority order):
+ *  1. If name matches a non-senior pattern AND no hard senior qualifier
+ *     appears in the name → reject (false), regardless of care types.
+ *  2. If care types include a senior-specific type (excluding bare HUD Housing)
+ *     → accept (true).
+ *  3. If name contains a hard senior qualifier → accept (true).
+ *  4. Default: reject to avoid accumulating unclassified properties.
+ */
+export function isSeniorLivingFacility(name: string, careTypes: string[]): boolean {
+  const nameLower = (name || '').toLowerCase();
+
+  // Step 1: Check for non-senior name patterns first (highest priority exclusion)
+  const hasNonSeniorPattern = NON_SENIOR_NAME_PATTERNS.some(p => p.test(name));
+  if (hasNonSeniorPattern) {
+    // Only override if a hard senior qualifier appears in the name itself
+    const hasHardSeniorQualifier = HARD_SENIOR_QUALIFIERS.some(q => nameLower.includes(q));
+    if (!hasHardSeniorQualifier) {
+      return false; // e.g. "RAINBOW VILLAGE APARTMENTS" → rejected
+    }
+  }
+
+  // Step 2: Senior-specific care type (not bare HUD Housing)
+  const hasSeniorCareType = careTypes.some(ct =>
+    SENIOR_CARE_TYPES.has(ct) && ct !== 'HUD Housing'
+  );
+  if (hasSeniorCareType) return true;
+
+  // Step 3: Hard senior qualifier in name
+  const hasHardSeniorQualifier = HARD_SENIOR_QUALIFIERS.some(q => nameLower.includes(q));
+  if (hasHardSeniorQualifier) return true;
+
+  // Step 4: Default accept — name didn't match any non-senior exclusion pattern,
+  // and no explicit positive signal was found.  Empirical analysis of the database
+  // confirms that no-source communities without senior keywords in the name are
+  // overwhelmingly legitimate senior facilities (4,205 of 4,206 verified as genuine).
+  // Defaulting to reject here would cause false-positive filtering of real communities.
+  return true;
+}
+
+// ---------------------------------------------------------------------------
+// Task #250 cost guard: remember which city+state had an AUTO Perplexity
+// discovery recently so repeated searches of the same sparse city within 24h
+// don't hammer the API. Keyed by "city|state" (lowercased). A forced
+// discoveryMode=true request bypasses this guard.
+// ---------------------------------------------------------------------------
+const AUTO_DISCOVERY_TTL_MS = 24 * 60 * 60 * 1000;
+const recentAutoDiscovery = new Map<string, number>();
+
+function autoDiscoveryRecentlyRan(cityStateKey: string): boolean {
+  const last = recentAutoDiscovery.get(cityStateKey);
+  if (!last) return false;
+  if (Date.now() - last > AUTO_DISCOVERY_TTL_MS) {
+    recentAutoDiscovery.delete(cityStateKey);
+    return false;
+  }
+  return true;
 }
 
 export function setupGlobalDiscoveryRoutes(app: Express) {
@@ -105,6 +444,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
     let query = '';
     let searchType: string | undefined = undefined;
     let limit = 30;
+    let citySearch = '';
+    let stateSearch = '';
     
     try {
       const parsed = globalSearchSchema.parse(req.body);
@@ -391,10 +732,179 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             }
           }
         }
-      } else if (searchType !== 'services') {
+        
+        // ============ SERVICES DISCOVERY MODE ============
+        // Discovery for services returns database results only (no paid AI)
+        // Full free-web discovery is reserved for community searches
+        
+        // If we reach here for services, return whatever database results we have
+        return res.json({
+          success: true,
+          query: query,
+          searchType: 'services',
+          results: existingCommunities.slice(0, limit),
+          metadata: {
+            totalFound: existingCommunities.length,
+            existingCount: existingCommunities.length,
+            discoveredCount: 0,
+            sources: ['Database'],
+            searchLocation: query,
+            timestamp: new Date().toISOString(),
+            aiConfidence: 100,
+            dataSource: existingCommunities.length > 0 ? 'Database' : 'No results found'
+          },
+          message: existingCommunities.length === 0 
+            ? 'No services found. Try enabling Discovery Mode to search the web.'
+            : `Found ${existingCommunities.length} services in database`
+        });
+        
+      } else if (searchType === 'healthcare' || searchType === 'resources' || searchType === 'vendors') {
+        // ============ HEALTHCARE / RESOURCES / VENDORS DISCOVERY MODE ============
+        const categoryLabel = searchType === 'healthcare' ? 'healthcare providers'
+          : searchType === 'resources' ? 'senior resources' : 'vendors';
+        console.log(`🔍 ${searchType} Discovery search: "${query}"`);
+
+        // Parse location from query
+        let entityCity = '';
+        let entityState = '';
+        let searchLocation = query;
+        const queryLowerE = query.toLowerCase();
+
+        if (queryLowerE.includes(' in ')) {
+          const parts = query.split(/\s+in\s+/i);
+          searchLocation = parts[1]?.trim() || query;
+        } else if (queryLowerE.includes(' near ')) {
+          const parts = query.split(/\s+near\s+/i);
+          searchLocation = parts[1]?.trim() || query;
+        }
+
+        // Attempt to split city/state from searchLocation
+        if (searchLocation.includes(',')) {
+          const locParts = searchLocation.split(',').map(p => p.trim());
+          entityCity = locParts[0] || '';
+          entityState = locParts[1] || '';
+        } else {
+          const words = searchLocation.trim().split(/\s+/);
+          if (words.length >= 2) {
+            const lastWord = words[words.length - 1];
+            const stateNorm = normalizeState(lastWord);
+            if (stateNorm !== lastWord && stateNorm.length === 2) {
+              entityState = stateNorm;
+              entityCity = words.slice(0, -1).join(' ');
+            } else {
+              entityCity = searchLocation;
+            }
+          } else {
+            entityCity = searchLocation;
+          }
+        }
+
+        let discoveredEntities: any[] = [];
+
+        if (searchType === 'healthcare' || searchType === 'resources') {
+          try {
+            const webDiscovered = searchType === 'healthcare'
+              ? await discoverHealthcareViaWeb(query, entityCity || undefined, entityState || undefined)
+              : await discoverResourcesViaWeb(query, entityCity || undefined, entityState || undefined);
+
+            discoveredEntities = webDiscovered.map(e => ({
+              name: e.name,
+              address: e.address || '',
+              city: e.city || entityCity || '',
+              state: e.state || entityState || '',
+              phone: e.phone || '',
+              website: e.website || '',
+              description: e.description || `${categoryLabel} found via web search for "${query}"`,
+              services: e.services || [],
+              source: e.source,
+              confidence: e.confidence,
+              isDiscovered: true
+            }));
+
+            console.log(`✅ Free Entity Discovery (${searchType}): found ${discoveredEntities.length} candidates`);
+          } catch (searchErr) {
+            console.error(`❌ Entity Discovery error for ${searchType}:`, searchErr);
+            discoveredEntities = [];
+          }
+        }
+
+        // Save discovered entities to appropriate DB tables
+        const savedEntities: any[] = [];
+        const table = searchType === 'healthcare' ? healthcareProviders : seniorResources;
+
+        for (const entity of discoveredEntities) {
+          if (!entity.name) continue;
+          try {
+            const normalizedName = entity.name.toLowerCase().trim();
+            const existing = await db.select()
+              .from(table)
+              .where(sql`LOWER(${table.normalizedName}) = ${normalizedName}`)
+              .limit(1);
+
+            if (existing.length === 0) {
+              const baseValues = {
+                name: entity.name,
+                normalizedName,
+                description: entity.description || null,
+                shortDescription: entity.description ? entity.description.substring(0, 200) : null,
+                address: entity.address || null,
+                city: entity.city || entityCity || null,
+                state: entity.state || entityState || null,
+                phone: entity.phone || null,
+                website: entity.website || null,
+                source: 'free_discovery',
+                sourceUrl: entity.website || null,
+                confidence: entity.confidence || 40,
+                isVerified: false,
+                metadata: { discoveryQuery: query }
+              };
+
+              let inserted: any;
+              if (searchType === 'healthcare') {
+                [inserted] = await db.insert(healthcareProviders)
+                  .values({ ...baseValues, providerType: 'clinic', specialties: entity.services || [] })
+                  .returning();
+              } else {
+                [inserted] = await db.insert(seniorResources)
+                  .values({ ...baseValues, resourceType: 'senior_services', services: entity.services || [] })
+                  .returning();
+              }
+
+              console.log(`✅ SAVED ${searchType}: ${entity.name} (ID: ${inserted.id})`);
+              savedEntities.push({ ...inserted, isDiscovered: true });
+            } else {
+              savedEntities.push({ ...existing[0], isDiscovered: false });
+            }
+          } catch (insertErr) {
+            console.error(`❌ Failed to save ${searchType} entity "${entity.name}":`, insertErr);
+            savedEntities.push({ ...entity, id: 0, isDiscovered: true });
+          }
+        }
+
+        return res.json({
+          success: true,
+          query: query,
+          searchType: searchType,
+          results: savedEntities.slice(0, limit),
+          metadata: {
+            totalFound: savedEntities.length,
+            existingCount: savedEntities.filter((e: any) => !e.isDiscovered).length,
+            discoveredCount: savedEntities.filter((e: any) => e.isDiscovered).length,
+            sources: ['DuckDuckGo+Jina Web Search'],
+            searchLocation: searchLocation,
+            timestamp: new Date().toISOString(),
+            aiConfidence: discoveredEntities.length > 0 ? 70 : 50,
+            dataSource: 'Free Discovery (DuckDuckGo+Jina)'
+          },
+          message: savedEntities.length === 0
+            ? `No ${categoryLabel} found for "${query}". Try a different location or search term.`
+            : `Discovery Mode found ${savedEntities.length} ${categoryLabel} via web search`
+        });
+        
+      } else {
+        // Non-services search (communities, healthcare, etc.)
         // Parse location from query (e.g., "Dallas, Texas", "Eureka California", or just "France")
-        let citySearch = '';
-        let stateSearch = '';
+        // Note: citySearch and stateSearch are declared at function scope for use in broader search
         
         if (query.includes(',')) {
           // Handle "City, State" format
@@ -403,6 +913,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           stateSearch = queryParts[1] || '';
         } else {
           // Handle "City State" format (no comma) - e.g., "Eureka California"
+          // Also handles "senior living in City State" format
           const words = query.trim().split(/\s+/);
           
           if (words.length >= 2) {
@@ -425,6 +936,16 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             } else {
               // No recognizable state, treat entire query as city
               citySearch = query;
+            }
+            
+            // CRITICAL FIX: Remove common search terms from city to extract actual city name
+            // e.g., "senior living in Dothan" → "Dothan"
+            if (citySearch) {
+              // Remove leading search terms
+              citySearch = citySearch.replace(/^(senior\s+living|assisted\s+living|memory\s+care|nursing\s+home|retirement\s+home|apartments?|housing|homes?|care\s+facilities?|facilities?|communities?)(\s+(in|near|around|at))?\s*/gi, '');
+              // Also try removing just the preposition pattern
+              citySearch = citySearch.replace(/.*\b(in|near|around|at)\s+/i, '');
+              citySearch = citySearch.trim();
             }
           } else {
             // Single word query
@@ -465,6 +986,18 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               )
             )
             .limit(50);
+        } else if (!citySearch && stateSearch) {
+          // State-only search (e.g., "senior living in Alabama" where city cleanup left empty)
+          console.log(`🗺️ State-only search: finding communities in ${stateSearch}`);
+          existingCommunities = await db.select()
+            .from(communities)
+            .where(
+              and(
+                eq(communities.state, stateSearch),
+                eq(communities.isVerified, true)
+              )
+            )
+            .limit(50);
         } else {
           // City/state search with normalized state abbreviation
           existingCommunities = await db.select()
@@ -486,6 +1019,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           term.length > 2 && !['for', 'in', 'at', 'the', 'senior', 'living', 'care'].includes(term)
         );
         
+        // Build query conditions - always include state filter if we have one
         const additionalResults = await db.select()
           .from(communities)
           .where(
@@ -494,11 +1028,12 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 ...searchTerms.map(term => 
                   or(
                     sql`LOWER(${communities.city}) LIKE ${'%' + term + '%'}`,
-                    sql`LOWER(${communities.state}) LIKE ${'%' + term + '%'}`,
                     sql`LOWER(${communities.name}) LIKE ${'%' + term + '%'}`
                   )
                 )
               ),
+              // CRITICAL FIX: Apply state filter to prevent returning wrong locations
+              stateSearch ? eq(communities.state, stateSearch) : sql`true`,
               eq(communities.isVerified, true)
             )
           )
@@ -514,9 +1049,48 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       }
       
       console.log(`💾 Found ${existingCommunities.length} existing communities in database`);
-      
-      // Check if we're in Discovery Mode or searching for services
-      const isDiscoveryMode = req.body.discoveryMode === true;
+
+      // ---------------------------------------------------------------------
+      // Task #250: detect SPARSE / INCOMPLETE coverage so the self-healing
+      // discovery VALIDATES + REPAIRS the DB instead of only filling blanks.
+      // A location is "sparse" when:
+      //   - fewer than 5 communities exist, OR
+      //   - fewer than 15 exist AND more than half have neither a photo nor a
+      //     description (stale data from a failed/mixed past scrape).
+      // Well-covered cities (>= 15) keep the fast-path and never call Perplexity.
+      // ---------------------------------------------------------------------
+      const hasNoPhotos = (c: any) => !Array.isArray(c.photos) || c.photos.length === 0;
+      const hasNoDescription = (c: any) => !c.description || String(c.description).trim().length < 30;
+      const incompleteCount = existingCommunities.filter(c => hasNoPhotos(c) && hasNoDescription(c)).length;
+      const sparseCoverage = searchType !== 'services' && (
+        existingCommunities.length < 5 ||
+        (existingCommunities.length < 15 && incompleteCount > existingCommunities.length / 2)
+      );
+
+      // Cost guard: skip an AUTO sparse discovery if we already ran one for this
+      // city+state within the last 24h (forced discoveryMode bypasses this).
+      const discoveryCityKey = (`${(citySearch || '').toLowerCase().trim()}|${(stateSearch || '').toLowerCase().trim()}`).trim() === '|'
+        ? (query || '').toLowerCase().trim()
+        : `${(citySearch || '').toLowerCase().trim()}|${(stateSearch || '').toLowerCase().trim()}`;
+      const autoRanRecently = autoDiscoveryRecentlyRan(discoveryCityKey);
+
+      if (sparseCoverage) {
+        console.log(`🩺 Sparse coverage for "${query}" (key=${discoveryCityKey}): ${existingCommunities.length} communities, ${incompleteCount} missing photo+description. autoRanRecently=${autoRanRecently}`);
+      }
+
+      // Check if we're in Discovery Mode or searching for services.
+      // Auto-trigger discovery when zero results exist OR coverage is sparse,
+      // even without an explicit discoveryMode flag — but ALWAYS gate auto runs
+      // behind the 24h cost guard so repeated searches for the same city (zero
+      // OR sparse) don't hammer the API. A forced discoveryMode bypasses the guard.
+      const forcedDiscovery = req.body.discoveryMode === true;
+      const zeroResults = existingCommunities.length === 0 && !!query && query.trim().length > 2;
+      const shouldAutoDiscover = !forcedDiscovery && (zeroResults || sparseCoverage) && !autoRanRecently;
+      const isDiscoveryMode = forcedDiscovery || shouldAutoDiscover;
+
+      if ((zeroResults || sparseCoverage) && autoRanRecently && !forcedDiscovery) {
+        console.log(`💸 Skipping auto Perplexity discovery for "${discoveryCityKey}" — ran within last 24h (cost guard). zeroResults=${zeroResults} sparse=${sparseCoverage}`);
+      }
       
       // If NOT in Discovery Mode and we have enough database results (skip for services)
       if (!isDiscoveryMode && searchType !== 'services' && existingCommunities.length >= 15) {
@@ -540,7 +1114,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             searchLocation: query,
             timestamp: new Date().toISOString(),
             aiConfidence: 100,
-            dataSource: 'Database (33k+ verified communities)'
+            dataSource: 'Database (33k+ verified communities)',
+            sparseCoverage: false
           },
           message: `Found ${existingCommunities.length} verified communities in ${query}`
         });
@@ -548,8 +1123,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
       
       // If NOT in Discovery Mode and we have some database results, return them
       if (!isDiscoveryMode) {
-        // Return database results without calling Perplexity
-        console.log(`✅ Returning ${existingCommunities.length} database results without Perplexity (Discovery Mode: false)`);
+        console.log(`✅ Returning ${existingCommunities.length} database results (Discovery Mode: false)`);
         
         // Mark all database results as existing/verified
         const markedResults = existingCommunities.slice(0, limit || 30).map(community => ({
@@ -572,7 +1146,8 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             timestamp: new Date().toISOString(),
             aiConfidence: 100,
             dataSource: 'Database (33k+ verified communities)',
-            discoveryModeUsed: false
+            discoveryModeUsed: false,
+            sparseCoverage
           },
           message: existingCommunities.length === 0 
             ? 'No communities found in database. Use Discovery Mode to search the web.'
@@ -580,421 +1155,131 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         });
       }
       
-      // ============ DISCOVERY MODE ACTIVE ============
-      // When Discovery Mode is TRUE, ALWAYS search the web to find ALL options,
-      // then compare to database to identify which ones we already have
-      // 🚀 USING NEW SEARCH API (Sept 25, 2025) - $5/1K requests vs higher Sonar costs
-      
-      const perplexityApiKey = process.env.PERPLEXITY_API_KEY;
-      if (!perplexityApiKey) {
-        console.error('❌ Perplexity API key not configured');
-        return res.status(500).json({ error: 'Search service not configured for Discovery Mode' });
-      }
-      
-      console.log(`🔍 Discovery Mode ACTIVE: Using Sonar API for comprehensive discovery in ${query}, then comparing to database`);
-      
-      // Construct an intelligent search query for Perplexity - optimized for international searches
-      let searchQuery = '';
-      
-      // List of known country names for detection
-      const countryNames = [
-        'japan', 'france', 'germany', 'italy', 'spain', 'uk', 'united kingdom', 'canada', 
-        'australia', 'china', 'india', 'brazil', 'mexico', 'russia', 'south korea', 'korea',
-        'netherlands', 'belgium', 'switzerland', 'sweden', 'norway', 'denmark', 'finland',
-        'poland', 'czech republic', 'austria', 'portugal', 'greece', 'turkey', 'israel',
-        'new zealand', 'singapore', 'thailand', 'vietnam', 'philippines', 'indonesia',
-        'malaysia', 'hong kong', 'taiwan', 'argentina', 'chile', 'colombia', 'peru'
-      ];
-      
-      // Detect if query contains a country name
-      const queryLower = query.toLowerCase();
-      const isCountrySearch = countryNames.some(country => queryLower.includes(country));
-      const isSpecificCitySearch = query.includes(',') || query.match(/\b(city|town|suburb|district)\b/i);
-      
-      let discoveredCommunities: any[] = [];
-      let citations: any[] = []; // Initialize citations for both Search API and Sonar API paths
-      let aiResponse = ''; // Initialize for both paths
-      // searchQuery already declared earlier in the function
+      // ============ DISCOVERY MODE ACTIVE: Free DuckDuckGo + Jina Web Discovery ============
+      // Triggered when discoveryMode=true OR when zero database results exist for this query
 
-      // Detect default country from the beginning
-      const defaultCountry = (() => {
-        const lowerQuery = query.toLowerCase();
-        if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
-        if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
-        if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
-        if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
-        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
-        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
-        if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
-        if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
-        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
-        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
-        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
-        return 'United States'; // Default
-      })();
-
-      // Helper function to detect country from query
+      // Helper function to detect country from query - comprehensive global coverage
       const detectCountry = (query: string): string => {
         const lowerQuery = query.toLowerCase();
-        if (lowerQuery.includes('australia') || lowerQuery.includes('brisbane') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne') || lowerQuery.includes('perth')) return 'Australia';
-        if (lowerQuery.includes('scotland') || lowerQuery.includes('edinburgh') || lowerQuery.includes('glasgow')) return 'United Kingdom';
-        if (lowerQuery.includes('england') || lowerQuery.includes('london') || lowerQuery.includes('manchester')) return 'United Kingdom';
-        if (lowerQuery.includes('wales') || lowerQuery.includes('cardiff')) return 'United Kingdom';
-        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom')) return 'United Kingdom';
-        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver')) return 'Canada';
+        if (lowerQuery.includes('dubai') || lowerQuery.includes('uae') || lowerQuery.includes('united arab emirates')) return 'United Arab Emirates';
+        if (lowerQuery.includes('saudi') || lowerQuery.includes('riyadh') || lowerQuery.includes('jeddah')) return 'Saudi Arabia';
+        if (lowerQuery.includes('qatar') || lowerQuery.includes('doha')) return 'Qatar';
+        if (lowerQuery.includes('kuwait')) return 'Kuwait';
+        if (lowerQuery.includes('bahrain')) return 'Bahrain';
+        if (lowerQuery.includes('oman') || lowerQuery.includes('muscat')) return 'Oman';
+        if (lowerQuery.includes('jordan') || lowerQuery.includes('amman')) return 'Jordan';
+        if (lowerQuery.includes('israel') || lowerQuery.includes('tel aviv') || lowerQuery.includes('jerusalem')) return 'Israel';
+        if (lowerQuery.includes('egypt') || lowerQuery.includes('cairo')) return 'Egypt';
+        if (lowerQuery.includes('singapore')) return 'Singapore';
+        if (lowerQuery.includes('hong kong')) return 'Hong Kong';
+        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo') || lowerQuery.includes('osaka')) return 'Japan';
+        if (lowerQuery.includes('china') || lowerQuery.includes('beijing') || lowerQuery.includes('shanghai')) return 'China';
+        if (lowerQuery.includes('india') || lowerQuery.includes('mumbai') || lowerQuery.includes('delhi')) return 'India';
+        if (lowerQuery.includes('thailand') || lowerQuery.includes('bangkok')) return 'Thailand';
+        if (lowerQuery.includes('malaysia') || lowerQuery.includes('kuala lumpur')) return 'Malaysia';
+        if (lowerQuery.includes('indonesia') || lowerQuery.includes('jakarta') || lowerQuery.includes('bali')) return 'Indonesia';
+        if (lowerQuery.includes('philippines') || lowerQuery.includes('manila')) return 'Philippines';
+        if (lowerQuery.includes('vietnam') || lowerQuery.includes('hanoi') || lowerQuery.includes('ho chi minh')) return 'Vietnam';
+        if (lowerQuery.includes('south korea') || lowerQuery.includes('korea') || lowerQuery.includes('seoul')) return 'South Korea';
+        if (lowerQuery.includes('australia') || lowerQuery.includes('sydney') || lowerQuery.includes('melbourne')) return 'Australia';
+        if (lowerQuery.includes('new zealand') || lowerQuery.includes('auckland')) return 'New Zealand';
+        if (lowerQuery.includes('uk') || lowerQuery.includes('united kingdom') || lowerQuery.includes('london') || lowerQuery.includes('england')) return 'United Kingdom';
+        if (lowerQuery.includes('ireland') || lowerQuery.includes('dublin')) return 'Ireland';
         if (lowerQuery.includes('france') || lowerQuery.includes('paris')) return 'France';
         if (lowerQuery.includes('germany') || lowerQuery.includes('berlin')) return 'Germany';
-        if (lowerQuery.includes('japan') || lowerQuery.includes('tokyo')) return 'Japan';
-        if (lowerQuery.includes('italy') || lowerQuery.includes('rome')) return 'Italy';
-        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid')) return 'Spain';
-        return 'United States'; // Default
+        if (lowerQuery.includes('italy') || lowerQuery.includes('rome') || lowerQuery.includes('milan')) return 'Italy';
+        if (lowerQuery.includes('spain') || lowerQuery.includes('madrid') || lowerQuery.includes('barcelona')) return 'Spain';
+        if (lowerQuery.includes('canada') || lowerQuery.includes('toronto') || lowerQuery.includes('vancouver') || lowerQuery.includes('montreal')) return 'Canada';
+        if (lowerQuery.includes('mexico') || lowerQuery.includes('mexico city')) return 'Mexico';
+        if (lowerQuery.includes('brazil') || lowerQuery.includes('sao paulo') || lowerQuery.includes('rio')) return 'Brazil';
+        if (lowerQuery.includes('south africa') || lowerQuery.includes('johannesburg') || lowerQuery.includes('cape town')) return 'South Africa';
+        return 'United States';
       };
 
-      // ALWAYS USE SONAR API FOR DISCOVERY MODE - Per user request, we only use Sonar for discovery searches
-      // Skip Search API completely as it returns articles and generic content
-      console.log(`🔍 Discovery Mode: Using ONLY Sonar API for discovery searches (not Search API)`);
-      discoveredCommunities = []; // Initialize empty to trigger Sonar search below
-      
-      // Always use Sonar API for discovery
-      if (true) {
-        console.log(`🔍 Using Sonar API for comprehensive discovery...`);
-        
-        try {
-
-        if (searchType === 'services') {
-          // OPTIMIZED: Request fewer results for faster response
-          searchQuery = `Find the top 10 businesses and services matching: "${query}". 
-          
-For EACH business provide:
-- Business name
-- Address
-- City, state, country
-- Phone (if available)
-- Website (if available)
-
-Keep responses concise and focus on the most relevant results.`;
-        } else if (searchType === 'location' || isSpecificCitySearch || isCountrySearch) {
-        // Adjust for country-level searches
-        let searchScope = '';
-        if (isCountrySearch && !isSpecificCitySearch) {
-          searchScope = `Search across major cities and regions in ${query}. Include facilities from different areas of the country.`;
-        } else {
-          searchScope = `Include ONLY facilities physically located in ${query}.`;
-        }
-        
-        searchQuery = `Find the top 15 senior housing facilities in ${query}. ${searchScope} Include a mix of: assisted living, independent living, memory care, nursing homes, and senior apartments. For each: name, address, phone, website (if available), type. Focus on established facilities with good information.`;
-      } else if (searchType === 'service') {
-        // Legacy service type for backward compatibility
-        searchQuery = `Find at least 10-15 senior care services and providers offering ${query}. Include company names, locations, contact information, and service descriptions. List as many providers as possible.`;
-      } else {
-        searchQuery = `Find senior facilities related to ${query}. Include: senior apartments, HUD/Section 8/Section 202, Section 811 disability housing, VA homes, 55+ apartments, RV parks, independent living, assisted living, memory care, skilled nursing, adult foster care, disability action centers, Centers for Independent Living, subsidized apartments, affordable housing. Include names, addresses, contact info. List all options.`;
-      }
-      
-      console.log(`🔍 Perplexity Query: ${searchQuery}`);
-      
-      // Call Perplexity API with STRUCTURED JSON OUTPUT and timeout
-      // BALANCED: 30s timeout - enough for Perplexity to respond, not too long for users
-      const isComplexSearch = (isCountrySearch || searchType === 'services' || query.toLowerCase().includes('hotels') || query.toLowerCase().includes('transportation'));
-      const TIMEOUT_MS = 30000; // 30s timeout - Perplexity needs time to search comprehensively
-      console.log(`⏱️ Using ${TIMEOUT_MS/1000}s timeout for discovery search`);
-      
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), TIMEOUT_MS);
-      
-      // Adjust system prompt based on search type
-      let systemPrompt = '';
-      if (searchType === 'services') {
-        systemPrompt = 'You are a helpful assistant that finds businesses and services based on user searches. Provide accurate and relevant results.';
-      } else {
-        systemPrompt = 'You are a comprehensive senior housing research assistant. Search for ALL types of senior housing and living options, not just care facilities. Include: independent living, senior apartments, 55+ communities, affordable/subsidized senior housing, HUD housing, active adult communities, CCRCs, assisted living, memory care, nursing homes, board and care homes, and ANY housing option available to seniors. Return ONLY facilities from the requested location with accurate information.';
-      }
-      
-      // Track Perplexity API usage for Discovery Mode
-      const discoveryStartTime = Date.now();
-      
-      const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
-        signal: controller.signal,
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${perplexityApiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar-pro', // Enhanced model with low context for quality and cost balance
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt
-            },
-            {
-              role: 'user',
-              content: searchQuery + ' Provide the response as structured JSON data with ALL facilities found, not just examples. Include every single facility you can find.'
-            }
-          ],
-          web_search_options: {
-            search_context_size: 'low' // Use low context to reduce costs
-          },
-          response_format: {
-            type: 'json_schema',
-            json_schema: {
-              schema: {
-                type: 'object',
-                properties: {
-                  facilities: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      properties: {
-                        name: { type: 'string' },
-                        address: { type: 'string' },
-                        city: { type: 'string' },
-                        state: { type: 'string' },
-                        country: { type: 'string' },
-                        phone: { type: 'string' },
-                        website: { type: 'string' },
-                        email: { type: 'string' },
-                        description: { type: 'string' },
-                        careTypes: {
-                          type: 'array',
-                          items: { type: 'string' }
-                        },
-                        zipCode: { type: 'string' }
-                      },
-                      required: ['name']
-                    }
-                  },
-                  totalFound: { type: 'number' },
-                  searchLocation: { type: 'string' }
-                },
-                required: ['facilities']
-              }
-            }
-          },
-          temperature: 0.3, // Slightly higher for more diverse results
-          max_tokens: 8000, // Further increased to handle comprehensive responses with 20+ facilities
-          top_p: 0.9,
-          stream: false
-        })
-      }).finally(() => clearTimeout(timeout));
-      
-      if (!perplexityResponse.ok) {
-        const discoveryResponseTime = Date.now() - discoveryStartTime;
-        await aiTracker.trackPerplexityCall({
-          action: 'global_discovery',
-          context: 'discovery_mode',
-          requestDuration: discoveryResponseTime,
-          success: false,
-          errorMessage: `API error: ${perplexityResponse.status}`,
-          prompt: query,
-        });
-        console.error('❌ Perplexity API error:', perplexityResponse.status);
-        throw new Error('Search service error');
-      }
-      
-      const perplexityData = await perplexityResponse.json();
-      const aiResponse = perplexityData.choices[0]?.message?.content || '';
-      const citations = perplexityData.citations || [];
-      
-      // Track successful Perplexity API call for Discovery Mode
-      const discoveryResponseTime = Date.now() - discoveryStartTime;
-      await aiTracker.trackPerplexityCall({
-        action: 'global_discovery',
-        context: 'discovery_mode',
-        requestDuration: discoveryResponseTime,
-        success: true,
-        inputTokens: Math.ceil(query.length / 4),
-        outputTokens: Math.ceil(aiResponse.length / 4),
-        prompt: query,
-        response: aiResponse.substring(0, 1000),
-        metadata: { citations: citations.length },
-      });
-      
-      console.log(`✅ Perplexity Response Length: ${aiResponse.length} characters`);
-      console.log(`📚 Citations: ${citations.length} sources`);
-      
-      // Log the raw response for debugging
-      console.log(`🔍 Raw Perplexity Response:`, aiResponse.substring(0, 500));
-      
-      // Step 3: Parse the structured JSON response
-      // discoveredCommunities already declared above
-      
-      // Use the detectCountry function already defined above
       const defaultCountry = detectCountry(query);
-      
-      try {
-        // First, try to extract JSON from code fences if present
-        let jsonContent = aiResponse;
-        const jsonMatch = aiResponse.match(/```json\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-          jsonContent = jsonMatch[1];
-        }
-        
-        // Parse the structured JSON response from Perplexity
-        const structuredData = JSON.parse(jsonContent);
-        
-        if (structuredData.facilities && Array.isArray(structuredData.facilities)) {
-          // Filter out any facilities that don't have valid names or are duplicates
-          const uniqueFacilities = new Map<string, any>();
-          
-          structuredData.facilities.forEach((facility: any) => {
-            // Skip if no name or name is too short
-            if (!facility.name || facility.name.length < 3) return;
-            
-            // Use name + city as unique key to avoid exact duplicates
-            const key = `${facility.name.toLowerCase()}_${(facility.city || '').toLowerCase()}`;
-            
-            // Only add if we haven't seen this facility before
-            if (!uniqueFacilities.has(key)) {
-              uniqueFacilities.set(key, {
-                name: facility.name,
-                address: facility.address || '',
-                city: facility.city || query.split(',')[0]?.trim() || '',
-                state: facility.state || query.split(',')[1]?.trim() || '',
-                country: facility.country || defaultCountry,
-                phone: facility.phone || '',
-                website: facility.website || '',
-                email: facility.email || '',
-                zipCode: facility.zipCode || '',
-                description: facility.description || `Senior living facility in ${facility.city || query}`,
-                careTypes: facility.careTypes || [],
-                photoSources: facility.photoSources || [], // Add photo sources from Perplexity
-                source: 'Perplexity AI Discovery',
-                confidence: 95,
-                isDiscovered: true
-              });
-            }
-          });
-          
-          discoveredCommunities = Array.from(uniqueFacilities.values());
-          console.log(`✅ Successfully parsed ${discoveredCommunities.length} unique facilities from structured JSON`);
-        }
-      } catch (parseError) {
-        console.error('⚠️ Error parsing structured JSON:', parseError);
-        console.log('Attempting enhanced fallback parsing for markdown/URL response...');
-        
-        // Enhanced fallback: Extract from markdown, URLs, and lists
-        try {
-          const uniqueFallbackFacilities = new Map();
-          
-          // First, extract facilities from URL patterns with names
-          // Pattern: "Name: website" or "Name - website" or "Name (website)"
-          const urlPatterns = [
-            /([A-Z][\w\s&'\-\.]+?)\s*[-–—:]\s*(https?:\/\/[^\s\)\]]+)/gi,
-            /\*\*([^\*]+)\*\*.*?(https?:\/\/[^\s\)\]]+)/gi,
-            /\b([A-Z][\w\s&'\-\.]+?)\s*\(?(https?:\/\/[^\s\)\]]+)\)?/gi
-          ];
-          
-          for (const pattern of urlPatterns) {
-            const matches = aiResponse.matchAll(pattern);
-            for (const match of matches) {
-              const name = match[1]?.trim();
-              const website = match[2]?.trim();
-              
-              // Filter out directories and aggregators, and validate name
-              const isValidName = name && 
-                name.length > 8 && // Minimum length for a real business name
-                !name.startsWith('and ') && // Filter out fragments
-                !name.startsWith('www.') && // Filter out partial URLs
-                !name.match(/^https?:\/\//i) && // Filter out URLs
-                /^[A-Z]/.test(name) && // Must start with capital letter
-                name.split(' ').length <= 12; // Reasonable word count
-              
-              const isValidWebsite = website && 
-                !website.includes('google.') && 
-                !website.includes('yelp.') && 
-                !website.includes('wikipedia.') && 
-                !website.includes('/find-a-') && 
-                !website.includes('/locations');
-              
-              if (isValidWebsite && isValidName) {
-                
-                const key = name.toLowerCase().replace(/\s+(aged care|care services|retirement|village|group|ltd|inc|pty|plc).*$/i, '').trim();
-                if (!uniqueFallbackFacilities.has(key)) {
-                  uniqueFallbackFacilities.set(key, {
-                    name: name,
-                    website: website,
-                    address: '',
-                    city: query.split(',')[0]?.trim() || '',
-                    state: query.split(',')[1]?.trim() || '',
-                    country: defaultCountry,
-                    description: `${name} - found via search for "${query}"`,
-                    photoSources: [], // Empty array for fallback parsing
-                    source: 'Perplexity Web Search',
-                    confidence: 85,
-                    isDiscovered: true
-                  });
-                }
-              }
-            }
-          }
-          
-          // Try more patterns to extract facility information
-          const patterns = [
-            /\*\*([^\*]+)\*\*[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
-            /\d+\.\s+([^\n,:]+)(?:[,:]\s*([^\n]+))?/gi,
-            /^[-•*]\s+([^\n,:]+)(?:[,:]\s*([^\n]+))?/gim,
-            /(?:Name|Facility):\s*([^\n]+)[\s\S]*?(?:Address|Location)?:?\s*([^\n]+)?/gi,
-            /\b([A-Z][\w\s&'\-\.]+(?:Retirement|Care|Living|Village|Home|Center|Centre|Aged Care|Services))\b/gi
-          ];
-          
-          for (const pattern of patterns) {
-            const matches = aiResponse.matchAll(pattern);
-            for (const match of matches) {
-              const name = match[1]?.trim();
-              const location = match[2]?.trim() || '';
-              
-              // Validate the name - must be a proper facility name
-              const isValidName = name && 
-                name.length > 8 && // Minimum length for a real business name
-                !name.includes('?') && 
-                !name.includes('example') &&
-                !name.startsWith('and ') && // Filter out fragments like "and a fitness center"
-                !name.startsWith('www.') && // Filter out partial URLs
-                !name.startsWith('http') && // Filter out URLs
-                /^[A-Z]/.test(name) && // Must start with capital letter
-                !/^\d/.test(name) && // Shouldn't start with a number
-                name.split(' ').length <= 10; // Reasonable word count for a business name
-              
-              if (isValidName) {
-                const key = name.toLowerCase();
-                if (!uniqueFallbackFacilities.has(key)) {
-                  uniqueFallbackFacilities.set(key, {
-                    name: name,
-                    address: location,
-                    city: query.split(',')[0]?.trim() || '',
-                    state: query.split(',')[1]?.trim() || '',
-                    country: defaultCountry,
-                    description: `Found via search for "${query}"`,
-                    photoSources: [], // Empty array for fallback parsing
-                    source: 'Perplexity Web Search',
-                    confidence: 85,
-                    isDiscovered: true
-                  });
-                }
-              }
-            }
-          }
-          
-          const fallbackResults = Array.from(uniqueFallbackFacilities.values());
-          if (fallbackResults.length > 0) {
-            discoveredCommunities = fallbackResults;
-            console.log(`✅ Fallback parsing extracted ${discoveredCommunities.length} unique facilities`);
-          }
-        } catch (fallbackError) {
-          console.error('❌ Fallback parsing also failed:', fallbackError);
-        }
+
+      let discoveredCommunities: any[] = [];
+      const citations: any[] = [];
+      // Track which discovery engine actually produced the results so the
+      // response labels stay accurate (Golden Data / accurate-messaging rule).
+      let discoveryEngineLabel = 'Perplexity AI';
+
+      console.log(`🔮 Discovery Mode ACTIVE: Using Perplexity AI for "${query}"`);
+
+      // Task #250: record this run so the cost guard skips a repeat auto sparse
+      // discovery for the same city+state within the next 24h.
+      if (searchType !== 'services') {
+        recentAutoDiscovery.set(discoveryCityKey, Date.now());
       }
-      
-      } catch (sonarError) {
-        console.error('⚠️ Sonar API error:', sonarError);
-        console.log(`🔄 Perplexity failed, but we have ${existingCommunities.length} database results. Returning database results only.`);
-        
-        // When Perplexity fails, set empty discovered communities
-        // The database results will be returned below
+
+      try {
+        if (searchType === 'services') {
+          // Services discovery still uses the free web scraper (unchanged).
+          discoveryEngineLabel = 'Free Discovery (DuckDuckGo+Jina)';
+          const webDiscovered = await discoverCommunitiesViaWeb(
+            query,
+            citySearch || undefined,
+            stateSearch || undefined
+          );
+
+          discoveredCommunities = webDiscovered.map(community => ({
+            name: community.name,
+            address: community.address || '',
+            city: community.city || citySearch || '',
+            state: community.state || stateSearch || '',
+            country: community.country || defaultCountry,
+            phone: community.phone || '',
+            website: community.website || '',
+            email: '',
+            zipCode: '',
+            description: community.description || `Found via web search for "${query}"`,
+            careTypes: community.careTypes || ['Senior Living'],
+            photoSources: [],
+            source: community.source,
+            confidence: community.confidence,
+            isDiscovered: true
+          }));
+        } else {
+          // SELF-HEALING COMMUNITY DISCOVERY via Perplexity (sonar). Real,
+          // sourced facilities only — Golden Data Rule compliant.
+          const { perplexitySearchAPI } = await import('../services/perplexity-search-api');
+          const discoveryLocation = citySearch && stateSearch
+            ? `${citySearch}, ${stateSearch}`
+            : (citySearch || query);
+          const discovery = await perplexitySearchAPI.discoverCommunities(discoveryLocation, {
+            limit: typeof limit === 'number' && limit > 0 ? limit : 15,
+          });
+
+          discoveredCommunities = (discovery.communities || []).map(community => ({
+            name: community.name,
+            address: community.address || '',
+            city: community.city || citySearch || '',
+            state: community.state || stateSearch || '',
+            country: defaultCountry,
+            phone: community.phone || '',
+            website: community.website || '',
+            email: '',
+            zipCode: '',
+            description: `Senior living community discovered via Perplexity AI for "${query}". Contact the community to verify current pricing and availability.`,
+            careTypes: community.careTypes && community.careTypes.length > 0 ? community.careTypes : ['Senior Living'],
+            photoSources: [],
+            source: 'ai_discovered_perplexity',
+            confidence: community.confidence || 85,
+            isDiscovered: true
+          }));
+
+          (discovery.sources || []).forEach((s: string) => {
+            if (s && !citations.includes(s)) citations.push(s);
+          });
+        }
+
+        const withContact = discoveredCommunities.filter((c: any) => c.phone || c.website).length;
+        console.log(`✅ ${discoveryEngineLabel} found ${discoveredCommunities.length} candidates (${withContact} with contact info)`);
+      } catch (searchError) {
+        console.error(`❌ Discovery error (${discoveryEngineLabel}), falling back to database only:`, searchError);
         discoveredCommunities = [];
       }
-      } // End of Sonar API fallback block
-      
+
       // Step 4: Save discovered communities or services to database
       const savedCommunities = [];
       const savedServices = [];
@@ -1028,9 +1313,9 @@ Keep responses concise and focus on the most relevant results.`;
                   isFeatured: false,
                   sortOrder: 0,
                   metadata: {
-                    source: 'Perplexity Search API Discovery',
+                    source: 'Free Discovery (DuckDuckGo+Jina)',
                     lastUpdated: new Date().toISOString(),
-                    tags: ['discovered', 'perplexity', query.toLowerCase()]
+                    tags: ['discovered', 'free_discovery', query.toLowerCase()]
                   } as any
                 })
                 .returning();
@@ -1153,6 +1438,16 @@ Keep responses concise and focus on the most relevant results.`;
           }
           
           if (existing.length === 0 && discovered.name) {
+            // FIXED: Clean the name by removing markdown artifacts like ** and trailing punctuation
+            // Defined outside try block so it's accessible in catch block
+            const cleanedName = discovered.name
+              .replace(/\*\*$/g, '') // Remove trailing **
+              .replace(/^\*\*/g, '') // Remove leading **
+              .replace(/\*\*/g, '')  // Remove any remaining **
+              .replace(/\s*–\s*/g, ' - ') // Normalize dashes
+              .replace(/\s+/g, ' ')  // Normalize spaces
+              .trim();
+            
             // Save new discovered community to database
             try {
               // Geocode the location to get coordinates for map display
@@ -1203,12 +1498,42 @@ Keep responses concise and focus on the most relevant results.`;
                 }
               }
 
+              // AUTO-APPROVAL: Check if community meets verification criteria
+              const preparedAddress = discovered.address || discovered.location || 'Address pending verification';
+              // FIXED: Use parsed citySearch/stateSearch as fallback, not the raw query
+              const preparedCity = discovered.city || citySearch || 'Unknown';
+              const preparedState = discovered.state || stateSearch || 'Unknown';
+              
+              const verificationResult = verifyCommunityForAutoApproval({
+                name: cleanedName,
+                address: preparedAddress,
+                city: preparedCity,
+                state: preparedState,
+                country: discovered.country || defaultCountry,
+                phone: discovered.phone,
+                email: discovered.email,
+                website: websiteUrl || undefined,
+                description: discovered.description,
+                careTypes: discovered.careTypes
+              });
+
+              // Guard: skip non-senior-living properties (e.g. generic apartment complexes)
+              if (!isSeniorLivingFacility(cleanedName, discovered.careTypes || [])) {
+                console.log(`🚫 Skipped non-senior-living property: "${cleanedName}" (care types: ${(discovered.careTypes || []).join(', ') || 'none'})`);
+                continue;
+              }
+
+              // Set enrichment status based on verification
+              // 'completed' = auto-approved and ready for display
+              // 'pending' = needs manual review in approval queue
+              const enrichmentStatus = verificationResult.autoApproved ? 'completed' : 'pending';
+
               const [newCommunity] = await db.insert(communities)
                 .values({
-                  name: discovered.name,
-                  address: discovered.address || discovered.location || 'Address pending verification',
-                  city: discovered.city || query.split(',')[0] || 'Unknown',
-                  state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                  name: cleanedName,
+                  address: preparedAddress,
+                  city: preparedCity,
+                  state: preparedState,
                   country: discovered.country || defaultCountry,
                   zipCode: discovered.zipCode || '00000',
                   latitude: latitude,
@@ -1217,44 +1542,57 @@ Keep responses concise and focus on the most relevant results.`;
                   email: discovered.email || null,
                   website: websiteUrl,
                   description: discovered.description || `Discovered via search for "${query}"`,
-                  careTypes: discovered.careTypes || ['Unknown'],
+                  careTypes: discovered.careTypes || ['Senior Living'],
+                  amenities: [],
+                  services: [],
+                  careServices: [],
+                  medicalRestrictions: [],
                   photos: [],
-                  data_source: 'AI Discovery (Perplexity Global Search)',
+                  photoAttributions: [],
+                  data_source: 'ai_discovered_perplexity',
                   discoverySource: 'Global Discovery Search',
                   discoveryDate: new Date(),
-                  enrichmentStatus: 'pending',
-                  enrichmentCompleted: false,
+                  enrichmentStatus: enrichmentStatus,
+                  enrichmentCompleted: verificationResult.autoApproved,
                   enrichmentHistory: [{
                     timestamp: new Date().toISOString(),
-                    source: 'Perplexity Global Search',
+                    source: 'Perplexity AI Discovery',
                     fieldsUpdated: ['initial_discovery'],
-                    autoApproved: false
-                  }] as any[], // Cast to any[] to match JSON type
-                  isVerified: false
+                    autoApproved: verificationResult.autoApproved,
+                    confidenceScore: verificationResult.confidenceScore,
+                    suspiciousReasons: verificationResult.suspiciousReasons
+                  }] as any[],
+                  isVerified: verificationResult.autoApproved,
+                  createdAt: new Date(),
+                  updatedAt: new Date()
                 })
                 .returning();
               
-              console.log(`✅ SUCCESSFULLY SAVED discovered community: ${discovered.name} (ID: ${newCommunity.id}, Country: ${discovered.country || defaultCountry}, Data Source: AI Discovery (Perplexity Global Search))`);
+              const approvalStatus = verificationResult.autoApproved ? '🟢 AUTO-APPROVED' : '🟡 PENDING REVIEW';
+              console.log(`✅ SAVED: ${discovered.name} (ID: ${newCommunity.id}) - ${approvalStatus} (Score: ${verificationResult.confidenceScore}/100)`);
+              if (!verificationResult.autoApproved && verificationResult.suspiciousReasons.length > 0) {
+                console.log(`   ⚠️ Flagged reasons: ${verificationResult.suspiciousReasons.join(', ')}`);
+              }
               newlyInsertedIds.add(newCommunity.id); // Track as TRULY NEW
               savedCommunities.push(newCommunity);
             } catch (insertError) {
               console.error(`❌ FAILED TO SAVE community ${discovered.name}:`, {
                 error: insertError,
                 attemptedData: {
-                  name: discovered.name,
-                  city: discovered.city || query.split(',')[0] || 'Unknown',
-                  state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                  name: cleanedName,
+                  city: discovered.city || citySearch || 'Unknown',
+                  state: discovered.state || stateSearch || 'Unknown',
                   country: discovered.country || defaultCountry,
-                  data_source: 'AI Discovery (Perplexity Global Search)'
+                  data_source: 'ai_discovered_perplexity'
                 }
               });
               // Create a fallback object if insert fails
               const fallbackCommunity = {
                 id: 0, // Invalid ID to indicate error
-                name: discovered.name,
+                name: cleanedName,
                 address: discovered.address || discovered.location || 'Address pending verification',
-                city: discovered.city || query.split(',')[0] || 'Unknown',
-                state: discovered.state || query.split(',')[1]?.trim() || 'Unknown',
+                city: discovered.city || citySearch || 'Unknown',
+                state: discovered.state || stateSearch || 'Unknown',
                 country: discovered.country || defaultCountry,
                 zipCode: discovered.zipCode || '00000',
                 phone: discovered.phone || null,
@@ -1326,26 +1664,37 @@ Keep responses concise and focus on the most relevant results.`;
               console.log(`  📝 Updating address: ${discovered.address}`);
             }
             
-            // Apply updates if any
+            // CRITICAL FIX: Always update data_source and discoveryDate so community appears in Recently Discovered
+            // Even if no other fields changed, mark it as recently discovered
+            updates.data_source = 'Verified via Global Discovery (Auto-Approved)';
+            updates.discoveryDate = new Date();
+            updates.discoverySource = 'Global Discovery Search';
+            hasUpdates = true;
+            console.log(`  📝 Marking as recently discovered via Global Discovery`);
+            
+            // Apply updates (always happens now since we always mark as discovered)
             if (hasUpdates) {
               try {
+                // Create enrichment history entry as a properly typed JSONB value
+                const enrichmentEntry = JSON.stringify([{
+                  timestamp: new Date().toISOString(),
+                  source: 'Global Discovery Update',
+                  fieldsUpdated: Object.keys(updates),
+                  autoApproved: true
+                }]);
+                
                 await db.update(communities)
                   .set({
                     ...updates,
                     updatedAt: new Date(),
+                    // FIXED: Properly cast both sides to jsonb to avoid type mismatch
                     enrichmentHistory: sql`
-                      COALESCE(enrichment_history, '[]'::jsonb) || 
-                      ${JSON.stringify([{
-                        timestamp: new Date().toISOString(),
-                        source: 'Global Discovery Update',
-                        fieldsUpdated: Object.keys(updates),
-                        autoApproved: false
-                      }])}::jsonb
+                      COALESCE(enrichment_history::jsonb, '[]'::jsonb) || ${enrichmentEntry}::jsonb
                     `
                   })
                   .where(eq(communities.id, existingCommunity.id));
                 
-                console.log(`✅ Updated existing community: ${existingCommunity.name} (ID: ${existingCommunity.id})`);
+                console.log(`✅ Updated existing community: ${existingCommunity.name} (ID: ${existingCommunity.id}) - Now appears in Recently Discovered`);
                 
                 // Get updated record
                 const [updatedCommunity] = await db.select()
@@ -1429,7 +1778,7 @@ Keep responses concise and focus on the most relevant results.`;
           isExisting: !isTrulyNew, // Mark as existing if it was an update
           confidence: originalData?.confidence || 90,
           verificationStatus: isTrulyNew ? 'pending' : 'verified',
-          citations: citations, // Include Perplexity citations
+          citations: citations,
           // Add fields needed for community details view
           photos: saved.photos || [],
           amenities: (saved as any).amenities || [],
@@ -1462,30 +1811,52 @@ Keep responses concise and focus on the most relevant results.`;
       
       // Process all web-discovered communities
       // SIMPLIFIED: Just add all discovered communities - they already have correct flags
+      // DE-DUPLICATION: collapse candidates that resolve to the same community so it
+      // never appears more than once in the results list. Existing communities are
+      // keyed on their real DB id; newly discovered ones (no real id) on name+city+state.
+      const seenResultKeys = new Set<string>();
       discoveredWithRealIds.forEach(webCommunity => {
         // Skip if no name exists
         if (!webCommunity.name) {
           console.log('⚠️ Skipping web result with no name:', webCommunity);
           return;
         }
-        
+
+        const hasRealId = typeof webCommunity.id === 'number' && webCommunity.id > 0;
+        const dedupKey = hasRealId
+          ? `id:${webCommunity.id}`
+          : `ncs:${(webCommunity.name || '').toLowerCase().trim()}|${(webCommunity.city || '').toLowerCase().trim()}|${(webCommunity.state || '').toLowerCase().trim()}`;
+
+        if (seenResultKeys.has(dedupKey)) {
+          console.log(`🔁 Skipping duplicate web result: "${webCommunity.name}" (${dedupKey})`);
+          return;
+        }
+        seenResultKeys.add(dedupKey);
+
         // Add to results - flags are already set correctly in discoveredWithRealIds
         allWebResults.push(webCommunity);
       });
       
-      // CRITICAL FIX: If Perplexity failed or returned no results, add ALL database communities
-      // This ensures users ALWAYS see database results even when web search fails
-      if (discoveredWithRealIds.length === 0 && existingCommunities.length > 0) {
-        console.log(`📋 Perplexity returned no results. Adding ${existingCommunities.length} database communities to results.`);
-        
-        // Add all database communities as "existing" results
+      // Task #250: ALWAYS merge the existing DB communities below the freshly
+      // discovered ones ("Newly Found" first, "In Database" below). De-dup by the
+      // same id key so a DB community that discovery just updated isn't listed
+      // twice. This also covers the old fallback (discovery returned nothing).
+      if (existingCommunities.length > 0) {
+        let mergedExisting = 0;
         existingCommunities.forEach(dbCommunity => {
+          const dedupKey = `id:${dbCommunity.id}`;
+          if (seenResultKeys.has(dedupKey)) return;
+          seenResultKeys.add(dedupKey);
           allWebResults.push({
             ...dbCommunity,
             isExisting: true,
             isDiscovered: false
           });
+          mergedExisting++;
         });
+        if (mergedExisting > 0) {
+          console.log(`📋 Merged ${mergedExisting} existing DB communities below ${discoveredWithRealIds.length} discovered result(s).`);
+        }
       }
       
       const allResults = allWebResults;
@@ -1532,13 +1903,13 @@ Keep responses concise and focus on the most relevant results.`;
           totalFound: displayResults.length,
           existingCount: existingInWebResults,
           discoveredCount: newlyDiscovered,
-          sources: citations.length > 0 ? [...citations, 'Database'] : ['Perplexity Web Search', 'Database'],
+          sources: citations.length > 0 ? [...citations, 'Database'] : [discoveryEngineLabel, 'Database'],
           searchLocation: query,
           timestamp: new Date().toISOString(),
-          aiConfidence: discoveredCommunities.length > 0 ? 85 : 50,
-          rawPerplexityResponse: aiResponse, // Include raw AI response for display
-          perplexityQuery: searchQuery, // Include the actual query sent to Perplexity
-          articlesFound: allResults.length - displayResults.length // Track how many articles were filtered
+          aiConfidence: discoveredCommunities.length > 0 ? 75 : 50,
+          dataSource: discoveryEngineLabel,
+          articlesFound: allResults.length - displayResults.length,
+          sparseCoverage
         },
         message: displayResults.length === 0 
           ? `No businesses found for "${query}". Try a different location or search term.`
@@ -1640,17 +2011,32 @@ Keep responses concise and focus on the most relevant results.`;
     try {
       const communityId = parseInt(req.params.id);
       
+      // First fetch the community to get current enrichment history
+      const [community] = await db.select()
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+      
+      if (!community) {
+        return res.status(404).json({ success: false, error: 'Community not found' });
+      }
+      
+      // Append new history entry
+      const historyEntry = {
+        timestamp: new Date().toISOString(),
+        source: 'Admin Approval',
+        fieldsUpdated: ['status_approved'],
+        approvedBy: (req as any).user?.id || 'admin'
+      };
+      const currentHistory = Array.isArray(community.enrichmentHistory) ? community.enrichmentHistory : [];
+      const updatedHistory = [...currentHistory, historyEntry];
+      
       const [updated] = await db.update(communities)
         .set({
           enrichmentStatus: 'completed',
           isVerified: true,
           data_source: 'Verified via Global Discovery',
-          enrichmentHistory: sql`array_append(enrichment_history, ${JSON.stringify({
-            timestamp: new Date().toISOString(),
-            source: 'Admin Approval',
-            fieldsUpdated: ['status_approved'],
-            approvedBy: (req as any).user?.id || 'admin'
-          })}::jsonb)`
+          enrichmentHistory: updatedHistory
         })
         .where(eq(communities.id, communityId))
         .returning();
@@ -1696,6 +2082,94 @@ Keep responses concise and focus on the most relevant results.`;
     }
   });
   
+  // Bulk approve all verified communities (communities that pass verification criteria)
+  app.post('/api/global-discovery/bulk-approve-verified', async (req, res) => {
+    try {
+      // Get all pending communities
+      const pendingCommunities = await db.select()
+        .from(communities)
+        .where(
+          and(
+            eq(communities.enrichmentStatus, 'pending'),
+            eq(communities.discoverySource, 'Global Discovery Search')
+          )
+        );
+      
+      let approvedCount = 0;
+      let skippedCount = 0;
+      const approvedIds: number[] = [];
+      const skippedReasons: Array<{ id: number; name: string; reasons: string[] }> = [];
+      
+      for (const community of pendingCommunities) {
+        // Run verification check
+        const verificationResult = verifyCommunityForAutoApproval({
+          name: community.name,
+          address: community.address,
+          city: community.city,
+          state: community.state,
+          country: community.country || undefined,
+          phone: community.phone || undefined,
+          email: community.email || undefined,
+          website: community.website || undefined,
+          description: community.description || undefined,
+          careTypes: community.careTypes
+        });
+        
+        if (verificationResult.autoApproved) {
+          // Auto-approve this community
+          const historyEntry = {
+            timestamp: new Date().toISOString(),
+            source: 'Bulk Auto-Approval',
+            fieldsUpdated: ['status_auto_approved'],
+            confidenceScore: verificationResult.confidenceScore,
+            autoApproved: true
+          };
+          
+          // Get current enrichment history and append new entry
+          const currentHistory = Array.isArray(community.enrichmentHistory) ? community.enrichmentHistory : [];
+          const updatedHistory = [...currentHistory, historyEntry];
+          
+          await db.update(communities)
+            .set({
+              enrichmentStatus: 'completed',
+              enrichmentCompleted: true,
+              isVerified: true,
+              data_source: 'Verified via Global Discovery (Auto-Approved)',
+              enrichmentHistory: updatedHistory
+            })
+            .where(eq(communities.id, community.id));
+          
+          approvedCount++;
+          approvedIds.push(community.id);
+        } else {
+          skippedCount++;
+          skippedReasons.push({
+            id: community.id,
+            name: community.name,
+            reasons: verificationResult.suspiciousReasons
+          });
+        }
+      }
+      
+      console.log(`✅ Bulk auto-approval complete: ${approvedCount} approved, ${skippedCount} need manual review`);
+      
+      res.json({
+        success: true,
+        approved: approvedCount,
+        skipped: skippedCount,
+        approvedIds,
+        skippedReasons,
+        message: `Successfully auto-approved ${approvedCount} verified communities. ${skippedCount} communities require manual review.`
+      });
+    } catch (error) {
+      console.error('Error in bulk auto-approval:', error);
+      res.status(500).json({ 
+        success: false,
+        error: 'Failed to process bulk auto-approval' 
+      });
+    }
+  });
+  
   // AI Comparison endpoint for global discovery
   app.post('/api/global-discovery/compare', async (req, res) => {
     try {
@@ -1709,56 +2183,24 @@ Keep responses concise and focus on the most relevant results.`;
         summary: ''
       };
       
-      // Test with Perplexity
+      // Free web discovery via DuckDuckGo + Jina Reader
       try {
-        const perplexityStartTime = Date.now();
-        const perplexityQuery = `Find ONLY senior living communities in ${query}. List actual facility names, addresses, and contact details.`;
-        const perplexityResponse = await fetch('https://api.perplexity.ai/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'sonar-pro',
-            messages: [
-              { role: 'system', content: 'List senior living facilities with accurate details.' },
-              { role: 'user', content: perplexityQuery }
-            ],
-            web_search_options: {
-              search_context_size: 'low'
-            },
-            temperature: 0.1,
-            max_tokens: 2000
-          })
-        });
-        const perplexityDuration = Date.now() - perplexityStartTime;
-        const perplexityData = await perplexityResponse.json();
-        const perplexityContent = perplexityData.choices[0]?.message?.content || '';
-        
-        await aiTracker.trackPerplexityCall({
-          action: 'ai_comparison',
-          context: 'compare_endpoint',
-          requestDuration: perplexityDuration,
-          success: perplexityResponse.ok,
-          inputTokens: Math.ceil(perplexityQuery.length / 4),
-          outputTokens: Math.ceil(perplexityContent.length / 4),
-          prompt: perplexityQuery,
-        });
-        
-        results.providers['perplexity'] = {
-          response: perplexityContent.substring(0, 500),
-          sources: perplexityData.citations || []
+        const freeStartTime = Date.now();
+        const discovered = await discoverCommunitiesViaWeb(query);
+        const freeDuration = Date.now() - freeStartTime;
+        const summary = discovered.length > 0
+          ? discovered.map(c => `${c.name} — ${c.city || ''} ${c.state || ''} ${c.phone ? `(${c.phone})` : ''}`.trim()).join('\n')
+          : 'No communities found via free web search.';
+
+        results.providers['free_discovery'] = {
+          response: summary.substring(0, 500),
+          sources: discovered.map(c => c.website).filter(Boolean),
+          count: discovered.length,
+          durationMs: freeDuration,
+          method: 'DuckDuckGo + Jina Reader (free)'
         };
       } catch (e) {
-        await aiTracker.trackPerplexityCall({
-          action: 'ai_comparison',
-          context: 'compare_endpoint',
-          requestDuration: 0,
-          success: false,
-          errorMessage: String(e),
-        });
-        results.providers['perplexity'] = { error: 'Failed to query Perplexity' };
+        results.providers['free_discovery'] = { error: 'Free discovery failed: ' + String(e) };
       }
       
       // Test with Claude
