@@ -757,7 +757,7 @@ export default function RedTagExamplePage() {
                     This is an example of how verified community specials will appear. Contact the actual community for real availability and pricing.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href={`/community/${community.actualCommunityId}`}>
+                    <Link href={authenticListingHref}>
                       <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                         <ExternalLink className="w-4 h-4 mr-2" />
                         View Authentic Listing

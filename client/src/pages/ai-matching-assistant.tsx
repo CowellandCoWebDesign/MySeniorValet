@@ -517,7 +517,13 @@ export default function AIMatchingAssistant() {
                       </div>
                       <Button
                         size="sm"
-                        onClick={() => setLocation(`/community/${match.community.id}`)}
+                        onClick={() =>
+                          setLocation(
+                            match.community.name && match.community.city && match.community.state
+                              ? getCommunityUrl(match.community)
+                              : `/community/${match.community.id}`
+                          )
+                        }
                       >
                         View Details
                       </Button>

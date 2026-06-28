@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { NavigationHeader } from "@/components/NavigationHeader";
+import { getCommunityUrl } from "@/lib/community-url";
 
 export default function AffordableHousing() {
   const [selectedState, setSelectedState] = useState<string>("all");
@@ -220,7 +221,7 @@ export default function AffordableHousing() {
                   
                   {/* Action Button */}
                   <div className="pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <Link to={`/community/${facility.id}`}>
+                    <Link to={facility.name && facility.city && facility.state ? getCommunityUrl(facility) : `/community/${facility.id}`}>
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
                         <Eye className="h-3 w-3 mr-1" />
                         View Details

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
+import { getCommunityUrl } from "@/lib/community-url";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -160,7 +161,7 @@ export default function PersonalizedDashboard() {
     }));
   };
 
-  const handleViewCommunity = (id: number) => {
+  const handleViewCommunity = (recommendation: PersonalizedRecommendation) => {
     // Update progress
     setSearchProgress(prev => ({
       ...prev,
@@ -168,8 +169,12 @@ export default function PersonalizedDashboard() {
       completionPercentage: Math.min(prev.completionPercentage + 2, 100)
     }));
 
-    // Navigate to community detail
-    window.location.href = `/community/${id}`;
+    // Navigate to community detail using the clean SEO URL when possible to
+    // skip the extra /community/{id} -> /senior-living redirect hop.
+    window.location.href =
+      recommendation.name && recommendation.city && recommendation.state
+        ? getCommunityUrl(recommendation)
+        : `/community/${recommendation.id}`;
   };
 
   const handleUpdatePreferences = () => {
@@ -388,7 +393,7 @@ export default function PersonalizedDashboard() {
 
                   <div className="flex flex-wrap gap-3">
                     <Button
-                      onClick={() => handleViewCommunity(recommendation.id)}
+                      onClick={() => handleViewCommunity(recommendation)}
                       className="bg-blue-600 hover:bg-blue-700"
                     >
                       <Eye className="h-4 w-4 mr-2" />

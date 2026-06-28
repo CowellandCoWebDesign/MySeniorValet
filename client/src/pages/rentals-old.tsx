@@ -38,6 +38,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import RentalMapbox from '@/components/RentalMapbox';
 import SlidePanel from '@/components/SlidePanel';
 import type { Community } from '@shared/schema';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface RentalFilters {
   priceRange: [number, number];
@@ -351,7 +352,7 @@ export default function Rentals() {
                 <Card 
                   key={community.id} 
                   className="cursor-pointer hover:shadow-lg transition-shadow"
-                  onClick={() => window.location.href = `/community/${community.id}`}
+                  onClick={() => window.location.href = community.name && community.city && community.state ? getCommunityUrl(community) : `/community/${community.id}`}
                 >
                   <CardContent className="p-4">
                     <h3 className="font-semibold text-lg mb-2">{community.name}</h3>
