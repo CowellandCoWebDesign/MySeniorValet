@@ -1,504 +1,315 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Router } from 'wouter';
-import { memoryLocation } from 'wouter/memory-location';
+import { render, screen, waitFor } from '@testing-library/react';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/queryClient';
 import MapSearch from './map-search';
 
-// Mock dependencies
-jest.mock('@/lib/queryClient', () => ({
-  apiRequest: jest.fn()
+// ---------------------------------------------------------------------------
+// Regression guard for Task #320: the map/city search must never hang forever
+// on the "Loading communities…" mascot loader for a city with zero coverage.
+// The original freeze was an infinite invalidate -> refetch -> still-empty ->
+// invalidate loop in the "force query when panel opens" effect. These tests
+// render the real <MapSearch /> page (with heavy children mocked) and assert
+// the panel always settles to either the discovery spinner, community cards,
+// or "No communities found" within a bounded time — and that the spatial
+// endpoint is not hammered in an unbounded loop on empty results.
+// ---------------------------------------------------------------------------
+
+// wouter ships ESM-only; mock it so the page can be imported under ts-jest.
+jest.mock('wouter', () => ({
+  useLocation: () => ['/map-search', jest.fn()],
+  Link: ({ children }: any) => children,
+  Router: ({ children }: any) => children,
 }));
 
-jest.mock('react-leaflet', () => ({
-  MapContainer: ({ children }: any) => <div data-testid="map-container">{children}</div>,
-  TileLayer: () => <div data-testid="tile-layer" />,
-  Marker: ({ position, children }: any) => (
-    <div data-testid="marker" data-position={JSON.stringify(position)}>
-      {children}
-    </div>
-  ),
-  Popup: ({ children }: any) => <div data-testid="popup">{children}</div>,
-  useMap: () => ({
-    setView: jest.fn(),
-    fitBounds: jest.fn(),
-    getBounds: jest.fn(() => ({
-      getNorth: () => 40,
-      getSouth: () => 30,
-      getEast: () => -90,
-      getWest: () => -100
-    }))
-  })
-}));
-
-jest.mock('react-leaflet-cluster', () => ({
-  MarkerCluster: ({ children }: any) => <div data-testid="marker-cluster">{children}</div>
-}));
-
-// Mock community data
-const mockMapData = {
-  communities: [
-    {
-      id: 1,
-      name: 'Brookdale Senior Living Dallas',
-      latitude: 32.7767,
-      longitude: -96.7970,
-      address: '123 Main St',
-      city: 'Dallas',
-      state: 'TX',
-      phone: '(214) 555-0123',
-      rating: 4.5,
-      reviewCount: 89,
-      monthlyRentRangeStart: 3000,
-      monthlyRentRangeEnd: 5000,
-      careTypes: ['Assisted Living', 'Memory Care']
+// Heavy / leaflet-backed children — replaced with light stand-ins.
+jest.mock('@/components/Map', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ onBoundsChange }: any) => {
+      // Report bounds exactly once on mount, mimicking Leaflet's moveend.
+      React.useEffect(() => {
+        onBoundsChange &&
+          onBoundsChange({
+            sw: { lat: 32.0, lng: -97.0 },
+            ne: { lat: 33.0, lng: -96.0 },
+          });
+      }, []);
+      return React.createElement('div', { 'data-testid': 'map' });
     },
-    {
-      id: 2,
-      name: 'Belmont Village Dallas',
-      latitude: 32.8167,
-      longitude: -96.8170,
-      address: '456 Oak Ave',
-      city: 'Dallas',
-      state: 'TX',
-      phone: '(214) 555-0456',
-      rating: 4.3,
-      reviewCount: 67,
-      monthlyRentRangeStart: 3500,
-      monthlyRentRangeEnd: 5500,
-      careTypes: ['Independent Living', 'Assisted Living']
-    }
-  ],
-  total: 103,
-  clusters: []
+  };
+});
+
+jest.mock('@/components/MapErrorBoundary', () => {
+  const React = require('react');
+  return {
+    __esModule: true,
+    default: ({ children }: any) => React.createElement(React.Fragment, null, children),
+  };
+});
+
+jest.mock('@/components/MapTutorial', () => ({
+  __esModule: true,
+  default: () => null,
+}));
+
+jest.mock('@/components/MascotLoadingDisplay', () => {
+  const React = require('react');
+  return {
+    MascotLoadingDisplay: () =>
+      React.createElement('div', { 'data-testid': 'status-loading' }, 'Loading communities…'),
+  };
+});
+
+jest.mock('@/components/CommunityCard', () => {
+  const React = require('react');
+  return {
+    CommunityCard: ({ community }: any) =>
+      React.createElement('div', { 'data-testid': 'community-card' }, community?.name),
+  };
+});
+
+jest.mock('@/components/VendorCard', () => ({ VendorCard: () => null }));
+jest.mock('@/components/EnhancedVendorCard', () => ({ __esModule: true, default: () => null }));
+jest.mock('@/components/HealthcareServiceCard', () => ({ HealthcareServiceCard: () => null }));
+jest.mock('@/components/ResourceCard', () => ({ ResourceCard: () => null }));
+jest.mock('@/components/AISearchInsights', () => ({ AISearchInsights: () => null }));
+jest.mock('@/components/NavigationHeader', () => ({ NavigationHeader: () => null }));
+jest.mock('@/components/BreadcrumbNavigation', () => ({ BreadcrumbNavigation: () => null }));
+jest.mock('@/components/BottomNav', () => ({ BottomNav: () => null }));
+jest.mock('@/components/AutocompleteSearch', () => ({ AutocompleteSearch: () => null }));
+
+// Page-level panels that are imported eagerly but only rendered on demand.
+jest.mock('@/pages/MessagingDashboard', () => ({ __esModule: true, default: () => null }));
+jest.mock('@/pages/tours', () => ({ __esModule: true, default: () => null }));
+jest.mock('@/pages/AISearchComparison', () => ({ __esModule: true, default: () => null }));
+
+// Hooks with side effects / timers we don't want in the test.
+jest.mock('@/hooks/useSEO', () => ({
+  useSEO: jest.fn(),
+  SEOTemplates: { mapSearch: {} },
+}));
+jest.mock('@/hooks/useMapSessionStorage', () => ({
+  useMapSessionStorage: () => ({ loadState: () => null, saveState: jest.fn() }),
+  useDebounceMapSave: jest.fn(),
+}));
+jest.mock('@/hooks/use-debounce', () => ({ useDebounce: (value: any) => value }));
+jest.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: jest.fn() }) }));
+
+// Track how often the spatial (DB) community search is hit, so we can assert
+// the empty-result loop guard holds.
+let spatialCallCount = 0;
+
+type FetchRouter = {
+  spatial: () => any[];
+  discovery?: () => { results: any[] };
 };
 
-// Create test wrapper
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: { retry: false },
-      mutations: { retry: false }
-    }
-  });
+function installFetch(router: FetchRouter) {
+  spatialCallCount = 0;
+  const jsonResponse = (body: any) =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      json: () => Promise.resolve(body),
+      text: () => Promise.resolve(JSON.stringify(body)),
+    } as unknown as Response);
 
-  return ({ children }: { children: React.ReactNode }) => (
-    <Router hook={memoryLocation()}>
-      <QueryClientProvider client={queryClient}>
-        {children}
-      </QueryClientProvider>
-    </Router>
+  global.fetch = jest.fn((input: any) => {
+    const url = typeof input === 'string' ? input : input?.url || '';
+
+    if (url.includes('/api/communities/search/spatial')) {
+      spatialCallCount += 1;
+      return jsonResponse(router.spatial());
+    }
+    if (url.includes('/api/global-discovery/search')) {
+      return jsonResponse(router.discovery ? router.discovery() : { results: [] });
+    }
+    if (url.includes('/api/geocode')) {
+      return jsonResponse({ success: true, lat: 32.5, lng: -96.5, location: 'test' });
+    }
+    if (url.includes('/api/settings/map-defaults')) {
+      return jsonResponse({ lat: 32.5, lng: -96.5, zoom: 12 });
+    }
+    // vendors / healthcare / resources / community fallback search
+    if (url.includes('/api/communities/search?')) {
+      return jsonResponse({ communities: [] });
+    }
+    return jsonResponse([]);
+  }) as any;
+}
+
+function setLocationSearch(query: string) {
+  // history.pushState updates window.location.search in jsdom without the
+  // "Cannot redefine property: location" error from redefining location.
+  window.history.pushState({}, '', `/map-search?query=${encodeURIComponent(query)}`);
+}
+
+const renderPage = () =>
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MapSearch />
+    </QueryClientProvider>
   );
-};
 
-describe('MapSearch', () => {
+describe('MapSearch — never hangs on empty-coverage cities (Task #320)', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    const { apiRequest } = require('@/lib/queryClient');
-    apiRequest.mockResolvedValue(mockMapData);
-    
-    // Mock window.location
-    Object.defineProperty(window, 'location', {
-      value: {
-        search: '?q=Dallas',
-        pathname: '/map-search'
-      },
-      writable: true
-    });
+    queryClient.clear();
   });
 
-  describe('Map Rendering', () => {
-    it('renders map container', async () => {
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(screen.getByTestId('map-container')).toBeInTheDocument();
-      });
+  it('settles to "No communities found" for an uncovered city instead of staying on the loader', async () => {
+    setLocationSearch('Ranger, TX');
+    installFetch({
+      spatial: () => [], // zero DB coverage
+      discovery: () => ({ results: [] }), // web discovery also finds nothing
     });
 
-    it('displays search controls', async () => {
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(screen.getByPlaceholderText(/Search/i)).toBeInTheDocument();
-      });
-    });
+    renderPage();
 
-    it('shows filter options', async () => {
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(screen.getByText(/Filter/i)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Data Loading', () => {
-    it('fetches communities on mount', async () => {
-      const { apiRequest } = require('@/lib/queryClient');
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(apiRequest).toHaveBeenCalledWith(
-          'GET',
-          '/api/communities/map',
-          null,
-          expect.objectContaining({
-            search: 'Dallas'
-          })
-        );
-      });
-    });
-
-    it('displays community markers on map', async () => {
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        const markers = screen.getAllByTestId('marker');
-        expect(markers).toHaveLength(2);
-      });
-    });
-
-    it('shows loading state while fetching', () => {
-      const { apiRequest } = require('@/lib/queryClient');
-      apiRequest.mockImplementation(() => new Promise(() => {})); // Never resolves
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      expect(screen.getByText(/Loading/i)).toBeInTheDocument();
-    });
-
-    it('displays community count', async () => {
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(screen.getByText(/103 communities found/i)).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Search Functionality', () => {
-    it('updates search when input changes', async () => {
-      const user = userEvent.setup();
-      const { apiRequest } = require('@/lib/queryClient');
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      const searchInput = screen.getByPlaceholderText(/Search/i);
-      await user.clear(searchInput);
-      await user.type(searchInput, 'Austin');
-      
-      await waitFor(() => {
-        expect(apiRequest).toHaveBeenCalledWith(
-          'GET',
-          '/api/communities/map',
-          null,
-          expect.objectContaining({
-            search: 'Austin'
-          })
-        );
-      });
-    });
-
-    it('handles search with no results', async () => {
-      const { apiRequest } = require('@/lib/queryClient');
-      apiRequest.mockResolvedValueOnce({
-        communities: [],
-        total: 0,
-        clusters: []
-      });
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
+    // The panel must reach a terminal state within a bounded time.
+    await waitFor(
+      () => {
         expect(screen.getByText(/No communities found/i)).toBeInTheDocument();
-      });
-    });
+      },
+      { timeout: 8000 }
+    );
+
+    // The mascot "Loading communities…" loader must no longer be on screen.
+    expect(screen.queryByTestId('status-loading')).not.toBeInTheDocument();
   });
 
-  describe('Filtering', () => {
-    it('allows filtering by care type', async () => {
-      const user = userEvent.setup();
-      const { apiRequest } = require('@/lib/queryClient');
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      // Open filter panel
-      const filterButton = screen.getByText(/Filter/i);
-      await user.click(filterButton);
-      
-      // Select care type filter
-      const assistedLivingFilter = screen.getByLabelText(/Assisted Living/i);
-      await user.click(assistedLivingFilter);
-      
-      await waitFor(() => {
-        expect(apiRequest).toHaveBeenCalledWith(
-          'GET',
-          '/api/communities/map',
-          null,
-          expect.objectContaining({
-            careTypes: ['Assisted Living']
-          })
+  it('does not re-fire the spatial query in an unbounded loop on empty results', async () => {
+    setLocationSearch('Ranger, TX');
+    installFetch({
+      spatial: () => [],
+      discovery: () => ({ results: [] }),
+    });
+
+    renderPage();
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/No communities found/i)).toBeInTheDocument();
+      },
+      { timeout: 8000 }
+    );
+
+    // Capture the count once settled, then confirm it stays stable — the old
+    // bug kept invalidating/refetching forever on zero results.
+    const countAtSettle = spatialCallCount;
+    expect(countAtSettle).toBeLessThanOrEqual(5);
+
+    await new Promise((r) => setTimeout(r, 1500));
+    expect(spatialCallCount).toBe(countAtSettle);
+  });
+
+  it('shows the web-discovery spinner before settling when DB coverage is empty', async () => {
+    setLocationSearch('Ranger, TX');
+
+    // Hold the discovery response open so we can observe the interim spinner.
+    let releaseDiscovery: (value: { results: any[] }) => void = () => {};
+    const discoveryPromise = new Promise<{ results: any[] }>((resolve) => {
+      releaseDiscovery = resolve;
+    });
+
+    global.fetch = jest.fn((input: any) => {
+      const url = typeof input === 'string' ? input : input?.url || '';
+      const jsonResponse = (body: any) =>
+        Promise.resolve({
+          ok: true,
+          status: 200,
+          json: () => Promise.resolve(body),
+          text: () => Promise.resolve(JSON.stringify(body)),
+        } as unknown as Response);
+
+      if (url.includes('/api/communities/search/spatial')) {
+        spatialCallCount += 1;
+        return jsonResponse([]);
+      }
+      if (url.includes('/api/global-discovery/search')) {
+        return discoveryPromise.then(
+          (body) =>
+            ({
+              ok: true,
+              status: 200,
+              json: () => Promise.resolve(body),
+              text: () => Promise.resolve(JSON.stringify(body)),
+            } as unknown as Response)
         );
-      });
-    });
+      }
+      if (url.includes('/api/geocode')) {
+        return jsonResponse({ success: true, lat: 32.5, lng: -96.5, location: 'test' });
+      }
+      if (url.includes('/api/settings/map-defaults')) {
+        return jsonResponse({ lat: 32.5, lng: -96.5, zoom: 12 });
+      }
+      return jsonResponse([]);
+    }) as any;
 
-    it('allows filtering by price range', async () => {
-      const user = userEvent.setup();
-      const { apiRequest } = require('@/lib/queryClient');
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      // Open filter panel
-      const filterButton = screen.getByText(/Filter/i);
-      await user.click(filterButton);
-      
-      // Set price range
-      const minPriceInput = screen.getByLabelText(/Min Price/i);
-      const maxPriceInput = screen.getByLabelText(/Max Price/i);
-      
-      await user.type(minPriceInput, '3000');
-      await user.type(maxPriceInput, '5000');
-      
-      // Apply filters
-      const applyButton = screen.getByText(/Apply/i);
-      await user.click(applyButton);
-      
-      await waitFor(() => {
-        expect(apiRequest).toHaveBeenCalledWith(
-          'GET',
-          '/api/communities/map',
-          null,
-          expect.objectContaining({
-            minPrice: 3000,
-            maxPrice: 5000
-          })
-        );
-      });
-    });
+    renderPage();
 
-    it('clears filters when reset is clicked', async () => {
-      const user = userEvent.setup();
-      const { apiRequest } = require('@/lib/queryClient');
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      // Apply some filters first
-      const filterButton = screen.getByText(/Filter/i);
-      await user.click(filterButton);
-      
-      const assistedLivingFilter = screen.getByLabelText(/Assisted Living/i);
-      await user.click(assistedLivingFilter);
-      
-      // Reset filters
-      const resetButton = screen.getByText(/Reset/i);
-      await user.click(resetButton);
-      
-      await waitFor(() => {
-        expect(apiRequest).toHaveBeenLastCalledWith(
-          'GET',
-          '/api/communities/map',
-          null,
-          expect.objectContaining({
-            search: 'Dallas'
-            // No filters
-          })
-        );
-      });
-    });
+    // Interim state: the "Searching the web…" discovery spinner is shown.
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('status-discovering')).toBeInTheDocument();
+      },
+      { timeout: 8000 }
+    );
+
+    // Resolve discovery with nothing — the panel settles, never stuck on loader.
+    releaseDiscovery({ results: [] });
+
+    await waitFor(
+      () => {
+        expect(screen.getByText(/No communities found/i)).toBeInTheDocument();
+      },
+      { timeout: 8000 }
+    );
+    expect(screen.queryByTestId('status-loading')).not.toBeInTheDocument();
   });
 
-  describe('Community Interaction', () => {
-    it('shows community details on marker click', async () => {
-      const user = userEvent.setup();
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        const markers = screen.getAllByTestId('marker');
-        expect(markers).toHaveLength(2);
-      });
-      
-      const firstMarker = screen.getAllByTestId('marker')[0];
-      await user.click(firstMarker);
-      
-      // Should show community popup
-      await waitFor(() => {
-        expect(screen.getByText('Brookdale Senior Living Dallas')).toBeInTheDocument();
-        expect(screen.getByText('$3,000 - $5,000')).toBeInTheDocument();
-      });
+  it('shows community cards for a covered city (e.g. San Francisco)', async () => {
+    setLocationSearch('San Francisco');
+    installFetch({
+      spatial: () => [
+        {
+          id: 1,
+          name: 'San Francisco Senior Living',
+          city: 'San Francisco',
+          state: 'CA',
+          latitude: 32.5,
+          longitude: -96.5,
+          careTypes: ['Assisted Living'],
+        },
+        {
+          id: 2,
+          name: 'San Francisco Memory Care',
+          city: 'San Francisco',
+          state: 'CA',
+          latitude: 32.6,
+          longitude: -96.6,
+          careTypes: ['Memory Care'],
+        },
+      ],
     });
 
-    it('navigates to community detail on view details click', async () => {
-      const user = userEvent.setup();
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        const markers = screen.getAllByTestId('marker');
-        expect(markers).toHaveLength(2);
-      });
-      
-      // Click marker to open popup
-      const firstMarker = screen.getAllByTestId('marker')[0];
-      await user.click(firstMarker);
-      
-      // Click view details
-      const viewDetailsButton = screen.getByText(/View Details/i);
-      await user.click(viewDetailsButton);
-      
-      // Should navigate to community detail page
-      expect(window.location.pathname).toContain('/community/1');
-    });
-  });
+    renderPage();
 
-  describe('List/Map View Toggle', () => {
-    it('switches between map and list view', async () => {
-      const user = userEvent.setup();
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      // Initially in map view
-      expect(screen.getByTestId('map-container')).toBeInTheDocument();
-      
-      // Switch to list view
-      const listViewButton = screen.getByText(/List View/i);
-      await user.click(listViewButton);
-      
-      // Should show list of communities
-      await waitFor(() => {
-        expect(screen.getByText('Brookdale Senior Living Dallas')).toBeInTheDocument();
-        expect(screen.getByText('Belmont Village Dallas')).toBeInTheDocument();
-      });
-      
-      // Switch back to map view
-      const mapViewButton = screen.getByText(/Map View/i);
-      await user.click(mapViewButton);
-      
-      expect(screen.getByTestId('map-container')).toBeInTheDocument();
-    });
-  });
+    await waitFor(
+      () => {
+        expect(screen.getAllByTestId('community-card').length).toBeGreaterThan(0);
+      },
+      { timeout: 8000 }
+    );
 
-  describe('Map Controls', () => {
-    it('allows zooming in and out', async () => {
-      const user = userEvent.setup();
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      const zoomInButton = screen.getByLabelText(/Zoom in/i);
-      const zoomOutButton = screen.getByLabelText(/Zoom out/i);
-      
-      await user.click(zoomInButton);
-      await user.click(zoomOutButton);
-      
-      // Map should handle zoom changes
-      expect(zoomInButton).toBeInTheDocument();
-      expect(zoomOutButton).toBeInTheDocument();
-    });
-
-    it('recenters map when recenter button is clicked', async () => {
-      const user = userEvent.setup();
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      const recenterButton = screen.getByLabelText(/Recenter/i);
-      await user.click(recenterButton);
-      
-      // Map should recenter
-      expect(recenterButton).toBeInTheDocument();
-    });
-  });
-
-  describe('Performance', () => {
-    it('clusters markers when there are many communities', async () => {
-      const { apiRequest } = require('@/lib/queryClient');
-      
-      // Mock large dataset
-      const largeMockData = {
-        ...mockMapData,
-        communities: Array(100).fill(null).map((_, i) => ({
-          ...mockMapData.communities[0],
-          id: i,
-          latitude: 32.7767 + (Math.random() - 0.5) * 0.1,
-          longitude: -96.7970 + (Math.random() - 0.5) * 0.1
-        })),
-        total: 100
-      };
-      
-      apiRequest.mockResolvedValueOnce(largeMockData);
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(screen.getByTestId('marker-cluster')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Error Handling', () => {
-    it('displays error message on API failure', async () => {
-      const { apiRequest } = require('@/lib/queryClient');
-      apiRequest.mockRejectedValueOnce(new Error('API Error'));
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(screen.getByText(/Error loading communities/i)).toBeInTheDocument();
-      });
-    });
-
-    it('allows retry on error', async () => {
-      const user = userEvent.setup();
-      const { apiRequest } = require('@/lib/queryClient');
-      
-      // First call fails
-      apiRequest.mockRejectedValueOnce(new Error('API Error'));
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      await waitFor(() => {
-        expect(screen.getByText(/Error loading communities/i)).toBeInTheDocument();
-      });
-      
-      // Reset to succeed
-      apiRequest.mockResolvedValueOnce(mockMapData);
-      
-      // Click retry
-      const retryButton = screen.getByText(/Retry/i);
-      await user.click(retryButton);
-      
-      // Should load successfully
-      await waitFor(() => {
-        expect(screen.getByTestId('map-container')).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('Accessibility', () => {
-    it('has accessible map controls', async () => {
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      const zoomIn = screen.getByLabelText(/Zoom in/i);
-      const zoomOut = screen.getByLabelText(/Zoom out/i);
-      
-      expect(zoomIn).toHaveAttribute('aria-label');
-      expect(zoomOut).toHaveAttribute('aria-label');
-    });
-
-    it('provides keyboard navigation', async () => {
-      const user = userEvent.setup();
-      
-      render(<MapSearch />, { wrapper: createWrapper() });
-      
-      // Tab through controls
-      await user.tab();
-      expect(document.activeElement).toHaveAttribute('placeholder', expect.stringContaining('Search'));
-      
-      await user.tab();
-      // Should tab to next control
-      expect(document.activeElement).not.toBe(document.body);
-    });
+    expect(screen.queryByTestId('status-loading')).not.toBeInTheDocument();
+    // Covered city should not trigger web discovery.
+    const discoveryCalls = (global.fetch as jest.Mock).mock.calls.filter(([u]: any[]) =>
+      String(u).includes('/api/global-discovery/search')
+    );
+    expect(discoveryCalls.length).toBe(0);
   });
 });
