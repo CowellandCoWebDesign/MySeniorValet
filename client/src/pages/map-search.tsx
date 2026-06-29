@@ -35,6 +35,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { useToast } from '@/hooks/use-toast';
 import { useSEO, SEOTemplates } from '@/hooks/useSEO';
 import { fuzzySearch, parseSearchQuery } from '@/lib/fuzzySearch';
+import { resolveCommunityNavigation } from '@/lib/community-navigation';
 import { useMapSessionStorage, useDebounceMapSave } from '@/hooks/useMapSessionStorage';
 
 interface Community {
@@ -1338,9 +1339,9 @@ export default function MapSearch() {
     // Discovered communities are persisted server-side and come back with a real
     // database id. Only navigate when we have a valid positive id so we never
     // produce a broken /communities/0 link for a result that failed to save.
-    const communityId = Number((community as any)?.id);
-    if (Number.isFinite(communityId) && communityId > 0) {
-      setLocation('/communities/' + communityId);
+    const nav = resolveCommunityNavigation(community as any);
+    if (nav.shouldNavigate && nav.path) {
+      setLocation(nav.path);
     } else {
       toast({
         title: 'Still saving this community',
