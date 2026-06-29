@@ -435,6 +435,8 @@ interface MapProps {
   vendors?: any[];
   healthcareServices?: any[];
   resources?: any[];
+  /** Web-discovered communities (not yet in the bounds query) to plot as pins. */
+  discoveredCommunities?: any[];
   showHeatmapLayer?: boolean;
   heatmapOpacity?: number;
   showLegend?: boolean;
@@ -656,6 +658,7 @@ export default function Map({
   vendors = [],
   healthcareServices = [],
   resources = [],
+  discoveredCommunities = [],
   showHeatmapLayer = false,
   heatmapOpacity = 0.6,
   showLegend = false
@@ -1654,6 +1657,111 @@ export default function Map({
             })}
           </MarkerClusterGroup>
         )}
+
+        {/* Web-discovered community markers — plotted directly (outside the
+            bounds-query cluster group) so families see freshly discovered
+            communities as pins alongside DB results. Only those that geocoded
+            successfully (have lat/lng) are shown. */}
+        {discoveredCommunities && discoveredCommunities.length > 0 &&
+          discoveredCommunities.map((dc: any) => {
+            const lat = typeof dc.latitude === 'string' ? parseFloat(dc.latitude) : dc.latitude;
+            const lng = typeof dc.longitude === 'string' ? parseFloat(dc.longitude) : dc.longitude;
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+            const community: Community = {
+              id: dc.id,
+              name: dc.name,
+              address: dc.address || '',
+              city: dc.city || '',
+              state: dc.state || '',
+              zipCode: dc.zipCode || '',
+              latitude: lat,
+              longitude: lng,
+              careTypes: dc.careTypes || [],
+              rating: dc.rating || null,
+              reviewCount: dc.reviewCount || 0,
+              phone: dc.phone || '',
+              website: dc.website || '',
+              priceRange: dc.priceRange || 'Contact for pricing',
+              availability: dc.availability || 'Contact for availability',
+              photos: dc.photos || [],
+              description: dc.description || '',
+              hudPropertyId: dc.hudPropertyId,
+              dataSource: dc.data_source || dc.dataSource,
+              hudVerified: dc.hudVerified,
+              rentPerMonth: dc.rentPerMonth
+            };
+
+            const isHovered = hoveredCommunity === community.id;
+            const communityIcon = getIconForCommunity(community, isHovered, false);
+
+            return (
+              <Marker
+                key={`discovered-${dc.id}-${lat}-${lng}-zoom-${Math.round(currentZoom)}`}
+                position={[lat, lng]}
+                icon={communityIcon}
+                eventHandlers={{
+                  click: (e) => {
+                    try {
+                      if (e && e.originalEvent) {
+                        e.originalEvent.stopPropagation();
+                        e.originalEvent.preventDefault();
+                      }
+                      if (e && e.target && e.target._icon) {
+                        handleCommunityClick(community);
+                      }
+                    } catch (error) {
+                      console.warn('Discovered community click error:', error);
+                    }
+                  },
+                  mouseover: (e) => {
+                    try {
+                      if (e && e.target && e.target._icon) setHoveredCommunity(community.id);
+                    } catch (error) {
+                      console.warn('Discovered community mouseover error:', error);
+                    }
+                  },
+                  mouseout: (e) => {
+                    try {
+                      if (e && e.target && e.target._icon) setHoveredCommunity(null);
+                    } catch (error) {
+                      console.warn('Discovered community mouseout error:', error);
+                    }
+                  }
+                }}
+              >
+                {isHovered && (
+                  <Tooltip permanent direction="top" offset={[0, -15]} className="community-tooltip">
+                    <div className="bg-white/98 backdrop-blur-sm rounded-xl p-3 shadow-xl border border-gray-200 max-w-xs">
+                      <div className="font-bold text-sm text-gray-900 mb-1 line-clamp-2">
+                        {community.name}
+                      </div>
+                      <div className="text-xs text-gray-600 mb-2">
+                        📍 {community.city}, {community.state}
+                      </div>
+                      <div className="text-xs text-blue-600">🔎 Newly found via web search</div>
+                    </div>
+                  </Tooltip>
+                )}
+
+                <Popup
+                  className="community-popup enhanced-popup"
+                  closeButton={true}
+                  autoPan={true}
+                  autoClose={false}
+                  maxWidth={450}
+                >
+                  <div className="w-full max-w-md">
+                    <CommunityCard
+                      community={community}
+                      variant="list"
+                      onSelect={() => handleCommunityClick(community)}
+                    />
+                  </div>
+                </Popup>
+              </Marker>
+            );
+          })}
 
         {/* Hospital markers - show alongside communities */}
         {!isLoading && hospitalsData?.hospitals && currentZoom >= 8 && hospitalsData.hospitals.map((hospital: any, index: number) => {

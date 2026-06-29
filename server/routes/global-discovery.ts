@@ -1769,6 +1769,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           state: saved.state || '',
           country: saved.country || '',
           zipCode: saved.zipCode || '00000',
+          // Include geocoded coordinates so the client can plot discovered
+          // communities as pins on the map alongside DB results.
+          latitude: saved.latitude ?? null,
+          longitude: saved.longitude ?? null,
           phone: saved.phone || originalData?.phone || '',
           website: saved.website || originalData?.website || '',
           description: saved.description || originalData?.description || '',

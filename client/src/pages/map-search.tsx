@@ -32,6 +32,7 @@ import AISearchComparison from '@/pages/AISearchComparison';
 import { useQuery } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useToast } from '@/hooks/use-toast';
 import { useSEO, SEOTemplates } from '@/hooks/useSEO';
 import { fuzzySearch, parseSearchQuery } from '@/lib/fuzzySearch';
 import { useMapSessionStorage, useDebounceMapSave } from '@/hooks/useMapSessionStorage';
@@ -114,6 +115,7 @@ interface SearchFilters {
 
 export default function MapSearch() {
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   // Set SEO metadata for this page
   useSEO(SEOTemplates.mapSearch);
@@ -1333,7 +1335,19 @@ export default function MapSearch() {
 
   const handleCommunityClick = (community: Community) => {
     setSelectedCommunity(community);
-    setLocation('/communities/' + community.id);
+    // Discovered communities are persisted server-side and come back with a real
+    // database id. Only navigate when we have a valid positive id so we never
+    // produce a broken /communities/0 link for a result that failed to save.
+    const communityId = Number((community as any)?.id);
+    if (Number.isFinite(communityId) && communityId > 0) {
+      setLocation('/communities/' + communityId);
+    } else {
+      toast({
+        title: 'Still saving this community',
+        description:
+          'We just found this community on the web and are finishing saving it. Please try again in a moment.',
+      });
+    }
   };
 
   // Handle map bounds change with enhanced debugging and forced refresh
@@ -2078,6 +2092,7 @@ export default function MapSearch() {
             vendors={vendors}
             healthcareServices={healthcareServices}
             resources={resources}
+            discoveredCommunities={mapCommunities.length === 0 ? discoveredCommunities : []}
             onCommunityClick={handleCommunityClick}
             onBoundsChange={handleMapBoundsChange}
             onClusterClick={handleClusterClick}
