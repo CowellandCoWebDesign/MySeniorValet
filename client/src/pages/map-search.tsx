@@ -605,36 +605,10 @@ export default function MapSearch() {
     staleTime: 30 * 1000, // Consider data fresh for 30 seconds
     retry: 2, // Retry failed requests twice
     queryFn: async ({ signal }) => {
-      // If we're showing the bottom panel but no bounds yet, fetch default San Francisco area
-      if (!mapBounds && showBottomPanel) {
-        console.log('No bounds yet, fetching default San Francisco area communities...');
-        const params = new URLSearchParams({
-          swLat: '37.7000',
-          swLng: '-122.5200',
-          neLat: '37.8200',
-          neLng: '-122.3800',
-          limit: '500',
-          ...(filters.careType !== 'All Types' && { careType: filters.careType }),
-          ...(filters.minRating > 0 && { minRating: filters.minRating.toString() }),
-        });
-
-        const response = await fetch(`/api/communities/search/spatial?${params}`, {
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          signal: signal
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to fetch communities: ${response.statusText}`);
-        }
-
-        const communities = await response.json();
-        console.log('Fetched default area communities:', communities.length);
-        return communities;
-      }
-
+      // No bounds yet — wait for the map to report its real bounds rather than
+      // querying the stale default San Francisco area. Previously a fresh city
+      // search briefly showed SF results (and added to the spatial abort churn)
+      // before the geocoded city's bounds applied.
       if (!mapBounds) return [];
 
       const startTime = Date.now();
@@ -932,6 +906,12 @@ export default function MapSearch() {
   // State to track if we're waiting for initial load
   const [isInitialLoad, setIsInitialLoad] = useState(false);
   const [isMapMoving, setIsMapMoving] = useState(false);
+
+  // Web-discovery fallback state — when the spatial DB search returns zero
+  // results for a geocoded location, fire the free discovery pipeline ONCE.
+  const [isDiscovering, setIsDiscovering] = useState(false);
+  const [discoveredCommunities, setDiscoveredCommunities] = useState<Community[]>([]);
+  const discoveryRanForRef = useRef<string | null>(null);
 
   // Track bounds changes for forced refetch
   const prevBoundsRef = useRef(boundsKey);
@@ -1399,21 +1379,95 @@ export default function MapSearch() {
     }
   }, [hasSearched, mapBounds, showBottomPanel]);
 
-  // Force query when panel opens with existing bounds
+  // Force query ONCE when the panel opens with existing bounds.
+  // Previously this re-fired on every render while results were legitimately
+  // empty (mapCommunities.length === 0), creating an infinite invalidate/refetch
+  // loop that hammered the spatial endpoint with aborted requests for any city
+  // with no coverage. Gate it to run a single time per bounds change — the query
+  // key already includes boundsKey, so genuine bounds changes refetch on their own.
+  const forcedQueryBoundsKeyRef = useRef<string | null>(null);
   useEffect(() => {
-    if (showBottomPanel && mapBounds && mapCommunities.length === 0) {
-      const boundsValues = getBoundsValues(mapBounds);
-      const boundsStr = boundsValues ? 
-        `${boundsValues.sw.lng},${boundsValues.sw.lat},${boundsValues.ne.lng},${boundsValues.ne.lat}` : 
-        'null';
-      
-      console.log('🔄 PANEL OPENED WITH BOUNDS - FORCING QUERY:', {
-        mapBounds: boundsStr,
-        timestamp: Date.now()
-      });
-      queryClient.invalidateQueries({ queryKey: ['communities-map-bounds'] });
+    if (!showBottomPanel || !mapBounds || boundsKey === 'no-bounds') {
+      return;
     }
-  }, [showBottomPanel, mapBounds, mapCommunities.length, queryClient, getBoundsValues]);
+    if (forcedQueryBoundsKeyRef.current === boundsKey) {
+      return; // already forced a query for these exact bounds
+    }
+    forcedQueryBoundsKeyRef.current = boundsKey;
+    console.log('🔄 PANEL OPENED WITH BOUNDS - FORCING QUERY ONCE:', {
+      boundsKey,
+      timestamp: Date.now()
+    });
+    queryClient.invalidateQueries({ queryKey: ['communities-map-bounds'] });
+  }, [showBottomPanel, boundsKey, mapBounds, queryClient]);
+
+  // Run the Perplexity-powered web discovery for a location. `force` sends
+  // discoveryMode:true, which on the server bypasses the 24h cost guard and
+  // guarantees a fresh Perplexity (sonar) discovery instead of returning the
+  // (empty) database result. We force in both the automatic zero-result fallback
+  // and the user-activated "Discovery Mode" button so results actually appear.
+  const runDiscovery = useCallback(async (queryText: string, force: boolean) => {
+    const trimmed = (queryText || '').trim();
+    if (trimmed.length < 3) return;
+    setIsDiscovering(true);
+    setDiscoveredCommunities([]);
+    console.log(`🔮 Running web discovery (force=${force}) for:`, trimmed);
+    try {
+      const res = await fetch('/api/global-discovery/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ query: trimmed, searchType: 'community', limit: 30, discoveryMode: force }),
+      });
+      const data = res.ok ? await res.json() : null;
+      const raw: any[] = data?.results || [];
+      // Keep only real communities — drop the "no results" placeholder rows the
+      // discovery model sometimes returns (Golden Data Rule: no junk entries).
+      const results: Community[] = raw.filter((c: any) => {
+        if (!c || !c.name) return false;
+        const n = String(c.name).toLowerCase().trim();
+        if (/^no\b|no specific|not found|none found|no senior|no communities/.test(n)) return false;
+        return true;
+      });
+      console.log(`🔮 Discovery returned ${results.length} usable communities for "${trimmed}"`);
+      setDiscoveredCommunities(results);
+    } catch (err) {
+      console.error('Discovery failed:', err);
+    } finally {
+      setIsDiscovering(false);
+    }
+  }, []);
+
+  // Automatic web-discovery fallback: when the spatial DB search settles with
+  // ZERO results for a real location search, run Perplexity discovery ONCE for
+  // that location. The ref prevents re-firing within this session/search.
+  useEffect(() => {
+    const trimmed = (searchQuery || '').trim();
+    if (
+      showBottomPanel &&
+      mapBounds &&
+      !isLoadingCommunities &&
+      !isFetchingCommunities &&
+      mapCommunities.length === 0 &&
+      trimmed.length > 2
+    ) {
+      const key = trimmed.toLowerCase();
+      if (discoveryRanForRef.current === key) return; // already ran for this search
+      discoveryRanForRef.current = key;
+      console.log('🌐 No DB results — triggering Perplexity discovery for:', trimmed);
+      runDiscovery(trimmed, true);
+    }
+  }, [showBottomPanel, mapBounds, isLoadingCommunities, isFetchingCommunities, mapCommunities.length, searchQuery, runDiscovery]);
+
+  // User-activated Discovery Mode: lets the user (re)run a fresh Perplexity web
+  // search for the current location on demand. Re-points the ref so the auto
+  // effect won't double-fire for the same search.
+  const handleManualDiscovery = useCallback(() => {
+    const trimmed = (searchQuery || '').trim();
+    if (trimmed.length < 3) return;
+    discoveryRanForRef.current = trimmed.toLowerCase();
+    runDiscovery(trimmed, true);
+  }, [searchQuery, runDiscovery]);
 
   const handleClusterClick = (clusterId: number, lat: number, lng: number, zoomLevel: number) => {
     // FIXED: Do not switch to list view automatically on cluster clicks
@@ -1454,6 +1508,13 @@ export default function MapSearch() {
     value !== 'All Types' && value !== 'Any Budget' && value !== 'All Status' && 
     value !== 0 && value !== false && (Array.isArray(value) ? value.length > 0 : true)
   ).length;
+
+  // Communities to display in the list: real DB results when present, otherwise
+  // the web-discovered fallback results for uncovered locations.
+  const displayedCommunities = useMemo(
+    () => (mapCommunities.length > 0 ? mapCommunities : discoveredCommunities),
+    [mapCommunities, discoveredCommunities]
+  );
 
   return (
     <div className="h-screen overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800 pb-16 md:pb-0">
@@ -2057,7 +2118,7 @@ export default function MapSearch() {
                 {resultType === 'all' ? '🔍' : resultType === 'communities' ? '🏠' : resultType === 'vendors' ? '🛍️' : resultType === 'healthcare' ? '🏥' : '📚'} 
                 {!mapBounds ? 'Position map to see results' : 
                  isLoadingCommunities || isFetchingCommunities ? 'Loading results...' : 
-                 resultType === 'communities' ? mapCommunities.length + ' Communities Found' :
+                 resultType === 'communities' ? displayedCommunities.length + ' Communities Found' :
                  resultType === 'all' ? 'All Results' :
                  resultType === 'vendors' ? 'Local Services & Vendors' :
                  resultType === 'healthcare' ? 'Healthcare Marketplace' :
@@ -2097,8 +2158,8 @@ export default function MapSearch() {
               className={`flex-shrink-0 ${resultType === 'communities' ? 'bg-blue-600 text-white' : 'text-gray-600 dark:text-gray-300'}`}
             >
               Communities
-              {mapCommunities.length > 0 && (
-                <Badge className="ml-1 bg-blue-500 text-white">{mapCommunities.length}</Badge>
+              {displayedCommunities.length > 0 && (
+                <Badge className="ml-1 bg-blue-500 text-white">{displayedCommunities.length}</Badge>
               )}
             </Button>
             <Button
@@ -2200,30 +2261,71 @@ export default function MapSearch() {
               factRotationSpeed={3000}
               compact={true}
             />
-          ) : mapCommunities.length === 0 ? (
+          ) : isDiscovering ? (
+            <div className="text-center py-12" data-testid="status-discovering">
+              <div className="bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/20 dark:to-purple-900/20 rounded-2xl p-8 mx-4">
+                <div className="w-12 h-12 mx-auto mb-4 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <h4 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
+                  Searching the web for communities{searchQuery ? ` in ${searchQuery}` : ''}…
+                </h4>
+                <p className="text-blue-700 dark:text-blue-200">
+                  We don't have this area in our database yet — checking trusted sources now.
+                </p>
+              </div>
+            </div>
+          ) : displayedCommunities.length === 0 ? (
             <div className="text-center py-12">
               <div className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-900/20 dark:to-red-900/20 rounded-2xl p-8 mx-4">
                 <MapIcon className="w-16 h-16 mx-auto text-orange-500 mb-4" />
                 <h4 className="text-lg font-semibold text-orange-900 dark:text-orange-100 mb-2">
-                  No Communities Found
+                  No communities found{searchQuery ? ` in ${searchQuery}` : ''}
                 </h4>
-                <p className="text-orange-700 dark:text-orange-300">
+                <p className="text-orange-700 dark:text-orange-300 mb-4">
                   Try zooming out or searching a different area
                 </p>
+                {searchQuery.trim().length > 2 && (
+                  <Button
+                    onClick={handleManualDiscovery}
+                    disabled={isDiscovering}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    data-testid="button-discovery-mode"
+                  >
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Search the web with Discovery Mode
+                  </Button>
+                )}
               </div>
             </div>
           ) : (
             <div className="space-y-3">
+              {/* Web-discovered results banner with on-demand re-run (Discovery Mode) */}
+              {mapCommunities.length === 0 && discoveredCommunities.length > 0 && (
+                <div className="flex items-center justify-between gap-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-3 py-2 text-sm">
+                  <span className="text-blue-700 dark:text-blue-200 flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4" /> Web results via Discovery Mode — verify details with the community
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleManualDiscovery}
+                    disabled={isDiscovering}
+                    data-testid="button-discovery-again"
+                  >
+                    Search again
+                  </Button>
+                </div>
+              )}
               {/* Display results based on selected filter */}
-              {resultType === 'communities' && mapCommunities
+              {resultType === 'communities' && displayedCommunities
                 .filter((item: any) => {
                   // Filter out hospitals and other non-community items
                   // Only show actual senior living communities
                   return !item.type || item.type === 'community';
                 })
                 .sort((a: Community, b: Community) => {
-                  // Sort by distance from map center if bounds available
-                  if (mapBounds) {
+                  // Sort by distance from map center if bounds available and both
+                  // have coordinates (web-discovered results may lack them)
+                  if (mapBounds && a.latitude && a.longitude && b.latitude && b.longitude) {
                     const center = getBoundsCenter(mapBounds);
                     if (center) {
                       const distA = Math.sqrt(Math.pow(a.latitude - center.lat, 2) + Math.pow(a.longitude - center.lng, 2));
@@ -2235,7 +2337,7 @@ export default function MapSearch() {
                   return a.name.localeCompare(b.name);
                 })
                 .map((community: Community, index: number) => (
-                  <div key={`community-${community.id}`} className="cursor-pointer">
+                  <div key={`community-${community.id}-${index}`} className="cursor-pointer">
                     <CommunityCard
                       community={community}
                       variant="list"
@@ -2317,11 +2419,11 @@ export default function MapSearch() {
                     // Filter communities and apply fuzzy search if query exists
                     const filteredCommunities = searchQuery 
                       ? fuzzySearch(
-                          mapCommunities.filter((item: any) => !item.type || item.type === 'community'),
+                          displayedCommunities.filter((item: any) => !item.type || item.type === 'community'),
                           searchQuery,
                           10
                         )
-                      : mapCommunities.filter((item: any) => !item.type || item.type === 'community');
+                      : displayedCommunities.filter((item: any) => !item.type || item.type === 'community');
                     
                     // Apply fuzzy search to other result types
                     const filteredVendors = searchQuery 
@@ -2347,7 +2449,7 @@ export default function MapSearch() {
                             {filteredCommunities
                               .slice(0, 5)
                               .map((community: Community, index: number) => (
-                              <div key={`all-community-${community.id}`} className="cursor-pointer">
+                              <div key={`all-community-${community.id}-${index}`} className="cursor-pointer">
                                 <CommunityCard
                                   community={community}
                                   variant="list"
