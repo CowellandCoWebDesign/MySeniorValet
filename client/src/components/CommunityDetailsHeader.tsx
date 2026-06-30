@@ -12,6 +12,7 @@ import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { MessagingInterface } from "./MessagingInterface";
 import { useContactReveal } from "@/hooks/useContactReveal";
 import { useAuth } from "@/hooks/useAuth";
+import { composeLocationLine } from "@/lib/location";
 
 interface CommunityDetailsHeaderProps {
   community: any;
@@ -483,7 +484,15 @@ export function CommunityDetailsHeader({
               <div className="flex items-start gap-2 mb-3">
                 <span className="text-xl flex-shrink-0 mt-0.5">📌</span>
                 <span className="text-gray-600 dark:text-gray-300">
-                  {enrichedContact?.address || community.address}, {community.city}, {community.state} {community.zipCode}
+                  {(() => {
+                    const line = composeLocationLine(
+                      enrichedContact?.address || community.address,
+                      community.city,
+                      community.state,
+                    );
+                    const zip = (community.zipCode || "").trim();
+                    return zip ? `${line} ${zip}` : line;
+                  })()}
                 </span>
               </div>
 
