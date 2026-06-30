@@ -7,7 +7,7 @@ module.exports = {
     '^.+\\.tsx?$': ['ts-jest', {
       isolatedModules: true,
       tsconfig: {
-        jsx: 'react',
+        jsx: 'react-jsx',
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,
         moduleResolution: 'node',
@@ -17,11 +17,13 @@ module.exports = {
     }]
   },
   moduleNameMapper: {
+    // Asset/style extensions must be matched BEFORE the path aliases, otherwise
+    // `@assets/...png` resolves to the real binary and crashes the parser.
+    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
     '^@/(.*)$': '<rootDir>/client/src/$1',
     '^@assets/(.*)$': '<rootDir>/attached_assets/$1',
     '^@shared/(.*)$': '<rootDir>/shared/$1',
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(jpg|jpeg|png|gif|svg)$': '<rootDir>/tests/__mocks__/fileMock.js',
     '^cheerio$': '<rootDir>/tests/__mocks__/cheerioMock.js',
     '^duck-duck-scrape$': '<rootDir>/tests/__mocks__/duckDuckScrapeMock.js'
   },
