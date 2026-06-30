@@ -1859,10 +1859,17 @@ export function registerCommunityRoutes(app: Express) {
         )
         .limit(1);
       
-      // 2. Fallback: lower() fuzzy match for rows not yet backfilled with slugs
+      // 2. Fallback: lower() fuzzy match for rows not yet backfilled with slugs.
+      // Tolerate a trailing "-<id>" on the slug (older discovery links fabricated
+      // a "name-<id>" slug) by stripping it before name matching — but never use
+      // it to match a community in the wrong city/state.
       if (!community) {
         const stateLower = state.replace(/-/g, ' ').toLowerCase();
         const cityLower = city.replace(/-/g, ' ').toLowerCase();
+
+        // Detect and strip a trailing numeric id segment, e.g. "sunrise-villa-1234"
+        const trailingIdMatch = slug.match(/-(\d+)$/);
+        const baseSlug = trailingIdMatch ? slug.slice(0, slug.length - trailingIdMatch[0].length) : slug;
 
         let [exactMatch] = await db
           .select()
@@ -1871,7 +1878,7 @@ export function registerCommunityRoutes(app: Express) {
             and(
               sql`lower(${communities.state}) = ${stateLower}`,
               sql`lower(${communities.city}) = ${cityLower}`,
-              sql`lower(${communities.name}) = ${slug.replace(/-/g, ' ').toLowerCase()}`
+              sql`lower(${communities.name}) = ${baseSlug.replace(/-/g, ' ').toLowerCase()}`
             )
           )
           .limit(1);
@@ -1886,7 +1893,19 @@ export function registerCommunityRoutes(app: Express) {
                 sql`lower(${communities.city}) = ${cityLower}`
               )
             );
-          exactMatch = results.find(c => generateCommunitySlug(c) === slug) || results[0];
+          // Match against the generated slug using either the full slug or the
+          // version with the trailing id stripped, so both link shapes resolve.
+          exactMatch =
+            results.find(c => generateCommunitySlug(c) === slug) ||
+            results.find(c => generateCommunitySlug(c) === baseSlug);
+
+          // Last-resort safety net: if the slug carried a trailing id, resolve by
+          // that id — but ONLY when the record's city/state actually match the URL
+          // so we never open the wrong community.
+          if (!exactMatch && trailingIdMatch) {
+            const candidate = results.find(c => c.id === Number(trailingIdMatch[1]));
+            if (candidate) exactMatch = candidate;
+          }
         }
         community = exactMatch;
       }

@@ -4,6 +4,7 @@ import { db } from '../db';
 import { communities, vendors, services, healthcareProviders, seniorResources } from '@shared/schema';
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
+import { safeCommunitySlugs, computeCommunitySlugs } from '../utils/generate-slug';
 import { discoverCommunitiesViaWeb, discoverHealthcareViaWeb, discoverResourcesViaWeb } from '../services/free-discovery-service';
 import { aiTracker } from '../services/ai-tracker.service';
 
@@ -1528,12 +1529,24 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
               // 'pending' = needs manual review in approval queue
               const enrichmentStatus = verificationResult.autoApproved ? 'completed' : 'pending';
 
+              // Compute SEO slug columns so the clean /senior-living/{state}/{city}/{slug}
+              // URL resolves via the fast O(1) by-slug lookup. Without these the detail
+              // page 404s ("Community not found") for freshly discovered communities.
+              const discoveredSlugs = await safeCommunitySlugs({
+                name: cleanedName,
+                city: preparedCity,
+                state: preparedState,
+              });
+
               const [newCommunity] = await db.insert(communities)
                 .values({
                   name: cleanedName,
                   address: preparedAddress,
                   city: preparedCity,
                   state: preparedState,
+                  slug: discoveredSlugs.slug,
+                  citySlug: discoveredSlugs.citySlug,
+                  stateSlug: discoveredSlugs.stateSlug,
                   country: discovered.country || defaultCountry,
                   zipCode: discovered.zipCode || '00000',
                   latitude: latitude,
@@ -1760,9 +1773,22 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
         // Updated existing communities should not be marked as discovered
         const isTrulyNew = newlyInsertedIds.has(saved.id);
         
+        // Return the REAL stored SEO slug segments so the client builds a
+        // /senior-living/{state}/{city}/{slug} URL the by-slug lookup can
+        // resolve. Fall back to freshly-computed slugs for records that don't
+        // yet have the columns populated (older/updated rows). Never fabricate a
+        // name-<id> slug — the trailing id breaks the detail-page lookup.
+        const fallbackSlugs = computeCommunitySlugs({
+          name: saved.name,
+          city: saved.city || '',
+          state: saved.state || '',
+        });
+
         return {
           id: saved.id, // Use the REAL database ID
-          slug: `${saved.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${saved.id}`,
+          slug: saved.slug || fallbackSlugs.slug,
+          citySlug: saved.citySlug || fallbackSlugs.citySlug,
+          stateSlug: saved.stateSlug || fallbackSlugs.stateSlug,
           name: saved.name,
           address: saved.address || originalData?.address || '',
           city: saved.city || '',
