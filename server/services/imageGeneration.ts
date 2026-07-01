@@ -78,7 +78,7 @@ const vendorThemes: Record<string, string> = {
 async function generateClaudeEnhancedPrompt(vendorName: string, baseTheme: string): Promise<string> {
   try {
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5-20250929",
       max_tokens: 300,
       messages: [{
         role: "user",

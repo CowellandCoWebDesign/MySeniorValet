@@ -1182,7 +1182,7 @@ export class NLPSearchSystem {
       // Generate answer using Claude if available, otherwise OpenAI
       if (anthropic) {
         const response = await anthropic.messages.create({
-          model: 'claude-sonnet-4-20250514',
+          model: 'claude-sonnet-4-5-20250929',
           max_tokens: 500,
           messages: [{
             role: 'user',

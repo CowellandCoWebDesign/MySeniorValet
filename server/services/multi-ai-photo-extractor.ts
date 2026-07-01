@@ -13,8 +13,8 @@ const cheerioPhotoScraper = new CheerioPhotoScraper();
 // Initialize Claude client only
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-// The newest Anthropic model is "claude-sonnet-4-20250514", not older 3.x models
-const CLAUDE_MODEL = "claude-sonnet-4-20250514";
+// The newest Anthropic model is "claude-sonnet-4-5-20250929", not older 3.x models
+const CLAUDE_MODEL = "claude-sonnet-4-5-20250929";
 
 interface PhotoCandidate {
   url: string;

@@ -2241,7 +2241,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           const Anthropic = require('@anthropic-ai/sdk');
           const anthropic = new Anthropic.Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
           const claudeResponse = await anthropic.messages.create({
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-5-20250929',
             max_tokens: 1000,
             messages: [{
               role: 'user',
@@ -2254,7 +2254,7 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
           await aiTracker.trackClaudeCall({
             action: 'ai_comparison',
             context: 'compare_endpoint',
-            model: 'claude-sonnet-4-20250514',
+            model: 'claude-sonnet-4-5-20250929',
             requestDuration: claudeDuration,
             success: true,
             inputTokens: claudeResponse.usage?.input_tokens || Math.ceil(claudePrompt.length / 4),
