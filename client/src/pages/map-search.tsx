@@ -186,9 +186,18 @@ export default function MapSearch() {
   );
   const [mapZoom, setMapZoom] = useState(savedState?.zoom || 12); // Use saved zoom or default
 
-  // Apply admin-configured default once loaded — only for fresh visitors with no session state
+  // True when the visitor arrived with explicit location intent (search query,
+  // direct coordinates, or a communities payload). In those cases the geocode/URL
+  // effect owns the map center, so the admin default must NOT override it.
+  const hasLocationIntent = useRef(
+    !!initialQuery || !!communitiesParam || !!(latParam && lngParam)
+  );
+
+  // Apply admin-configured default once loaded — only for fresh visitors with no
+  // session state and no explicit location intent
   useEffect(() => {
     if (hasSavedCenter.current) return; // session state takes priority
+    if (hasLocationIntent.current) return; // explicit location intent owns the center
     if (adminMapDefaults) {
       setMapCenter([adminMapDefaults.lat, adminMapDefaults.lng]);
       setMapZoom(adminMapDefaults.zoom);
