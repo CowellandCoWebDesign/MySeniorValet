@@ -57,6 +57,18 @@ plainer and dropped its search bar; the user wanted the polish + search back WIT
 reintroducing the duplicate hardcoded sections. So home stays admin-controlled, just
 prettier — do NOT re-add CommunityDirectorySections to home to "fix" appearance.
 
+**Card layout:** `DynamicCommunitySection` renders its communities through the shared
+`CommunityGrid` (responsive multi-col `CommunityCard variant="grid"`) — the SAME wide
+grid as the directory's "Recently Added" reference — NOT a compact horizontal carousel.
+Keep home + directory on `CommunityGrid` so they never drift in width/look again.
+
+**Title gotcha:** admin section titles are free-text and can duplicate a hardcoded
+component's title. e.g. "Hawaii Paradise Communities" on home is an admin `location`
+section (state=HI) flowing through `DynamicCommunitySection` — it is NOT the hardcoded
+`GeographicCommunitiesSection` (that component renders ONLY in `HomeSectionRenderer`'s
+isError fallback). Debug by title → check `/api/home-sections/active`, don't assume the
+matching-named component is what's on screen.
+
 ## Map-defaults card
 The admin "Map Search Page — Default Starting View" card (`MapDefaultCard`) controls
 ONLY the `/map-search` page's opening center/zoom — it is unrelated to the home section

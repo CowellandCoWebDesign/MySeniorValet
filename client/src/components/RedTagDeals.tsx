@@ -1,13 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tag, Percent, Calendar, Clock, TrendingDown, AlertCircle, CheckCircle, Star, 
-         MapPin, Wifi, Car, Utensils, Activity, Heart, Users, Shield, TrendingUp } from "lucide-react";
-import { Link } from "wouter";
+import { Tag, Percent, Calendar, TrendingDown, CheckCircle, Star, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { CommunityCard } from "@/components/CommunityCard";
+import { CommunityGrid } from "@/components/CommunityGrid";
 
 interface RedTagDeal {
   id: number;
@@ -31,7 +27,7 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
   const [fallbackDeals, setFallbackDeals] = useState<RedTagDeal[]>([]);
   
   // Fetch featured communities from API
-  const { data: featuredCommunities, isLoading, error } = useQuery({
+  const { data: featuredCommunities, isLoading } = useQuery({
     queryKey: ['/api/featured-communities'],
     retry: 1,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
@@ -147,43 +143,25 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
     return deal;
   });
 
-  const getAmenityIcon = (amenity: string) => {
-    if (amenity.toLowerCase().includes('ocean') || amenity.toLowerCase().includes('lake') || amenity.toLowerCase().includes('mountain')) 
-      return <MapPin className="w-2.5 h-2.5 text-blue-600" />;
-    if (amenity.toLowerCase().includes('dining') || amenity.toLowerCase().includes('gourmet')) 
-      return <Utensils className="w-2.5 h-2.5 text-orange-600" />;
-    if (amenity.toLowerCase().includes('wellness') || amenity.toLowerCase().includes('health') || amenity.toLowerCase().includes('spa')) 
-      return <Heart className="w-2.5 h-2.5 text-red-600" />;
-    if (amenity.toLowerCase().includes('pool') || amenity.toLowerCase().includes('fitness')) 
-      return <Activity className="w-2.5 h-2.5 text-green-600" />;
-    if (amenity.toLowerCase().includes('concierge') || amenity.toLowerCase().includes('staff')) 
-      return <Users className="w-2.5 h-2.5 text-purple-600" />;
-    return <CheckCircle className="w-2.5 h-2.5 text-green-600" />;
-  };
-
-  // Show loading skeleton while fetching
-  if (isLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="text-center mb-4">
-          <Skeleton className="h-8 w-96 mx-auto mb-3" />
-          <Skeleton className="h-6 w-64 mx-auto" />
-        </div>
-        <div className="grid lg:grid-cols-2 xl:grid-cols-3 gap-4">
-          {[1, 2, 3].map((i) => (
-            <Card key={i} className="overflow-hidden">
-              <Skeleton className="h-40 w-full" />
-              <CardContent className="p-4 space-y-3">
-                <Skeleton className="h-6 w-3/4" />
-                <Skeleton className="h-4 w-1/2" />
-                <Skeleton className="h-20 w-full" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  }
+  // Transform curated deals into the canonical CommunityCard payload so the
+  // grid matches the directory's "Recently Added" reference look exactly.
+  const featuredCommunityCards = redTagDeals.map((deal) => {
+    const apiData = apiDataMap.get(deal.id);
+    const apiCommunity = apiData?.community;
+    return {
+      id: deal.id,
+      name: deal.communityName,
+      city: deal.location.split(',')[0]?.trim() || '',
+      state: deal.location.split(',')[1]?.trim() || '',
+      address: apiCommunity?.address || apiCommunity?.streetAddress,
+      phone: apiCommunity?.phone || apiCommunity?.phoneNumber,
+      website: apiCommunity?.website || apiCommunity?.url,
+      rating: deal.rating,
+      amenities: deal.amenities,
+      careTypes: deal.highlights,
+      photos: apiCommunity?.photos || [],
+    };
+  });
   
   return (
     <div className="space-y-4">
@@ -234,57 +212,13 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
         </Card>
       )}
 
-      {/* Enhanced Deal Cards with Horizontal Scroll Carousel */}
-      <div className="relative">
-        {/* Horizontal Scroll Container */}
-        <div className="overflow-x-auto pb-4 -mx-4 px-4">
-          <div className="flex gap-4" style={{ width: 'max-content' }}>
-            {redTagDeals.map((deal, index) => {
-              // Get API data for this community to include contact info
-              const apiData = apiDataMap.get(deal.id);
-              const apiCommunity = apiData?.community;
-              
-              // Transform deal data to community format for FeaturedExcellenceCard
-              const community = {
-                id: deal.id,
-                name: deal.communityName,
-                city: deal.location.split(',')[0]?.trim() || '',
-                state: deal.location.split(',')[1]?.trim() || '',
-                address: apiCommunity?.address || apiCommunity?.streetAddress,
-                phone: apiCommunity?.phone || apiCommunity?.phoneNumber,
-                website: apiCommunity?.website || apiCommunity?.url,
-                rating: deal.rating,
-                amenities: deal.amenities,
-                careTypes: deal.highlights,
-                photos: apiCommunity?.photos || [],
-                occupancyRate: deal.availability === "Available Now" ? 75 : 
-                              deal.availability === "Limited Spots" ? 85 : 
-                              deal.availability === "Waitlist" ? 95 : 80
-              };
-              
-              return (
-                <div key={deal.id} className="flex-shrink-0">
-                  <CommunityCard
-                    community={community}
-                    variant="compact"
-                  />
-                </div>
-              );
-            })}
-          </div>
-        </div>
-        
-        {/* Scroll Indicators */}
-        <div className="flex justify-center mt-4 gap-2">
-          {redTagDeals.map((_, index) => (
-            <div
-              key={index}
-              className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors"
-              aria-label={`Slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      </div>
+      {/* Featured communities — unified grid (matches the directory reference) */}
+      <CommunityGrid
+        communities={featuredCommunityCards}
+        isLoading={isLoading}
+        skeletonCount={8}
+        emptyMessage="No featured communities available right now."
+      />
 
       {/* Additional Savings Info */}
       <Card>

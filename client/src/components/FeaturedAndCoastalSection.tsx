@@ -1,12 +1,8 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CommunityCard } from '@/components/CommunityCard';
-import { Home, Heart } from 'lucide-react';
+import { CommunityGrid } from '@/components/CommunityGrid';
+import { Home } from 'lucide-react';
 import { Link } from 'wouter';
-import { getCommunityUrl } from '@/lib/community-url';
 
 export function FeaturedAndCoastalSection() {
   // Fetch trending communities for featured section
@@ -24,100 +20,61 @@ export function FeaturedAndCoastalSection() {
   });
 
   const featuredCommunities = (trendingCommunities as any[])?.slice(0, 8) || [];
-  
+
   // Combine coastal and featured communities for the premium section
   const premiumCommunities = [
     ...((coastalCommunities as any[]) || []).slice(0, 4),
     ...((featuredCommunities as any[]) || []).slice(0, 4)
-  ];
+  ].slice(0, 8);
+
+  const isLoading = coastalLoading || trendingLoading;
 
   return (
-    <>
-      {/* Featured & Coastal Communities Section */}
-      <section className="py-16 lg:py-20 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl lg:text-4xl xl:text-5xl font-display font-bold text-gray-900 dark:text-white mb-6">
+    <section className="px-4 py-10 bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto">
+        {/* Section header — same chrome as the directory's "Recently Added" grid */}
+        <div className="flex items-center gap-3 mb-6">
+          <Home className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
               Featured & Coastal Communities
             </h2>
-            <p className="text-xl lg:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Premium communities with exceptional amenities and coastal charm
             </p>
-            
-            <div className="flex items-center justify-center space-x-6 mt-6">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-purple-500 rounded-full animate-pulse"></div>
-                <span className="text-lg text-purple-700 dark:text-purple-300 font-medium">Premium communities</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-                <span className="text-lg text-blue-700 dark:text-blue-300 font-medium">Ocean views available</span>
-              </div>
-            </div>
-            
-            <div className="text-right mt-4">
-              <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">$3,200 - $4,800</div>
-              <div className="text-lg text-purple-600 dark:text-purple-300 font-medium">Featured & coastal pricing</div>
-            </div>
-          </div>
-          
-          <p className="text-gray-600 dark:text-gray-300 text-center mb-8">
-            {(((coastalCommunities as any[])?.length || 0) + ((featuredCommunities as any[])?.length || 0))} premium communities • 
-            Featured selections and coastal charm
-          </p>
-        
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {/* Show combined premium communities (coastal + featured) */}
-            {(coastalLoading || trendingLoading) ? (
-              // Loading skeleton cards
-              Array.from({ length: 4 }).map((_, index) => (
-                <Card key={index} className="overflow-hidden border border-gray-200 animate-pulse">
-                  <div className="aspect-[4/3] bg-gray-200"></div>
-                  <CardContent className="p-4">
-                    <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-1"></div>
-                    <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 rounded"></div>
-                  </CardContent>
-                </Card>
-              ))
-            ) : (
-              premiumCommunities.slice(0, 8).map((community: any, index) => (
-                <CommunityCard
-                  key={`premium-${community.id}-${index}`}
-                  community={community}
-                  variant="grid"
-                />
-              ))
-            )}
-          </div>
-
-          {/* More Featured Communities Section */}
-          <div className="border-t border-gray-200 dark:border-gray-600 pt-12">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                More Recommended Communities
-              </h3>
-              <Link href="/map-search?featured=true">
-                <Button variant="outline" className="border-purple-300 text-purple-700 hover:bg-purple-50 dark:border-purple-600 dark:text-purple-300 dark:hover:bg-purple-900/20">
-                  View All Featured
-                </Button>
-              </Link>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Show remaining discovered communities */}
-              {((featuredCommunities as any[]).slice(4, 8)).map((community: any, index: number) => (
-                <CommunityCard
-                  key={`more-featured-${community.id}-${index}`}
-                  community={community}
-                  variant="grid"
-                />
-              ))}
-            </div>
           </div>
         </div>
-      </section>
-    </>
+
+        <CommunityGrid
+          communities={premiumCommunities}
+          isLoading={isLoading}
+          emptyMessage="No featured communities available right now."
+        />
+
+        {/* More Featured Communities */}
+        <div className="border-t border-gray-100 dark:border-gray-800 pt-10 mt-10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                More Recommended Communities
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Additional featured selections
+              </p>
+            </div>
+            <Link href="/map-search?featured=true">
+              <Button variant="outline">View All Featured</Button>
+            </Link>
+          </div>
+
+          <CommunityGrid
+            communities={(featuredCommunities as any[]).slice(4, 8)}
+            isLoading={isLoading}
+            skeletonCount={4}
+            emptyMessage="No additional communities to show."
+          />
+        </div>
+      </div>
+    </section>
   );
 }

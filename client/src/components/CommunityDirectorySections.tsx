@@ -10,7 +10,7 @@ import {
   ChevronRight, Clock, CheckCircle, Info, Heart,
   HeartHandshake, Brain, Activity, Stethoscope, UserCheck,
   Calendar, Hotel, Flower2, Sparkles, AlertCircle,
-  Truck, Flag, Building, RefreshCw, BookOpen, ChevronLeft,
+  Truck, Flag, Building, BookOpen, ChevronLeft,
   ArrowRight, Languages, Phone, Award, Trophy, Gem, ShieldCheck
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
@@ -106,10 +106,6 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
     }
   }, []);
   
-  // Recently Discovered Communities carousel
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   // Derive pinned community IDs from admin settings
@@ -167,35 +163,6 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
   const sortedListing: any[] = ((sortedListingRaw as any)?.communities ?? sortedListingRaw ?? [])
     .filter((c: any) => !pinnedCommunityIds.includes(c.id));
 
-  const checkScrollPosition = () => {
-    if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 1);
-    }
-  };
-  
-  const scrollLeft = () => {
-    if (scrollContainerRef.current) {
-      // Scroll by card width + gap (400px card + 24px gap)
-      scrollContainerRef.current.scrollBy({ left: -424, behavior: 'smooth' });
-    }
-  };
-  
-  const scrollRight = () => {
-    if (scrollContainerRef.current) {
-      // Scroll by card width + gap (400px card + 24px gap)
-      scrollContainerRef.current.scrollBy({ left: 424, behavior: 'smooth' });
-    }
-  };
-  
-  useEffect(() => {
-    checkScrollPosition();
-    const handleResize = () => checkScrollPosition();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  
   // Brand-specific community queries for signature sliders
   const discoveryQuery = useQuery({
     queryKey: ['/api/search/comprehensive', 'Discovery Senior Living'],
@@ -279,25 +246,6 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
     enabled: true,
     staleTime: 30 * 60 * 1000, // Cache for 30 minutes
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
-  });
-  
-  // Recently discovered communities query - SHORT cache for real-time updates
-  // CRITICAL: queryKey must match RecentlyDiscoveredCommunities.tsx for proper cache invalidation
-  const { data: recentCommunities = [], isLoading: isLoadingRecent } = useQuery({
-    queryKey: ['/api/communities/recently-discovered', { limit: 100 }],
-    queryFn: async () => {
-      const response = await fetch('/api/communities/recently-discovered?limit=100');
-      if (!response.ok) throw new Error('Failed to fetch recent communities');
-      const data = await response.json();
-      console.log('📊 Recently discovered communities fetched:', data?.length || 0);
-      // Ensure we always return an array
-      return Array.isArray(data) ? data : [];
-    },
-    staleTime: 60 * 1000, // Cache for 1 minute only - allows near real-time discovery updates
-    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
-    refetchOnWindowFocus: true, // Refetch when user returns to tab
-    refetchOnMount: 'always', // Always check for fresh data when component mounts
-    retry: 1
   });
   
   const oakmontQuery = useQuery({
@@ -935,139 +883,8 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
         </section>
       )}
 
-      {/* ★ RECENTLY DISCOVERED COMMUNITIES CAROUSEL ★ */}
-      <section className="px-4 py-12 bg-gradient-to-br from-indigo-950 via-blue-950 to-purple-950">
-        <div className="max-w-7xl mx-auto">
-          {/* Section Title */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-8"
-          >
-            <div className="flex items-center justify-center gap-3 mb-4">
-              <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
-              <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-400 via-amber-400 to-orange-400 bg-clip-text text-transparent">
-                Recently Discovered Communities
-              </h2>
-              <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 text-sm font-bold animate-pulse">
-                🔥 NEW
-              </Badge>
-            </div>
-            <p className="text-lg text-gray-200 max-w-3xl mx-auto">
-              Fresh additions to our database - Real communities discovered through our AI-powered search
-            </p>
-          </motion.div>
-
-          {/* Communities Carousel */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="relative"
-          >
-            {/* Carousel Container */}
-            <div className="relative group">
-              {/* Left Scroll Button - Always visible on desktop */}
-              {canScrollLeft && (
-                <button
-                  onClick={scrollLeft}
-                  className="hidden md:flex items-center justify-center absolute -left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white"
-                  aria-label="Scroll left"
-                >
-                  <ChevronLeft className="w-6 h-6 text-indigo-600" />
-                </button>
-              )}
-
-              {/* Communities Carousel - Using Featured Excellence Cards */}
-              <div 
-                ref={scrollContainerRef}
-                className="flex gap-6 overflow-x-auto scrollbar-hide scroll-smooth pb-4 px-2"
-                onScroll={checkScrollPosition}
-                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              >
-                {(() => {
-                  console.log('Recent communities state:', { 
-                    isLoading: isLoadingRecent, 
-                    dataLength: recentCommunities?.length || 0,
-                    hasData: !!recentCommunities,
-                    firstItem: recentCommunities?.[0] 
-                  });
-                  return null;
-                })()}
-                {isLoadingRecent ? (
-                  // Loading skeleton - Updated to match FeaturedExcellenceCard size
-                  Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex-shrink-0 w-[85%] sm:w-[280px] min-w-[85%] sm:min-w-[280px]">
-                      <div className="bg-white/10 backdrop-blur rounded-xl p-5 animate-pulse border border-white/20">
-                        <div className="h-40 bg-gradient-to-r from-gray-600 to-gray-700 rounded-lg mb-4"></div>
-                        <div className="h-6 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-3/4 mb-3"></div>
-                        <div className="h-4 bg-gradient-to-r from-gray-600 to-gray-700 rounded w-1/2 mb-3"></div>
-                        <div className="flex gap-2 mt-4">
-                          <div className="h-8 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full w-24"></div>
-                          <div className="h-8 bg-gradient-to-r from-gray-600 to-gray-700 rounded-full w-24"></div>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : recentCommunities && recentCommunities.length > 0 ? (
-                  recentCommunities.map((community: any, index: number) => {
-                    console.log('Rendering community:', community.id, community.name);
-                    return (
-                      <motion.div 
-                        key={community.id} 
-                        className="flex-shrink-0 h-full"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
-                      >
-                        <div className="hover:scale-[1.02] transition-transform duration-300 h-full">
-                          <CommunityCard community={community} variant="compact" />
-                        </div>
-                      </motion.div>
-                    );
-                  })
-                ) : (
-                  <div className="text-white/80 text-center py-8 w-full">
-                    No recently discovered communities yet. Search for communities to populate this section!
-                  </div>
-                )}
-              </div>
-
-              {/* Right Scroll Button - Always visible on desktop */}
-              {canScrollRight && (
-                <button
-                  onClick={scrollRight}
-                  className="hidden md:flex items-center justify-center absolute -right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110 hover:bg-white"
-                  aria-label="Scroll right"
-                >
-                  <ChevronRight className="w-6 h-6 text-indigo-600" />
-                </button>
-              )}
-            </div>
-            
-            {/* Gradient Fade Edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-indigo-950 to-transparent pointer-events-none z-10"></div>
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-purple-950 to-transparent pointer-events-none z-10"></div>
-          </motion.div>
-
-          {/* Quick Stats Bar */}
-          <div className="flex flex-wrap justify-center gap-3 mt-8">
-            <Badge className="bg-blue-500/20 text-blue-200 border-blue-500/30 px-4 py-2">
-              <Database className="h-4 w-4 mr-2" />
-              33,470+ Communities Nationwide
-            </Badge>
-            <Badge className="bg-purple-500/20 text-purple-200 border-purple-500/30 px-4 py-2">
-              <MapPin className="h-4 w-4 mr-2" />
-              6,900+ Cities Covered
-            </Badge>
-            <Badge className="bg-green-500/20 text-green-200 border-green-500/30 px-4 py-2">
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin-slow" />
-              Self-Improving Database
-            </Badge>
-          </div>
-        </div>
-      </section>
+      {/* Recently Discovered carousel removed — the "Recently Added Communities"
+          grid above already shows these freshly-added communities (unified grid). */}
 
       {/* MOVED COMMUNITY SLIDER SECTIONS - NOW POSITIONED RIGHT AFTER DATABASE FEATURES */}
       

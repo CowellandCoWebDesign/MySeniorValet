@@ -1,8 +1,5 @@
-import { useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  ChevronLeft,
-  ChevronRight,
   Trophy,
   MapPin,
   Star,
@@ -12,9 +9,7 @@ import {
   Globe,
   type LucideIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { CommunityCard } from "@/components/CommunityCard";
+import { CommunityGrid } from "@/components/CommunityGrid";
 
 export interface HomeSectionConfig {
   id: number;
@@ -71,8 +66,6 @@ function buildQueryKey(section: HomeSectionConfig): [string, Record<string, stri
 }
 
 export function DynamicCommunitySection({ section }: Props) {
-  const sliderRef = useRef<HTMLDivElement>(null);
-
   const [baseKey, params] = buildQueryKey(section);
   const queryString = new URLSearchParams(params).toString();
 
@@ -86,11 +79,6 @@ export function DynamicCommunitySection({ section }: Props) {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
-
-  const scroll = (dir: "left" | "right") => {
-    if (!sliderRef.current) return;
-    sliderRef.current.scrollBy({ left: dir === "left" ? -296 : 296, behavior: "smooth" });
-  };
 
   const list = Array.isArray(communities) ? communities : [];
   const { icon: Icon, accent } = getStyle(section.sectionType);
@@ -130,46 +118,7 @@ export function DynamicCommunitySection({ section }: Props) {
   return (
     <section className={panelClass}>
       {Header}
-
-      <div className="relative group">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden md:inline-flex absolute -left-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110"
-          onClick={() => scroll("left")}
-        >
-          <ChevronLeft className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hidden md:inline-flex absolute -right-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 dark:bg-gray-800/90 backdrop-blur rounded-full p-3 shadow-xl transition-all duration-200 hover:scale-110"
-          onClick={() => scroll("right")}
-        >
-          <ChevronRight className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-        </Button>
-
-        <div
-          ref={sliderRef}
-          className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide scroll-smooth"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {isLoading
-            ? Array.from({ length: 4 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="flex-shrink-0 w-[280px] min-w-[280px] h-[380px] rounded-xl overflow-hidden"
-                >
-                  <Skeleton className="w-full h-full" />
-                </div>
-              ))
-            : list.map((community, index) => (
-                <div key={`${section.id}-${community.id}-${index}`} className="flex-shrink-0">
-                  <CommunityCard community={community} variant="compact" />
-                </div>
-              ))}
-        </div>
-      </div>
+      <CommunityGrid communities={list} isLoading={isLoading} skeletonCount={8} />
     </section>
   );
 }
