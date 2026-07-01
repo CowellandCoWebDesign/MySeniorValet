@@ -194,9 +194,6 @@ const discoveredCommunitySchema = z.object({
   confidence: z.number().min(0).max(100).optional() // How confident we are in the data
 });
 
-// Import multi-AI orchestrator for comparisons
-// import { MultiAIOrchestrator } from '../services/multi-ai-orchestrator';
-
 // OPTIMIZATION: Disabled expensive validation that was causing 90+ second delays
 // Each validation was making an API call, multiplied by number of results = very slow!
 // Business validation function - DISABLED for performance

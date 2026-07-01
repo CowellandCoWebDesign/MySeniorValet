@@ -19,7 +19,6 @@ import { communities } from '@shared/schema';
 import { eq, ilike, and, or, sql, gte, lte, inArray } from 'drizzle-orm';
 import { EnhancedAIEnrichmentService } from './enhanced-ai-enrichment';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
-import { multiAIOrchestrator } from './multi-ai-orchestrator';
 import { cache } from '../cache';
 import type { Community } from '@shared/schema';
 
@@ -60,7 +59,6 @@ interface UnifiedSearchResult {
 export class UnifiedSearchEngine {
   private aiEnrichment: EnhancedAIEnrichmentService;
   private perplexity: SimplifiedPerplexityService;
-  private multiAI: any;
   
   // Search strategy weights (self-adjusting based on success)
   private strategyWeights = {
@@ -79,7 +77,6 @@ export class UnifiedSearchEngine {
   constructor() {
     this.aiEnrichment = new EnhancedAIEnrichmentService();
     this.perplexity = new SimplifiedPerplexityService();
-    this.multiAI = multiAIOrchestrator;  // Use imported instance
   }
   
   /**
@@ -120,12 +117,6 @@ export class UnifiedSearchEngine {
       sourcesUsed.push('fuzzy');
     }
     
-    // 4. AI-enhanced search (for natural language)
-    if (intent.type === 'natural_language') {
-      searchPromises.push(this.aiEnhancedSearch(query, options));
-      sourcesUsed.push('ai');
-    }
-    
     // 5. Web search (if enabled and relevant)
     if (process.env.PERPLEXITY_API_KEY && intent.confidence < 0.6) {
       searchPromises.push(this.webSearch(query));
@@ -144,9 +135,9 @@ export class UnifiedSearchEngine {
     // Fusion algorithm - combine and rank results
     const fusedResults = await this.fuseResults(results, intent);
     
-    // Generate insights if AI is available
+    // Generate insights from the fused results
     let insights;
-    if (this.multiAI && fusedResults.length > 0) {
+    if (fusedResults.length > 0) {
       insights = await this.generateInsights(fusedResults.slice(0, 10), query);
     }
     
@@ -410,23 +401,6 @@ export class UnifiedSearchEngine {
         
     } catch (error) {
       console.error('Fuzzy search error:', error);
-      return [];
-    }
-  }
-  
-  /**
-   * AI-enhanced search using multi-AI orchestration
-   */
-  private async aiEnhancedSearch(query: string, options?: any): Promise<Community[]> {
-    try {
-      // Use multi-AI to understand query
-      const aiAnalysis = await this.multiAI.analyzeLocation(0, 0, []);
-      
-      // Convert AI insights to search parameters
-      // This would normally extract entities and search accordingly
-      return [];
-    } catch (error) {
-      console.error('AI search error:', error);
       return [];
     }
   }
