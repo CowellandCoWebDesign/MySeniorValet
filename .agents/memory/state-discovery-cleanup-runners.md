@@ -1,13 +1,28 @@
 ---
 name: State discovery + synthetic cleanup runners
-description: Pattern for per-state "find real communities + queue synthetic fakes for removal" data ops.
+description: Pattern for per-state "find real communities + enrich real hidden ones + queue synthetic fakes for removal" data ops.
 ---
 
 # Per-state discovery + synthetic-listing cleanup
 
-Two runnable scripts model this (built for Georgia, Task #341):
-`server/scripts/discover-georgia-communities.ts` and
-`server/scripts/queue-synthetic-georgia.ts`.
+Three runnable scripts model this (built for Georgia):
+`server/scripts/discover-georgia-communities.ts`,
+`server/scripts/queue-synthetic-georgia.ts`, and
+`server/scripts/enrich-real-georgia.ts`.
+
+**Enrich-real runner (restore genuinely-real hidden rows):** the state's real
+brand communities can be hidden ONLY for lack of content (no photos / thin desc),
+not because they're fake. Detect = `is_hidden=true AND website ~* '^https?://'
+AND website NOT ILIKE '%-senior-living.com' AND website NOT ILIKE any
+directory/aggregator host (olera.care, aplaceformom, caring, seniorly, yelp, …)
+AND senior_classification IN ('senior','unknown')`. This naturally excludes the
+HUD-apartment rows (no website / non_senior) and the templated fakes. For each:
+`enrichCommunityUnified(id,{forceRefresh:true})` then
+`recomputeCommunityVisibility(id)`. Rows that gain real content (>=1 photo OR
+>=100-char desc) + classify senior/unknown auto-restore to public; the rest stay
+hidden. Golden-Data safe (persists only verified content). Enrichment makes real
+network calls — ~30-60s per row, so cap/batch when testing (`--ids=`, `--limit=`,
+`--dry-run`).
 
 **Rule:** these are DATA operations. Data written in an isolated task-agent DB
 does NOT merge back — only code merges. Deliverable = runnable tooling; the
