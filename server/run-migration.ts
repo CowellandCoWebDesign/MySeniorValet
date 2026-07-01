@@ -72,6 +72,37 @@ export async function runStartupMigrations(): Promise<void> {
     VALUES ('directory_page_settings', '{"defaultSort":"newest","promoBannerEnabled":false,"promoBannerText":"","pinnedCommunityIds":[]}'::jsonb)
     ON CONFLICT (key) DO NOTHING
   `);
+
+  // Auto-restore real-website senior communities (Task #350).
+  //
+  // The "a confident senior community with its own real website stays public"
+  // rule ships in `evaluateCommunity` (shared/community-classification.ts) via
+  // `isOwnRealWebsite`, but flipping the EXISTING hidden rows only ran on the
+  // working DB. Publishing deploys CODE, not DATA (prod uses a separate DB), so
+  // this guarded UPDATE re-applies that flip at every boot and lets production
+  // self-heal with no manual step.
+  //
+  // The website exclusions below MUST mirror `isOwnRealWebsite` /
+  // AGGREGATOR_HOSTS in shared/community-classification.ts. Contains-style host
+  // matches are deliberately BROADER than the evaluator's exact-host check, so
+  // this SQL can only ever unhide a SUBSET of what the TypeScript evaluator
+  // would — never more. Protected rows (admin-confirmed or
+  // synthetic/geo-quarantined) are never touched.
+  const restore = await db.execute(sql`
+    UPDATE communities
+    SET is_hidden = false
+    WHERE is_hidden = true
+      AND senior_classification = 'senior'
+      AND website IS NOT NULL
+      AND website ~* '^https?://'
+      AND website !~* '-senior-living\.com'
+      AND website !~* '(aplaceformom|caring|seniorly|senioradvisor|assistedliving|seniorliving|seniorlivingnearme|olera|yelp|facebook|google|wikipedia)\.'
+      AND (flag_status IS NULL OR flag_status <> 'confirmed')
+      AND NOT (COALESCE(data_quality_flags, ARRAY[]::text[]) && ARRAY['synthetic_suspected','geo_needs_review']::text[])
+  `);
+  const restoredCount = (restore as any).rowCount ?? 0;
+  console.log(`✅ Auto-restored ${restoredCount} real-website senior communities (Task #350 startup restore)`);
+
   console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings)');
 }
 
