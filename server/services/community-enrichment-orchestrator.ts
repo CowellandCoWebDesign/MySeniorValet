@@ -55,6 +55,14 @@ export interface UnifiedEnrichmentOptions {
   forceRefresh?: boolean;
   /** Optional website override (from discovery). Ignored when websiteProtected. */
   websiteUrl?: string;
+  /**
+   * Free-first cost order: run the FREE web search/scrape (DuckDuckGo/Jina)
+   * BEFORE the paid Perplexity stage, and only escalate to Perplexity when the
+   * free pass yields insufficient content. Used by the bulk hidden-community
+   * restore pass so re-verifying ~22k communities doesn't fire ~22k paid AI
+   * calls. Normal callers leave this false (Perplexity-first, free fallback).
+   */
+  preferFree?: boolean;
 }
 
 export interface UnifiedEnrichmentResult {
@@ -169,7 +177,7 @@ export async function enrichCommunityUnified(
   communityId: number,
   opts: UnifiedEnrichmentOptions = {},
 ): Promise<UnifiedEnrichmentResult> {
-  const { forceRefresh = false, websiteUrl } = opts;
+  const { forceRefresh = false, websiteUrl, preferFree = false } = opts;
 
   const [community] = await db
     .select()
@@ -244,17 +252,54 @@ export async function enrichCommunityUnified(
     };
   }
 
-  // ── Stage 1 — Perplexity (PRIMARY) ──────────────────────────────────────────
-  console.log(
-    `🧠 Trying Perplexity enrichment for "${community.name}" (${community.city}, ${community.state})`,
-  );
-
   let freeEnrichment: Awaited<ReturnType<typeof enrichCommunityFree>> | null = null;
   let perplexityPhotos: Array<{ url: string; source: string; isAuthentic?: boolean }> = [];
   let perplexityDirectoryCandidates: Array<{ url: string; title: string; snippet: string }> = [];
   let structuredPricing: { min?: number; max?: number } | null = null;
   let managementCompany: string | null = null;
   let availability: string | null = null;
+
+  // ── Stage 0 (free-first option) — FREE web search/scrape BEFORE paid AI ──────
+  // When the caller opts in (bulk restore pass), try the free DuckDuckGo/Jina
+  // enrichment first. If it returns meaningful content we skip the paid
+  // Perplexity stage entirely. The free result is reused as the Stage-2 fallback
+  // below if it was insufficient, so we never fire two free passes.
+  let prefetchedFree: Awaited<ReturnType<typeof enrichCommunityFree>> | null = null;
+  if (preferFree) {
+    console.log(
+      `💸 Free-first enrichment for "${community.name}" — trying DuckDuckGo/Jina before paid AI`,
+    );
+    try {
+      prefetchedFree = await enrichCommunityFree({
+        name: community.name,
+        city: community.city,
+        state: community.state,
+        websiteUrl: communityWebsite,
+        authoritativeWebsite: !!community.websiteProtected && !!communityWebsite,
+      });
+      if (prefetchedFree?.about && prefetchedFree.about.trim().length > 80) {
+        freeEnrichment = prefetchedFree;
+        console.log(
+          `💸 Free-first pass yielded ${prefetchedFree.about.trim().length} chars — skipping paid Perplexity for "${community.name}"`,
+        );
+      } else {
+        console.log(
+          `💸 Free-first pass insufficient for "${community.name}" — escalating to paid Perplexity`,
+        );
+      }
+    } catch (err) {
+      console.warn(
+        `⚠️ Free-first enrichment failed for "${community.name}": ${err instanceof Error ? err.message : err}`,
+      );
+    }
+  }
+
+  // ── Stage 1 — Perplexity (PRIMARY, paid) ────────────────────────────────────
+  // Skipped when the free-first pass already produced meaningful content.
+  if (!freeEnrichment) {
+  console.log(
+    `🧠 Trying Perplexity enrichment for "${community.name}" (${community.city}, ${community.state})`,
+  );
 
   try {
     const pplx = await perplexitySearchAPI.deepEnrichCommunity({
@@ -307,17 +352,25 @@ export async function enrichCommunityUnified(
       `⚠️ Perplexity enrichment failed for "${community.name}": ${err instanceof Error ? err.message : err}`,
     );
   }
+  } // end Stage 1 (skipped when free-first already produced content)
 
   // ── Stage 2 — Free web scraping (FALLBACK) ──────────────────────────────────
   if (!freeEnrichment) {
-    console.log(`🔍 Perplexity unavailable — running DuckDuckGo/Jina enrichment for "${community.name}"`);
-    freeEnrichment = await enrichCommunityFree({
-      name: community.name,
-      city: community.city,
-      state: community.state,
-      websiteUrl: communityWebsite,
-      authoritativeWebsite: !!community.websiteProtected && !!communityWebsite,
-    });
+    // Reuse the free-first pass result if we already ran it (even when it was
+    // insufficient on its own) so we never fire two free passes for one call.
+    if (prefetchedFree) {
+      console.log(`🔍 Perplexity unavailable — reusing free-first DuckDuckGo/Jina result for "${community.name}"`);
+      freeEnrichment = prefetchedFree;
+    } else {
+      console.log(`🔍 Perplexity unavailable — running DuckDuckGo/Jina enrichment for "${community.name}"`);
+      freeEnrichment = await enrichCommunityFree({
+        name: community.name,
+        city: community.city,
+        state: community.state,
+        websiteUrl: communityWebsite,
+        authoritativeWebsite: !!community.websiteProtected && !!communityWebsite,
+      });
+    }
   }
 
   console.log(
