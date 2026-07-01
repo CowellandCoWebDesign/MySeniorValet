@@ -24,7 +24,7 @@ import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment
 import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
 import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
-import { runSelfHealEnrichment } from "../services/self-heal-enrichment";
+import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
 import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter } from "../utils/community-ranking";
 
 /**
@@ -153,52 +153,142 @@ export function registerCommunityRoutes(app: Express) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
 
-      // Gating (content-complete / in-flight / terminal / escalating backoff),
-      // the unified enrichment call, and the backoff counter bookkeeping all live
-      // in the shared runner so the batch restore pass behaves identically.
-      const run = await runSelfHealEnrichment(communityId);
+      const [community] = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          description: communities.description,
+          photos: communities.photos,
+          enrichmentStatus: communities.enrichmentStatus,
+          enrichmentAttempts: communities.enrichmentAttempts,
+          lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
+        })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
 
-      if (run.skipped) {
-        if (run.reason === "not_found") {
-          return res.status(404).json({ error: "Community not found" });
-        }
-        // Map the shared runner's machine-readable reasons back to the original
-        // human-readable strings so the public API contract is unchanged.
-        const reasonText =
-          run.reason === "already_has_content"
-            ? "already has content"
-            : run.reason === "in_progress"
-              ? "enrichment in progress"
-              : run.reason === "no_data_terminal"
-                ? "no data found (terminal)"
-                : "rate limited";
-        const payload: Record<string, any> = { skipped: true, reason: reasonText };
-        if (run.reason === "rate_limited") {
-          payload.retryAfterHours = run.retryAfterHours;
-          payload.consecutiveNoDataAttempts = run.consecutiveNoDataAttempts;
-        }
-        return res.json(payload);
+      if (!community) {
+        return res.status(404).json({ error: "Community not found" });
       }
 
-      const result = run.result!;
+      // Gate 1 — content-complete: enrichment already ran and saved permanently.
+      const photoCount = (community.photos || []).filter(
+        (p: string) => typeof p === "string" && p.trim().length > 0,
+      ).length;
+      const descLen = (community.description || "").trim().length;
+      const isContentComplete = photoCount > 0 && descLen >= 100;
+      if (isContentComplete) {
+        return res.json({ skipped: true, reason: "already has content" });
+      }
+
+      const now = Date.now();
+      const lastAttempt = community.lastEnrichmentAttempt
+        ? new Date(community.lastEnrichmentAttempt).getTime()
+        : 0;
+      const minsSinceAttempt = lastAttempt ? (now - lastAttempt) / 60000 : Infinity;
+
+      // Gate 2 — in-flight de-dup (10 min). NOT a data TTL.
+      if (community.enrichmentStatus === "in_progress" || minsSinceAttempt < 10) {
+        return res.json({ skipped: true, reason: "enrichment in progress" });
+      }
+
+      // Gate 3 — terminal "no data" state. Repeated runs found nothing online,
+      // so we stop auto-retrying entirely until an admin forces a refresh.
+      if (community.enrichmentStatus === "no_data") {
+        return res.json({ skipped: true, reason: "no data found (terminal)" });
+      }
+
+      // Gate 4 — escalating backoff rate limit. The required cooldown widens with
+      // each consecutive no-content run: 24h → 7d → 30d (then terminal). A fresh
+      // or just-succeeded community (attempts=0) keeps the original 24h floor.
+      const failedAttempts = community.enrichmentAttempts || 0;
+      const requiredCooldownHours = selfHealCooldownHours(failedAttempts);
+      if (minsSinceAttempt < requiredCooldownHours * 60) {
+        return res.json({
+          skipped: true,
+          reason: "rate limited",
+          retryAfterHours: requiredCooldownHours,
+          consecutiveNoDataAttempts: failedAttempts,
+        });
+      }
+
+      // Mark in-flight BEFORE the (slow) pipeline runs so a concurrent tab hits
+      // gate 2 and does not fire a duplicate Perplexity call.
+      const startedAt = new Date();
+      await db
+        .update(communities)
+        .set({ enrichmentStatus: "in_progress", lastEnrichmentAttempt: startedAt } as any)
+        .where(eq(communities.id, communityId));
+
       console.log(
-        `🩺 [Self-Heal] Completed for community ${communityId}: ${result.photos.length} photo(s), ` +
-          `${(result.summary || "").length} desc chars, foundData=${run.foundData}`,
+        `🩺 [Self-Heal] Triggered for community ${communityId} ("${community.name}") at ${startedAt.toISOString()}`,
       );
 
-      return res.json({
-        success: true,
-        skipped: false,
-        foundData: run.foundData,
-        community: {
-          id: communityId,
-          photos: result.photos,
-          description: result.summary,
-          phone: result.phone,
-          website: result.officialWebsite,
-          careTypes: result.careTypes,
-        },
-      });
+      try {
+        const result = await enrichCommunityUnified(communityId);
+
+        // "Found data" = real new content persisted this run, OR the community
+        // already had meaningful content (cache hit). Anything else is a
+        // no-data run that escalates the backoff.
+        const foundData = result.cached === true || result.contentSaved === true;
+
+        if (foundData) {
+          // Success: clear any accrued backoff so future visits behave normally.
+          await db
+            .update(communities)
+            .set({
+              enrichmentStatus: "completed",
+              enrichmentAttempts: 0,
+              lastEnrichmentDate: new Date(),
+            } as any)
+            .where(eq(communities.id, communityId));
+        } else {
+          // No content found: widen the cooldown. Once the consecutive no-data
+          // count crosses the terminal threshold, mark it quiet ("no_data") so it
+          // stops auto-retrying until an admin forces a refresh.
+          const newAttempts = failedAttempts + 1;
+          const terminal = newAttempts >= SELF_HEAL_TERMINAL_ATTEMPTS;
+          await db
+            .update(communities)
+            .set({
+              enrichmentStatus: terminal ? "no_data" : "failed",
+              enrichmentAttempts: newAttempts,
+            } as any)
+            .where(eq(communities.id, communityId));
+          console.log(
+            `🩺 [Self-Heal] No content for community ${communityId} ` +
+              `(attempt ${newAttempts}/${SELF_HEAL_TERMINAL_ATTEMPTS})` +
+              (terminal ? " → marked terminal (no_data)" : ` → next retry in ${selfHealCooldownHours(newAttempts)}h`),
+          );
+        }
+
+        console.log(
+          `🩺 [Self-Heal] Completed for community ${communityId}: ${result.photos.length} photo(s), ` +
+            `${(result.summary || "").length} desc chars, foundData=${foundData}`,
+        );
+
+        return res.json({
+          success: true,
+          skipped: false,
+          foundData,
+          community: {
+            id: communityId,
+            photos: result.photos,
+            description: result.summary,
+            phone: result.phone,
+            website: result.officialWebsite,
+            careTypes: result.careTypes,
+          },
+        });
+      } catch (pipelineErr) {
+        // A thrown error is treated as transient (network/API), NOT a "no data"
+        // outcome — it must not escalate the backoff toward the terminal state.
+        await db
+          .update(communities)
+          .set({ enrichmentStatus: "failed" } as any)
+          .where(eq(communities.id, communityId));
+        throw pipelineErr;
+      }
     } catch (error) {
       console.error("❌ [Self-Heal] Failed:", error);
       return res.status(500).json({
