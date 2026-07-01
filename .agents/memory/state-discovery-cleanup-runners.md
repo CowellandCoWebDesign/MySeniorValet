@@ -5,10 +5,25 @@ description: Pattern for per-state "find real communities + enrich real hidden o
 
 # Per-state discovery + synthetic-listing cleanup
 
-Three runnable scripts model this (built for Georgia):
-`server/scripts/discover-georgia-communities.ts`,
-`server/scripts/queue-synthetic-georgia.ts`, and
-`server/scripts/enrich-real-georgia.ts`.
+Runnable scripts model this. The queue + discover runners are now STATE-GENERIC
+(`server/scripts/queue-synthetic-communities.ts`,
+`server/scripts/discover-communities.ts`, sharing `server/scripts/us-states.ts`
+for state normalization). Both take `--state=` (2-letter OR full name) or run
+ALL states when omitted, and emit a per-state report. The old Georgia-only
+`queue-synthetic-georgia.ts` / `discover-georgia-communities.ts` were removed
+(fully subsumed by `--state=GA`). The enrich runner remains Georgia-specific
+(`server/scripts/enrich-real-georgia.ts`); generalize it the same way if needed.
+
+**Discovery metros are DATA-DRIVEN, not hand-curated:** `metrosForState()` picks
+each state's top-N cities by existing community count (default 20,
+`--cities-per-state=`), overridable per single-state run via `--cities=`. This
+targets discovery where communities actually cluster without a 50-state metro
+table. `discoverySource='state_free_web'`.
+
+**Nationwide scale (Task #344 snapshot):** ~10,344 rows match
+`%-senior-living.com` (almost all hidden); top states OH 757, MO 702, VA 615, NC
+595, GA 583. Full apply = ~10k removal-request inserts + thousands of free web
+calls — a deliberate LIVE run, NEVER post-merge (post-merge must stay fast/idempotent).
 
 **Enrich-real runner (restore genuinely-real hidden rows):** the state's real
 brand communities can be hidden ONLY for lack of content (no photos / thin desc),
