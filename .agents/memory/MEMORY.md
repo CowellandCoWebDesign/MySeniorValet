@@ -5,6 +5,7 @@
 - [Discovery has two paths](discovery-dual-path.md) — home communities discovery uses /api/global-discovery/search (not comprehensive-search-engine); SimplifiedMapPanel renders it; switch BOTH engines. NOTE: SimplifiedMapPanel removed from home Communities tab (Task #286).
 - [Directory sections shared](community-directory-sections.md) — CommunityDirectorySections.tsx now feeds ONLY /community-directory (home tab no longer uses it as of Task #289); edit there, not the page.
 - [Home admin section list](home-admin-section-list.md) — home Communities tab = ONE admin-driven ordered list from home_section_configs; widget vs data-source types; country aliases; additive claim-by-signature seed (default_key), never clobber.
+- [Featured communities unified](featured-communities-unified.md) — home "Featured & Coastal" + directory "Featured Excellence" both read featured_communities table; never reintroduce hardcoded RedTagDeals list or curated section #6.
 - [Sparse-coverage discovery](sparse-coverage-discovery.md) — discovery auto-runs on SPARSE coverage (not just zero); always merges existing+discovered deduped; 24h in-memory cost guard resets on restart.
 - [Search provider failover](search-provider-failover.md) — all free search routes through webSearch(): DDG vqd/JSON primary + Bing HTML fallback; never scrape duckduckgo.com/html (202 challenge).
 - [Sitemap cache staleness](sitemap-cache-staleness.md) — sitemaps file-cached 24h in .cache/sitemaps; clear after URL-format changes or live serves stale URLs; prod has own cache.

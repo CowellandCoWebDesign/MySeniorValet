@@ -446,9 +446,14 @@ export function registerCommunityRoutes(app: Express) {
         } else if (t === 'featured') {
           const featuredRecords = await storage.getFeaturedCommunities();
           if (featuredRecords.length > 0) {
+            // Preserve the admin-curated order (featured_communities.display_order,
+            // already applied by getFeaturedCommunities) so the home "Featured &
+            // Coastal" section matches the directory "Featured Excellence" order
+            // exactly (e.g. Atria La Jolla at #1) instead of re-ranking by quality.
             const ids: number[] = featuredRecords.map((f: any) => f.communityId);
             const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
-            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+            const orderList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex} ORDER BY array_position(ARRAY[${orderList}]::int[], "id") LIMIT ${lim}`);
           } else {
             r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
           }
