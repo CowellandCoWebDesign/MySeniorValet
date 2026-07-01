@@ -20,9 +20,24 @@ DB writer. Never hand-roll a separate visibility rule.
   `scripts/post-merge-migrations.mjs` (dev + prod).
 
 ## Durable decisions (the WHY)
-- **STRICT keep-public** = `(meaningfullyVerified OR realContent) AND
-  classification ∈ {senior, unknown} AND NOT clearlyFake`. realContent = ≥1 photo
-  OR ≥100-char desc. `non_senior` is ALWAYS hidden, even with content.
+- **STRICT keep-public** = `(meaningfullyVerified OR realContent OR ownRealSite)
+  AND classification ∈ {senior, unknown} AND NOT clearlyFake`. realContent = ≥1
+  photo OR ≥100-char desc. `non_senior` is ALWAYS hidden, even with content.
+- **`ownRealSite` path (thin-but-real, no-wait-for-enrichment):** a
+  `senior`-classified community whose OWN real website is on file is kept PUBLIC
+  even when thin (no photos/desc), because it enriches correctly on-view when
+  opened. `ownRealSite = classification==='senior' && isOwnRealWebsite(website)`.
+  `isOwnRealWebsite()` (exported from community-classification.ts) requires an
+  http(s) URL, rejects the templated fake `-senior-living.com` shape, and rejects
+  aggregator/directory hosts (aplaceformom/caring/seniorly/senioradvisor/
+  assistedliving.org/seniorliving.org/seniorlivingnearme/olera.care/yelp/
+  facebook/google/wikipedia). **Why:** families were losing real communities
+  hidden only for being sparse; on-view enrichment fills them in. Restricted to
+  `senior` ONLY (never `unknown`/`non_senior`) to stay conservative.
+  **How to apply:** it's already in `keepPublic`; a one-time flip needs
+  `runVisibilityPass` on the LIVE + prod DBs (data doesn't merge). If you must
+  hand-write a SQL flip, mirror `isOwnRealWebsite` with contains-ILIKE
+  exclusions (subset-safe — never expose more than the evaluator would).
 - **`meaningfullyVerified` deliberately EXCLUDES legacy `is_verified` and the
   auto-set `subscription_tier='verified'`** — both are auto-applied to ~12k rows
   and mean nothing. Only claim/featured/gov-verified-pricing count.

@@ -194,6 +194,49 @@ function str(v: unknown): string {
   return typeof v === "string" ? v : v == null ? "" : String(v);
 }
 
+/**
+ * Aggregator / directory hosts — a listing whose only "website" points at one of
+ * these is NOT the community's own site (it's a third-party directory listing),
+ * so it does not count as a real web presence.
+ */
+const AGGREGATOR_HOSTS = [
+  "aplaceformom.com",
+  "caring.com",
+  "seniorly.com",
+  "senioradvisor.com",
+  "assistedliving.org",
+  "seniorliving.org",
+  "seniorlivingnearme.com",
+  "olera.care",
+  "yelp.com",
+  "facebook.com",
+  "google.com",
+  "wikipedia.org",
+];
+
+/**
+ * True when the community's website is its OWN, genuinely-real site:
+ *   - present and an http(s) URL, AND
+ *   - NOT the machine-generated templated fake pattern `{town}-senior-living.com`, AND
+ *   - NOT an aggregator/directory host.
+ * A senior-classified community with a real own-website enriches correctly when
+ * opened, so it is safe to keep public even before it has photos/description.
+ */
+export function isOwnRealWebsite(website: string | null | undefined): boolean {
+  const raw = str(website).trim().toLowerCase();
+  if (!raw) return false;
+  if (!/^https?:\/\//.test(raw)) return false;
+  // Machine-generated synthetic listings all share this templated domain shape.
+  if (/-senior-living\.com(\/|$|\?|#)/.test(raw)) return false;
+  let host = raw;
+  try {
+    host = new URL(raw).hostname.replace(/^www\./, "");
+  } catch {
+    return false;
+  }
+  return !AGGREGATOR_HOSTS.some((h) => host === h || host.endsWith(`.${h}`));
+}
+
 function num(v: unknown): number {
   if (typeof v === "number") return v;
   if (typeof v === "string" && v.trim() !== "") {
@@ -416,10 +459,15 @@ export function evaluateCommunity(community: CommunityClassifyLike): CommunityEv
   // real content / verification overrides it (otherwise a photo-only or
   // operator-claimed senior community would be wrongly quarantined).
   const trulyEmpty = clearlyFake && !realContent && !meaningfullyVerified;
+  // A confident senior community whose own real website is on file enriches
+  // correctly the moment it's opened (on-view enrichment), so it is kept public
+  // even before it has photos/description. Templated fakes and aggregator-only
+  // links are excluded by isOwnRealWebsite.
+  const ownRealSite = classification === "senior" && isOwnRealWebsite(community.website);
   const keepPublic =
     classification !== "non_senior" &&
     !trulyEmpty &&
-    (meaningfullyVerified || realContent);
+    (meaningfullyVerified || realContent || ownRealSite);
 
   return {
     classification,
