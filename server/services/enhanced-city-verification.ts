@@ -9,6 +9,7 @@ import { eq, and, sql, inArray } from 'drizzle-orm';
 import { communities } from '../../shared/schema';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
 import { perplexitySearchAPI } from './perplexity-search-api';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 interface BulkCommunityData {
   name: string;
@@ -308,8 +309,9 @@ export class EnhancedCityVerification {
           if (discovered.phone && !existing[0].phone) {
             updates.phone = discovered.phone;
           }
-          if (discovered.website && !existing[0].website) {
-            updates.website = discovered.website;
+          const discoveredWebsite = sanitizeWebsiteUrl(discovered.website);
+          if (discoveredWebsite && !existing[0].website) {
+            updates.website = discoveredWebsite;
           }
           if (discovered.zipCode && !existing[0].zip) {
             updates.zip = discovered.zipCode;
@@ -341,7 +343,7 @@ export class EnhancedCityVerification {
             state: stateName,
             zip: discovered.zipCode,
             phone: discovered.phone,
-            website: discovered.website,
+            website: sanitizeWebsiteUrl(discovered.website),
             care_level: discovered.careTypes?.join(', '),
             assisted_living_pricing: discovered.pricing?.assistedLiving,
             memory_care_pricing: discovered.pricing?.memoryCare,

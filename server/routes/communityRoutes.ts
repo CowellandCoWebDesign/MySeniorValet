@@ -2347,6 +2347,11 @@ export function registerCommunityRoutes(app: Express) {
         });
       }
       
+      // Never persist a corrupted/junk website value (junk → null).
+      if (validatedData.website !== undefined) {
+        validatedData.website = sanitizeWebsiteUrl(validatedData.website);
+      }
+
       const [newCommunity] = await db
         .insert(communities)
         .values(validatedData)
@@ -2415,6 +2420,12 @@ export function registerCommunityRoutes(app: Express) {
         zipCode: req.body.zipCode
       };
 
+      // Never persist a corrupted/junk website value (junk → null). Gate on the
+      // incoming payload so updates that omit website leave it untouched.
+      if (Object.prototype.hasOwnProperty.call(req.body, 'website')) {
+        allowedFields.website = sanitizeWebsiteUrl(allowedFields.website);
+      }
+
       const [updated] = await db
         .update(communities)
         .set({
@@ -2439,7 +2450,12 @@ export function registerCommunityRoutes(app: Express) {
   app.put("/api/communities/:id/admin", requireAuth, isAdmin, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      const updates = req.body;
+      const updates = { ...req.body };
+
+      // Never persist a corrupted/junk website value (junk → null).
+      if (Object.prototype.hasOwnProperty.call(updates, 'website')) {
+        updates.website = sanitizeWebsiteUrl(updates.website);
+      }
 
       const [updated] = await db
         .update(communities)

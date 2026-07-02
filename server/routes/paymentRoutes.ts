@@ -4,6 +4,7 @@ import { db } from "../db";
 import { users, paymentTransactions, vendors, communities } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
+import { sanitizeWebsiteUrl } from "../utils/website-url";
 import { createAuthenticatedSession } from "../replitAuth";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
 import { testStripeCharge } from "../stripe-test";
@@ -31,7 +32,7 @@ export function registerPaymentRoutes(app: Express) {
         zipCode: formData.zipCode || '',
         phone: formData.phone,
         email: formData.email,
-        website: formData.website,
+        website: sanitizeWebsiteUrl(formData.website),
         description: formData.description,
         amenities: formData.amenities || [],
         healthcareServices: formData.healthcareServices || [],

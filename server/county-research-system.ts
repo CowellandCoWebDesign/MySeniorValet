@@ -1,6 +1,7 @@
 import { db } from './db';
 import { communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
+import { sanitizeWebsiteUrl } from './utils/website-url';
 
 interface CountyResearchData {
   name: string;
@@ -703,7 +704,7 @@ export class CountyResearchSystem {
       state: c.state,
       zipCode: c.zipCode || '',
       phone: c.phone || null,
-      website: c.website || null,
+      website: sanitizeWebsiteUrl(c.website),
       careTypes: c.careTypes,
       latitude: c.latitude ? c.latitude.toString() : null,
       longitude: c.longitude ? c.longitude.toString() : null,

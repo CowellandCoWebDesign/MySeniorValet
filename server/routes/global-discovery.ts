@@ -5,6 +5,7 @@ import { communities, vendors, services, healthcareProviders, seniorResources } 
 import { eq, and, isNull, or, like, sql } from 'drizzle-orm';
 import { geocodeWithNominatim } from '../nominatim-geocoding';
 import { safeCommunitySlugs, computeCommunitySlugs } from '../utils/generate-slug';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 import { discoverCommunitiesViaWeb, discoverHealthcareViaWeb, discoverResourcesViaWeb } from '../services/free-discovery-service';
 import { aiTracker } from '../services/ai-tracker.service';
 
@@ -1496,6 +1497,10 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
                 }
               }
 
+              // Never persist corrupted website values (markdown artifacts,
+              // citation markers, junk prose) — junk becomes null.
+              websiteUrl = sanitizeWebsiteUrl(websiteUrl);
+
               // AUTO-APPROVAL: Check if community meets verification criteria
               const preparedAddress = discovered.address || discovered.location || 'Address pending verification';
               // FIXED: Use parsed citySearch/stateSearch as fallback, not the raw query
@@ -1622,11 +1627,13 @@ export function setupGlobalDiscoveryRoutes(app: Express) {
             const updates: any = {};
             let hasUpdates = false;
             
-            // Update missing fields with discovered data
-            if (!existingCommunity.website && discovered.website) {
-              updates.website = discovered.website;
+            // Update missing fields with discovered data (website sanitized so
+            // corrupted values are never written)
+            const discoveredWebsite = sanitizeWebsiteUrl(discovered.website);
+            if (!existingCommunity.website && discoveredWebsite) {
+              updates.website = discoveredWebsite;
               hasUpdates = true;
-              console.log(`  📝 Adding website: ${discovered.website}`);
+              console.log(`  📝 Adding website: ${discoveredWebsite}`);
             }
             
             if (!existingCommunity.phone && discovered.phone) {

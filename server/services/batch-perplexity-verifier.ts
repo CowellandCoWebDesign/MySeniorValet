@@ -7,6 +7,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, sql, and, or, isNull } from 'drizzle-orm';
 import { perplexityService } from '../perplexity-ai-service';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 interface VerificationResult {
   id: number;
@@ -278,7 +279,8 @@ export class BatchPerplexityVerifier {
     if (result.correctState) updates.state = result.correctState;
     if (result.correctZipCode) updates.zip_code = result.correctZipCode;
     if (result.correctPhone) updates.phone = result.correctPhone;
-    if (result.website) updates.website = result.website;
+    const cleanWebsite = sanitizeWebsiteUrl(result.website);
+    if (cleanWebsite) updates.website = cleanWebsite;
     if (result.aiNotes) updates.ai_notes = result.aiNotes;
     
     await db.update(communities)

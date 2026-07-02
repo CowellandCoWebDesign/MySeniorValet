@@ -1,6 +1,7 @@
 import { multiSourceVerifier, type CommunityVerificationData } from './multi-source-verifier';
 import { db } from './db';
 import { communities, type InsertCommunity } from '@shared/schema';
+import { sanitizeWebsiteUrl } from './utils/website-url';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 
@@ -622,7 +623,7 @@ export class EnhancedCommunityDataScraper {
           state: community.state,
           zipCode: community.zipCode || null,
           phone: community.phone || null,
-          website: community.website || null,
+          website: sanitizeWebsiteUrl(community.website),
           description: `Verified ${community.careTypes.join(', ')} community with ${community.confidence}% confidence score.`,
           careTypes: community.careTypes,
           amenities: [],

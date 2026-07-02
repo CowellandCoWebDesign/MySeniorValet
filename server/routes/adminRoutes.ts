@@ -17,6 +17,7 @@ import {
 } from "@shared/schema";
 import { eq, desc, sql, and, or, gte, ilike, inArray, asc } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin, checkRole } from "../auth-middleware";
+import { sanitizeWebsiteUrl } from "../utils/website-url";
 import { 
   getSecurityDashboard, 
   getUserTrace, 
@@ -474,7 +475,11 @@ export function registerAdminRoutes(app: Express) {
   // Add new community
   adminRouter.post('/communities', async (req, res) => {
     try {
-      const communityData = req.body;
+      const communityData = { ...req.body };
+      // Never persist a corrupted/junk website value (junk → null).
+      if (Object.prototype.hasOwnProperty.call(communityData, 'website')) {
+        communityData.website = sanitizeWebsiteUrl(communityData.website);
+      }
       const [newCommunity] = await db.insert(communities)
         .values(communityData)
         .returning();
@@ -589,6 +594,9 @@ export function registerAdminRoutes(app: Express) {
       // releases the protection.) Only acts when `website` was actually part of
       // the submitted update so other field edits don't toggle protection.
       if (Object.prototype.hasOwnProperty.call(updates, 'website')) {
+        // Normalize/reject corrupted values (markdown artifacts, junk prose,
+        // bare domains) BEFORE deciding protection — junk becomes null.
+        sanitizedUpdates.website = sanitizeWebsiteUrl(sanitizedUpdates.website);
         const w = sanitizedUpdates.website;
         sanitizedUpdates.websiteProtected = typeof w === 'string' && w.trim().length > 0;
       }

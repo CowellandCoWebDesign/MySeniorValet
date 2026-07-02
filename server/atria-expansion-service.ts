@@ -1,6 +1,7 @@
 import { db } from './db';
 import { communities } from '@shared/schema';
 import { eq, like, or, and } from 'drizzle-orm';
+import { sanitizeWebsiteUrl } from './utils/website-url';
 
 export interface AtriaProperty {
   name: string;
@@ -2293,7 +2294,7 @@ export class AtriaExpansionService {
             state: atriaProperty.state,
             zipCode: atriaProperty.zipCode || '',
             phone: atriaProperty.phone || null,
-            website: atriaProperty.website || null,
+            website: sanitizeWebsiteUrl(atriaProperty.website),
             careTypes: atriaProperty.careTypes,
             amenities: atriaProperty.amenities || []
           });

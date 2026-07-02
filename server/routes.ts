@@ -12,6 +12,7 @@ import { registerRoutes as registerModularRoutes } from "./routes/index";
 // Import remaining services needed for middleware and specific routes
 import { setupAuth } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
+import { sanitizeWebsiteUrl } from "./utils/website-url";
 import reservationRoutes from "./routes/reservationRoutes";
 import infoRequestRoutes from "./routes/infoRequestRoutes";
 import { quizRouter } from "./routes/quiz";
@@ -1649,11 +1650,15 @@ Disallow: /`;
         return res.status(400).json({ error: 'Community ID and correct URL required' });
       }
 
-      // Update the community's website URL
+      // Update the community's website URL (sanitized so corrupted values are never written)
+      const cleanCorrectUrl = sanitizeWebsiteUrl(correctUrl);
+      if (!cleanCorrectUrl) {
+        return res.status(400).json({ error: 'Invalid website URL' });
+      }
       const [updatedCommunity] = await db
         .update(schema.communities)
         .set({ 
-          website: correctUrl,
+          website: cleanCorrectUrl,
           isVerified: true
         })
         .where(eq(schema.communities.id, communityId))
@@ -1853,8 +1858,9 @@ Disallow: /`;
         lastVerificationDate: new Date()
       };
 
-      if (intelligence.officialWebsite) {
-        updates.website = intelligence.officialWebsite;
+      const cleanOfficialWebsite = sanitizeWebsiteUrl(intelligence.officialWebsite);
+      if (cleanOfficialWebsite) {
+        updates.website = cleanOfficialWebsite;
       }
 
       if (intelligence.phone) {
@@ -1978,8 +1984,9 @@ Disallow: /`;
                 community.state
               );
 
-              if (intelligence.found && intelligence.officialWebsite) {
-                correctedUrl = intelligence.officialWebsite;
+              const cleanCorrectedUrl = sanitizeWebsiteUrl(intelligence.found ? intelligence.officialWebsite : null);
+              if (cleanCorrectedUrl) {
+                correctedUrl = cleanCorrectedUrl;
 
                 // Update the community with the correct website
                 await db

@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { communities } from '@shared/schema';
 import { sql, eq, and, or, ne } from 'drizzle-orm';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 interface DuplicateGroup {
   primaryId: number;
@@ -226,8 +227,9 @@ export class DuplicateDetectionService {
         mergedFields.push('email');
       }
       
-      if (!mergedData.website && duplicate.website) {
-        mergedData.website = duplicate.website;
+      const dupWebsite = sanitizeWebsiteUrl(duplicate.website);
+      if (!mergedData.website && dupWebsite) {
+        mergedData.website = dupWebsite;
         mergedFields.push('website');
       }
       

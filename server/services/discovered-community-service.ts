@@ -7,6 +7,7 @@ import {
   looksLikeGuessedName,
   isReachableWebsite,
 } from "../utils/data-quality";
+import { sanitizeWebsiteUrl } from "../utils/website-url";
 
 /**
  * Clean all fields that might have citation markers, using the centralized
@@ -97,14 +98,18 @@ export class DiscoveredCommunityService {
       });
 
       // Golden Data Rule: only persist a website that actually resolves. AI-guessed
-      // or 404 domains are dropped rather than saved.
+      // or 404 domains are dropped rather than saved. sanitizeWebsiteUrl strips
+      // markdown/citation artifacts and rejects junk so corrupted values never persist.
       let validatedWebsite: string | undefined = undefined;
-      if (cleanedCommunity.website) {
-        if (await isReachableWebsite(cleanedCommunity.website)) {
-          validatedWebsite = cleanedCommunity.website;
+      const sanitizedWebsite = sanitizeWebsiteUrl(cleanedCommunity.website);
+      if (sanitizedWebsite) {
+        if (await isReachableWebsite(sanitizedWebsite)) {
+          validatedWebsite = sanitizedWebsite;
         } else {
-          console.log(`🚫 Dropped unreachable website for "${cleanedCommunity.name}": ${cleanedCommunity.website}`);
+          console.log(`🚫 Dropped unreachable website for "${cleanedCommunity.name}": ${sanitizedWebsite}`);
         }
+      } else if (cleanedCommunity.website) {
+        console.log(`🚫 Dropped corrupted website value for "${cleanedCommunity.name}": ${cleanedCommunity.website}`);
       }
 
       // Non-destructive data-quality markers so suspect records can be reviewed.
@@ -197,12 +202,13 @@ export class DiscoveredCommunityService {
       // text field before persisting (centralized cleaner shared across writes).
       if (enrichedData.address) updateData.address = cleanCitationArtifacts(enrichedData.address);
       // Golden Data Rule: only persist a website that actually resolves.
+      // sanitizeWebsiteUrl turns junk/corrupted values into null so they're skipped.
       if (enrichedData.website) {
-        const cleanedWebsite = cleanCitationArtifacts(enrichedData.website);
+        const cleanedWebsite = sanitizeWebsiteUrl(cleanCitationArtifacts(enrichedData.website));
         if (cleanedWebsite && (await isReachableWebsite(cleanedWebsite))) {
           updateData.website = cleanedWebsite;
         } else {
-          console.log(`🚫 Skipped unreachable website on enrich for community ${communityId}: ${enrichedData.website}`);
+          console.log(`🚫 Skipped unreachable/corrupted website on enrich for community ${communityId}: ${enrichedData.website}`);
         }
       }
       if (enrichedData.phone) updateData.phone = cleanCitationArtifacts(enrichedData.phone);

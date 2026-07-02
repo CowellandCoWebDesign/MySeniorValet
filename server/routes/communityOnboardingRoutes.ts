@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { createInsertSchema } from 'drizzle-zod';
 import { eq } from 'drizzle-orm';
 import { communities } from '../../shared/schema';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 // Zod schemas for validation
 const CommunityFormDataSchema = z.object({
@@ -54,7 +55,7 @@ export function registerCommunityOnboardingRoutes(app: Express) {
         zip_code: validatedData.zipCode,
         phone: validatedData.phone,
         email: validatedData.email,
-        website: validatedData.website || null,
+        website: sanitizeWebsiteUrl(validatedData.website),
         description: validatedData.description || null,
         care_types: validatedData.careTypes,
         amenities: validatedData.amenities,

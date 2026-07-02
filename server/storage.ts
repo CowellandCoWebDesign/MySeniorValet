@@ -30,6 +30,7 @@ import { eq, like, ilike, gte, and, or, sql, inArray, desc, isNotNull, gt } from
 import { zipCodeService } from "./zip-code-mapping";
 import { cache } from "./cache";
 import { HudDataExtractor } from "./hud-data-extractor";
+import { sanitizeWebsiteUrl } from "./utils/website-url";
 
 export interface IStorage {
   // User methods - Updated for Replit Auth
@@ -529,6 +530,9 @@ export class MemStorage implements IStorage {
 
   async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
     const id = this.currentCommunityId++;
+    if (insertCommunity.website !== undefined) {
+      insertCommunity = { ...insertCommunity, website: sanitizeWebsiteUrl(insertCommunity.website) };
+    }
     const community: Community = {
       ...insertCommunity,
       id,
@@ -543,6 +547,9 @@ export class MemStorage implements IStorage {
     const community = this.communities.get(id);
     if (!community) return undefined;
 
+    if (updates.website !== undefined) {
+      updates = { ...updates, website: sanitizeWebsiteUrl(updates.website) };
+    }
     const updatedCommunity: Community = {
       ...community,
       ...updates,
@@ -1523,6 +1530,12 @@ export class DatabaseStorage implements IStorage {
       insertCommunity = { ...insertCommunity, ...slugs };
     }
 
+    // Never persist a corrupted/junk website (markdown artifacts, citation
+    // markers, prose placeholders) — junk becomes NULL, bare domains get https.
+    if (insertCommunity.website !== undefined) {
+      insertCommunity = { ...insertCommunity, website: sanitizeWebsiteUrl(insertCommunity.website) };
+    }
+
     const [community] = await db
       .insert(communities)
       .values(insertCommunity)
@@ -1545,6 +1558,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateCommunity(id: number, updates: Partial<InsertCommunity>): Promise<Community | undefined> {
+    // Never persist a corrupted/junk website value (see sanitizeWebsiteUrl).
+    if (updates.website !== undefined) {
+      updates = { ...updates, website: sanitizeWebsiteUrl(updates.website) };
+    }
     const [community] = await db
       .update(communities)
       .set(updates)

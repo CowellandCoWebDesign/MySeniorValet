@@ -44,3 +44,4 @@
 - [State discovery + synthetic cleanup runners](state-discovery-cleanup-runners.md) — per-state: discover via free pipeline + persist + recompute visibility; queue synthetic '{town}-senior-living.com' listings to removal_requests + synthetic_suspected flag; never delete; raw insert (removal_requests drift).
 - [Input sanitizer vs URL params](input-sanitizer-skip-list.md) — global SQL-pattern stripper mangles `--` in image-proxy CDN URLs → blank photos; exempt pass-through-URL routes, don't weaken patterns.
 - [Serve-time photo liveness + honest proxy errors](photo-liveness-serving.md) — only 404/410/HTML-block = dead (403/429 = bot-protected, keep!); cache unknown probes short-TTL; image proxy must return real errors, never 200 placeholders.
+- [Community website write sanitization](community-website-writes.md) — every communities.website write must use sanitizeWebsiteUrl; storage.* is a chokepoint, direct db.insert/update must sanitize inline.
