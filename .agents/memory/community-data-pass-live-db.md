@@ -25,6 +25,14 @@ be executed against the live DB to take effect.
   `--skip-checked-hours=168 --max-seconds=90` (time-boxed + stale-aware so it
   stays within the hook timeout and resumes across merges).
 
+# Fast idempotent cleanups CAN ride the post-merge hook
+Small data passes (seconds, batched writes, no-op on re-run) run in
+`scripts/post-merge.sh` to reach the live dev DB — e.g. the website sanitize
+pass. Hook timeout is 60s (raised from 20s); keep additions time-boxed and
+non-fatal (`|| echo warn`) so a data hiccup never fails merge setup. Prod DB is
+read-only to agents — prod data cleanup still needs a run against prod
+DATABASE_URL by someone with access.
+
 # Directory stats are scoped to the visible set
 `/api/communities/stats` (server/routes/communityRoutes.ts) computes ALL numbers
 over `publicVisibleFilter()` and `totalVerified` over `verifiedOnlyFilter()`

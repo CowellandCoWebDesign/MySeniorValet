@@ -28,9 +28,9 @@ async function main() {
   `)) as any;
   const list = rows.rows ?? rows;
 
-  let fixed = 0;
-  let nulled = 0;
   let unchanged = 0;
+  const fixes: Array<{ id: number; clean: string }> = [];
+  const nullIds: number[] = [];
 
   // Trailing-slash-insensitive comparison: `new URL(...).toString()` appends a
   // canonical "/" to bare-origin URLs. That is NOT corruption — rewriting ~15k
@@ -46,22 +46,39 @@ async function main() {
       continue;
     }
     if (clean) {
-      fixed++;
+      fixes.push({ id: Number(c.id), clean });
       console.log(`FIX   #${c.id} "${c.name}": "${c.website}" → "${clean}"`);
-      if (!DRY_RUN) {
-        await db.execute(sql`UPDATE communities SET website = ${clean} WHERE id = ${c.id}`);
-      }
     } else {
-      nulled++;
+      nullIds.push(Number(c.id));
       console.log(`NULL  #${c.id} "${c.name}": "${c.website}" (unsalvageable junk)`);
-      if (!DRY_RUN) {
-        await db.execute(sql`UPDATE communities SET website = NULL WHERE id = ${c.id}`);
-      }
     }
   }
 
+  // Batched writes so the whole pass finishes in seconds (post-merge budget).
+  if (!DRY_RUN && fixes.length > 0) {
+    const CHUNK = 500;
+    for (let i = 0; i < fixes.length; i += CHUNK) {
+      const chunk = fixes.slice(i, i + CHUNK);
+      const valuesSql = sql.join(
+        chunk.map((f) => sql`(${f.id}::int, ${f.clean}::text)`),
+        sql`, `,
+      );
+      await db.execute(sql`
+        UPDATE communities AS c SET website = v.clean
+        FROM (VALUES ${valuesSql}) AS v(id, clean)
+        WHERE c.id = v.id
+      `);
+    }
+  }
+  if (!DRY_RUN && nullIds.length > 0) {
+    await db.execute(sql`
+      UPDATE communities SET website = NULL
+      WHERE id = ANY(${sql`ARRAY[${sql.join(nullIds.map((id) => sql`${id}::int`), sql`, `)}]`})
+    `);
+  }
+
   console.log(
-    `\n${DRY_RUN ? "[DRY RUN] " : ""}Websites scanned: ${list.length} — sanitized: ${fixed}, nulled: ${nulled}, already clean: ${unchanged}`,
+    `\n${DRY_RUN ? "[DRY RUN] " : ""}Websites scanned: ${list.length} — sanitized: ${fixes.length}, nulled: ${nullIds.length}, already clean: ${unchanged}`,
   );
   process.exit(0);
 }
