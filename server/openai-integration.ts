@@ -1,10 +1,11 @@
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { Community } from '@shared/schema';
 import { aiTracker } from './services/ai-tracker.service';
 
-const openai = new OpenAI({
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({
   apiKey: process.env.OPENAI_API_KEY,
-});
+}));
 
 export interface NaturalLanguageQuery {
   query: string;

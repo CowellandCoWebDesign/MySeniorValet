@@ -3,7 +3,8 @@
  * for Miami senior living communities
  */
 
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 import * as dotenv from 'dotenv';
 dotenv.config();
 

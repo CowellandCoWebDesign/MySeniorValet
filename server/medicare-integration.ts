@@ -1,5 +1,6 @@
 // Medicare.gov API Integration for Benefits Verification
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class MedicareIntegration {
   private baseUrl: string;

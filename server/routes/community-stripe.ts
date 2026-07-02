@@ -1,5 +1,6 @@
 import express, { type Express } from "express";
-import Stripe from "stripe";
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { db } from "../db";
 import { eq } from "drizzle-orm";
 import { communities, claimedCommunities } from "@shared/schema";
@@ -10,9 +11,9 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2025-07-30.basil",
-});
+}));
 
 export function registerCommunityStripeRoutes(app: Express) {
   // Create or retrieve a Stripe Connect account for a community

@@ -1,4 +1,5 @@
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { db } from './db';
 import { stripeProducts, communitySubscriptions, communities } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
@@ -8,9 +9,9 @@ if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('Missing required Stripe secret: STRIPE_SECRET_KEY');
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2024-11-20.acacia",
-});
+}));
 
 export class StripeService {
   async initializeProducts() {

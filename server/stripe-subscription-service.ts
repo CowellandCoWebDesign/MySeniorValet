@@ -1,13 +1,14 @@
 // MySeniorValet - Stripe Subscription Management Service
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { db } from './db';
 import { subscriptions, communities, users } from '@shared/schema';
 import { eq, and } from 'drizzle-orm';
 
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+  ? lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, {
       apiVersion: '2025-08-27.basil'
-    })
+    }))
   : null;
 
 export interface SubscriptionProduct {

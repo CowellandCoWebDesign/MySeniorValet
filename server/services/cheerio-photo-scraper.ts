@@ -1,4 +1,7 @@
-import * as cheerio from 'cheerio';
+import type { CheerioAPI } from 'cheerio';
+import { lazyModule } from '../utils/lazy-load';
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import('cheerio')>('cheerio');
 
 interface ScrapedPhoto {
   url: string;
@@ -588,7 +591,7 @@ export class CheerioPhotoScraper {
     return result;
   }
   
-  private extractPhotosFromHtml($: cheerio.CheerioAPI, websiteUrl: string, communityName: string, maxPhotos: number): ScrapedPhoto[] {
+  private extractPhotosFromHtml($: CheerioAPI, websiteUrl: string, communityName: string, maxPhotos: number): ScrapedPhoto[] {
     const photos: ScrapedPhoto[] = [];
     
     // Extract all img tags
@@ -645,7 +648,7 @@ export class CheerioPhotoScraper {
     return this.deduplicatePhotos(photos).slice(0, maxPhotos);
   }
   
-  private extractVideosFromHtml($: cheerio.CheerioAPI, websiteUrl: string): ScrapedVideo[] {
+  private extractVideosFromHtml($: CheerioAPI, websiteUrl: string): ScrapedVideo[] {
     const videos: ScrapedVideo[] = [];
     const seenUrls = new Set<string>();
     

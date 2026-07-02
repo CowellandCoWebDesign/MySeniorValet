@@ -5,7 +5,8 @@
  * costs.  No paid AI required.
  */
 
-import axios from 'axios';
+import { lazyCallable } from '../utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 import { webSearch } from './search-provider';
 
 export interface DiscoveredCommunity {

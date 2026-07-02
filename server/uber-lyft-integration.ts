@@ -1,5 +1,6 @@
 // Uber & Lyft API Integration for Senior Transportation Coordination
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class UberLyftIntegration {
   private uberToken: string;

@@ -1,5 +1,9 @@
-import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
+import type * as oidc from "openid-client";
+import type { VerifyFunction } from "openid-client/passport";
+import { lazyModule } from "./utils/lazy-load";
+// Lazy-loaded so openid-client doesn't block server boot.
+const client = lazyModule<typeof import("openid-client")>("openid-client");
+const oidcPassport = lazyModule<typeof import("openid-client/passport")>("openid-client/passport");
 
 import passport from "passport";
 import session from "express-session";
@@ -75,7 +79,7 @@ export function getSession() {
 
 function updateUserSession(
   user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
+  tokens: oidc.TokenEndpointResponse & oidc.TokenEndpointResponseHelpers
 ) {
   user.claims = tokens.claims();
   user.access_token = tokens.access_token;
@@ -151,7 +155,7 @@ export async function setupAuth(app: Express) {
   const config = await getOidcConfig();
 
   const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
+    tokens: oidc.TokenEndpointResponse & oidc.TokenEndpointResponseHelpers,
     verified: passport.AuthenticateCallback
   ) => {
     try {
@@ -196,7 +200,7 @@ export async function setupAuth(app: Express) {
   console.log('Configuring auth for domains:', replitDomains);
 
   for (const domain of replitDomains) {
-    const strategy = new Strategy(
+    const strategy = new oidcPassport.Strategy(
       {
         name: `replitauth:${domain}`,
         config,

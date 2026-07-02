@@ -1,4 +1,6 @@
-import * as cheerio from 'cheerio';
+import { lazyModule } from './utils/lazy-load';
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import('cheerio')>('cheerio');
 
 interface ScrapedCommunityData {
   photos: string[];

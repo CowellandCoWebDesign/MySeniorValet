@@ -1,4 +1,5 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+import { requireModule } from './lazy-load';
 
 // Redis client with graceful fallback when Redis is not available
 let redisClient: Redis | null = null;
@@ -6,7 +7,8 @@ let redisClient: Redis | null = null;
 // Only initialize Redis if credentials are provided
 if (process.env.REDIS_URL || process.env.REDIS_HOST) {
   try {
-    redisClient = new Redis(
+    const RedisClass = requireModule('ioredis')?.default ?? requireModule('ioredis');
+    redisClient = new RedisClass(
       process.env.REDIS_URL || {
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379'),

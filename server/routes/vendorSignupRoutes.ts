@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { db } from '../db';
 import { vendorRegistrations, auditLogs } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
@@ -9,9 +10,9 @@ import { internalNotifications } from '../services/internal-notifications';
 const router = Router();
 
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
-});
+}));
 
 // Create vendor signup payment intent
 router.post('/api/vendor-signup', async (req, res) => {

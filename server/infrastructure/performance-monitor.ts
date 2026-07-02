@@ -79,8 +79,8 @@ class PerformanceMonitor {
       errors: []
     };
 
-    // Load persisted metrics
-    this.loadMetrics();
+    // Load persisted metrics (deferred so the cache client doesn't load at module eval / block boot)
+    setImmediate(() => this.loadMetrics());
     
     // Save metrics every minute
     setInterval(() => this.saveMetrics(), 60 * 1000);

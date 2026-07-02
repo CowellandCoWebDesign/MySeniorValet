@@ -26,7 +26,8 @@
  * - Open-source transparency
  */
 
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 import { db } from './db';
 import { communities, users } from '@shared/schema';
 import { eq } from 'drizzle-orm';

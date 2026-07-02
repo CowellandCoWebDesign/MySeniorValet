@@ -2,8 +2,11 @@ import { multiSourceVerifier, type CommunityVerificationData } from './multi-sou
 import { db } from './db';
 import { communities, type InsertCommunity } from '@shared/schema';
 import { sanitizeWebsiteUrl } from './utils/website-url';
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
+import { lazyModule } from './utils/lazy-load';
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import('cheerio')>('cheerio');
 
 export interface ScrapingResult {
   communities: CommunityVerificationData[];

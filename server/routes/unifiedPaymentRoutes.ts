@@ -1,5 +1,6 @@
 import { Router, Request, Response, raw } from 'express';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { db, pool } from '../db';
 import { communities, vendors, users, paymentTransactions, subscriptions } from '@shared/schema';
 import { eq, sql } from 'drizzle-orm';
@@ -11,9 +12,9 @@ if (!process.env.STRIPE_SECRET_KEY) {
   console.error('⚠️ STRIPE_SECRET_KEY is not set in environment variables');
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-07-30.basil' as any,
-});
+}));
 
 // Stripe Price IDs from configured products
 const STRIPE_PRICE_IDS = {

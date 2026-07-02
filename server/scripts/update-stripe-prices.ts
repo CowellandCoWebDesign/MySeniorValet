@@ -3,14 +3,15 @@
  * This creates new prices with the updated amounts and updates the configuration
  */
 
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import * as fs from 'fs';
 import * as path from 'path';
 
 // Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-08-27.basil'
-});
+}));
 
 // New pricing structure
 const UPDATED_TIERS = [

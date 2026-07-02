@@ -1,4 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { playwrightPhotoScraper } from './playwright-photo-scraper';
 import { CheerioPhotoScraper } from './cheerio-photo-scraper';
 
@@ -11,7 +12,7 @@ const cheerioPhotoScraper = new CheerioPhotoScraper();
  */
 
 // Initialize Claude client only
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const anthropic = lazyClient<Anthropic>(() => new (requireModule('@anthropic-ai/sdk').default)({ apiKey: process.env.ANTHROPIC_API_KEY }));
 
 // The newest Anthropic model is "claude-sonnet-4-5-20250929", not older 3.x models
 const CLAUDE_MODEL = "claude-sonnet-4-5-20250929";

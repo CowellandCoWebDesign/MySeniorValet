@@ -23,8 +23,11 @@
  * timeout so one slow engine cannot stall the pipeline.
  */
 
-import * as cheerio from "cheerio";
-import { search as ddgSearch, SafeSearchType } from "duck-duck-scrape";
+import { lazyModule } from "../utils/lazy-load";
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import("cheerio")>("cheerio");
+// Lazy-loaded so duck-duck-scrape doesn't block server boot.
+const dds = lazyModule<typeof import("duck-duck-scrape")>("duck-duck-scrape");
 
 /** A normalized web search result, identical no matter which engine produced it. */
 export interface WebSearchResult {
@@ -80,7 +83,7 @@ function stripTags(html: string): string {
 // ── Provider 1: DuckDuckGo (vqd token + JSON endpoint) ───────────────────────
 
 async function duckDuckGoProvider(query: string): Promise<WebSearchResult[]> {
-  const res = await ddgSearch(query, { safeSearch: SafeSearchType.OFF });
+  const res = await dds.search(query, { safeSearch: dds.SafeSearchType.OFF });
   if (!res || res.noResults || !Array.isArray(res.results)) return [];
   return res.results
     .map((r) => ({

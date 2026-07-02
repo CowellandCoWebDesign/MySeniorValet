@@ -14,10 +14,11 @@ import {
 import { eq, gte, lte, and, sql, desc, asc, ne } from 'drizzle-orm';
 import { isAuthenticated } from '../auth-middleware';
 import { checkRole } from '../auth-middleware';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' })
+  ? lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' }))
   : null;
 
 const router = Router();

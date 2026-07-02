@@ -1,5 +1,9 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
+import type { CheerioAPI, Cheerio } from 'cheerio';
+import { lazyModule } from './utils/lazy-load';
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import('cheerio')>('cheerio');
 import { storage } from './storage';
 import type { InsertCommunity, InsertInspection } from '@shared/schema';
 
@@ -156,7 +160,7 @@ export class ComprehensiveScraper {
     }
   }
 
-  private extractCommunityFromElement($: cheerio.CheerioAPI, element: any, sourceName: string): CommunityData | null {
+  private extractCommunityFromElement($: CheerioAPI, element: any, sourceName: string): CommunityData | null {
     const $el = $(element);
     
     try {
@@ -207,7 +211,7 @@ export class ComprehensiveScraper {
     }
   }
 
-  private extractText($el: cheerio.Cheerio<any>, selectors: string[]): string {
+  private extractText($el: Cheerio<any>, selectors: string[]): string {
     for (const selector of selectors) {
       const text = $el.find(selector).first().text().trim();
       if (text) return text;
@@ -215,7 +219,7 @@ export class ComprehensiveScraper {
     return '';
   }
 
-  private extractAttribute($el: cheerio.Cheerio<any>, selectors: string[], attribute: string): string {
+  private extractAttribute($el: Cheerio<any>, selectors: string[], attribute: string): string {
     for (const selector of selectors) {
       const attr = $el.find(selector).first().attr(attribute);
       if (attr) return attr;
@@ -223,7 +227,7 @@ export class ComprehensiveScraper {
     return '';
   }
 
-  private extractAmenities($el: cheerio.Cheerio<any>): string[] {
+  private extractAmenities($el: Cheerio<any>): string[] {
     const amenities: string[] = [];
     const amenitySelectors = [
       '.amenities li', '.features li', '.services li',
@@ -241,7 +245,7 @@ export class ComprehensiveScraper {
     return amenities;
   }
 
-  private extractPricing($el: cheerio.Cheerio<any>): string {
+  private extractPricing($el: Cheerio<any>): string {
     const priceSelectors = [
       '.price', '.pricing', '.cost', '.rate',
       '.monthly-rate', '.starting-at', '.from'
@@ -254,7 +258,7 @@ export class ComprehensiveScraper {
     return '';
   }
 
-  private extractImage($el: cheerio.Cheerio<any>): string {
+  private extractImage($el: Cheerio<any>): string {
     const imgSelectors = [
       'img', '.property-image img', '.community-image img',
       '.photo img', '.thumbnail img'

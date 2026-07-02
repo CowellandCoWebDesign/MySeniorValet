@@ -9,7 +9,8 @@ import { createAuthenticatedSession } from "../replitAuth";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
 import { testStripeCharge } from "../stripe-test";
 import { notifySuperAdmin } from "../sendgrid-service";
-import Stripe from "stripe";
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 
 // Import stripe payment service
 import { stripePaymentService } from "../stripe-payment-service";

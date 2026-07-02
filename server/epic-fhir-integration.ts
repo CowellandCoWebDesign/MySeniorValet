@@ -1,5 +1,6 @@
 // Epic FHIR Integration for Medical Records Transfer
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class EpicFHIRIntegration {
   private baseUrl: string;

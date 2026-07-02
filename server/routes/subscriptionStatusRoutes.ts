@@ -1,12 +1,13 @@
 import { Router } from 'express';
 import { Request, Response } from 'express';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { db } from '../db';
 import { subscriptions } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 
 const router = Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY as string));
 
 // Manual subscription status sync (for when webhooks aren't available)
 router.post('/sync-status/:subscription_id', async (req: Request, res: Response) => {

@@ -5,7 +5,10 @@ import { eq, and, gte, lte, or, desc, asc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { isAuthenticated } from "../auth-middleware";
 import sgMail from "@sendgrid/mail";
-import { format, addDays, parseISO } from "date-fns";
+// Subpath imports load only the needed functions (whole date-fns barrel adds ~250ms to boot)
+import { format } from "date-fns/format";
+import { addDays } from "date-fns/addDays";
+import { parseISO } from "date-fns/parseISO";
 import { sendTourCompletedNotification } from "../utils/messageNotifications";
 
 // Initialize SendGrid

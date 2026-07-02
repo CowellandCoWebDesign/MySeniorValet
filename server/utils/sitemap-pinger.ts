@@ -1,7 +1,8 @@
 // Automatic Sitemap Pinger for Search Engines
 // Notifies Google, Bing, and other search engines when content changes
 
-import axios from 'axios';
+import { lazyCallable } from './lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 import { inArray } from 'drizzle-orm';
 import { db } from '../db';
 import { communities } from '../../shared/schema';

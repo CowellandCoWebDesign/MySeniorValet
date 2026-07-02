@@ -1,4 +1,7 @@
-import { chromium, Browser, Page } from 'playwright';
+import type { Browser, Page } from 'playwright';
+import { lazyModule } from '../utils/lazy-load';
+// Lazy-loaded so playwright (~700ms) doesn't block server boot.
+const playwright = lazyModule<typeof import('playwright')>('playwright');
 
 /**
  * 🔥 SUPER-POWERED Playwright Photo Scraper
@@ -25,7 +28,7 @@ export class PlaywrightPhotoScraper {
   private async initBrowser(): Promise<Browser> {
     if (!this.browser) {
       console.log('🚀 Launching Playwright browser for high-quality photo extraction...');
-      this.browser = await chromium.launch({
+      this.browser = await playwright.chromium.launch({
         headless: true,
         args: [
           '--no-sandbox',

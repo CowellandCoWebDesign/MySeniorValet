@@ -43,6 +43,8 @@ The platform is built with a modern web stack, emphasizing transparency and user
 - Server-side 301 redirect registered at `GET /community/:id` — looks up community, redirects to SEO URL in production
 - Updated 20+ components and pages to use `getCommunityUrl()` including: Map, SlidePanel, community cards, search pages, chat kit, AI components, structured data, share buttons
 
+**Server Boot Order (July 2026 — do not regress)**: `server/index.ts` must call `server.listen()` as early as possible (right after route/SSR/static registration). `runStartupMigrations()` runs fire-and-forget INSIDE the listen callback (it is idempotent), never awaited before listen. Boot logs `⏱ time-to-listen: Xms`. Heavy packages (stripe, openai, @anthropic-ai/sdk, axios, cheerio, playwright, jsforce, qrcode, ioredis, openid-client, google-auth-library, duck-duck-scrape, rate-limiter-flexible, node-fetch) are lazy-loaded via `server/utils/lazy-load.ts` (`lazyModule`/`lazyClient`/`lazyCallable`/`requireModule`) because the esbuild `--packages=external` build hoists ALL static imports to bundle top and loads them serially before listen. New code must not add top-of-file static imports of heavy SDKs in server code, must not construct SDK clients at module evaluation time (wrap in `lazyClient`), and date-fns must use subpath imports (`date-fns/format`). This keeps prod time-to-listen ~1.6s (was 5.7s) so Google/health checks never see a dead port.
+
 **Technical Implementations**:
 - **Frontend**: React with TypeScript, Tailwind CSS, and shadcn/ui components, using Vite.
 - **Backend**: Express.js with TypeScript, using esbuild.

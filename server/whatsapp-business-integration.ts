@@ -1,5 +1,6 @@
 // WhatsApp Business API Integration for International Family Communication
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class WhatsAppBusinessIntegration {
   private accessToken: string;

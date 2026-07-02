@@ -14,7 +14,12 @@ import {
 } from '@shared/schema';
 import { eq, and, gte, lte, desc, sql, inArray } from 'drizzle-orm';
 import * as schema from '@shared/schema';
-import { format, subDays, subMonths, startOfMonth, endOfMonth } from 'date-fns';
+// Subpath imports load only the needed functions (whole date-fns barrel adds ~250ms to boot)
+import { format } from 'date-fns/format';
+import { subDays } from 'date-fns/subDays';
+import { subMonths } from 'date-fns/subMonths';
+import { startOfMonth } from 'date-fns/startOfMonth';
+import { endOfMonth } from 'date-fns/endOfMonth';
 
 const router = Router();
 

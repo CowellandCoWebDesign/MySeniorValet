@@ -1,4 +1,7 @@
-import { chromium, Browser, Page } from 'playwright';
+import type { Browser, Page } from 'playwright';
+import { lazyModule } from '../utils/lazy-load';
+// Lazy-loaded so playwright (~700ms) doesn't block server boot.
+const playwright = lazyModule<typeof import('playwright')>('playwright');
 
 interface CrawlResult {
   virtualTourUrl?: string;
@@ -93,7 +96,7 @@ export class CommunityWebsiteCrawler {
     
     if (!this.browser) {
       try {
-        this.browser = await chromium.launch({
+        this.browser = await playwright.chromium.launch({
           headless: true,
           args: [
             '--no-sandbox',

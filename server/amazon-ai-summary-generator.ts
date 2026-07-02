@@ -4,11 +4,12 @@
  * Does NOT copy Amazon content directly
  */
 
-import OpenAI from "openai";
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from './utils/lazy-load';
 
-const openai = new OpenAI({ 
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ 
   apiKey: process.env.OPENAI_API_KEY 
-});
+}));
 
 export interface ProductSummaryRequest {
   productName: string;

@@ -11,12 +11,13 @@ import {
   paymentTransactions 
 } from '@shared/schema';
 import { eq, desc, and, gte, lte, sql, or, isNull } from 'drizzle-orm';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 
 const router = Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-10-16',
-});
+}));
 
 // ================== INVOICE MANAGEMENT ==================
 

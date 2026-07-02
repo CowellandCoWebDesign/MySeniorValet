@@ -5,7 +5,9 @@
  */
 
 import speakeasy from 'speakeasy';
-import QRCode from 'qrcode';
+import { lazyModule } from '../utils/lazy-load';
+// Lazy-loaded so qrcode doesn't block server boot.
+const QRCode = lazyModule<typeof import('qrcode')>('qrcode');
 import { randomBytes } from 'crypto';
 import { db } from '../db';
 import { users } from '../../shared/schema';

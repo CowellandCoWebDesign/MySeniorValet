@@ -2,7 +2,8 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, and, gte, lte, sql, desc, not, or } from 'drizzle-orm';
 import { featureFlags } from './feature-flags.service';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 
 /**
  * Enterprise Reservation Management System
@@ -16,7 +17,7 @@ import Stripe from 'stripe';
 
 // Initialize Stripe if available
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-08-27.basil' })
+  ? lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, { apiVersion: '2025-08-27.basil' }))
   : null;
 
 export interface Unit {

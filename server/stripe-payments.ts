@@ -1,4 +1,5 @@
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { db } from './db';
 import { paymentTransactions, users, communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
@@ -6,7 +7,7 @@ import { internalNotifications } from './services/internal-notifications';
 
 // Initialize Stripe with the secret key
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' })
+  ? lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' }))
   : null;
 
 export interface CreatePaymentIntentParams {

@@ -9,7 +9,9 @@
  * No Perplexity, Claude, or OpenAI calls. Compliant with Golden Data Rule.
  */
 
-import * as cheerio from "cheerio";
+import { lazyModule } from "../utils/lazy-load";
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import("cheerio")>("cheerio");
 import { webSearch } from "./search-provider";
 
 export interface FreeEnrichmentResult {

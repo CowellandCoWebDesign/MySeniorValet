@@ -180,11 +180,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Boot-order note (cold-start fix): server.listen() must be reached as fast as
+// possible so autoscale cold starts don't serve connection-refused/500 to
+// Googlebot. Startup migrations are idempotent (ADD COLUMN IF NOT EXISTS etc.)
+// and every column they add already exists in prod, so they run in the
+// BACKGROUND after listen — never block the boot path on them.
+const bootStart = Date.now();
+
 (async () => {
   try {
-    // Run idempotent schema migrations (adds community trust columns if absent)
-    await runStartupMigrations();
-
     const server = await registerRoutes(app);
 
   // NO SEEDING - GOLDEN DATA RULE ENFORCED
@@ -353,6 +357,17 @@ app.use((req, res, next) => {
     host: "0.0.0.0",
   }, () => {
     log(`serving on port ${port}`);
+    console.log(`⏱ time-to-listen: ${Math.round(process.uptime() * 1000)}ms (post-import boot: ${Date.now() - bootStart}ms)`);
+
+    // Run idempotent schema migrations in the BACKGROUND (adds community trust
+    // columns if absent). Every statement is IF NOT EXISTS / ON CONFLICT DO
+    // NOTHING and all columns already exist in prod, so post-listen execution
+    // is safe. Never process.exit on failure here — the server is already
+    // serving traffic.
+    runStartupMigrations().catch(error => {
+      console.error('❌ Background startup migrations failed (server continues serving):', error);
+    });
+
     
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);

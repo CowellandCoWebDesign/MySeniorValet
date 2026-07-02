@@ -4,20 +4,26 @@
  */
 
 import { Router } from 'express';
-import { OAuth2Client } from 'google-auth-library';
+import type { OAuth2Client } from 'google-auth-library';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { db } from './db';
 import { users } from '../shared/schema';
 import { eq } from 'drizzle-orm';
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 const router = Router();
 
 // Google OAuth Configuration
 console.log('Google OAuth Client ID:', process.env.GOOGLE_CLIENT_ID?.substring(0, 30) + '...');
-const googleClient = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID,
-  process.env.GOOGLE_CLIENT_SECRET
-);
+// Lazily constructed so google-auth-library doesn't block server boot.
+const googleClient = lazyClient<OAuth2Client>(() => {
+  const { OAuth2Client: GoogleOAuth2Client } = requireModule('google-auth-library');
+  return new GoogleOAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET
+  );
+});
 
 export function setupSocialAuth(app: any) {
   // Google OAuth Login Endpoint

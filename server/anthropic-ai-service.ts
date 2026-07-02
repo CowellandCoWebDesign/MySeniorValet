@@ -1,4 +1,5 @@
-import Anthropic from '@anthropic-ai/sdk';
+import type Anthropic from '@anthropic-ai/sdk';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { aiTracker } from './services/ai-tracker.service';
 
 /*
@@ -12,9 +13,9 @@ If the user doesn't specify a model, always use "claude-sonnet-4-5-20250929".
 const DEFAULT_MODEL_STR = "claude-sonnet-4-5-20250929";
 // </important_do_not_delete>
 
-const anthropic = new Anthropic({
+const anthropic = lazyClient<Anthropic>(() => new (requireModule('@anthropic-ai/sdk').default)({
   apiKey: process.env.ANTHROPIC_API_KEY,
-});
+}));
 
 export interface SearchIntent {
   location?: {

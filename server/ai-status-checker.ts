@@ -3,8 +3,9 @@
  * Quick health check for all AI services
  */
 
-import { Anthropic } from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
+import type { Anthropic } from '@anthropic-ai/sdk';
+import { lazyClient, requireModule } from './utils/lazy-load';
+import type OpenAI from 'openai';
 
 interface AIStatus {
   claude: { working: boolean; message: string };
@@ -24,7 +25,7 @@ export async function checkAllAIStatus(): Promise<AIStatus> {
     if (!process.env.ANTHROPIC_API_KEY) {
       results.claude.message = 'API key not found';
     } else {
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const anthropic = lazyClient<Anthropic>(() => new (requireModule('@anthropic-ai/sdk').Anthropic)({ apiKey: process.env.ANTHROPIC_API_KEY }));
       await anthropic.messages.create({
         model: 'claude-sonnet-4-5-20250929',
         max_tokens: 10,
@@ -42,7 +43,7 @@ export async function checkAllAIStatus(): Promise<AIStatus> {
     if (!process.env.OPENAI_API_KEY) {
       results.openai.message = 'API key not found';
     } else {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ apiKey: process.env.OPENAI_API_KEY }));
       await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [{ role: 'user', content: 'test' }],

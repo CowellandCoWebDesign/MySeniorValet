@@ -1,4 +1,7 @@
-import { RateLimiterMemory } from 'rate-limiter-flexible';
+import type { RateLimiterMemory } from 'rate-limiter-flexible';
+import { lazyModule } from '../utils/lazy-load';
+// Lazy-loaded so rate-limiter-flexible doesn't block server boot.
+const rlf = lazyModule<typeof import('rate-limiter-flexible')>('rate-limiter-flexible');
 
 interface RateLimitConfig {
   points: number; // Number of requests
@@ -49,7 +52,7 @@ export class RateLimitManager {
     // Create rate limiters for each configuration
     Object.entries(this.DEFAULT_CONFIGS).forEach(([key, config]) => {
       this.configs.set(key, config);
-      this.limiters.set(key, new RateLimiterMemory({
+      this.limiters.set(key, new rlf.RateLimiterMemory({
         points: config.points,
         duration: config.duration,
         blockDuration: config.blockDuration

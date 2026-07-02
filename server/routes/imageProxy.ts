@@ -1,5 +1,7 @@
 import { Router } from 'express';
-import fetch, { type Response as FetchResponse } from 'node-fetch';
+import type { Response as FetchResponse } from 'node-fetch';
+import { lazyCallable } from '../utils/lazy-load';
+const fetch = lazyCallable<typeof import('node-fetch')['default']>('node-fetch');
 import { unwrapNextImageUrl } from '../utils/photo-urls';
 import { isSafePublicUrl } from '../utils/url-safety';
 

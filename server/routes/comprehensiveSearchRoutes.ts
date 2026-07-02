@@ -6,7 +6,8 @@
 import { Router } from 'express';
 import { comprehensiveSearchEngine, SearchFilters } from '../services/comprehensive-search-engine';
 import { cache } from '../cache';
-import fetch from 'node-fetch';
+import { lazyCallable } from '../utils/lazy-load';
+const fetch = lazyCallable<typeof import('node-fetch')['default']>('node-fetch');
 
 const router = Router();
 

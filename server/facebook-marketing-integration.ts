@@ -1,5 +1,6 @@
 // Facebook Marketing API Integration for Family-Targeted Advertising
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class FacebookMarketingIntegration {
   private accessToken: string;

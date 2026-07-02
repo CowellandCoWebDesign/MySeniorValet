@@ -14,12 +14,13 @@
 import { db } from '../db';
 import { communities, services, vendors, hospitals, educationalResources } from '@shared/schema';
 import { and, or, ilike, sql, eq, gte, lte, desc, asc } from 'drizzle-orm';
-import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from '../utils/lazy-load';
+import type Anthropic from '@anthropic-ai/sdk';
 
 // Initialize AI clients
-const openai = process.env.OPENAI_API_KEY ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY }) : null;
-const anthropic = process.env.ANTHROPIC_API_KEY ? new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY }) : null;
+const openai = process.env.OPENAI_API_KEY ? lazyClient<OpenAI>(() => new (requireModule('openai').default)({ apiKey: process.env.OPENAI_API_KEY })) : null;
+const anthropic = process.env.ANTHROPIC_API_KEY ? lazyClient<Anthropic>(() => new (requireModule('@anthropic-ai/sdk').default)({ apiKey: process.env.ANTHROPIC_API_KEY })) : null;
 
 /**
  * Query Intent Types - Comprehensive classification

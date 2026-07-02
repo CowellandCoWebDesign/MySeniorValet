@@ -45,3 +45,4 @@
 - [Input sanitizer vs URL params](input-sanitizer-skip-list.md) — global SQL-pattern stripper mangles `--` in image-proxy CDN URLs → blank photos; exempt pass-through-URL routes, don't weaken patterns.
 - [Serve-time photo liveness + honest proxy errors](photo-liveness-serving.md) — only 404/410/HTML-block = dead (403/429 = bot-protected, keep!); cache unknown probes short-TTL; image proxy must return real errors, never 200 placeholders.
 - [Community website write sanitization](community-website-writes.md) — every communities.website write must use sanitizeWebsiteUrl; storage.* is a chokepoint, direct db.insert/update must sanitize inline.
+- [Server boot lazy-loading](server-boot-lazy-loading.md) — esbuild --packages=external hoists ALL static externals pre-listen; heavy SDKs must use lazy-load.ts helpers, never module-eval construction.
