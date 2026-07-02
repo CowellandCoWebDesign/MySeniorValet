@@ -57,6 +57,16 @@ export interface UnifiedEnrichmentOptions {
   forceRefresh?: boolean;
   /** Optional website override (from discovery). Ignored when websiteProtected. */
   websiteUrl?: string;
+  /**
+   * Photo-aware cache gate (self-heal only). When set, a community whose stored
+   * photos are ALL filtered out at serve time (the "photo trap") is NOT treated
+   * as a permanent cache hit: the pipeline re-runs to re-discover photos while
+   * the never-downgrade rule preserves the good description. Callers passing
+   * this MUST enforce the self-heal backoff themselves (the /self-heal route
+   * does) so costs stay bounded — on-view fire-and-forget callers must NOT set
+   * it, or a trapped community would re-bill on every anonymous visit.
+   */
+  photoRediscovery?: boolean;
 }
 
 export interface UnifiedEnrichmentResult {
@@ -163,6 +173,41 @@ export function decideForcedRefreshPhotos(params: {
 }
 
 /**
+ * Pure photo-trap detector (extracted so it is unit-testable without DB/network).
+ *
+ * A community is "photo-trapped" when it holds stored photos but the serve-time
+ * stock/sibling filters remove ALL of them — visitors see zero photos forever
+ * because the no-expiry description cache blocks re-discovery. An EMPTY stored
+ * set is only exempt when a photo pass explicitly confirmed it
+ * (`lastPhotoEnrichment` set): that is the honest "no photos available" state.
+ */
+export function communityNeedsPhotoRediscovery(community: {
+  photos?: string[] | null;
+  photoAttributions?: string[] | null;
+  lastPhotoEnrichment?: Date | string | null;
+  name?: string | null;
+  city?: string | null;
+  website?: string | null;
+}): boolean {
+  const stored = (community.photos || []).filter(
+    (u: any) => typeof u === "string" && u.trim().length > 0,
+  );
+  if (stored.length === 0) {
+    // Confirmed no-photos state (a completed photo pass cleared/confirmed empty)
+    // is honest — not a trap. An empty set with NO photo pass ever run still
+    // needs discovery.
+    return !community.lastPhotoEnrichment;
+  }
+  const servable = CommunityPhotoEnrichment.filterPhotosForCommunity(
+    stored.filter((u) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u)),
+    community.name || "",
+    community.city || "",
+    community.website || "",
+  );
+  return servable.length === 0;
+}
+
+/**
  * In-flight coalescing: a detail-page load can fire multiple enrichment
  * triggers for the same community at once (on-view enrich + auto-verify).
  * Without a lock the runs race — both read "no photos", then the later
@@ -196,7 +241,7 @@ async function enrichCommunityUnifiedInner(
   communityId: number,
   opts: UnifiedEnrichmentOptions = {},
 ): Promise<UnifiedEnrichmentResult> {
-  const { forceRefresh = false, websiteUrl } = opts;
+  const { forceRefresh = false, websiteUrl, photoRediscovery = false } = opts;
 
   const [community] = await db
     .select()
@@ -208,24 +253,25 @@ async function enrichCommunityUnifiedInner(
     throw new Error(`Community ${communityId} not found`);
   }
 
+  // Website READ sanitation: the DB sometimes holds corrupted values (markdown
+  // wrappers like "**www.example.com**", bare domains with no protocol, junk
+  // placeholders). Sanitize on read so forced refresh and official-site scraping
+  // work even when the stored value is corrupted — a corrupted website must
+  // never block the manual escape hatch.
+  const storedWebsite = sanitizeWebsiteUrl(community.website);
+  if (community.website && !storedWebsite) {
+    console.log(`⚠️ Invalid website URL detected: "${community.website}" - ignoring`);
+  } else if (community.website && storedWebsite !== community.website) {
+    console.log(
+      `🧼 Sanitized corrupted stored website for "${community.name}": "${community.website}" → "${storedWebsite}"`,
+    );
+  }
   // Admin-protected website is authoritative: ignore any request-supplied
   // override and force the stored website as the scrape target.
-  let communityWebsite =
-    community.websiteProtected && community.website
-      ? community.website
-      : websiteUrl || community.website;
-  if (communityWebsite) {
-    const isValidUrl =
-      communityWebsite.startsWith("http://") ||
-      communityWebsite.startsWith("https://") ||
-      communityWebsite.startsWith("www.");
-    const invalidValues = ["no", "not", "n/a", "none", "null", "undefined", ""];
-    const isInvalid = invalidValues.includes(communityWebsite.toLowerCase().trim());
-    if (!isValidUrl || isInvalid) {
-      console.log(`⚠️ Invalid website URL detected: "${communityWebsite}" - ignoring`);
-      communityWebsite = undefined as any;
-    }
-  }
+  const communityWebsite: string | undefined =
+    community.websiteProtected && storedWebsite
+      ? storedWebsite
+      : sanitizeWebsiteUrl(websiteUrl) || storedWebsite || undefined;
 
   // ── Persisted-content cache (no expiry) ────────────────────────────────────
   // Serve persisted enrichment unless the caller forces a refresh. Content is
@@ -234,10 +280,23 @@ async function enrichCommunityUnifiedInner(
   // cache-serve when the DB holds a MEANINGFUL description (>80 chars). A short/
   // empty description means a prior enrichment produced nothing useful — re-run
   // to fill the gap instead of serving "Contact for details." forever.
+  // Photo-aware cache gate (self-heal only): a cache hit must not lock in a
+  // ZERO-servable-photo state. When the caller opted into photoRediscovery
+  // (the /self-heal route, which enforces the escalating backoff itself), a
+  // community whose stored photos are all filtered at serve time — or which has
+  // never had a photo pass — misses the cache so re-discovery runs. Regular
+  // callers keep the permanent cache-hit behavior so costs stay bounded.
   const lastEnriched = community.lastSuccessfulEnrichment;
   const hasMeaningfulDescription =
     !!community.description && community.description.trim().length > 80;
-  if (!forceRefresh && lastEnriched && hasMeaningfulDescription) {
+  const photoTrapMiss = photoRediscovery && communityNeedsPhotoRediscovery(community);
+  if (photoTrapMiss && !forceRefresh && lastEnriched && hasMeaningfulDescription) {
+    console.log(
+      `📸 Photo trap for "${community.name}" — cached description is good but ZERO stored photos ` +
+        `are servable; bypassing the no-expiry cache to re-discover photos`,
+    );
+  }
+  if (!forceRefresh && lastEnriched && hasMeaningfulDescription && !photoTrapMiss) {
     console.log(`⚡ Cache hit for "${community.name}" — serving persisted DB data (no expiry)`);
     const cachedPhotos = CommunityPhotoEnrichment.filterPhotosForCommunity(
       (community.photos || []).filter(
@@ -288,7 +347,7 @@ async function enrichCommunityUnifiedInner(
       name: community.name,
       city: community.city,
       state: community.state,
-      website: communityWebsite || community.website,
+      website: communityWebsite || storedWebsite || undefined,
     });
 
     if (pplx.summary && pplx.summary.length > 50) {
@@ -324,7 +383,7 @@ async function enrichCommunityUnifiedInner(
         amenities: [],
         pricingContext,
         photos: perplexityPhotos.map((p) => p.url),
-        sourceUrl: pplx.officialWebsite || communityWebsite || community.website || undefined,
+        sourceUrl: pplx.officialWebsite || communityWebsite || undefined,
         sourceType: "web_search",
         structured: true,
       } as any;
@@ -478,7 +537,6 @@ async function enrichCommunityUnifiedInner(
       (freeEnrichment as any).website ||
       freeEnrichment.sourceUrl ||
       communityWebsite ||
-      community.website ||
       undefined;
 
     const ddg = await searchDuckDuckGo(community.name, community.city, community.state);

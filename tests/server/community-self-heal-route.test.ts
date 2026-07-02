@@ -112,7 +112,16 @@ jest.mock('../../server/intelligent-pricing-system', () => ({ eliminateCallForPr
 jest.mock('../../server/real-data-analyzer', () => ({ realDataAnalyzer: {} }));
 jest.mock('../../server/services/internal-notifications', () => ({ internalNotifications: {} }));
 jest.mock('../../server/utils/photo-urls', () => ({ normalizePhotoUrls: (x: any) => x }));
-jest.mock('../../server/services/community-photo-enrichment', () => ({ CommunityPhotoEnrichment: {} }));
+// Gate 1 now counts SERVABLE photos through the serve-time filter (photo-trap
+// fix). Deterministic stand-in: any URL containing "other-facility" is treated
+// as belonging to a different community and filtered out.
+jest.mock('../../server/services/community-photo-enrichment', () => ({
+  CommunityPhotoEnrichment: {
+    isStockOrPlaceholderPhoto: (u: string) => typeof u === 'string' && u.includes('placeholder'),
+    filterPhotosForCommunity: (photos: string[]) =>
+      (photos || []).filter((u: string) => !u.includes('other-facility')),
+  },
+}));
 
 // --------------------------------------------------------------------------
 // Now import the router under test.
@@ -222,7 +231,46 @@ describe('POST /api/communities/:id/self-heal', () => {
     const res = await request(app).post('/api/communities/1/self-heal').send({});
     expect(res.status).toBe(200);
     expect(res.body.skipped).toBe(false);
-    expect(mockEnrich).toHaveBeenCalledWith(1);
+    expect(mockEnrich).toHaveBeenCalledWith(1, { photoRediscovery: true });
+  });
+
+  // ── Photo-trap regression: stored photos that are ALL filtered at serve time
+  //    must NOT count as content-complete (Task: fix photo re-enrichment trap).
+  it('runs re-discovery for a photo-trapped community (all stored photos filtered)', async () => {
+    mockLimit.mockResolvedValue([
+      communityRow({
+        // 2 stored photos, but both belong to a different facility → 0 servable.
+        photos: [
+          'https://cdn.example.com/other-facility-1.jpg',
+          'https://cdn.example.com/other-facility-2.jpg',
+        ],
+        description: 'x'.repeat(500), // rich description — the classic trap
+        enrichmentStatus: 'completed',
+      }),
+    ]);
+    mockEnrich.mockResolvedValue(enrichResult());
+    const res = await request(app).post('/api/communities/1/self-heal').send({});
+    expect(res.status).toBe(200);
+    expect(res.body.skipped).toBe(false);
+    // The pipeline must receive the photoRediscovery flag so the no-expiry
+    // description cache is bypassed for the trapped photo state.
+    expect(mockEnrich).toHaveBeenCalledWith(1, { photoRediscovery: true });
+  });
+
+  it('still skips when at least one stored photo is servable + description is long', async () => {
+    mockLimit.mockResolvedValue([
+      communityRow({
+        photos: [
+          'https://cdn.example.com/other-facility-1.jpg',
+          'https://cdn.example.com/real-photo.jpg', // survives the filter
+        ],
+        description: 'x'.repeat(500),
+      }),
+    ]);
+    const res = await request(app).post('/api/communities/1/self-heal').send({});
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ skipped: true, reason: 'already has content' });
+    expect(mockEnrich).not.toHaveBeenCalled();
   });
 
   // ── Gate 2: in-flight de-dup ───────────────────────────────────────────────
@@ -301,7 +349,7 @@ describe('POST /api/communities/:id/self-heal', () => {
     const res = await request(app).post('/api/communities/1/self-heal').send({});
     expect(res.status).toBe(200);
     expect(res.body.skipped).toBe(false);
-    expect(mockEnrich).toHaveBeenCalledWith(1);
+    expect(mockEnrich).toHaveBeenCalledWith(1, { photoRediscovery: true });
   });
 
   // ── Happy path: sparse community triggers enrichment ───────────────────────
@@ -311,7 +359,7 @@ describe('POST /api/communities/:id/self-heal', () => {
     const res = await request(app).post('/api/communities/1/self-heal').send({});
 
     expect(res.status).toBe(200);
-    expect(mockEnrich).toHaveBeenCalledWith(1);
+    expect(mockEnrich).toHaveBeenCalledWith(1, { photoRediscovery: true });
     expect(res.body.success).toBe(true);
     expect(res.body.skipped).toBe(false);
     expect(res.body.foundData).toBe(true);

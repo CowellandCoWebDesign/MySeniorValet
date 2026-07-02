@@ -1753,7 +1753,14 @@ export default function CommunityDetail() {
     ).length;
     const descLen = (community.description || '').trim().length;
     const isSparse = dbPhotoCount === 0 || descLen < 100;
-    const alreadyEnriched = (community as any).enrichmentStatus === 'completed';
+    // Photo-trap fix: enrichmentStatus === 'completed' must NOT block self-heal
+    // when the visitor sees ZERO photos (the API serves the filtered set, so a
+    // trapped community arrives here with photos: []). The server enforces the
+    // escalating backoff + terminal gates, so this call is a cheap no-op when
+    // re-discovery isn't due yet. 'completed' still short-circuits the
+    // description-only sparse case as before.
+    const alreadyEnriched =
+      (community as any).enrichmentStatus === 'completed' && dbPhotoCount > 0;
 
     if (!isSparse || alreadyEnriched) return;
 

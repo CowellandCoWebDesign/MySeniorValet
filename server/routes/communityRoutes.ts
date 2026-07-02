@@ -159,8 +159,11 @@ export function registerCommunityRoutes(app: Express) {
         .select({
           id: communities.id,
           name: communities.name,
+          city: communities.city,
+          website: communities.website,
           description: communities.description,
           photos: communities.photos,
+          lastPhotoEnrichment: communities.lastPhotoEnrichment,
           enrichmentStatus: communities.enrichmentStatus,
           enrichmentAttempts: communities.enrichmentAttempts,
           lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
@@ -174,8 +177,20 @@ export function registerCommunityRoutes(app: Express) {
       }
 
       // Gate 1 — content-complete: enrichment already ran and saved permanently.
-      const photoCount = (community.photos || []).filter(
-        (p: string) => typeof p === "string" && p.trim().length > 0,
+      // Photo-trap fix: count SERVABLE photos (what visitors actually see after
+      // the serve-time stock/sibling filters), not raw stored URLs. A community
+      // whose stored photos are all filtered out shows zero photos and must NOT
+      // count as content-complete, or it stays trapped forever.
+      const photoCount = CommunityPhotoEnrichment.filterPhotosForCommunity(
+        (community.photos || []).filter(
+          (p: string) =>
+            typeof p === "string" &&
+            p.trim().length > 0 &&
+            !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(p),
+        ),
+        community.name || "",
+        community.city || "",
+        community.website || "",
       ).length;
       const descLen = (community.description || "").trim().length;
       const isContentComplete = photoCount > 0 && descLen >= 100;
@@ -227,7 +242,10 @@ export function registerCommunityRoutes(app: Express) {
       );
 
       try {
-        const result = await enrichCommunityUnified(communityId);
+        // photoRediscovery: this is the ONLY caller allowed to bypass the
+        // no-expiry cache for photo-trapped communities — the gates above
+        // (in-flight de-dup, terminal no_data, escalating backoff) bound cost.
+        const result = await enrichCommunityUnified(communityId, { photoRediscovery: true });
 
         // "Found data" = real new content persisted this run, OR the community
         // already had meaningful content (cache hit). Anything else is a
