@@ -34,7 +34,21 @@ one orchestrator.
 > NOTE: This supersedes the older "paid-AI-free enrichment" mandate. Perplexity-
 > first is now correct; the free scraper is the booster/fallback, not the default.
 
+## Concurrency: coalesce runs per community
+`enrichCommunityUnified` holds an in-flight `Map<communityId, Promise>` and
+returns the existing promise to concurrent callers. Do NOT remove it.
+**Why:** one detail-page load fires MULTIPLE enrichment triggers at once
+(on-view fire-and-forget + client auto-verify). Un-coalesced, both runs read
+"no photos" and the later (often worse) result clobbered the better one —
+5 good photos were overwritten by a single Equal Housing Opportunity logo.
+
 ## Invariants any change MUST preserve
+- **Regulatory logos are not photos:** Equal Housing Opportunity / fair-housing
+  / ADA marks live on OFFICIAL community sites, so official-host corroboration
+  rescues them unless the filename blocklist rejects them (`equalhous`,
+  `fairhousing`, `hud-logo`, …). Serve-time filtering must run on EVERY detail
+  read path — comprehensive-data must use `cleanPhotoArray`, not just
+  `normalizePhotoUrls` (normalize repairs corruption but keeps junk images).
 - **Golden Data Rule:** only verified real values persist. Reject SPA boilerplate
   (nav/footer/cookie/JS-disabled), generic og/social-share images (one junk image
   across thousands of communities), AI-guessed/unreachable websites. Fall back to

@@ -24,3 +24,12 @@ self-healing because the city wasn't technically zero-result.
 - Home page triggers a non-forced discovery on URL-driven location loads (SEO deep links) and
   on the search event, plus a once-per-query non-forced re-trigger when the server reports
   sparse but returned nothing — all force:false so the server guard still decides.
+- Map-search page: auto-discovery fires when the bounds query settles at ≤2 rows (was ===0,
+  which never fired when a town's only community is hidden and 1 nearby result leaked in),
+  gated once per search key via ref (NEVER re-key on result length — infinite-loop history).
+- The "Discover more communities" CTA must key off the count the user SEES on the current
+  tab: the default "All" tab fuzzy-filters communities by the query text, so 7 nearby rows
+  can render as 1 visible match. Raw bounds count said "not sparse" while the user saw a
+  single result with no way to search deeper.
+- Discovered extras are merged AFTER db rows and deduped by id AND name+city before display
+  and before passing pins to the map.

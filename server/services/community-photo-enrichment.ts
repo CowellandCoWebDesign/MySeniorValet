@@ -119,6 +119,21 @@ export class CommunityPhotoEnrichment {
       'foot-twitter',
       'sns/', // social network service icons
       'badge',
+      // Regulatory/compliance logos (Equal Housing Opportunity, ADA, etc.) —
+      // official-host corroboration must not rescue these non-photos.
+      'equalhous',
+      'equal-hous',
+      'equal_hous',
+      'equalhousing',
+      'fairhousing',
+      'fair-housing',
+      'fair_housing',
+      'hud-logo',
+      'hud_logo',
+      'ada-logo',
+      'ada_logo',
+      'handicap-accessible',
+      'wheelchair-icon',
       'button',
       '.svg',
       'tracking',

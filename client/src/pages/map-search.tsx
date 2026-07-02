@@ -1463,8 +1463,11 @@ export default function MapSearch() {
   }, []);
 
   // Automatic web-discovery fallback: when the spatial DB search settles with
-  // ZERO results for a real location search, run Perplexity discovery ONCE for
-  // that location. The ref prevents re-firing within this session/search.
+  // ZERO or SPARSE (≤2) results for a real location search, run web discovery
+  // ONCE for that location. Sparse coverage matters: a town whose only DB
+  // community is hidden would otherwise show 1 nearby result and no way to
+  // find more. The ref gates one run per search key (never re-keyed on result
+  // length, which caused an infinite refetch loop in the past).
   useEffect(() => {
     const trimmed = (searchQuery || '').trim();
     if (
@@ -1472,13 +1475,13 @@ export default function MapSearch() {
       mapBounds &&
       !isLoadingCommunities &&
       !isFetchingCommunities &&
-      mapCommunities.length === 0 &&
+      mapCommunities.length <= 2 &&
       trimmed.length > 2
     ) {
       const key = trimmed.toLowerCase();
       if (discoveryRanForRef.current === key) return; // already ran for this search
       discoveryRanForRef.current = key;
-      console.log('🌐 No DB results — triggering Perplexity discovery for:', trimmed);
+      console.log(`🌐 Sparse DB coverage (${mapCommunities.length} results) — triggering web discovery for:`, trimmed);
       runDiscovery(trimmed, true);
     }
   }, [showBottomPanel, mapBounds, isLoadingCommunities, isFetchingCommunities, mapCommunities.length, searchQuery, runDiscovery]);
@@ -1533,12 +1536,40 @@ export default function MapSearch() {
     value !== 0 && value !== false && (Array.isArray(value) ? value.length > 0 : true)
   ).length;
 
-  // Communities to display in the list: real DB results when present, otherwise
-  // the web-discovered fallback results for uncovered locations.
+  // Web-discovered communities not already present in the DB results (deduped
+  // by id and by name+city) so sparse DB coverage can be supplemented without
+  // duplicate cards or map pins.
+  const discoveredExtras = useMemo(() => {
+    if (discoveredCommunities.length === 0) return [];
+    const seenIds = new Set(mapCommunities.map((c: any) => c.id));
+    const nameCityKey = (c: any) =>
+      `${String(c.name || '').toLowerCase().trim()}|${String(c.city || '').toLowerCase().trim()}`;
+    const seenNames = new Set(mapCommunities.map(nameCityKey));
+    return discoveredCommunities.filter(
+      (c: any) => !seenIds.has(c.id) && !seenNames.has(nameCityKey(c)),
+    );
+  }, [mapCommunities, discoveredCommunities]);
+
+  // Communities to display in the list: real DB results first, then any
+  // web-discovered extras appended (covers sparse-coverage locations).
   const displayedCommunities = useMemo(
-    () => (mapCommunities.length > 0 ? mapCommunities : discoveredCommunities),
-    [mapCommunities, discoveredCommunities]
+    () => (mapCommunities.length > 0 ? [...mapCommunities, ...discoveredExtras] : discoveredCommunities),
+    [mapCommunities, discoveredExtras, discoveredCommunities]
   );
+
+  // Fuzzy-filtered community list used by the "All" tab: only communities that
+  // actually match the search text. Hoisted so the sparse-coverage discovery
+  // CTA can key off what the user SEES on the current tab (searching a small
+  // town can fuzzy-match just 1 of many nearby results — that visible count,
+  // not the raw bounds count, is what should offer "Discover more").
+  const fuzzyFilteredCommunities = useMemo(() => {
+    const comms = displayedCommunities.filter((item: any) => !item.type || item.type === 'community');
+    return searchQuery ? fuzzySearch(comms, searchQuery, 10) : comms;
+  }, [displayedCommunities, searchQuery]);
+
+  // Community count visible on the CURRENT tab (All tab is fuzzy-filtered).
+  const visibleCommunityCount =
+    resultType === 'all' ? fuzzyFilteredCommunities.length : displayedCommunities.length;
 
   return (
     <div className="h-screen overflow-hidden flex flex-col bg-gray-50 dark:bg-gray-800 pb-16 md:pb-0">
@@ -2102,7 +2133,7 @@ export default function MapSearch() {
             vendors={vendors}
             healthcareServices={healthcareServices}
             resources={resources}
-            discoveredCommunities={mapCommunities.length === 0 ? discoveredCommunities : []}
+            discoveredCommunities={discoveredExtras}
             onCommunityClick={handleCommunityClick}
             onBoundsChange={handleMapBoundsChange}
             onClusterClick={handleClusterClick}
@@ -2324,10 +2355,13 @@ export default function MapSearch() {
           ) : (
             <div className="space-y-3">
               {/* Web-discovered results banner with on-demand re-run (Discovery Mode) */}
-              {mapCommunities.length === 0 && discoveredCommunities.length > 0 && (
+              {discoveredCommunities.length > 0 && (
                 <div className="flex items-center justify-between gap-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-3 py-2 text-sm">
                   <span className="text-blue-700 dark:text-blue-200 flex items-center gap-1.5">
-                    <Sparkles className="w-4 h-4" /> Web results via Discovery Mode — verify details with the community
+                    <Sparkles className="w-4 h-4" />
+                    {mapCommunities.length > 0
+                      ? 'Includes web results via Discovery Mode — verify details with the community'
+                      : 'Web results via Discovery Mode — verify details with the community'}
                   </span>
                   <Button
                     size="sm"
@@ -2340,6 +2374,28 @@ export default function MapSearch() {
                   </Button>
                 </div>
               )}
+              {/* Sparse-coverage CTA: few visible results and no web results yet */}
+              {discoveredCommunities.length === 0 &&
+                visibleCommunityCount <= 2 &&
+                searchQuery.trim().length > 2 && (
+                  <div className="flex items-center justify-between gap-2 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 px-3 py-2 text-sm">
+                    <span className="text-blue-700 dark:text-blue-200">
+                      {visibleCommunityCount === 0
+                        ? 'No matching communities in our database'
+                        : `Only ${visibleCommunityCount} matching ${visibleCommunityCount === 1 ? 'result' : 'results'} in our database`}
+                    </span>
+                    <Button
+                      size="sm"
+                      onClick={handleManualDiscovery}
+                      disabled={isDiscovering}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      data-testid="button-discover-more"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Discover more communities
+                    </Button>
+                  </div>
+                )}
               {/* Display results based on selected filter */}
               {resultType === 'communities' && displayedCommunities
                 .filter((item: any) => {
@@ -2441,14 +2497,9 @@ export default function MapSearch() {
                 <>
                   {/* Apply fuzzy search if there's a search query */}
                   {(() => {
-                    // Filter communities and apply fuzzy search if query exists
-                    const filteredCommunities = searchQuery 
-                      ? fuzzySearch(
-                          displayedCommunities.filter((item: any) => !item.type || item.type === 'community'),
-                          searchQuery,
-                          10
-                        )
-                      : displayedCommunities.filter((item: any) => !item.type || item.type === 'community');
+                    // Hoisted memo (fuzzyFilteredCommunities) keeps this list in
+                    // sync with the sparse-coverage discovery CTA above.
+                    const filteredCommunities = fuzzyFilteredCommunities;
                     
                     // Apply fuzzy search to other result types
                     const filteredVendors = searchQuery 

@@ -41,6 +41,8 @@ import {
 } from "./free-enrichment-service";
 import { perplexitySearchAPI, isSeniorLivingDirectoryHost } from "./perplexity-search-api";
 import { cleanCitationArtifacts, isReachableWebsite } from "../utils/data-quality";
+import { shouldUpgradeDescription } from "../utils/description-quality";
+import { sanitizeWebsiteUrl } from "../utils/website-url";
 import { normalizePhotoUrls } from "../utils/photo-urls";
 import { CommunityPhotoEnrichment } from "./community-photo-enrichment";
 import { geocodeWithNominatim } from "../nominatim-geocoding";
@@ -161,11 +163,36 @@ export function decideForcedRefreshPhotos(params: {
 }
 
 /**
+ * In-flight coalescing: a detail-page load can fire multiple enrichment
+ * triggers for the same community at once (on-view enrich + auto-verify).
+ * Without a lock the runs race — both read "no photos", then the later
+ * (often worse) result clobbers the better one. Concurrent callers now
+ * share one pipeline run per community.
+ */
+const inFlightEnrichments = new Map<number, Promise<UnifiedEnrichmentResult>>();
+
+/**
  * Run the unified enrichment pipeline for a single community and persist the
  * verified results. Returns a rich result every caller can map to its own
  * response shape.
  */
 export async function enrichCommunityUnified(
+  communityId: number,
+  opts: UnifiedEnrichmentOptions = {},
+): Promise<UnifiedEnrichmentResult> {
+  const existing = inFlightEnrichments.get(communityId);
+  if (existing) {
+    console.log(`⏳ Enrichment already in flight for community ${communityId} — coalescing`);
+    return existing;
+  }
+  const run = enrichCommunityUnifiedInner(communityId, opts).finally(() => {
+    inFlightEnrichments.delete(communityId);
+  });
+  inFlightEnrichments.set(communityId, run);
+  return run;
+}
+
+async function enrichCommunityUnifiedInner(
   communityId: number,
   opts: UnifiedEnrichmentOptions = {},
 ): Promise<UnifiedEnrichmentResult> {
@@ -682,7 +709,9 @@ export async function enrichCommunityUnified(
   let contentWasSaved = false;
 
   // Website — only persist a reachable URL; respect admin protection.
-  const candidateWebsite = cleanCitationArtifacts(officialWebsite);
+  // sanitizeWebsiteUrl strips markdown artifacts (**...**), adds the protocol
+  // to bare domains, and rejects junk values so corrupted URLs never persist.
+  const candidateWebsite = sanitizeWebsiteUrl(cleanCitationArtifacts(officialWebsite));
   if (community.websiteProtected && candidateWebsite && community.website !== candidateWebsite) {
     console.log(`🔒 Keeping admin-protected website for "${community.name}": ${community.website}`);
   } else if (candidateWebsite && community.website !== candidateWebsite) {
@@ -703,13 +732,12 @@ export async function enrichCommunityUnified(
     console.log(`✅ Updating phone to: ${candidatePhone}`);
   }
 
-  // Description — full content (no truncation); overwrite on forceRefresh.
+  // Description — full content (no truncation). Quality-based upgrade gate:
+  // replace stored template-pattern / legacy-1000-char-truncated descriptions
+  // with richer enrichment content, but NEVER downgrade real content on a
+  // non-forced (background) run. forceRefresh keeps overwriting as before.
   const candidateDescription = cleanCitationArtifacts(summary);
-  if (
-    candidateDescription &&
-    candidateDescription.length > 50 &&
-    (!community.description || community.description.length < 50 || forceRefresh)
-  ) {
+  if (shouldUpgradeDescription(community.description, candidateDescription, forceRefresh)) {
     updates.description = candidateDescription;
     hasUpdates = true;
     contentWasSaved = true;

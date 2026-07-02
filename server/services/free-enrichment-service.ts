@@ -10,8 +10,6 @@
  */
 
 import * as cheerio from "cheerio";
-import { lookup } from "dns/promises";
-import { isIP } from "net";
 import { webSearch } from "./search-provider";
 
 export interface FreeEnrichmentResult {
@@ -40,60 +38,8 @@ export interface FreeEnrichmentResult {
 const JINA_TIMEOUT_MS = 15_000;
 const GROQ_TIMEOUT_MS = 20_000;
 
-// ── SSRF guard (shared SSRF-safe URL logic) ──────────────────────────────────
-
-async function isSafePublicUrl(rawUrl: string): Promise<boolean> {
-  let parsed: URL;
-  try {
-    parsed = new URL(rawUrl);
-  } catch {
-    return false;
-  }
-
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return false;
-  const port = parsed.port ? parseInt(parsed.port, 10) : parsed.protocol === "https:" ? 443 : 80;
-  if (port !== 80 && port !== 443) return false;
-
-  const host = parsed.hostname.toLowerCase();
-  if (!host || host === "localhost" || host.endsWith(".local") || host.endsWith(".internal")) return false;
-
-  if (isIP(host)) return !isPrivateIp(host);
-
-  try {
-    const addresses = await lookup(host, { all: true });
-    if (!addresses.length) return false;
-    return addresses.every((a) => !isPrivateIp(a.address));
-  } catch {
-    return false;
-  }
-}
-
-function isPrivateIp(ip: string): boolean {
-  const v = isIP(ip);
-  if (v === 4) {
-    const p = ip.split(".").map(Number);
-    if (p.length !== 4 || p.some((n) => isNaN(n) || n < 0 || n > 255)) return true;
-    const [a, b] = p;
-    if (a === 0 || a === 10 || a === 127) return true;
-    if (a === 169 && b === 254) return true;
-    if (a === 172 && b >= 16 && b <= 31) return true;
-    if (a === 192 && b === 168) return true;
-    if (a === 100 && b >= 64 && b <= 127) return true;
-    if (a >= 224) return true;
-    return false;
-  }
-  if (v === 6) {
-    const lower = ip.toLowerCase();
-    if (lower === "::1" || lower === "::") return true;
-    const mapped = lower.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-    if (mapped) return isPrivateIp(mapped[1]);
-    if (/^fe[89ab]/.test(lower)) return true;
-    if (lower.startsWith("fc") || lower.startsWith("fd")) return true;
-    if (lower.startsWith("ff")) return true;
-    return false;
-  }
-  return true;
-}
+// ── SSRF guard (shared SSRF-safe URL logic, see server/utils/url-safety.ts) ──
+import { isSafePublicUrl } from "../utils/url-safety";
 
 // ── DuckDuckGo website finder ─────────────────────────────────────────────────
 

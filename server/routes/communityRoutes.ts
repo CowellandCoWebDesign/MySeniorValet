@@ -20,6 +20,8 @@ import { realDataAnalyzer } from "../real-data-analyzer";
 import { z } from "zod";
 import { internalNotifications } from "../services/internal-notifications";
 import { normalizePhotoUrls } from "../utils/photo-urls";
+import { filterLivePhotoUrls, persistPhotoRemovals } from "../utils/photo-liveness";
+import { sanitizeWebsiteUrl } from "../utils/website-url";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
 import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
@@ -1785,11 +1787,12 @@ export function registerCommunityRoutes(app: Express) {
       let normalizedPhotos = [];
       
       // Use existing database photos.
-      // normalizePhotoUrls repairs legacy corruption at serve time: it extracts
-      // URLs from object entries, decodes HTML entities (&amp; → &), and drops
-      // "[object Object]"/non-http junk so only fetchable URLs reach the proxy.
+      // cleanPhotoArray runs normalizePhotoUrls (repairs legacy corruption:
+      // object entries, &amp;-encoding, "[object Object]") AND drops junk
+      // non-photos (logos, badges, Equal Housing Opportunity marks, tracking
+      // pixels) so this route matches the by-id/by-slug photo filtering.
       if (community.photos && Array.isArray(community.photos) && community.photos.length > 0) {
-        const cleanUrls = normalizePhotoUrls(community.photos);
+        const cleanUrls = CommunityPhotoEnrichment.cleanPhotoArray(community.photos);
         console.log(`✅ Found ${community.photos.length} photos in database (${cleanUrls.length} valid after normalize)`);
         normalizedPhotos = cleanUrls.map(url =>
           url.startsWith('/uploads/')
@@ -1948,6 +1951,17 @@ export function registerCommunityRoutes(app: Express) {
       // stock/placeholder images) so the shown set equals the stored authentic set,
       // identical to the by-ID route.
       const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+
+      // Task #352: photo display honesty — drop malformed/confirmed-dead URLs at
+      // serve time (cached probes, time-budgeted) so the carousel count matches
+      // reality; persist removals so the stored list self-heals.
+      const slugLiveness = await filterLivePhotoUrls(enrichedCommunity.photos || []);
+      enrichedCommunity.photos = slugLiveness.live;
+      if (slugLiveness.confirmedDead.length > 0) {
+        persistPhotoRemovals(community.id, slugLiveness.confirmedDead).catch(() => {});
+      }
+      // Website read sanitation: never serve markdown-corrupted / junk values.
+      enrichedCommunity.website = sanitizeWebsiteUrl(enrichedCommunity.website);
 
       // Build comprehensiveData from the persisted enrichedContent column so the
       // frontend reads structured enrichment data identically to the by-ID route.
@@ -2172,6 +2186,17 @@ export function registerCommunityRoutes(app: Express) {
 
       // Filter photos through enrichment service to remove non-photo content
       const enrichedCommunity = await CommunityPhotoEnrichment.enrichCommunityIfNeeded(community);
+
+      // Task #352: photo display honesty — drop malformed/confirmed-dead URLs at
+      // serve time (cached probes, time-budgeted) so the carousel count matches
+      // reality; persist removals so the stored list self-heals.
+      const idLiveness = await filterLivePhotoUrls(enrichedCommunity.photos || []);
+      enrichedCommunity.photos = idLiveness.live;
+      if (idLiveness.confirmedDead.length > 0) {
+        persistPhotoRemovals(community.id, idLiveness.confirmedDead).catch(() => {});
+      }
+      // Website read sanitation: never serve markdown-corrupted / junk values.
+      enrichedCommunity.website = sanitizeWebsiteUrl(enrichedCommunity.website);
 
       // Build comprehensiveData from the persisted enrichedContent column so the
       // frontend can still read structured enrichment data without Perplexity.

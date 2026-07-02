@@ -552,7 +552,14 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
         setLocalVerificationReport(cachedData);
         setHasCachedData(true);
         if (onPhotosUpdate && cachedData.verificationResults?.webIntelligence?.images) {
-          onPhotosUpdate(cachedData.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
+          // Task #352: only CONFIRMED photos may reach the carousel — object
+          // entries need isAuthentic === true; plain strings are the persisted,
+          // already-verified DB set returned by the cached verify path.
+          const confirmedCached = cachedData.verificationResults.webIntelligence.images
+            .filter((img: any) => typeof img === 'string' || img?.isAuthentic === true)
+            .map((img: any) => (typeof img === 'string' ? img : img.image_url || img.url))
+            .filter(Boolean);
+          onPhotosUpdate(confirmedCached);
         }
       } else {
         console.log(`📭 No cached verification data for community ${community.id}, will auto-fetch for first-time visitor`);
@@ -595,10 +602,15 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
       setLocalVerificationReport(report);
       setHasCachedData(true);
       
-      // Update photos if found
+      // Update photos if found — Task #352: only CONFIRMED photos pass
+      // (isAuthentic === true for object entries; strings = persisted DB set).
       if (report.verificationResults?.webIntelligence?.images) {
         if (onPhotosUpdate) {
-          onPhotosUpdate(report.verificationResults.webIntelligence.images.map((img: any) => img.image_url || img));
+          const confirmedFresh = report.verificationResults.webIntelligence.images
+            .filter((img: any) => typeof img === 'string' || img?.isAuthentic === true)
+            .map((img: any) => (typeof img === 'string' ? img : img.image_url || img.url))
+            .filter(Boolean);
+          onPhotosUpdate(confirmedFresh);
         }
       }
       
@@ -1525,6 +1537,9 @@ export default function CommunityDetail() {
   // public self-heal endpoint ONCE per session to enrich it without admin login.
   const [selfHealAttempted, setSelfHealAttempted] = useState(false);
   const [isSelfHealing, setIsSelfHealing] = useState(false);
+  // Task #352: "Get the latest info" CTA — tracks the user-initiated fetch so
+  // we can show an honest failure state when nothing could be found.
+  const [latestInfoRequested, setLatestInfoRequested] = useState(false);
 
   // Human verification gate — checked once per browser session
   const [humanVerified, setHumanVerified] = useState<boolean>(() => {
@@ -2013,9 +2028,12 @@ export default function CommunityDetail() {
     const adminUploaded = (community?.photos || []).filter((p: string) => p.startsWith('/uploads/'));
     photos.push(...adminUploaded);
 
-    // 2. Verification / web-intelligence photos next
+    // 2. Verification / web-intelligence photos next — Task #352: only
+    // CONFIRMED photos (isAuthentic === true) may be injected; plain strings
+    // are the persisted, already-verified DB set from the cached verify path.
     if (verificationReport?.verificationResults?.webIntelligence?.images) {
       const verifiedPhotos = verificationReport.verificationResults.webIntelligence.images
+        .filter((img: any) => typeof img === 'string' || img?.isAuthentic === true)
         .map((img: any) => typeof img === 'string' ? img : img.image_url || img.url)
         .filter(Boolean);
       photos.push(...verifiedPhotos);
@@ -2632,7 +2650,7 @@ export default function CommunityDetail() {
                 // Open tour scheduler dialog directly
                 setIsScheduleTourOpen(true);
               }}
-              onRefetch={handleManualVerification}
+              onRefetch={isAuthenticated ? handleManualVerification : undefined}
               isRefetching={isVerifying}
             />
             {/* Remaining old card content removed - using CommunityDetailsHeader */}
@@ -3434,6 +3452,85 @@ export default function CommunityDetail() {
                   </CardContent>
                 </Card>
 
+                {/* Task #352: "Get the latest info" CTA — shown when the community
+                    is still blank after the automatic self-heal pass was skipped or
+                    failed, so families can explicitly ask for a live lookup. */}
+                {(() => {
+                  const descLen = (community.description || '').trim().length;
+                  const photoCount = (community.photos || []).filter(
+                    (p: any) => typeof p === 'string' && p.trim().length > 0,
+                  ).length;
+                  const isBlank = descLen < 80 && photoCount === 0;
+                  if (!isBlank || isSelfHealing) return null;
+
+                  if (isVerifying && latestInfoRequested) {
+                    return (
+                      <Card data-testid="card-latest-info-loading">
+                        <CardContent className="py-6">
+                          <MascotLoadingDisplay
+                            compact
+                            title="Getting the latest info"
+                            subtitle={`Searching verified sources for ${community.name}…`}
+                            processStages={["Searching official sources", "Verifying details", "Checking photos"]}
+                          />
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+
+                  if (latestInfoRequested && !isVerifying && descLen < 80) {
+                    return (
+                      <Card data-testid="card-latest-info-failed">
+                        <CardContent className="py-6 text-center">
+                          <Info className="w-6 h-6 mx-auto mb-2 text-amber-500" />
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            We couldn't find verified information for this community right now.
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Please contact the community directly for details.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+
+                  return (
+                    <Card data-testid="card-latest-info-cta">
+                      <CardContent className="py-6 text-center">
+                        <img src={valetMascot} alt="MySeniorValet valet" className="w-16 h-16 mx-auto mb-3 object-contain" />
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                          We don't have detailed information for this community yet.
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                          Ask our valet to search verified sources for the latest details and photos.
+                        </p>
+                        <Button
+                          onClick={() => {
+                            setLatestInfoRequested(true);
+                            handleManualVerification();
+                          }}
+                          disabled={isVerifying}
+                          data-testid="button-get-latest-info"
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Get the latest info
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
+                {/* Task #352: Live Intelligence ("What we found") moved here from the
+                    Floorplans tab — verified findings belong with Info & Tours. */}
+                <RealTimeInsights 
+                  key={`real-time-insights-${community.id}`}
+                  community={community}
+                  marketAnalysisData={marketAnalysisData} 
+                  onVerificationReport={setVerificationReport}
+                  onPhotosUpdate={undefined}
+                  verificationReport={verificationReport}
+                />
+
                 {/* Pricing History & Transparency - Moved to bottom of community tab */}
                 <PricingHistory 
                   communityId={community.id} 
@@ -3667,16 +3764,6 @@ export default function CommunityDetail() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Real-Time AI Insights - What We Found About */}
-                <RealTimeInsights 
-                  key={`real-time-insights-${community.id}`}
-                  community={community}
-                  marketAnalysisData={marketAnalysisData} 
-                  onVerificationReport={setVerificationReport}
-                  onPhotosUpdate={undefined}
-                  verificationReport={verificationReport}
-                />
 
                 {/* Reservation Information */}
                 <Card>

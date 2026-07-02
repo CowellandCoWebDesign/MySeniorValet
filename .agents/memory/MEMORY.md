@@ -1,4 +1,4 @@
-- [Community enrichment pipeline](free-enrichment-scraping.md) — ONE pipeline: enrichCommunityUnified (Perplexity-first → free scraper fallback → photo filter); keep SSRF guard, websiteProtected authority, 7-day cache, Golden-Data filters.
+- [Community enrichment pipeline](free-enrichment-scraping.md) — ONE unified pipeline (Perplexity-first, free-scraper fallback); keep SSRF guard, website authority, 7-day cache, Golden-Data filters.
 - [Email via Gmail connector](email-gmail-transport.md) — all mail routes through Replit google-mail (Workspace account), not SendGrid; @sendgrid/mail.send is monkeypatched.
 - [SendGrid silent email failures](sendgrid-silent-failures.md) — thread emailDelivered flags + log err.response.body; dedupe recipients (dup bcc → 400); validate enum fields before send (DB 23514 → opaque 500).
 - [Free Discovery pipeline](free-discovery-pipeline.md) — DuckDuckGo+Jina replaces Perplexity in all discovery paths; auto-triggers on zero DB results; healthcare/vendors stubs left as dead code.
@@ -41,3 +41,5 @@
 - [Jest React page/component tests](jest-react-page-tests.md) — asset mappers before aliases; ts-jest jsx:react-jsx; reuse real queryClient; mock wouter/react-markdown/contexts; hoisted mock-prefixed Proxy module mock.
 - [Community SEO slug resolution](community-slug-resolution.md) — inserts MUST set slug/city_slug/state_slug; never build name-<id> URLs; by-slug fallback tolerates trailing -id but never crosses city/state; nav via resolveCommunityNavigation.
 - [State discovery + synthetic cleanup runners](state-discovery-cleanup-runners.md) — per-state: discover via free pipeline + persist + recompute visibility; queue synthetic '{town}-senior-living.com' listings to removal_requests + synthetic_suspected flag; never delete; raw insert (removal_requests drift).
+- [Input sanitizer vs URL params](input-sanitizer-skip-list.md) — global SQL-pattern stripper mangles `--` in image-proxy CDN URLs → blank photos; exempt pass-through-URL routes, don't weaken patterns.
+- [Serve-time photo liveness + honest proxy errors](photo-liveness-serving.md) — only 404/410/HTML-block = dead (403/429 = bot-protected, keep!); cache unknown probes short-TTL; image proxy must return real errors, never 200 placeholders.

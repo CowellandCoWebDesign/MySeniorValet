@@ -12,3 +12,9 @@ node scripts/post-merge-migrations.mjs
 #   npx tsx server/scripts/classify-score-communities.ts            # apply to all
 #   npx tsx server/scripts/classify-score-communities.ts --dry-run  # report only
 # See server/scripts/classify-score-communities.ts for full options.
+#
+# Task #352 description/website backfill (idempotent, run once on the live DB):
+#   npx tsx server/scripts/backfill-descriptions-from-cache.ts            # apply
+#   npx tsx server/scripts/backfill-descriptions-from-cache.ts --dry-run  # report only
+# Upgrades template/truncated descriptions from cached enrichment summaries and
+# repairs corrupted website values (markdown artifacts, citation markers, junk).

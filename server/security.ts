@@ -184,7 +184,12 @@ export function sanitizeInput(req: Request, res: Response, next: NextFunction) {
     req.path === '/api/admin/communities/bulk-quality-action' ||
     req.path === '/api/admin/listing-flags/bulk' ||
     (req.method === 'POST' && /^\/api\/admin\/communities\/\d+\/hide$/.test(req.path)) ||
-    (req.method === 'DELETE' && /^\/api\/admin\/communities\/\d+$/.test(req.path))
+    (req.method === 'DELETE' && /^\/api\/admin\/communities\/\d+$/.test(req.path)) ||
+    // Image proxy: the `url` query param is a photo URL, never used in SQL.
+    // CDN filenames legitimately contain `--` (e.g. "the-pinnacle---pool.jpg");
+    // stripping it corrupts the URL and breaks the photo for every visitor.
+    // The route has its own validation + SSRF guard (see routes/imageProxy.ts).
+    (req.method === 'GET' && req.path === '/api/image-proxy')
   );
 
   const sanitize = (obj: any): any => {

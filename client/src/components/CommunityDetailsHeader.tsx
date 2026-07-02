@@ -11,7 +11,6 @@ import {
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { MessagingInterface } from "./MessagingInterface";
 import { useContactReveal } from "@/hooks/useContactReveal";
-import { useAuth } from "@/hooks/useAuth";
 import { composeLocationLine } from "@/lib/location";
 
 interface CommunityDetailsHeaderProps {
@@ -53,10 +52,6 @@ export function CommunityDetailsHeader({
 }: CommunityDetailsHeaderProps) {
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
   const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
-  // Admin-only: the Perplexity research/refresh button is hidden entirely for
-  // non-admins and logged-out visitors (paid path, cost control).
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
   
   // Determine if community needs data quality review
   const needsDataReview = () => {
@@ -369,8 +364,9 @@ export function CommunityDetailsHeader({
           </h1>
           {/* Action Buttons */}
           <div className="flex flex-shrink-0 items-center space-x-2">
-            {/* Re-fetch latest data — admin-only (paid Perplexity research) */}
-            {onRefetch && isAdmin && (
+            {/* Re-fetch latest data — parent gates this to signed-in users;
+                admins get the paid deep-research variant inside the handler. */}
+            {onRefetch && (
               <button
                 onClick={onRefetch}
                 disabled={isRefetching}
@@ -491,7 +487,10 @@ export function CommunityDetailsHeader({
                       community.state,
                     );
                     const zip = (community.zipCode || "").trim();
-                    return zip ? `${line} ${zip}` : line;
+                    // Only append the zip when the composed line doesn't
+                    // already contain it (stored addresses often end in the
+                    // zip — avoids "…CA 96003 96003").
+                    return zip && !line.includes(zip) ? `${line} ${zip}` : line;
                   })()}
                 </span>
               </div>

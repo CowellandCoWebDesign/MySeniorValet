@@ -300,13 +300,18 @@ export function EnhancedPhotoCarousel({
         // mixed-content / CSP / hotlink / CORS restrictions.
         const processedUrl = toProxiedUrl(url);
         
-        const photoData = {
+        // Task #352 photo honesty: object entries must be POSITIVELY confirmed
+        // (isAuthentic === true) to display. Unflagged/unconfirmed web photos
+        // are excluded — only persisted DB photos (strings) bypass this gate.
+        if (typeof img !== 'string' && img?.isAuthentic !== true) {
+          return;
+        }
+
+        allPhotos.push({
           url: processedUrl,
           source: 'web',
-          isAuthentic: typeof img === 'string' ? true : (img.isAuthentic !== false)
-        };
-        
-        allPhotos.push(photoData);
+          isAuthentic: true
+        });
       });
     }
     
