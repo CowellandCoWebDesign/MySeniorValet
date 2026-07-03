@@ -310,10 +310,17 @@ export class NLPSearchSystem {
     });
     
     // Extract state codes with context
+    // Ambiguous codes double as common English words ("near me", "in", "or") —
+    // only accept them when they appear UPPERCASE in the query
+    const ambiguousStateCodes = ['ME', 'IN', 'OR', 'OK', 'HI', 'LA', 'DE', 'AL', 'MA', 'ID', 'OH', 'PA', 'WA', 'MT', 'CO'];
     const contextMatches = expandedQuery.matchAll(stateCodeWithContextPattern);
     for (const match of contextMatches) {
       if (match[1]) {
-        locations.push(match[1].toUpperCase());
+        const code = match[1].toUpperCase();
+        if (ambiguousStateCodes.includes(code) && match[1] !== code) {
+          continue; // lowercase common word, not a state code
+        }
+        locations.push(code);
       }
     }
     
@@ -353,8 +360,10 @@ export class NLPSearchSystem {
         const location = match[1].trim();
         // Don't add if it's a business type word
         const businessTypes = ['hotel', 'hotels', 'restaurant', 'restaurants', 'pharmacy', 'store', 'shop', 'service', 'services'];
+        // Don't add non-location filler words ("near me", "in the area", etc.)
+        const nonLocationWords = ['me', 'us', 'you', 'here', 'there', 'my area', 'the area', 'town', 'my town', 'general'];
         const firstWord = location.split(' ')[0].toLowerCase();
-        if (!businessTypes.includes(firstWord) && location.length > 1) {
+        if (!businessTypes.includes(firstWord) && !nonLocationWords.includes(location.toLowerCase()) && location.length > 1) {
           locations.push(location);
         }
       }
@@ -403,6 +412,101 @@ export class NLPSearchSystem {
     entities.modifiers = modifiers.filter(mod => lowerQuery.includes(mod));
     
     return entities;
+  }
+  
+  /**
+   * State/Province full-name → code mapping (US + Canada)
+   */
+  private static readonly STATE_NAME_TO_CODE: Record<string, string> = {
+    'alabama': 'AL', 'alaska': 'AK', 'arizona': 'AZ', 'arkansas': 'AR',
+    'california': 'CA', 'colorado': 'CO', 'connecticut': 'CT', 'delaware': 'DE',
+    'florida': 'FL', 'georgia': 'GA', 'hawaii': 'HI', 'idaho': 'ID',
+    'illinois': 'IL', 'indiana': 'IN', 'iowa': 'IA', 'kansas': 'KS',
+    'kentucky': 'KY', 'louisiana': 'LA', 'maine': 'ME', 'maryland': 'MD',
+    'massachusetts': 'MA', 'michigan': 'MI', 'minnesota': 'MN', 'mississippi': 'MS',
+    'missouri': 'MO', 'montana': 'MT', 'nebraska': 'NE', 'nevada': 'NV',
+    'new hampshire': 'NH', 'new jersey': 'NJ', 'new mexico': 'NM', 'new york': 'NY',
+    'north carolina': 'NC', 'north dakota': 'ND', 'ohio': 'OH', 'oklahoma': 'OK',
+    'oregon': 'OR', 'pennsylvania': 'PA', 'rhode island': 'RI', 'south carolina': 'SC',
+    'south dakota': 'SD', 'tennessee': 'TN', 'texas': 'TX', 'utah': 'UT',
+    'vermont': 'VT', 'virginia': 'VA', 'washington': 'WA', 'west virginia': 'WV',
+    'wisconsin': 'WI', 'wyoming': 'WY', 'district of columbia': 'DC',
+    'ontario': 'ON', 'quebec': 'QC', 'québec': 'QC', 'british columbia': 'BC',
+    'alberta': 'AB', 'manitoba': 'MB', 'saskatchewan': 'SK', 'nova scotia': 'NS',
+    'new brunswick': 'NB', 'newfoundland and labrador': 'NL', 'prince edward island': 'PE',
+    'northwest territories': 'NT', 'yukon': 'YT', 'nunavut': 'NU'
+  };
+  
+  private static readonly STATE_CODES = new Set(Object.values(NLPSearchSystem.STATE_NAME_TO_CODE).concat(['DC']));
+  
+  /**
+   * Resolve extracted location entities into a concrete { city, state } filter.
+   * Handles entries like "TX", "texas", "dallas", "Dallas Texas", "Dallas, TX".
+   */
+  private resolveLocationFilter(locations?: string[]): { city?: string; state?: string } {
+    if (!locations?.length) return {};
+    
+    const nameToCode = NLPSearchSystem.STATE_NAME_TO_CODE;
+    const codes = NLPSearchSystem.STATE_CODES;
+    let city: string | undefined;
+    let state: string | undefined;
+    
+    for (const raw of locations) {
+      const loc = (raw || '').trim();
+      if (!loc) continue;
+      
+      // "City, ST" or "City, StateName"
+      const commaMatch = loc.match(/^([^,]+),\s*(.+)$/);
+      if (commaMatch) {
+        const cityPart = commaMatch[1].trim();
+        const statePart = commaMatch[2].trim();
+        const code = statePart.length === 2 && codes.has(statePart.toUpperCase())
+          ? statePart.toUpperCase()
+          : nameToCode[statePart.toLowerCase()];
+        if (code) {
+          state = state || code;
+          if (!city) city = cityPart;
+          continue;
+        }
+      }
+      
+      // Pure state code
+      if (loc.length === 2 && codes.has(loc.toUpperCase())) {
+        state = state || loc.toUpperCase();
+        continue;
+      }
+      
+      // Pure state/province name
+      const asStateCode = nameToCode[loc.toLowerCase()];
+      if (asStateCode) {
+        state = state || asStateCode;
+        continue;
+      }
+      
+      // City candidate — strip a trailing state name/code ("Dallas Texas" → "Dallas")
+      let cityCandidate = loc;
+      const words = cityCandidate.split(/\s+/);
+      for (let n = Math.min(3, words.length - 1); n >= 1; n--) {
+        const tail = words.slice(words.length - n).join(' ').toLowerCase();
+        if (nameToCode[tail]) {
+          state = state || nameToCode[tail];
+          cityCandidate = words.slice(0, words.length - n).join(' ');
+          break;
+        }
+        if (n === 1 && tail.length === 2 && codes.has(tail.toUpperCase())) {
+          state = state || tail.toUpperCase();
+          cityCandidate = words.slice(0, -1).join(' ');
+          break;
+        }
+      }
+      cityCandidate = cityCandidate.trim();
+      // Prefer the shortest clean candidate (avoids "dallas texas" beating "dallas")
+      if (cityCandidate.length > 1 && (!city || cityCandidate.length < city.length)) {
+        city = cityCandidate;
+      }
+    }
+    
+    return { city, state };
   }
   
   /**
@@ -565,7 +669,7 @@ export class NLPSearchSystem {
     for (const database of intent.databases) {
       switch (database) {
         case 'communities':
-          searchPromises.push(this.searchCommunities(query, intent, options));
+          searchPromises.push(this.searchCommunities(query, intent, options, originalQuery));
           break;
         case 'services':
           // When searching in Services tab, ONLY search the services table
@@ -596,7 +700,8 @@ export class NLPSearchSystem {
   private async searchCommunities(
     query: string,
     intent: QueryIntent,
-    options?: any
+    options?: any,
+    originalQuery?: string
   ): Promise<UnifiedSearchResult[]> {
     try {
       const conditions = [];
@@ -608,6 +713,8 @@ export class NLPSearchSystem {
       // Flag to determine if this is a location-specific search
       let isLocationSearch = false;
       let locationConditions: any[] = [];
+      // Facility-name tokens found alongside a location (relaxed if they yield 0 results)
+      let residualNameConditions: any[] = [];
       
       if (fullQuery.length > 0) {
         const orConditions = [];
@@ -642,15 +749,23 @@ export class NLPSearchSystem {
           }
         }
         
-        // Check if this is a city, state search from entities or query
-        let cityStateMatch = null;
+        // Check if this is a location-constrained search.
+        // Resolve city/state from ALL extracted location entities — this handles
+        // "assisted living in Dallas Texas" (entities: ["TX", "dallas", "Dallas Texas"]),
+        // not just strict "City, ST" patterns.
         let city = '';
         let state = '';
         
-        // First check if we have a location entity with city-state pattern
-        if (intent.entities?.locations && intent.entities.locations.length > 0) {
-          const locationEntity = intent.entities.locations[0];
-          cityStateMatch = locationEntity.match(/^([^,]+),\s*([A-Z]{2})$/i);
+        const resolvedLocation = this.resolveLocationFilter(intent.entities?.locations);
+        if (resolvedLocation.city || resolvedLocation.state) {
+          city = resolvedLocation.city || '';
+          state = resolvedLocation.state || '';
+          isLocationSearch = true;
+        }
+        
+        // If entities didn't resolve a location, check the raw query for "City, State"
+        if (!isLocationSearch) {
+          const cityStateMatch = fullQuery.match(/^([^,]+),\s*([^,]+)$/);
           if (cityStateMatch) {
             city = cityStateMatch[1].trim();
             state = cityStateMatch[2].trim().toUpperCase();
@@ -658,17 +773,7 @@ export class NLPSearchSystem {
           }
         }
         
-        // If no entity, check the raw query
-        if (!cityStateMatch) {
-          cityStateMatch = fullQuery.match(/^([^,]+),\s*([^,]+)$/);
-          if (cityStateMatch) {
-            city = cityStateMatch[1].trim();
-            state = cityStateMatch[2].trim().toUpperCase();
-            isLocationSearch = true;
-          }
-        }
-        
-        if (isLocationSearch && cityStateMatch) {
+        if (isLocationSearch && state) {
           
           // Build state conditions - be VERY specific for state codes
           const stateConditions = [];
@@ -711,13 +816,58 @@ export class NLPSearchSystem {
           }
           
           // For location searches, create strict conditions
-          conditions.push(
-            and(
-              ilike(communities.city, `%${city}%`),
-              or(...stateConditions)
-            )
+          if (city) {
+            conditions.push(
+              and(
+                ilike(communities.city, `%${city}%`),
+                or(...stateConditions)
+              )
+            );
+          } else {
+            // State-only search
+            conditions.push(or(...stateConditions));
+          }
+        } else if (isLocationSearch && city) {
+          // City-only search (no state resolved)
+          conditions.push(ilike(communities.city, `%${city}%`));
+        }
+        
+        // For location searches, check if the ORIGINAL query also contains
+        // facility-name words (e.g. "Oakmont Assisted Living of Redding").
+        // If so, constrain by those name tokens too (relaxed later if 0 results).
+        if (isLocationSearch && originalQuery) {
+          const genericWords = new Set([
+            'senior', 'living', 'care', 'community', 'communities', 'facility', 'facilities',
+            'home', 'homes', 'house', 'housing', 'apartment', 'apartments', 'residence', 'residences',
+            'assisted', 'independent', 'memory', 'nursing', 'skilled', 'hospice', 'retirement',
+            'respite', 'alzheimer', 'alzheimers', 'dementia', 'center', 'centers',
+            'near', 'me', 'in', 'at', 'of', 'and', 'the', 'for', 'a', 'an', 'with', 'to', 'from',
+            'best', 'top', 'cheapest', 'affordable', 'luxury', 'budget', 'good', 'great',
+            'place', 'places', 'options', 'option', 'help', 'find', 'looking', 'need', 'want',
+            'my', 'mom', 'dad', 'mother', 'father', 'parent', 'parents', 'grandma', 'grandpa'
+          ]);
+          const locationWords = new Set<string>();
+          (intent.entities?.locations || []).forEach(loc =>
+            loc.toLowerCase().split(/[\s,]+/).forEach(w => w && locationWords.add(w))
           );
-        } 
+          if (city) city.toLowerCase().split(/\s+/).forEach(w => locationWords.add(w));
+          if (state) {
+            locationWords.add(state.toLowerCase());
+            const fullName = Object.entries(NLPSearchSystem.STATE_NAME_TO_CODE)
+              .find(([, code]) => code === state)?.[0];
+            if (fullName) fullName.split(/\s+/).forEach(w => locationWords.add(w));
+          }
+          
+          const residualTokens = originalQuery
+            .toLowerCase()
+            .replace(/[^a-z0-9\s'-]/g, ' ')
+            .split(/\s+/)
+            .filter(w => w.length > 2 && !genericWords.has(w) && !locationWords.has(w) && !NLPSearchSystem.STATE_NAME_TO_CODE[w]);
+          
+          if (residualTokens.length > 0) {
+            residualNameConditions = residualTokens.map(t => ilike(communities.name, `%${t}%`));
+          }
+        }
         
         // Only add general search conditions if NOT a location search
         if (!isLocationSearch) {
@@ -759,7 +909,7 @@ export class NLPSearchSystem {
           
           // If no exact phrase match, try other approaches
           // PRIORITY 2: For multi-word searches, require ALL significant words to be present
-          if (searchTerms.length > 1 && !cityStateMatch) {
+          if (searchTerms.length > 1) {
             // Filter out common words that shouldn't be required
             const significantWords = searchTerms.filter(term => {
               const commonWords = ['the', 'of', 'and', 'in', 'at', 'for', 'on', 'to', 'a', 'an'];
@@ -831,22 +981,36 @@ export class NLPSearchSystem {
         );
       }
       
-      // Build query
-      let dbQuery = db.select().from(communities) as any;
-      if (conditions.length > 0) {
-        dbQuery = dbQuery.where(and(...conditions));
-      }
+      // Build and run query (helper so location searches can relax name constraints)
+      const runQuery = async (conds: any[]) => {
+        let dbQuery = db.select().from(communities) as any;
+        if (conds.length > 0) {
+          dbQuery = dbQuery.where(and(...conds));
+        }
+        
+        // Apply modifiers and sorting with improved relevance
+        if (intent.entities.modifiers?.includes('cheapest')) {
+          dbQuery = dbQuery.orderBy(asc(communities.rentPerMonth));
+        } else {
+          // For all searches, prioritize exact matches first
+          // Communities with names containing the full query should appear at top
+          dbQuery = dbQuery.orderBy(asc(communities.name));
+        }
+        
+        return dbQuery.limit(options?.limit || 50);
+      };
       
-      // Apply modifiers and sorting with improved relevance
-      if (intent.entities.modifiers?.includes('cheapest')) {
-        dbQuery = dbQuery.orderBy(asc(communities.rentPerMonth));
+      let results: any[];
+      if (residualNameConditions.length > 0) {
+        // Location search with extra facility-name words: try name+location first
+        results = await runQuery([...conditions, and(...residualNameConditions)]);
+        if (results.length === 0) {
+          // Name tokens were probably descriptive noise — relax to location-only
+          results = await runQuery(conditions);
+        }
       } else {
-        // For all searches, prioritize exact matches first
-        // Communities with names containing the full query should appear at top
-        dbQuery = dbQuery.orderBy(asc(communities.name));
+        results = await runQuery(conditions);
       }
-      
-      const results = await dbQuery.limit(options?.limit || 50);
       
       // Convert to unified format
       return results.map((community: any) => ({

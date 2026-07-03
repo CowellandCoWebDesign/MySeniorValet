@@ -46,3 +46,4 @@
 - [Serve-time photo liveness + honest proxy errors](photo-liveness-serving.md) — only 404/410/HTML-block = dead (403/429 = bot-protected, keep!); cache unknown probes short-TTL; image proxy must return real errors, never 200 placeholders.
 - [Community website write sanitization](community-website-writes.md) — every communities.website write must use sanitizeWebsiteUrl; storage.* is a chokepoint, direct db.insert/update must sanitize inline.
 - [Server boot lazy-loading](server-boot-lazy-loading.md) — esbuild --packages=external hoists ALL static externals pre-listen; heavy SDKs must use lazy-load.ts helpers, never module-eval construction.
+- [NLP location hard filter](nlp-location-filter.md) — resolve messy location entities to {city,state} and hard-filter; guard ambiguous codes ("near me"→ME) and keep residual facility-name tokens with relax-on-zero.
