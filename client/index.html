@@ -43,7 +43,12 @@
     
     <!-- Additional SEO -->
     <meta name="theme-color" content="#3B82F6" />
-    <link rel="canonical" href="https://www.myseniorvalet.com/" />
+    <!-- Canonical URL is managed per-page by the React app (react-helmet-async).
+         Do NOT add a static canonical here: a hardcoded homepage canonical leaks
+         onto every route and makes Google treat community/detail pages as
+         duplicates of the homepage ("Alternate page with proper canonical tag"),
+         dropping them from the index. Each page emits its own self-referential
+         canonical instead. -->
     <meta name="geo.region" content="US" />
     <meta name="geo.placename" content="United States" />
     <meta name="language" content="English" />

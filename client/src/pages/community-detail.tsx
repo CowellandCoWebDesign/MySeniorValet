@@ -11,6 +11,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
          ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera, Search, RefreshCw } from 'lucide-react';
 import type { Community } from '@shared/schema';
+import { getCommunityUrl } from '@/lib/community-url';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -1483,6 +1484,22 @@ export default function CommunityDetail() {
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
 
+  // SEO CANONICAL: emit exactly ONE self-referential canonical for this page.
+  // Origin must match the server SSR + sitemap byte-for-byte: absolute
+  // https://www.myseniorvalet.com origin, no trailing slash, canonical SEO slug path.
+  // - Once the community is loaded, build it from the stored slug columns via the
+  //   shared getCommunityUrl() helper (identical logic to SSR/sitemap).
+  // - While loading a slug-based route, derive it directly from the route params so
+  //   a correct canonical is present before data arrives.
+  // Google ignores pages with multiple canonicals, so this is the ONLY canonical
+  // rendered on community pages (the static homepage canonical was removed from index.html).
+  const CANONICAL_ORIGIN = 'https://www.myseniorvalet.com';
+  const canonicalUrl = community
+    ? `${CANONICAL_ORIGIN}${getCommunityUrl(community)}`
+    : (isSlugBased && stateParam && cityParam && slug
+        ? `${CANONICAL_ORIGIN}/senior-living/${stateParam}/${cityParam}/${slug}`
+        : undefined);
+
   // Favorites functionality - using hooks for persistence
   const { data: favorites = [], isLoading: favoritesLoading } = useFavorites();
   const addFavoriteMutation = useAddFavorite();
@@ -2134,6 +2151,7 @@ export default function CommunityDetail() {
           title={`Community ${id} - MySeniorValet`}
           description="Loading community information..."
           type="website"
+          canonical={canonicalUrl}
         />
         <div className="container mx-auto px-4 py-8">
           <div className="animate-pulse space-y-4">
@@ -2511,7 +2529,8 @@ export default function CommunityDetail() {
               community.description || 'Find verified pricing, amenities, photos, and care information.'
             }`;
           })()}
-          url={`/community/${community.id}`}
+          url={canonicalUrl || `/community/${community.id}`}
+          canonical={canonicalUrl}
           image={getCombinedPhotos()[0]?.image_url || getCombinedPhotos()[0] || '/default-community.jpg'}
           type="product"
           communityData={{

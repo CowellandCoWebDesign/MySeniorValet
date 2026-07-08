@@ -43,13 +43,19 @@ export function useSEO({
       metaKeywords.setAttribute('content', keywords);
     }
 
-    // Update canonical URL
+    // Update canonical URL.
+    // Only ever touch a NON-helmet canonical (react-helmet-async marks its own tags
+    // with data-rh). This prevents useSEO pages and Helmet pages (e.g. community
+    // detail) from ever producing two conflicting <link rel="canonical"> tags —
+    // Google ignores all canonicals on a page when more than one is present.
+    let createdCanonical: HTMLLinkElement | null = null;
     if (canonicalUrl) {
-      let linkCanonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+      let linkCanonical = document.querySelector('link[rel="canonical"]:not([data-rh])') as HTMLLinkElement;
       if (!linkCanonical) {
         linkCanonical = document.createElement('link');
         linkCanonical.setAttribute('rel', 'canonical');
         document.head.appendChild(linkCanonical);
+        createdCanonical = linkCanonical;
       }
       linkCanonical.href = canonicalUrl;
     }
@@ -68,6 +74,12 @@ export function useSEO({
     // Cleanup function to reset title on unmount
     return () => {
       document.title = 'MySeniorValet - Find Senior Living Communities Near You | 34,494+ Verified Locations';
+      // Remove the canonical tag this hook created so it can't linger in the DOM
+      // when navigating to a page that manages its own canonical via Helmet
+      // (avoids a stale second canonical during client-side navigation).
+      if (createdCanonical && createdCanonical.parentNode) {
+        createdCanonical.parentNode.removeChild(createdCanonical);
+      }
     };
   }, [title, description, keywords, canonicalUrl, ogImage]);
 }
