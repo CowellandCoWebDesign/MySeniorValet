@@ -2,14 +2,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tag, Percent, Calendar, TrendingDown, CheckCircle, Star, TrendingUp } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { CommunityGrid } from "@/components/CommunityGrid";
+import { CommunityGrid, type CommunityGridLayout } from "@/components/CommunityGrid";
 
 interface RedTagDealsProps {
   communityCount?: string;
   hideHeader?: boolean;
+  /** "grid" (directory default) or "slider" (home page rows). */
+  layout?: CommunityGridLayout;
 }
 
-export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsProps) {
+export function RedTagDeals({ communityCount, hideHeader = false, layout = "grid" }: RedTagDealsProps) {
   // Single source of truth: the admin-managed featured_communities table,
   // served by /api/featured-communities. No hardcoded IDs, no fabricated
   // marketing copy, no stock photos — real community data only.
@@ -84,6 +86,7 @@ export function RedTagDeals({ communityCount, hideHeader = false }: RedTagDealsP
         isLoading={isLoading}
         skeletonCount={8}
         emptyMessage="No featured communities available right now."
+        layout={layout}
       />
 
       {/* Additional Savings Info */}

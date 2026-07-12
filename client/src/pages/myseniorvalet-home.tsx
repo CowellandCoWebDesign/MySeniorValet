@@ -1728,9 +1728,9 @@ function HomeSectionRenderer() {
   if (isError && list.length === 0) {
     return (
       <>
-        <div className="mb-6"><RecentlyDiscoveredCommunities /></div>
+        <div className="mb-6"><RecentlyDiscoveredCommunities layout="slider" /></div>
         <div className="mb-6"><HUDCommunitiesSection /></div>
-        <div className="mb-6"><RedTagDeals hideHeader={true} /></div>
+        <div className="mb-6"><RedTagDeals hideHeader={true} layout="slider" /></div>
         <div className="mb-6"><GeographicCommunitiesSection /></div>
       </>
     );
@@ -1779,7 +1779,7 @@ function HomeSectionRenderer() {
         return (
           <section key={section.id} className={widgetPanelClass}>
             <WidgetHeader section={section} icon={Flame} accent="from-rose-500 to-red-600" />
-            <RedTagDeals hideHeader={true} />
+            <RedTagDeals hideHeader={true} layout="slider" />
           </section>
         );
       case 'care_spectrum':

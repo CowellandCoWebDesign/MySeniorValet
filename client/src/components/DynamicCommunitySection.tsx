@@ -118,7 +118,7 @@ export function DynamicCommunitySection({ section }: Props) {
   return (
     <section className={panelClass}>
       {Header}
-      <CommunityGrid communities={list} isLoading={isLoading} skeletonCount={8} />
+      <CommunityGrid communities={list} isLoading={isLoading} skeletonCount={8} layout="slider" />
     </section>
   );
 }

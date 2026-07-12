@@ -1,9 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { CommunityGrid } from '@/components/CommunityGrid';
+import { CommunityGrid, type CommunityGridLayout } from '@/components/CommunityGrid';
 
-export function RecentlyDiscoveredCommunities() {
+interface RecentlyDiscoveredCommunitiesProps {
+  /** "grid" (default, used off the home page) or "slider" (home page rows). */
+  layout?: CommunityGridLayout;
+}
+
+export function RecentlyDiscoveredCommunities({ layout = "grid" }: RecentlyDiscoveredCommunitiesProps) {
   // Fetch recently discovered communities
   const { data: recentCommunities = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/communities/recently-discovered', { limit: 100 }],
@@ -40,6 +45,7 @@ export function RecentlyDiscoveredCommunities() {
         communities={recentCommunities}
         isLoading={isLoading}
         emptyMessage="No recently discovered communities yet. Search for communities to populate this section!"
+        layout={layout}
       />
     </div>
   );

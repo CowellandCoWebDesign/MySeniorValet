@@ -49,6 +49,7 @@ export function FeaturedAndCoastalSection() {
           communities={premiumCommunities}
           isLoading={isLoading}
           emptyMessage="No featured communities available right now."
+          layout="slider"
         />
 
         {/* More Featured Communities */}
@@ -72,6 +73,7 @@ export function FeaturedAndCoastalSection() {
             isLoading={isLoading}
             skeletonCount={4}
             emptyMessage="No additional communities to show."
+            layout="slider"
           />
         </div>
       </div>
