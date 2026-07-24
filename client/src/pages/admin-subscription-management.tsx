@@ -869,7 +869,7 @@ export default function AdminSubscriptionManagement() {
                 <CardContent className="space-y-4">
                   <div>
                     <Label>Webhook Endpoint</Label>
-                    <Input value="https://myseniorvalet.com/api/webhooks/stripe" readOnly />
+                    <Input value="https://www.myseniorvalet.com/api/webhooks/stripe" readOnly />
                   </div>
                   <div>
                     <Label>Test Mode</Label>

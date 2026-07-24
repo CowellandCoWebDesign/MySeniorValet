@@ -103,7 +103,7 @@ export async function sendVendorWelcomeEmail(data: VendorSignupEmailData) {
             </ol>
             
             <div style="text-align: center;">
-              <a href="https://myseniorvalet.com/vendor/dashboard" class="button">Access Your Dashboard</a>
+              <a href="https://www.myseniorvalet.com/vendor/dashboard" class="button">Access Your Dashboard</a>
             </div>
             
             <p>If you have any questions, our vendor support team is here to help:</p>

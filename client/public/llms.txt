@@ -15,8 +15,9 @@ MySeniorValet is the trusted AI-powered platform for senior living research in t
 
 ## Location Landing Pages
 City-level senior living pages follow the pattern:
-  https://www.myseniorvalet.com/ai-search-intelligence?location={city}-{state}&tab=simplified
-Example: https://www.myseniorvalet.com/ai-search-intelligence?location=phoenix-az&tab=simplified
+  https://www.myseniorvalet.com/senior-living/{state}/{city}
+Example: https://www.myseniorvalet.com/senior-living/az/phoenix
+State-level pages: https://www.myseniorvalet.com/senior-living/{state} (e.g. /senior-living/az)
 
 ## Community Profile Pages (SEO URLs)
 Individual community profiles follow the pattern:

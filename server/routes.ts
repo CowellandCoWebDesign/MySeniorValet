@@ -31,7 +31,6 @@ import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
 import imageProxyRoutes from './routes/imageProxy';
 import serviceIntelligenceRoutes from './routes/service-intelligence';
-import locationPagesRoutes from './routes/location-pages';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
@@ -895,9 +894,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/sitemap-locations.xml', sitemapGenerator.generateLocationsSitemap); 
   app.get('/sitemap-communities-:page.xml', sitemapGenerator.generateCommunitiesSitemap);
   
-  // SEO Location Pages (hybrid approach - real content for bots, redirect for users)
+  // SEO Location Pages (hybrid approach - pre-rendered HTML for bots, SPA for users
+  // at the SAME canonical URL — no redirect away from /senior-living/... paths)
   const seoLocationPages = await import('./routes/seo-location-pages');
   app.get('/senior-living/:state/:city?', seoLocationPages.renderSEOLocationPage);
+
+  // Legacy query-string location URLs collapse onto the clean path family:
+  // /ai-search-intelligence?location=... 301s to /senior-living/{state}/{city?}
+  // when the location resolves; unresolvable values fall through to the SPA,
+  // which self-canonicalizes to /ai-search-intelligence (no params).
+  app.get('/ai-search-intelligence', (req, res, next) => {
+    const locationParam = req.query.location;
+    if (typeof locationParam === 'string' && locationParam.trim()) {
+      const cleanPath = seoLocationPages.resolveLocationParamToPath(locationParam);
+      if (cleanPath) {
+        return res.redirect(301, cleanPath);
+      }
+    }
+    return next();
+  });
+
+  // Legacy /location/:slug URLs 301 straight to the clean path (single hop).
+  app.get('/location/:slug', (req, res) => {
+    const cleanPath = seoLocationPages.resolveLocationParamToPath(req.params.slug);
+    return res.redirect(301, cleanPath || '/ai-search-intelligence');
+  });
 
   // /directory/:location is a legacy URL that was published as a canonical target.
   // It has no standalone content (only a JS redirect shell on the client).
@@ -976,9 +997,6 @@ Disallow: /`;
   // Register image proxy for CORS handling
   app.use(imageProxyRoutes);
   app.use(serviceIntelligenceRoutes);
-  
-  // Register location pages for SEO
-  app.use(locationPagesRoutes);
   
   // Virtual Tour Detection Routes
   const { default: virtualTourRoutes } = await import('./routes/virtualTourRoutes');

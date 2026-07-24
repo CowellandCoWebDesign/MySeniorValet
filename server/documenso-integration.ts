@@ -92,7 +92,7 @@ export class DocumensoService {
       baseUrl: process.env.DOCUMENSO_BASE_URL || 'https://docs.myseniorvalet.com',
       apiKey: process.env.DOCUMENSO_API_KEY || '',
       workspaceId: process.env.DOCUMENSO_WORKSPACE_ID,
-      webhookUrl: process.env.DOCUMENSO_WEBHOOK_URL || 'https://myseniorvalet.com/api/documenso/webhook'
+      webhookUrl: process.env.DOCUMENSO_WEBHOOK_URL || 'https://www.myseniorvalet.com/api/documenso/webhook'
     };
     
     if (!this.config.apiKey) {
@@ -205,7 +205,7 @@ export class DocumensoService {
         ],
         expiresIn: 30, // 30 days to sign
         message: `Please review and sign your lease agreement for ${community.name}`,
-        redirectUrl: `https://myseniorvalet.com/lease-signed?community=${communityId}`
+        redirectUrl: `https://www.myseniorvalet.com/lease-signed?community=${communityId}`
       };
       
       const response = await axios.post(
@@ -286,7 +286,7 @@ export class DocumensoService {
         fields: this.generateHealthcareDirectiveFields(recipients.length),
         expiresIn: 60, // 60 days to sign
         message: 'Please review and sign this healthcare directive document',
-        redirectUrl: 'https://myseniorvalet.com/healthcare-directive-signed'
+        redirectUrl: 'https://www.myseniorvalet.com/healthcare-directive-signed'
       };
       
       const response = await axios.post(

@@ -1001,7 +1001,7 @@ router.post("/groups/:groupId/invite", async (req: Request, res: Response) => {
     // Get the base URL for the invitation link
     const baseUrl = process.env.REPLIT_DEV_DOMAIN 
       ? `https://${process.env.REPLIT_DEV_DOMAIN}` 
-      : process.env.BASE_URL || 'https://myseniorvalet.com';
+      : process.env.BASE_URL || 'https://www.myseniorvalet.com';
     
     const inviteLink = `${baseUrl}/family-collaboration?join=${inviteCode}`;
     

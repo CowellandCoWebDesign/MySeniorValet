@@ -128,7 +128,7 @@ export async function notifySuperAdmin(
 
 // Send password reset email
 export async function sendPasswordResetEmail(email: string, resetToken: string): Promise<boolean> {
-  const resetUrl = `${process.env.REPLIT_DEPLOYMENT_URL || 'https://myseniorvalet.com'}/reset-password?token=${resetToken}`;
+  const resetUrl = `${process.env.REPLIT_DEPLOYMENT_URL || 'https://www.myseniorvalet.com'}/reset-password?token=${resetToken}`;
   
   return await sendEmail({
     to: email,
@@ -257,8 +257,8 @@ export async function sendMessageNotification(params: MessageNotificationParams)
     
     // Prepare and send email
     const dashboardUrl = params.recipientType === 'user' 
-      ? 'https://myseniorvalet.com/dashboard/messages'
-      : 'https://myseniorvalet.com/community-dashboard/messages';
+      ? 'https://www.myseniorvalet.com/dashboard/messages'
+      : 'https://www.myseniorvalet.com/community-dashboard/messages';
     
     const emailSent = await sendEmail({
       to: recipientEmail,

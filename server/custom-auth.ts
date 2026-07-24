@@ -52,7 +52,7 @@ const REPLIT_JANEWAY_PATTERN = /^[a-z0-9-]+\.janeway\.replit\.dev$/;
 function getSecureBaseUrl(requestHost?: string): string {
   // In production, always use the canonical domain
   if (process.env.NODE_ENV === 'production') {
-    return 'https://myseniorvalet.com';
+    return 'https://www.myseniorvalet.com';
   }
   
   // In development, validate the host

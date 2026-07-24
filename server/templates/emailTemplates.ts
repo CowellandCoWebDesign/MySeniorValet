@@ -48,9 +48,9 @@ const baseTemplate = (content: string, footerMessage?: string) => `
               </p>
               <p style="color: #9ca3af; font-size: 12px; margin: 10px 0;">
                 © 2025 MySeniorValet. All rights reserved.<br>
-                <a href="https://myseniorvalet.com/privacy" style="color: #9ca3af;">Privacy Policy</a> | 
-                <a href="https://myseniorvalet.com/terms" style="color: #9ca3af;">Terms of Service</a> | 
-                <a href="https://myseniorvalet.com/unsubscribe" style="color: #9ca3af;">Unsubscribe</a>
+                <a href="https://www.myseniorvalet.com/privacy" style="color: #9ca3af;">Privacy Policy</a> | 
+                <a href="https://www.myseniorvalet.com/terms" style="color: #9ca3af;">Terms of Service</a> | 
+                <a href="https://www.myseniorvalet.com/unsubscribe" style="color: #9ca3af;">Unsubscribe</a>
               </p>
             </td>
           </tr>
@@ -143,10 +143,10 @@ export const welcomeEmail: EmailTemplate = {
     <div style="background-color: #fef3c7; border: 2px solid ${BRAND_SECONDARY}; border-radius: 8px; padding: 20px; margin: 30px 0; text-align: center;">
       <h3 style="color: #92400e; margin: 0 0 15px 0;">🎯 Start Your Journey - Choose Your Path:</h3>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
-        <a href="https://myseniorvalet.com/search" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Find Communities & Tours</a>
-        <a href="https://myseniorvalet.com/marketplace" style="background-color: ${BRAND_SECONDARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Move-In Services</a>
-        <a href="https://myseniorvalet.com/hospitals" style="background-color: #ef4444; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Healthcare & Care</a>
-        <a href="https://myseniorvalet.com/resources" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Resources & Benefits</a>
+        <a href="https://www.myseniorvalet.com/search" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Find Communities & Tours</a>
+        <a href="https://www.myseniorvalet.com/marketplace" style="background-color: ${BRAND_SECONDARY}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Move-In Services</a>
+        <a href="https://www.myseniorvalet.com/hospitals" style="background-color: #ef4444; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Healthcare & Care</a>
+        <a href="https://www.myseniorvalet.com/resources" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 12px; text-decoration: none; border-radius: 6px; display: block;">Resources & Benefits</a>
       </div>
     </div>
     
@@ -160,7 +160,7 @@ export const welcomeEmail: EmailTemplate = {
       </p>
     </div>
     
-    ${buttonHTML('Explore Your Dashboard', 'https://myseniorvalet.com/dashboard')}
+    ${buttonHTML('Explore Your Dashboard', 'https://www.myseniorvalet.com/dashboard')}
     
     <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 30px;">
       <strong>Need help getting started?</strong><br>
@@ -299,7 +299,7 @@ export const communitySignupEmail: EmailTemplate = {
       </p>
     </div>
     
-    ${buttonHTML('Access Your Dashboard', 'https://myseniorvalet.com/community-dashboard')}
+    ${buttonHTML('Access Your Dashboard', 'https://www.myseniorvalet.com/community-dashboard')}
     
     <div style="background-color: #fef3c7; border-radius: 6px; padding: 20px; margin: 30px 0;">
       <h4 style="color: #92400e; margin: 0 0 10px 0;">📋 Next Steps:</h4>
@@ -377,7 +377,7 @@ export const vendorSignupEmail: EmailTemplate = {
       </p>
     </div>
     
-    ${buttonHTML('Set Up Your Vendor Profile', 'https://myseniorvalet.com/vendor-dashboard', BRAND_SECONDARY)}
+    ${buttonHTML('Set Up Your Vendor Profile', 'https://www.myseniorvalet.com/vendor-dashboard', BRAND_SECONDARY)}
     
     <div style="background-color: #ede9fe; border-radius: 6px; padding: 20px; margin: 30px 0;">
       <h4 style="color: #4c1d95; margin: 0 0 10px 0;">🚀 Quick Start Guide:</h4>
@@ -435,7 +435,7 @@ export const paymentConfirmationEmail: EmailTemplate = {
       </table>
     </div>
     
-    ${buttonHTML('Download Invoice', `https://myseniorvalet.com/invoices/${data.invoiceNumber}`)}
+    ${buttonHTML('Download Invoice', `https://www.myseniorvalet.com/invoices/${data.invoiceNumber}`)}
     
     <p style="color: #6b7280; font-size: 14px; text-align: center; margin-top: 30px;">
       This receipt has been emailed to you for your records.<br>
@@ -469,7 +469,7 @@ export const subscriptionRenewalReminderEmail: EmailTemplate = {
     </p>
     
     <div style="display: flex; gap: 10px; justify-content: center; margin: 30px 0;">
-      ${buttonHTML('Manage Subscription', 'https://myseniorvalet.com/account/subscription')}
+      ${buttonHTML('Manage Subscription', 'https://www.myseniorvalet.com/account/subscription')}
     </div>
     
     <p style="color: #6b7280; font-size: 14px; text-align: center;">
@@ -517,7 +517,7 @@ export const tourScheduledEmail: EmailTemplate = {
       </div>
     </div>
     
-    ${buttonHTML('Add to Calendar', `https://myseniorvalet.com/tours/calendar-event/${data.communityName}`, BRAND_PRIMARY)}
+    ${buttonHTML('Add to Calendar', `https://www.myseniorvalet.com/tours/calendar-event/${data.communityName}`, BRAND_PRIMARY)}
     
     <div style="background-color: #f0f9ff; border-left: 4px solid ${BRAND_PRIMARY}; padding: 20px; margin: 30px 0;">
       <h4 style="color: ${BRAND_PRIMARY}; margin: 0 0 10px 0;">💡 Tour Preparation Tips:</h4>
@@ -532,7 +532,7 @@ export const tourScheduledEmail: EmailTemplate = {
     </div>
     
     <p style="color: #6b7280; font-size: 14px; text-align: center;">
-      Need to reschedule? <a href="https://myseniorvalet.com/tours/manage" style="color: ${BRAND_PRIMARY};">Manage your tours here</a><br>
+      Need to reschedule? <a href="https://www.myseniorvalet.com/tours/manage" style="color: ${BRAND_PRIMARY};">Manage your tours here</a><br>
       We'll send you a reminder 24 hours before your tour.
     </p>
   `)
@@ -574,7 +574,7 @@ export const tourReminderEmail: EmailTemplate = {
     </div>
     
     <p style="color: #6b7280; font-size: 14px; text-align: center;">
-      Can't make it? Please <a href="https://myseniorvalet.com/tours/reschedule" style="color: ${BRAND_PRIMARY};">reschedule here</a> or call the community directly.
+      Can't make it? Please <a href="https://www.myseniorvalet.com/tours/reschedule" style="color: ${BRAND_PRIMARY};">reschedule here</a> or call the community directly.
     </p>
   `)
 };
@@ -615,7 +615,7 @@ export const onboardingDay3Email: EmailTemplate = {
       </div>
     </div>
     
-    ${buttonHTML('Check Your Benefits Eligibility', 'https://myseniorvalet.com/resources', BRAND_SUCCESS)}
+    ${buttonHTML('Check Your Benefits Eligibility', 'https://www.myseniorvalet.com/resources', BRAND_SUCCESS)}
     
     <div style="background-color: #fef3c7; border-radius: 6px; padding: 20px; margin: 30px 0;">
       <h4 style="color: #92400e; margin: 0 0 10px 0;">📊 Real Family Savings Examples:</h4>
@@ -687,8 +687,8 @@ export const onboardingDay7Email: EmailTemplate = {
     </div>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 30px 0;">
-      <a href="https://myseniorvalet.com/perfect-match" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 14px; text-decoration: none; border-radius: 6px; text-align: center; display: block;">Get AI Matches</a>
-      <a href="https://myseniorvalet.com/schedule-tours" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 14px; text-decoration: none; border-radius: 6px; text-align: center; display: block;">Schedule Tours</a>
+      <a href="https://www.myseniorvalet.com/perfect-match" style="background-color: ${BRAND_PRIMARY}; color: white; padding: 14px; text-decoration: none; border-radius: 6px; text-align: center; display: block;">Get AI Matches</a>
+      <a href="https://www.myseniorvalet.com/schedule-tours" style="background-color: ${BRAND_SUCCESS}; color: white; padding: 14px; text-decoration: none; border-radius: 6px; text-align: center; display: block;">Schedule Tours</a>
     </div>
     
     <p style="color: #6b7280; font-size: 14px; text-align: center;">
@@ -748,7 +748,7 @@ export const comprehensiveServicesEmail: EmailTemplate = {
             </ul>
           </div>
         </div>
-        <a href="https://myseniorvalet.com/search" style="display: inline-block; margin-top: 10px; color: ${BRAND_PRIMARY};">Start Your Search →</a>
+        <a href="https://www.myseniorvalet.com/search" style="display: inline-block; margin-top: 10px; color: ${BRAND_PRIMARY};">Start Your Search →</a>
       </div>
       
       <!-- 2. Move-In Services (Vendor Marketplace) -->
@@ -776,7 +776,7 @@ export const comprehensiveServicesEmail: EmailTemplate = {
             </ul>
           </div>
         </div>
-        <a href="https://myseniorvalet.com/marketplace" style="display: inline-block; margin-top: 10px; color: ${BRAND_SECONDARY};">Browse Services →</a>
+        <a href="https://www.myseniorvalet.com/marketplace" style="display: inline-block; margin-top: 10px; color: ${BRAND_SECONDARY};">Browse Services →</a>
       </div>
       
       <!-- 3. Healthcare & Care Services -->
@@ -804,7 +804,7 @@ export const comprehensiveServicesEmail: EmailTemplate = {
             </ul>
           </div>
         </div>
-        <a href="https://myseniorvalet.com/hospitals" style="display: inline-block; margin-top: 10px; color: #ef4444;">Find Healthcare →</a>
+        <a href="https://www.myseniorvalet.com/hospitals" style="display: inline-block; margin-top: 10px; color: #ef4444;">Find Healthcare →</a>
       </div>
       
       <!-- 4. Resources, Support & Financial Benefits -->
@@ -832,7 +832,7 @@ export const comprehensiveServicesEmail: EmailTemplate = {
             </ul>
           </div>
         </div>
-        <a href="https://myseniorvalet.com/resources" style="display: inline-block; margin-top: 10px; color: ${BRAND_SUCCESS};">Check Benefits →</a>
+        <a href="https://www.myseniorvalet.com/resources" style="display: inline-block; margin-top: 10px; color: ${BRAND_SUCCESS};">Check Benefits →</a>
       </div>
       
     </div>
@@ -860,7 +860,7 @@ export const comprehensiveServicesEmail: EmailTemplate = {
       </div>
     </div>
     
-    ${buttonHTML('Access Everything Now', 'https://myseniorvalet.com/dashboard', BRAND_PRIMARY)}
+    ${buttonHTML('Access Everything Now', 'https://www.myseniorvalet.com/dashboard', BRAND_PRIMARY)}
     
     <div style="background-color: #f9fafb; border-radius: 6px; padding: 20px; margin: 30px 0; text-align: center;">
       <h4 style="color: #374151; margin: 0 0 10px 0;">Need Personal Assistance?</h4>
@@ -934,10 +934,10 @@ export const weeklyDigestEmail: EmailTemplate = {
       </div>
     ` : ''}
     
-    ${buttonHTML('View All Updates', 'https://myseniorvalet.com/dashboard')}
+    ${buttonHTML('View All Updates', 'https://www.myseniorvalet.com/dashboard')}
     
     <p style="color: #6b7280; font-size: 14px; text-align: center;">
-      Want to change your email preferences? <a href="https://myseniorvalet.com/settings/notifications" style="color: ${BRAND_PRIMARY};">Update settings</a>
+      Want to change your email preferences? <a href="https://www.myseniorvalet.com/settings/notifications" style="color: ${BRAND_PRIMARY};">Update settings</a>
     </p>
   `)
 };
@@ -977,7 +977,7 @@ export const inquiryReceivedEmail: EmailTemplate = {
       </p>
     </div>
     
-    ${buttonHTML('Track Your Inquiries', 'https://myseniorvalet.com/inquiries')}
+    ${buttonHTML('Track Your Inquiries', 'https://www.myseniorvalet.com/inquiries')}
     
     <p style="color: #6b7280; font-size: 14px; text-align: center;">
       Haven't heard back in 48 hours? <a href="mailto:CowellandCoWebDesign@gmail.com" style="color: ${BRAND_PRIMARY};">Let us know</a>
@@ -1008,7 +1008,7 @@ export const reviewRequestEmail: EmailTemplate = {
       <div style="font-size: 36px; margin: 20px 0;">
         ⭐ ⭐ ⭐ ⭐ ⭐
       </div>
-      ${buttonHTML('Write a Review', `https://myseniorvalet.com/reviews/new?community=${encodeURIComponent(data.communityName)}`, BRAND_SECONDARY)}
+      ${buttonHTML('Write a Review', `https://www.myseniorvalet.com/reviews/new?community=${encodeURIComponent(data.communityName)}`, BRAND_SECONDARY)}
     </div>
     
     <div style="background-color: #f0f9ff; border-radius: 6px; padding: 20px; margin: 20px 0;">
@@ -1071,7 +1071,7 @@ export const newCommunitySignupNotification: EmailTemplate = {
       </p>
     </div>
     
-    ${buttonHTML('View in Admin Dashboard', 'https://myseniorvalet.com/admin/communities/new')}
+    ${buttonHTML('View in Admin Dashboard', 'https://www.myseniorvalet.com/admin/communities/new')}
   `, 'Admin notification - Do not reply to this email')
 };
 

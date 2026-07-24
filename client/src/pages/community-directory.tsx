@@ -50,7 +50,7 @@ export default function CommunityDirectory() {
             "@type": "CollectionPage",
             "name": "Worldwide Senior Living Directory 2025",
             "description": "Comprehensive senior living directory with communities across multiple countries. USA, Canada, Australia, Japan, Singapore, Scotland, Mexico and more.",
-            "url": "https://myseniorvalet.com/community-directory",
+            "url": "https://www.myseniorvalet.com/community-directory",
             "breadcrumb": {
               "@type": "BreadcrumbList",
               "itemListElement": [
@@ -58,13 +58,13 @@ export default function CommunityDirectory() {
                   "@type": "ListItem",
                   "position": 1,
                   "name": "Home",
-                  "item": "https://myseniorvalet.com"
+                  "item": "https://www.myseniorvalet.com"
                 },
                 {
                   "@type": "ListItem",
                   "position": 2,
                   "name": "Community Directory",
-                  "item": "https://myseniorvalet.com/community-directory"
+                  "item": "https://www.myseniorvalet.com/community-directory"
                 }
               ]
             },

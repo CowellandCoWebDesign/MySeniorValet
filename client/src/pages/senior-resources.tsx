@@ -330,7 +330,7 @@ export default function SeniorResources() {
         <meta property="og:title" content="Senior Food Banks, In-Home Care & Support Resources | MySeniorValet" />
         <meta property="og:description" content="Find senior food banks, IHSS in-home support, assisted living resources & nutrition programs. Free nationwide directory of verified government programs for seniors." />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://myseniorvalet.com/senior-resources" />
+        <link rel="canonical" href="https://www.myseniorvalet.com/senior-resources" />
       </Helmet>
       
       <ProfessionalNavbar />

@@ -230,7 +230,7 @@ export class CommunityClaimService {
         </ul>
         
         <div style="margin: 30px 0;">
-          <a href="https://myseniorvalet.com/portal/community/${community.id}" 
+          <a href="https://www.myseniorvalet.com/portal/community/${community.id}" 
              style="background: #3B82F6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
             Access Your Portal
           </a>
@@ -239,7 +239,7 @@ export class CommunityClaimService {
         <p>Questions? Reply to this email or call us at 1-800-SENIOR-V.</p>
         <p>Best regards,<br>The MySeniorValet Team</p>
       `,
-      text: `Your listing claim for ${community.name} has been approved! Access your portal at https://myseniorvalet.com/portal/community/${community.id}`
+      text: `Your listing claim for ${community.name} has been approved! Access your portal at https://www.myseniorvalet.com/portal/community/${community.id}`
     };
 
     await EmailService.sendEmail(emailContent);

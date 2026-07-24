@@ -116,7 +116,7 @@ const launchEmailHtml = `
       </ul>
       
       <center>
-        <a href="https://myseniorvalet.com" class="cta-button">Start Your Search Today</a>
+        <a href="https://www.myseniorvalet.com" class="cta-button">Start Your Search Today</a>
       </center>
       
       <h3>Our Mission</h3>

@@ -197,7 +197,7 @@ export function registerAuthRoutes(app: Express) {
       if (!isValidHost || !isSafeProtocol) {
         console.error(`🚨 SECURITY: Invalid host/protocol detected - Host: ${requestHost}, Protocol: ${requestProtocol}`);
         // Use hardcoded secure fallback (never trust request headers when validation fails)
-        const resetLink = `https://myseniorvalet.com/reset-password?token=${resetToken}`;
+        const resetLink = `https://www.myseniorvalet.com/reset-password?token=${resetToken}`;
         console.log(`Password reset requested for ${email} (using secure fallback due to invalid host/protocol)`);
         
         try {

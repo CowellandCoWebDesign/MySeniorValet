@@ -1,7 +1,9 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq, and, sql, ilike, or } from 'drizzle-orm';
+import { CANONICAL_BASE_URL } from '../middleware/host-canonical';
+import { findLocationBySlug } from '../../shared/location-seo';
 
 // Map of state/province codes to full names
 const stateProvinceNames: Record<string, string> = {
@@ -457,25 +459,84 @@ function isCrawler(userAgent: string): boolean {
   return crawlerPatterns.some(pattern => pattern.test(userAgent));
 }
 
+// Resolve a legacy `?location=` query value to a clean /senior-living path.
+// Handles: MAJOR_LOCATIONS slugs ("phoenix-az"), "City, ST", "City, State Name",
+// bare state/province names ("Florida", "Ontario") and 2-letter codes.
+// Returns null when the value cannot be confidently resolved.
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+const stateNameToCode: Record<string, string> = Object.fromEntries(
+  Object.entries(stateProvinceNames).map(([code, name]) => [name.toLowerCase(), code])
+);
+
+export function resolveLocationParamToPath(rawLocation: string): string | null {
+  const location = decodeURIComponent(rawLocation).trim();
+  if (!location) return null;
+
+  // 1. Known MAJOR_LOCATIONS slug (e.g. "phoenix-az")
+  const bySlug = findLocationBySlug(location.toLowerCase());
+  if (bySlug) {
+    return `/senior-living/${bySlug.stateAbbr.toLowerCase()}/${slugify(bySlug.city)}`;
+  }
+
+  // 2. "City, ST" or "City, State Name"
+  const commaMatch = location.match(/^(.+?),\s*(.+)$/);
+  if (commaMatch) {
+    const cityPart = commaMatch[1].trim();
+    const statePart = commaMatch[2].trim();
+    let stateCode: string | null = null;
+    if (stateProvinceNames[statePart.toUpperCase()]) {
+      stateCode = statePart.toUpperCase();
+    } else if (stateNameToCode[statePart.toLowerCase()]) {
+      stateCode = stateNameToCode[statePart.toLowerCase()];
+    }
+    if (stateCode && cityPart) {
+      return `/senior-living/${stateCode.toLowerCase()}/${slugify(cityPart)}`;
+    }
+    return null;
+  }
+
+  // 3. Bare state/province name ("Florida", "British Columbia")
+  if (stateNameToCode[location.toLowerCase()]) {
+    return `/senior-living/${stateNameToCode[location.toLowerCase()].toLowerCase()}`;
+  }
+
+  // 4. Bare 2-3 letter state/province code
+  if (stateProvinceNames[location.toUpperCase()]) {
+    return `/senior-living/${location.toLowerCase()}`;
+  }
+
+  // 5. Trailing "-slug" style with recognized state suffix (e.g. "fort-worth-tx")
+  const suffixMatch = location.toLowerCase().match(/^([a-z0-9-]+)-([a-z]{2,3})$/);
+  if (suffixMatch && stateProvinceNames[suffixMatch[2].toUpperCase()]) {
+    return `/senior-living/${suffixMatch[2]}/${suffixMatch[1]}`;
+  }
+
+  return null;
+}
+
 // Generate SEO-optimized HTML page
-export async function renderSEOLocationPage(req: Request, res: Response) {
+export async function renderSEOLocationPage(req: Request, res: Response, next: NextFunction) {
   const { state, city } = req.params;
   const userAgent = req.headers['user-agent'] || '';
-  
+
+  // Regular users get the SPA at this SAME canonical URL (no redirect away).
+  // The React app renders the location experience for /senior-living/:state/:city?.
+  if (!isCrawler(userAgent)) {
+    return next();
+  }
+
   // Get location data
   const locationData = await getLocationData(state, city);
   
   if (!locationData || locationData.stats.totalCount === 0) {
     return res.status(404).send('Location not found');
-  }
-  
-  // For regular users, redirect to AI Search Intelligence
-  if (!isCrawler(userAgent)) {
-    const location = city 
-      ? `${locationData.city}, ${locationData.state}`
-      : locationData.stateName;
-    const redirectUrl = `/ai-search-intelligence?mode=simplified&location=${encodeURIComponent(location)}&country=${encodeURIComponent(locationData.country)}`;
-    return res.redirect(301, redirectUrl);
   }
   
   // For crawlers, serve SEO-optimized HTML
@@ -528,7 +589,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
     "@type": "CollectionPage",
     "name": title,
     "description": description,
-    "url": `https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}`,
+    "url": `${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}`,
     ...(aggregateRating && { "aggregateRating": aggregateRating }),
     "breadcrumb": {
       "@type": "BreadcrumbList",
@@ -537,7 +598,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
           "@type": "ListItem",
           "position": 1,
           "item": {
-            "@id": "https://www.myseniorvalet.com",
+            "@id": CANONICAL_BASE_URL,
             "name": "MySeniorValet"
           }
         },
@@ -545,7 +606,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
           "@type": "ListItem",
           "position": 2,
           "item": {
-            "@id": `https://www.myseniorvalet.com/senior-living/${state}`,
+            "@id": `${CANONICAL_BASE_URL}/senior-living/${state}`,
             "name": stateName
           }
         }
@@ -584,7 +645,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
       "@type": "ListItem",
       "position": 3,
       "item": {
-        "@id": `https://www.myseniorvalet.com/senior-living/${state}/${city}`,
+        "@id": `${CANONICAL_BASE_URL}/senior-living/${state}/${city}`,
         "name": locationData.city
       }
     });
@@ -598,26 +659,26 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <meta name="description" content="${description}">
-  <link rel="canonical" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}">
+  <link rel="canonical" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}">
   
   ${/* Add hreflang tags for international content */''} 
   ${country === 'Canada' ? `
-  <link rel="alternate" hreflang="en-CA" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
-  <link rel="alternate" hreflang="fr-CA" href="https://www.myseniorvalet.com/fr/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="en-CA" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="fr-CA" href="${CANONICAL_BASE_URL}/fr/senior-living/${state}${city ? `/${city}` : ''}" />
   ` : ''}
   ${country === 'Australia' ? `
-  <link rel="alternate" hreflang="en-AU" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="en-AU" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
   ` : ''}
   ${country === 'United States' ? `
-  <link rel="alternate" hreflang="en-US" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="en-US" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
   ` : ''}
-  <link rel="alternate" hreflang="x-default" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="x-default" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
   
   <!-- Open Graph tags -->
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${description}">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}">
+  <meta property="og:url" content="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}">
   <meta property="og:site_name" content="MySeniorValet">
   <meta property="og:locale" content="${country === 'Canada' ? 'en_CA' : country === 'Australia' ? 'en_AU' : 'en_US'}">${country === 'Canada' ? `
   <meta property="og:locale:alternate" content="fr_CA">` : ''}
@@ -726,7 +787,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
     <div class="cta">
       <h2>Find Your Perfect Senior Living Community</h2>
       <p>Search all ${stats.totalCount} communities in ${locationName} with our AI-powered search engine</p>
-      <a href="/ai-search-intelligence?mode=simplified&location=${encodeURIComponent(locationName)}&country=${encodeURIComponent(country)}" class="cta-button">
+      <a href="/senior-living/${state}${city ? `/${city}` : ''}" class="cta-button">
         Search Communities →
       </a>
     </div>

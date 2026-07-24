@@ -201,7 +201,6 @@ import ClevelandClinicPage from "@/pages/providers/cleveland-clinic";
 import WalgreensPage from "@/pages/vendors/walgreens";
 import CVSPharmacyPage from "@/pages/vendors/cvs-pharmacy";
 import MedicareGuidePage from "@/pages/resources/medicare-guide";
-import LocationLanding from "@/pages/location-landing";
 import PricingPage from "@/pages/pricing";
 import CommunityClaim from "@/pages/community-claim";
 
@@ -238,8 +237,9 @@ function Router() {
       <Route path="/community/:id" component={CommunityDetail} />
       <Route path="/communities/:id" component={CommunityDetail} />
 
-      {/* SEO Location Landing Pages — city? is optional so this matches 2-segment paths */}
-      <Route path="/senior-living/:state/:city?" component={LocationLanding} />
+      {/* SEO Location Pages — served at the clean canonical URL (no redirect);
+          renders the AI search experience pre-filtered to the state/city */}
+      <Route path="/senior-living/:state/:city?" component={AISearchIntelligence} />
 
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/search">{() => <Redirect to={`/ai-search-intelligence${window.location.search}`} />}</Route>

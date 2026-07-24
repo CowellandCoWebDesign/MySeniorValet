@@ -671,7 +671,7 @@ export class PaymentService {
       if (!existingEndpoint) {
         // Create webhook endpoint
         const endpoint = await stripe.webhookEndpoints.create({
-          url: `${process.env.PUBLIC_URL || 'https://myseniorvalet.com'}/api/webhooks/stripe`,
+          url: `${process.env.PUBLIC_URL || 'https://www.myseniorvalet.com'}/api/webhooks/stripe`,
           enabled_events: [
             'customer.subscription.created',
             'customer.subscription.updated',

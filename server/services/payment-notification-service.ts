@@ -165,7 +165,7 @@ export class PaymentNotificationService {
           <h2 style="color: #dc2626;">Payment Failed</h2>
           <p>We were unable to process your payment for your ${notification.tierName} subscription.</p>
           <p>Please update your payment method to avoid service interruption.</p>
-          <p><a href="https://myseniorvalet.com/subscriptions" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px;">Update Payment Method</a></p>
+          <p><a href="https://www.myseniorvalet.com/subscriptions" style="background: #2563eb; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-top: 10px;">Update Payment Method</a></p>
         `;
         break;
       

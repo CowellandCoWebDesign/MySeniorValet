@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { getLocationSearchUrl } from "@/lib/location-url";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -1718,7 +1719,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </div>
             
             <div className="text-center mt-8">
-              <Link to="/ai-search-intelligence?location=Hawaii">
+              <Link to={getLocationSearchUrl('Hawaii')}>
                 <Button size="lg" className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Hawaii Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -1843,7 +1844,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </div>
             
             <div className="text-center mt-8">
-              <Link to="/ai-search-intelligence?location=Fort Worth, Texas">
+              <Link to={getLocationSearchUrl('Fort Worth, Texas')}>
                 <Button size="lg" className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Fort Worth Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -1892,7 +1893,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/ai-search-intelligence?location=Florida')}
+                onClick={() => setLocation(getLocationSearchUrl('Florida'))}
               >
                 Search All Florida Communities
               </Button>
@@ -1927,7 +1928,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 <Button 
                   variant="outline" 
                   className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
-                  onClick={() => setLocation('/ai-search-intelligence?location=Florida')}
+                  onClick={() => setLocation(getLocationSearchUrl('Florida'))}
                 >
                   View All Florida Communities
                 </Button>
@@ -2207,7 +2208,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </div>
             
             <div className="text-center mt-8">
-              <Link to="/ai-search-intelligence?location=New York">
+              <Link to={getLocationSearchUrl('New York')}>
                 <Button size="lg" className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All New York Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2301,7 +2302,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             ) : ((canadianCommunities as any)?.communities || []).length === 0 ? (
               <>
                 {/* Show promotional card when no communities available */}
-                <Link to="/ai-search-intelligence?location=canada">
+                <Link to={getLocationSearchUrl('canada')}>
                   <div className="overflow-hidden flex-shrink-0 w-64 h-[30rem] border-2 border-red-300 dark:border-red-600 hover:shadow-xl transition-all cursor-pointer group bg-white dark:bg-gray-900 rounded-xl">
                     <div className="aspect-[4/3] bg-gradient-to-br from-red-100 to-white dark:from-red-900 dark:to-gray-900 flex items-center justify-center">
                       <div className="text-center p-6">
@@ -2372,7 +2373,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🏝️ Puerto Rico Communities
               </h2>
-              <Link to="/ai-search-intelligence?location=Puerto Rico">
+              <Link to={getLocationSearchUrl('Puerto Rico')}>
                 <Button variant="outline" className="flex items-center gap-2 border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20">
                   View All Puerto Rico
                   <ArrowRight className="w-4 h-4" />
@@ -2445,7 +2446,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/ai-search-intelligence?location=Puerto Rico')}
+                onClick={() => setLocation(getLocationSearchUrl('Puerto Rico'))}
               >
                 Search All Puerto Rico Communities
               </Button>
@@ -2465,7 +2466,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 <Button 
                   variant="outline" 
                   className="border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:border-cyan-600 dark:text-cyan-300 dark:hover:bg-cyan-900/20"
-                  onClick={() => setLocation('/ai-search-intelligence?location=Puerto Rico')}
+                  onClick={() => setLocation(getLocationSearchUrl('Puerto Rico'))}
                 >
                   Explore All 50+ Puerto Rico Communities
                 </Button>
@@ -2483,7 +2484,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇵🇪 Peru Communities
               </h2>
-              <Link to="/ai-search-intelligence?location=Peru">
+              <Link to={getLocationSearchUrl('Peru')}>
                 <Button variant="outline" className="flex items-center gap-2 border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20">
                   View All Peru
                   <ArrowRight className="w-4 h-4" />
@@ -2556,7 +2557,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/ai-search-intelligence?location=Peru')}
+                onClick={() => setLocation(getLocationSearchUrl('Peru'))}
               >
                 Search All Peru Communities
               </Button>
@@ -2573,7 +2574,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 <Button 
                   variant="outline" 
                   className="border-red-300 text-red-700 hover:bg-red-50 dark:border-red-600 dark:text-red-300 dark:hover:bg-red-900/20"
-                  onClick={() => setLocation('/ai-search-intelligence?location=Peru')}
+                  onClick={() => setLocation(getLocationSearchUrl('Peru'))}
                 >
                   Explore All Peru Communities
                 </Button>
@@ -2697,7 +2698,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </div>
             
             <div className="text-center mt-8">
-              <Link to="/ai-search-intelligence?location=Cuba">
+              <Link to={getLocationSearchUrl('Cuba')}>
                 <Button size="lg" className="bg-gradient-to-r from-blue-600 to-red-600 hover:from-blue-700 hover:to-red-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
                   Explore All Cuba Communities
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -2716,7 +2717,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇨🇷 Costa Rica Communities
               </h2>
-              <Link to="/ai-search-intelligence?location=Costa Rica">
+              <Link to={getLocationSearchUrl('Costa Rica')}>
                 <Button variant="outline" className="flex items-center gap-2 border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20">
                   View All Costa Rica
                   <ArrowRight className="w-4 h-4" />
@@ -2785,7 +2786,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/ai-search-intelligence?location=Costa Rica')}
+                onClick={() => setLocation(getLocationSearchUrl('Costa Rica'))}
               >
                 Search All Costa Rica Communities
               </Button>
@@ -2802,7 +2803,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 <Button 
                   variant="outline" 
                   className="border-green-300 text-green-700 hover:bg-green-50 dark:border-green-600 dark:text-green-300 dark:hover:bg-green-900/20"
-                  onClick={() => setLocation('/ai-search-intelligence?location=Costa Rica')}
+                  onClick={() => setLocation(getLocationSearchUrl('Costa Rica'))}
                 >
                   Explore All Costa Rica Communities
                 </Button>
@@ -2820,7 +2821,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 🇵🇦 Panama Communities
               </h2>
-              <Link to="/ai-search-intelligence?location=Panama">
+              <Link to={getLocationSearchUrl('Panama')}>
                 <Button variant="outline" className="flex items-center gap-2 border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20">
                   View All Panama
                   <ArrowRight className="w-4 h-4" />
@@ -2889,7 +2890,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <Button 
                 variant="outline" 
                 className="mt-4"
-                onClick={() => setLocation('/ai-search-intelligence?location=Panama')}
+                onClick={() => setLocation(getLocationSearchUrl('Panama'))}
               >
                 Search All Panama Communities
               </Button>
@@ -2906,7 +2907,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 <Button 
                   variant="outline" 
                   className="border-blue-300 text-blue-700 hover:bg-blue-50 dark:border-blue-600 dark:text-blue-300 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/ai-search-intelligence?location=Panama')}
+                  onClick={() => setLocation(getLocationSearchUrl('Panama'))}
                 >
                   Explore All Panama Communities
                 </Button>
@@ -2940,7 +2941,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <CardContent className="p-4 text-center">
                 <h3 className="font-bold text-2xl text-red-600">1,707</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Ontario</p>
-                <Link to="/ai-search-intelligence?location=Ontario">
+                <Link to={getLocationSearchUrl('Ontario')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
                     View All →
                   </Button>
@@ -2951,7 +2952,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <CardContent className="p-4 text-center">
                 <h3 className="font-bold text-2xl text-red-600">1,278</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Quebec</p>
-                <Link to="/ai-search-intelligence?location=Quebec">
+                <Link to={getLocationSearchUrl('Quebec')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
                     View All →
                   </Button>
@@ -2962,7 +2963,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <CardContent className="p-4 text-center">
                 <h3 className="font-bold text-2xl text-red-600">987</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">British Columbia</p>
-                <Link to="/ai-search-intelligence?location=British Columbia">
+                <Link to={getLocationSearchUrl('British Columbia')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
                     View All →
                   </Button>
@@ -2973,7 +2974,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <CardContent className="p-4 text-center">
                 <h3 className="font-bold text-2xl text-red-600">570</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Alberta</p>
-                <Link to="/ai-search-intelligence?location=Alberta">
+                <Link to={getLocationSearchUrl('Alberta')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
                     View All →
                   </Button>
@@ -3031,7 +3032,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 { name: 'Nunavut', count: '89', code: 'NU' },
                 { name: 'Yukon', count: '69', code: 'YT' }
               ].map((province) => (
-                <Link key={province.code} to={`/ai-search-intelligence?location=${province.name}`}>
+                <Link key={province.code} to={getLocationSearchUrl(province.name)}>
                   <Button variant="outline" className="w-full justify-between border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20">
                     <span>{province.name}</span>
                     <Badge className="bg-red-600 text-white">{province.count}</Badge>
@@ -3066,7 +3067,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <CardContent className="p-4 text-center">
                 <h3 className="font-bold text-2xl text-green-600">430</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">New South Wales</p>
-                <Link to="/ai-search-intelligence?location=New South Wales">
+                <Link to={getLocationSearchUrl('New South Wales')}>
                   <Button size="sm" variant="link" className="mt-2 text-green-600">
                     View NSW →
                   </Button>
@@ -3077,7 +3078,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <CardContent className="p-4 text-center">
                 <h3 className="font-bold text-2xl text-yellow-600">330</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Queensland</p>
-                <Link to="/ai-search-intelligence?location=Queensland">
+                <Link to={getLocationSearchUrl('Queensland')}>
                   <Button size="sm" variant="link" className="mt-2 text-yellow-600">
                     View QLD →
                   </Button>
@@ -3088,7 +3089,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <CardContent className="p-4 text-center">
                 <h3 className="font-bold text-2xl text-blue-600">324</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Victoria</p>
-                <Link to="/ai-search-intelligence?location=Victoria">
+                <Link to={getLocationSearchUrl('Victoria')}>
                   <Button size="sm" variant="link" className="mt-2 text-blue-600">
                     View VIC →
                   </Button>
@@ -3125,7 +3126,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 { name: 'ACT', count: '65', code: 'ACT' },
                 { name: 'Western Australia', count: '10', code: 'WA' }
               ].map((state) => (
-                <Link key={state.code} to={`/ai-search-intelligence?location=${state.name}`}>
+                <Link key={state.code} to={getLocationSearchUrl(state.name)}>
                   <Button variant="outline" className="w-full justify-between border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20">
                     <span>{state.name}</span>
                     <Badge className="bg-green-600 text-white">{state.count}</Badge>
@@ -3164,7 +3165,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               </CardHeader>
               <CardContent className="pt-4">
                 <p className="text-sm mb-4">Premium elder care in Tokyo metropolitan area with traditional Japanese hospitality and modern healthcare.</p>
-                <Link to="/ai-search-intelligence?location=Japan">
+                <Link to={getLocationSearchUrl('Japan')}>
                   <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
                     Explore Japan Senior Care →
                   </Button>
@@ -3185,7 +3186,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               </CardHeader>
               <CardContent className="pt-4">
                 <p className="text-sm mb-4">World-class healthcare and modern senior living in Asia's premier city-state.</p>
-                <Link to="/ai-search-intelligence?location=Singapore">
+                <Link to={getLocationSearchUrl('Singapore')}>
                   <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
                     View Singapore Facilities →
                   </Button>
@@ -3206,7 +3207,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               </CardHeader>
               <CardContent className="pt-4">
                 <p className="text-sm mb-4">Traditional Scottish care homes with stunning Highland and city locations.</p>
-                <Link to="/ai-search-intelligence?location=Scotland">
+                <Link to={getLocationSearchUrl('Scotland')}>
                   <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
                     Explore Scotland Care →
                   </Button>

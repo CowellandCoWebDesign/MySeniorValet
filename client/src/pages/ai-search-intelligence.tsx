@@ -260,7 +260,23 @@ export default function AISearchIntelligence() {
     const company = urlParams.get('company');
     const brand = urlParams.get('brand');
     const query = urlParams.get('query');
-    const searchTerm = location || company || brand || query;
+    let searchTerm = location || company || brand || query;
+
+    // Clean /senior-living/{state}/{city?} paths carry the location in the URL
+    // path itself (canonical SEO URLs — no query params).
+    let pathCity: string | null = null;
+    let pathState: string | null = null;
+    if (!searchTerm) {
+      const pathMatch = window.location.pathname.match(/^\/senior-living\/([^\/]+)(?:\/([^\/]+))?\/?$/);
+      if (pathMatch) {
+        pathState = pathMatch[1].toUpperCase();
+        pathCity = pathMatch[2]
+          ? pathMatch[2].split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+          : null;
+        searchTerm = pathCity ? `${pathCity}, ${pathState}` : pathState;
+        setActiveTab('simplified');
+      }
+    }
     
     if (mode === 'simplified') {
       setActiveTab('simplified');
@@ -782,11 +798,20 @@ export default function AISearchIntelligence() {
       {/* Dynamic SEO based on location or default */}
       {isLocationPage && location ? (
         <LocationSEOHead location={location} pageType="search" />
+      ) : window.location.pathname.startsWith('/senior-living/') ? (
+        <SEOMetaTags
+          title="Senior Living Communities - Compare Pricing & Availability"
+          description="Compare assisted living, memory care, nursing homes & independent living communities with verified pricing, real availability and no hidden fees."
+          url={window.location.pathname}
+          canonical={`https://www.myseniorvalet.com${window.location.pathname.replace(/\/+$/, '')}`}
+          type="website"
+        />
       ) : (
         <SEOMetaTags
           title="AI-Powered Senior Living Search - Find Assisted Living & Memory Care"
           description="Search assisted living, memory care, nursing homes & independent living with AI intelligence. Get personalized recommendations, pricing insights, and availability across 33,000+ communities."
           url="/ai-search-intelligence"
+          canonical="https://www.myseniorvalet.com/ai-search-intelligence"
           type="website"
         />
       )}

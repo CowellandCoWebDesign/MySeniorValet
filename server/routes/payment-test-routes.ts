@@ -95,7 +95,7 @@ router.post('/test/webhook-ping', async (req, res) => {
     res.json({
       success: true,
       webhookConfigured: !!webhookSecret,
-      endpoint: 'https://myseniorvalet.com/api/stripe/webhook',
+      endpoint: 'https://www.myseniorvalet.com/api/stripe/webhook',
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {

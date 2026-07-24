@@ -515,7 +515,7 @@ export default function PaymentTestSuite() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="font-medium">Endpoint URL</span>
-                  <code className="text-sm">https://myseniorvalet.com/api/stripe/webhook</code>
+                  <code className="text-sm">https://www.myseniorvalet.com/api/stripe/webhook</code>
                 </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <span className="font-medium">API Version</span>

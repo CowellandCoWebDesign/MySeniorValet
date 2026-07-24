@@ -46,7 +46,7 @@ router.post('/api/unsubscribe', async (req: Request, res: Response) => {
             <h2 style="color: #1e40af;">Unsubscribe Confirmed</h2>
             <p>You have been successfully unsubscribed from all MySeniorValet marketing emails.</p>
             <p>You will still receive important transactional emails about your account, tours, and reservations.</p>
-            <p style="margin-top: 30px;">If you unsubscribed by mistake, you can <a href="https://myseniorvalet.com/email-preferences" style="color: #1e40af;">update your email preferences</a> anytime.</p>
+            <p style="margin-top: 30px;">If you unsubscribed by mistake, you can <a href="https://www.myseniorvalet.com/email-preferences" style="color: #1e40af;">update your email preferences</a> anytime.</p>
             <p style="color: #666; font-size: 14px; margin-top: 30px;">
               MySeniorValet - Clarity in Senior Living<br>
               CowellandCoWebDesign@gmail.com
@@ -106,7 +106,7 @@ router.get('/api/unsubscribe', async (req: Request, res: Response) => {
             <h2 style="color: #1e40af;">Unsubscribe Confirmed</h2>
             <p>You have been successfully unsubscribed from all MySeniorValet marketing emails.</p>
             <p>You will still receive important transactional emails about your account, tours, and reservations.</p>
-            <p style="margin-top: 30px;">If you unsubscribed by mistake, you can <a href="https://myseniorvalet.com/email-preferences" style="color: #1e40af;">update your email preferences</a> anytime.</p>
+            <p style="margin-top: 30px;">If you unsubscribed by mistake, you can <a href="https://www.myseniorvalet.com/email-preferences" style="color: #1e40af;">update your email preferences</a> anytime.</p>
             <p style="color: #666; font-size: 14px; margin-top: 30px;">
               MySeniorValet - Clarity in Senior Living<br>
               CowellandCoWebDesign@gmail.com
@@ -133,12 +133,12 @@ router.get('/api/unsubscribe', async (req: Request, res: Response) => {
               You will still receive important transactional emails about your account and tours.
             </p>
             <div style="margin-top: 30px;">
-              <a href="https://myseniorvalet.com" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+              <a href="https://www.myseniorvalet.com" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
                 Return to MySeniorValet
               </a>
             </div>
             <p style="color: #999; font-size: 12px; margin-top: 30px;">
-              Changed your mind? <a href="https://myseniorvalet.com/email-preferences?email=${encodeURIComponent(email)}" style="color: #1e40af;">Update preferences</a>
+              Changed your mind? <a href="https://www.myseniorvalet.com/email-preferences?email=${encodeURIComponent(email)}" style="color: #1e40af;">Update preferences</a>
             </p>
           </div>
         </body>

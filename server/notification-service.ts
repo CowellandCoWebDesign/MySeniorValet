@@ -233,10 +233,10 @@ export class NotificationService {
     body += `<p>${notification.message}</p>`;
     
     if (notification.actionUrl) {
-      body += `<p><a href="${process.env.REPLIT_URL || 'https://myseniorvalet.com'}${notification.actionUrl}" style="background-color: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">View Details</a></p>`;
+      body += `<p><a href="${process.env.REPLIT_URL || 'https://www.myseniorvalet.com'}${notification.actionUrl}" style="background-color: #3b82f6; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">View Details</a></p>`;
     }
     
-    body += `<hr><p style="color: #666; font-size: 12px;">You received this email because you have notifications enabled for MySeniorValet. <a href="${process.env.REPLIT_URL || 'https://myseniorvalet.com'}/dashboard/notification-preferences">Manage your preferences</a></p>`;
+    body += `<hr><p style="color: #666; font-size: 12px;">You received this email because you have notifications enabled for MySeniorValet. <a href="${process.env.REPLIT_URL || 'https://www.myseniorvalet.com'}/dashboard/notification-preferences">Manage your preferences</a></p>`;
     
     return body;
   }
