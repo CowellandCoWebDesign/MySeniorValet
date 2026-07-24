@@ -616,7 +616,10 @@ export function registerSearchRoutes(app: Express) {
         ),
         // Must have phone for legitimacy
         isNotNull(communities.phone),
-        ne(communities.phone, '')
+        ne(communities.phone, ''),
+        // Public visibility: active + not hidden
+        sql`${communities.isActive} = true`,
+        sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
       ];
       
       // Add search term filter if provided (only for non-location searches)

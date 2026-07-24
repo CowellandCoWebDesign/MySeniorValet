@@ -984,9 +984,11 @@ export class NLPSearchSystem {
       // Build and run query (helper so location searches can relax name constraints)
       const runQuery = async (conds: any[]) => {
         let dbQuery = db.select().from(communities) as any;
-        if (conds.length > 0) {
-          dbQuery = dbQuery.where(and(...conds));
-        }
+        const visibilityConds = [
+          sql`${communities.isActive} = true`,
+          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+        ];
+        dbQuery = dbQuery.where(and(...conds, ...visibilityConds));
         
         // Apply modifiers and sorting with improved relevance
         if (intent.entities.modifiers?.includes('cheapest')) {

@@ -1388,11 +1388,15 @@ export default function AISearchIntelligence() {
                     <div className="flex items-center justify-between mb-1 sm:mb-2">
                       <h3 className="font-semibold text-sm sm:text-base text-gray-900 dark:text-gray-100">
                         {(() => {
+                          const totalResults = simplifiedSearchMutation.data?.results?.length || 0;
                           let count = 0;
-                          if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                          if (totalResults > 0 && mapBounds) {
                             count = filterCommunitiesInBounds(simplifiedSearchMutation.data.results, mapBounds).length;
-                          } else if (simplifiedSearchMutation.data?.results?.length > 0) {
-                            count = simplifiedSearchMutation.data.results.length;
+                            if (count < totalResults) {
+                              return `Showing ${count} of ${totalResults} in this map area`;
+                            }
+                          } else if (totalResults > 0) {
+                            count = totalResults;
                           } else {
                             count = mapCommunities.length;
                           }
@@ -2615,11 +2619,15 @@ export default function AISearchIntelligence() {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100">
                       {(() => {
+                        const totalResults = simplifiedSearchMutation.data?.results?.length || 0;
                         let count = 0;
-                        if (simplifiedSearchMutation.data?.results?.length > 0 && mapBounds) {
+                        if (totalResults > 0 && mapBounds) {
                           count = filterCommunitiesInBounds(simplifiedSearchMutation.data.results, mapBounds).length;
-                        } else if (simplifiedSearchMutation.data?.results?.length > 0) {
-                          count = simplifiedSearchMutation.data.results.length;
+                          if (count < totalResults) {
+                            return `Showing ${count} of ${totalResults} in this map area`;
+                          }
+                        } else if (totalResults > 0) {
+                          count = totalResults;
                         } else {
                           count = mapCommunities.length;
                         }

@@ -86,8 +86,10 @@ export function registerSemanticSearchRoutes(app: Express) {
         }
       }
 
-      // Execute database search
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      // Execute database search (public visibility: active + not hidden)
+      conditions.push(sql`${communities.isActive} = true`);
+      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+      const whereClause = and(...conditions);
       
       const dbResults = await db
         .select()

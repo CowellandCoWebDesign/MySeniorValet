@@ -375,7 +375,9 @@ export class EnhancedSearchEngine {
         conditions.push(or(...keywordConditions));
       }
       
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      conditions.push(sql`${communities.isActive} = true`);
+      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+      const whereClause = and(...conditions);
       
       const results = await db
         .select()
@@ -432,7 +434,9 @@ export class EnhancedSearchEngine {
         }
       }
       
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      conditions.push(sql`${communities.isActive} = true`);
+      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+      const whereClause = and(...conditions);
       
       const results = await db
         .select()

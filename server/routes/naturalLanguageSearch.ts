@@ -380,11 +380,13 @@ router.post('/search', async (req, res) => {
         conditions.push(sql`${communities.rating} >= 4.0`);
       }
       
-      // Execute database search
+      // Execute database search (public visibility: active + not hidden)
+      conditions.push(sql`${communities.isActive} = true`);
+      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
       const dbResults = await db
         .select()
         .from(communities)
-        .where(conditions.length > 0 ? and(...conditions) : undefined)
+        .where(and(...conditions))
         .limit(20);
       
       searchResults = dbResults.map(community => ({

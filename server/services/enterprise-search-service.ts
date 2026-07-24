@@ -246,21 +246,17 @@ class EnterpriseSearchService {
       conditions.push(isNotNull(communities.hudPropertyId));
     }
 
-    // Build the query
-    let baseQuery: any = db.select().from(communities);
-    
-    if (conditions.length > 0) {
-      baseQuery = baseQuery.where(and(...conditions));
-    }
+    // Build the query — strict public visibility (active + not hidden)
+    conditions.push(sql`${communities.isActive} = true`);
+    conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+    let baseQuery: any = db.select().from(communities).where(and(...conditions));
 
     // Apply sorting with intelligent relevance scoring
     const orderByClause = this.buildOrderByClause(sortBy, sortOrder, query, location);
     baseQuery = baseQuery.orderBy(orderByClause);
 
     // Get total count for pagination
-    const countQuery = conditions.length > 0 
-      ? db.select({ count: sql`count(*)` }).from(communities).where(and(...conditions))
-      : db.select({ count: sql`count(*)` }).from(communities);
+    const countQuery = db.select({ count: sql`count(*)` }).from(communities).where(and(...conditions));
     
     const [{ count }] = await countQuery;
     const totalAvailable = Number(count);
@@ -280,6 +276,10 @@ class EnterpriseSearchService {
         const allCommunities = await db
           .select()
           .from(communities)
+          .where(and(
+            sql`${communities.isActive} = true`,
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+          ))
           .limit(5000);
         
         // Use our enhanced fuzzy matching

@@ -351,8 +351,9 @@ export class UnifiedSearchEngine {
         );
       }
       
-      // Always filter to active communities only (is_active = true)
+      // Always filter to active, non-hidden communities only
       conditions.push(sql`${communities.isActive} = true`);
+      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
       const whereClause = and(...conditions);
       
       const results = await db
@@ -378,7 +379,10 @@ export class UnifiedSearchEngine {
       const fuzzyResults = await db
         .select()
         .from(communities)
-        .where(sql`${communities.isActive} = true`)
+        .where(and(
+          sql`${communities.isActive} = true`,
+          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+        ))
         .limit(1000); // Get larger set for fuzzy matching
       
       // Calculate similarity scores — only active communities

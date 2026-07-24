@@ -75,6 +75,8 @@ export class ComprehensiveSearchEngine {
     
     // Add active filter to existing conditions
     conditions.push(activeFilter);
+    // STRICT visibility: never surface hidden communities to public search
+    conditions.push(sql`(is_hidden IS NULL OR is_hidden = false)`);
     
     // Execute main search
     let searchQuery = db.select().from(communities);
@@ -132,7 +134,7 @@ export class ComprehensiveSearchEngine {
           const [{ count: locCount }] = await db
             .select({ count: sql`count(*)` })
             .from(communities)
-            .where(and(locWhere, sql`is_active = true`));
+            .where(and(locWhere, sql`is_active = true`, sql`(is_hidden IS NULL OR is_hidden = false)`));
           locationHasNoRealMatches = parseInt(locCount.toString()) === 0;
         } else {
           locationHasNoRealMatches = true;

@@ -136,7 +136,10 @@ export class OptimizedSearchEngine {
     }
     
     // Build and execute the query — always filter to active communities only
-    const activeFilter = sql`${communities.isActive} = true`;
+    const activeFilter = and(
+      sql`${communities.isActive} = true`,
+      sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+    );
     const whereClause = conditions.length > 0
       ? and(activeFilter, or(...conditions))
       : activeFilter;

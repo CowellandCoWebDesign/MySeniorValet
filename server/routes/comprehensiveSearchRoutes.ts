@@ -207,6 +207,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       .where(
         and(
           eq(communities.isActive, true),
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
           ilike(communities.name, `${normalizedQuery}%`),  // Starts with (highest priority)
           // Filter out bad data - require valid state and exclude "Unknown"
           ne(communities.state, 'Unknown'),
@@ -242,6 +243,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .where(
           and(
             eq(communities.isActive, true),
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
             ilike(communities.name, `%${normalizedQuery}%`),  // Contains
             // Filter out bad data
             ne(communities.state, 'Unknown'),
@@ -281,6 +283,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .where(
           and(
             eq(communities.isActive, true),
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
             ilike(communities.city, `${normalizedQuery}%`)   // Starts with only for cities
           )
         )
@@ -305,7 +308,11 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         })
         .from(communities)
         .where(
-          ilike(communities.state, `${normalizedQuery}%`)  // Only prefix match for states
+          and(
+            eq(communities.isActive, true),
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            ilike(communities.state, `${normalizedQuery}%`)  // Only prefix match for states
+          )
         )
         .groupBy(communities.state)
         .orderBy(sql`count DESC`)
@@ -329,6 +336,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .where(
           and(
             eq(communities.isActive, true),
+            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
             ilike(communities.managementCompany, `${normalizedQuery}%`),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`
