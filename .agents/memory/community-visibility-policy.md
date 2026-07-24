@@ -38,6 +38,17 @@ DB writer. Never hand-roll a separate visibility rule.
   `runVisibilityPass` on the LIVE + prod DBs (data doesn't merge). If you must
   hand-write a SQL flip, mirror `isOwnRealWebsite` with contains-ILIKE
   exclusions (subset-safe — never expose more than the evaluator would).
+- **`screenedThinSenior` path (July 2026 restore):** a `senior`-classified row
+  with a phone OR own real website is kept PUBLIC even when thin, UNLESS its
+  `data_source` is snake_case-only (`^[a-z_]+$` — fingerprint of synthetic
+  government-records import batches; real feeds use human-readable labels).
+  **Why:** a strict pass hid ~8k real licensed facilities (Boise/Eureka CA etc.);
+  synthetic batches are excluded by fingerprints, not by thinness. Template
+  addresses (same address in >5 cities, OR round-hundred `^\d+00 ` address
+  shared by >5 distinct names within ONE city with zero content — e.g. the fake
+  Eureka NV batch) get protective `synthetic_suspected` via
+  `server/scripts/restore-screened-senior-communities.ts` (idempotent; runs in
+  post-merge hook time-boxed; prod needs its own run + restart).
 - **`meaningfullyVerified` deliberately EXCLUDES legacy `is_verified` and the
   auto-set `subscription_tier='verified'`** — both are auto-applied to ~12k rows
   and mean nothing. Only claim/featured/gov-verified-pricing count.

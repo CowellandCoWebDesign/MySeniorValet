@@ -355,6 +355,19 @@ export function hasRealContent(community: CommunityClassifyLike): boolean {
   return photoCount(community) >= 1 || descriptionLength(community) >= 100;
 }
 
+/**
+ * Synthetic-batch fingerprint: machine-generated import batches all used
+ * snake_case-only data_source values (e.g. "arizona_government_records"),
+ * while real feeds use human-readable labels ("HUD Multifamily Database",
+ * "California DSS Licensing"). A snake_case-only source disqualifies a thin
+ * row from the screened-real thin-senior keep-public path (it stays hidden
+ * unless it earns real content or a meaningful verification).
+ */
+export function isSnakeCaseOnlySource(src: string | null | undefined): boolean {
+  const s = str(src).trim();
+  return s.length > 0 && /^[a-z_]+$/.test(s);
+}
+
 /** Quality flags this task OWNS — merged into data_quality_flags without
  *  clobbering flags written by other scanners (e.g. citation_artifact). */
 export const MANAGED_QUALITY_FLAGS = [
@@ -464,10 +477,22 @@ export function evaluateCommunity(community: CommunityClassifyLike): CommunityEv
   // even before it has photos/description. Templated fakes and aggregator-only
   // links are excluded by isOwnRealWebsite.
   const ownRealSite = classification === "senior" && isOwnRealWebsite(community.website);
+  // Screened-real thin senior (July 2026 restore): a senior-classified listing
+  // with a real contact channel (phone OR own real website) that does NOT carry
+  // the snake_case-only synthetic-batch source fingerprint is kept PUBLIC even
+  // when thin. Template-address synthetic batches are excluded via the
+  // protective `synthetic_suspected` flag (cross-row screen — see
+  // server/scripts/restore-screened-senior-communities.ts), which overrides
+  // keepPublic in the visibility writer.
+  const snakeSource = isSnakeCaseOnlySource(
+    community.dataSource ?? community.data_source,
+  );
+  const screenedThinSenior =
+    classification === "senior" && !snakeSource && (hasPhone || ownRealSite);
   const keepPublic =
     classification !== "non_senior" &&
     !trulyEmpty &&
-    (meaningfullyVerified || realContent || ownRealSite);
+    (meaningfullyVerified || realContent || ownRealSite || screenedThinSenior);
 
   return {
     classification,
