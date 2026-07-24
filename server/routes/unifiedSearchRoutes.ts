@@ -28,7 +28,8 @@ router.get('/api/search/unified', async (req, res) => {
       limit = 20, 
       offset = 0,
       filters,
-      userId
+      userId,
+      includeHud
     } = req.query;
     
     if (!query || typeof query !== 'string') {
@@ -43,7 +44,8 @@ router.get('/api/search/unified', async (req, res) => {
       limit: parseInt(limit as string),
       offset: parseInt(offset as string),
       filters: filters ? JSON.parse(filters as string) : undefined,
-      userId: userId as string
+      userId: userId as string,
+      includeHud: includeHud === 'true'
     });
     
     res.json({
@@ -75,7 +77,8 @@ router.post('/api/search/unified', async (req, res) => {
       offset = 0,
       filters,
       userId,
-      searchType = 'communities'
+      searchType = 'communities',
+      includeHud
     } = req.body;
     
     if (!query || typeof query !== 'string') {
@@ -177,7 +180,8 @@ router.post('/api/search/unified', async (req, res) => {
       limit,
       offset,
       filters,
-      searchType
+      searchType,
+      includeHud: includeHud === true || includeHud === 'true'
     });
     
     res.json({

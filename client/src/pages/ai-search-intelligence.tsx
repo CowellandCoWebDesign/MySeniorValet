@@ -517,6 +517,12 @@ export default function AISearchIntelligence() {
       // Trim the location/term to handle spaces added by keyboards
       const trimmedLocation = filters.location.trim();
       console.log('🔍 Searching for:', trimmedLocation);
+
+      // HUD/subsidized listings are excluded by default server-side; the
+      // "Subsidized/HUD housing" filter opts back in.
+      const includeHudParam = filters.typeOfLiving.includes('hud-sponsored')
+        ? { includeHud: 'true' }
+        : {};
       
       // Primary search via the live unified search engine. The old
       // /api/communities/search/unified path no longer exists (it returned the
@@ -526,7 +532,8 @@ export default function AISearchIntelligence() {
       const primarySearchParams = new URLSearchParams({
         q: trimmedLocation,
         limit: '50',
-        offset: '0'
+        offset: '0',
+        ...includeHudParam
       });
 
       let response = await fetch(`/api/search/unified?${primarySearchParams}`);
@@ -548,7 +555,8 @@ export default function AISearchIntelligence() {
           const fallbackParams1 = new URLSearchParams({
             q: trimmedLocation,
             limit: '25',
-            offset: '0'
+            offset: '0',
+            ...includeHudParam
           });
           
           response = await fetch(`/api/search/unified?${fallbackParams1}`);
@@ -572,7 +580,8 @@ export default function AISearchIntelligence() {
           const fallbackParams2 = new URLSearchParams({
             q: trimmedLocation,
             limit: '25',
-            offset: '0'
+            offset: '0',
+            ...includeHudParam
           });
           
           response = await fetch(`/api/search/unified?${fallbackParams2}`);
@@ -596,7 +605,8 @@ export default function AISearchIntelligence() {
           const fallbackParams3 = new URLSearchParams({
             q: trimmedLocation,
             limit: '25',
-            offset: '0'
+            offset: '0',
+            ...includeHudParam
           });
           
           response = await fetch(`/api/search/unified?${fallbackParams3}`);
@@ -620,7 +630,8 @@ export default function AISearchIntelligence() {
           const fallbackParams4 = new URLSearchParams({
             q: filters.typeOfLiving.join(' '),
             limit: '20',
-            offset: '0'
+            offset: '0',
+            ...includeHudParam
           });
           
           response = await fetch(`/api/search/unified?${fallbackParams4}`);

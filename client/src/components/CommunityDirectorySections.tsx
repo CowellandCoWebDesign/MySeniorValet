@@ -108,6 +108,8 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
   }, []);
   
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+  // Opt-in toggle: HUD/subsidized listings are excluded from the directory by default
+  const [includeHud, setIncludeHud] = useState(false);
 
   // Derive pinned community IDs from admin settings
   const pinnedCommunityIds: number[] = pageSettings?.pinnedCommunityIds ?? [];
@@ -148,10 +150,10 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
 
   // Fetch main directory listing driven by defaultSort
   const { data: sortedListingRaw, isLoading: sortedListingLoading } = useQuery({
-    queryKey: ['/api/communities/section-data', activeSortType, verifiedOnly],
+    queryKey: ['/api/communities/section-data', activeSortType, verifiedOnly, includeHud],
     queryFn: async () => {
       const r = await fetch(
-        `/api/communities/section-data?type=${activeSortType}&limit=12${verifiedOnly ? '&verifiedOnly=true' : ''}`,
+        `/api/communities/section-data?type=${activeSortType}&limit=12${verifiedOnly ? '&verifiedOnly=true' : ''}${includeHud ? '&includeHud=true' : ''}`,
         { credentials: 'include' },
       );
       if (!r.ok) throw new Error('Failed to fetch sorted communities');
@@ -855,6 +857,21 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                 >
                   <ShieldCheck className="h-3.5 w-3.5" />
                   Verified only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIncludeHud((v) => !v)}
+                  aria-pressed={includeHud}
+                  data-testid="toggle-include-hud"
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors ${
+                    includeHud
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:border-blue-500'
+                  }`}
+                  title="Include government-subsidized (HUD) housing in the listings"
+                >
+                  <Home className="h-3.5 w-3.5" />
+                  Subsidized/HUD housing
                 </button>
                 <Badge className="bg-indigo-600 text-white capitalize">
                   {pageSettings?.defaultSort === 'highest-rated' ? 'Highest Rated' :

@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { db } from '../db';
 import { communities, vendors, vendorServices, hospitals } from '@shared/schema';
 import { sql, or, ilike, and } from 'drizzle-orm';
+import { excludeHudFilter } from '../utils/community-ranking';
 
 const router = Router();
 
@@ -35,13 +36,14 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         count: sql<number>`COUNT(*)::int`.as('count')
       })
       .from(communities)
-      .where(
+      .where(and(
+        excludeHudFilter(),
         or(
           ilike(communities.city, `${searchTerm}%`),  // Exact city match (highest priority)
           ilike(communities.city, `%${searchTerm}%`), // Contains
           sql`CONCAT(${communities.city}, ', ', ${communities.state}) ILIKE ${searchTerm + '%'}` // Combined city+state
         )
-      )
+      ))
       .groupBy(communities.city, communities.state)
       .limit(10); // Top 10 matching cities
     
@@ -83,7 +85,8 @@ router.get('/autocomplete/suggestions', async (req, res) => {
           reviewCount: communities.reviewCount
         })
         .from(communities)
-        .where(
+        .where(and(
+          excludeHudFilter(),
           or(
             ilike(communities.name, `${searchTerm}%`),  // Starts with (highest priority)
             ilike(communities.name, `%${searchTerm}%`), // Contains (medium priority)
@@ -92,7 +95,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
             ilike(communities.state, `${searchTerm}%`), // State starts with (for "North Carolina")
             ilike(communities.country, `${searchTerm}%`) // Country starts with (for "Mexico")
           )
-        )
+        ))
         .limit(200); // FULL COVERAGE: 200+ communities for major cities like LA (207 communities)
       
       // Add community name matches with lower priority than cities
@@ -336,7 +339,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         count: sql<number>`COUNT(*)`.as('count')
       })
       .from(communities)
-      .where(cityWhereCondition)
+      .where(and(excludeHudFilter(), cityWhereCondition))
       .groupBy(communities.city, communities.state)
       .orderBy(sql`COUNT(*) DESC`)
       .limit(3);
@@ -357,12 +360,13 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         count: sql<number>`COUNT(*)`.as('count')
       })
       .from(communities)
-      .where(
+      .where(and(
+        excludeHudFilter(),
         or(
           ilike(communities.state, `%${searchTerm}%`),
           sql`LOWER(${communities.state}) = LOWER(${searchTerm})`
         )
-      )
+      ))
       .groupBy(communities.state)
       .orderBy(sql`COUNT(*) DESC`)
       .limit(2);
@@ -400,7 +404,7 @@ router.get('/autocomplete/suggestions', async (req, res) => {
         count: sql<number>`COUNT(*)`.as('count')
       })
       .from(communities)
-      .where(countyWhereCondition)
+      .where(and(excludeHudFilter(), countyWhereCondition))
       .groupBy(communities.county, communities.state)
       .orderBy(sql`COUNT(*) DESC`)
       .limit(2);
@@ -491,7 +495,8 @@ router.get('/autocomplete/communities', async (req, res) => {
         reviewCount: communities.reviewCount
       })
       .from(communities)
-      .where(
+      .where(and(
+        excludeHudFilter(),
         or(
           ilike(communities.name, `${searchTerm}%`),    // Name starts with
           ilike(communities.name, `%${searchTerm}%`),   // Name contains
@@ -499,7 +504,7 @@ router.get('/autocomplete/communities', async (req, res) => {
           ilike(communities.city, `%${searchTerm}%`),   // City contains
           ilike(communities.address, `%${searchTerm}%`) // Address contains
         )
-      )
+      ))
       .limit(limit);
 
     const suggestions = communityResults.map(c => ({
@@ -563,13 +568,14 @@ router.get('/autocomplete', async (req, res) => {
         state: communities.state
       })
       .from(communities)
-      .where(
+      .where(and(
+        excludeHudFilter(),
         or(
           ilike(communities.name, `${searchTerm}%`),
           ilike(communities.name, `%${searchTerm}%`),
           ilike(communities.city, `${searchTerm}%`)
         )
-      )
+      ))
       .limit(limit);
     
     // Convert to simple format for legacy compatibility

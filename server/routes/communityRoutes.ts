@@ -27,7 +27,7 @@ import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
 import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
 import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
-import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter } from "../utils/community-ranking";
+import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter, excludeHudFilter } from "../utils/community-ranking";
 
 /**
  * Single shared predicate for ALL public community queries.
@@ -41,9 +41,13 @@ import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter } from "../utils/co
  * filter is auto-reversible: a record re-appears the moment real data
  * (phone, website, description, or a verified status) is added.
  */
-function publicVisibleFilter() {
+function publicVisibleFilter(opts?: { includeHud?: boolean }) {
+  // HUD/subsidized listings are excluded from all public listing surfaces by
+  // DEFAULT (shared predicate in community-ranking.ts). HUD-specific endpoints
+  // (hud-featured, hud-properties, stats) opt back in with { includeHud: true }.
+  const hudClause = opts?.includeHud ? sql`` : sql` AND ${excludeHudFilter()}`;
   return sql`(
-    "communities"."is_hidden" IS NOT TRUE
+    "communities"."is_hidden" IS NOT TRUE${hudClause}
     AND NOT (
       ("communities"."is_verified" IS NOT TRUE OR "communities"."is_verified" IS NULL)
       AND ("communities"."phone" IS NULL OR trim("communities"."phone") = '')
@@ -394,11 +398,14 @@ export function registerCommunityRoutes(app: Express) {
   // ?type=hud | trending | highest_rated | featured | coastal | recently_discovered
   app.get("/api/communities/section-data", async (req, res) => {
     try {
-      const { type, city, state, careType, limit = "12", sectionId, verifiedOnly } = req.query;
+      const { type, city, state, careType, limit = "12", sectionId, verifiedOnly, includeHud } = req.query;
       const limitNum = Math.min(parseInt(limit as string) || 12, 30);
 
       // Optional family-facing "verified only" toggle — real signals only.
       const verifiedClause = verifiedOnly === 'true' ? sql` AND ${verifiedOnlyFilter()}` : sql``;
+      // Opt-in "Subsidized/HUD housing" toggle — HUD listings excluded by default
+      // (except the dedicated 'hud' section type, which is explicitly about them).
+      const includeHudEnabled = includeHud === 'true';
 
       // Shared visibility WHERE clause (raw SQL so we skip Drizzle column expansion).
       const baseWhere = sql`
@@ -455,14 +462,17 @@ export function registerCommunityRoutes(app: Express) {
         const ex = excludeClause(opts.exclude ?? []);
         const lim = opts.limit;
         if (lim <= 0) return [];
+        // HUD exclusion applies to every auto section EXCEPT the dedicated
+        // 'hud' type (whose whole point is HUD pricing) or when opted in.
+        const hudEx = (t === 'hud' || includeHudEnabled) ? sql`` : sql` AND ${excludeHudFilter()}`;
         let r: any;
         if (t === 'hud') {
           // Cheapest HUD pricing first (the section's intent); quality breaks ties.
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL${ex} ORDER BY "rent_per_month" ASC NULLS LAST, ${qualityRankExpr()} DESC LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "hud_property_id" IS NOT NULL${ex}${hudEx} ORDER BY "rent_per_month" ASC NULLS LAST, ${qualityRankExpr()} DESC LIMIT ${lim}`);
         } else if (t === 'trending') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex}${hudEx} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'highest_rated') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 3.5${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 3.5${ex}${hudEx} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'featured') {
           const featuredRecords = await storage.getFeaturedCommunities();
           if (featuredRecords.length > 0) {
@@ -473,21 +483,21 @@ export function registerCommunityRoutes(app: Express) {
             const ids: number[] = featuredRecords.map((f: any) => f.communityId);
             const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
             const orderList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
-            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex} ORDER BY array_position(ARRAY[${orderList}]::int[], "id") LIMIT ${lim}`);
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "id" IN (${idList})${ex}${hudEx} ORDER BY array_position(ARRAY[${orderList}]::int[], "id") LIMIT ${lim}`);
           } else {
-            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+            r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "rating" >= 4.0${ex}${hudEx} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
           }
         } else if (t === 'coastal') {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "state" IN ('CA','FL','OR','WA','HI','SC','GA')${ex}${hudEx} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'most_reviewed') {
           // Order by review count (most-reviewed first) but DO NOT hard-exclude
           // communities with zero/null reviews — most of the 33k+ communities have
           // no reviews yet, and excluding them blanks the directory grid. Quality
           // rank breaks ties so verified/featured listings surface within each band.
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere}${ex} ORDER BY "review_count" DESC NULLS LAST, ${qualityRankExpr()} DESC, "rating" DESC NULLS LAST LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere}${ex}${hudEx} ORDER BY "review_count" DESC NULLS LAST, ${qualityRankExpr()} DESC, "rating" DESC NULLS LAST LIMIT ${lim}`);
         } else if (t === 'recently_discovered') {
           // Newest first (the section's intent); quality breaks ties.
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex} ORDER BY "created_at" DESC, ${qualityRankExpr()} DESC LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "created_at" IS NOT NULL${ex}${hudEx} ORDER BY "created_at" DESC, ${qualityRankExpr()} DESC LIMIT ${lim}`);
         } else if (t === 'location') {
           const cityVal = opts.city || null;
           const stateVal = opts.state || null;
@@ -495,13 +505,13 @@ export function registerCommunityRoutes(app: Express) {
           const countryClause = countryVal
             ? sql` AND "country" IN (${sql.join(countryAliases(countryVal).map((c) => sql`${c}`), sql`, `)})`
             : sql``;
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${countryClause}${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND (${cityVal}::text IS NULL OR "city" = ${cityVal}) AND (${stateVal}::text IS NULL OR "state" = ${stateVal})${countryClause}${ex}${hudEx} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'care_type' && opts.careType) {
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "care_types"::text[] && ARRAY[${opts.careType}]::text[]${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "care_types"::text[] && ARRAY[${opts.careType}]::text[]${ex}${hudEx} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else if (t === 'brand' && opts.brand) {
           // Brand sliders: match communities whose name contains the brand string.
           const like = `%${opts.brand.trim()}%`;
-          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "name" ILIKE ${like}${ex} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
+          r = await db.execute(sql`SELECT * FROM communities WHERE ${baseWhere} AND "name" ILIKE ${like}${ex}${hudEx} ORDER BY ${qualityOrderBy()} LIMIT ${lim}`);
         } else {
           return [];
         }
@@ -616,7 +626,7 @@ export function registerCommunityRoutes(app: Express) {
         .where(
           and(
             eq(communities.isActive, true),
-            publicVisibleFilter(),
+            publicVisibleFilter({ includeHud: true }),
             isNotNull(communities.hudPropertyId),
             sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 150`
           )
@@ -871,15 +881,17 @@ export function registerCommunityRoutes(app: Express) {
         rating,
         features,
         subtypes,
-        excludePending = "true" 
+        excludePending = "true",
+        includeHud
       } = req.query;
 
       let query = db.select().from(communities);
       const conditions = [];
 
-      // Always filter to active + publicly visible communities
+      // Always filter to active + publicly visible communities.
+      // HUD/subsidized listings excluded by default — opt-in via includeHud=true.
       conditions.push(eq(communities.isActive, true));
-      conditions.push(publicVisibleFilter());
+      conditions.push(publicVisibleFilter({ includeHud: includeHud === 'true' }));
 
       // Care type filter
       if (careTypes) {
@@ -1539,7 +1551,7 @@ export function registerCommunityRoutes(app: Express) {
       const hudProperties = await db
         .select()
         .from(communities)
-        .where(and(publicVisibleFilter(), isNotNull(communities.hudPropertyId)))
+        .where(and(publicVisibleFilter({ includeHud: true }), isNotNull(communities.hudPropertyId)))
         .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
         .limit(100);
       
@@ -1628,7 +1640,8 @@ export function registerCommunityRoutes(app: Express) {
       // and stats panels reflect what families can actually access — never the
       // raw, un-cleaned total. Verification uses REAL signals (quality tier /
       // claimed / HUD-with-pricing / featured), never the legacy is_verified.
-      const visible = publicVisibleFilter();
+      // includeHud so totalHUD and directory totals still count HUD properties.
+      const visible = publicVisibleFilter({ includeHud: true });
 
       // Basic stats
       const stats = await db

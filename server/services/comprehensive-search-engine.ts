@@ -6,7 +6,7 @@
 import { db } from '../db';
 import { communities, healthcareServiceTypes } from '@shared/schema';
 import { eq, and, or, ilike, gte, lte, sql, desc, asc, isNotNull, not } from 'drizzle-orm';
-import { qualityOrderBy, verifiedOnlyFilter } from '../utils/community-ranking';
+import { qualityOrderBy, verifiedOnlyFilter, excludeHudFilter } from '../utils/community-ranking';
 
 export interface SearchFilters {
   careTypes?: string[];
@@ -23,6 +23,8 @@ export interface SearchFilters {
   longitude?: number;
   /** Optional family-facing toggle: only return meaningfully-verified listings. */
   verifiedOnly?: boolean;
+  /** Opt-in "Subsidized/HUD housing" filter — HUD listings are EXCLUDED by default. */
+  includeHud?: boolean;
 }
 
 export interface SearchResult {
@@ -77,6 +79,12 @@ export class ComprehensiveSearchEngine {
     conditions.push(activeFilter);
     // STRICT visibility: never surface hidden communities to public search
     conditions.push(sql`(is_hidden IS NULL OR is_hidden = false)`);
+    // HUD/subsidized listings are excluded by default — opt-in via filter.
+    // Applied to BOTH result rows and the count query below (same conditions
+    // array), so displayed results and totals stay consistent.
+    if (!filters.includeHud) {
+      conditions.push(excludeHudFilter());
+    }
     
     // Execute main search
     let searchQuery = db.select().from(communities);
@@ -134,7 +142,12 @@ export class ComprehensiveSearchEngine {
           const [{ count: locCount }] = await db
             .select({ count: sql`count(*)` })
             .from(communities)
-            .where(and(locWhere, sql`is_active = true`, sql`(is_hidden IS NULL OR is_hidden = false)`));
+            .where(and(
+              locWhere,
+              sql`is_active = true`,
+              sql`(is_hidden IS NULL OR is_hidden = false)`,
+              filters.includeHud ? undefined : excludeHudFilter()
+            ));
           locationHasNoRealMatches = parseInt(locCount.toString()) === 0;
         } else {
           locationHasNoRealMatches = true;
@@ -1227,6 +1240,7 @@ export class ComprehensiveSearchEngine {
         .where(and(
           sql`${communities.isActive} = true`,
           sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          excludeHudFilter(),
           or(...communityNameConditions)
         ))
         .orderBy(sql`
@@ -1270,6 +1284,7 @@ export class ComprehensiveSearchEngine {
         .where(and(
           sql`${communities.isActive} = true`,
           sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          excludeHudFilter(),
           or(...cityConditions)
         ))
         .groupBy(communities.city, communities.state)
@@ -1311,6 +1326,7 @@ export class ComprehensiveSearchEngine {
           .where(and(
             sql`${communities.isActive} = true`,
             sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            excludeHudFilter(),
             or(...stateConditions)
           ))
           .groupBy(communities.state)
@@ -1346,6 +1362,7 @@ export class ComprehensiveSearchEngine {
           and(
             sql`${communities.isActive} = true`,
             sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            excludeHudFilter(),
             or(...companyConditions),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`

@@ -20,6 +20,7 @@ import { eq, ilike, and, or, sql, gte, lte, inArray } from 'drizzle-orm';
 import { EnhancedAIEnrichmentService } from './enhanced-ai-enrichment';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
 import { cache } from '../cache';
+import { excludeHudFilter } from '../utils/community-ranking';
 import type { Community } from '@shared/schema';
 
 interface SearchIntent {
@@ -87,6 +88,8 @@ export class UnifiedSearchEngine {
     offset?: number;
     filters?: any;
     userId?: string;
+    /** Opt-in "Subsidized/HUD housing" filter — HUD listings excluded by default. */
+    includeHud?: boolean;
   }): Promise<UnifiedSearchResult> {
     const startTime = Date.now();
     
@@ -354,6 +357,10 @@ export class UnifiedSearchEngine {
       // Always filter to active, non-hidden communities only
       conditions.push(sql`${communities.isActive} = true`);
       conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+      // HUD/subsidized listings are excluded by default — opt-in via includeHud.
+      if (!options?.includeHud) {
+        conditions.push(excludeHudFilter());
+      }
       const whereClause = and(...conditions);
       
       const results = await db
@@ -381,7 +388,8 @@ export class UnifiedSearchEngine {
         .from(communities)
         .where(and(
           sql`${communities.isActive} = true`,
-          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          options?.includeHud ? undefined : excludeHudFilter()
         ))
         .limit(1000); // Get larger set for fuzzy matching
       

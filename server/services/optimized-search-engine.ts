@@ -8,6 +8,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, ilike, and, or, sql, isNull } from 'drizzle-orm';
 import { cache } from '../cache';
+import { excludeHudFilter } from '../utils/community-ranking';
 import type { Community } from '@shared/schema';
 
 export class OptimizedSearchEngine {
@@ -19,6 +20,8 @@ export class OptimizedSearchEngine {
     offset?: number;
     filters?: any;
     searchType?: string;
+    /** Opt-in "Subsidized/HUD housing" filter — HUD listings excluded by default. */
+    includeHud?: boolean;
   }): Promise<any> {
     const startTime = Date.now();
     
@@ -37,7 +40,7 @@ export class OptimizedSearchEngine {
     }
     
     // Check cache first with shorter TTL
-    const cacheKey = `optimized_search:${normalizedQuery}:${options?.limit}:${options?.offset}`;
+    const cacheKey = `optimized_search:${normalizedQuery}:${options?.limit}:${options?.offset}:${options?.includeHud ? 'hud' : 'nohud'}`;
     const cached = await cache.get(cacheKey);
     if (cached) {
       const result = JSON.parse(cached);
@@ -138,7 +141,9 @@ export class OptimizedSearchEngine {
     // Build and execute the query — always filter to active communities only
     const activeFilter = and(
       sql`${communities.isActive} = true`,
-      sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+      sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+      // HUD/subsidized listings excluded by default — opt-in via includeHud
+      options?.includeHud ? undefined : excludeHudFilter()
     );
     const whereClause = conditions.length > 0
       ? and(activeFilter, or(...conditions))

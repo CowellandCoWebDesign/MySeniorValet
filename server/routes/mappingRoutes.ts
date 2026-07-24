@@ -3,7 +3,7 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { and, sql, between, isNotNull } from "drizzle-orm";
 import { superclusterService } from "../services/supercluster";
-import { verifiedOnlyFilter } from "../utils/community-ranking";
+import { verifiedOnlyFilter, excludeHudFilter } from "../utils/community-ranking";
 
 export function registerMappingRoutes(app: Express) {
   
@@ -12,7 +12,7 @@ export function registerMappingRoutes(app: Express) {
   // NEW: Raw markers endpoint for frontend clustering with react-leaflet-cluster
   app.get("/api/communities/markers", async (req, res) => {
     try {
-      const { west, south, east, north, limit = 10000, verifiedOnly } = req.query;
+      const { west, south, east, north, limit = 10000, verifiedOnly, includeHud } = req.query;
       
       if (!west || !south || !east || !north) {
         return res.status(400).json({ 
@@ -30,6 +30,9 @@ export function registerMappingRoutes(app: Express) {
       // (computed from these markers) stay accurate too.
       const verifiedOnlyEnabled = verifiedOnly === 'true' || verifiedOnly === '1';
       const verifiedClause = verifiedOnlyEnabled ? sql` AND ${verifiedOnlyFilter()}` : sql``;
+      // HUD/subsidized listings excluded by default — opt-in via includeHud=true
+      const includeHudEnabled = includeHud === 'true' || includeHud === '1';
+      const hudClause = includeHudEnabled ? sql`` : sql` AND ${excludeHudFilter()}`;
       
       console.log(`Fetching raw markers for bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]${verifiedOnlyEnabled ? ' (verified only)' : ''}`);
       
@@ -46,7 +49,7 @@ export function registerMappingRoutes(app: Express) {
         WHERE latitude IS NOT NULL 
           AND longitude IS NOT NULL
           AND latitude BETWEEN ${southFloat} AND ${northFloat}
-          AND longitude BETWEEN ${westFloat} AND ${eastFloat}${verifiedClause}
+          AND longitude BETWEEN ${westFloat} AND ${eastFloat}${verifiedClause}${hudClause}
         LIMIT ${parseInt(limit as string)}
       `);
       
@@ -85,7 +88,7 @@ export function registerMappingRoutes(app: Express) {
   // FIXED: Supercluster-powered clustering endpoint (kept for backward compatibility)
   app.get("/api/communities/clusters", async (req, res) => {
     try {
-      const { west, south, east, north, zoom = 10, limit = 5000, verifiedOnly } = req.query;
+      const { west, south, east, north, zoom = 10, limit = 5000, verifiedOnly, includeHud } = req.query;
       
       if (!west || !south || !east || !north) {
         return res.status(400).json({ 
@@ -106,7 +109,7 @@ export function registerMappingRoutes(app: Express) {
       await superclusterService.initialize();
       
       // Get clusters from supercluster
-      const clusters = await superclusterService.getClusters([westFloat, southFloat, eastFloat, northFloat], zoomInt, verifiedOnlyEnabled);
+      const clusters = await superclusterService.getClusters([westFloat, southFloat, eastFloat, northFloat], zoomInt, verifiedOnlyEnabled, includeHud === 'true' || includeHud === '1');
       
       console.log(`Supercluster returned ${clusters.length} clusters/points for zoom ${zoomInt}`);
       

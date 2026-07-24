@@ -54,6 +54,31 @@ export function qualityOrderBy(): SQL {
 }
 
 /**
+ * Single shared definition of a "HUD / subsidized housing" listing:
+ * `data_source ILIKE '%hud%' OR care_types @> ARRAY['HUD Housing']`.
+ *
+ * These ~4.7k HUD Multifamily entries are mostly generic subsidized apartment
+ * buildings that clutter senior-care results, so every PUBLIC surface excludes
+ * them by DEFAULT (via `excludeHudFilter()`) unless the family explicitly
+ * enables the "Subsidized/HUD housing" filter. Detail pages, saved links, and
+ * the sitemap are NOT filtered — the rows stay public and reachable.
+ *
+ * Uses bare column names so the same fragment works in raw SQL and Drizzle
+ * queries against the single, un-aliased `communities` table.
+ */
+export function hudListingFilter(): SQL {
+  return sql`(
+    coalesce("data_source", '') ILIKE '%hud%'
+    OR coalesce("care_types", ARRAY[]::text[]) @> ARRAY['HUD Housing']::text[]
+  )`;
+}
+
+/** Default-on WHERE fragment: hide HUD listings unless explicitly requested. */
+export function excludeHudFilter(): SQL {
+  return sql`NOT ${hudListingFilter()}`;
+}
+
+/**
  * WHERE fragment for the optional family "verified only" toggle.
  *
  * "Verified" = a REAL signal only (mirrors `isMeaningfullyVerified()` plus the
