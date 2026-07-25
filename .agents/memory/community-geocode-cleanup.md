@@ -43,6 +43,21 @@ All deletes are backed up to `.local/backups/deleted-synthetic-communities-*.jso
 far safer than hand-mapping params. Null out `location` before insert so the geocoder
 recomputes the PostGIS point.
 
+## Quarantine arbitration for HIDDEN rows
+`server/scripts/arbitrate-quarantined-geocoding.ts` runs the arbitration over
+hidden senior rows flagged `geo_needs_review` (the visible-only fix script skips
+them). Key differences: centroids come from VISIBLE rows only; acceptance =
+street-level Nominatim result within 30km of centroid OR addressdetails
+city+state match (handles cities with no trusted centroid); free-form query then
+structured (street/city/state/postalcode) fallback; on success it clears the
+protective flags in SQL FIRST, then calls `recomputeCommunityVisibility(id)` —
+the visibility writer re-reads flags, so clearing before recompute is mandatory
+or the protective override keeps the row hidden. Resumable via a `.local`
+checkpoint of attempted ids; fresh rows processed before `geo_unresolved`
+retries. July 2026 run: 710/2,706 verified (650 restored public), rest stay
+quarantined — most fabricated addresses simply never resolve, which is the
+intended arbitration outcome.
+
 ## Map visibility
 `server/routes/communityRoutes.ts` map query already filters `is_hidden IS NOT TRUE`
 AND `isClearlyFake(...)`, so quarantined rows never reach the map/search.
