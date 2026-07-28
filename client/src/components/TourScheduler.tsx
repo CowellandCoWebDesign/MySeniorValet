@@ -166,16 +166,16 @@ export function TourScheduler({
           <DialogHeader>
             <DialogTitle>Schedule a Tour</DialogTitle>
             <DialogDescription className="space-y-2">
-              <div className="text-base font-semibold text-gray-900 dark:text-gray-100">
+              <span className="block text-base font-semibold text-gray-900 dark:text-gray-100">
                 {communityName}
-              </div>
+              </span>
               {communityAddress && (
-                <div className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md">
+                <span className="flex items-start gap-2 bg-blue-50 dark:bg-blue-900/20 p-2 rounded-md">
                   <MapPin className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
                   <span className="text-sm text-blue-900 dark:text-blue-200 font-medium">
                     {communityAddress}
                   </span>
-                </div>
+                </span>
               )}
             </DialogDescription>
           </DialogHeader>
@@ -352,7 +352,10 @@ export function TourScheduler({
           <DialogHeader>
             <DialogTitle className="text-green-600">✅ Tour Successfully Scheduled!</DialogTitle>
             <DialogDescription>
-              <div className="space-y-4 mt-4">
+              Your tour has been scheduled. Details are below.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
                 <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg border border-green-200 dark:border-green-700">
                   <p className="text-sm text-green-800 dark:text-green-200">
                     <strong>Confirmation Code:</strong> {confirmationCode}
@@ -390,9 +393,7 @@ export function TourScheduler({
                     </Button>
                   </div>
                 </div>
-              </div>
-            </DialogDescription>
-          </DialogHeader>
+          </div>
         </DialogContent>
       </Dialog>
     </>
