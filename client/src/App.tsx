@@ -495,13 +495,8 @@ function AppContent() {
 function App() {
   // Initialize analytics and monitoring when app loads
   useEffect(() => {
-    // Initialize Google Analytics
-    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
-      console.warn('Missing Google Analytics key: VITE_GA_MEASUREMENT_ID - analytics disabled');
-    } else {
-      initGA();
-      console.log('✅ Google Analytics initialized');
-    }
+    // Initialize Google Analytics (initGA warns once and no-ops if the ID is missing)
+    initGA();
     
     // Initialize Sentry error monitoring
     if (!import.meta.env.VITE_SENTRY_DSN) {
