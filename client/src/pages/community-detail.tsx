@@ -3100,6 +3100,86 @@ export default function CommunityDetail() {
                 </Card>
 
 
+
+                {/* Task #352: "Get the latest info" CTA — shown when the community
+                    is still blank after the automatic self-heal pass was skipped or
+                    failed, so families can explicitly ask for a live lookup. */}
+                {(() => {
+                  const descLen = (community.description || '').trim().length;
+                  const photoCount = (community.photos || []).filter(
+                    (p: any) => typeof p === 'string' && p.trim().length > 0,
+                  ).length;
+                  const isBlank = descLen < 80 && photoCount === 0;
+                  if (!isBlank || isSelfHealing) return null;
+
+                  if (isVerifying && latestInfoRequested) {
+                    return (
+                      <Card data-testid="card-latest-info-loading">
+                        <CardContent className="py-6">
+                          <MascotLoadingDisplay
+                            compact
+                            title="Getting the latest info"
+                            subtitle={`Searching verified sources for ${community.name}…`}
+                            processStages={["Searching official sources", "Verifying details", "Checking photos"]}
+                          />
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+
+                  if (latestInfoRequested && !isVerifying && descLen < 80) {
+                    return (
+                      <Card data-testid="card-latest-info-failed">
+                        <CardContent className="py-6 text-center">
+                          <Info className="w-6 h-6 mx-auto mb-2 text-amber-500" />
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            We couldn't find verified information for this community right now.
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            Please contact the community directly for details.
+                          </p>
+                        </CardContent>
+                      </Card>
+                    );
+                  }
+
+                  return (
+                    <Card data-testid="card-latest-info-cta">
+                      <CardContent className="py-6 text-center">
+                        <img src={valetMascot} alt="MySeniorValet valet" className="w-16 h-16 mx-auto mb-3 object-contain" />
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
+                          We don't have detailed information for this community yet.
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
+                          Ask our valet to search verified sources for the latest details and photos.
+                        </p>
+                        <Button
+                          onClick={() => {
+                            setLatestInfoRequested(true);
+                            handleManualVerification();
+                          }}
+                          disabled={isVerifying}
+                          data-testid="button-get-latest-info"
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Get the latest info
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  );
+                })()}
+
+                {/* Task #352: Live Intelligence ("What we found") moved here from the
+                    Floorplans tab — verified findings belong with Info & Tours. */}
+                <RealTimeInsights 
+                  key={`real-time-insights-${community.id}`}
+                  community={community}
+                  marketAnalysisData={marketAnalysisData} 
+                  onVerificationReport={setVerificationReport}
+                  onPhotosUpdate={undefined}
+                  verificationReport={verificationReport}
+                />
+
                 {/* Contact & Tour Section */}
             <Card>
               <CardContent className="p-0">
@@ -3477,85 +3557,6 @@ export default function CommunityDetail() {
                     </div>
                   </CardContent>
                 </Card>
-
-                {/* Task #352: "Get the latest info" CTA — shown when the community
-                    is still blank after the automatic self-heal pass was skipped or
-                    failed, so families can explicitly ask for a live lookup. */}
-                {(() => {
-                  const descLen = (community.description || '').trim().length;
-                  const photoCount = (community.photos || []).filter(
-                    (p: any) => typeof p === 'string' && p.trim().length > 0,
-                  ).length;
-                  const isBlank = descLen < 80 && photoCount === 0;
-                  if (!isBlank || isSelfHealing) return null;
-
-                  if (isVerifying && latestInfoRequested) {
-                    return (
-                      <Card data-testid="card-latest-info-loading">
-                        <CardContent className="py-6">
-                          <MascotLoadingDisplay
-                            compact
-                            title="Getting the latest info"
-                            subtitle={`Searching verified sources for ${community.name}…`}
-                            processStages={["Searching official sources", "Verifying details", "Checking photos"]}
-                          />
-                        </CardContent>
-                      </Card>
-                    );
-                  }
-
-                  if (latestInfoRequested && !isVerifying && descLen < 80) {
-                    return (
-                      <Card data-testid="card-latest-info-failed">
-                        <CardContent className="py-6 text-center">
-                          <Info className="w-6 h-6 mx-auto mb-2 text-amber-500" />
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            We couldn't find verified information for this community right now.
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Please contact the community directly for details.
-                          </p>
-                        </CardContent>
-                      </Card>
-                    );
-                  }
-
-                  return (
-                    <Card data-testid="card-latest-info-cta">
-                      <CardContent className="py-6 text-center">
-                        <img src={valetMascot} alt="MySeniorValet valet" className="w-16 h-16 mx-auto mb-3 object-contain" />
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-                          We don't have detailed information for this community yet.
-                        </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                          Ask our valet to search verified sources for the latest details and photos.
-                        </p>
-                        <Button
-                          onClick={() => {
-                            setLatestInfoRequested(true);
-                            handleManualVerification();
-                          }}
-                          disabled={isVerifying}
-                          data-testid="button-get-latest-info"
-                        >
-                          <Sparkles className="w-4 h-4 mr-2" />
-                          Get the latest info
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  );
-                })()}
-
-                {/* Task #352: Live Intelligence ("What we found") moved here from the
-                    Floorplans tab — verified findings belong with Info & Tours. */}
-                <RealTimeInsights 
-                  key={`real-time-insights-${community.id}`}
-                  community={community}
-                  marketAnalysisData={marketAnalysisData} 
-                  onVerificationReport={setVerificationReport}
-                  onPhotosUpdate={undefined}
-                  verificationReport={verificationReport}
-                />
 
                 {/* Pricing History & Transparency - Moved to bottom of community tab */}
                 <PricingHistory 
