@@ -964,34 +964,22 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                   return null;
                 })()}
                 
-                {/* Community-specific insights from web search */}
+                {/* Community-specific insights from web search.
+                    Task #393: the raw search content / description is NO LONGER
+                    rendered here — the About card at the top of the Info tab is
+                    the single description surface. The raw content still gets
+                    parsed into structured fields elsewhere (description → About,
+                    pricing → transparency, floor plans → Availability tab).
+                    Only the sources/citations list stays visible. */}
                 {(() => {
-                  // Check all possible data paths for Perplexity content
-                  // CRITICAL FIX: Backend returns content in searchResults.summary (primary source)
-                  // Prefer the clean, persisted community.description. The live
-                  // verify content is only used as a fallback and only when it is
-                  // NOT legacy conversational AI output (hallucinated date / wrong
-                  // phone) — that blob must never render as the overview.
-                  const liveVerifyContent =
-                    localVerificationReport?.verificationResults?.searchResults?.summary ||
-                    localVerificationReport?.searchResults?.summary ||
-                    localVerificationReport?.verificationResults?.perplexityData?.searchContent ||
-                    localVerificationReport?.perplexityData?.searchContent ||
-                    localVerificationReport?.searchContent ||
-                    localVerificationReport?.content;
-                  const perplexityContent =
-                    community?.description ||
-                    (isLegacyVerifyBlob(liveVerifyContent) ? undefined : liveVerifyContent);
-                  
                   const perplexitySources = 
                     localVerificationReport?.verificationResults?.perplexityData?.sources ||
                     localVerificationReport?.perplexityData?.sources ||
                     localVerificationReport?.sources;
                   
-                  const webIntelligenceDescription = localVerificationReport?.verificationResults?.webIntelligence?.description;
                   const verifiedFacts = localVerificationReport?.consensus?.verifiedFacts;
                   
-                  const hasAnyData = verifiedFacts?.length > 0 || perplexityContent || webIntelligenceDescription;
+                  const hasAnyData = verifiedFacts?.length > 0 || perplexitySources?.length > 0;
                   
                   // If actively searching, show loading state only
                   if (isVerifying) {
@@ -1009,70 +997,26 @@ const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport,
                         Information found about this specific community:
                       </p>
                       
-                      {/* ALWAYS show full Perplexity search content if available - this is the primary source */}
-                      {perplexityContent && (
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg space-y-4">
-                          {/* Rendered markdown response */}
-                          <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                            <ReactMarkdown
-                              components={{
-                                strong: ({ children }) => (
-                                  <strong className="font-semibold text-gray-900 dark:text-gray-100">{children}</strong>
-                                ),
-                                p: ({ children }) => (
-                                  <p className="mb-2 last:mb-0">{children}</p>
-                                ),
-                                ul: ({ children }) => (
-                                  <ul className="list-disc list-inside space-y-1 mb-2">{children}</ul>
-                                ),
-                                ol: ({ children }) => (
-                                  <ol className="list-decimal list-inside space-y-1 mb-2">{children}</ol>
-                                ),
-                                li: ({ children }) => (
-                                  <li className="text-gray-700 dark:text-gray-300">{children}</li>
-                                ),
-                                h1: ({ children }) => (
-                                  <h1 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1 mt-3">{children}</h1>
-                                ),
-                                h2: ({ children }) => (
-                                  <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100 mb-1 mt-3">{children}</h2>
-                                ),
-                                h3: ({ children }) => (
-                                  <h3 className="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-1 mt-2">{children}</h3>
-                                ),
-                                a: ({ href, children }) => (
-                                  <a href={href} target="_blank" rel="noopener noreferrer"
-                                    className="text-blue-600 dark:text-blue-400 underline hover:text-blue-800 dark:hover:text-blue-300">
-                                    {children}
-                                  </a>
-                                ),
-                              }}
-                            >
-                              {perplexityContent}
-                            </ReactMarkdown>
+                      {/* Show sources/citations if available (description itself
+                          lives in the About card above — not repeated here) */}
+                      {perplexitySources?.length > 0 && (
+                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
+                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
+                          <div className="flex flex-wrap gap-2">
+                            {perplexitySources.map((source: string, idx: number) => (
+                              <a 
+                                key={idx}
+                                href={source}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
+                                title={source}
+                              >
+                                <ExternalLink className="w-3 h-3 inline mr-1" />
+                                Source {idx + 1}
+                              </a>
+                            ))}
                           </div>
-                          
-                          {/* Show sources if available */}
-                          {perplexitySources?.length > 0 && (
-                            <div className="border-t pt-3">
-                              <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
-                              <div className="flex flex-wrap gap-2">
-                                {perplexitySources.map((source: string, idx: number) => (
-                                  <a 
-                                    key={idx}
-                                    href={source}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                    title={source}
-                                  >
-                                    <ExternalLink className="w-3 h-3 inline mr-1" />
-                                    Source {idx + 1}
-                                  </a>
-                                ))}
-                              </div>
-                            </div>
-                          )}
                         </div>
                       )}
                     </>
@@ -1645,6 +1589,61 @@ export default function CommunityDetail() {
 
   // Get comprehensive data from the community response (no longer a separate endpoint)
   const comprehensiveData = (community as any)?.comprehensiveData || null;
+
+  // Task #393: web-intelligence floor plan images (URL strings) now feed the
+  // Availability tab's "Available Units & Pricing" grid instead of only a dialog.
+  const webIntelFloorPlanImages: string[] = React.useMemo(() => Array.from(new Set(
+    ([] as any[])
+      .concat(verificationReport?.webIntelligence?.floorPlans || [])
+      .concat(verificationReport?.verificationResults?.webIntelligence?.floorPlans || [])
+      .concat(comprehensiveData?.floorPlans || [])
+      .filter((p: any) => typeof p === 'string' && p.trim().length > 0)
+  )), [verificationReport, comprehensiveData]);
+
+  // Task #393: discovered pricing (comprehensiveData / web intel / verification
+  // report) is documented in the Pricing History & Transparency section.
+  const discoveredPricing = React.useMemo(() => {
+    const entries: { label: string; value: string; source: string }[] = [];
+    const seen = new Set<string>();
+    const add = (label: string, value: any, source: string) => {
+      if (!value || typeof value !== 'string' || !value.trim()) return;
+      if (value === '__MARKET_DATA_TAB__') return;
+      const key = `${label}:${value}`.toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      entries.push({ label, value: value.trim(), source });
+    };
+    const cd = comprehensiveData?.marketData?.pricing;
+    if (cd && typeof cd === 'object') {
+      add('Studio', cd.studio, 'Market Intelligence');
+      add('One Bedroom', cd.oneBedroom, 'Market Intelligence');
+      add('Two Bedroom', cd.twoBedroom, 'Market Intelligence');
+      add('General Pricing', cd.general, 'Market Intelligence');
+    } else if (typeof cd === 'string') {
+      add('Pricing', cd, 'Market Intelligence');
+    }
+    const vp = verificationReport?.verificationResults?.pricing || verificationReport?.pricing;
+    if (vp && typeof vp === 'object') {
+      add('Monthly Rate', vp.monthly, 'Web Verification');
+      add('Studio', vp.studio, 'Web Verification');
+      add('One Bedroom', vp.oneBedroom, 'Web Verification');
+      add('Two Bedroom', vp.twoBedroom, 'Web Verification');
+      add('Pricing Details', vp.details, 'Web Verification');
+    } else if (typeof vp === 'string') {
+      add('Pricing', vp, 'Web Verification');
+    }
+    const wip = verificationReport?.verificationResults?.webIntelligence?.pricing ||
+                verificationReport?.webIntelligence?.pricing;
+    if (wip && typeof wip === 'object') {
+      add('Assisted Living', wip.assistedLiving, 'Web Intelligence');
+      add('Memory Care', wip.memoryCare, 'Web Intelligence');
+      add('Independent Living', wip.independentLiving, 'Web Intelligence');
+      add('Pricing Details', wip.details, 'Web Intelligence');
+    } else if (typeof wip === 'string') {
+      add('Pricing', wip, 'Web Intelligence');
+    }
+    return entries;
+  }, [comprehensiveData, verificationReport]);
 
   // Detect virtual tour using our enhanced detection service
   const communityId = community?.id ?? (id ? Number(id) : undefined);
@@ -3558,10 +3557,15 @@ export default function CommunityDetail() {
                   </CardContent>
                 </Card>
 
-                {/* Pricing History & Transparency - Moved to bottom of community tab */}
+                {/* Pricing History & Transparency - Moved to bottom of community tab.
+                    Task #393: discovered pricing (web intel / verification /
+                    comprehensive data) is documented here too. */}
                 <PricingHistory 
                   communityId={community.id} 
                   communityName={community.name} 
+                  discoveredPricing={discoveredPricing}
+                  pricingRevealed={isDetailRevealed('pricing')}
+                  onRevealPricing={() => revealDetail('pricing')}
                 />
               </TabsContent>
 
@@ -3576,17 +3580,20 @@ export default function CommunityDetail() {
                       Available Units & Pricing
                     </CardTitle>
                     <CardDescription>
-                      {verificationReport?.verificationResults?.floorPlans ? 
+                      {(verificationReport?.verificationResults?.floorPlans || webIntelFloorPlanImages.length > 0) ? 
                         'Floor plans and pricing from verified sources' : 
                         'Estimated pricing based on market analysis'}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {/* Use real pricing from verification report if available */}
-                      {(verificationReport?.verificationResults?.floorPlans && 
-                        verificationReport.verificationResults.floorPlans.length > 0) ? (
-                        verificationReport.verificationResults.floorPlans.map((unit: any, idx: number) => (
+                      {/* Use real pricing from verification report if available.
+                          Task #393: web-intelligence floor plan images also count
+                          as real data and render in this grid (not just a dialog). */}
+                      {((verificationReport?.verificationResults?.floorPlans?.length > 0) ||
+                        webIntelFloorPlanImages.length > 0) ? (
+                        <>
+                        {(verificationReport?.verificationResults?.floorPlans || []).map((unit: any, idx: number) => (
                           <div key={idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                             <div className="mb-3">
                               <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
@@ -3622,7 +3629,39 @@ export default function CommunityDetail() {
                               Reserve This Unit
                             </Button>
                           </div>
-                        ))
+                        ))}
+                        {/* Task #393: floor plan images discovered by web
+                            intelligence render alongside verified units */}
+                        {webIntelFloorPlanImages.map((planUrl: string, idx: number) => (
+                          <div key={`wi-plan-${idx}`} className="bg-gray-50 dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700" data-testid={`card-webintel-floorplan-${idx}`}>
+                            <div className="relative h-48 bg-gray-100 dark:bg-gray-700">
+                              <img
+                                src={planUrl}
+                                alt={`Floor plan ${idx + 1}`}
+                                className="w-full h-full object-contain"
+                                loading="lazy"
+                              />
+                              <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                                Floor Plan
+                              </div>
+                            </div>
+                            <div className="p-4">
+                              <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                                Floor Plan {idx + 1}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Found via web intelligence
+                              </p>
+                              <Button 
+                                className="w-full mt-3 bg-green-600 hover:bg-green-700 text-white"
+                                onClick={() => setShowReservationDialog(true)}
+                              >
+                                Ask About This Plan
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                        </>
                       ) : (
                         /* Show pricing from Perplexity data or estimates */
                         <>

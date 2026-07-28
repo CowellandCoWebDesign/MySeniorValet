@@ -145,7 +145,6 @@ export function LiveWebIntelligence({
       const searchResultsSummary = verificationReport?.verificationResults?.searchResults?.summary;
       
       // Parse the perplexity response properly
-      let parsedDescription = '';
       let parsedWebsite = '';
       let parsedPhone = '';
       let parsedPricing = {};
@@ -156,7 +155,6 @@ export function LiveWebIntelligence({
       const searchContent = searchResultsSummary || perplexityData.searchContent;
       if (searchContent) {
         const content = searchContent;
-        parsedDescription = content;
         
         // Extract website
         const websiteMatch = content.match(/OFFICIAL WEBSITE:\s*([^\s]+)/i) || 
@@ -202,7 +200,7 @@ export function LiveWebIntelligence({
                verificationReport?.phoneNumber,
         pricing: Object.keys(parsedPricing).length > 0 ? parsedPricing : 
                 (verificationReport?.pricing || webIntel.pricing),
-        description: parsedDescription || 
+        description: 
                     webIntel.description ||
                     verificationReport?.searchResults?.summary,
         sources: perplexityData.sources || 
@@ -383,25 +381,10 @@ export function LiveWebIntelligence({
             </div>
           )}
           
-          {/* Description from search content */}
-          {searchContent && searchContent.length > 50 && (
-            <div className="p-3 rounded-lg bg-muted/50">
-              <h4 className="font-medium text-sm mb-1 flex items-center gap-1">
-                <Sparkles className="h-3 w-3 text-blue-600" />
-                Community Overview
-              </h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {searchContent.slice(0, 600)}{searchContent.length > 600 ? "…" : ""}
-              </p>
-            </div>
-          )}
-
-          {/* Additional info from verification */}
-          {verificationData?.description && !searchContent && (
-            <div className="p-3 rounded-lg bg-muted/50">
-              <p className="text-sm">{verificationData.description}</p>
-            </div>
-          )}
+          {/* Task #393: description/search-content is no longer rendered here —
+              the About card on the Info tab is the single description surface.
+              The raw content still feeds structured parsing (pricing, floor
+              plans, amenities) elsewhere. */}
           
           <div className="pt-2">
             <Button 
@@ -543,18 +526,8 @@ export function LiveWebIntelligence({
 
       {isExpanded && (
         <CardContent className="space-y-5 pt-0">
-          {/* Description - Show first if available */}
-          {intelligence?.description && (
-            <div className="p-4 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 border border-blue-100 dark:border-blue-900">
-              <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-blue-600" />
-                Community Overview
-              </h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {intelligence.description}
-              </p>
-            </div>
-          )}
+          {/* Task #393: the description block was removed — the About card on
+              the Info tab is the single description surface. */}
 
           {/* Official Website */}
           {intelligence?.officialWebsite && (
