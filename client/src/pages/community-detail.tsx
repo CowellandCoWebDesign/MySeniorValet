@@ -11,6 +11,7 @@ import { ArrowLeft, Home, Phone, Calendar, Heart, MessageSquare, Star, DollarSig
          Clock, HelpCircle, ChevronLeft, ChevronRight, Activity, UtensilsCrossed, Car, 
          ChevronDown, ChevronUp, Building, FileText, AlertTriangle, TrendingUp, Crown, Gem, Brain, AlertCircle, Truck, Package, Stethoscope, TrendingDown, Minus, BarChart3, Loader2, Camera, Search, RefreshCw } from 'lucide-react';
 import type { Community } from '@shared/schema';
+import { stripEnrichmentMarkdown } from '@shared/enrichment-text';
 import { getCommunityUrl } from '@/lib/community-url';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -64,6 +65,13 @@ import { RequestInfoDialog } from '@/components/RequestInfoDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
 import { useVirtualTourDetection } from '@/hooks/useVirtualTourDetection';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
+import {
+  buildProfileFacts,
+  ProfileHeaderBand,
+  QuickFactsStrip,
+  CostsSection,
+  DataSourcesLine,
+} from '@/components/CommunityProfileSections';
 import { StructuredData, createCommunitySchema } from '@/components/StructuredData';
 
 // Default photos for communities without images
@@ -526,714 +534,6 @@ const IntelligentPricingPrediction = ({ community, verificationReport }: { commu
   );
 };
 
-// Real-time AI Insights Component - Enhanced with Multi-AI Verification
-const RealTimeInsights = ({ community, marketAnalysisData, onVerificationReport, onPhotosUpdate, verificationReport }: { community: any, marketAnalysisData?: any, onVerificationReport?: (report: any) => void, onPhotosUpdate?: (photos: string[]) => void, verificationReport?: any }) => {
-  const realTimeData = community?.realTimeData;
-  // Use the verificationReport passed from parent instead of local state
-  const localVerificationReport = verificationReport;
-  const setLocalVerificationReport = onVerificationReport || (() => {});
-  // Removed webIntelligenceData - now handled internally by simplified LiveWebIntelligence component
-  const [isVerifying, setIsVerifying] = useState(false);
-
-  // Track if we've already started verification to prevent duplicates
-  const [hasStartedVerification, setHasStartedVerification] = useState(false);
-  const [hasCachedData, setHasCachedData] = useState(false);
-  
-  // First, try to load from cache immediately on mount
-  useEffect(() => {
-    if (community?.id && !localVerificationReport && !hasCachedData) {
-      console.log(`🔍 Checking cache for verification data for community ${community.id}`);
-      
-      // Check if we have cached data from previous visit - DO NOT store null
-      // This is a cache CHECK, not a fetch. Actual fetching happens below
-      const cachedData = enrichmentCache.get(community.id);
-      
-      if (cachedData && cachedData.communityId) {
-        console.log(`✨ Loaded verification report from cache for community ${community.id}`);
-        setLocalVerificationReport(cachedData);
-        setHasCachedData(true);
-        if (onPhotosUpdate && cachedData.verificationResults?.webIntelligence?.images) {
-          // Task #352: only CONFIRMED photos may reach the carousel — object
-          // entries need isAuthentic === true; plain strings are the persisted,
-          // already-verified DB set returned by the cached verify path.
-          const confirmedCached = cachedData.verificationResults.webIntelligence.images
-            .filter((img: any) => typeof img === 'string' || img?.isAuthentic === true)
-            .map((img: any) => (typeof img === 'string' ? img : img.image_url || img.url))
-            .filter(Boolean);
-          onPhotosUpdate(confirmedCached);
-        }
-      } else {
-        console.log(`📭 No cached verification data for community ${community.id}, will auto-fetch for first-time visitor`);
-        // AUTO-FETCH: Trigger automatic verification for first-time visitors
-        if (!hasStartedVerification) {
-          setHasStartedVerification(true);
-          handleAutoVerification();
-        }
-      }
-    }
-  }, [community?.id]);
-  
-  // AUTO-VERIFICATION: Automatically verify community data on first visit
-  const handleAutoVerification = async () => {
-    if (!community?.id || isVerifying) return;
-    
-    console.log('🤖 Auto-fetching verification data for first-time visitor:', community.name);
-    setIsVerifying(true);
-    
-    try {
-      const response = await fetch(`/api/communities/${community.id}/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          forceRefresh: false,  // false = check cache/database first, don't delete existing data!
-          websiteUrl: community.website
-        })
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Verification failed: ${response.status}`);
-      }
-      
-      const report = await response.json();
-      
-      // Cache the verification report using community ID
-      enrichmentCache.getOrFetch(community.id, async () => report, false);
-      
-      // Update state with verification results
-      setLocalVerificationReport(report);
-      setHasCachedData(true);
-      
-      // Update photos if found — Task #352: only CONFIRMED photos pass
-      // (isAuthentic === true for object entries; strings = persisted DB set).
-      if (report.verificationResults?.webIntelligence?.images) {
-        if (onPhotosUpdate) {
-          const confirmedFresh = report.verificationResults.webIntelligence.images
-            .filter((img: any) => typeof img === 'string' || img?.isAuthentic === true)
-            .map((img: any) => (typeof img === 'string' ? img : img.image_url || img.url))
-            .filter(Boolean);
-          onPhotosUpdate(confirmedFresh);
-        }
-      }
-      
-      console.log('✅ Auto-verification completed successfully');
-    } catch (error) {
-      console.error('❌ Auto-verification failed:', error);
-      setHasStartedVerification(false); // Allow retry on error
-    } finally {
-      setIsVerifying(false);
-    }
-  };
-  
-  // REMOVED: Duplicate verification call - RealTimeInsights now uses parent verification data only
-  // The parent component handles all verification calls to prevent API duplication
-
-  // Show loading or placeholder content while waiting for data
-  const hasData = realTimeData || localVerificationReport;
-
-  // Parse text arrays to filter out empty or "no information" responses
-  const parseDataArray = (data: string[] | string | undefined): string[] => {
-    if (!data) return [];
-    const items = Array.isArray(data) ? data : [data];
-    return items.filter(item => 
-      item && 
-      !item.toLowerCase().includes('no publicly available') &&
-      !item.toLowerCase().includes('no information') &&
-      !item.toLowerCase().includes('no announcements') &&
-      !item.toLowerCase().includes('no coverage')
-    );
-  };
-
-  return (
-    <Card className="mb-8 border-2 border-blue-200 dark:border-blue-800 relative overflow-hidden">
-      {/* Web Intelligence Badge */}
-      <div className="absolute top-4 right-4 z-10">
-        <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-          <Sparkles className="w-3 h-3 mr-1" />
-          Free Web Intelligence
-        </div>
-      </div>
-
-      <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-        <CardTitle className="text-2xl font-bold flex items-center">
-          <Sparkles className="w-6 h-6 mr-2 text-blue-600" />
-          Live Intelligence Report
-        </CardTitle>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-base text-gray-700 dark:text-gray-300">
-            Real-time information gathered from public sources across the web
-          </span>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              Updated {realTimeData?.lastUpdated ? new Date(realTimeData.lastUpdated).toLocaleTimeString() : 'just now'}
-            </span>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent className="pt-6">
-        {/* Live Web Intelligence moved to avoid duplicate photo display */}
-        {/* Content moved to tabs section to prevent competing carousels */}
-        
-        {/* Show sections even without real-time data - will populate when loaded */}
-        {(
-        <div className="space-y-6 mt-6">
-          {/* Current Availability & Pricing - Enhanced with Web Intelligence Data */}
-          {(realTimeData?.currentAvailability || realTimeData?.currentPricing || realTimeData?.waitlistStatus) && (() => {
-            // GOLDEN DATA RULE: Validate pricing before displaying
-            const isValidPricingText = (pricingText: string): boolean => {
-              // Extract numeric values from pricing text
-              const numbers = pricingText.match(/\$?[\d,]+(?:\.\d{2})?/g);
-              if (!numbers) return true; // If no numbers, might be descriptive text - allow it
-              
-              const values = numbers.map(n => parseInt(n.replace(/[$,]/g, '')));
-              // Check if any value is suspiciously low (< $500 for senior living)
-              const hasSuspiciousPrice = values.some(v => v > 0 && v < 500);
-              if (hasSuspiciousPrice) {
-                console.warn(`⚠️ Suspicious pricing in text: ${pricingText}`);
-                return false;
-              }
-              return true;
-            };
-            
-            let validPricing = realTimeData?.currentPricing;
-            if (validPricing) {
-              try {
-                if (typeof validPricing === 'string' && validPricing.includes('{') && validPricing.includes('}')) {
-                  const parsed = JSON.parse(validPricing);
-                  validPricing = parsed.price || parsed.amount || parsed.text || JSON.stringify(parsed);
-                }
-              } catch (e) {
-                // If it's not valid JSON, use as-is
-              }
-              if (!isValidPricingText(validPricing)) {
-                validPricing = null; // Filter out suspicious pricing
-              }
-            }
-            
-            return (
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 p-4 rounded-lg">
-              <h4 className="font-semibold text-lg mb-3 flex items-center">
-                <Activity className="w-5 h-5 mr-2 text-green-600" />
-                Current Availability {validPricing ? '& Pricing' : ''}
-              </h4>
-              <div className="space-y-2">
-                {/* Pricing is now shown in LiveWebIntelligence component above */}
-                {validPricing && (
-                  <div className="flex items-start">
-                    <DollarSign className="w-4 h-4 mt-1 mr-2 text-green-600" />
-                    <div>
-                      <p className="font-medium text-green-800 dark:text-green-200">Pricing Information Found:</p>
-                      <LockedField
-                        revealed={isDetailRevealed('pricing')}
-                        onReveal={() => revealDetail('pricing')}
-                        label="Unlock pricing"
-                      >
-                        <p className="text-lg font-bold text-green-900 dark:text-green-100">{validPricing}</p>
-                      </LockedField>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        Contact community to verify current pricing
-                      </p>
-                    </div>
-                  </div>
-                )}
-                {realTimeData?.currentAvailability && (
-                  <div className="flex items-start">
-                    <CheckCircle className="w-4 h-4 mt-1 mr-2 text-blue-600" />
-                    <div>
-                      {(() => {
-                        // Check if it's JSON string and parse it
-                        let availabilityText = realTimeData.currentAvailability;
-                        try {
-                          if (typeof availabilityText === 'string' && availabilityText.includes('{') && availabilityText.includes('}')) {
-                            const parsed = JSON.parse(availabilityText);
-                            availabilityText = parsed.message || parsed.text || JSON.stringify(parsed);
-                          }
-                        } catch (e) {
-                          // If it's not valid JSON, use as-is
-                        }
-                        return <p className="text-sm text-gray-700 dark:text-gray-300">{availabilityText}</p>;
-                      })()}
-                    </div>
-                  </div>
-                )}
-                {realTimeData?.waitlistStatus && (
-                  <div className="flex items-start">
-                    <Clock className="w-4 h-4 mt-1 mr-2 text-orange-600" />
-                    <div>
-                      {(() => {
-                        // Check if it's JSON string and parse it
-                        let waitlistText = realTimeData.waitlistStatus;
-                        try {
-                          if (typeof waitlistText === 'string' && waitlistText.includes('{') && waitlistText.includes('}')) {
-                            const parsed = JSON.parse(waitlistText);
-                            waitlistText = parsed.message || parsed.text || parsed.status || JSON.stringify(parsed);
-                          }
-                        } catch (e) {
-                          // If it's not valid JSON, use as-is
-                        }
-                        return <p className="text-sm text-orange-800 dark:text-orange-200">{waitlistText}</p>;
-                      })()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-            );
-          })()}
-
-          {/* Community Highlights */}
-          {realTimeData?.communityHighlights && realTimeData?.communityHighlights.length > 0 && (
-            <div>
-              <h4 className="font-semibold text-lg mb-3 flex items-center">
-                <Award className="w-5 h-5 mr-2 text-purple-600" />
-                Community Achievements
-              </h4>
-              <div className="space-y-2">
-                {realTimeData?.communityHighlights.map((highlight: string, idx: number) => {
-                  // Check if highlight is JSON string and parse it
-                  let highlightText = highlight;
-                  try {
-                    if (typeof highlightText === 'string' && highlightText.includes('{') && highlightText.includes('}')) {
-                      const parsed = JSON.parse(highlightText);
-                      highlightText = parsed.text || parsed.highlight || parsed.message || JSON.stringify(parsed);
-                    }
-                  } catch (e) {
-                    // If it's not valid JSON, use as-is
-                  }
-                  return (
-                    <div key={idx} className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
-                      <p className="text-sm text-purple-900 dark:text-purple-200">{highlightText}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Recent News & Updates */}
-          {(() => {
-            const news = parseDataArray(realTimeData?.recentNews);
-            return news.length > 0 && (
-              <div>
-                <h4 className="font-semibold text-lg mb-3 flex items-center">
-                  <Info className="w-5 h-5 mr-2 text-blue-600" />
-                  Recent News & Updates
-                  <span className="ml-2 text-xs font-normal text-gray-500">via Web Search</span>
-                </h4>
-                <div className="space-y-2">
-                  {news.map((item: string, idx: number) => (
-                    <div key={idx} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border-l-4 border-blue-400">
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        {item.replace(/^[-•]\s*/, '').trim()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* Upcoming Events */}
-          {(() => {
-            const events = parseDataArray(realTimeData?.upcomingEvents);
-            return events.length > 0 && (
-              <div>
-                <h4 className="font-semibold text-lg mb-3 flex items-center">
-                  <CalendarIcon className="w-5 h-5 mr-2 text-orange-600" />
-                  Upcoming Events
-                  <span className="ml-2 text-xs font-normal text-gray-500">via Web Search</span>
-                </h4>
-                <div className="space-y-2">
-                  {events.map((item: string, idx: number) => (
-                    <div key={idx} className="bg-orange-50 dark:bg-orange-900/20 p-3 rounded-lg border-l-4 border-orange-400">
-                      <p className="text-sm text-orange-900 dark:text-orange-200">
-                        {item.replace(/^[-•]\s*/, '').trim()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })()}
-
-          {/* Data Sources */}
-          {realTimeData?.sources && realTimeData?.sources.length > 0 && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-xs font-semibold text-gray-600 dark:text-gray-400">
-                  🔍 Verified from {realTimeData?.sources.length} trusted web sources
-                </p>
-                <div className="flex items-center text-xs text-gray-500">
-                  <CheckCircle className="w-3 h-3 mr-1 text-green-500" />
-                  Live Web Search
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {realTimeData.sources.map((source: string, idx: number) => {
-                  // Extract domain name from URL
-                  let displayName = 'Source';
-                  try {
-                    const url = new URL(source);
-                    displayName = url.hostname.replace('www.', '').split('.')[0];
-                    // Capitalize first letter
-                    displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-                  } catch (e) {
-                    displayName = `Source ${idx + 1}`;
-                  }
-                  
-                  return (
-                    <a 
-                      key={idx}
-                      href={source}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors flex items-center"
-                      title={source}
-                    >
-                      <ExternalLink className="w-3 h-3 mr-1" />
-                      {displayName}
-                    </a>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-
-
-          {/* Community-Specific Web Intelligence - What We Found About */}
-          {(true) && (
-            <div className="mt-6 mb-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex flex-col gap-1">
-                  <h4 className="font-semibold text-lg flex items-center">
-                    <Globe className="w-5 h-5 mr-2 text-indigo-600" />
-                    What We Found About {community?.name}
-                  </h4>
-                  <p className="text-xs text-muted-foreground">Powered by Free Web Intelligence</p>
-                </div>
-                <Badge className="bg-gradient-to-r from-blue-500 to-purple-500 text-white text-xs">
-                  Live Web Search
-                </Badge>
-              </div>
-              
-              {/* Community Website & Management */}
-              <div className="space-y-3">
-                {/* Check for management company */}
-                {(() => {
-                  const communityName = community?.name?.toLowerCase() || '';
-                  const majorBrands = {
-                    'atria': 'Atria Senior Living',
-                    'brookdale': 'Brookdale Senior Living',
-                    'discovery': 'Discovery Senior Living', 
-                    'sunrise': 'Sunrise Senior Living',
-                    'watermark': 'Watermark Retirement Communities',
-                    'capital': 'Capital Senior Living',
-                    'five star': 'Five Star Senior Living',
-                    'senior lifestyle': 'Senior Lifestyle Corporation',
-                    'leisure care': 'Leisure Care',
-                    'integral': 'Integral Senior Living',
-                    'pacifica': 'Pacifica Senior Living',
-                    'oakmont': 'Oakmont Senior Living',
-                    'silverado': 'Silverado',
-                    'belmont': 'Belmont Village',
-                    'benchmark': 'Benchmark Senior Living'
-                  };
-                  
-                  const foundBrand = Object.entries(majorBrands).find(([key, value]) => 
-                    communityName.includes(key)
-                  );
-                  
-                  if (foundBrand) {
-                    return (
-                      <div className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                        <div className="flex items-start">
-                          <Building className="w-4 h-4 mr-2 mt-0.5 text-purple-600 flex-shrink-0" />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                              Managed by {foundBrand[1]}
-                            </p>
-                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                              Part of a major senior living corporation with standardized care and quality protocols
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
-                
-                {/* Community-specific insights from web search.
-                    Task #393: the raw search content / description is NO LONGER
-                    rendered here — the About card at the top of the Info tab is
-                    the single description surface. The raw content still gets
-                    parsed into structured fields elsewhere (description → About,
-                    pricing → transparency, floor plans → Availability tab).
-                    Only the sources/citations list stays visible. */}
-                {(() => {
-                  const perplexitySources = 
-                    localVerificationReport?.verificationResults?.perplexityData?.sources ||
-                    localVerificationReport?.perplexityData?.sources ||
-                    localVerificationReport?.sources;
-                  
-                  const verifiedFacts = localVerificationReport?.consensus?.verifiedFacts;
-                  
-                  const hasAnyData = verifiedFacts?.length > 0 || perplexitySources?.length > 0;
-                  
-                  // If actively searching, show loading state only
-                  if (isVerifying) {
-                    return (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        <p className="text-sm text-gray-600 dark:text-gray-400">Searching for live web information about {community?.name}...</p>
-                      </div>
-                    );
-                  }
-                  
-                  return hasAnyData ? (
-                    <>
-                      <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Information found about this specific community:
-                      </p>
-                      
-                      {/* Show sources/citations if available (description itself
-                          lives in the About card above — not repeated here) */}
-                      {perplexitySources?.length > 0 && (
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                          <p className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">Sources:</p>
-                          <div className="flex flex-wrap gap-2">
-                            {perplexitySources.map((source: string, idx: number) => (
-                              <a 
-                                key={idx}
-                                href={source}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors"
-                                title={source}
-                              >
-                                <ExternalLink className="w-3 h-3 inline mr-1" />
-                                Source {idx + 1}
-                              </a>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm text-gray-600 dark:text-gray-400">
-                            Search temporarily unavailable
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-                            No public website or additional online information found for this specific community. Contact them directly for the most current information.
-                          </p>
-                        </div>
-                        {/* Retry button moved to carousel - removed from here */}
-                      </div>
-                    </div>
-                  );
-                })()}
-                
-                {/* Show verified facts if available */}
-                {localVerificationReport?.consensus?.verifiedFacts?.length > 0 ? (
-                  localVerificationReport.consensus.verifiedFacts.map((fact: any, idx: number) => {
-                      let factText = fact;
-                      let isAddressCorrection = false;
-                      let addressDetails = null;
-                      
-                      try {
-                        if (typeof fact === 'string' && fact.includes('{') && fact.includes('}')) {
-                          const parsed = JSON.parse(fact);
-                          
-                          // Handle address mismatch specifically
-                          if (parsed.concerns && parsed.concerns.includes('ADDRESS MISMATCH')) {
-                            isAddressCorrection = true;
-                            // Extract addresses from the concerns text
-                            const addressMatch = parsed.concerns.match(/Database shows ([^,]+), but web results show ([^,]+),/);
-                            if (addressMatch) {
-                              addressDetails = {
-                                old: addressMatch[1].trim(),
-                                new: addressMatch[2].trim()
-                              };
-                            }
-                            factText = `Address Updated: We've corrected the address from ${addressMatch?.[1] || 'old address'} to ${addressMatch?.[2] || 'verified address'} based on official sources`;
-                          } else {
-                            factText = parsed.fact || parsed.text || parsed.message || parsed.findings || '';
-                            // Clean up any remaining JSON strings
-                            if (typeof factText === 'object') {
-                              factText = '';
-                            }
-                          }
-                        } else if (typeof fact === 'object') {
-                          // Handle complex objects
-                          if (fact.concerns && fact.concerns.includes('ADDRESS MISMATCH')) {
-                            isAddressCorrection = true;
-                            const addressMatch = fact.concerns.match(/Database shows ([^,]+), but web results show ([^,]+),/);
-                            if (addressMatch) {
-                              addressDetails = {
-                                old: addressMatch[1].trim(),
-                                new: addressMatch[2].trim()
-                              };
-                            }
-                            factText = `Address Updated: We've corrected the address from ${addressMatch?.[1] || 'old address'} to ${addressMatch?.[2] || 'verified address'} based on official sources`;
-                          } else if (fact.findings) {
-                            factText = fact.findings;
-                          } else if (fact.fact || fact.text || fact.message) {
-                            factText = fact.fact || fact.text || fact.message;
-                          } else {
-                            // If we can't extract meaningful text, skip this fact
-                            return null;
-                          }
-                        }
-                      } catch (e) {
-                        // If it's not valid JSON, use as-is
-                      }
-                      
-                      // Skip empty facts or pure JSON strings
-                      if (!factText || factText.includes('"') && factText.includes('{')) {
-                        return null;
-                      }
-                      
-                      // Only filter out completely generic information not about this community
-                      if (factText.toLowerCase().includes('senior living in general') || 
-                          factText.toLowerCase().includes('most communities') ||
-                          factText.toLowerCase().includes('industry standard')) {
-                        return null;
-                      }
-                      
-                      // Special formatting for address corrections
-                      if (isAddressCorrection) {
-                        return (
-                          <div key={idx} className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                            <div className="flex items-start">
-                              <MapPin className="w-4 h-4 mr-2 mt-0.5 text-yellow-600 flex-shrink-0" />
-                              <div className="flex-1">
-                                <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200 mb-1">
-                                  Address Correction Applied
-                                </p>
-                                <p className="text-sm text-gray-700 dark:text-gray-300">
-                                  Our AI verification found and corrected an address discrepancy. The database has been automatically updated with the verified address from official sources.
-                                </p>
-                                {addressDetails && (
-                                  <div className="mt-2 space-y-1 text-xs">
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-red-600 dark:text-red-400 line-through">{addressDetails.old}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                      <CheckCircle className="w-3 h-3 text-green-600" />
-                                      <span className="text-green-600 dark:text-green-400 font-medium">{addressDetails.new}</span>
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      }
-                      
-                      // Categorize other facts
-                      let icon = <Info className="w-4 h-4 mr-2 mt-0.5 text-indigo-600 flex-shrink-0" />;
-                      if (factText.toLowerCase().includes('website') || factText.toLowerCase().includes('.com') || factText.toLowerCase().includes('online')) {
-                        icon = <Globe className="w-4 h-4 mr-2 mt-0.5 text-blue-600 flex-shrink-0" />;
-                      } else if (factText.toLowerCase().includes('manage') || factText.toLowerCase().includes('operate') || factText.toLowerCase().includes('corporation')) {
-                        icon = <Building className="w-4 h-4 mr-2 mt-0.5 text-purple-600 flex-shrink-0" />;
-                      } else if (factText.toLowerCase().includes('certif') || factText.toLowerCase().includes('accredit') || factText.toLowerCase().includes('award')) {
-                        icon = <Award className="w-4 h-4 mr-2 mt-0.5 text-green-600 flex-shrink-0" />;
-                      }
-                      
-                      return (
-                        <div key={idx} className="bg-white dark:bg-gray-800 p-3 rounded-lg">
-                          <div className="flex items-start">
-                            {icon}
-                            <p className="text-sm text-gray-700 dark:text-gray-300">{factText}</p>
-                          </div>
-                        </div>
-                      );
-                    }).filter(Boolean)
-                ) : (
-                  // Only show generic insights if not loading
-                  !isVerifying && (
-                    <div className="text-sm text-gray-600 dark:text-gray-400">
-                      <div className="space-y-3">
-                        <p className="font-medium">Gathering community insights...</p>
-                        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg">
-                          <p className="text-sm text-gray-700 dark:text-gray-300">
-                            {(() => {
-                              // Generate meaningful insights based on community data
-                              const insights = [];
-                              
-                              // Location-based insight
-                              insights.push(`${community?.name} is located in ${community?.city}, ${community?.state}, offering senior living services to the local community.`);
-                              
-                              // Care types insight
-                              const careTypes = [];
-                              if (community?.assistedLiving) careTypes.push('Assisted Living');
-                              if (community?.memoryCare) careTypes.push('Memory Care');
-                              if (community?.independentLiving) careTypes.push('Independent Living');
-                              if (community?.skilledNursing) careTypes.push('Skilled Nursing');
-                              
-                              if (careTypes.length > 0) {
-                                insights.push(`This community specializes in ${careTypes.join(', ')}, providing comprehensive care services tailored to residents' needs.`);
-                              }
-                              
-                              // Size insight
-                              if (community?.totalUnits) {
-                                insights.push(`With ${community.totalUnits} units, this ${community.totalUnits > 100 ? 'large' : community.totalUnits > 50 ? 'mid-size' : 'intimate'} community offers ${community.totalUnits > 100 ? 'extensive amenities and diverse social opportunities' : 'personalized attention and a close-knit environment'}.`);
-                              }
-                              
-                              // Year built insight
-                              if (community?.yearBuilt) {
-                                const age = new Date().getFullYear() - community.yearBuilt;
-                                insights.push(`${age < 10 ? 'This modern facility was built in' : age < 20 ? 'Established in' : 'Operating since'} ${community.yearBuilt}, ${age < 10 ? 'featuring contemporary design and amenities' : age < 20 ? 'combining experience with updated facilities' : 'bringing decades of experience in senior care'}.`);
-                              }
-                              
-                              return insights.join(' ');
-                            })()}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                )}
-
-                {/* No specific information found */}
-                {(!localVerificationReport?.consensus?.verifiedFacts || 
-                  localVerificationReport.consensus.verifiedFacts.filter((fact: any) => {
-                    let factText = typeof fact === 'string' ? fact : (fact.fact || fact.text || fact.message || '');
-                    return !factText.toLowerCase().includes('not available') && 
-                           !factText.toLowerCase().includes('no information') &&
-                           !factText.toLowerCase().includes('cannot verify');
-                  }).length === 0) && !isVerifying && (
-                  <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      No public website or additional online information found for this specific community. 
-                      Contact them directly for the most current information.
-                    </p>
-                  </div>
-                )}
-                
-                {/* Data Source Note */}
-                {realTimeData?.sources?.length > 0 && (
-                  <div className="mt-3 pt-3 border-t border-indigo-200 dark:border-indigo-700">
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      Sources checked: Public websites, corporate directories, and community listings
-                    </p>
-                  </div>
-                )}
-              </div>
-              
-            </div>
-          )}
-
-        </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-};
 
 // Get subscription tier badge details
 const getSubscriptionTierBadge = (tier?: string) => {
@@ -1644,6 +944,13 @@ export default function CommunityDetail() {
     }
     return entries;
   }, [comprehensiveData, verificationReport]);
+
+  // Task #394: consolidated profile facts — merges the freshest verification
+  // report (Perplexity structured facts) with the persisted community record.
+  const profileFacts = React.useMemo(
+    () => buildProfileFacts(community, verificationReport),
+    [community, verificationReport],
+  );
 
   // Detect virtual tour using our enhanced detection service
   const communityId = community?.id ?? (id ? Number(id) : undefined);
@@ -2836,6 +2143,11 @@ export default function CommunityDetail() {
 
               {/* Community Information Tab */}
               <TabsContent value="community-info" className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
+                {/* Task #394: consolidated APFM-style profile — header pricing
+                    band + quick facts strip lead the page. */}
+                <ProfileHeaderBand community={community} profile={profileFacts} />
+                <QuickFactsStrip community={community} profile={profileFacts} />
+
                 {/* Community Information & Amenities */}
                 <Card>
                   <CardHeader>
@@ -2885,35 +2197,21 @@ export default function CommunityDetail() {
                       // when it is NOT legacy conversational AI output.
                       const enrichedDescription = verificationReport?.description || 
                                                   verificationReport?.verificationResults?.description;
-                      const displayDescription =
+                      const rawDescription =
                         community.description ||
                         (isLegacyVerifyBlob(enrichedDescription) ? undefined : enrichedDescription);
-                      
+                      // Clean report-style markdown blobs persisted before the
+                      // server-side cleaner existed ("**...** --- ### PRICING").
+                      const displayDescription = stripEnrichmentMarkdown(rawDescription);
+
                       if (displayDescription) {
-                        const overviewRevealed = isDetailRevealed('overview');
+                        // Overview is unrestricted — no login-gated reveal here.
                         return (
                           <div className="mb-6">
                             <h4 className="text-lg font-semibold mb-2 text-gray-900 dark:text-gray-100">Community Overview</h4>
-                            {overviewRevealed ? (
-                              <p className="text-gray-700 dark:text-gray-300 leading-relaxed">{displayDescription}</p>
-                            ) : (
-                              <div className="relative">
-                                {/* Show the first ~6 lines free, blur the rest until revealed */}
-                                <p className="text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-6">
-                                  {displayDescription}
-                                </p>
-                                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white dark:from-gray-800 to-transparent" />
-                                <button
-                                  type="button"
-                                  onClick={() => revealDetail('overview')}
-                                  className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline"
-                                  data-testid="button-reveal-overview"
-                                >
-                                  <Lock className="w-3.5 h-3.5" />
-                                  See full details
-                                </button>
-                              </div>
-                            )}
+                            <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line" data-testid="text-community-overview">
+                              {displayDescription}
+                            </p>
                           </div>
                         );
                       }
@@ -3168,16 +2466,11 @@ export default function CommunityDetail() {
                   );
                 })()}
 
-                {/* Task #352: Live Intelligence ("What we found") moved here from the
-                    Floorplans tab — verified findings belong with Info & Tours. */}
-                <RealTimeInsights 
-                  key={`real-time-insights-${community.id}`}
-                  community={community}
-                  marketAnalysisData={marketAnalysisData} 
-                  onVerificationReport={setVerificationReport}
-                  onPhotosUpdate={undefined}
-                  verificationReport={verificationReport}
-                />
+                {/* Task #394: the Live Web Intelligence card is replaced by a
+                    compact data-sources & freshness line — the intelligence
+                    itself is woven into the profile above (pricing band, quick
+                    facts, costs). Fetching still happens in handleInitialLoad. */}
+                <DataSourcesLine profile={profileFacts} />
 
                 {/* Contact & Tour Section */}
             <Card>
@@ -3557,13 +2850,19 @@ export default function CommunityDetail() {
                   </CardContent>
                 </Card>
 
-                {/* Pricing History & Transparency - Moved to bottom of community tab.
-                    Task #393: discovered pricing (web intel / verification /
-                    comprehensive data) is documented here too. */}
+                {/* Task #394: ONE costs section (parsed live pricing by care
+                    level + discovered web-intel pricing), with Pricing History
+                    & Transparency beneath as the historical record — no more
+                    duplicate "intelligence pricing" boxes. */}
+                <CostsSection
+                  profile={profileFacts}
+                  discoveredPricing={discoveredPricing}
+                  revealed={isDetailRevealed('pricing')}
+                  onReveal={() => revealDetail('pricing')}
+                />
                 <PricingHistory 
                   communityId={community.id} 
                   communityName={community.name} 
-                  discoveredPricing={discoveredPricing}
                   pricingRevealed={isDetailRevealed('pricing')}
                   onRevealPricing={() => revealDetail('pricing')}
                 />
@@ -3580,7 +2879,7 @@ export default function CommunityDetail() {
                       Available Units & Pricing
                     </CardTitle>
                     <CardDescription>
-                      {(verificationReport?.verificationResults?.floorPlans || webIntelFloorPlanImages.length > 0) ? 
+                      {(verificationReport?.verificationResults?.floorPlans || webIntelFloorPlanImages.length > 0 || (profileFacts.facts.pricingByCareLevel?.length ?? 0) > 0) ? 
                         'Floor plans and pricing from verified sources' : 
                         'Estimated pricing based on market analysis'}
                     </CardDescription>
@@ -3591,8 +2890,54 @@ export default function CommunityDetail() {
                           Task #393: web-intelligence floor plan images also count
                           as real data and render in this grid (not just a dialog). */}
                       {((verificationReport?.verificationResults?.floorPlans?.length > 0) ||
-                        webIntelFloorPlanImages.length > 0) ? (
+                        webIntelFloorPlanImages.length > 0 ||
+                        (profileFacts.facts.pricingByCareLevel?.length ?? 0) > 0 ||
+                        (profileFacts.facts.unitTypes?.length ?? 0) > 0) ? (
                         <>
+                        {/* Task #394: unit types + pricing parsed from the live
+                            Perplexity prose feed the units grid */}
+                        {(profileFacts.facts.pricingByCareLevel || []).map((entry: any, idx: number) => (
+                          <div key={`parsed-unit-${idx}`} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700" data-testid={`card-parsed-unit-${idx}`}>
+                            <div className="mb-3">
+                              <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">
+                                {entry.label}
+                              </h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                Verified via live web search
+                              </p>
+                            </div>
+                            <div className="mb-4">
+                              <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                                ${Math.round(entry.min).toLocaleString()}
+                                {entry.max && entry.max !== entry.min ? `–$${Math.round(entry.max).toLocaleString()}` : ''}
+                                <span className="text-sm font-normal text-gray-500">/mo</span>
+                              </p>
+                            </div>
+                            <Button 
+                              className="w-full bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => setShowReservationDialog(true)}
+                            >
+                              Ask About Availability
+                            </Button>
+                          </div>
+                        ))}
+                        {(profileFacts.facts.unitTypes || [])
+                          .filter((ut: string) => !(profileFacts.facts.pricingByCareLevel || []).some((e: any) => e.label.toLowerCase().includes(ut.toLowerCase())))
+                          .map((ut: string, idx: number) => (
+                          <div key={`parsed-ut-${idx}`} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700" data-testid={`card-parsed-unittype-${idx}`}>
+                            <div className="mb-3">
+                              <h4 className="font-semibold text-lg text-gray-900 dark:text-gray-100">{ut}</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">Offered at this community</p>
+                            </div>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 italic">Not published — contact community</p>
+                            <Button 
+                              className="w-full bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => setShowReservationDialog(true)}
+                            >
+                              Ask About Availability
+                            </Button>
+                          </div>
+                        ))}
                         {(verificationReport?.verificationResults?.floorPlans || []).map((unit: any, idx: number) => (
                           <div key={idx} className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
                             <div className="mb-3">

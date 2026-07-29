@@ -1402,6 +1402,9 @@ export function registerCommunityRoutes(app: Express) {
             transparencyNotes: 'Served from cached enrichment data'
           },
           pricing: result.pricingContext,
+          pricingRange: result.pricing || null,
+          structuredFacts: (result.enrichmentData as any)?.structuredFacts || null,
+          lastVerified: (result.enrichmentData as any)?.lastFetched || result.lastUpdated,
           contactInfo: {
             phone: result.phone,
             website: result.officialWebsite
@@ -1447,6 +1450,9 @@ export function registerCommunityRoutes(app: Express) {
         },
 
         pricing: result.pricingContext,
+        pricingRange: result.pricing || null,
+        structuredFacts: (result.enrichmentData as any)?.structuredFacts || null,
+        lastVerified: result.lastUpdated,
 
         contactInfo: {
           phone: result.phone,

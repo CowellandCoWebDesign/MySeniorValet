@@ -47,4 +47,5 @@
 - [Community website write sanitization](community-website-writes.md) — every communities.website write must use sanitizeWebsiteUrl; storage.* is a chokepoint, direct db.insert/update must sanitize inline.
 - [Server boot lazy-loading](server-boot-lazy-loading.md) — esbuild --packages=external hoists ALL static externals pre-listen; heavy SDKs must use lazy-load.ts helpers, never module-eval construction.
 - [NLP location hard filter](nlp-location-filter.md) — resolve messy location entities to {city,state} and hard-filter; guard ambiguous codes ("near me"→ME) and keep residual facility-name tokens with relax-on-zero.
+- [Perplexity prose parsing](perplexity-prose-parsing.md) — parse enrichment prose server-side into structuredFacts; pair each $ with NEAREST care-level mention; normalize availability enum or skip write; always resolve enrichment_status.
 - [SEO canonical architecture](seo-canonical-architecture.md) — exactly ONE self-canonical per page; NO static canonical in index.html; useSEO (DOM) vs Helmet (data-rh) must not both emit; community builds via getCommunityUrl.

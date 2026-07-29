@@ -43,9 +43,15 @@ import { perplexitySearchAPI, isSeniorLivingDirectoryHost } from "./perplexity-s
 import { cleanCitationArtifacts, isReachableWebsite } from "../utils/data-quality";
 import { shouldUpgradeDescription } from "../utils/description-quality";
 import { sanitizeWebsiteUrl } from "../utils/website-url";
+import { stripEnrichmentMarkdown } from "@shared/enrichment-text";
 import { normalizePhotoUrls } from "../utils/photo-urls";
 import { CommunityPhotoEnrichment } from "./community-photo-enrichment";
 import { geocodeWithNominatim } from "../nominatim-geocoding";
+import {
+  parsePerplexityProse,
+  normalizeAvailabilityStatus,
+  type ParsedProseFacts,
+} from "./perplexity-prose-parser";
 
 // Persisted content no longer expires; this only stamps an informational
 // `validUntil` / `enrichmentDataExpiry` far in the future so nothing downstream
@@ -298,6 +304,22 @@ async function enrichCommunityUnifiedInner(
   }
   if (!forceRefresh && lastEnriched && hasMeaningfulDescription && !photoTrapMiss) {
     console.log(`⚡ Cache hit for "${community.name}" — serving persisted DB data (no expiry)`);
+    // Un-stick a stale "in_progress" status (e.g. server crashed mid-run): the
+    // community demonstrably HAS content, so it is completed.
+    if (community.enrichmentStatus === "in_progress" || community.enrichmentStatus === "pending") {
+      db.update(communities)
+        .set({ enrichmentStatus: "completed" } as any)
+        .where(eq(communities.id, communityId))
+        .then(() => {})
+        .catch(() => {});
+    }
+    const cachedPricing = (community.enrichmentData as any)?.pricing ?? null;
+    const cachedPricingContext =
+      cachedPricing && (cachedPricing.min || cachedPricing.max)
+        ? cachedPricing.min && cachedPricing.max && cachedPricing.min !== cachedPricing.max
+          ? `$${Number(cachedPricing.min).toLocaleString()}–$${Number(cachedPricing.max).toLocaleString()}/mo`
+          : `$${Number(cachedPricing.min ?? cachedPricing.max).toLocaleString()}/mo`
+        : "";
     const cachedPhotos = CommunityPhotoEnrichment.filterPhotosForCommunity(
       (community.photos || []).filter(
         (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
@@ -317,8 +339,8 @@ async function enrichCommunityUnifiedInner(
       summary: community.description || "",
       officialWebsite: community.website || "",
       phone: community.phone || "",
-      pricingContext: "",
-      pricing: (community.enrichmentData as any)?.pricing ?? null,
+      pricingContext: cachedPricingContext,
+      pricing: cachedPricing,
       managementCompany: (community as any).managementCompany ?? null,
       availability: (community as any).availabilityStatus ?? null,
       photos: cachedPhotos,
@@ -409,6 +431,37 @@ async function enrichCommunityUnifiedInner(
   console.log(
     `✅ Enrichment complete for "${community.name}": sourceType=${freeEnrichment.sourceType}, structured=${freeEnrichment.structured}`,
   );
+
+  // ── Stage 2.5 — Structured extraction from natural prose ───────────────────
+  // The Perplexity summary is natural prose ("$3,000–$5,000/month; semi-private
+  // memory care $3,200") that the old label-based parsers extracted nothing
+  // from. Parse it server-side into structured facts and backfill any fields
+  // the sonar structured extract missed. All values still flow through the
+  // existing sanitized persistence chokepoints below.
+  const proseFacts: ParsedProseFacts = parsePerplexityProse(freeEnrichment.about || "");
+  if (!structuredPricing && proseFacts.priceRange) {
+    structuredPricing = { min: proseFacts.priceRange.min, max: proseFacts.priceRange.max };
+    console.log(
+      `💲 Prose-parsed pricing for "${community.name}": $${proseFacts.priceRange.min}–$${proseFacts.priceRange.max}/mo ` +
+        `(${proseFacts.pricingEntries.length} entr${proseFacts.pricingEntries.length === 1 ? "y" : "ies"})`,
+    );
+  }
+  if (!availability && proseFacts.availability) availability = proseFacts.availability;
+  if (!(freeEnrichment as any).phone && proseFacts.phone) {
+    (freeEnrichment as any).phone = proseFacts.phone;
+  }
+  if (!(freeEnrichment as any).website && !(freeEnrichment as any).sourceUrl && proseFacts.website) {
+    (freeEnrichment as any).website = proseFacts.website;
+  }
+  if (!(freeEnrichment as any).pricingContext && structuredPricing) {
+    (freeEnrichment as any).pricingContext =
+      structuredPricing.min && structuredPricing.max && structuredPricing.min !== structuredPricing.max
+        ? `$${structuredPricing.min.toLocaleString()}–$${structuredPricing.max.toLocaleString()}/mo`
+        : `$${(structuredPricing.min ?? structuredPricing.max)!.toLocaleString()}/mo`;
+  }
+  // Availability must map to the DB CHECK-constrained enum or be skipped —
+  // an unmapped free-text value would fail the write with an opaque 23514.
+  const normalizedAvailability = normalizeAvailabilityStatus(availability);
 
   // ── Stage 3 — Photo discovery + Golden-Data validation ──────────────────────
   const rawDbPhotoCount = (community.photos || []).filter(
@@ -794,7 +847,9 @@ async function enrichCommunityUnifiedInner(
   // replace stored template-pattern / legacy-1000-char-truncated descriptions
   // with richer enrichment content, but NEVER downgrade real content on a
   // non-forced (background) run. forceRefresh keeps overwriting as before.
-  const candidateDescription = cleanCitationArtifacts(summary);
+  // stripEnrichmentMarkdown converts report-style markdown blobs
+  // ("**...** --- ### PRICING ...") into readable paragraph prose before persist.
+  const candidateDescription = stripEnrichmentMarkdown(cleanCitationArtifacts(summary));
   if (shouldUpgradeDescription(community.description, candidateDescription, forceRefresh)) {
     updates.description = candidateDescription;
     hasUpdates = true;
@@ -881,8 +936,15 @@ async function enrichCommunityUnifiedInner(
     updates.managementCompany = managementCompany;
     hasUpdates = true;
   }
-  if (availability) {
-    updates.availabilityStatus = availability;
+  if (normalizedAvailability) {
+    updates.availabilityStatus = normalizedAvailability;
+    updates.availabilityLastUpdated = now;
+    hasUpdates = true;
+  }
+  // Capacity parsed from verified prose → totalUnits (only fill a blank; never
+  // overwrite an admin/HUD-provided count).
+  if (proseFacts.capacity && !community.totalUnits) {
+    updates.totalUnits = proseFacts.capacity;
     hasUpdates = true;
   }
   if (structuredPricing && (structuredPricing.min || structuredPricing.max)) {
@@ -921,6 +983,25 @@ async function enrichCommunityUnifiedInner(
           }))
         : (community.enrichmentData as any)?.photos,
     searchResults: { summary: candidateDescription || summary, sources },
+    // Structured facts parsed from the natural-prose summary — feeds the
+    // consolidated profile (quick facts, costs section, availability units).
+    structuredFacts: {
+      capacity:
+        proseFacts.capacity ?? (community.enrichmentData as any)?.structuredFacts?.capacity ?? null,
+      unitTypes:
+        proseFacts.unitTypes.length > 0
+          ? proseFacts.unitTypes
+          : (community.enrichmentData as any)?.structuredFacts?.unitTypes || [],
+      pricingByCareLevel:
+        proseFacts.pricingEntries.length > 0
+          ? proseFacts.pricingEntries
+          : (community.enrichmentData as any)?.structuredFacts?.pricingByCareLevel || [],
+      availability:
+        normalizedAvailability ??
+        (community.enrichmentData as any)?.structuredFacts?.availability ??
+        null,
+      parsedAt: now.toISOString(),
+    },
     lastFetched: now.toISOString(),
     validUntil: validUntil.toISOString(),
   };
@@ -933,6 +1014,21 @@ async function enrichCommunityUnifiedInner(
   // Only stamp lastSuccessfulEnrichment when REAL content was persisted.
   if (contentWasSaved) {
     updates.lastSuccessfulEnrichment = now;
+    hasUpdates = true;
+  }
+
+  // enrichment_status must never stick in "in_progress": every completed run
+  // resolves it — "completed" when content was saved (or already exists),
+  // otherwise leave any stale in_progress/pending as "failed" so self-heal's
+  // backoff can arbitrate retries. (Self-heal's own route may overwrite this
+  // afterward with its escalation logic — that write wins and is consistent.)
+  const hasContentNow =
+    contentWasSaved ||
+    (community.description && community.description.length > 80) ||
+    !!candidateDescription;
+  const resolvedStatus = hasContentNow ? "completed" : "failed";
+  if (community.enrichmentStatus !== resolvedStatus && community.enrichmentStatus !== "no_data") {
+    updates.enrichmentStatus = resolvedStatus;
     hasUpdates = true;
   }
 
