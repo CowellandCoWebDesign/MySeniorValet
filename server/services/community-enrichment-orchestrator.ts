@@ -363,6 +363,11 @@ async function enrichCommunityUnifiedInner(
   let structuredPricing: { min?: number; max?: number } | null = null;
   let managementCompany: string | null = null;
   let availability: string | null = null;
+  // Structured facts from the sonar json_schema extract (Task #397). Preferred
+  // over the prose parser when present; prose parsing remains the fallback.
+  let structuredCapacity: number | null = null;
+  let structuredUnitTypes: string[] = [];
+  let structuredPricingByCareLevel: Array<{ label: string; min: number; max?: number }> = [];
 
   try {
     const pplx = await perplexitySearchAPI.deepEnrichCommunity({
@@ -385,6 +390,15 @@ async function enrichCommunityUnifiedInner(
           : null;
       managementCompany = pplx.managementCompany || null;
       availability = pplx.availability || null;
+      structuredCapacity = pplx.capacity ?? null;
+      structuredUnitTypes = pplx.unitTypes || [];
+      structuredPricingByCareLevel = pplx.pricingByCareLevel || [];
+      if (structuredCapacity || structuredUnitTypes.length || structuredPricingByCareLevel.length) {
+        console.log(
+          `📋 Sonar structured facts for "${community.name}": capacity=${structuredCapacity ?? "—"}, ` +
+            `unitTypes=[${structuredUnitTypes.join(", ")}], ${structuredPricingByCareLevel.length} care-level price(s)`,
+        );
+      }
       console.log(
         `🧠 Perplexity enrichment: ${pplx.summary.length} chars, ${perplexityPhotos.length} photo(s), ` +
           `${perplexityDirectoryCandidates.length} directory candidate(s) for "${community.name}"`,
@@ -439,6 +453,14 @@ async function enrichCommunityUnifiedInner(
   // the sonar structured extract missed. All values still flow through the
   // existing sanitized persistence chokepoints below.
   const proseFacts: ParsedProseFacts = parsePerplexityProse(freeEnrichment.about || "");
+  // Prefer sonar structured-extract facts; keep the prose parser as fallback.
+  const finalCapacity = structuredCapacity ?? proseFacts.capacity;
+  const finalUnitTypes =
+    structuredUnitTypes.length > 0 ? structuredUnitTypes : proseFacts.unitTypes;
+  const finalPricingByCareLevel =
+    structuredPricingByCareLevel.length > 0
+      ? structuredPricingByCareLevel
+      : proseFacts.pricingEntries;
   if (!structuredPricing && proseFacts.priceRange) {
     structuredPricing = { min: proseFacts.priceRange.min, max: proseFacts.priceRange.max };
     console.log(
@@ -943,8 +965,8 @@ async function enrichCommunityUnifiedInner(
   }
   // Capacity parsed from verified prose → totalUnits (only fill a blank; never
   // overwrite an admin/HUD-provided count).
-  if (proseFacts.capacity && !community.totalUnits) {
-    updates.totalUnits = proseFacts.capacity;
+  if (finalCapacity && !community.totalUnits) {
+    updates.totalUnits = finalCapacity;
     hasUpdates = true;
   }
   if (structuredPricing && (structuredPricing.min || structuredPricing.max)) {
@@ -987,14 +1009,14 @@ async function enrichCommunityUnifiedInner(
     // consolidated profile (quick facts, costs section, availability units).
     structuredFacts: {
       capacity:
-        proseFacts.capacity ?? (community.enrichmentData as any)?.structuredFacts?.capacity ?? null,
+        finalCapacity ?? (community.enrichmentData as any)?.structuredFacts?.capacity ?? null,
       unitTypes:
-        proseFacts.unitTypes.length > 0
-          ? proseFacts.unitTypes
+        finalUnitTypes.length > 0
+          ? finalUnitTypes
           : (community.enrichmentData as any)?.structuredFacts?.unitTypes || [],
       pricingByCareLevel:
-        proseFacts.pricingEntries.length > 0
-          ? proseFacts.pricingEntries
+        finalPricingByCareLevel.length > 0
+          ? finalPricingByCareLevel
           : (community.enrichmentData as any)?.structuredFacts?.pricingByCareLevel || [],
       availability:
         normalizedAvailability ??

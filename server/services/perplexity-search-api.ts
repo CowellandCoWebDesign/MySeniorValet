@@ -877,6 +877,9 @@ Rules:
     location: string | null;
     availability: string | null;
     pricing: { min?: number; max?: number; source?: string } | null;
+    capacity: number | null;
+    unitTypes: string[];
+    pricingByCareLevel: Array<{ label: string; min: number; max?: number }>;
     photos: Array<{ url: string; source: string; isAuthentic: boolean }>;
     photoDirectoryCandidates: Array<{ url: string; title: string; snippet: string }>;
     sources: string[];
@@ -988,6 +991,9 @@ Rules:
       location: structured.location,
       availability: structured.availability,
       pricing: structured.pricing,
+      capacity: structured.capacity,
+      unitTypes: structured.unitTypes,
+      pricingByCareLevel: structured.pricingByCareLevel,
       photos: trustedPhotos.slice(0, 12),
       photoDirectoryCandidates,
       sources,
@@ -1189,11 +1195,16 @@ Rules:
     location: string | null;
     availability: string | null;
     pricing: { min?: number; max?: number; source?: string } | null;
+    capacity: number | null;
+    unitTypes: string[];
+    pricingByCareLevel: Array<{ label: string; min: number; max?: number }>;
   }> {
     const startTime = Date.now();
     const empty = {
       summary: '', officialWebsite: null, managementCompany: null, phone: null,
       location: null, availability: null, pricing: null,
+      capacity: null, unitTypes: [] as string[],
+      pricingByCareLevel: [] as Array<{ label: string; min: number; max?: number }>,
     };
 
     if (!this.apiKey) throw new Error('Perplexity API key not configured');
@@ -1205,7 +1216,10 @@ Rules:
       'THIS community; if no real pricing is published, return null (the app shows "Contact for ' +
       'pricing"). The summary must be a single concise paragraph of at most 1000 characters covering, ' +
       'where known: monthly pricing, contact info, location, the official website, the management/operating ' +
-      'company, and current availability.';
+      'company, and current availability. Also extract, when published: the licensed capacity / total ' +
+      'unit or bed count (a number), the unit/room types offered (e.g. "Studio", "One Bedroom", ' +
+      '"Two Bedroom", "Shared Room", "Private Room", "Companion Suite"), and per-care-level monthly ' +
+      'pricing (e.g. Assisted Living vs Memory Care rates). Return null/empty arrays when unverified.';
 
     const userPrompt =
       `Community: "${communityName}"${location ? `\nLocation: ${location}` : ''}\n\n` +
@@ -1224,8 +1238,28 @@ Rules:
         pricingMin: { type: ['number', 'null'], description: 'Lowest verified monthly price in USD' },
         pricingMax: { type: ['number', 'null'], description: 'Highest verified monthly price in USD' },
         pricingSource: { type: ['string', 'null'] },
+        capacity: { type: ['number', 'null'], description: 'Licensed capacity / total units or beds, when published' },
+        unitTypes: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Unit/room types offered, e.g. "Studio", "One Bedroom", "Shared Room". Empty if unknown.',
+        },
+        pricingByCareLevel: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              careLevel: { type: 'string', description: 'e.g. "Assisted Living", "Memory Care", "Independent Living", or a room type' },
+              monthlyMin: { type: 'number', description: 'Lowest verified monthly price in USD for this care level' },
+              monthlyMax: { type: ['number', 'null'], description: 'Highest verified monthly price in USD, or null' },
+            },
+            required: ['careLevel', 'monthlyMin', 'monthlyMax'],
+            additionalProperties: false,
+          },
+          description: 'Verified monthly pricing per care level / room type. Empty if none published.',
+        },
       },
-      required: ['summary', 'officialWebsite', 'managementCompany', 'phone', 'location', 'availability', 'pricingMin', 'pricingMax', 'pricingSource'],
+      required: ['summary', 'officialWebsite', 'managementCompany', 'phone', 'location', 'availability', 'pricingMin', 'pricingMax', 'pricingSource', 'capacity', 'unitTypes', 'pricingByCareLevel'],
       additionalProperties: false,
     };
 
@@ -1239,7 +1273,7 @@ Rules:
         body: JSON.stringify({
           model: 'sonar',
           temperature: 0.1,
-          max_tokens: 900,
+          max_tokens: 1200,
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userPrompt },
@@ -1295,6 +1329,37 @@ Rules:
 
       const str = (v: any) => (typeof v === 'string' && v.trim() && v.trim().toLowerCase() !== 'null' ? v.trim() : null);
 
+      // Capacity: accept only a plausible facility size (guards hallucinated
+      // zip codes / years slipping into the number field).
+      const capRaw = toNum(parsed.capacity);
+      const capacity = capRaw && capRaw >= 4 && capRaw <= 2000 ? capRaw : null;
+
+      const unitTypes: string[] = Array.isArray(parsed.unitTypes)
+        ? [...new Set(
+            parsed.unitTypes
+              .map((u: any) => (typeof u === 'string' ? u.trim() : ''))
+              .filter((u: string) => u.length > 0 && u.length <= 60 && u.toLowerCase() !== 'null'),
+          )] as string[]
+        : [];
+
+      // Per-care-level pricing: keep only entries with a real label and a
+      // plausible monthly USD figure (Golden Data Rule — drop junk rows).
+      const plausiblePrice = (n: number | undefined) => !!n && n >= 200 && n <= 50000;
+      const pricingByCareLevel: Array<{ label: string; min: number; max?: number }> =
+        (Array.isArray(parsed.pricingByCareLevel) ? parsed.pricingByCareLevel : [])
+          .map((e: any) => ({
+            label: str(e?.careLevel) || '',
+            min: toNum(e?.monthlyMin),
+            max: toNum(e?.monthlyMax),
+          }))
+          .filter((e: any) => e.label && plausiblePrice(e.min))
+          .map((e: any) => ({
+            label: e.label,
+            min: e.min!,
+            ...(plausiblePrice(e.max) && e.max !== e.min ? { max: e.max } : {}),
+          }))
+          .slice(0, 8);
+
       return {
         summary: (str(parsed.summary) || '').substring(0, 1000),
         officialWebsite: str(parsed.officialWebsite),
@@ -1303,6 +1368,9 @@ Rules:
         location: str(parsed.location),
         availability: str(parsed.availability),
         pricing,
+        capacity,
+        unitTypes,
+        pricingByCareLevel,
       };
     } catch (error) {
       await aiTracker.trackPerplexityCall({
