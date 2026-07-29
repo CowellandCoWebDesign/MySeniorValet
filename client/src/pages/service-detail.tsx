@@ -16,7 +16,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { useToast } from "@/hooks/use-toast";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
-import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { apiRequest } from "@/lib/queryClient";

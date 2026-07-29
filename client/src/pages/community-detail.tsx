@@ -49,7 +49,6 @@ import { MissingPhotosPanel } from "@/components/MissingPhotosPanel";
 import { MatterportEmbed } from "@/components/MatterportEmbed";
 import { SubscriptionUpgradeModal } from "@/components/SubscriptionUpgradeModal";
 import { PricingHistory } from "@/components/pricing-history";
-import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
 import { ExternalLinkWarning } from "@/components/ExternalLinkWarning";
 import { MascotLoadingDisplay } from "@/components/MascotLoadingDisplay";
 import { ReservationSection } from "@/components/ReservationSection";
