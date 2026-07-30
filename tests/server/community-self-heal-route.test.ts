@@ -28,9 +28,21 @@ import { describe, it, expect, jest, beforeEach } from '@jest/globals';
 
 // The single enrichment pipeline — the key delegation target.
 const mockEnrich = jest.fn();
-jest.mock('../../server/services/community-enrichment-orchestrator', () => ({
-  enrichCommunityUnified: (...a: any[]) => mockEnrich(...a),
-}));
+jest.mock('../../server/services/community-enrichment-orchestrator', () => {
+  // Real class (defined inside the hoisted factory) so the router's
+  // `instanceof EnrichmentPersistError` check works against instances thrown
+  // from the tests. Tests import it from the mocked module.
+  class EnrichmentPersistError extends Error {
+    constructor(message: string, public cause?: unknown) {
+      super(message);
+      this.name = 'EnrichmentPersistError';
+    }
+  }
+  return {
+    enrichCommunityUnified: (...a: any[]) => mockEnrich(...a),
+    EnrichmentPersistError,
+  };
+});
 
 // DB — two chains:
 //   select().from().where().limit()  → resolves a community row
@@ -129,6 +141,7 @@ jest.mock('../../server/services/community-photo-enrichment', () => ({
 import request from 'supertest';
 import express from 'express';
 import { registerCommunityRoutes } from '../../server/routes/communityRoutes';
+import { EnrichmentPersistError } from '../../server/services/community-enrichment-orchestrator';
 
 function buildApp() {
   const app = express();
@@ -436,6 +449,31 @@ describe('POST /api/communities/:id/self-heal', () => {
     expect(setCalls.some((s: any) => s.enrichmentStatus === 'no_data')).toBe(false);
     expect(setCalls.some((s: any) => 'enrichmentAttempts' in s)).toBe(false);
     expect(setCalls.some((s: any) => s.enrichmentStatus === 'failed')).toBe(true);
+  });
+
+  // ── Persist failure: honest error, backoff NOT escalated ──────────────────
+
+  it('returns persist_failed without incrementing attempts when the final save is rejected', async () => {
+    mockEnrich.mockRejectedValue(
+      new EnrichmentPersistError('final persist failed', new Error('23514 check violation')),
+    );
+    const res = await request(app).post('/api/communities/1/self-heal').send({});
+
+    // Honest 200 body — no phantom "completed" data, no 500.
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      success: false,
+      skipped: false,
+      foundData: false,
+      error: 'persist_failed',
+    });
+
+    const setCalls = mockSet.mock.calls.map((c: any[]) => c[0]);
+    // Status lands on 'failed' (transient), never escalated toward no_data.
+    expect(setCalls.some((s: any) => s.enrichmentStatus === 'failed')).toBe(true);
+    expect(setCalls.some((s: any) => s.enrichmentStatus === 'no_data')).toBe(false);
+    // Backoff must NOT escalate: enrichment_attempts is never written.
+    expect(setCalls.some((s: any) => 'enrichmentAttempts' in s)).toBe(false);
   });
 
   // ── Admin route is untouched ───────────────────────────────────────────────
