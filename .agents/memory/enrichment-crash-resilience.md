@@ -24,5 +24,11 @@ restart mid-flight lost everything and left status stuck 'in_progress'.
    catches it and returns `{success:false, foundData:false, error:'persist_failed'}`
    WITHOUT escalating backoff — a save failure is not a no-data verdict.
 
+Automated coverage: tests/server/enrichment-crash-sweep.test.ts (real-DB
+integration for sweep semantics) and tests/server/enrichment-persist-error.test.ts
+(mocked-DB unit tests: final-write failure → EnrichmentPersistError, last status
+write is 'failed'). Note: the rejected final write legitimately *attempts*
+status 'completed' — the invariant is the post-rejection revert.
+
 **Why:** verified July 30, 2026 loss (client showed new data, DB stale after a
 task-merge restart). The client must never display data the DB rejected.
