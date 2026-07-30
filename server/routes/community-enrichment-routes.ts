@@ -4,7 +4,7 @@ import { communities } from "@shared/schema";
 import { eq, desc, sql, isNull, or, lt, and, gte } from "drizzle-orm";
 import { isAdmin } from "../auth-middleware";
 // All enrichment flows through the single unified orchestrator.
-import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
 
 /** Derive a human-readable list of fields the unified enrichment populated. */
 function fieldsFromResult(result: Awaited<ReturnType<typeof enrichCommunityUnified>>): string[] {
@@ -39,6 +39,15 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
         photoCount: result.photos.length,
       });
     } catch (error) {
+      if (error instanceof EnrichmentPersistError) {
+        // Research succeeded but the final DB write failed — nothing was saved.
+        console.error("Enrichment persist failed (results NOT saved):", error);
+        return res.status(500).json({
+          error: "Enrichment save failed",
+          outcome: "save_failed",
+          message: "Data was researched but could not be saved to the database. Retry is cheap (results may be cached).",
+        });
+      }
       console.error("Error triggering enrichment:", error);
       res.status(500).json({ error: "Failed to trigger enrichment" });
     }
@@ -62,6 +71,14 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
         photoCount: result.photos.length,
       });
     } catch (error) {
+      if (error instanceof EnrichmentPersistError) {
+        console.error("Dynamic-content persist failed (results NOT saved):", error);
+        return res.status(500).json({
+          error: "Refresh save failed",
+          outcome: "save_failed",
+          message: "Content was researched but could not be saved to the database.",
+        });
+      }
       console.error("Error refreshing dynamic content:", error);
       res.status(500).json({ error: "Failed to refresh dynamic content" });
     }
@@ -86,15 +103,27 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
           .orderBy(sql`popularity_score DESC, view_count DESC`)
           .limit(limit);
         console.log(`🔄 Starting unified batch enrichment for ${toEnrich.length} communities`);
+        // Distinguish "researched but NOT saved" (persist failure — retry is
+        // cheap) from generic failures so the summary log is honest.
+        let succeeded = 0;
+        let saveFailed = 0;
+        let otherFailed = 0;
         for (const c of toEnrich) {
           try {
             await enrichCommunityUnified(c.id, { forceRefresh: true });
+            succeeded++;
           } catch (err) {
-            console.error(`Batch enrichment failed for community ${c.id}:`, err);
+            if (err instanceof EnrichmentPersistError) {
+              saveFailed++;
+              console.error(`Batch enrichment for community ${c.id}: data researched but SAVE FAILED (not persisted):`, err);
+            } else {
+              otherFailed++;
+              console.error(`Batch enrichment failed for community ${c.id}:`, err);
+            }
           }
           await new Promise((resolve) => setTimeout(resolve, 1500));
         }
-        console.log(`✅ Unified batch enrichment completed for ${toEnrich.length} communities`);
+        console.log(`✅ Unified batch enrichment completed for ${toEnrich.length} communities — ${succeeded} succeeded, ${saveFailed} save-failed (researched but NOT persisted), ${otherFailed} failed`);
       })().catch(error => {
         console.error("Batch enrichment failed:", error);
       });

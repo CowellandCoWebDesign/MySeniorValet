@@ -33,7 +33,7 @@ import { DataIntegrityValidator } from "../services/data-integrity-validator";
 import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
 // All admin enrichment flows through the single unified orchestrator.
-import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
 import { recomputeCommunityVisibility } from "../services/community-visibility";
 import multer from "multer";
 import fs from "fs";
@@ -661,6 +661,16 @@ export function registerAdminRoutes(app: Express) {
         enrichmentData: result.enrichmentData,
       });
     } catch (error) {
+      if (error instanceof EnrichmentPersistError) {
+        // Data was researched but the final DB write failed — nothing was
+        // saved. Surface that distinctly so admins know a retry is cheap.
+        console.error('❌ [Admin Enrich] Save failed (results NOT persisted):', error);
+        return res.status(500).json({
+          error: 'Enrichment save failed',
+          outcome: 'save_failed',
+          message: 'Data was researched but could not be saved to the database. Retry is cheap (results may be cached).',
+        });
+      }
       console.error('❌ [Admin Enrich] Failed:', error);
       return res.status(500).json({
         error: 'Enrichment failed',
@@ -2616,7 +2626,12 @@ export function registerAdminRoutes(app: Express) {
       }
 
       let affected = 0;
-      let enrichResults: { id: number; restored: boolean; contentSaved: boolean }[] | undefined;
+      let enrichResults:
+        | { id: number; restored: boolean; contentSaved: boolean; saveFailed?: boolean }[]
+        | undefined;
+      let enrichSummary:
+        | { succeeded: number; noData: number; saveFailed: number; failed: number }
+        | undefined;
 
       if (action === 'restore') {
         // Strip protective + managed quality flags so the record won't be
@@ -2645,6 +2660,7 @@ export function registerAdminRoutes(app: Express) {
       } else {
         // enrich — bounded sequential to respect AI rate limits / cost guards.
         enrichResults = [];
+        enrichSummary = { succeeded: 0, noData: 0, saveFailed: 0, failed: 0 };
         for (const id of communityIds) {
           try {
             const result = await enrichCommunityUnified(id, { forceRefresh: true });
@@ -2663,10 +2679,22 @@ export function registerAdminRoutes(app: Express) {
               restored: recomputed ? recomputed.hidden === false : false,
               contentSaved: foundData,
             });
+            if (foundData) enrichSummary.succeeded += 1;
+            else enrichSummary.noData += 1;
             affected += 1;
           } catch (err) {
-            console.error(`[QC enrich] community ${id} failed:`, err);
-            enrichResults.push({ id, restored: false, contentSaved: false });
+            if (err instanceof EnrichmentPersistError) {
+              // Data was researched but the final DB write failed — nothing
+              // was saved. Count distinctly from "no data found" so admins
+              // know a retry is cheap (results may be cached).
+              console.error(`[QC enrich] community ${id}: data researched but SAVE FAILED (not persisted):`, err);
+              enrichSummary.saveFailed += 1;
+              enrichResults.push({ id, restored: false, contentSaved: false, saveFailed: true });
+            } else {
+              console.error(`[QC enrich] community ${id} failed:`, err);
+              enrichSummary.failed += 1;
+              enrichResults.push({ id, restored: false, contentSaved: false });
+            }
           }
         }
       }
@@ -2680,7 +2708,7 @@ export function registerAdminRoutes(app: Express) {
       console.log(
         `Admin QC action: ${action} on ${communityIds.length} communities by ${req.user?.email}`,
       );
-      res.json({ success: true, action, affected, results: enrichResults });
+      res.json({ success: true, action, affected, results: enrichResults, summary: enrichSummary });
     } catch (error) {
       console.error('Error performing QC action:', error);
       res.status(500).json({ message: 'Failed to perform QC action' });
