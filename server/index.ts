@@ -368,6 +368,15 @@ const bootStart = Date.now();
       console.error('❌ Background startup migrations failed (server continues serving):', error);
     });
 
+    // Reset communities stranded in enrichment_status='in_progress' by a
+    // mid-flight restart (e.g. a task merge during the ~15s enrichment window)
+    // so the next visit cleanly re-enriches instead of waiting out a false
+    // "in progress". Dynamic import keeps the heavy orchestrator off the boot
+    // path (see server-boot lazy-loading rule).
+    import('./services/community-enrichment-orchestrator')
+      .then(({ sweepStaleInProgressEnrichments }) => sweepStaleInProgressEnrichments())
+      .catch(e => console.error('❌ Stranded-enrichment startup sweep failed:', e));
+
     
     // Initialize simple WebSocket communication
     simpleWebSocket.initialize(server);

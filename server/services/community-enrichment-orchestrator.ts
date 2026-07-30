@@ -32,7 +32,7 @@
 
 import { db } from "../db";
 import { communities } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import {
   enrichCommunityFree,
   scrapeWebsitePage,
@@ -57,6 +57,62 @@ import {
 // `validUntil` / `enrichmentDataExpiry` far in the future so nothing downstream
 // treats the content as stale.
 const ENRICHMENT_CACHE_TTL_MS = 10 * 365 * 24 * 60 * 60 * 1000;
+
+/**
+ * Thrown when the FINAL enrichment persist (photos/pricing/enrichmentData/
+ * status) is rejected by the DB. Callers must treat this as foundData=false —
+ * the on-screen data was never saved, so the client must keep its placeholder
+ * instead of displaying phantom "completed" content.
+ */
+export class EnrichmentPersistError extends Error {
+  constructor(message: string, public readonly cause?: unknown) {
+    super(message);
+    this.name = "EnrichmentPersistError";
+  }
+}
+
+/**
+ * Startup sweep: reset communities stranded in enrichment_status='in_progress'
+ * by a mid-flight server restart (e.g. a task-merge restart during the ~15s
+ * pipeline). Without this, the self-heal in-flight gate treats them as still
+ * running and the next visit waits out a false "in progress".
+ *
+ * Backoff semantics preserved:
+ *   - Status becomes 'failed' (never 'completed' — no phantom success).
+ *   - enrichment_attempts is NOT incremented (a crash is not a "no data" run).
+ *   - Communities with attempts=0 (no genuine prior failure) also get their
+ *     last_enrichment_attempt cleared so the next visit re-enriches immediately;
+ *     communities with attempts>0 keep the timestamp so the escalating
+ *     self-heal cooldown (24h→7d→30d) stays intact.
+ *
+ * Raw SQL on purpose: communities has known Drizzle column drift, and this must
+ * run safely on boot regardless of schema skew.
+ */
+export async function sweepStaleInProgressEnrichments(maxAgeMinutes = 5): Promise<number> {
+  const result = await db.execute(sql`
+    UPDATE communities
+    SET enrichment_status = 'failed',
+        last_enrichment_attempt = CASE
+          WHEN COALESCE(enrichment_attempts, 0) = 0 THEN NULL
+          ELSE last_enrichment_attempt
+        END
+    WHERE enrichment_status = 'in_progress'
+      AND (
+        last_enrichment_attempt IS NULL
+        OR last_enrichment_attempt < NOW() - (${maxAgeMinutes} * INTERVAL '1 minute')
+      )
+    RETURNING id
+  `);
+  const rows = (result as any).rows ?? result;
+  const count = Array.isArray(rows) ? rows.length : 0;
+  if (count > 0) {
+    console.log(
+      `🧹 Enrichment startup sweep: reset ${count} stranded in-progress run(s) to 'failed' ` +
+        `(ids: ${rows.slice(0, 20).map((r: any) => r.id).join(", ")}${count > 20 ? ", …" : ""})`,
+    );
+  }
+  return count;
+}
 
 export interface UnifiedEnrichmentOptions {
   /** Re-run enrichment from scratch (re-bills Perplexity); the manual Refresh. */
@@ -485,6 +541,81 @@ async function enrichCommunityUnifiedInner(
   // an unmapped free-text value would fail the write with an opaque 23514.
   const normalizedAvailability = normalizeAvailabilityStatus(availability);
 
+  // ── Stage 2.75 — Early persist of cheap verified fields (crash resilience) ──
+  // Description/phone/website are written NOW, before the slow photo-discovery
+  // stage, so a mid-flight server restart (e.g. a task-merge restart) loses at
+  // most the later photo/pricing work. Uses the SAME sanitization gates as the
+  // final persist (sanitizeWebsiteUrl, isReachableWebsite, websiteProtected,
+  // shouldUpgradeDescription); the computed coreUpdates are merged into the
+  // final write so the gates never diverge and a failed early write is retried.
+  const summary =
+    freeEnrichment.about ||
+    community.description ||
+    "Contact for details — information for this community was not found online.";
+  const officialWebsite = freeEnrichment.sourceUrl || community.website || "";
+  const phone = freeEnrichment.phone || community.phone || "";
+  const sources = freeEnrichment.sourceUrl ? [freeEnrichment.sourceUrl] : [];
+
+  const coreUpdates: any = {};
+
+  // Website — only persist a reachable URL; respect admin protection.
+  // sanitizeWebsiteUrl strips markdown artifacts (**...**), adds the protocol
+  // to bare domains, and rejects junk values so corrupted URLs never persist.
+  const candidateWebsite = sanitizeWebsiteUrl(cleanCitationArtifacts(officialWebsite));
+  if (community.websiteProtected && candidateWebsite && community.website !== candidateWebsite) {
+    console.log(`🔒 Keeping admin-protected website for "${community.name}": ${community.website}`);
+  } else if (candidateWebsite && community.website !== candidateWebsite) {
+    if (await isReachableWebsite(candidateWebsite)) {
+      coreUpdates.website = candidateWebsite;
+      console.log(`✅ Updating website to: ${candidateWebsite}`);
+    } else {
+      console.log(`🚫 Skipped unreachable website for "${community.name}": ${candidateWebsite}`);
+    }
+  }
+
+  // Phone.
+  const candidatePhone = cleanCitationArtifacts(phone);
+  if (candidatePhone && community.phone !== candidatePhone) {
+    coreUpdates.phone = candidatePhone;
+    console.log(`✅ Updating phone to: ${candidatePhone}`);
+  }
+
+  // Description — full content (no truncation). Quality-based upgrade gate:
+  // replace stored template-pattern / legacy-1000-char-truncated descriptions
+  // with richer enrichment content, but NEVER downgrade real content on a
+  // non-forced (background) run. forceRefresh keeps overwriting as before.
+  // stripEnrichmentMarkdown converts report-style markdown blobs
+  // ("**...** --- ### PRICING ...") into readable paragraph prose before persist.
+  const candidateDescription = stripEnrichmentMarkdown(cleanCitationArtifacts(summary));
+  const descriptionUpgraded = shouldUpgradeDescription(
+    community.description,
+    candidateDescription,
+    forceRefresh,
+  );
+  if (descriptionUpgraded) {
+    coreUpdates.description = candidateDescription;
+    console.log(`✅ Updating description with FULL enriched content (${candidateDescription.length} chars)`);
+  }
+
+  if (Object.keys(coreUpdates).length > 0) {
+    try {
+      await db
+        .update(communities)
+        .set({ ...coreUpdates, updatedAt: new Date() } as any)
+        .where(eq(communities.id, communityId));
+      console.log(
+        `💾 Early-persisted core fields for community ${communityId}: ${Object.keys(coreUpdates).join(", ")}`,
+      );
+    } catch (earlyErr) {
+      // Non-fatal: the final persist retries these exact fields. A total DB
+      // outage will surface there and fail the run honestly.
+      console.warn(
+        `⚠️ Early persist failed for community ${communityId} (final write will retry):`,
+        earlyErr,
+      );
+    }
+  }
+
   // ── Stage 3 — Photo discovery + Golden-Data validation ──────────────────────
   const rawDbPhotoCount = (community.photos || []).filter(
     (u: string) => !CommunityPhotoEnrichment.isStockOrPlaceholderPhoto(u),
@@ -817,14 +948,6 @@ async function enrichCommunityUnifiedInner(
     photoAttributions = [];
   }
 
-  const summary =
-    freeEnrichment.about ||
-    community.description ||
-    "Contact for details — information for this community was not found online.";
-  const officialWebsite = freeEnrichment.sourceUrl || community.website || "";
-  const phone = freeEnrichment.phone || community.phone || "";
-  const sources = freeEnrichment.sourceUrl ? [freeEnrichment.sourceUrl] : [];
-
   console.log(`📝 Unified enrichment for ${community.name}:`, {
     forceRefresh,
     sourceType: freeEnrichment.sourceType,
@@ -841,42 +964,15 @@ async function enrichCommunityUnifiedInner(
   // empty-but-successful run arms the 7-day cache and locks the About section.
   let contentWasSaved = false;
 
-  // Website — only persist a reachable URL; respect admin protection.
-  // sanitizeWebsiteUrl strips markdown artifacts (**...**), adds the protocol
-  // to bare domains, and rejects junk values so corrupted URLs never persist.
-  const candidateWebsite = sanitizeWebsiteUrl(cleanCitationArtifacts(officialWebsite));
-  if (community.websiteProtected && candidateWebsite && community.website !== candidateWebsite) {
-    console.log(`🔒 Keeping admin-protected website for "${community.name}": ${community.website}`);
-  } else if (candidateWebsite && community.website !== candidateWebsite) {
-    if (await isReachableWebsite(candidateWebsite)) {
-      updates.website = candidateWebsite;
-      hasUpdates = true;
-      console.log(`✅ Updating website to: ${candidateWebsite}`);
-    } else {
-      console.log(`🚫 Skipped unreachable website for "${community.name}": ${candidateWebsite}`);
-    }
-  }
-
-  // Phone.
-  const candidatePhone = cleanCitationArtifacts(phone);
-  if (candidatePhone && community.phone !== candidatePhone) {
-    updates.phone = candidatePhone;
+  // Core fields (website/phone/description) were computed — and early-persisted
+  // — before the slow photo stage (Stage 2.75). Merge them into the final write
+  // so a failed early write is retried and the gates never diverge.
+  if (Object.keys(coreUpdates).length > 0) {
+    Object.assign(updates, coreUpdates);
     hasUpdates = true;
-    console.log(`✅ Updating phone to: ${candidatePhone}`);
   }
-
-  // Description — full content (no truncation). Quality-based upgrade gate:
-  // replace stored template-pattern / legacy-1000-char-truncated descriptions
-  // with richer enrichment content, but NEVER downgrade real content on a
-  // non-forced (background) run. forceRefresh keeps overwriting as before.
-  // stripEnrichmentMarkdown converts report-style markdown blobs
-  // ("**...** --- ### PRICING ...") into readable paragraph prose before persist.
-  const candidateDescription = stripEnrichmentMarkdown(cleanCitationArtifacts(summary));
-  if (shouldUpgradeDescription(community.description, candidateDescription, forceRefresh)) {
-    updates.description = candidateDescription;
-    hasUpdates = true;
+  if (descriptionUpgraded) {
     contentWasSaved = true;
-    console.log(`✅ Updating description with FULL enriched content (${candidateDescription.length} chars)`);
   }
 
   // Photos — NON-DESTRUCTIVE except a forced refresh that positively confirms the
@@ -1064,10 +1160,32 @@ async function enrichCommunityUnifiedInner(
       else if (clearPhotos) updates.photos = [];
       else delete updates.photos;
     }
-    await db
-      .update(communities)
-      .set({ ...updates, updatedAt: now })
-      .where(eq(communities.id, communityId));
+    try {
+      await db
+        .update(communities)
+        .set({ ...updates, updatedAt: now })
+        .where(eq(communities.id, communityId));
+    } catch (persistErr) {
+      // The final write was rejected — the DB does NOT hold what this run was
+      // about to return. Mark the run 'failed' (never a phantom 'completed')
+      // and surface a typed error so callers report foundData=false and the
+      // client keeps its honest placeholder.
+      console.error(`❌ Final enrichment persist FAILED for community ${communityId}:`, persistErr);
+      try {
+        await db
+          .update(communities)
+          .set({ enrichmentStatus: "failed" } as any)
+          .where(eq(communities.id, communityId));
+      } catch {
+        // Best-effort revert; the startup sweep also un-sticks 'in_progress'.
+      }
+      throw new EnrichmentPersistError(
+        `Failed to persist enrichment for community ${communityId}: ${
+          persistErr instanceof Error ? persistErr.message : persistErr
+        }`,
+        persistErr,
+      );
+    }
     console.log(`✅ Unified enrichment persisted for community ${communityId}:`, {
       fieldsUpdated: Object.keys(updates),
     });

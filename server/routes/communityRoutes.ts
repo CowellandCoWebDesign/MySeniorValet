@@ -25,7 +25,7 @@ import { sanitizeWebsiteUrl } from "../utils/website-url";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
 import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
-import { enrichCommunityUnified } from "../services/community-enrichment-orchestrator";
+import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
 import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
 import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter, excludeHudFilter } from "../utils/community-ranking";
 
@@ -311,6 +311,13 @@ export function registerCommunityRoutes(app: Express) {
           .update(communities)
           .set({ enrichmentStatus: "failed" } as any)
           .where(eq(communities.id, communityId));
+        // Final persist rejected by the DB: report an honest no-data outcome so
+        // the client keeps its placeholder instead of phantom "completed" data.
+        // Backoff is NOT escalated (this was a save failure, not a no-data run).
+        if (pipelineErr instanceof EnrichmentPersistError) {
+          console.error(`🩺 [Self-Heal] Persist failed for community ${communityId}:`, pipelineErr.message);
+          return res.json({ success: false, skipped: false, foundData: false, error: "persist_failed" });
+        }
         throw pipelineErr;
       }
     } catch (error) {
