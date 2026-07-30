@@ -188,13 +188,8 @@ export function EnhancedPhotoCarousel({
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [showValidationReport, setShowValidationReport] = useState(false);
   const [photoUpdateKey, setPhotoUpdateKey] = useState(0);
-  
-  // Progressive loading states
-  const [progressivePhotos, setProgressivePhotos] = useState<string[]>([]);
-  const [loadingStage, setLoadingStage] = useState<'initial' | 'quick' | 'quality' | 'complete'>('initial');
-  const [progressiveLoadAttempted, setProgressiveLoadAttempted] = useState(false);
-  
-  // Get all photos AND videos from database, web intelligence, and progressive loading  
+
+  // Get all photos AND videos from database and web intelligence
   const getAllPhotos = () => {
     const allPhotos: { url: string; source: string; isAuthentic?: boolean; isVideo?: boolean }[] = [];
     
@@ -208,22 +203,6 @@ export function EnhancedPhotoCarousel({
             source: 'video',
             isAuthentic: true,
             isVideo: true
-          });
-        }
-      });
-    }
-    
-    // Add progressive photos (these are highest priority for photos)
-    if (progressivePhotos.length > 0) {
-      progressivePhotos.forEach((url: string) => {
-        if (url && url.length > 10) {
-          // Check if it's a video URL
-          const videoFlag = isVideoUrl(url);
-          allPhotos.push({ 
-            url: toProxiedUrl(url), 
-            source: loadingStage === 'complete' ? 'high-quality' : 'quick-load',
-            isAuthentic: true,
-            isVideo: videoFlag
           });
         }
       });
@@ -320,12 +299,12 @@ export function EnhancedPhotoCarousel({
     return uniquePhotos;
   };
   
-  // Recalculate photos when verificationReport, photoUpdateKey, or progressive photos change
+  // Recalculate photos when verificationReport or photoUpdateKey change
   const processedPhotos = useMemo(() => {
     const photos = getAllPhotos();
-    console.log(`📸 Recalculating photos - Found ${photos.length} total photos (stage: ${loadingStage})`);
+    console.log(`📸 Recalculating photos - Found ${photos.length} total photos`);
     return photos;
-  }, [photos, community?.photos, verificationReport, photoUpdateKey, progressivePhotos, loadingStage]);
+  }, [photos, community?.photos, verificationReport, photoUpdateKey]);
 
   // Get photo validation report if validation is enabled and community ID is provided
   const { data: validationReport, isLoading: validationLoading } = useQuery<{
@@ -391,84 +370,10 @@ export function EnhancedPhotoCarousel({
     }
   }, [verificationReport]);
   
-  // Progressive photo loading - Stage 1: Quick photos, Stage 2: High-quality photos
-  useEffect(() => {
-    if (!communityName || progressiveLoadAttempted) return;
-    
-    // Define fetchQualityPhotos first (before fetchQuickPhotos)
-    const fetchQualityPhotos = async () => {
-      try {
-        setLoadingStage('quality');
-        console.log('🔍 Loading high-quality photos for:', communityName);
-        
-        const response = await fetch('/api/web-intelligence/quality-photos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            communityName: communityName,
-            content: verificationReport?.rawPerplexityContent || '',
-            website: community?.website,
-            citations: verificationReport?.citations
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.photos && data.photos.length > 0) {
-            console.log(`🔍 Loaded ${data.photos.length} high-quality photos`);
-            setProgressivePhotos(data.photos);
-            setLoadingStage('complete');
-          } else {
-            setLoadingStage('complete');
-          }
-        } else {
-          setLoadingStage('complete');
-        }
-      } catch (error) {
-        console.error('Error loading quality photos:', error);
-        setLoadingStage('complete');
-      }
-    };
-    
-    const fetchQuickPhotos = async () => {
-      try {
-        setLoadingStage('quick');
-        console.log('⚡ Loading quick photos for:', communityName);
-        
-        const response = await fetch('/api/web-intelligence/quick-photos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            communityName: communityName,
-            content: verificationReport?.rawPerplexityContent || '',
-            website: community?.website
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data.photos && data.photos.length > 0) {
-            console.log(`⚡ Loaded ${data.photos.length} quick photos (cached: ${data.cached})`);
-            setProgressivePhotos(data.photos);
-            // Continue to quality photos after showing quick photos
-            setTimeout(() => fetchQualityPhotos(), 100); // Small delay to show quick photos first
-          } else {
-            // No quick photos, try quality photos anyway
-            fetchQualityPhotos();
-          }
-        } else {
-          fetchQualityPhotos(); // Try quality photos anyway
-        }
-      } catch (error) {
-        console.error('Error loading quick photos:', error);
-        fetchQualityPhotos(); // Try quality photos anyway
-      }
-    };
-    
-    // Start progressive loading - set the flag FIRST to prevent re-runs
-    setProgressiveLoadAttempted(true);
-    fetchQuickPhotos();
-  }, [communityName]);
+  // Task #402: progressive photo loading removed — it called the permanently
+  // disabled /api/web-intelligence/quick-photos + quality-photos endpoints
+  // (always 503) and only produced console noise. Photos now come solely from
+  // the DB record, the photos prop, and confirmed web-intelligence images.
   
   // Validate individual photos on load for quality checking
   useEffect(() => {

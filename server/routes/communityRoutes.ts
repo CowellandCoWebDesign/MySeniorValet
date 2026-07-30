@@ -1972,9 +1972,13 @@ export function registerCommunityRoutes(app: Express) {
       // also an authoritative enrichment entry point (it previously triggered no
       // enrichment at all). Cost is bounded by the orchestrator's 7-day cache, so a
       // freshly-enriched community is served from the DB without a new Perplexity call.
-      enrichCommunityUnified(community.id).catch((error) => {
-        console.error(`Failed to trigger on-view enrichment for community ${community.id}:`, error);
-      });
+      // Task #402: ?noEnrich=1 is a pure READ (client polling while a coalesced
+      // self-heal completes) — it must never trigger another enrichment run.
+      if (req.query.noEnrich !== '1') {
+        enrichCommunityUnified(community.id).catch((error) => {
+          console.error(`Failed to trigger on-view enrichment for community ${community.id}:`, error);
+        });
+      }
 
       // Get reviews  
       const communityReviews = await db
@@ -2193,9 +2197,13 @@ export function registerCommunityRoutes(app: Express) {
       // Cost is bounded by the orchestrator's 7-day cache (ENRICHMENT_CACHE_TTL_MS) —
       // a freshly-enriched community is served from DB without a new Perplexity call,
       // so this shares the exact same path as the Refresh button and admin force-refresh.
-      enrichCommunityUnified(communityId).catch((error) => {
-        console.error(`Failed to trigger on-view enrichment for community ${communityId}:`, error);
-      });
+      // Task #402: ?noEnrich=1 is a pure READ (client polling while a coalesced
+      // self-heal completes) — it must never trigger another enrichment run.
+      if (req.query.noEnrich !== '1') {
+        enrichCommunityUnified(communityId).catch((error) => {
+          console.error(`Failed to trigger on-view enrichment for community ${communityId}:`, error);
+        });
+      }
 
       // Get reviews for the community
       const communityReviews = await db

@@ -1089,22 +1089,119 @@ export default function CommunityDetail() {
     setSelfHealAttempted(true);
     setIsSelfHealing(true);
 
+    // NOTE: no dep-change cancellation here — setSelfHealAttempted(true) re-runs
+    // this effect immediately (early-returns on the guard), so a cleanup-based
+    // cancel flag would kill the in-flight work right after it starts. The poll
+    // is hard-bounded (~60s) and setQueryData targets the global cache, so
+    // letting it finish after unmount is safe.
+    const cancelled = false;
+
+    const communityId = community.id;
+    const isValidWebsite = (w: any) => typeof w === 'string' && /^https?:\/\//i.test(w);
+    const validPhotos = (arr: any): string[] =>
+      (Array.isArray(arr) ? arr : []).filter(
+        (u: any) => typeof u === 'string' && /^https?:\/\//i.test(u),
+      );
+
+    // Task #402 revert-race fix: merge a server record into the cached copy
+    // WITHOUT ever downgrading freshly enriched values to stale/empty ones.
+    // A refetch that resolves with pre-write data must not wipe the new
+    // description/phone/website/photos the visitor just watched appear.
+    const mergeServerRecord = (fetched: any) => (old: any) => {
+      if (!fetched) return old;
+      if (!old) return fetched;
+      const merged: any = { ...old, ...fetched };
+      const oldPhotos = validPhotos(old.photos);
+      if (validPhotos(fetched.photos).length === 0 && oldPhotos.length > 0) {
+        merged.photos = oldPhotos;
+      }
+      const oldDesc = typeof old.description === 'string' ? old.description.trim() : '';
+      const newDesc = typeof fetched.description === 'string' ? fetched.description.trim() : '';
+      if (oldDesc.length > 50 && newDesc.length < oldDesc.length) merged.description = old.description;
+      if (!isValidWebsite(fetched.website) && isValidWebsite(old.website)) merged.website = old.website;
+      if (!(typeof fetched.phone === 'string' && fetched.phone.trim()) &&
+          typeof old.phone === 'string' && old.phone.trim()) {
+        merged.phone = old.phone;
+      }
+      if (old.enrichmentStatus === 'completed' && fetched.enrichmentStatus === 'in_progress') {
+        merged.enrichmentStatus = old.enrichmentStatus;
+      }
+      return merged;
+    };
+
+    const applyToAllKeys = (updater: (old: any) => any) => {
+      if (slugQueryKey) queryClient.setQueryData([slugQueryKey], updater);
+      if (idQueryKey) queryClient.setQueryData([idQueryKey], updater);
+      queryClient.setQueryData([`/api/communities/${communityId}`], updater);
+    };
+
+    // Pure READ of the community record (?noEnrich=1 — never triggers another
+    // enrichment run, so backoff/cost-guard semantics are untouched).
+    const fetchRecord = async (): Promise<any | null> => {
+      try {
+        const r = await fetch(`/api/communities/${communityId}?noEnrich=1`);
+        if (!r.ok) return null;
+        return await r.json();
+      } catch {
+        return null;
+      }
+    };
+
+    // Reconcile the caches with the persisted DB record (revert-safe merge)
+    // instead of a blind refetch that can race the write and restore stale data.
+    const reconcileWithServer = async () => {
+      const fetched = await fetchRecord();
+      if (cancelled || !fetched) return;
+      applyToAllKeys(mergeServerRecord(fetched));
+    };
+
+    // Task #402 coalesced-drop fix: enrichment is already in flight server-side
+    // (another tab / on-view trigger). Keep the placeholder up and poll the
+    // record (bounded: every 4s, ~60s max) until enrichment_status leaves
+    // in_progress or content appears, then merge it in — no reload needed.
+    const pollUntilResolved = async () => {
+      const POLL_INTERVAL_MS = 4000;
+      const MAX_POLLS = 15;
+      for (let i = 0; i < MAX_POLLS && !cancelled; i++) {
+        await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
+        if (cancelled) return;
+        const fetched = await fetchRecord();
+        if (cancelled) return;
+        if (!fetched) continue;
+        const status = fetched.enrichmentStatus;
+        const hasContent =
+          validPhotos(fetched.photos).length > 0 ||
+          (typeof fetched.description === 'string' && fetched.description.trim().length >= 100);
+        if (status !== 'in_progress' || hasContent) {
+          applyToAllKeys(mergeServerRecord(fetched));
+          return;
+        }
+      }
+    };
+
     (async () => {
       try {
-        const response = await fetch(`/api/communities/${community.id}/self-heal`, {
+        const response = await fetch(`/api/communities/${communityId}/self-heal`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({}),
         });
         if (!response.ok) return;
         const data = await response.json();
-        if (data?.skipped || !data?.community) return;
+
+        if (data?.skipped) {
+          // Coalesced case: a run is already in flight — wait for it to land
+          // instead of silently giving up (the old behavior left the page stale
+          // even though enrichment completed seconds later).
+          if (data.reason === 'enrichment in progress') {
+            await pollUntilResolved();
+          }
+          return;
+        }
+        if (!data?.community) return;
 
         const result = data.community;
-        const freshPhotos: string[] = (result.photos || []).filter(
-          (u: any) => typeof u === 'string' && /^https?:\/\//i.test(u),
-        );
-        const isValidWebsite = (w: any) => typeof w === 'string' && /^https?:\/\//i.test(w);
+        const freshPhotos = validPhotos(result.photos);
         const buildPatch = (old: any) => {
           if (!old) return old;
           const patch: any = { ...old };
@@ -1118,14 +1215,12 @@ export default function CommunityDetail() {
           return patch;
         };
 
-        // Patch the cache immediately so the UI updates without a reload.
-        if (slugQueryKey) queryClient.setQueryData([slugQueryKey], buildPatch);
-        if (idQueryKey) queryClient.setQueryData([idQueryKey], buildPatch);
-        queryClient.setQueryData([`/api/communities/${community.id}`], buildPatch);
-
-        // Force a background re-sync once the DB write has propagated.
-        if (slugQueryKey) queryClient.refetchQueries({ queryKey: [slugQueryKey] });
-        if (idQueryKey) queryClient.refetchQueries({ queryKey: [idQueryKey] });
+        // Patch the cache immediately so the UI updates without a reload, then
+        // re-sync with the persisted record via the revert-safe merge (the DB
+        // write is confirmed before the response returns, but a blind refetch
+        // could still race and overwrite fresh values with stale ones).
+        applyToAllKeys(buildPatch);
+        await reconcileWithServer();
       } catch (err) {
         console.warn('Self-heal enrichment failed (non-blocking):', err);
       } finally {
