@@ -52,4 +52,5 @@
 - [Community shell SEO injection](community-shell-seo-injection.md) — community head tags injected into SPA shell for ALL UAs; use replacer fns (pricing "$" eats capture refs); client strips data-ssr-meta at boot.
 - [SEO canonical architecture](seo-canonical-architecture.md) — exactly ONE self-canonical per page; NO static canonical in index.html; useSEO (DOM) vs Helmet (data-rh) must not both emit; community builds via getCommunityUrl.
 - [SEO indexing eligibility](seo-indexing-eligibility.md) — ONE evaluateIndexability gates index vs noindex,follow on every surface (shell, SSR, sitemap, client); critical flags only; default-only care type unconfirmed.
+- [Enrichment identity gate](enrichment-identity-gate.md) — website/phone/pricing/capacity writes need the photo path's name+city corroboration; ≥2 mismatches ⇒ identity_suspect (terminal, never auto-rename).
 - [Fabricated inventory counts ban](fabricated-inventory-counts.md) — never hardcode "N,NNN communities/facilities" anywhere crawlable (JSON-LD, meta, page copy); tests/structured-data-no-fabricated-counts.test.ts enforces repo-wide with allowlist.

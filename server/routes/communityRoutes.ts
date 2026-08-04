@@ -23,6 +23,7 @@ import { normalizePhotoUrls } from "../utils/photo-urls";
 import { filterLivePhotoUrls, persistPhotoRemovals } from "../utils/photo-liveness";
 import { sanitizeWebsiteUrl } from "../utils/website-url";
 import { CommunityPhotoEnrichment } from "../services/community-photo-enrichment";
+import { isIdentitySuspectFlagged } from "../services/community-identity";
 import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
 import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
@@ -171,6 +172,7 @@ export function registerCommunityRoutes(app: Express) {
           enrichmentStatus: communities.enrichmentStatus,
           enrichmentAttempts: communities.enrichmentAttempts,
           lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
+          dataQualityFlags: communities.dataQualityFlags,
         })
         .from(communities)
         .where(eq(communities.id, communityId))
@@ -217,6 +219,19 @@ export function registerCommunityRoutes(app: Express) {
       // so we stop auto-retrying entirely until an admin forces a refresh.
       if (community.enrichmentStatus === "no_data") {
         return res.json({ skipped: true, reason: "no data found (terminal)" });
+      }
+
+      // Gate 3b — poisoned identity (Task #438). Enrichment repeatedly resolved
+      // this record to a differently-named facility (or the record itself is
+      // internally inconsistent), so every retry would keep corroborating
+      // against a false identity. Terminal until an admin explicitly clears the
+      // flag (named in clearProtectiveFlags — routine QC restore preserves it);
+      // admin force refresh is unaffected.
+      if (isIdentitySuspectFlagged(community.dataQualityFlags)) {
+        return res.json({
+          skipped: true,
+          reason: "identity suspect (awaiting admin review)",
+        });
       }
 
       // Gate 4 — escalating backoff rate limit. The required cooldown widens with

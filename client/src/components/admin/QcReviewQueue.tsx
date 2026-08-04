@@ -69,6 +69,14 @@ interface QcCommunity {
   website: string | null;
   phone: string | null;
   photo_count: number;
+  /** Evidence for identity_suspect records (candidate real identity, reasons,
+   *  sources) — from enrichment_data.identitySuspect. */
+  identity_evidence: {
+    detectedAt?: string;
+    candidateIdentity?: string | null;
+    reasons?: string[];
+    sources?: string[];
+  } | null;
   description: string | null;
 }
 
@@ -171,13 +179,27 @@ export function QcReviewQueue() {
   const reasons = data?.reasons ?? [];
 
   const actionMutation = useMutation({
-    mutationFn: async ({ action, ids }: { action: QcAction; ids: number[] }) => {
-      return apiRequest("POST", "/api/admin/communities/qc-action", { action, ids });
+    mutationFn: async ({
+      action,
+      ids,
+      clearProtectiveFlags,
+    }: {
+      action: QcAction;
+      ids: number[];
+      clearProtectiveFlags?: string[];
+    }) => {
+      return apiRequest("POST", "/api/admin/communities/qc-action", {
+        action,
+        ids,
+        ...(clearProtectiveFlags ? { clearProtectiveFlags } : {}),
+      });
     },
     onSuccess: (result: any, variables) => {
-      const { action, ids } = variables;
+      const { action, ids, clearProtectiveFlags } = variables;
       let description = "";
-      if (action === "restore") {
+      if (clearProtectiveFlags?.includes("identity_suspect")) {
+        description = `Identity reviewed for ${ids.length} ${ids.length === 1 ? "community" : "communities"} — flag cleared; enrichment can retry.`;
+      } else if (action === "restore") {
         description = `${ids.length} ${ids.length === 1 ? "community" : "communities"} restored to public.`;
       } else if (action === "keep-hidden") {
         description = `${ids.length} ${ids.length === 1 ? "community" : "communities"} confirmed hidden.`;
@@ -529,6 +551,13 @@ export function QcReviewQueue() {
                   checked={selected.has(c.id)}
                   onToggle={() => toggleOne(c.id)}
                   onAction={(a) => runAction(a, [c.id])}
+                  onIdentityReviewed={() =>
+                    actionMutation.mutate({
+                      action: "restore",
+                      ids: [c.id],
+                      clearProtectiveFlags: ["identity_suspect"],
+                    })
+                  }
                   onRemoval={() => setRemovalTarget(c)}
                   disabled={isActing}
                 />
@@ -803,7 +832,7 @@ function BulkRemovalDialog({
 }
 
 function flagTone(flag: string): string {
-  if (["clearly_fake", "synthetic_suspected", "non_senior"].includes(flag)) {
+  if (["clearly_fake", "synthetic_suspected", "non_senior", "identity_suspect"].includes(flag)) {
     return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300";
   }
   if (["geo_needs_review", "not_geocoded", "no_street_number"].includes(flag)) {
@@ -817,6 +846,7 @@ function QcRow({
   checked,
   onToggle,
   onAction,
+  onIdentityReviewed,
   onRemoval,
   disabled,
 }: {
@@ -824,11 +854,13 @@ function QcRow({
   checked: boolean;
   onToggle: () => void;
   onAction: (a: QcAction) => void;
+  onIdentityReviewed: () => void;
   onRemoval: () => void;
   disabled: boolean;
 }) {
   const c = community;
   const flags = Array.isArray(c.data_quality_flags) ? c.data_quality_flags : [];
+  const isIdentitySuspect = flags.includes("identity_suspect");
   const location = [c.city, c.state, c.country].filter(Boolean).join(", ");
 
   return (
@@ -916,10 +948,62 @@ function QcRow({
               <span className="line-clamp-2">{c.description}</span>
             </p>
           )}
+
+          {/* Identity-suspect evidence (Task #438): show WHY this record's
+              identity is suspect and the candidate real identity, so the
+              adjudication decision is made on evidence, not guesswork. */}
+          {isIdentitySuspect && (
+            <div
+              className="mt-2 rounded-md border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-950/20 p-2 text-xs space-y-1"
+              data-testid={`identity-evidence-${c.id}`}
+            >
+              <p className="font-semibold text-red-800 dark:text-red-300">
+                Identity suspect — enrichment paused until reviewed
+              </p>
+              {c.identity_evidence?.candidateIdentity && (
+                <p className="break-all">
+                  <span className="text-muted-foreground">Candidate real identity: </span>
+                  <a
+                    href={c.identity_evidence.candidateIdentity}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="underline"
+                  >
+                    {c.identity_evidence.candidateIdentity}
+                  </a>
+                </p>
+              )}
+              {(c.identity_evidence?.reasons ?? []).slice(0, 3).map((r, i) => (
+                <p key={i} className="text-muted-foreground">• {r}</p>
+              ))}
+              {(c.identity_evidence?.sources ?? []).length > 0 && (
+                <p className="text-muted-foreground break-all">
+                  Sources: {(c.identity_evidence?.sources ?? []).join(", ")}
+                </p>
+              )}
+              <p className="text-muted-foreground">
+                The stored name is never changed automatically. “Identity reviewed” clears the
+                flag (and restores if eligible) so enrichment can retry; correct the record
+                first if the candidate identity is the real one.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Per-item actions */}
         <div className="flex flex-col gap-1.5 shrink-0">
+          {isIdentitySuspect && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-red-300 text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-950/30"
+              onClick={onIdentityReviewed}
+              disabled={disabled}
+              data-testid={`button-identity-reviewed-${c.id}`}
+            >
+              <ShieldCheck className="w-4 h-4 mr-1" /> Identity reviewed
+            </Button>
+          )}
           <Button
             size="sm"
             variant="outline"

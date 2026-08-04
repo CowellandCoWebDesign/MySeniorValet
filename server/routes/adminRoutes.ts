@@ -2284,7 +2284,7 @@ export function registerAdminRoutes(app: Express) {
       const limitNum = Math.min(200, Math.max(1, parseInt(limit as string)));
       const offset = (pageNum - 1) * limitNum;
 
-      const allowedFlagTypes = ['not_geocoded', 'no_description', 'no_contact', 'no_street_number'];
+      const allowedFlagTypes = ['not_geocoded', 'no_description', 'no_contact', 'no_street_number', 'identity_suspect'];
 
       let whereParts = [
         `data_quality_flags IS NOT NULL`,
@@ -2468,6 +2468,11 @@ export function registerAdminRoutes(app: Express) {
       predicate: `('no_contact' = ANY(data_quality_flags))`,
     },
     {
+      id: 'identity',
+      label: 'Identity suspect',
+      predicate: `('identity_suspect' = ANY(data_quality_flags))`,
+    },
+    {
       id: 'flagged',
       label: 'Flagged (unreviewed)',
       predicate: `(flag_status IS NOT NULL AND flag_status <> '' AND flag_status <> 'confirmed')`,
@@ -2516,7 +2521,9 @@ export function registerAdminRoutes(app: Express) {
       // status (e.g. an admin/user problem report). This keeps actively-flagged
       // records in the review surface even if they are still publicly visible.
       const baseParts: string[] = [
-        `(is_hidden = true OR is_active = false OR (flag_status IS NOT NULL AND flag_status <> ''))`,
+        // identity_suspect records may still be publicly visible but need
+        // adjudication (candidate real identity vs garbled record) — Task #438.
+        `(is_hidden = true OR is_active = false OR (flag_status IS NOT NULL AND flag_status <> '') OR 'identity_suspect' = ANY(data_quality_flags))`,
       ];
 
       // Reviewed toggle. Default (anything other than explicit "true") shows the
@@ -2589,6 +2596,7 @@ export function registerAdminRoutes(app: Express) {
             senior_classification, quality_score, quality_tier,
             data_source, enrichment_status, website, phone,
             COALESCE(array_length(photos, 1), 0) AS photo_count,
+            enrichment_data->'identitySuspect' AS identity_evidence,
             description
           FROM communities
           WHERE ${fullWhere}

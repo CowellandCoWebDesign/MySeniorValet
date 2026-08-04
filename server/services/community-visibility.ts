@@ -40,8 +40,41 @@ export const PROTECTIVE_FLAG_LIST = [
   "synthetic_suspected",
   "geo_needs_review",
   "test_data",
+  // Task #438: enrichment repeatedly resolved this record to a differently-
+  // named facility (or the record is internally inconsistent). The flag pauses
+  // self-heal enrichment (terminal until reviewed) and must SURVIVE routine
+  // restore/clear-flags actions — clearing it is a deliberate identity
+  // adjudication that names the flag in clearProtectiveFlags. Unlike the other
+  // protective flags it does NOT force is_hidden (see HIDING_PROTECTIVE_FLAGS):
+  // an identity-suspect record may stay public while awaiting review.
+  "identity_suspect",
 ] as const;
 const PROTECTIVE_FLAGS = new Set<string>(PROTECTIVE_FLAG_LIST);
+
+/** Subset of protective flags that force is_hidden=true. identity_suspect is
+ *  deliberately excluded — it blocks enrichment retries and survives restores,
+ *  but does not by itself hide a record. */
+export const HIDING_PROTECTIVE_FLAGS = new Set<string>([
+  "synthetic_suspected",
+  "geo_needs_review",
+  "test_data",
+]);
+
+/**
+ * Pure: the data_quality_flags an admin restore keeps. Protective flags are
+ * preserved unless each is explicitly NAMED in `clear` (the deliberate
+ * adjudication act); reviewer-actionable + managed flags are dropped (managed
+ * ones are re-derived by the recompute). Exported for route logic + tests.
+ */
+export function flagsKeptOnAdminRestore(
+  existing: string[],
+  clear: ReadonlySet<string> | string[] = [],
+): string[] {
+  const clearSet = clear instanceof Set ? clear : new Set(clear);
+  return (existing || []).filter(
+    (f) => typeof f === "string" && PROTECTIVE_FLAGS.has(f) && !clearSet.has(f),
+  );
+}
 const MANAGED = new Set<string>(MANAGED_QUALITY_FLAGS as readonly string[]);
 
 /** The exact column set evaluation needs — selected explicitly to avoid the
@@ -98,8 +131,10 @@ export function computeRowVisibility(row: EvalRow): RowVisibilityResult {
   const preserved = existing.filter((f) => typeof f === "string" && !MANAGED.has(f));
   const mergedFlags = Array.from(new Set([...preserved, ...evaluation.flags]));
 
-  // Protective overrides — never auto-restore a record hidden for a stronger reason.
-  const hasProtectiveFlag = existing.some((f) => PROTECTIVE_FLAGS.has(f));
+  // Protective overrides — never auto-restore a record hidden for a stronger
+  // reason. Only the HIDING subset forces is_hidden; identity_suspect blocks
+  // enrichment retries but does not hide.
+  const hasProtectiveFlag = existing.some((f) => HIDING_PROTECTIVE_FLAGS.has(f));
   const adminConfirmed = row.flagStatus === "confirmed";
   const isProtected = hasProtectiveFlag || adminConfirmed;
 
@@ -209,9 +244,7 @@ export async function adminRestoreCommunities(
     // Keep ONLY protective flags (minus explicitly-named overrides); all
     // reviewer-actionable + managed flags are cleared (managed ones are
     // re-derived by the recompute anyway).
-    const kept = existing.filter(
-      (f) => typeof f === "string" && PROTECTIVE_FLAGS.has(f) && !clear.has(f),
-    );
+    const kept = flagsKeptOnAdminRestore(existing, clear);
 
     await db
       .update(communities)

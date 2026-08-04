@@ -52,6 +52,14 @@ import {
   normalizeAvailabilityStatus,
   type ParsedProseFacts,
 } from "./perplexity-prose-parser";
+import {
+  evaluateSourceIdentity,
+  textCorroboratesIdentity,
+  gateIdentityFields,
+  shouldFlagIdentitySuspect,
+  type IdentityCheckResult,
+  type IdentityMismatchEvent,
+} from "./community-identity";
 
 // Persisted content no longer expires; this only stamps an informational
 // `validUntil` / `enrichmentDataExpiry` far in the future so nothing downstream
@@ -510,10 +518,10 @@ async function enrichCommunityUnifiedInner(
   // existing sanitized persistence chokepoints below.
   const proseFacts: ParsedProseFacts = parsePerplexityProse(freeEnrichment.about || "");
   // Prefer sonar structured-extract facts; keep the prose parser as fallback.
-  const finalCapacity = structuredCapacity ?? proseFacts.capacity;
-  const finalUnitTypes =
+  let finalCapacity = structuredCapacity ?? proseFacts.capacity;
+  let finalUnitTypes =
     structuredUnitTypes.length > 0 ? structuredUnitTypes : proseFacts.unitTypes;
-  const finalPricingByCareLevel =
+  let finalPricingByCareLevel =
     structuredPricingByCareLevel.length > 0
       ? structuredPricingByCareLevel
       : proseFacts.pricingEntries;
@@ -537,6 +545,160 @@ async function enrichCommunityUnifiedInner(
         ? `$${structuredPricing.min.toLocaleString()}–$${structuredPricing.max.toLocaleString()}/mo`
         : `$${(structuredPricing.min ?? structuredPricing.max)!.toLocaleString()}/mo`;
   }
+  // ── Stage 2.6 — Identity corroboration gate (Task #438) ────────────────────
+  // Photos have always required name+city corroboration; the OTHER
+  // identity-bearing fields (website, phone, management company, capacity/unit
+  // types, pricing) did not — so research that locked onto a DIFFERENT facility
+  // (live repro: "Kona Senior Living" persisted aieaheightsseniorliving.com's
+  // contact + pricing) contaminated profiles. Apply the SAME gate here: the
+  // candidate official source must corroborate this community's name+city or
+  // NONE of those fields persist (honest partial results). Description prose is
+  // also dropped on a failed gate — with the research anchored to the wrong
+  // facility it is not "clearly about the right community".
+  //
+  // Repeated mismatches (or a garbled source record — see the sweeps) mean the
+  // RECORD itself may be the false identity: flag `identity_suspect` with the
+  // evidence (never auto-rename) so it surfaces in the QC queue and self-heal
+  // stops retrying a poisoned identity until an admin reviews it.
+  const enrichmentSourceUrl =
+    sanitizeWebsiteUrl(
+      cleanCitationArtifacts(
+        freeEnrichment.sourceUrl || (freeEnrichment as any).website || "",
+      ),
+    ) || undefined;
+  let identityCheck: IdentityCheckResult;
+  if (community.websiteProtected && storedWebsite) {
+    // Admin-entered website is the authoritative identity anchor.
+    identityCheck = { corroborated: true, reason: "admin-protected website" };
+  } else if (enrichmentSourceUrl) {
+    let identityPageText = "";
+    try {
+      const page = await scrapeWebsitePage(enrichmentSourceUrl);
+      identityPageText = page.text || "";
+    } catch {
+      /* unverifiable — evaluateSourceIdentity falls back to the host check */
+    }
+    identityCheck = evaluateSourceIdentity({
+      url: enrichmentSourceUrl,
+      pageText: identityPageText,
+      name: community.name || "",
+      city: community.city || "",
+    });
+  } else {
+    // No candidate source URL — structured facts came from prose alone; the
+    // prose itself must corroborate name+city.
+    identityCheck = textCorroboratesIdentity(
+      freeEnrichment.about || "",
+      community.name || "",
+      community.city || "",
+    );
+  }
+
+  if (!identityCheck.corroborated) {
+    const { skipped } = gateIdentityFields(identityCheck, {
+      website: enrichmentSourceUrl,
+      phone: (freeEnrichment as any).phone,
+      managementCompany,
+      capacity: finalCapacity ?? null,
+      unitTypes: finalUnitTypes,
+      pricing: structuredPricing,
+      pricingByCareLevel: finalPricingByCareLevel,
+      availability,
+    });
+    console.log(
+      `🛑 Identity gate for "${community.name}" (${community.city}): ${identityCheck.reason} — ` +
+        `NOT persisting [${skipped.join(", ") || "no candidate fields"}]` +
+        (enrichmentSourceUrl ? ` from ${enrichmentSourceUrl}` : ""),
+    );
+    // Drop every identity-bearing candidate so the persist chokepoints below
+    // (early + final, which fall back to stored values) write nothing wrong.
+    (freeEnrichment as any).website = undefined;
+    (freeEnrichment as any).sourceUrl = undefined;
+    (freeEnrichment as any).phone = undefined;
+    (freeEnrichment as any).pricingContext = undefined;
+    (freeEnrichment as any).about = undefined;
+    managementCompany = null;
+    availability = null;
+    structuredPricing = null;
+    finalCapacity = null;
+    finalUnitTypes = [];
+    finalPricingByCareLevel = [];
+
+    // Record the mismatch + arbitrate identity_suspect (evidence-preserving,
+    // never renames, best-effort — must not break the run).
+    try {
+      const priorData: Record<string, any> = (community.enrichmentData as any) || {};
+      const priorMismatches: IdentityMismatchEvent[] = Array.isArray(
+        priorData.identityMismatches,
+      )
+        ? priorData.identityMismatches
+        : [];
+      const mismatches = [
+        ...priorMismatches,
+        {
+          at: new Date().toISOString(),
+          candidateWebsite: enrichmentSourceUrl,
+          reason: identityCheck.reason,
+        },
+      ].slice(-10);
+      const existingFlags: string[] = Array.isArray(community.dataQualityFlags)
+        ? (community.dataQualityFlags as string[])
+        : [];
+      const flagIt =
+        shouldFlagIdentitySuspect(mismatches) && !existingFlags.includes("identity_suspect");
+      const mergedData: Record<string, any> = {
+        ...priorData,
+        identityMismatches: mismatches,
+        ...(flagIt || priorData.identitySuspect
+          ? {
+              identitySuspect: {
+                detectedAt:
+                  priorData.identitySuspect?.detectedAt ?? new Date().toISOString(),
+                candidateIdentity:
+                  enrichmentSourceUrl ??
+                  priorData.identitySuspect?.candidateIdentity ??
+                  null,
+                reasons: mismatches.map((m) => m.reason).slice(-5),
+                sources: Array.from(
+                  new Set(
+                    [
+                      ...(priorData.identitySuspect?.sources ?? []),
+                      enrichmentSourceUrl,
+                    ].filter(Boolean),
+                  ),
+                ),
+              },
+            }
+          : {}),
+      };
+      await db
+        .update(communities)
+        .set({
+          enrichmentData: mergedData,
+          ...(flagIt
+            ? { dataQualityFlags: [...existingFlags, "identity_suspect"] }
+            : {}),
+        } as any)
+        .where(eq(communities.id, communityId));
+      // Keep the in-memory row consistent so the final enrichmentData merge
+      // (built from community.enrichmentData) does not clobber the evidence.
+      (community as any).enrichmentData = mergedData;
+      if (flagIt) {
+        (community as any).dataQualityFlags = [...existingFlags, "identity_suspect"];
+        console.log(
+          `🚩 Flagged community ${communityId} identity_suspect after ${mismatches.length} ` +
+            `mismatched resolutions (candidate identity: ${enrichmentSourceUrl ?? "unknown"}) — ` +
+            `surfaced in QC queue; enrichment retries paused until reviewed`,
+        );
+      }
+    } catch (evidenceErr) {
+      console.warn(
+        `⚠️ Failed to persist identity-mismatch evidence for community ${communityId}:`,
+        evidenceErr,
+      );
+    }
+  }
+
   // Availability must map to the DB CHECK-constrained enum or be skipped —
   // an unmapped free-text value would fail the write with an opaque 23514.
   const normalizedAvailability = normalizeAvailabilityStatus(availability);
