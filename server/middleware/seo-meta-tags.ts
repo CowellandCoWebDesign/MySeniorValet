@@ -1,11 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { db } from '../db';
-import { communities } from '../../shared/schema';
-import { eq } from 'drizzle-orm';
-import { generateStructuredData, generateBreadcrumbSchema, generateLocationSchema, generateDirectorySchema } from '../seo/structured-data-generator';
+import { generateBreadcrumbSchema, generateDirectorySchema } from '../seo/structured-data-generator';
 import { CANONICAL_BASE_URL } from './host-canonical';
+import { injectCommunityMetaIntoShell } from '../seo/community-seo';
 
 // Detect if the request is from a social media crawler
 export function isSocialMediaCrawler(userAgent: string | undefined): boolean {
@@ -42,7 +40,6 @@ async function getPageMetadata(url: string): Promise<{
   breadcrumbs?: any;
   canonicalUrl?: string;
   robots?: string;
-  hreflang?: Array<{ lang: string; url: string }>;
 }> {
   const defaultImage = 'https://www.myseniorvalet.com/og-image.jpg';
   const logoImage = 'https://www.myseniorvalet.com/logo.png';
@@ -52,63 +49,12 @@ async function getPageMetadata(url: string): Promise<{
   const pathOnly = url.split('?')[0];
   const urlParts = pathOnly.split('/').filter(Boolean);
   const [section, id, ...rest] = urlParts;
-  
-  // Community detail pages
-  if (section === 'community' && id) {
-    try {
-      const communityId = parseInt(id);
-      if (!isNaN(communityId)) {
-        const [community] = await db.select().from(communities)
-          .where(eq(communities.id, communityId))
-          .limit(1);
-        
-        if (community) {
-          const priceText = community.rentPerMonth 
-            ? `Starting at $${community.rentPerMonth}/mo` 
-            : community.priceRange 
-            ? `$${(community.priceRange as any).min}-$${(community.priceRange as any).max}/mo`
-            : 'Contact for pricing';
-            
-          const careTypes = community.careTypes?.join(', ') || 'Senior Living';
-          
-          // Generate structured data for this community
-          const structuredData = generateStructuredData(community, 'community');
-          const stateSlug = (community as any).stateSlug || community.state.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-          const citySlugVal = (community as any).citySlug || community.city.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
-          const nameSlug = (community as any).slug || community.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || `community-${community.id}`;
-          const seoUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
 
-          const breadcrumbs = generateBreadcrumbSchema([
-            { name: 'Home', url: '/' },
-            { name: 'Senior Housing Directory', url: '/community-directory' },
-            { name: community.state, url: `/search?location=${community.state}` },
-            { name: community.city, url: `/search?location=${community.city},${community.state}` },
-            { name: community.name, url: seoUrl }
-          ], baseUrl);
-          
-          return {
-            title: `${community.name} - ${community.city}, ${community.state} | MySeniorValet`,
-            description: `${community.name} offers ${careTypes} in ${community.city}, ${community.state}. ${priceText}. ${community.description || 'View photos, amenities, reviews and verified pricing on MySeniorValet.'}`,
-            image: community.photos?.[0] || defaultImage,
-            type: 'article',
-            keywords: `${community.name}, ${community.city} senior living, ${community.state} ${careTypes.toLowerCase()}, ${community.zipCode}`,
-            structuredData,
-            breadcrumbs,
-            canonicalUrl: seoUrl,
-            robots: 'index, follow',
-            hreflang: [
-              { lang: 'en', url: seoUrl },
-              { lang: 'es', url: `${baseUrl}/es/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}` },
-              { lang: 'fr', url: `${baseUrl}/fr/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}` }
-            ]
-          };
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching community metadata:', error);
-    }
-  }
-  
+  // NOTE: Community detail pages (/community/:id and /senior-living/:state/:city/:slug)
+  // are NOT handled here. They are served via the shared canonical builders in
+  // server/seo/community-seo.ts (injectCommunityMetaIntoShell) so every
+  // middleware emits IDENTICAL community metadata. See injectMetaTags below.
+
   // Community Directory page
   if (section === 'community-directory') {
     // Check for location query parameter in URL (e.g., ?location=oakmont, ?location=puerto-rico)
@@ -205,12 +151,7 @@ async function getPageMetadata(url: string): Promise<{
         structuredData: generateDirectorySchema(baseUrl),
         breadcrumbs,
         canonicalUrl: `${baseUrl}/community-directory?location=${location}`,
-        robots: 'index, follow',
-        hreflang: [
-          { lang: 'en', url: `${baseUrl}/community-directory?location=${location}` },
-          { lang: 'es', url: `${baseUrl}/es/community-directory?location=${location}` },
-          { lang: 'fr', url: `${baseUrl}/fr/community-directory?location=${location}` }
-        ]
+        robots: 'index, follow'
       };
     }
     
@@ -742,7 +683,24 @@ export async function injectMetaTags(req: Request, res: Response, next: NextFunc
   try {
     // Read the HTML file
     let html = await fs.promises.readFile(indexPath, 'utf-8');
-    
+
+    // Community URLs: delegate to the SHARED canonical builders so social
+    // crawlers get exactly the same metadata as the all-UA shell injection
+    // and the crawler SSR page. Never build community metadata here.
+    const reqPath = req.path;
+    if (/^\/community\/\d+/.test(reqPath) || /^\/senior-living\/[^\/]+\/[^\/]+\/[^\/]+$/.test(reqPath)) {
+      const injected = await injectCommunityMetaIntoShell(reqPath, html);
+      if (injected) {
+        res.status(200).set({ 'Content-Type': 'text/html' }).send(injected);
+        if (isCrawler) {
+          console.log('✅ Served shared community metadata to social crawler');
+        }
+        return;
+      }
+      // Unresolvable community URL (visibility guard 404/410s upstream) — serve untouched shell.
+      return next();
+    }
+
     // Get page-specific metadata (pass originalUrl so query params reach location-specific branches)
     const metadata = await getPageMetadata(req.originalUrl);
     
@@ -752,13 +710,6 @@ export async function injectMetaTags(req: Request, res: Response, next: NextFunc
     
     // Build canonical URL
     const canonicalUrl = metadata.canonicalUrl || fullUrl;
-    
-    // Build hreflang tags
-    const hreflangTags = metadata.hreflang 
-      ? metadata.hreflang.map(({ lang, url }) => 
-          `<link rel="alternate" hreflang="${lang}" href="${url}" />`
-        ).join('\n    ')
-      : '';
     
     // Build structured data
     const structuredDataScript = metadata.structuredData 
@@ -800,9 +751,8 @@ ${JSON.stringify(metadata.breadcrumbs, null, 2)}
     <meta property="twitter:image" content="${metadata.image}" />
     <meta property="twitter:site" content="@MySeniorValet" />
     
-    <!-- Canonical and Language Alternates -->
+    <!-- Canonical -->
     <link rel="canonical" href="${canonicalUrl}" />
-    ${hreflangTags}
     
     <!-- Structured Data for Search Engines -->
     ${structuredDataScript}
