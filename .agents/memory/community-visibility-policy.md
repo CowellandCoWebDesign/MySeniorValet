@@ -74,6 +74,15 @@ DB writer. Never hand-roll a separate visibility rule.
 - **Do NOT trust `community_subtype='hud_senior_housing'`** — it was auto-applied
   to the whole HUD feed and is not a senior signal.
 
+## Admin restore (Aug 2026)
+Both admin restore endpoints (`bulk-quality-action` restore + `qc-action` restore)
+route through `adminRestoreCommunities()` in community-visibility.ts: clears
+reviewer-actionable flags + flag_status, PRESERVES protective flags, and lets
+the recompute decide is_hidden — restore can never force-publish test/fake
+records. Overriding a protective flag requires naming it in a
+`clearProtectiveFlags` body array. Never reintroduce raw
+`SET is_hidden=false, data_quality_flags='{}'` restore SQL.
+
 ## Protective overrides (never auto-restore)
 `is_hidden` stays true regardless of score when `data_quality_flags` contains
 `synthetic_suspected` or `geo_needs_review`, or `flag_status='confirmed'`. These

@@ -34,7 +34,11 @@ import { batchVerifier } from "../services/batch-perplexity-verifier";
 import { cityBatchVerifier } from "../services/city-batch-verifier";
 // All admin enrichment flows through the single unified orchestrator.
 import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
-import { recomputeCommunityVisibility } from "../services/community-visibility";
+import {
+  recomputeCommunityVisibility,
+  adminRestoreCommunities,
+  PROTECTIVE_FLAG_LIST,
+} from "../services/community-visibility";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
@@ -2347,25 +2351,57 @@ export function registerAdminRoutes(app: Express) {
         return res.status(400).json({ error: 'Maximum 500 IDs per request' });
       }
 
+      // Deliberate protective-flag override: each flag must be NAMED explicitly.
+      const { clearProtectiveFlags } = req.body;
+      if (clearProtectiveFlags !== undefined) {
+        if (
+          !Array.isArray(clearProtectiveFlags) ||
+          clearProtectiveFlags.some((f: any) => !PROTECTIVE_FLAG_LIST.includes(f))
+        ) {
+          return res.status(400).json({
+            error: `clearProtectiveFlags must be an array of: ${PROTECTIVE_FLAG_LIST.join(', ')}`,
+          });
+        }
+      }
+
       const idList = communityIds.join(',');
       let result;
+      let restoreResults;
 
       if (action === 'delete') {
         result = await db.execute(sql.raw(`
           DELETE FROM communities WHERE id IN (${idList})
         `));
       } else if (action === 'restore') {
-        result = await db.execute(sql.raw(`
-          UPDATE communities
-          SET is_hidden = false, data_quality_flags = '{}'
-          WHERE id IN (${idList})
-        `));
+        // Canonical path: preserve protective flags, let the visibility
+        // recompute decide is_hidden — quarantined fakes stay hidden.
+        restoreResults = await adminRestoreCommunities(communityIds, {
+          clearProtectiveFlags,
+        });
+        result = { rowCount: restoreResults.length } as any;
       } else if (action === 'clear-flags') {
+        // Clear reviewer-actionable flags but PRESERVE protective quarantine
+        // flags unless each one is explicitly named in clearProtectiveFlags.
+        const keepList = PROTECTIVE_FLAG_LIST.filter(
+          (f) => !(clearProtectiveFlags ?? []).includes(f),
+        );
+        const keepSql = keepList.map((f) => `'${f}'`).join(',') || `''`;
         result = await db.execute(sql.raw(`
           UPDATE communities
-          SET data_quality_flags = '{}'
+          SET data_quality_flags = COALESCE((
+            SELECT array_agg(f)
+            FROM unnest(COALESCE(data_quality_flags, '{}')) AS f
+            WHERE f = ANY(ARRAY[${keepSql}]::text[])
+          ), '{}')
           WHERE id IN (${idList})
         `));
+        // If a protective flag was deliberately lifted, re-run the canonical
+        // recompute so is_hidden reflects the new flag state.
+        if (clearProtectiveFlags?.length) {
+          for (const id of communityIds) {
+            await recomputeCommunityVisibility(id);
+          }
+        }
       }
 
       const affected = (result as any)?.rowCount ?? communityIds.length;
@@ -2374,7 +2410,17 @@ export function registerAdminRoutes(app: Express) {
       if (action === 'delete' || action === 'restore') {
         superclusterService.refresh().catch((err: any) => console.error('Supercluster refresh error:', err));
       }
-      res.json({ success: true, affected });
+      res.json({
+        success: true,
+        affected,
+        ...(restoreResults
+          ? {
+              restored: restoreResults.filter((r) => r.restored).length,
+              keptHidden: restoreResults.filter((r) => r.hidden).length,
+              results: restoreResults,
+            }
+          : {}),
+      });
     } catch (error) {
       console.error('Error performing bulk quality action:', error);
       res.status(500).json({ message: 'Failed to perform bulk quality action' });
@@ -2598,9 +2644,11 @@ export function registerAdminRoutes(app: Express) {
   //   body: { ids: number[], action: 'restore' | 'keep-hidden' | 'enrich' }
   // Single-item and bulk share this endpoint. Removal is intentionally NOT here:
   // it stays explicit/manual through the existing removal-request flow.
-  //   - restore:     force public (is_hidden=false, is_active=true), clear the
-  //                  quality/protective flags + flag_status so the next
-  //                  visibility pass won't immediately re-hide it.
+  //   - restore:     clear reviewer-actionable flags + flag_status and set
+  //                  is_active=true, but PRESERVE protective flags and let the
+  //                  canonical visibility recompute decide is_hidden — a record
+  //                  quarantined as test/fake/synthetic stays hidden. Overriding
+  //                  a protective flag requires naming it in clearProtectiveFlags.
   //   - keep-hidden: confirm hidden (is_hidden=true, flag_status='confirmed') —
   //                  marks the item reviewed so it drops out of the backlog view.
   //   - enrich:      run the unified enrichment pipeline, then recompute
@@ -2633,20 +2681,27 @@ export function registerAdminRoutes(app: Express) {
         | { succeeded: number; noData: number; saveFailed: number; failed: number }
         | undefined;
 
+      let restoreResults;
+
       if (action === 'restore') {
-        // Strip protective + managed quality flags so the record won't be
-        // auto-re-hidden, and clear any admin-confirmed problem report.
-        const result = await db
-          .update(communities)
-          .set({
-            isHidden: false,
-            isActive: true,
-            flagStatus: null,
-            dataQualityFlags: [],
-            updatedAt: new Date(),
-          } as any)
-          .where(inArray(communities.id, communityIds));
-        affected = (result as any)?.rowCount ?? communityIds.length;
+        // Deliberate protective-flag override must name each flag explicitly.
+        const { clearProtectiveFlags } = req.body || {};
+        if (clearProtectiveFlags !== undefined) {
+          if (
+            !Array.isArray(clearProtectiveFlags) ||
+            clearProtectiveFlags.some((f: any) => !PROTECTIVE_FLAG_LIST.includes(f))
+          ) {
+            return res.status(400).json({
+              error: `clearProtectiveFlags must be an array of: ${PROTECTIVE_FLAG_LIST.join(', ')}`,
+            });
+          }
+        }
+        // Canonical path: clear reviewer-actionable flags + flag_status, keep
+        // protective flags, and let the visibility recompute decide is_hidden.
+        restoreResults = await adminRestoreCommunities(communityIds, {
+          clearProtectiveFlags,
+        });
+        affected = restoreResults.length;
       } else if (action === 'keep-hidden') {
         const result = await db
           .update(communities)
@@ -2708,7 +2763,19 @@ export function registerAdminRoutes(app: Express) {
       console.log(
         `Admin QC action: ${action} on ${communityIds.length} communities by ${req.user?.email}`,
       );
-      res.json({ success: true, action, affected, results: enrichResults, summary: enrichSummary });
+      res.json({
+        success: true,
+        action,
+        affected,
+        results: enrichResults ?? restoreResults,
+        summary: enrichSummary,
+        ...(restoreResults
+          ? {
+              restored: restoreResults.filter((r) => r.restored).length,
+              keptHidden: restoreResults.filter((r) => r.hidden).length,
+            }
+          : {}),
+      });
     } catch (error) {
       console.error('Error performing QC action:', error);
       res.status(500).json({ message: 'Failed to perform QC action' });

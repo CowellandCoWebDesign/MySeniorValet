@@ -105,6 +105,16 @@ jest.mock('drizzle-orm', () => ({
   sql: Object.assign((...a: any[]) => a, { raw: (...a: any[]) => a }),
 }));
 
+// Canonical visibility service — restore actions now route through it
+const mockAdminRestore = jest.fn().mockResolvedValue([
+  { id: 3, restored: true, protected: false, hidden: false, protectiveFlags: [] },
+] as any);
+jest.mock('../../server/services/community-visibility', () => ({
+  adminRestoreCommunities: (...a: any[]) => mockAdminRestore(...a),
+  recomputeCommunityVisibility: jest.fn(),
+  PROTECTIVE_FLAG_LIST: ['synthetic_suspected', 'geo_needs_review', 'test_data'],
+}));
+
 // Remaining service imports
 jest.mock('../../server/services/data-integrity-validator', () => ({
   DataIntegrityValidator: jest.fn(() => ({})),
@@ -169,6 +179,7 @@ function resetMocks() {
   mockWhere.mockClear();
   mockReturning.mockClear();
   mockExecute.mockClear();
+  mockAdminRestore.mockClear();
 
   // Re-attach implementations after clearing
   mockReturning.mockResolvedValue([{ communityId: 1 }]);
@@ -289,6 +300,63 @@ describe('POST /api/admin/communities/bulk-quality-action', () => {
     await tick();
     expect(res.status).toBe(200);
     expect(mockRefresh).not.toHaveBeenCalled();
+  });
+
+  // Router registration runs its own setup SQL through db.execute, so only
+  // inspect execute calls made AFTER the request started.
+  const execCallsSince = (baseline: number) =>
+    mockExecute.mock.calls.slice(baseline).map((c) => JSON.stringify(c));
+
+  it('routes "restore" through adminRestoreCommunities (never raw SQL)', async () => {
+    const baseline = mockExecute.mock.calls.length;
+    const res = await request(app)
+      .post('/api/admin/communities/bulk-quality-action')
+      .send({ ids: [3], action: 'restore' });
+
+    expect(res.status).toBe(200);
+    expect(mockAdminRestore).toHaveBeenCalledWith([3], { clearProtectiveFlags: undefined });
+    // No raw UPDATE was executed for restore
+    expect(execCallsSince(baseline)).toHaveLength(0);
+  });
+
+  it('"clear-flags" SQL preserves protective flags by default', async () => {
+    const baseline = mockExecute.mock.calls.length;
+    const res = await request(app)
+      .post('/api/admin/communities/bulk-quality-action')
+      .send({ ids: [4], action: 'clear-flags' });
+
+    expect(res.status).toBe(200);
+    const calls = execCallsSince(baseline);
+    expect(calls).toHaveLength(1);
+    const sqlText = calls[0];
+    expect(sqlText).not.toContain(`data_quality_flags = '{}'`);
+    for (const f of ['synthetic_suspected', 'geo_needs_review', 'test_data']) {
+      expect(sqlText).toContain(f);
+    }
+  });
+
+  it('"clear-flags" drops a protective flag ONLY when explicitly named', async () => {
+    const baseline = mockExecute.mock.calls.length;
+    const res = await request(app)
+      .post('/api/admin/communities/bulk-quality-action')
+      .send({ ids: [4], action: 'clear-flags', clearProtectiveFlags: ['geo_needs_review'] });
+
+    expect(res.status).toBe(200);
+    const sqlText = execCallsSince(baseline)[0];
+    expect(sqlText).not.toContain('geo_needs_review');
+    expect(sqlText).toContain('test_data');
+    expect(sqlText).toContain('synthetic_suspected');
+  });
+
+  it('rejects unknown clearProtectiveFlags values', async () => {
+    const baseline = mockExecute.mock.calls.length;
+    const res = await request(app)
+      .post('/api/admin/communities/bulk-quality-action')
+      .send({ ids: [4], action: 'restore', clearProtectiveFlags: ['is_hidden'] });
+
+    expect(res.status).toBe(400);
+    expect(mockAdminRestore).not.toHaveBeenCalled();
+    expect(execCallsSince(baseline)).toHaveLength(0);
   });
 
   it('returns 400 when ids array is empty', async () => {

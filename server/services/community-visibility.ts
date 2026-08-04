@@ -163,6 +163,81 @@ export async function recomputeCommunityVisibility(
   return applyRowVisibility(row as EvalRow);
 }
 
+export interface AdminRestoreResult {
+  id: number;
+  /** True when the record ended up public after recompute. */
+  restored: boolean;
+  /** True when a protective flag kept it hidden despite the restore. */
+  protected: boolean;
+  hidden: boolean;
+  /** Protective flags still on the record after the restore. */
+  protectiveFlags: string[];
+}
+
+/**
+ * Admin restore — the ONLY sanctioned way for admin endpoints to un-hide
+ * communities. Clears reviewer-actionable state (managed/quality flags,
+ * flag_status='confirmed', is_active) but PRESERVES protective flags
+ * (test_data / synthetic_suspected / geo_needs_review), then routes through
+ * the canonical recompute so is_hidden is decided by policy — a quarantined
+ * fake/test record can NEVER be force-published by a (bulk) restore.
+ *
+ * Overriding a protective flag is a separate, deliberate act: the caller must
+ * name each flag in `clearProtectiveFlags`; unknown names are rejected by the
+ * route validation and ignored here.
+ */
+export async function adminRestoreCommunities(
+  ids: number[],
+  opts: { clearProtectiveFlags?: string[] } = {},
+): Promise<AdminRestoreResult[]> {
+  const clear = new Set(
+    (opts.clearProtectiveFlags ?? []).filter((f) => PROTECTIVE_FLAGS.has(f)),
+  );
+  const results: AdminRestoreResult[] = [];
+
+  await mapWithConcurrency(ids, 10, async (id) => {
+    const [row] = await db
+      .select({ id: communities.id, dataQualityFlags: communities.dataQualityFlags })
+      .from(communities)
+      .where(eq(communities.id, id))
+      .limit(1);
+    if (!row) return;
+
+    const existing: string[] = Array.isArray(row.dataQualityFlags)
+      ? row.dataQualityFlags
+      : [];
+    // Keep ONLY protective flags (minus explicitly-named overrides); all
+    // reviewer-actionable + managed flags are cleared (managed ones are
+    // re-derived by the recompute anyway).
+    const kept = existing.filter(
+      (f) => typeof f === "string" && PROTECTIVE_FLAGS.has(f) && !clear.has(f),
+    );
+
+    await db
+      .update(communities)
+      .set({
+        dataQualityFlags: kept,
+        flagStatus: null,
+        isActive: true,
+        updatedAt: new Date(),
+      } as any)
+      .where(eq(communities.id, id));
+
+    const rec = await recomputeCommunityVisibility(id);
+    if (rec) {
+      results.push({
+        id,
+        restored: !rec.hidden,
+        protected: rec.protected,
+        hidden: rec.hidden,
+        protectiveFlags: kept,
+      });
+    }
+  });
+
+  return results.sort((a, b) => a.id - b.id);
+}
+
 export interface VisibilityPassOptions {
   /** Don't write — only compute and tally (for verification). */
   dryRun?: boolean;
