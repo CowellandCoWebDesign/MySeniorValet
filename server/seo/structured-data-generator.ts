@@ -240,17 +240,6 @@ function generateOrganizationSchema(baseUrl: string): any {
     'url': baseUrl,
     'logo': `${baseUrl}/valet-mascot.png`,
     'description': 'The trusted platform for authentic senior housing information. Comprehensive directory of all types of senior living options including facilities, HUD housing, RV parks, and more.',
-    'sameAs': [
-      'https://www.facebook.com/myseniorvalet',
-      'https://twitter.com/myseniorvalet',
-      'https://www.linkedin.com/company/myseniorvalet'
-    ],
-    'contactPoint': {
-      '@type': 'ContactPoint',
-      'telephone': '+1-555-SENIOR-1',
-      'contactType': 'Customer Service',
-      'availableLanguage': ['English', 'Spanish', 'French']
-    },
     'address': {
       '@type': 'PostalAddress',
       'addressCountry': 'US'
