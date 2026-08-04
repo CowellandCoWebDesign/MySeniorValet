@@ -43,7 +43,7 @@ export default function AISearchComparison() {
         callForPricingSolution: false
       },
       stats: {
-        communities: "26,306",
+        communities: "Full database",
         responseTime: "< 200ms",
         accuracy: "100% (database only)",
         pricingCoverage: "20% (HUD only)"
@@ -64,7 +64,7 @@ export default function AISearchComparison() {
         callForPricingSolution: true
       },
       stats: {
-        communities: "26,306",
+        communities: "Full database",
         responseTime: "1-2s",
         accuracy: "Enhanced with AI",
         pricingCoverage: "40% (AI estimates)"
@@ -85,7 +85,7 @@ export default function AISearchComparison() {
         callForPricingSolution: true
       },
       stats: {
-        communities: "26,306",
+        communities: "Full database",
         responseTime: "2-4s",
         accuracy: "Cross-verified by 3 AIs",
         pricingCoverage: "85%+ (Perplexity web search + AI estimates)"
@@ -431,7 +431,7 @@ export default function AISearchComparison() {
                     <AlertDescription>
                       <div className="space-y-2">
                         <h4 className="font-semibold">U.S. News Best Senior Living</h4>
-                        <p className="text-sm">450,000+ resident and family survey responses from 3,800+ communities</p>
+                        <p className="text-sm">Resident and family survey responses from participating communities</p>
                         <Badge>Free Public Ratings</Badge>
                       </div>
                     </AlertDescription>
@@ -662,7 +662,7 @@ export default function AISearchComparison() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />
-                    <span><strong>Performance:</strong> Handles 25,000+ communities smoothly with Supercluster</span>
+                    <span><strong>Performance:</strong> Handles the full community database smoothly with Supercluster</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="w-4 h-4 text-green-600 mt-0.5" />

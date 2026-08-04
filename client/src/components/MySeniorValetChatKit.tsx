@@ -172,7 +172,7 @@ export function MySeniorValetChatKit({
   const [messages, setMessages] = useState<Message[]>([{
     id: 'welcome',
     role: 'assistant',
-    content: "👋 Hi! I can search 33,837+ communities or activate Discovery Mode for worldwide searches. What are you looking for?",
+    content: "👋 Hi! I can search our community database or activate Discovery Mode for worldwide searches. What are you looking for?",
     timestamp: new Date()
   }]);
   const [inputValue, setInputValue] = useState('');

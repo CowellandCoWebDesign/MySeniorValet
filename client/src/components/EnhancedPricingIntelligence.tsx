@@ -51,7 +51,7 @@ export function EnhancedPricingIntelligence({ className = '' }: EnhancedPricingI
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-blue-600">Loading enterprise analytics from 26,306 communities...</span>
+        <span className="ml-2 text-blue-600">Loading enterprise analytics from our community database...</span>
       </div>
     );
   }

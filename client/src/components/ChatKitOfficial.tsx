@@ -307,7 +307,7 @@ export function ChatKitOfficial({
       {/* Footer with capabilities */}
       <div className="p-3 border-t bg-muted/50">
         <p className="text-xs text-muted-foreground text-center">
-          Powered by OpenAI ChatKit • Search 33,834+ communities • Real-time pricing • Tour scheduling
+          Powered by OpenAI ChatKit • Search communities • Real-time pricing • Tour scheduling
         </p>
       </div>
     </Card>

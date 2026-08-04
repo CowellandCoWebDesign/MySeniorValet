@@ -123,7 +123,7 @@ export default function PricingPage() {
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-                        <span>35,000+ communities nationwide</span>
+                        <span>Communities nationwide</span>
                       </li>
                       <li className="flex items-start">
                         <Check className="w-5 h-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />

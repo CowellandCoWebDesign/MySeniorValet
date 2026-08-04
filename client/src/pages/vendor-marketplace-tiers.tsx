@@ -202,7 +202,7 @@ export default function VendorMarketplaceTiers() {
             Join MySeniorValet's Commercial Vendor Marketplace
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-8">
-            Connect your business with 34,000+ senior living communities and millions of families 
+            Connect your business with senior living communities nationwide and millions of families 
             seeking trusted commercial services and products
           </p>
           
@@ -667,7 +667,7 @@ export default function VendorMarketplaceTiers() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
               <div className="flex flex-col items-center text-center">
                 <Building2 className="w-10 h-10 text-blue-600 dark:text-blue-400 mb-3" />
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">34,000+ Communities</h4>
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Communities Nationwide</h4>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Direct access to verified senior living communities actively seeking quality vendor partners</p>
               </div>
               <div className="flex flex-col items-center text-center">

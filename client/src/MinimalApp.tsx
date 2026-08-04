@@ -14,7 +14,7 @@ export default function MinimalApp() {
         <ul>
           <li>✓ React rendering: Working</li>
           <li>✓ Backend API: Operational</li>
-          <li>✓ Database: Connected (33,510 communities)</li>
+          <li>✓ Database: Connected</li>
         </ul>
       </div>
       <div style={{ marginTop: '20px' }}>

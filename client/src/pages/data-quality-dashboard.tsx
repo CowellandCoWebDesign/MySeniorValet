@@ -23,7 +23,7 @@ interface DataQualityMetrics {
 
 export default function DataQualityDashboard() {
   const [metrics, setMetrics] = useState<DataQualityMetrics>({
-    totalCommunities: 25326,
+    totalCommunities: 0,
     dataCompleteness: 94.8,
     phoneNumberCoverage: 97.4,
     coordinateAccuracy: 98.7,
@@ -323,7 +323,7 @@ export default function DataQualityDashboard() {
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5"></div>
                   <div>
                     <p className="font-medium text-gray-900">HUD Pricing Verification</p>
-                    <p className="text-sm text-gray-600">100% of 5,936 HUD properties verified</p>
+                    <p className="text-sm text-gray-600">HUD properties verified</p>
                   </div>
                 </div>
               </div>

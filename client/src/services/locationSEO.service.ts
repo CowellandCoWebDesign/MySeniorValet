@@ -98,7 +98,7 @@ export class LocationSEOService {
       headline: `Senior Living in ${cityName}, ${stateUpper}`,
       subheadline: `Find the perfect senior care community in ${cityName} with transparent pricing and verified information`,
       highlights: [
-        `${location.count || '50+'} senior living communities in ${cityName}`,
+        `Senior living communities in ${cityName}`,
         'Transparent pricing without hidden fees',
         'Verified ratings and reviews',
         'Free consultation with local experts',

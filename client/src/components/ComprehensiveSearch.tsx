@@ -405,7 +405,7 @@ export function ComprehensiveSearch({
         {/* Loading Display with Thinker */}
         <MascotLoadingDisplay 
           title="Deep in Thought..."
-          subtitle={`Contemplating 32,970+ communities for "${query}"`}
+          subtitle={`Contemplating communities for "${query}"`}
           showProgress={true}
           progressDuration={8}
           factRotationSpeed={3000}

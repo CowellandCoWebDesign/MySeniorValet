@@ -91,7 +91,7 @@ export default function CommunityPortalModern() {
     {
       metric: "4.9★",
       label: "Family Satisfaction",
-      detail: "From 12,847 reviews"
+      detail: "From verified reviews"
     }
   ];
 
@@ -176,7 +176,7 @@ export default function CommunityPortalModern() {
           <div className="text-center space-y-8">
             <div className="inline-flex items-center bg-blue-100 dark:bg-blue-900/50 text-blue-900 dark:text-blue-100 rounded-full px-4 py-2 text-sm font-medium">
               <Rocket className="w-4 h-4 mr-2" />
-              Trusted by 25,000+ Senior Living Communities
+              Trusted by Senior Living Communities
             </div>
             
             <h1 className="text-5xl md:text-6xl font-bold leading-tight text-gray-900 dark:text-white">

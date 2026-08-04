@@ -133,8 +133,8 @@ export default function CommunityCreatorPortal() {
   };
 
   const stats = [
-    { label: 'Active Communities', value: '34,180', icon: Building2 },
-    { label: 'Families Reached', value: '50,000+', icon: Users },
+    { label: 'Active Communities', value: '—', icon: Building2 },
+    { label: 'Families Reached', value: 'Growing', icon: Users },
     { label: 'Average Response Time', value: '< 2 hours', icon: Target },
     { label: 'Success Rate', value: '94%', icon: CheckCircle2 }
   ];

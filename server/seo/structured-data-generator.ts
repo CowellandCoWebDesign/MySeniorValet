@@ -180,9 +180,9 @@ export function generateDirectorySchema(baseUrl: string): any {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     'name': 'Senior Housing Directory - All Types of Senior Living Options',
-    'description': 'Comprehensive directory of 33,500+ senior housing options including assisted living facilities, HUD housing, RV parks, memory care, skilled nursing, and more.',
+    'description': 'Comprehensive directory of senior housing options including assisted living facilities, HUD housing, RV parks, memory care, skilled nursing, and more.',
     'url': `${baseUrl}/community-directory`,
-    'numberOfItems': 33500,
+    'numberOfItems': 7,
     'itemListElement': [
       {
         '@type': 'ListItem',
@@ -318,37 +318,37 @@ export function generateLocationSchema(
   const locationData: Record<string, any> = {
     'oakmont': {
       name: 'Oakmont Senior Living Communities',
-      description: '60+ luxury senior living communities across California',
+      description: 'Luxury senior living communities across California',
       areaServed: 'California'
     },
     'puerto-rico': {
       name: 'Puerto Rico Senior Living',
-      description: '50+ Caribbean senior housing options with tax benefits',
+      description: 'Caribbean senior housing options with tax benefits',
       areaServed: 'Puerto Rico'
     },
     'hawaii': {
       name: 'Hawaii Senior Living',
-      description: '55+ island senior housing communities',
+      description: 'Island senior housing communities across Hawaii',
       areaServed: 'Hawaii'
     },
     'fort-worth': {
       name: 'Fort Worth Texas Senior Housing',
-      description: '180+ senior living options in Fort Worth metropolitan area',
+      description: 'Senior living options in the Fort Worth metropolitan area',
       areaServed: 'Fort Worth, Texas'
     },
     'new-york': {
       name: 'New York Senior Housing',
-      description: '2,800+ senior living facilities across New York State',
+      description: 'Senior living facilities across New York State',
       areaServed: 'New York'
     },
     'canada': {
       name: 'Canadian Senior Housing',
-      description: '5,343 senior care facilities across Canada',
+      description: 'Senior care facilities across Canada',
       areaServed: 'Canada'
     },
     'australia': {
       name: 'Australian Aged Care',
-      description: '1,458 aged care facilities across Australia',
+      description: 'Aged care facilities across Australia',
       areaServed: 'Australia'
     }
   };

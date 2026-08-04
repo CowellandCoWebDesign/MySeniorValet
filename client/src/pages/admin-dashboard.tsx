@@ -137,7 +137,7 @@ export default function AdminDashboard() {
       icon: Database,
       path: '/admin/database',
       status: 'operational',
-      stats: { tables: 20, records: '34K+' }
+      stats: { tables: 20, records: '—' }
     }
   ];
 
@@ -171,7 +171,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Total Communities</p>
-                    <p className="text-2xl font-bold">{platformStats?.totalCommunities?.toLocaleString() || '34,171'}</p>
+                    <p className="text-2xl font-bold">{platformStats?.totalCommunities?.toLocaleString() || '—'}</p>
                   </div>
                   <Building className="h-8 w-8 text-blue-500" />
                 </div>

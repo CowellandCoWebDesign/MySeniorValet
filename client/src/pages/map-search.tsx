@@ -2311,7 +2311,7 @@ export default function MapSearch() {
           ) : (isLoadingCommunities || isFetchingCommunities || isInitialLoad || isMapMoving) ? (
             <MascotLoadingDisplay
               title={isFetchingCommunities ? "Searching Communities" : "Finding communities in this area"}
-              subtitle={`Analyzing ${mapBounds ? 'communities in your selected area' : 'over 33,560 verified communities nationwide'}`}
+              subtitle={`Analyzing ${mapBounds ? 'communities in your selected area' : 'verified communities nationwide'}`}
               showProgress={true}
               progressDuration={8}
               factRotationSpeed={3000}

@@ -453,7 +453,7 @@ export function generateLocationSchema(location: {city?: string; state?: string;
     '@context': 'https://schema.org',
     '@type': 'Place',
     name: name,
-    description: `Find ${location.communityCount}+ senior living communities in ${name}. Compare prices, amenities, and care levels.`,
+    description: `Find senior living communities in ${name}. Compare prices, amenities, and care levels.`,
     geo: {
       '@type': 'GeoShape',
       addressCountry: location.country || 'US',

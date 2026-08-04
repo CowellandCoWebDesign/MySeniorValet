@@ -12,7 +12,7 @@ export function MascotInfoBar({ className }: MascotInfoBarProps) {
   
   // Informative messages that scroll through
   const messages = [
-    { icon: TrendingUp, text: "34,181+ verified communities nationwide", color: "text-green-500" },
+    { icon: TrendingUp, text: "Verified communities nationwide", color: "text-green-500" },
     { icon: Shield, text: "Real HUD pricing from government sources", color: "text-blue-500" },
     { icon: Heart, text: "Helping families find the perfect care since 2025", color: "text-pink-500" },
     { icon: Star, text: "Triple AI-verified for absolute accuracy", color: "text-yellow-500" },

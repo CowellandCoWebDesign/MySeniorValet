@@ -10,7 +10,7 @@ interface PricingBreakdownProps {
 }
 
 export function PricingBreakdown({ state = 'CA', city, className = '' }: PricingBreakdownProps) {
-  // Authentic market data based on our 25,782 verified communities across North America
+  // Authentic market data based on our verified communities across North America
   const careTypePricing = {
     'CA': {
       'Independent Living': { min: 2800, max: 5500, median: 3800, growth: '+3.2%', coverage: '10%' },
@@ -93,7 +93,7 @@ export function PricingBreakdown({ state = 'CA', city, className = '' }: Pricing
           )}
         </CardTitle>
         <p className="text-sm text-blue-700 dark:text-blue-300">
-          Based on pricing data from 25,782 verified communities across North America
+          Based on pricing data from verified communities across North America
         </p>
       </CardHeader>
       <CardContent className="space-y-4">

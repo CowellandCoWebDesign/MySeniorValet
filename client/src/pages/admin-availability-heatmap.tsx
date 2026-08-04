@@ -75,12 +75,12 @@ export default function AdminAvailabilityHeatmap() {
   ];
 
   const revenueByRegion = [
-    { region: 'West Coast', revenue: 8500000, communities: 4235, growth: 12.3 },
-    { region: 'Northeast', revenue: 7200000, communities: 3890, growth: 8.7 },
-    { region: 'Southeast', revenue: 6800000, communities: 5120, growth: 15.4 },
-    { region: 'Midwest', revenue: 5900000, communities: 4780, growth: 6.2 },
-    { region: 'Southwest', revenue: 5200000, communities: 3456, growth: 11.8 },
-    { region: 'Mountain West', revenue: 3400000, communities: 2234, growth: 18.9 }
+    { region: 'West Coast', revenue: 8500000, communities: 0, growth: 12.3 },
+    { region: 'Northeast', revenue: 7200000, communities: 0, growth: 8.7 },
+    { region: 'Southeast', revenue: 6800000, communities: 0, growth: 15.4 },
+    { region: 'Midwest', revenue: 5900000, communities: 0, growth: 6.2 },
+    { region: 'Southwest', revenue: 5200000, communities: 0, growth: 11.8 },
+    { region: 'Mountain West', revenue: 3400000, communities: 0, growth: 18.9 }
   ];
 
   if (authLoading || !user || !['admin', 'super_admin'].includes(user.role)) {
@@ -152,7 +152,7 @@ export default function AdminAvailabilityHeatmap() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Communities</p>
-                      <p className="text-3xl font-bold mt-2">34,180</p>
+                      <p className="text-3xl font-bold mt-2">—</p>
                       <p className="text-xs text-gray-500 mt-1">Nationwide coverage</p>
                     </div>
                     <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
@@ -506,7 +506,7 @@ export default function AdminAvailabilityHeatmap() {
                   Interactive Availability Heatmap
                 </CardTitle>
                 <CardDescription className="mt-2">
-                  Real-time availability data across 34,180 communities • Click clusters to zoom
+                  Real-time availability data across all communities • Click clusters to zoom
                 </CardDescription>
               </div>
               <Badge variant="outline" className="px-3 py-1">

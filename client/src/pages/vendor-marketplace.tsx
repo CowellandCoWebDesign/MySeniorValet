@@ -137,7 +137,7 @@ export default function VendorMarketplace() {
               <div className="text-sm opacity-80">Service Categories</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold">34K+</div>
+              <div className="text-3xl font-bold">Nationwide</div>
               <div className="text-sm opacity-80">Communities Served</div>
             </div>
             <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 text-center">
@@ -387,7 +387,7 @@ export default function VendorMarketplace() {
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mb-4 mx-auto">
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>
-                <CardTitle className="text-center">Reach 34,000+ Communities</CardTitle>
+                <CardTitle className="text-center">Reach Communities Nationwide</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-center text-gray-600 dark:text-gray-400">

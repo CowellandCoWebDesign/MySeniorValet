@@ -55,7 +55,7 @@ export function SearchBar({ onSearch, showAdvancedFilters, onToggleAdvancedFilte
         <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-50 to-blue-50 backdrop-blur-md px-3 py-2 rounded-full shadow-md border border-green-200/50 mb-2">
           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span className="text-xs sm:text-sm font-bold text-green-800">
-            27,112+ verified communities
+            Verified communities nationwide
           </span>
           <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
         </div>

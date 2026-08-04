@@ -95,7 +95,7 @@ export default function SeniorMarketplace() {
   // Set SEO metadata for marketplace page
   useSEO({
     title: 'Services Directory - Trusted Senior Living Services & Products',
-    description: 'Browse 1,500+ verified vendors offering senior living services: pharmacy, medical supplies, home care, moving services, and more. Trusted partners serving families nationwide.',
+    description: 'Browse verified vendors offering senior living services: pharmacy, medical supplies, home care, moving services, and more. Trusted partners serving families nationwide.',
     keywords: 'senior services, senior vendors, pharmacy services, medical supplies, home care, senior products, elder care services, senior living marketplace',
     canonicalUrl: 'https://www.myseniorvalet.com/senior-marketplace'
   });

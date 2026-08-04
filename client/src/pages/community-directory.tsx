@@ -70,55 +70,30 @@ export default function CommunityDirectory() {
             },
             "mainEntity": {
               "@type": "ItemList",
-              "numberOfItems": "33500",
               "itemListElement": [
                 {
-                  "@type": "Place",
+                  "@type": "ListItem",
+                  "position": 1,
+                  "name": "United States Senior Living",
+                  "description": "Senior living communities across the United States"
+                },
+                {
+                  "@type": "ListItem",
+                  "position": 2,
                   "name": "Canadian Senior Living",
-                  "description": "5,343 communities across 13 provinces/territories",
-                  "containsPlace": [
-                    {"@type": "Place", "name": "Ontario", "description": "1,707 senior communities"},
-                    {"@type": "Place", "name": "Quebec", "description": "1,278 senior communities"},
-                    {"@type": "Place", "name": "British Columbia", "description": "987 senior communities"},
-                    {"@type": "Place", "name": "Alberta", "description": "570 senior communities"}
-                  ]
+                  "description": "Senior communities across Canadian provinces and territories"
                 },
                 {
-                  "@type": "Place",
+                  "@type": "ListItem",
+                  "position": 3,
                   "name": "Australian Senior Care",
-                  "description": "1,458 aged care facilities across 6 states",
-                  "containsPlace": [
-                    {"@type": "Place", "name": "New South Wales", "description": "430 aged care facilities"},
-                    {"@type": "Place", "name": "Queensland", "description": "330 aged care facilities"},
-                    {"@type": "Place", "name": "Victoria", "description": "324 aged care facilities"}
-                  ]
+                  "description": "Aged care facilities across Australia"
                 },
                 {
-                  "@type": "Organization",
-                  "name": "Brookdale Senior Living",
-                  "description": "America's largest provider with 700+ communities",
-                  "areaServed": "United States"
-                },
-                {
-                  "@type": "Organization",
-                  "name": "Provincial Senior Living",
-                  "description": "55 affordable communities including Solstice brand",
-                  "areaServed": "United States"
-                },
-                {
-                  "@type": "Place",
-                  "name": "Japan Senior Living",
-                  "description": "49 communities in Tokyo metropolitan area"
-                },
-                {
-                  "@type": "Place",
-                  "name": "Singapore Senior Care",
-                  "description": "27 senior care facilities"
-                },
-                {
-                  "@type": "Place",
-                  "name": "Scotland Care Homes",
-                  "description": "31 care homes across Scotland"
+                  "@type": "ListItem",
+                  "position": 4,
+                  "name": "International Senior Living",
+                  "description": "Senior care options in Japan, Singapore, Scotland, Mexico and more"
                 }
               ]
             },

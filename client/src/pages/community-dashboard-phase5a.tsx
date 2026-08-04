@@ -244,7 +244,7 @@ export default function CommunityDashboardPhase5A() {
                   <AlertTitle>Phase 5A Complete!</AlertTitle>
                   <AlertDescription>
                     All enterprise features are now operational with the new 5-tier pricing structure.
-                    Your communities are connected to real backend services with 32,970 verified listings.
+                    Your communities are connected to real backend services with verified listings.
                   </AlertDescription>
                 </Alert>
                 

@@ -834,7 +834,7 @@ export default function AdminCleanFull() {
                   <span>Pricing Intelligence Management</span>
                 </CardTitle>
                 <CardDescription>
-                  Update and manage pricing data across all 26,306+ communities using verified sources only
+                  Update and manage pricing data across all communities using verified sources only
                 </CardDescription>
               </CardHeader>
               <CardContent>

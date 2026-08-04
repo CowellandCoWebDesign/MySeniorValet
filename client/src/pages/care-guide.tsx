@@ -262,7 +262,7 @@ export default function CareGuide() {
                   <div className="flex items-start space-x-3">
                     <Shield className="w-5 h-5 text-blue-500 mt-1" />
                     <div>
-                      <p className="font-medium">25,782 Verified Communities</p>
+                      <p className="font-medium">Verified Communities</p>
                       <p className="text-sm text-gray-600">Complete North American database with 100% pricing coverage</p>
                     </div>
                   </div>
@@ -428,7 +428,7 @@ export default function CareGuide() {
         <div className="text-center">
           <h3 className="text-2xl font-bold mb-4">Ready to Find the Right Care?</h3>
           <p className="text-gray-600 mb-6">
-            Search our 31,000+ communities with transparent pricing and detailed care information
+            Search our communities with transparent pricing and detailed care information
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/map-search">

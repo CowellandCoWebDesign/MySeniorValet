@@ -17,17 +17,17 @@ export default function Marketplace() {
       id: 1,
       title: "Community Directory",
       subtitle: "Complete Database Access",
-      description: "Access all 34,181+ senior living communities across the United States with verified pricing and real-time availability",
+      description: "Access senior living communities across the United States with verified pricing and real-time availability",
       icon: Building2,
       link: "/community-directory",
       color: "from-blue-600 to-indigo-600",
       stats: {
-        count: "34,181+",
+        count: "Nationwide",
         label: "Communities"
       },
       features: [
         "All U.S. Communities",
-        "5,936+ HUD Properties",
+        "HUD Properties",
         "Real-Time Availability",
         "Verified Pricing Data"
       ],
@@ -126,7 +126,7 @@ export default function Marketplace() {
             <div className="grid grid-cols-4 gap-4 max-w-3xl mx-auto">
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-3 text-center">
-                  <div className="text-2xl font-bold text-white">34,181+</div>
+                  <div className="text-2xl font-bold text-white">Nationwide</div>
                   <div className="text-xs text-blue-100">Communities</div>
                 </CardContent>
               </Card>

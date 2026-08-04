@@ -195,7 +195,7 @@ export default function VendorsMarketplace() {
                   <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                     <h3 className="font-semibold mb-2">Find Your Perfect Community</h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                      Search from 35,000+ verified senior living communities nationwide including:
+                      Search from verified senior living communities nationwide including:
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="flex items-center gap-2">

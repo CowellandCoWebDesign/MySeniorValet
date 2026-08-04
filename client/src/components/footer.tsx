@@ -27,7 +27,7 @@ export function Footer() {
           <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
             <div className="flex items-center gap-2">
               <Building className="h-4 w-4 text-blue-400" />
-              <span className="font-bold text-white">{(formattedStats as any)?.totalCommunities || '34,171'}</span>
+              <span className="font-bold text-white">{(formattedStats as any)?.totalCommunities || '—'}</span>
               <span className="text-gray-400">Communities</span>
             </div>
             <div className="hidden md:block w-px h-4 bg-gray-600"></div>

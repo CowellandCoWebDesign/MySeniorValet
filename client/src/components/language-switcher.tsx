@@ -23,7 +23,7 @@ const languages = [
     name: 'English', 
     flag: '🇺🇸',
     regions: ['USA', 'Canada (EN)'],
-    coverage: '40,879 communities'
+    coverage: 'Nationwide coverage'
   },
   { 
     code: 'fr', 
@@ -138,8 +138,8 @@ export function LanguageSwitcher({
           <div className="px-2 py-2">
             <div className="text-xs text-gray-500 dark:text-gray-400">
               <div className="font-semibold mb-1">Multilingual Support:</div>
-              <div>• 🇺🇸 34,532 USA communities</div>
-              <div>• 🇨🇦 7,705 Canadian communities</div>
+              <div>• 🇺🇸 USA communities</div>
+              <div>• 🇨🇦 Canadian communities</div>
               <div>• 🇲🇽 313 Mexican communities</div>
               <div>• 100% Quebec bilingual</div>
               <div>• UI translation available</div>

@@ -62,7 +62,7 @@ export const SeniorCommandCenterHeader: FC<SeniorCommandCenterHeaderProps> = ({ 
         <div className="mt-6 grid grid-cols-4 gap-4">
           <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-3">
             <div className="text-cyan-400 text-xs mb-1">Communities</div>
-            <div className="text-2xl font-bold text-cyan-300">32,970</div>
+            <div className="text-2xl font-bold text-cyan-300">Nationwide</div>
           </div>
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-lg p-3">
             <div className="text-purple-400 text-xs mb-1">AI Queries</div>

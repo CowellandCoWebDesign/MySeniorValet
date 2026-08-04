@@ -108,7 +108,7 @@ export function ChatKitWrapper({
       {/* Footer */}
       <div className="p-3 border-t bg-muted/50">
         <p className="text-xs text-muted-foreground text-center">
-          OpenAI ChatKit with Widgets • Search 33,834+ communities • Interactive Cards & Forms
+          OpenAI ChatKit with Widgets • Search communities • Interactive Cards & Forms
         </p>
       </div>
     </Card>

@@ -1632,7 +1632,7 @@ function CommunitiesSearchBar() {
 
   const totalLabel = (() => {
     const n = stats?.totalCommunities ? Number(stats.totalCommunities) : NaN;
-    return Number.isFinite(n) && n > 0 ? n.toLocaleString() : '32,000';
+    return Number.isFinite(n) && n > 0 ? n.toLocaleString() : 'thousands of';
   })();
 
   const go = (value: string) => {
@@ -1841,7 +1841,7 @@ export default function MySeniorValetHome() {
       : 'Assisted Living, Memory Care, Nursing Homes - Find Senior Housing Near You',
     description: hasSearchParams
       ? 'Search results for senior living communities'
-      : 'Search 36,000+ senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+      : 'Search senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
     keywords: hasSearchParams
       ? 'senior living search results'
       : 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
@@ -2511,7 +2511,7 @@ export default function MySeniorValetHome() {
       {/* SEO Meta Tags for Social Sharing */}
       <SEOMetaTags
         title="MySeniorValet - Find Assisted Living, Memory Care & Senior Housing"
-        description="Compare assisted living, memory care, independent living, nursing homes & 24/7 caregiving options across 33,837+ communities. Verified pricing, real availability, no hidden fees."
+        description="Compare assisted living, memory care, independent living, nursing homes & 24/7 caregiving options across thousands of communities. Verified pricing, real availability, no hidden fees."
         url="/"
         type="website"
         image="/og-image.png"
@@ -2715,7 +2715,7 @@ export default function MySeniorValetHome() {
                           {isLoading ? (
                             <span className="animate-pulse">Loading community count...</span>
                           ) : (
-                            `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : '35,000'}+ Communities`
+                            `Join ${communityStats?.count ? Number(communityStats.count).toLocaleString() : 'Thousands of'} Communities`
                           )} - Reach qualified families actively searching for senior care.
                         </p>
                         
@@ -3102,7 +3102,7 @@ export default function MySeniorValetHome() {
                         <p className="text-xs text-amber-600 dark:text-amber-400 text-center mt-1">20% OFF Annual Plans</p>
                       </div>
                       <div className="p-2 bg-gradient-to-r from-purple-500/20 to-indigo-600/20 dark:from-purple-500/10 dark:to-indigo-600/10 rounded border border-purple-300 dark:border-purple-700">
-                        <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to 34,171+ communities</p>
+                        <p className="text-xs font-semibold text-purple-700 dark:text-purple-300 text-center">Access to our full community directory</p>
                       </div>
                     </div>
                   </div>

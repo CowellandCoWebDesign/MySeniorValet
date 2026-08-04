@@ -210,7 +210,7 @@ export default function SuperAdminDashboard() {
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
-      trend: "Largest segment" // Real data - 8,953 communities
+      trend: "Largest segment"
     },
     { 
       label: "HUD Verified", 

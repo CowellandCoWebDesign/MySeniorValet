@@ -130,7 +130,7 @@ export function KrakenAIResponse({ query, onQueryChange, onCommunityMatches }: K
     } else if (queryLower.includes('memory care') || queryLower.includes('dementia') || queryLower.includes('alzheimer')) {
       return `Memory care requires specialized expertise. I've found ${recommendations.length} communities with dedicated memory care units, licensed staff, and secure environments designed for dementia care.`;
     } else {
-      return `I've searched through 32,970+ senior living communities and found ${recommendations.length} excellent matches for your needs. Each recommendation is verified for authenticity and quality standards.`;
+      return `I've searched our senior living community database and found ${recommendations.length} excellent matches for your needs. Each recommendation is verified for authenticity and quality standards.`;
     }
   };
 
@@ -196,7 +196,7 @@ export function KrakenAIResponse({ query, onQueryChange, onCommunityMatches }: K
                   🐙 THE KRAKEN AI
                 </CardTitle>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                  Advanced Intelligence • 32,970+ Communities • Self-Learning Neural Network
+                  Advanced Intelligence • Verified Communities • Self-Learning Neural Network
                 </p>
               </div>
             </div>

@@ -212,7 +212,7 @@ export default function VendorSignup() {
         <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-8 mb-12 text-white">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
             <div>
-              <h3 className="text-4xl font-bold mb-2">34,171</h3>
+              <h3 className="text-4xl font-bold mb-2">Nationwide</h3>
               <p className="text-lg">Senior Communities</p>
             </div>
             <div>

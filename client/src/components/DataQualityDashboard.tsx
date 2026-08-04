@@ -25,9 +25,9 @@ interface DataQualityStats {
 
 export function DataQualityDashboard() {
   const [stats, setStats] = useState<DataQualityStats>({
-    totalCommunities: 33427,
-    verifiedCommunities: 12702, // 38% of 33427
-    needsReviewCommunities: 20725,
+    totalCommunities: 0,
+    verifiedCommunities: 0,
+    needsReviewCommunities: 0,
     nationalCorrectionProgress: 38,
     lastAuditDate: new Date().toISOString(),
     dataIntegrityScore: 38

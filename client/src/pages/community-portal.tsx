@@ -375,7 +375,7 @@ export default function CommunityPortal() {
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">34,171+ Communities Listed</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Communities Listed</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>

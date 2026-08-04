@@ -27,7 +27,7 @@ interface MascotLoadingDisplayProps {
 
 export function MascotLoadingDisplay({ 
   title = "Searching Communities",
-  subtitle = "Analyzing over 33,560 verified senior living options",
+  subtitle = "Analyzing verified senior living options",
   showProgress = true,
   progressDuration = 15, // Reduced from 30 to 15 seconds
   factRotationSpeed = 7000,

@@ -65,7 +65,7 @@ export function SearchingMascot({
         {/* Additional encouraging text */}
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            We're reviewing over <span className="font-semibold text-blue-600">25,000+ communities</span> to find your perfect match
+            We're reviewing <span className="font-semibold text-blue-600">our full community database</span> to find your perfect match
           </p>
         </div>
       </div>

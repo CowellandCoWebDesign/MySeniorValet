@@ -14,8 +14,8 @@ export default function AssistedLivingPage() {
 
   // Set SEO for this high-value landing page
   useSEO({
-    title: 'Assisted Living Near Me - Compare Costs & Availability | 12,000+ Communities',
-    description: 'Find assisted living facilities near you. Compare real prices from $2,000-$8,000/month. See current availability, care services, and reviews for 12,000+ communities nationwide. No hidden fees or referral markups.',
+    title: 'Assisted Living Near Me - Compare Costs & Availability',
+    description: 'Find assisted living facilities near you. Compare real prices from $2,000-$8,000/month. See current availability, care services, and reviews for communities nationwide. No hidden fees or referral markups.',
     keywords: 'assisted living near me, assisted living costs, assisted living facilities, senior assisted living, memory care assisted living, assisted living prices, affordable assisted living, best assisted living',
     canonicalUrl: 'https://www.myseniorvalet.com/assisted-living'
   });
@@ -55,7 +55,7 @@ export default function AssistedLivingPage() {
             Find Assisted Living Near You
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-95">
-            Compare 12,000+ assisted living communities with real pricing and availability
+            Compare assisted living communities with real pricing and availability
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <Button 
@@ -77,7 +77,7 @@ export default function AssistedLivingPage() {
           </div>
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold">12,847</div>
+              <div className="text-3xl font-bold">U.S.</div>
               <div className="text-sm opacity-90">Assisted Living Communities</div>
             </div>
             <div>

@@ -51,3 +51,4 @@
 - [Perplexity prose parsing](perplexity-prose-parsing.md) — parse enrichment prose server-side into structuredFacts; pair each $ with NEAREST care-level mention; normalize availability enum or skip write; always resolve enrichment_status.
 - [Community shell SEO injection](community-shell-seo-injection.md) — community head tags injected into SPA shell for ALL UAs; use replacer fns (pricing "$" eats capture refs); client strips data-ssr-meta at boot.
 - [SEO canonical architecture](seo-canonical-architecture.md) — exactly ONE self-canonical per page; NO static canonical in index.html; useSEO (DOM) vs Helmet (data-rh) must not both emit; community builds via getCommunityUrl.
+- [Fabricated inventory counts ban](fabricated-inventory-counts.md) — never hardcode "N,NNN communities/facilities" anywhere crawlable (JSON-LD, meta, page copy); tests/structured-data-no-fabricated-counts.test.ts enforces repo-wide with allowlist.

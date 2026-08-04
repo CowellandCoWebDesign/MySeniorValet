@@ -820,7 +820,7 @@ export default function AISearchIntelligence() {
       ) : (
         <SEOMetaTags
           title="AI-Powered Senior Living Search - Find Assisted Living & Memory Care"
-          description="Search assisted living, memory care, nursing homes & independent living with AI intelligence. Get personalized recommendations, pricing insights, and availability across 33,000+ communities."
+          description="Search assisted living, memory care, nursing homes & independent living with AI intelligence. Get personalized recommendations, pricing insights, and availability across our community directory."
           url="/ai-search-intelligence"
           canonical="https://www.myseniorvalet.com/ai-search-intelligence"
           type="website"
@@ -1457,7 +1457,7 @@ export default function AISearchIntelligence() {
                           progressDuration={10}
                           compact={true}
                           processStages={[
-                            "Searching our database of 32,970+ communities",
+                            "Searching our community database",
                             "Scanning web sources for new communities",
                             "Verifying addresses and contact details",
                             "Ranking results by relevance"
@@ -1693,7 +1693,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🏛️</div>
                       <div className="text-sm font-bold">HUD</div>
                       <div className="text-xs opacity-90">$0-500</div>
-                      <div className="text-[10px] opacity-75">5,936 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1725,7 +1725,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🎖️</div>
                       <div className="text-sm font-bold">VA</div>
                       <div className="text-xs opacity-90">$0-1k</div>
-                      <div className="text-[10px] opacity-75">320 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1757,7 +1757,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🚐</div>
                       <div className="text-sm font-bold">Mobile/RV</div>
                       <div className="text-xs opacity-90">$400-1k</div>
-                      <div className="text-[10px] opacity-75">8,721 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1789,7 +1789,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">⛳</div>
                       <div className="text-sm font-bold">55+ Active</div>
                       <div className="text-xs opacity-90">$1-3k</div>
-                      <div className="text-[10px] opacity-75">4,100 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1821,7 +1821,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🏘️</div>
                       <div className="text-sm font-bold">Independent</div>
                       <div className="text-xs opacity-90">$2-4k</div>
-                      <div className="text-[10px] opacity-75">5,800 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1853,7 +1853,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🏡</div>
                       <div className="text-sm font-bold">Board & Care</div>
                       <div className="text-xs opacity-90">$2.5-5k</div>
-                      <div className="text-[10px] opacity-75">1,800 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1885,7 +1885,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🏢</div>
                       <div className="text-sm font-bold">Assisted</div>
                       <div className="text-xs opacity-90">$3-6k</div>
-                      <div className="text-[10px] opacity-75">4,100 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1917,7 +1917,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🧠</div>
                       <div className="text-sm font-bold">Memory</div>
                       <div className="text-xs opacity-90">$4-8k</div>
-                      <div className="text-[10px] opacity-75">2,200 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1949,7 +1949,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🏛️</div>
                       <div className="text-sm font-bold">CCRC</div>
                       <div className="text-xs opacity-90">$5-10k</div>
-                      <div className="text-[10px] opacity-75">1,100 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
 
@@ -1981,7 +1981,7 @@ export default function AISearchIntelligence() {
                       <div className="text-2xl mb-1">🏥</div>
                       <div className="text-sm font-bold">Skilled</div>
                       <div className="text-xs opacity-90">$6-12k</div>
-                      <div className="text-[10px] opacity-75">2,300 units</div>
+                      <div className="text-[10px] opacity-75">Nationwide</div>
                     </div>
                   </Button>
                 </div>
@@ -2688,7 +2688,7 @@ export default function AISearchIntelligence() {
                         progressDuration={10}
                         compact={true}
                         processStages={[
-                          "Searching our database of 32,970+ communities",
+                          "Searching our community database",
                           "Scanning web sources for new communities",
                           "Verifying addresses and contact details",
                           "Ranking results by relevance"

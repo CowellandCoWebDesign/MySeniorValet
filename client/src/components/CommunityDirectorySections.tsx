@@ -951,11 +951,11 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </div>
             
             <p className="text-2xl text-cyan-100 mb-4 font-semibold">
-              454 Awards in 2025 • 350+ Communities Nationwide
+              Award-Winning Communities Nationwide
             </p>
             
             <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              Industry record-holder with 148 communities ranked "Best in Senior Living" and pioneering 
+              Industry record-holder with communities ranked "Best in Senior Living" and pioneering 
               SHINE® Memory Care certified by the Alzheimer's Association
             </p>
           </div>
@@ -974,7 +974,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                   <li>★ 454 total awards in 2025 (industry record)</li>
                   <li>★ 148 "Best in Senior Living" communities</li>
                   <li>★ Great Place To Work certified</li>
-                  <li>★ 4.2/5 from 16,000+ reviews</li>
+                  <li>★ 4.2/5 average rating</li>
                 </ul>
               </div>
               <div>
@@ -1177,7 +1177,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             
             <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
               The only provider to win #1 in Customer Satisfaction for both Independent Living (6 years) 
-              and Assisted Living/Memory Care - serving 40,000+ residents in 130+ communities
+              and Assisted Living/Memory Care - serving residents across its communities
             </p>
           </div>
 
@@ -1274,7 +1274,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </div>
             
             <p className="text-2xl text-purple-100 mb-4 font-semibold">
-              230+ Communities • Uncommon Hospitality Since 1998
+              Uncommon Hospitality Since 1998
             </p>
             
             <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
@@ -1314,7 +1314,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             <div className="bg-purple-800/30 rounded-lg p-3 border border-purple-600/30 mt-4">
               <p className="text-purple-200 text-sm font-semibold text-center">
                 🌟 Atria Advantage: The only provider combining true hospitality DNA with healthcare - 
-                24 communities earned 2025 Caring Star Awards for exceptional service.
+                Multiple communities earned 2025 Caring Star Awards for exceptional service.
               </p>
             </div>
           </div>
@@ -1365,7 +1365,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             
             <Badge className="bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
               <Building className="h-5 w-5 mr-2" />
-              #1 LARGEST PROVIDER • 60,000+ RESIDENTS
+              #1 LARGEST PROVIDER
               <Building className="h-5 w-5 ml-2" />
             </Badge>
             
@@ -1380,7 +1380,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </p>
             
             <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              With 647 communities in 41 states, Brookdale's unmatched scale and 47 years of experience 
+              With communities in 41 states, Brookdale's unmatched scale and 47 years of experience 
               delivers the full spectrum of care to more seniors than any other provider
             </p>
           </div>
@@ -1396,7 +1396,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
               <div>
                 <h4 className="font-semibold text-rose-300 mb-3">📊 Unmatched Scale</h4>
                 <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>★ 53,794 units nationwide</li>
+                  <li>★ Units nationwide</li>
                   <li>★ 15.6% market share</li>
                   <li>★ $3.24 billion annual revenue</li>
                   <li>★ 80% of U.S. population coverage</li>
@@ -1449,7 +1449,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             onClick={() => window.open('/ai-search-intelligence?company=Brookdale Senior Living', '_self')}
             className="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-4 text-lg shadow-xl"
           >
-            Find Your Local Brookdale Community (647 Locations) →
+            Find Your Local Brookdale Community →
           </Button>
         </div>
       </section>
@@ -2279,7 +2279,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
             {language === 'en' 
-              ? '24 communities across all 13 provinces and territories • 10 with bilingual French/English services' 
+              ? 'Communities across all 13 provinces and territories • bilingual French/English services available' 
               : '24 communautés dans les 13 provinces et territoires • 10 avec services bilingues français/anglais'}
           </p>
         
@@ -2934,21 +2934,21 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
         </div>
       </section>
 
-      {/* 🔥 CANADA SECTION - MASSIVE 5,343 COMMUNITIES! 🇨🇦 */}
+      {/* 🔥 CANADA SECTION 🇨🇦 */}
       <section className="px-4 py-16 bg-gradient-to-br from-red-50 via-white to-red-50 dark:from-red-950/30 dark:via-gray-900 dark:to-red-950/30">
         <div className="max-w-7xl mx-auto">
           {/* Canada Header with Maple Leaf Theme */}
           <div className="mb-12 text-center">
             <Badge className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-2 mb-6 text-lg">
               <span className="text-2xl mr-2">🇨🇦</span>
-              5,343 COMMUNITIES ACROSS CANADA
+              COMMUNITIES ACROSS CANADA
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Canadian Senior Living & Long-Term Care
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
               Complete coverage of retirement homes, long-term care facilities, and assisted living across all 13 provinces and territories. 
-              From Ontario's 1,707 communities to Yukon's specialized care homes.
+              From Ontario's retirement residences to Yukon's specialized care homes.
             </p>
           </div>
 
@@ -2956,7 +2956,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
             <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
               <CardContent className="p-4 text-center">
-                <h3 className="font-bold text-2xl text-red-600">1,707</h3>
+                <h3 className="font-bold text-2xl text-red-600">ON</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Ontario</p>
                 <Link to={getLocationSearchUrl('Ontario')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
@@ -2967,7 +2967,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </Card>
             <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
               <CardContent className="p-4 text-center">
-                <h3 className="font-bold text-2xl text-red-600">1,278</h3>
+                <h3 className="font-bold text-2xl text-red-600">QC</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Quebec</p>
                 <Link to={getLocationSearchUrl('Quebec')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
@@ -2978,7 +2978,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </Card>
             <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
               <CardContent className="p-4 text-center">
-                <h3 className="font-bold text-2xl text-red-600">987</h3>
+                <h3 className="font-bold text-2xl text-red-600">BC</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">British Columbia</p>
                 <Link to={getLocationSearchUrl('British Columbia')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
@@ -2989,7 +2989,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </Card>
             <Card className="border-2 border-red-200 dark:border-red-800 bg-white dark:bg-gray-900">
               <CardContent className="p-4 text-center">
-                <h3 className="font-bold text-2xl text-red-600">570</h3>
+                <h3 className="font-bold text-2xl text-red-600">AB</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Alberta</p>
                 <Link to={getLocationSearchUrl('Alberta')}>
                   <Button size="sm" variant="link" className="mt-2 text-red-600">
@@ -3035,24 +3035,24 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             <h3 className="font-bold text-xl mb-4">Explore All Provinces & Territories:</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {[
-                { name: 'Ontario', count: '1,707', code: 'ON' },
-                { name: 'Quebec', count: '1,278', code: 'QC' },
-                { name: 'British Columbia', count: '987', code: 'BC' },
-                { name: 'Alberta', count: '570', code: 'AB' },
-                { name: 'Nova Scotia', count: '364', code: 'NS' },
-                { name: 'Saskatchewan', count: '306', code: 'SK' },
-                { name: 'New Brunswick', count: '241', code: 'NB' },
-                { name: 'Manitoba', count: '207', code: 'MB' },
-                { name: 'Newfoundland', count: '199', code: 'NL' },
-                { name: 'NW Territories', count: '146', code: 'NT' },
-                { name: 'PEI', count: '115', code: 'PE' },
-                { name: 'Nunavut', count: '89', code: 'NU' },
-                { name: 'Yukon', count: '69', code: 'YT' }
+                { name: 'Ontario', code: 'ON' },
+                { name: 'Quebec', code: 'QC' },
+                { name: 'British Columbia', code: 'BC' },
+                { name: 'Alberta', code: 'AB' },
+                { name: 'Nova Scotia', code: 'NS' },
+                { name: 'Saskatchewan', code: 'SK' },
+                { name: 'New Brunswick', code: 'NB' },
+                { name: 'Manitoba', code: 'MB' },
+                { name: 'Newfoundland', code: 'NL' },
+                { name: 'NW Territories', code: 'NT' },
+                { name: 'PEI', code: 'PE' },
+                { name: 'Nunavut', code: 'NU' },
+                { name: 'Yukon', code: 'YT' }
               ].map((province) => (
                 <Link key={province.code} to={getLocationSearchUrl(province.name)}>
                   <Button variant="outline" className="w-full justify-between border-red-300 hover:bg-red-50 dark:border-red-700 dark:hover:bg-red-900/20">
                     <span>{province.name}</span>
-                    <Badge className="bg-red-600 text-white">{province.count}</Badge>
+                    
                   </Button>
                 </Link>
               ))}
@@ -3061,14 +3061,14 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
         </div>
       </section>
 
-      {/* 🔥 AUSTRALIA SECTION - 1,458 AGED CARE FACILITIES! 🇦🇺 */}
+      {/* 🔥 AUSTRALIA SECTION 🇦🇺 */}
       <section className="px-4 py-16 bg-gradient-to-br from-green-50 via-yellow-50 to-green-50 dark:from-green-950/30 dark:via-yellow-950/30 dark:to-green-950/30">
         <div className="max-w-7xl mx-auto">
           {/* Australia Header */}
           <div className="mb-12 text-center">
             <Badge className="bg-gradient-to-r from-green-700 to-yellow-600 text-white px-6 py-2 mb-6 text-lg">
               <span className="text-2xl mr-2">🇦🇺</span>
-              1,458 AGED CARE FACILITIES
+              AGED CARE FACILITIES
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Australian Aged Care & Retirement Villages
@@ -3082,7 +3082,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-12">
             <Card className="border-2 border-green-200 dark:border-green-800 bg-white dark:bg-gray-900">
               <CardContent className="p-4 text-center">
-                <h3 className="font-bold text-2xl text-green-600">430</h3>
+                <h3 className="font-bold text-2xl text-green-600">NSW</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">New South Wales</p>
                 <Link to={getLocationSearchUrl('New South Wales')}>
                   <Button size="sm" variant="link" className="mt-2 text-green-600">
@@ -3093,7 +3093,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </Card>
             <Card className="border-2 border-yellow-200 dark:border-yellow-800 bg-white dark:bg-gray-900">
               <CardContent className="p-4 text-center">
-                <h3 className="font-bold text-2xl text-yellow-600">330</h3>
+                <h3 className="font-bold text-2xl text-yellow-600">QLD</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Queensland</p>
                 <Link to={getLocationSearchUrl('Queensland')}>
                   <Button size="sm" variant="link" className="mt-2 text-yellow-600">
@@ -3104,7 +3104,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             </Card>
             <Card className="border-2 border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-900">
               <CardContent className="p-4 text-center">
-                <h3 className="font-bold text-2xl text-blue-600">324</h3>
+                <h3 className="font-bold text-2xl text-blue-600">VIC</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Victoria</p>
                 <Link to={getLocationSearchUrl('Victoria')}>
                   <Button size="sm" variant="link" className="mt-2 text-blue-600">
@@ -3135,18 +3135,18 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
             <h3 className="font-bold text-xl mb-4">Browse All Australian States:</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               {[
-                { name: 'New South Wales', count: '430', code: 'NSW' },
-                { name: 'Queensland', count: '330', code: 'QLD' },
-                { name: 'Victoria', count: '324', code: 'VIC' },
-                { name: 'South Australia', count: '209', code: 'SA' },
-                { name: 'Tasmania', count: '90', code: 'TAS' },
-                { name: 'ACT', count: '65', code: 'ACT' },
-                { name: 'Western Australia', count: '10', code: 'WA' }
+                { name: 'New South Wales', code: 'NSW' },
+                { name: 'Queensland', code: 'QLD' },
+                { name: 'Victoria', code: 'VIC' },
+                { name: 'South Australia', code: 'SA' },
+                { name: 'Tasmania', code: 'TAS' },
+                { name: 'ACT', code: 'ACT' },
+                { name: 'Western Australia', code: 'WA' }
               ].map((state) => (
                 <Link key={state.code} to={getLocationSearchUrl(state.name)}>
                   <Button variant="outline" className="w-full justify-between border-green-300 hover:bg-green-50 dark:border-green-700 dark:hover:bg-green-900/20">
                     <span>{state.name}</span>
-                    <Badge className="bg-green-600 text-white">{state.count}</Badge>
+                    
                   </Button>
                 </Link>
               ))}
@@ -3514,7 +3514,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                     </h3>
                     <p className="text-3xl font-bold text-green-600">4.3/5.0</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Based on 127,849 verified reviews
+                      Based on verified reviews
                     </p>
                   </div>
                   <Star className="h-12 w-12 text-green-400 opacity-50" />

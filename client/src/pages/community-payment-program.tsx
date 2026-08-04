@@ -259,7 +259,7 @@ export default function CommunityPaymentProgram() {
             </Badge>
             <Badge className="bg-blue-600 text-white text-lg px-4 py-2">
               <Building className="h-5 w-5 mr-2" />
-              25,782+ Communities Ready
+              Communities Ready
             </Badge>
           </div>
         </div>
@@ -417,7 +417,7 @@ export default function CommunityPaymentProgram() {
                     </li>
                     <li className="flex items-start space-x-3">
                       <Shield className="h-5 w-5 text-blue-500 mt-0.5" />
-                      <span><strong>Data Monopoly:</strong> 25,782+ communities with authentic pricing data</span>
+                      <span><strong>Data Monopoly:</strong> Authentic pricing data across our community database</span>
                     </li>
                     <li className="flex items-start space-x-3">
                       <Shield className="h-5 w-5 text-blue-500 mt-0.5" />

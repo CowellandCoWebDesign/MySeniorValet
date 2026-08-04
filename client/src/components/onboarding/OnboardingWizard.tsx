@@ -100,7 +100,7 @@ const steps = [
     id: 'complete',
     title: 'You\'re all set!',
     character: 'sage',
-    content: 'Wonderful! You\'ve just unlocked the full power of MySeniorValet. I\'ve personalized your experience based on your needs. Ready to explore 34,000+ communities across North America?',
+    content: 'Wonderful! You\'ve just unlocked the full power of MySeniorValet. I\'ve personalized your experience based on your needs. Ready to explore communities across North America?',
     action: 'Start Exploring!'
   }
 ];

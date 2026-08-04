@@ -73,7 +73,7 @@ export function useSEO({
 
     // Cleanup function to reset title on unmount
     return () => {
-      document.title = 'MySeniorValet - Find Senior Living Communities Near You | 34,494+ Verified Locations';
+      document.title = 'MySeniorValet - Find Senior Living Communities Near You';
       // Remove the canonical tag this hook created so it can't linger in the DOM
       // when navigating to a page that manages its own canonical via Helmet
       // (avoids a stale second canonical during client-side navigation).
@@ -88,12 +88,12 @@ export function useSEO({
 export const SEOTemplates = {
   mapSearch: {
     title: 'Search Senior Living Map',
-    description: 'Interactive map search of 34,494+ senior living communities. Filter by care type, price, location. Find assisted living, memory care, nursing homes near you.',
+    description: 'Interactive map search of senior living communities. Filter by care type, price, location. Find assisted living, memory care, nursing homes near you.',
     keywords: 'senior living map, assisted living near me, memory care facilities map, nursing home search, senior care map'
   },
   communities: {
     title: 'Browse All Senior Living Communities',
-    description: 'Browse our complete directory of 34,494 senior living communities across USA & Canada. Compare prices, care types, and availability.',
+    description: 'Browse our complete directory of senior living communities across USA & Canada. Compare prices, care types, and availability.',
     keywords: 'senior living directory, all senior communities, browse assisted living, senior care facilities list'
   },
   careSpectrum: {

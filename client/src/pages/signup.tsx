@@ -305,7 +305,7 @@ export default function SignupPage() {
               <ul className="space-y-1 text-sm text-gray-600 dark:text-gray-300">
                 <li className="flex items-start">
                   <span className="text-green-500 mr-2">✓</span>
-                  Access to 34,000+ verified communities
+                  Access to verified communities
                 </li>
                 <li className="flex items-start">
                   <span className="text-green-500 mr-2">✓</span>
