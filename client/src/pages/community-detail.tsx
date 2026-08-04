@@ -64,6 +64,7 @@ import { RequestInfoDialog } from '@/components/RequestInfoDialog';
 import { CommunityReviews } from '@/components/CommunityReviews';
 import { useVirtualTourDetection } from '@/hooks/useVirtualTourDetection';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
+import { evaluateIndexability } from '@shared/community-indexability';
 import {
   buildProfileFacts,
   ProfileHeaderBand,
@@ -1931,6 +1932,7 @@ export default function CommunityDetail() {
           })()}
           url={canonicalUrl || `/community/${community.id}`}
           canonical={canonicalUrl}
+          noindex={!evaluateIndexability(community).indexable}
           image={getCombinedPhotos()[0]?.image_url || getCombinedPhotos()[0] || '/default-community.jpg'}
           type="product"
           communityData={{

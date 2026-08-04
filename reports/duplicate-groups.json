@@ -1,0 +1,1399 @@
+{
+  "generatedAt": "2026-08-04T04:27:45.881Z",
+  "verification": "exact-name OR (normalized-name≥4chars ≥88% + address/phone/website evidence)",
+  "groups": [
+    {
+      "location": "Halifax, NS",
+      "primary": {
+        "id": 59082,
+        "name": "Halifax Care Centre"
+      },
+      "secondaries": [
+        {
+          "id": 57913,
+          "name": "Halifax Care Centre",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 59063,
+          "name": "Halifax Care Centre",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Whitby, ON",
+      "primary": {
+        "id": 59425,
+        "name": "Heritage Senior Living of Whitby 10"
+      },
+      "secondaries": [
+        {
+          "id": 59435,
+          "name": "Heritage Senior Living of Whitby 20",
+          "evidence": [
+            "name≥88%",
+            "address:85%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "New Braunfels, TX",
+      "primary": {
+        "id": 71743,
+        "name": "Sodalis Elder Living New Braunfels III"
+      },
+      "secondaries": [
+        {
+          "id": 71741,
+          "name": "Sodalis Elder Living New Braunfels I",
+          "evidence": [
+            "name≥88%",
+            "address:100%"
+          ]
+        },
+        {
+          "id": 71742,
+          "name": "Sodalis Elder Living New Braunfels II",
+          "evidence": [
+            "name≥88%",
+            "address:100%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Pompano Beach, FL",
+      "primary": {
+        "id": 71383,
+        "name": "The Residence at Pompano Beach"
+      },
+      "secondaries": [
+        {
+          "id": 71378,
+          "name": "The W at Pompano Beach",
+          "evidence": [
+            "name≥88%",
+            "address:100%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Dollard-Des Ormeaux, QC",
+      "primary": {
+        "id": 59518,
+        "name": "Dollard-Des Ormeaux Senior Living 13"
+      },
+      "secondaries": [
+        {
+          "id": 59506,
+          "name": "Dollard-Des Ormeaux Senior Living 1",
+          "evidence": [
+            "name≥88%",
+            "address:88%"
+          ]
+        },
+        {
+          "id": 59519,
+          "name": "Dollard-Des Ormeaux Senior Living 14",
+          "evidence": [
+            "name≥88%",
+            "address:94%"
+          ]
+        },
+        {
+          "id": 59508,
+          "name": "Dollard-Des Ormeaux Senior Living 3",
+          "evidence": [
+            "name≥88%",
+            "address:82%"
+          ]
+        },
+        {
+          "id": 59510,
+          "name": "Dollard-Des Ormeaux Senior Living 5",
+          "evidence": [
+            "name≥88%",
+            "address:82%"
+          ]
+        },
+        {
+          "id": 59513,
+          "name": "Dollard-Des Ormeaux Senior Living 8",
+          "evidence": [
+            "name≥88%",
+            "address:82%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Whitby, ON",
+      "primary": {
+        "id": 59427,
+        "name": "Golden Years Senior Living of Whitby 12"
+      },
+      "secondaries": [
+        {
+          "id": 59440,
+          "name": "Golden Years Senior Living of Whitby 25",
+          "evidence": [
+            "name≥88%",
+            "address:87%"
+          ]
+        },
+        {
+          "id": 59418,
+          "name": "Golden Years Senior Living of Whitby 3",
+          "evidence": [
+            "name≥88%",
+            "address:80%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Oakville, ON",
+      "primary": {
+        "id": 58195,
+        "name": "Oakville Retirement Community"
+      },
+      "secondaries": [
+        {
+          "id": 57207,
+          "name": "Oakville Retirement Community",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Saanich, BC",
+      "primary": {
+        "id": 58660,
+        "name": "Saanich Retirement Community"
+      },
+      "secondaries": [
+        {
+          "id": 58649,
+          "name": "Saanich Retirement Community",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Blainville, QC",
+      "primary": {
+        "id": 58574,
+        "name": "Blainville Senior Living"
+      },
+      "secondaries": [
+        {
+          "id": 57411,
+          "name": "Blainville Living Centre",
+          "evidence": [
+            "name≥88%",
+            "address:82%"
+          ]
+        },
+        {
+          "id": 58576,
+          "name": "Blainville Senior Living",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Fort McMurray, AB",
+      "primary": {
+        "id": 57672,
+        "name": "Fort McMurray Living Centre"
+      },
+      "secondaries": [
+        {
+          "id": 57667,
+          "name": "Fort McMurray Living Centre",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Roseville, CA",
+      "primary": {
+        "id": 70747,
+        "name": "Diamond Oaks Residential Care"
+      },
+      "secondaries": [
+        {
+          "id": 70797,
+          "name": "Diamond Oaks Residential Care",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Saskatoon, SK",
+      "primary": {
+        "id": 58936,
+        "name": "Saskatoon Woods"
+      },
+      "secondaries": [
+        {
+          "id": 57777,
+          "name": "Saskatoon Woods",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 57765,
+          "name": "Saskatoon Woods",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 57762,
+          "name": "Saskatoon Woods",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 58934,
+          "name": "Saskatoon Woods",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "El Centro, CA",
+      "primary": {
+        "id": 31067,
+        "name": "VALLEY APARTMENTS #4"
+      },
+      "secondaries": [
+        {
+          "id": 31070,
+          "name": "Valley Apartments #1",
+          "evidence": [
+            "name≥88%",
+            "address:86%",
+            "phone"
+          ]
+        },
+        {
+          "id": 31068,
+          "name": "Valley Apartments #2",
+          "evidence": [
+            "name≥88%",
+            "address:93%"
+          ]
+        },
+        {
+          "id": 31066,
+          "name": "Valley Apartments #3",
+          "evidence": [
+            "name≥88%",
+            "address:93%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Gooding, ID",
+      "primary": {
+        "id": 6134,
+        "name": "Gooding Assisted Living"
+      },
+      "secondaries": [
+        {
+          "id": 6136,
+          "name": "Gooding Memory Care",
+          "evidence": [
+            "name≥88%",
+            "address:83%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Halifax, NS",
+      "primary": {
+        "id": 59056,
+        "name": "Halifax Lodge"
+      },
+      "secondaries": [
+        {
+          "id": 59072,
+          "name": "Halifax Lodge",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 57893,
+          "name": "Halifax Lodge",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 57921,
+          "name": "Halifax Lodge",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Halifax, NS",
+      "primary": {
+        "id": 59090,
+        "name": "Halifax Woods"
+      },
+      "secondaries": [
+        {
+          "id": 59085,
+          "name": "Halifax Woods",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 59077,
+          "name": "Halifax Woods",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 59053,
+          "name": "Halifax Woods",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Campbelltown, NSW",
+      "primary": {
+        "id": 72865,
+        "name": "Domain Aged Care Campbelltown South"
+      },
+      "secondaries": [
+        {
+          "id": 72866,
+          "name": "Domain Aged Care Campbelltown South",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 72873,
+          "name": "Domain Aged Care Campbelltown South",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Toronto, ON",
+      "primary": {
+        "id": 55386,
+        "name": "Sunset Gardens - Toronto #20"
+      },
+      "secondaries": [
+        {
+          "id": 55391,
+          "name": "Sunset Place - Toronto #25",
+          "evidence": [
+            "name≥88%",
+            "address:83%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Brisbane CBD, QLD",
+      "primary": {
+        "id": 73440,
+        "name": "Christadelphian Aged Care Brisbane CBD North"
+      },
+      "secondaries": [
+        {
+          "id": 73447,
+          "name": "Christadelphian Aged Care Brisbane CBD East",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        },
+        {
+          "id": 73441,
+          "name": "Christadelphian Aged Care Brisbane CBD North",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Brisbane CBD, QLD",
+      "primary": {
+        "id": 73448,
+        "name": "McKenzie Aged Care Brisbane CBD North"
+      },
+      "secondaries": [
+        {
+          "id": 73453,
+          "name": "McKenzie Aged Care Brisbane CBD South",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        },
+        {
+          "id": 73442,
+          "name": "McKenzie Aged Care Brisbane CBD South",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Adelaide CBD, SA",
+      "primary": {
+        "id": 74018,
+        "name": "Anglicare Adelaide CBD East"
+      },
+      "secondaries": [
+        {
+          "id": 74024,
+          "name": "Anglicare Adelaide CBD West",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        },
+        {
+          "id": 74021,
+          "name": "Anglicare Adelaide CBD West",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        },
+        {
+          "id": 74011,
+          "name": "Anglicare Adelaide CBD West",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Moose Jaw, SK",
+      "primary": {
+        "id": 58971,
+        "name": "Moose Jaw Heights"
+      },
+      "secondaries": [
+        {
+          "id": 58972,
+          "name": "Moose Jaw Heights",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Kelowna, BC",
+      "primary": {
+        "id": 58785,
+        "name": "Kelowna Lodge"
+      },
+      "secondaries": [
+        {
+          "id": 57622,
+          "name": "Kelowna Lodge",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 57611,
+          "name": "Kelowna Lodge",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Redding, CA",
+      "primary": {
+        "id": 282,
+        "name": "Shasta Estates Senior Living"
+      },
+      "secondaries": [
+        {
+          "id": 75234,
+          "name": "Shasta Estates",
+          "evidence": [
+            "name≥88%",
+            "phone"
+          ]
+        },
+        {
+          "id": 70638,
+          "name": "Shasta Estates Senior Living",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Sunnyvale, CA",
+      "primary": {
+        "id": 2342,
+        "name": "Atria Senior Living Sunnyvale"
+      },
+      "secondaries": [
+        {
+          "id": 70478,
+          "name": "Atria Sunnyvale",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Warner Robins, GA",
+      "primary": {
+        "id": 6885,
+        "name": "Houston Care Center"
+      },
+      "secondaries": [
+        {
+          "id": 6881,
+          "name": "Houston Care Center",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 6890,
+          "name": "Houston Manor",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Cascade, ID",
+      "primary": {
+        "id": 6100,
+        "name": "Cascade Gardens"
+      },
+      "secondaries": [
+        {
+          "id": 6103,
+          "name": "Cascade Gardens",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Cascade, ID",
+      "primary": {
+        "id": 6102,
+        "name": "Valley Manor"
+      },
+      "secondaries": [
+        {
+          "id": 6101,
+          "name": "Valley Manor",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Malad City, ID",
+      "primary": {
+        "id": 6155,
+        "name": "Malad City Gardens"
+      },
+      "secondaries": [
+        {
+          "id": 6154,
+          "name": "Malad City Gardens",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Orofino, ID",
+      "primary": {
+        "id": 6087,
+        "name": "Clearwater Memory Care"
+      },
+      "secondaries": [
+        {
+          "id": 6083,
+          "name": "Clearwater Memory Care",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Payette, ID",
+      "primary": {
+        "id": 6111,
+        "name": "Payette Springs Senior Care"
+      },
+      "secondaries": [
+        {
+          "id": 6110,
+          "name": "Payette Springs Senior Care",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Soda Springs, ID",
+      "primary": {
+        "id": 6168,
+        "name": "Caribou Memory Care"
+      },
+      "secondaries": [
+        {
+          "id": 6167,
+          "name": "Caribou Memory Care",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Hamilton, ON",
+      "primary": {
+        "id": 55464,
+        "name": "Garden Place - Hamilton #13"
+      },
+      "secondaries": [
+        {
+          "id": 55462,
+          "name": "Park Place Hamilton #11",
+          "evidence": [
+            "name≥88%",
+            "address:82%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Kingston, ON",
+      "primary": {
+        "id": 58317,
+        "name": "Kingston Square"
+      },
+      "secondaries": [
+        {
+          "id": 58327,
+          "name": "Kingston Square",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 58333,
+          "name": "Kingston Square",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Owen Sound, ON",
+      "primary": {
+        "id": 54544,
+        "name": "Extendicare Owen Sound"
+      },
+      "secondaries": [
+        {
+          "id": 54546,
+          "name": "Extendicare Owen Sound",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Dollard-Des Ormeaux, QC",
+      "primary": {
+        "id": 59526,
+        "name": "Manoir des Érables"
+      },
+      "secondaries": [
+        {
+          "id": 59515,
+          "name": "Manoir des Érables",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 59512,
+          "name": "Manoir des Érables",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Levis, QC",
+      "primary": {
+        "id": 59460,
+        "name": "Manoir de la Paix"
+      },
+      "secondaries": [
+        {
+          "id": 59461,
+          "name": "Manoir de la Paix",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 59485,
+          "name": "Manoir de la Paix",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Levis, QC",
+      "primary": {
+        "id": 59477,
+        "name": "Résidence des Érables"
+      },
+      "secondaries": [
+        {
+          "id": 59464,
+          "name": "Résidence des Érables",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 59474,
+          "name": "Résidence des Érables",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Saguenay, QC",
+      "primary": {
+        "id": 57329,
+        "name": "Résidence de la Paix"
+      },
+      "secondaries": [
+        {
+          "id": 57343,
+          "name": "Résidence de la Paix",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 57335,
+          "name": "Résidence de la Paix",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Saint-Jerome, QC",
+      "primary": {
+        "id": 59493,
+        "name": "Villa des Érables"
+      },
+      "secondaries": [
+        {
+          "id": 59496,
+          "name": "Villa des Érables",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 59499,
+          "name": "Villa des Érables",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Brisbane CBD, QLD",
+      "primary": {
+        "id": 73456,
+        "name": "Mercy Health Brisbane CBD West"
+      },
+      "secondaries": [
+        {
+          "id": 73445,
+          "name": "Mercy Health Brisbane CBD West",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 73443,
+          "name": "Mercy Health Brisbane CBD West",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Brisbane CBD, QLD",
+      "primary": {
+        "id": 73451,
+        "name": "Southern Cross Care Brisbane CBD South"
+      },
+      "secondaries": [
+        {
+          "id": 73454,
+          "name": "Southern Cross Care Brisbane CBD South",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Gold Coast, QLD",
+      "primary": {
+        "id": 73484,
+        "name": "Estia Health Gold Coast North"
+      },
+      "secondaries": [
+        {
+          "id": 73488,
+          "name": "Estia Health Gold Coast North",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 73483,
+          "name": "Estia Health Gold Coast South",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Berri, SA",
+      "primary": {
+        "id": 74623,
+        "name": "Japara Berri East"
+      },
+      "secondaries": [
+        {
+          "id": 74621,
+          "name": "Japara Berri East",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Launceston, TAS",
+      "primary": {
+        "id": 74239,
+        "name": "McKenzie Aged Care Launceston East"
+      },
+      "secondaries": [
+        {
+          "id": 74238,
+          "name": "McKenzie Aged Care Launceston East",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 74227,
+          "name": "McKenzie Aged Care Launceston West",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Houston, TX",
+      "primary": {
+        "id": 51498,
+        "name": "Belmont Village Senior Living Hunters Creek"
+      },
+      "secondaries": [
+        {
+          "id": 71790,
+          "name": "Belmont Village Senior Living Hunters Creek",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Houston, TX",
+      "primary": {
+        "id": 71045,
+        "name": "Belmont Village West University"
+      },
+      "secondaries": [
+        {
+          "id": 51464,
+          "name": "Belmont Village West University",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Ballarat, VIC",
+      "primary": {
+        "id": 73186,
+        "name": "Warrigal Ballarat East"
+      },
+      "secondaries": [
+        {
+          "id": 73181,
+          "name": "Warrigal Ballarat East",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 73180,
+          "name": "Warrigal Ballarat West",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Frankston, VIC",
+      "primary": {
+        "id": 73233,
+        "name": "McKenzie Aged Care Frankston"
+      },
+      "secondaries": [
+        {
+          "id": 73218,
+          "name": "McKenzie Aged Care Frankston",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 73224,
+          "name": "McKenzie Aged Care Frankston",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Geelong, VIC",
+      "primary": {
+        "id": 73158,
+        "name": "McKenzie Aged Care Geelong North"
+      },
+      "secondaries": [
+        {
+          "id": 73162,
+          "name": "McKenzie Aged Care Geelong North",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 73164,
+          "name": "McKenzie Aged Care Geelong North",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Shepparton, VIC",
+      "primary": {
+        "id": 72487,
+        "name": "Mercy Health Shepparton"
+      },
+      "secondaries": [
+        {
+          "id": 73404,
+          "name": "Mercy Health Shepparton",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 73398,
+          "name": "Mercy Health Shepparton",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Swan Hill, VIC",
+      "primary": {
+        "id": 74520,
+        "name": "Baptcare Swan Hill East"
+      },
+      "secondaries": [
+        {
+          "id": 74519,
+          "name": "Baptcare Swan Hill East",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 74515,
+          "name": "Baptcare Swan Hill West",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Karratha, WA",
+      "primary": {
+        "id": 73905,
+        "name": "Christadelphian Aged Care Karratha East"
+      },
+      "secondaries": [
+        {
+          "id": 73904,
+          "name": "Christadelphian Aged Care Karratha East",
+          "evidence": [
+            "exact_name"
+          ]
+        },
+        {
+          "id": 73909,
+          "name": "Christadelphian Aged Care Karratha West",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Los Angeles, CA",
+      "primary": {
+        "id": 51623,
+        "name": "Rayas Paradise Residential Care"
+      },
+      "secondaries": [
+        {
+          "id": 51619,
+          "name": "Rayas Paradise Residential Care",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Redding, CA",
+      "primary": {
+        "id": 306,
+        "name": "Mountain Vistas II Senior Apartments"
+      },
+      "secondaries": [
+        {
+          "id": 293,
+          "name": "Mountain Vistas Senior Apartments",
+          "evidence": [
+            "name≥88%",
+            "website"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Redding, CA",
+      "primary": {
+        "id": 75235,
+        "name": "Quiet Waters (10 Rooms)"
+      },
+      "secondaries": [
+        {
+          "id": 75236,
+          "name": "Quiet Waters (11 Rooms)",
+          "evidence": [
+            "name≥88%",
+            "address:85%",
+            "phone"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Santa Monica, CA",
+      "primary": {
+        "id": 75424,
+        "name": "Berkley East Healthcare Center"
+      },
+      "secondaries": [
+        {
+          "id": 75421,
+          "name": "Berkley West Healthcare Center",
+          "evidence": [
+            "name≥88%",
+            "address:83%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Pompano Beach, FL",
+      "primary": {
+        "id": 71381,
+        "name": "The Preserve at Palm-Aire"
+      },
+      "secondaries": [
+        {
+          "id": 71118,
+          "name": "The Preserve at Palm-Aire",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Atlanta, GA",
+      "primary": {
+        "id": 51646,
+        "name": "Brookdale Senior Living - Atlanta"
+      },
+      "secondaries": [
+        {
+          "id": 51737,
+          "name": "Brookdale Senior Living - Atlanta",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Charlotte, NC",
+      "primary": {
+        "id": 51694,
+        "name": "Charter Senior Living of Charlotte"
+      },
+      "secondaries": [
+        {
+          "id": 71762,
+          "name": "Charter Senior Living of Charlotte",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Austin, TX",
+      "primary": {
+        "id": 71672,
+        "name": "Querencia at Barton Creek"
+      },
+      "secondaries": [
+        {
+          "id": 71066,
+          "name": "Querencia at Barton Creek",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Austin, TX",
+      "primary": {
+        "id": 71687,
+        "name": "Westminster Manor Assisted Living"
+      },
+      "secondaries": [
+        {
+          "id": 71067,
+          "name": "Westminster",
+          "evidence": [
+            "name≥88%",
+            "address:100%",
+            "phone"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Dallas, TX",
+      "primary": {
+        "id": 32187,
+        "name": "High Point Senior Living"
+      },
+      "secondaries": [
+        {
+          "id": 76133,
+          "name": "Highpoint Senior Living",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Fort Worth, TX",
+      "primary": {
+        "id": 51408,
+        "name": "Sunrise Senior Living of Fort Worth"
+      },
+      "secondaries": [
+        {
+          "id": 75280,
+          "name": "Sunrise of Fort Worth",
+          "evidence": [
+            "name≥88%",
+            "phone"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Houston, TX",
+      "primary": {
+        "id": 75507,
+        "name": "Holly Hall Retirement Community"
+      },
+      "secondaries": [
+        {
+          "id": 71780,
+          "name": "Holly Hall",
+          "evidence": [
+            "name≥88%",
+            "address:88%"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Houston, TX",
+      "primary": {
+        "id": 71787,
+        "name": "Pegasus Landing of Tanglewood"
+      },
+      "secondaries": [
+        {
+          "id": 71052,
+          "name": "Pegasus Landing of Tanglewood",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    },
+    {
+      "location": "Houston, TX",
+      "primary": {
+        "id": 71784,
+        "name": "The Doliver of Tanglewood"
+      },
+      "secondaries": [
+        {
+          "id": 71049,
+          "name": "The Doliver of Tanglewood",
+          "evidence": [
+            "exact_name"
+          ]
+        }
+      ]
+    }
+  ]
+}

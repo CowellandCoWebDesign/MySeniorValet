@@ -4,6 +4,40 @@ import { communities } from '../../shared/schema';
 import { eq, and, sql, ilike, or } from 'drizzle-orm';
 import { CANONICAL_BASE_URL } from '../middleware/host-canonical';
 import { findLocationBySlug } from '../../shared/location-seo';
+import { evaluateIndexability } from '../../shared/community-indexability';
+
+/**
+ * City/state-level indexing rule (docs/SEO_INDEXING_ELIGIBILITY.md):
+ * a location page is indexable when ≥1 of its public communities is indexable.
+ * Samples up to 500 public rows — enough to find one indexable community.
+ * IMPORTANT: uses the SAME city normalizer (formatCityName) and predicate
+ * shape as getLocationData so the robots decision is made on the exact row
+ * set the page itself displays.
+ */
+export async function locationHasIndexableCommunity(state: string, city?: string): Promise<boolean> {
+  try {
+    const stateUpper = state.toUpperCase();
+    const base = city
+      ? and(ilike(communities.city, formatCityName(city)), eq(communities.state, stateUpper))
+      : eq(communities.state, stateUpper);
+    const rows = await db
+      .select()
+      .from(communities)
+      .where(
+        and(
+          base,
+          sql`(${communities.isActive} IS NULL OR ${communities.isActive} = true)
+              AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+        )
+      )
+      .limit(500);
+    return rows.some((r) => evaluateIndexability(r).indexable);
+  } catch (err) {
+    // Never noindex a location on a transient error — fail open to index.
+    console.error('[LocationSEO] indexability check failed:', err);
+    return true;
+  }
+}
 
 // Map of state/province codes to full names
 const stateProvinceNames: Record<string, string> = {
@@ -42,8 +76,10 @@ const getCountryFromState = (state: string): string => {
   return 'United States';
 };
 
-// Format city name for display
-const formatCityName = (city: string): string => {
+// Format city name for display — the ONE normalizer for slug→city lookups.
+// Exported so tests can assert that the SSR robots gate and the page data
+// query resolve city slugs identically.
+export const formatCityName = (city: string): string => {
   return city
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -328,6 +364,22 @@ function generateUniqueLocalContent(locationName: string, state: string, country
   `;
 }
 
+/**
+ * JSON endpoint so the client SPA can mirror the location robots decision
+ * (all-UA parity with crawler SSR). GET /api/location-indexability/:state/:city?
+ */
+export async function locationIndexabilityHandler(req: Request, res: Response) {
+  const { state, city } = req.params as { state: string; city?: string };
+  // Same state-code grammar as the SSR route: 2-3 letters, optionally a
+  // hyphenated second segment (Australian codes like AU-SA / AU-WA).
+  if (!state || !/^[a-zA-Z]{2,3}(?:-[a-zA-Z]{2,3})?$/.test(state)) {
+    return res.status(400).json({ error: 'Invalid state' });
+  }
+  const indexable = await locationHasIndexableCommunity(state, city);
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.json({ indexable });
+}
+
 // Generate location data with statistics
 async function getLocationData(state: string, city?: string) {
   try {
@@ -539,6 +591,11 @@ export async function renderSEOLocationPage(req: Request, res: Response, next: N
     return res.status(404).send('Location not found');
   }
   
+  // Location-level indexing eligibility: index only when ≥1 community here is indexable
+  const locationRobots = (await locationHasIndexableCommunity(state, city))
+    ? 'index, follow, max-image-preview:large'
+    : 'noindex, follow';
+
   // For crawlers, serve SEO-optimized HTML
   const { stats, sampleCommunities, nearbyCities, stateName, country } = locationData;
   const locationName = city ? `${locationData.city}, ${stateName}` : stateName;
@@ -659,6 +716,7 @@ export async function renderSEOLocationPage(req: Request, res: Response, next: N
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <meta name="description" content="${description}">
+  <meta name="robots" content="${locationRobots}">
   <link rel="canonical" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}">
   
   ${/* Add hreflang tags for international content */''} 
@@ -811,6 +869,7 @@ export async function renderSEOLocationPage(req: Request, res: Response, next: N
 </html>`;
   
   res.set('Content-Type', 'text/html');
+  res.set('X-Robots-Tag', locationRobots);
   res.send(html);
 }
 

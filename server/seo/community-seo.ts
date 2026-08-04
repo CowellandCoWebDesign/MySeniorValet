@@ -23,6 +23,7 @@ import { eq } from 'drizzle-orm';
 import { LRUCache } from 'lru-cache';
 import { generateCommunitySlug, generateSlug } from '../utils/generate-slug';
 import { CANONICAL_BASE_URL } from '../middleware/host-canonical';
+import { duplicateOfId } from '@shared/community-indexability';
 import {
   type CommunityRow,
   type ShellFragments,
@@ -56,6 +57,32 @@ export function communityStructuredData(
   opts: { description?: string | null; canonicalUrl?: string } = {}
 ) {
   return builders.communityStructuredData(c, CANONICAL_BASE_URL, opts);
+}
+
+/**
+ * When the row is a marked duplicate secondary (duplicate_of:<id> flag), return
+ * the PRIMARY's canonical URL so all surfaces emit rel=canonical → primary.
+ * Returns null for normal rows or when the primary is missing/not public.
+ */
+export async function resolveDuplicateCanonicalUrl(
+  c: CommunityRow,
+  baseUrl: string = CANONICAL_BASE_URL,
+): Promise<string | null> {
+  const primaryId = duplicateOfId(c);
+  if (!primaryId || primaryId === c.id) return null;
+  try {
+    const rows = await db
+      .select()
+      .from(communities)
+      .where(eq(communities.id, primaryId))
+      .limit(1);
+    const primary = rows[0];
+    if (!primary || isCommunityGone(primary)) return null;
+    return builders.communityCanonicalUrl(primary, baseUrl);
+  } catch (err) {
+    console.error('[CommunitySEO] duplicate canonical resolution failed:', err);
+    return null;
+  }
 }
 
 // A community is "gone" (410) when hidden or deactivated — mirrors the sitemap rule.
@@ -124,7 +151,10 @@ export async function injectCommunityMetaIntoShell(reqPath: string, html: string
     const updatedAtMs = community.updatedAt ? new Date(community.updatedAt).getTime() : 0;
     let fragments = fragmentCache.get(cacheKey);
     if (!fragments || fragments.updatedAtMs < updatedAtMs) {
-      fragments = buildShellFragments(community, CANONICAL_BASE_URL);
+      const dupCanonical = await resolveDuplicateCanonicalUrl(community);
+      fragments = buildShellFragments(community, CANONICAL_BASE_URL, {
+        canonicalUrl: dupCanonical || undefined,
+      });
       fragmentCache.set(cacheKey, fragments);
     }
 

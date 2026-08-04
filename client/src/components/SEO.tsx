@@ -54,8 +54,9 @@ export function SEO({
       <meta name="keywords" content={`${keywords}${locationKeywords}`} />
       
       {/* Control indexing */}
-      <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
-      <meta name="googlebot" content={noindex ? "noindex, nofollow" : "index, follow"} />
+      {/* noindex,FOLLOW — thin pages stay out of the index but their links are still crawled (docs/SEO_INDEXING_ELIGIBILITY.md) */}
+      <meta name="robots" content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+      <meta name="googlebot" content={noindex ? "noindex, follow" : "index, follow"} />
       
       {/* Canonical URL - always include for SEO */}
       <link rel="canonical" href={finalCanonicalUrl} />

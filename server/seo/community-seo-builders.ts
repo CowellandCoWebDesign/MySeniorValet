@@ -8,6 +8,7 @@
  */
 import { communities } from '@shared/schema';
 import { generateCommunitySlug, generateSlug } from '../utils/generate-slug';
+import { communityRobotsDirective } from '@shared/community-indexability';
 
 export type CommunityRow = typeof communities.$inferSelect;
 
@@ -190,8 +191,16 @@ export interface ShellFragments {
   updatedAtMs: number;
 }
 
-export function buildShellFragments(c: CommunityRow, baseUrl: string): ShellFragments {
-  const canonicalUrl = communityCanonicalUrl(c, baseUrl);
+export function buildShellFragments(
+  c: CommunityRow,
+  baseUrl: string,
+  opts: { canonicalUrl?: string } = {}
+): ShellFragments {
+  // Duplicate secondaries canonicalize to their primary (opts.canonicalUrl).
+  const canonicalUrl = opts.canonicalUrl || communityCanonicalUrl(c, baseUrl);
+  // Indexing eligibility (docs/SEO_INDEXING_ELIGIBILITY.md): thin/unconfirmed
+  // pages stay reachable but are noindex,follow on EVERY surface.
+  const robots = communityRobotsDirective(c);
   const title = `${c.name} | ${c.city}, ${c.state} | MySeniorValet`;
   const description = buildCommunityMetaDescription(c);
   const pricing = buildCommunityPricing(c);
@@ -203,7 +212,7 @@ export function buildShellFragments(c: CommunityRow, baseUrl: string): ShellFrag
   const head = `
     <title>${escapeHtml(title)}</title>
     <meta data-ssr-meta="community" name="description" content="${escapeHtml(description)}" />
-    <meta data-ssr-meta="community" name="robots" content="index, follow, max-image-preview:large" />
+    <meta data-ssr-meta="community" name="robots" content="${escapeHtml(robots)}" />
     <link data-ssr-meta="community" rel="canonical" href="${escapeHtml(canonicalUrl)}" />
     <meta data-ssr-meta="community" property="og:type" content="business.business" />
     <meta data-ssr-meta="community" property="og:url" content="${escapeHtml(canonicalUrl)}" />

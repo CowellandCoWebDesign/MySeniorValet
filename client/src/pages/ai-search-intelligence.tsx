@@ -185,6 +185,25 @@ export default function AISearchIntelligence() {
   // Location SEO hook
   const { location, isLocationPage, locationContent } = useLocationSEO();
   const { isAuthenticated } = useAuth();
+
+  // Mirror the server-side location robots decision on the client (all-UA
+  // parity with crawler SSR — docs/SEO_INDEXING_ELIGIBILITY.md). Only fires
+  // on /senior-living/:state/:city? paths.
+  // State grammar matches SSR: 2-3 letters, optional hyphenated second
+  // segment for Australian codes (AU-SA, AU-WA).
+  const seniorLivingMatch = window.location.pathname.match(/^\/senior-living\/([a-zA-Z]{2,3}(?:-[a-zA-Z]{2,3})?)(?:\/([^/]+))?\/?$/);
+  const { data: locationIndexability } = useQuery<{ indexable: boolean }>({
+    queryKey: ['/api/location-indexability', seniorLivingMatch?.[1] ?? '', seniorLivingMatch?.[2] ?? ''],
+    queryFn: async () => {
+      const res = await fetch(`/api/location-indexability/${seniorLivingMatch![1]}${seniorLivingMatch![2] ? `/${seniorLivingMatch![2]}` : ''}`);
+      if (!res.ok) throw new Error('indexability check failed');
+      return res.json();
+    },
+    enabled: !!seniorLivingMatch,
+    staleTime: 60 * 60 * 1000,
+  });
+  // Fail open to index on missing data — never noindex on a transient error
+  const locationNoindex = locationIndexability ? !locationIndexability.indexable : false;
   
   const [searchQuery, setSearchQuery] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -808,7 +827,7 @@ export default function AISearchIntelligence() {
     <div className="min-h-screen relative">
       {/* Dynamic SEO based on location or default */}
       {isLocationPage && location ? (
-        <LocationSEOHead location={location} pageType="search" />
+        <LocationSEOHead location={location} pageType="search" noindex={locationNoindex} />
       ) : window.location.pathname.startsWith('/senior-living/') ? (
         <SEOMetaTags
           title="Senior Living Communities - Compare Pricing & Availability"
@@ -816,6 +835,7 @@ export default function AISearchIntelligence() {
           url={window.location.pathname}
           canonical={`https://www.myseniorvalet.com${window.location.pathname.replace(/\/+$/, '')}`}
           type="website"
+          noindex={locationNoindex}
         />
       ) : (
         <SEOMetaTags

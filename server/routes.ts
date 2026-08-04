@@ -898,6 +898,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // at the SAME canonical URL — no redirect away from /senior-living/... paths)
   const seoLocationPages = await import('./routes/seo-location-pages');
   app.get('/senior-living/:state/:city?', seoLocationPages.renderSEOLocationPage);
+  // Client SPA mirrors the location robots decision through this endpoint
+  app.get('/api/location-indexability/:state/:city?', seoLocationPages.locationIndexabilityHandler);
 
   // Legacy query-string location URLs collapse onto the clean path family:
   // /ai-search-intelligence?location=... 301s to /senior-living/{state}/{city?}

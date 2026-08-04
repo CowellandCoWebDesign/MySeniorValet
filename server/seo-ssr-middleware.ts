@@ -76,9 +76,11 @@ import { eq, and, sql } from 'drizzle-orm';
 import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
 import { CANONICAL_BASE_URL } from './middleware/host-canonical';
+import { communityRobotsDirective } from '@shared/community-indexability';
 import {
   findCommunityBySlugUrl,
   isCommunityGone,
+  resolveDuplicateCanonicalUrl,
   buildCommunityPricing,
   communityBreadcrumbs,
   breadcrumbJsonLd,
@@ -351,7 +353,12 @@ export async function generateCommunityHTMLById(
     const stateSlug = community.stateSlug || generateSlug(community.state);
     const citySlugVal = community.citySlug || generateSlug(community.city);
     const nameSlug = community.slug || generateCommunitySlug(community);
-    const canonicalUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
+    // Duplicate secondaries canonicalize to their primary record.
+    const dupCanonical = await resolveDuplicateCanonicalUrl(community, baseUrl);
+    const canonicalUrl = dupCanonical || `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
+    // Indexing eligibility (docs/SEO_INDEXING_ELIGIBILITY.md) — must agree with
+    // the all-UA shell injection and the X-Robots-Tag header set by the caller.
+    const robotsDirective = communityRobotsDirective(community);
     
     // Pricing strictly from real DB values — never emit "Contact for pricing"
     // when numeric pricing exists; verification date only when real data exists.
@@ -417,7 +424,7 @@ export async function generateCommunityHTMLById(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${escapeHtml(community.name)} | ${escapeHtml(community.city)}, ${escapeHtml(community.state)} | MySeniorValet</title>
   <meta name="description" content="${metaDescription}">
-  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="robots" content="${escapeHtml(robotsDirective)}">
   
   <!-- Open Graph tags -->
   <meta property="og:title" content="${escName} - Senior Living in ${escCity}, ${escState}">
@@ -652,7 +659,7 @@ export function seoSSRMiddleware() {
       if (isCacheValid) {
         console.log(`✅ Serving cached HTML for community ${communityId} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(cached.html);
       }
@@ -672,7 +679,7 @@ export function seoSSRMiddleware() {
         console.log(`✅ Generated and cached HTML for community ${communityId} (updatedAt: ${community.updatedAt}) to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(html);
       }
@@ -706,7 +713,7 @@ export function seoSSRMiddleware() {
       if (isCacheValid) {
         console.log(`✅ Serving cached HTML for ${state}/${city}/${slug} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(cached.html);
       }
@@ -726,7 +733,7 @@ export function seoSSRMiddleware() {
         console.log(`✅ Generated and cached HTML for ${state}/${city}/${slug} (updatedAt: ${community.updatedAt}) to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(html);
       }

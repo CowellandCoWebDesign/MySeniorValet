@@ -3,8 +3,91 @@ import { db } from './db';
 import { communities } from '../shared/schema';
 import { sql, eq, and } from 'drizzle-orm';
 import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
+import { evaluateIndexability } from '../shared/community-indexability';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+
+// ─── Indexable-community loader (docs/SEO_INDEXING_ELIGIBILITY.md) ──────────
+// Sitemaps list ONLY pages that pass the indexing eligibility bar. Rows are
+// loaded once with the columns the evaluator needs and cached briefly so the
+// index, locations, and community pages all agree within one build cycle.
+
+interface IndexableRow {
+  id: number;
+  name: string;
+  city: string | null;
+  state: string | null;
+  slug: string | null;
+  citySlug: string | null;
+  stateSlug: string | null;
+  updatedAt: Date | null;
+}
+
+let indexableRowsCache: { rows: IndexableRow[]; loadedAt: number } | null = null;
+const INDEXABLE_ROWS_TTL = 10 * 60 * 1000; // 10 min — sitemap XML has its own 24h cache
+
+async function loadIndexableCommunityRows(): Promise<IndexableRow[]> {
+  if (indexableRowsCache && Date.now() - indexableRowsCache.loadedAt < INDEXABLE_ROWS_TTL) {
+    return indexableRowsCache.rows;
+  }
+  // Only public rows; the eligibility function decides index vs noindex.
+  const rows = await db
+    .select({
+      id: communities.id,
+      name: communities.name,
+      city: communities.city,
+      state: communities.state,
+      slug: communities.slug,
+      citySlug: communities.citySlug,
+      stateSlug: communities.stateSlug,
+      updatedAt: communities.updatedAt,
+      isActive: communities.isActive,
+      isHidden: communities.isHidden,
+      description: communities.description,
+      photos: communities.photos,
+      careTypes: communities.careTypes,
+      communitySubtype: communities.communitySubtype,
+      dataQualityFlags: communities.dataQualityFlags,
+      website: communities.website,
+      phone: communities.phone,
+      data_source: communities.data_source, // schema key is snake_case for this column
+      isVerified: communities.isVerified,
+      facilityType: communities.facilityType,
+      isClaimed: communities.isClaimed,
+      claimVerified: communities.claimVerified,
+      isFeaturedBrand: communities.isFeaturedBrand,
+      subscriptionTier: communities.subscriptionTier,
+      hudPropertyId: communities.hudPropertyId,
+      rentPerMonth: communities.rentPerMonth,
+      priceRange: communities.priceRange,
+      licenseNumber: communities.licenseNumber,
+      reviewCount: communities.reviewCount,
+      googleReviewCount: communities.googleReviewCount,
+      yelpReviewCount: communities.yelpReviewCount,
+    })
+    .from(communities)
+    .where(
+      sql`(${communities.isActive} IS NULL OR ${communities.isActive} = true)
+          AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+    )
+    .orderBy(communities.id);
+
+  const indexable = rows
+    .filter((r) => evaluateIndexability(r).indexable)
+    .map((r) => ({
+      id: r.id,
+      name: r.name,
+      city: r.city,
+      state: r.state,
+      slug: r.slug,
+      citySlug: r.citySlug,
+      stateSlug: r.stateSlug,
+      updatedAt: r.updatedAt,
+    }));
+  indexableRowsCache = { rows: indexable, loadedAt: Date.now() };
+  console.log(`[Sitemap] ${indexable.length} indexable communities (of ${rows.length} public)`);
+  return indexable;
+}
 
 const SITEMAP_LIMIT = 10000;
 const BASE_URL = process.env.SITE_URL || 'https://www.myseniorvalet.com';
@@ -150,24 +233,21 @@ async function buildLocationsSitemapXml(): Promise<string> {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-  // Top cities — only active, non-hidden communities count toward coverage threshold
-  const cities = await db
-    .select({
-      city: communities.city,
-      state: communities.state,
-      count: sql<number>`COUNT(*)`,
-    })
-    .from(communities)
-    .where(
-      sql`${communities.city} IS NOT NULL
-          AND ${communities.state} IS NOT NULL
-          AND (${communities.isActive} IS NULL OR ${communities.isActive} = true)
-          AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
-    )
-    .groupBy(communities.city, communities.state)
-    .having(sql`COUNT(*) >= 2`)
-    .orderBy(sql`COUNT(*) DESC`)
-    .limit(5000);
+  // Top cities — only INDEXABLE communities count toward the coverage threshold
+  // (city pages with zero indexable communities are noindex and stay out).
+  const indexableRows = await loadIndexableCommunityRows();
+  const cityCounts = new Map<string, { city: string; state: string; count: number }>();
+  for (const r of indexableRows) {
+    if (!r.city || !r.state) continue;
+    const key = `${r.city}|${r.state}`;
+    const entry = cityCounts.get(key);
+    if (entry) entry.count++;
+    else cityCounts.set(key, { city: r.city, state: r.state, count: 1 });
+  }
+  const cities = Array.from(cityCounts.values())
+    .filter((c) => c.count >= 2)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5000);
 
   for (const { city, state, count } of cities) {
     if (city && state) {
@@ -208,26 +288,9 @@ async function buildCommunitiesSitemapXml(page: number): Promise<string | null> 
 
   const offset = (page - 1) * SITEMAP_LIMIT;
 
-  // Only include active, non-hidden communities (Golden Data Rule)
-  const communitiesData = await db
-    .select({
-      id: communities.id,
-      name: communities.name,
-      state: communities.state,
-      city: communities.city,
-      slug: communities.slug,
-      citySlug: communities.citySlug,
-      stateSlug: communities.stateSlug,
-      updatedAt: communities.updatedAt,
-    })
-    .from(communities)
-    .where(
-      sql`(${communities.isActive} IS NULL OR ${communities.isActive} = true)
-          AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
-    )
-    .limit(SITEMAP_LIMIT)
-    .offset(offset)
-    .orderBy(communities.id);
+  // Only INDEXABLE communities (active + non-hidden + pass the eligibility bar)
+  const allRows = await loadIndexableCommunityRows();
+  const communitiesData = allRows.slice(offset, offset + SITEMAP_LIMIT);
 
   if (communitiesData.length === 0) {
     return null; // No communities for this page
@@ -262,16 +325,8 @@ async function buildSitemapIndexXml(): Promise<string> {
   const cached = await getCachedSitemap(cacheKey);
   if (cached) return cached;
 
-  // Count only active, non-hidden communities
-  const countResult = await db
-    .select({ count: sql<number>`COUNT(*)` })
-    .from(communities)
-    .where(
-      sql`(${communities.isActive} IS NULL OR ${communities.isActive} = true)
-          AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
-    );
-
-  const totalCommunities = Number(countResult[0]?.count || 0);
+  // Count only INDEXABLE communities (matches the community sitemap pages)
+  const totalCommunities = (await loadIndexableCommunityRows()).length;
   const totalPages = Math.ceil(totalCommunities / SITEMAP_LIMIT);
   const today = new Date().toISOString().split('T')[0];
 
@@ -313,15 +368,8 @@ export async function prewarmSitemapCaches(): Promise<void> {
       buildLocationsSitemapXml().catch(e => console.error('[Sitemap] locations warmup failed:', e)),
     ]);
 
-    // Determine how many community pages exist and warm them all
-    const countResult = await db
-      .select({ count: sql<number>`COUNT(*)` })
-      .from(communities)
-      .where(
-        sql`(${communities.isActive} IS NULL OR ${communities.isActive} = true)
-            AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
-      );
-    const total = Number(countResult[0]?.count || 0);
+    // Determine how many INDEXABLE community pages exist and warm them all
+    const total = (await loadIndexableCommunityRows()).length;
     const totalPages = Math.max(1, Math.ceil(total / SITEMAP_LIMIT));
 
     // Warm pages sequentially to avoid hammering the DB

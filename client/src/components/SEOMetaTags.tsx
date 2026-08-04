@@ -86,8 +86,9 @@ export function SEOMetaTags({
       {/* Canonical URL */}
       {canonical && <link rel="canonical" href={canonical} />}
       
-      {/* Robots Meta */}
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      {/* Robots Meta — noindex,FOLLOW: thin pages stay out of the index but
+          their links are still crawled (docs/SEO_INDEXING_ELIGIBILITY.md) */}
+      {noindex && <meta name="robots" content="noindex, follow" />}
       
       {/* Open Graph Meta Tags */}
       <meta property="og:title" content={enhancedTitle} />
