@@ -21,6 +21,14 @@ npx tsx server/scripts/sanitize-community-websites.ts \
 npx tsx server/scripts/restore-screened-senior-communities.ts --max-seconds=25 \
   || echo "WARN: screened-senior restore pass failed (non-fatal, re-runs next merge)"
 
+# Task #440: adjudicated review of the website-identity mismatch cohort
+# (603 public records from the Task #438 sweep). Idempotent — after the first
+# apply the sweep re-scan finds only KEEP-bucket rows and writes nothing.
+# MUST also be run once against the PRODUCTION DATABASE_URL (data doesn't merge):
+#   npx tsx server/scripts/review-website-mismatches-440.ts
+npx tsx server/scripts/review-website-mismatches-440.ts \
+  || echo "WARN: website-mismatch review pass failed (non-fatal, re-runs next merge)"
+
 # NOTE: The community classify/score/quarantine data pass is intentionally NOT
 # run here. The full reconciliation takes minutes (~87s for ~34k rows) and would
 # blow the post-merge hook's hard 20s timeout, failing every merge's setup. The
