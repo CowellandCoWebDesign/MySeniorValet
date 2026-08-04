@@ -368,10 +368,66 @@ export function isSnakeCaseOnlySource(src: string | null | undefined): boolean {
   return s.length > 0 && /^[a-z_]+$/.test(s);
 }
 
+/**
+ * Seeded/test/demo record fingerprints. A row matching ANY of these must never
+ * be publicly visible, no matter how rich its content looks — future seed
+ * scripts or imports that add test records are auto-hidden by the very next
+ * visibility recompute (evaluateCommunity is called by both the bulk pass and
+ * the per-community self-heal recompute).
+ *
+ * Distinct from the PROTECTIVE `test_data` flag (admin-confirmed quarantine in
+ * server/services/community-visibility.ts): this is the automatic detector.
+ */
+const TEST_NAME_PATTERNS: RegExp[] = [
+  /\btest\b/i,        // "Test Community", "Premium Test Community"
+  /\bdemo\b/i,        // "Demo Senior Living" (\b keeps "Demopolis" safe)
+  /\bsample\b/i,
+  /\bplaceholder\b/i,
+  /\bdo not use\b/i,
+  /\be2e\b/i,
+];
+
+/** Hosts that can never be a real community's own website. */
+const TEST_WEBSITE_HOSTS = [
+  "example.com",
+  "example.org",
+  "example.net",
+  "test.com",
+  "localhost",
+  "myseniorvalet.com", // our own product domain — seeded fakes pointed here
+];
+
+export function looksLikeTestData(community: CommunityClassifyLike): boolean {
+  const name = str(community.name);
+  if (TEST_NAME_PATTERNS.some((p) => p.test(name))) return true;
+
+  const rawSite = str(community.website).trim().toLowerCase();
+  if (rawSite) {
+    if (rawSite.includes("placeholder")) return true;
+    let host = "";
+    try {
+      host = new URL(/^https?:\/\//.test(rawSite) ? rawSite : `https://${rawSite}`)
+        .hostname.replace(/^www\./, "");
+    } catch {
+      /* unparseable — fall through to substring checks below */
+    }
+    const target = host || rawSite;
+    if (
+      TEST_WEBSITE_HOSTS.some(
+        (h) => target === h || target.endsWith(`.${h}`) || (!host && rawSite.includes(h)),
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 /** Quality flags this task OWNS — merged into data_quality_flags without
  *  clobbering flags written by other scanners (e.g. citation_artifact). */
 export const MANAGED_QUALITY_FLAGS = [
   "non_senior",
+  "test_data_suspected",
   "senior_review",
   "clearly_fake",
   "no_photos",
@@ -412,6 +468,7 @@ export function evaluateCommunity(community: CommunityClassifyLike): CommunityEv
   const featured = isFeaturedSignal(community);
   const realContent = photos >= 1 || descLen >= 100;
   const clearlyFake = isClearlyFake(community);
+  const testData = looksLikeTestData(community);
 
   const hasPhone = Boolean(str(community.phone).trim());
   const hasWebsite = Boolean(str(community.website).trim());
@@ -457,6 +514,7 @@ export function evaluateCommunity(community: CommunityClassifyLike): CommunityEv
   const flags: string[] = [];
   if (classification === "non_senior") flags.push("non_senior");
   if (classification === "unknown") flags.push("senior_review");
+  if (testData) flags.push("test_data_suspected");
   if (clearlyFake) flags.push("clearly_fake");
   if (photos === 0) flags.push("no_photos");
   if (descLen === 0) flags.push("no_description");
@@ -490,6 +548,7 @@ export function evaluateCommunity(community: CommunityClassifyLike): CommunityEv
   const screenedThinSenior =
     classification === "senior" && !snakeSource && (hasPhone || ownRealSite);
   const keepPublic =
+    !testData && // seeded/test/demo fingerprints are NEVER public
     classification !== "non_senior" &&
     !trulyEmpty &&
     (meaningfullyVerified || realContent || ownRealSite || screenedThinSenior);

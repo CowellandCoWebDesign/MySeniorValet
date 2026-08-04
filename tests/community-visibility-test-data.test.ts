@@ -19,13 +19,13 @@ jest.mock("../server/db", () => ({ db: {}, pool: {} }));
 function richSeniorRow(overrides: Record<string, any> = {}) {
   return {
     id: 76347,
-    name: "Premium Test Community",
+    name: "Premium Willow Gardens Assisted Living",
     description:
       "A full-service assisted living community offering restaurant-style dining, " +
       "daily activities, transportation, and 24/7 licensed care staff on site.",
     phone: "(555) 123-4567",
-    website: "https://premium-test.example.com",
-    email: "info@example.com",
+    website: "https://premiumwillowgardens.com",
+    email: "info@premiumwillowgardens.com",
     latitude: 34.05,
     longitude: -118.24,
     photos: ["https://example.com/a.jpg", "https://example.com/b.jpg"],
