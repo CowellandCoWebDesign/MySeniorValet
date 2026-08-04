@@ -356,6 +356,45 @@ export function hasRealContent(community: CommunityClassifyLike): boolean {
 }
 
 /**
+ * Boilerplate description fingerprints — machine-templated blurbs stamped onto
+ * whole import batches. Length alone doesn't make these "real research": the
+ * same sentence with a different {city} appears on hundreds of rows, so it
+ * carries no genuine researched content. A description matching ANY of these
+ * does NOT satisfy the public-quality bar (Task: quality-real-research only).
+ */
+const BOILERPLATE_DESCRIPTION_PATTERNS: RegExp[] = [
+  /^quality senior living community in /i,
+  /^premier senior living community in /i,
+  /^hud section 202\b/i,
+  /^low income housing tax credit/i,
+  /^photos extracted from community website/i,
+  /^authentic government-verified/i,
+  // INAPAM (Mexico) registry template — "Residencia geriátrica registrada por
+  // el INAPAM…" / "Centro de día registrada por INAPAM…"
+  /registrad[ao]s? por (el )?inapam/i,
+  /^55\+ manufactured housing community/i,
+  /^active adult community for residents/i,
+  // Enrichment-failure prose persisted as a "description".
+  /no authoritative or detailed information/i,
+  /^\*\*official website:\*\*\s*not found/i,
+];
+
+/** True when the description text is a known machine-templated boilerplate. */
+export function isBoilerplateDescription(description: string | null | undefined): boolean {
+  const d = str(description).trim();
+  if (!d) return false;
+  return BOILERPLATE_DESCRIPTION_PATTERNS.some((p) => p.test(d));
+}
+
+/**
+ * The public-quality description bar: ≥100 chars of GENUINE researched content
+ * (not a batch-templated boilerplate blurb).
+ */
+export function hasRealDescription(community: CommunityClassifyLike): boolean {
+  return descriptionLength(community) >= 100 && !isBoilerplateDescription(community.description);
+}
+
+/**
  * Synthetic-batch fingerprint: machine-generated import batches all used
  * snake_case-only data_source values (e.g. "arizona_government_records"),
  * while real feeds use human-readable labels ("HUD Multifamily Database",
@@ -436,6 +475,11 @@ export const MANAGED_QUALITY_FLAGS = [
   "no_contact",
   "not_geocoded",
   "no_care_types",
+  // Public-quality bar (NON-protective, fully reversible): the row lacks a
+  // real researched description + contact signal, so it is hidden until
+  // enrichment produces genuine content. Auto-cleared by the recompute.
+  "thin_profile",
+  "boilerplate_description",
 ] as const;
 
 export interface CommunityEvaluation {
@@ -523,35 +567,28 @@ export function evaluateCommunity(community: CommunityClassifyLike): CommunityEv
   if (!geocoded) flags.push("not_geocoded");
   if (careTypes.length === 0) flags.push("no_care_types");
 
-  // ── STRICT keep-public decision ────────────────────────────────────────────
-  // "Clearly fake" = name+address only with NO supporting data. The legacy
-  // detector only inspects phone/website/description/data_source, so a listing
-  // that has a real photo OR a meaningful verification is NOT actually fake —
-  // real content / verification overrides it (otherwise a photo-only or
-  // operator-claimed senior community would be wrongly quarantined).
-  const trulyEmpty = clearlyFake && !realContent && !meaningfullyVerified;
-  // A confident senior community whose own real website is on file enriches
-  // correctly the moment it's opened (on-view enrichment), so it is kept public
-  // even before it has photos/description. Templated fakes and aggregator-only
-  // links are excluded by isOwnRealWebsite.
-  const ownRealSite = classification === "senior" && isOwnRealWebsite(community.website);
-  // Screened-real thin senior (July 2026 restore): a senior-classified listing
-  // with a real contact channel (phone OR own real website) that does NOT carry
-  // the snake_case-only synthetic-batch source fingerprint is kept PUBLIC even
-  // when thin. Template-address synthetic batches are excluded via the
-  // protective `synthetic_suspected` flag (cross-row screen — see
-  // server/scripts/restore-screened-senior-communities.ts), which overrides
-  // keepPublic in the visibility writer.
-  const snakeSource = isSnakeCaseOnlySource(
-    community.dataSource ?? community.data_source,
-  );
-  const screenedThinSenior =
-    classification === "senior" && !snakeSource && (hasPhone || ownRealSite);
+  // ── STRICT keep-public decision (public-quality bar, Aug 2026) ────────────
+  // Families must only ever see communities with QUALITY REAL RESEARCH:
+  //   a real description (≥100 chars of genuine researched content — batch-
+  //   templated boilerplate does NOT count) AND at least one contact signal
+  //   (website or phone).
+  // Everything below that bar is hidden with a NON-protective `thin_profile`
+  // flag — fully reversible: the moment enrichment produces a real description
+  // the same recompute flips the row public again and clears the flag.
+  // Meaningful verification (claimed / featured / gov-verified pricing) still
+  // keeps a listing public — an operator-claimed community must not vanish.
+  // Photos are strongly ranked up (see server/utils/community-ranking.ts) but
+  // NOT required until photo enrichment catches up.
+  const boilerplate = isBoilerplateDescription(community.description);
+  const realDescription = descLen >= 100 && !boilerplate;
+  const contactSignal = hasPhone || hasWebsite;
+  const qualityBar = realDescription && contactSignal;
+  if (boilerplate) flags.push("boilerplate_description");
+  if (!qualityBar && !meaningfullyVerified) flags.push("thin_profile");
   const keepPublic =
     !testData && // seeded/test/demo fingerprints are NEVER public
     classification !== "non_senior" &&
-    !trulyEmpty &&
-    (meaningfullyVerified || realContent || ownRealSite || screenedThinSenior);
+    (qualityBar || meaningfullyVerified);
 
   return {
     classification,

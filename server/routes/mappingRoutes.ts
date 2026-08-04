@@ -48,6 +48,7 @@ export function registerMappingRoutes(app: Express) {
         FROM communities
         WHERE latitude IS NOT NULL 
           AND longitude IS NOT NULL
+          AND (is_hidden IS NULL OR is_hidden = false)
           AND latitude BETWEEN ${southFloat} AND ${northFloat}
           AND longitude BETWEEN ${westFloat} AND ${eastFloat}${verifiedClause}${hudClause}
         LIMIT ${parseInt(limit as string)}

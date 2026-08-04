@@ -18,6 +18,49 @@ export const ENRICHMENT_STATUS_VALUES = [
 ] as const;
 
 /**
+ * Startup auto-restore of quality-bar senior communities (Task #350, tightened
+ * by the Task #439 public-quality bar).
+ *
+ * Publishing deploys CODE, not DATA (prod uses a separate DB), so this guarded
+ * UPDATE re-applies the keep-public flip at every boot and lets production
+ * self-heal with no manual step.
+ *
+ * STRICT-SUBSET GUARANTEE: the conditions MUST mirror `evaluateCommunity`'s
+ * keep-public policy (shared/community-classification.ts) — senior + own real
+ * website + a REAL description (≥100 chars, not batch-templated boilerplate) +
+ * NOT a test/demo fingerprint (`looksLikeTestData` equivalents: test/demo/
+ * sample/placeholder/e2e names and test website hosts). Contains-style matches
+ * are deliberately BROADER excluders than the evaluator's checks, so this SQL
+ * can only ever unhide a SUBSET of what the TypeScript evaluator would — never
+ * more. Protected rows (admin-confirmed, synthetic/geo-quarantined, test_data,
+ * or auto-detected test_data_suspected) are never touched.
+ * Exported for the regression test in tests/server/startup-quality-restore.test.ts.
+ */
+export async function runStartupQualityRestore(): Promise<number> {
+  const restore = await db.execute(sql`
+    UPDATE communities
+    SET is_hidden = false
+    WHERE is_hidden = true
+      AND senior_classification = 'senior'
+      AND website IS NOT NULL
+      AND website ~* '^https?://'
+      AND website !~* '-senior-living\\.com'
+      AND website !~* '(aplaceformom|caring|seniorly|senioradvisor|assistedliving|seniorliving|seniorlivingnearme|olera|yelp|facebook|google|wikipedia)\\.'
+      AND website !~* '(example\\.(com|org|net)|test\\.com|localhost|myseniorvalet\\.com|placeholder)'
+      AND name !~* '\\m(test|demo|sample|placeholder|e2e)\\M'
+      AND name !~* 'do not use'
+      AND length(trim(coalesce(description, ''))) >= 100
+      AND trim(description) !~* '^(quality senior living community in |premier senior living community in |hud section 202|low income housing tax credit|photos extracted from community website|authentic government-verified|55\\+ manufactured housing community|active adult community for residents|\\*\\*official website:\\*\\*\\s*not found)'
+      AND description !~* 'registrad[ao]s? por (el )?inapam'
+      AND description !~* 'no authoritative or detailed information'
+      AND (flag_status IS NULL OR flag_status <> 'confirmed')
+      AND NOT (COALESCE(data_quality_flags, ARRAY[]::text[]) && ARRAY['test_data_suspected']::text[])
+      AND NOT (COALESCE(data_quality_flags, ARRAY[]::text[]) && ${sql`ARRAY[${sql.join(PROTECTIVE_FLAG_LIST.map((f) => sql`${f}`), sql`, `)}]::text[]`})
+  `);
+  return (restore as any).rowCount ?? 0;
+}
+
+/**
  * Idempotent startup migration — adds new columns that community trust &
  * moderation features depend on. Safe to run on every server start because
  * every statement uses IF NOT EXISTS / idempotent DDL.
@@ -74,35 +117,15 @@ export async function runStartupMigrations(): Promise<void> {
     ON CONFLICT (key) DO NOTHING
   `);
 
-  // Auto-restore real-website senior communities (Task #350).
+  // Auto-restore quality-bar senior communities (Task #350, tightened by Task
+  // #439's public-quality bar).
   //
-  // The "a confident senior community with its own real website stays public"
-  // rule ships in `evaluateCommunity` (shared/community-classification.ts) via
-  // `isOwnRealWebsite`, but flipping the EXISTING hidden rows only ran on the
-  // working DB. Publishing deploys CODE, not DATA (prod uses a separate DB), so
-  // this guarded UPDATE re-applies that flip at every boot and lets production
-  // self-heal with no manual step.
+  // Publishing deploys CODE, not DATA (prod uses a separate DB), so this
+  // guarded UPDATE re-applies the keep-public flip at every boot and lets
+  // production self-heal with no manual step.
   //
-  // The website exclusions below MUST mirror `isOwnRealWebsite` /
-  // AGGREGATOR_HOSTS in shared/community-classification.ts. Contains-style host
-  // matches are deliberately BROADER than the evaluator's exact-host check, so
-  // this SQL can only ever unhide a SUBSET of what the TypeScript evaluator
-  // would — never more. Protected rows (admin-confirmed or
-  // synthetic/geo-quarantined) are never touched.
-  const restore = await db.execute(sql`
-    UPDATE communities
-    SET is_hidden = false
-    WHERE is_hidden = true
-      AND senior_classification = 'senior'
-      AND website IS NOT NULL
-      AND website ~* '^https?://'
-      AND website !~* '-senior-living\.com'
-      AND website !~* '(aplaceformom|caring|seniorly|senioradvisor|assistedliving|seniorliving|seniorlivingnearme|olera|yelp|facebook|google|wikipedia)\.'
-      AND (flag_status IS NULL OR flag_status <> 'confirmed')
-      AND NOT (COALESCE(data_quality_flags, ARRAY[]::text[]) && ${sql`ARRAY[${sql.join(PROTECTIVE_FLAG_LIST.map((f) => sql`${f}`), sql`, `)}]::text[]`})
-  `);
-  const restoredCount = (restore as any).rowCount ?? 0;
-  console.log(`✅ Auto-restored ${restoredCount} real-website senior communities (Task #350 startup restore)`);
+  const restoredCount = await runStartupQualityRestore();
+  console.log(`✅ Auto-restored ${restoredCount} quality-bar senior communities (startup restore)`);
 
   console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings)');
 }

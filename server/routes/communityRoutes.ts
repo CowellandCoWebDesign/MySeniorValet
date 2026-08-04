@@ -971,7 +971,7 @@ export function registerCommunityRoutes(app: Express) {
       }
 
       const result = await query
-        .orderBy(sql`CAST(${communities.rating} AS DECIMAL) DESC`)
+        .orderBy(qualityOrderBy())
         .limit(parseInt(limit as string))
         .offset(parseInt(offset as string));
 

@@ -25,7 +25,10 @@ import { sql, type SQL } from "drizzle-orm";
  */
 export function qualityRankExpr(): SQL {
   return sql`(
-    CASE lower(coalesce("quality_tier", ''))
+    -- Photo-bearing listings rank FIRST among the public quality set (Task
+    -- #439): the boost outweighs every other term combined (max ~7000).
+    CASE WHEN coalesce(array_length("photos", 1), 0) > 0 THEN 10000 ELSE 0 END
+    + CASE lower(coalesce("quality_tier", ''))
       WHEN 'featured' THEN 5000
       WHEN 'verified' THEN 4000
       WHEN 'good'     THEN 3000

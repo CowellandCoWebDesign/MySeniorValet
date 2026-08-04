@@ -111,25 +111,94 @@ describe("hasRealContent", () => {
   });
 });
 
-describe("evaluateCommunity keepPublic (STRICT + senior-only)", () => {
-  it("keeps a senior listing with real content public", () => {
-    const e = evaluateCommunity({ name: "Sunrise Senior Living", photos: ["a.jpg"] });
+describe("evaluateCommunity keepPublic (public-quality bar: real description + contact)", () => {
+  const realDesc =
+    "Family-owned assisted living residence offering 24-hour caregivers, chef-prepared meals, and a secured memory care wing near downtown.";
+
+  it("keeps a senior listing with a real description AND a phone public", () => {
+    const e = evaluateCommunity({
+      name: "Sunrise Senior Living",
+      description: realDesc,
+      phone: "555-123-4567",
+    });
     expect(e.classification).toBe("senior");
+    expect(e.keepPublic).toBe(true);
+    expect(e.flags).not.toContain("thin_profile");
+  });
+
+  it("keeps a listing with a real description AND a website public", () => {
+    const e = evaluateCommunity({
+      name: "Sunrise Senior Living",
+      description: realDesc,
+      website: "https://sunrise-example.com",
+    });
     expect(e.keepPublic).toBe(true);
   });
 
-  it("hides a non_senior listing even when it has content", () => {
+  it("hides a description-only listing with NO contact signal (thin_profile)", () => {
+    const e = evaluateCommunity({ name: "Sunrise Senior Living", description: realDesc });
+    expect(e.keepPublic).toBe(false);
+    expect(e.flags).toContain("thin_profile");
+  });
+
+  it("hides a 99-char description (boundary) even with contact", () => {
+    const e = evaluateCommunity({
+      name: "Sunrise Senior Living",
+      description: "x".repeat(99),
+      phone: "555-123-4567",
+    });
+    expect(e.keepPublic).toBe(false);
+    expect(e.flags).toContain("thin_profile");
+  });
+
+  it("keeps a 100-char description (boundary) with contact public", () => {
+    const e = evaluateCommunity({
+      name: "Sunrise Senior Living",
+      description: "x".repeat(100),
+      phone: "555-123-4567",
+    });
+    expect(e.keepPublic).toBe(true);
+  });
+
+  it("hides boilerplate-templated descriptions regardless of length", () => {
+    const e = evaluateCommunity({
+      name: "Sunrise Senior Living",
+      description:
+        "Quality senior living community in Thunder Bay, ON. Offering comfortable accommodations and personalized care services for seniors.",
+      phone: "555-123-4567",
+    });
+    expect(e.keepPublic).toBe(false);
+    expect(e.flags).toContain("boilerplate_description");
+    expect(e.flags).toContain("thin_profile");
+  });
+
+  it("hides a photo-only listing (photos rank up, but description is required)", () => {
+    const e = evaluateCommunity({
+      name: "Sunrise Senior Living",
+      photos: ["a.jpg"],
+      phone: "555-123-4567",
+    });
+    expect(e.keepPublic).toBe(false);
+    expect(e.flags).toContain("thin_profile");
+  });
+
+  it("hides a non_senior listing even when it clears the quality bar", () => {
     const e = evaluateCommunity({
       name: "Oakwood Family Apartments",
-      description: "x".repeat(300),
+      description: realDesc,
+      phone: "555-123-4567",
       photos: ["a.jpg", "b.jpg"],
     });
     expect(e.classification).toBe("non_senior");
     expect(e.keepPublic).toBe(false);
   });
 
-  it("keeps an ambiguous unknown listing public when it meets the content bar", () => {
-    const e = evaluateCommunity({ name: "Hilltop Commons", photos: ["a.jpg"] });
+  it("keeps an ambiguous unknown listing public when it clears the quality bar", () => {
+    const e = evaluateCommunity({
+      name: "Hilltop Commons",
+      description: realDesc,
+      website: "https://hilltop-example.com",
+    });
     expect(e.classification).toBe("unknown");
     expect(e.keepPublic).toBe(true);
   });
@@ -137,14 +206,14 @@ describe("evaluateCommunity keepPublic (STRICT + senior-only)", () => {
   it("hides a senior listing that is thin and unverified (no content)", () => {
     const e = evaluateCommunity({ name: "Sunrise Senior Living" });
     expect(e.classification).toBe("senior");
-    expect(e.realContent).toBe(false);
-    expect(e.meaningfullyVerified).toBe(false);
     expect(e.keepPublic).toBe(false);
+    expect(e.flags).toContain("thin_profile");
   });
 
   it("keeps a meaningfully-verified senior listing public even without content", () => {
     const e = evaluateCommunity({ name: "Sunrise Senior Living", isClaimed: true });
     expect(e.keepPublic).toBe(true);
+    expect(e.flags).not.toContain("thin_profile");
   });
 
   it("hides clearly-fake listings", () => {

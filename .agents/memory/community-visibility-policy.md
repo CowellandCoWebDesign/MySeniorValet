@@ -19,7 +19,26 @@ DB writer. Never hand-roll a separate visibility rule.
   additive; the migration must live in BOTH `server/run-migration.ts` and
   `scripts/post-merge-migrations.mjs` (dev + prod).
 
-## Durable decisions (the WHY)
+
+## Public-quality bar (supersedes older keep-public paths)
+- **keepPublic = NOT testData AND classification ≠ non_senior AND
+  (qualityBar OR meaningfullyVerified)** where qualityBar = real description
+  (≥100 chars AND not boilerplate) AND contact signal (phone OR website).
+- **Why:** families kept hitting thin/templated profiles; the public catalog is
+  quality-real-research only. Photos rank up (large boost in the ranking
+  helpers) but are NOT required until photo coverage grows.
+- **Boilerplate** = batch-templated blurbs stamped across whole imports (same
+  sentence, different {city}) — length alone is not "real research"; detector
+  is `isBoilerplateDescription()`. New import templates must be added there.
+- Rows failing the bar get NON-protective `thin_profile` /
+  `boilerplate_description` managed flags — auto-cleared and auto-restored by
+  the canonical recompute once genuine content arrives.
+- **How to apply:** any raw-SQL restore path (e.g. the boot-time startup
+  restore) must remain a STRICT SUBSET of `evaluateCommunity` — including the
+  test-data name/host exclusions — or it silently re-publishes hidden rows on
+  every boot. A guard test + a tsx DB integration script enforce this.
+
+## Older durable decisions (partly superseded above)
 - **STRICT keep-public** = `(meaningfullyVerified OR realContent OR ownRealSite)
   AND classification ∈ {senior, unknown} AND NOT clearlyFake`. realContent = ≥1
   photo OR ≥100-char desc. `non_senior` is ALWAYS hidden, even with content.
