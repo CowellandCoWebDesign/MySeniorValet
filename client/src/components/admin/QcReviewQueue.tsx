@@ -48,6 +48,7 @@ import {
   ImageIcon,
   FileText,
   Filter,
+  UserCheck,
 } from "lucide-react";
 
 interface QcCommunity {
@@ -148,6 +149,7 @@ export function QcReviewQueue() {
   const [confirmBulk, setConfirmBulk] = useState<null | { action: QcAction; ids: number[] }>(null);
   const [removalTarget, setRemovalTarget] = useState<QcCommunity | null>(null);
   const [bulkRemoval, setBulkRemoval] = useState<null | QcCommunity[]>(null);
+  const [adoptTarget, setAdoptTarget] = useState<QcCommunity | null>(null);
 
   const queryString = buildQueryString({
     reason,
@@ -558,6 +560,7 @@ export function QcReviewQueue() {
                       clearProtectiveFlags: ["identity_suspect"],
                     })
                   }
+                  onAdoptIdentity={() => setAdoptTarget(c)}
                   onRemoval={() => setRemovalTarget(c)}
                   disabled={isActing}
                 />
@@ -640,7 +643,167 @@ export function QcReviewQueue() {
           setSelected(new Set());
         }}
       />
+
+      {/* Adopt candidate real identity (Task #441) — deliberate rename after
+          reviewing the identity-suspect evidence; clears the flag + mismatch
+          history and re-runs enrichment under the adopted identity. */}
+      <AdoptIdentityDialog
+        community={adoptTarget}
+        onClose={() => setAdoptTarget(null)}
+        onAdopted={() => {
+          setAdoptTarget(null);
+          queryClient.invalidateQueries({ queryKey: ["/api/admin/communities/qc-queue"] });
+        }}
+      />
     </div>
+  );
+}
+
+/** Best-effort suggested name from the candidate-identity URL host, e.g.
+ *  "aieaheightsseniorliving.com" → "Aiea Heights Senior Living" is beyond a
+ *  machine's confidence — so we only title-case the host words as a STARTING
+ *  point the admin must review and edit. */
+function suggestNameFromUrl(url: string | null | undefined): string {
+  if (!url) return "";
+  try {
+    const host = new URL(/^https?:\/\//i.test(url) ? url : `https://${url}`).hostname
+      .replace(/^www\./, "")
+      .split(".")[0];
+    return host
+      .replace(/[-_]+/g, " ")
+      .replace(/\b\w/g, (m) => m.toUpperCase());
+  } catch {
+    return "";
+  }
+}
+
+function AdoptIdentityDialog({
+  community,
+  onClose,
+  onAdopted,
+}: {
+  community: QcCommunity | null;
+  onClose: () => void;
+  onAdopted: () => void;
+}) {
+  const { toast } = useToast();
+  const c = community;
+  const candidate = c?.identity_evidence?.candidateIdentity ?? "";
+  const [name, setName] = useState("");
+  const [website, setWebsite] = useState("");
+  const [phone, setPhone] = useState("");
+  // Re-seed the form each time a new community is chosen.
+  const [seededFor, setSeededFor] = useState<number | null>(null);
+  if (c && seededFor !== c.id) {
+    setSeededFor(c.id);
+    setName(suggestNameFromUrl(candidate));
+    setWebsite(candidate || c.website || "");
+    setPhone(c.phone || "");
+  }
+
+  const adoptMutation = useMutation({
+    mutationFn: async () => {
+      if (!c) return;
+      const res = await apiRequest("POST", `/api/admin/communities/${c.id}/adopt-identity`, {
+        name: name.trim(),
+        ...(website.trim() ? { website: website.trim() } : {}),
+        ...(phone.trim() ? { phone: phone.trim() } : {}),
+      });
+      return res;
+    },
+    onSuccess: (result: any) => {
+      toast({
+        title: "Identity adopted",
+        description: `Renamed to "${result?.name ?? name.trim()}"${
+          result?.enrichment?.contentSaved
+            ? " — fresh enrichment saved."
+            : " — enrichment ran but found no new content yet."
+        }${result?.restored ? " Listing auto-restored to public." : ""}`,
+      });
+      onAdopted();
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Adopt identity failed",
+        description: err?.message || "Could not adopt the identity.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const canSubmit = name.trim().length >= 3 && !adoptMutation.isPending;
+
+  return (
+    <Dialog open={!!c} onOpenChange={(open) => !open && !adoptMutation.isPending && onClose()}>
+      <DialogContent className="sm:max-w-[520px]">
+        <DialogHeader>
+          <DialogTitle>Adopt real identity</DialogTitle>
+          <DialogDescription>
+            Rename “{c?.name}” to its reviewed real identity. This updates the name and URL
+            slug, sets the corroborated website/phone, clears the identity-suspect flag and
+            mismatch history (the prior name is kept in the audit trail), and re-runs
+            enrichment under the new identity.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-3 mt-1">
+          {candidate && (
+            <div className="rounded-md border bg-muted/40 p-2 text-xs break-all">
+              <span className="text-muted-foreground">Candidate identity evidence: </span>
+              <a href={candidate} target="_blank" rel="noreferrer" className="underline">
+                {candidate}
+              </a>
+            </div>
+          )}
+          <div className="space-y-1">
+            <Label className="text-xs">New community name (review carefully)</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Aiea Heights Senior Living"
+              data-testid="input-adopt-name"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Website (corroborated)</Label>
+            <Input
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://…"
+              data-testid="input-adopt-website"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-xs">Phone (optional)</Label>
+            <Input
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              placeholder="(808) 555-0100"
+              data-testid="input-adopt-phone"
+            />
+          </div>
+        </div>
+
+        <DialogFooter className="mt-4">
+          <Button variant="outline" onClick={onClose} disabled={adoptMutation.isPending}>
+            Cancel
+          </Button>
+          <Button
+            onClick={() => adoptMutation.mutate()}
+            disabled={!canSubmit}
+            data-testid="button-adopt-submit"
+          >
+            {adoptMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Adopting &amp; enriching…
+              </>
+            ) : (
+              "Adopt identity & re-enrich"
+            )}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -847,6 +1010,7 @@ function QcRow({
   onToggle,
   onAction,
   onIdentityReviewed,
+  onAdoptIdentity,
   onRemoval,
   disabled,
 }: {
@@ -855,6 +1019,7 @@ function QcRow({
   onToggle: () => void;
   onAction: (a: QcAction) => void;
   onIdentityReviewed: () => void;
+  onAdoptIdentity: () => void;
   onRemoval: () => void;
   disabled: boolean;
 }) {
@@ -982,9 +1147,9 @@ function QcRow({
                 </p>
               )}
               <p className="text-muted-foreground">
-                The stored name is never changed automatically. “Identity reviewed” clears the
-                flag (and restores if eligible) so enrichment can retry; correct the record
-                first if the candidate identity is the real one.
+                The stored name is never changed automatically. “Adopt identity” renames the
+                record to the reviewed real identity and re-enriches; “Identity reviewed”
+                just clears the flag (and restores if eligible) so enrichment can retry.
               </p>
             </div>
           )}
@@ -992,6 +1157,18 @@ function QcRow({
 
         {/* Per-item actions */}
         <div className="flex flex-col gap-1.5 shrink-0">
+          {isIdentitySuspect && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="border-emerald-300 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+              onClick={onAdoptIdentity}
+              disabled={disabled}
+              data-testid={`button-adopt-identity-${c.id}`}
+            >
+              <UserCheck className="w-4 h-4 mr-1" /> Adopt identity
+            </Button>
+          )}
           {isIdentitySuspect && (
             <Button
               size="sm"

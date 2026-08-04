@@ -2790,6 +2790,155 @@ export function registerAdminRoutes(app: Express) {
     }
   });
 
+  // POST /api/admin/communities/:id/adopt-identity
+  //   body: { name: string, website?: string, phone?: string }
+  // Task #441: deliberate admin adjudication for identity_suspect records.
+  // The enrichment pipeline NEVER auto-renames (by design); after reviewing the
+  // stored evidence (enrichment_data.identitySuspect) an admin can adopt the
+  // candidate REAL identity: rename (canonical slug helpers), set the
+  // corroborated website/phone, clear the flag + mismatch history (audit trail
+  // preserved in enrichmentData.identityAdoptions), and re-run enrichment.
+  adminRouter.post('/communities/:id/adopt-identity', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) {
+        return res.status(400).json({ error: 'Invalid community ID' });
+      }
+      const { name, website, phone } = req.body || {};
+      if (typeof name !== 'string' || name.trim().length < 3) {
+        return res.status(400).json({ error: 'name is required (min 3 characters)' });
+      }
+      const newName = name.trim();
+
+      // Raw SQL SELECT * to dodge the known communities Drizzle/DB column drift.
+      const rowResult = await db.execute(
+        sql`SELECT * FROM communities WHERE id = ${id} LIMIT 1`,
+      );
+      const community: any = rowResult.rows[0];
+      if (!community) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
+      const existingFlags: string[] = Array.isArray(community.data_quality_flags)
+        ? community.data_quality_flags
+        : [];
+      if (!existingFlags.includes('identity_suspect')) {
+        return res.status(400).json({
+          error:
+            'Community is not flagged identity_suspect — adopt-identity is only for reviewed identity-suspect records',
+        });
+      }
+
+      // Sanitize the corroborated website (junk → null); reject an explicit
+      // website that sanitizes to nothing so the admin knows it was not saved.
+      let newWebsite: string | null | undefined = undefined;
+      if (typeof website === 'string' && website.trim().length > 0) {
+        newWebsite = sanitizeWebsiteUrl(website);
+        if (!newWebsite) {
+          return res.status(400).json({ error: 'website is not a valid URL' });
+        }
+      }
+      const newPhone =
+        typeof phone === 'string' && phone.trim().length > 0 ? phone.trim() : undefined;
+
+      // Canonical slug recompute — guarantees a unique (state, city, slug) triplet.
+      const { safeCommunitySlugs } = await import('../utils/generate-slug');
+      const slugs = await safeCommunitySlugs(
+        { name: newName, city: community.city || '', state: community.state || '' },
+        id,
+      );
+
+      // Audit trail: keep the prior name + the evidence that led here, then
+      // clear the identity_suspect evidence and the mismatch history so the
+      // fresh enrichment run starts from a clean identity.
+      const priorData: Record<string, any> =
+        community.enrichment_data && typeof community.enrichment_data === 'object'
+          ? community.enrichment_data
+          : {};
+      const { identitySuspect, identityMismatches, ...restData } = priorData;
+      const mergedData: Record<string, any> = {
+        ...restData,
+        identityAdoptions: [
+          ...(Array.isArray(priorData.identityAdoptions) ? priorData.identityAdoptions : []),
+          {
+            adoptedAt: new Date().toISOString(),
+            priorName: community.name,
+            adoptedName: newName,
+            adoptedWebsite: newWebsite ?? null,
+            adoptedBy: req.user?.email ?? null,
+            evidence: identitySuspect ?? null,
+          },
+        ],
+      };
+
+      await db
+        .update(communities)
+        .set({
+          name: newName,
+          slug: slugs.slug,
+          citySlug: slugs.citySlug,
+          stateSlug: slugs.stateSlug,
+          ...(newWebsite !== undefined ? { website: newWebsite } : {}),
+          ...(newPhone !== undefined ? { phone: newPhone } : {}),
+          dataQualityFlags: existingFlags.filter((f) => f !== 'identity_suspect'),
+          enrichmentData: mergedData,
+          enrichmentAttempts: 0,
+          updatedAt: new Date(),
+        } as any)
+        .where(eq(communities.id, id));
+
+      // Fresh enrichment under the adopted identity, then recompute visibility
+      // so a record that gains real content auto-restores.
+      let contentSaved = false;
+      let saveFailed = false;
+      try {
+        const result = await enrichCommunityUnified(id, { forceRefresh: true });
+        contentSaved = result.cached === true || result.contentSaved === true;
+        await db
+          .update(communities)
+          .set({
+            enrichmentAttempts: 0,
+            enrichmentStatus: contentSaved ? 'completed' : 'failed',
+          } as any)
+          .where(eq(communities.id, id));
+      } catch (err) {
+        if (err instanceof EnrichmentPersistError) {
+          console.error(
+            `[adopt-identity] community ${id}: data researched but SAVE FAILED (not persisted):`,
+            err,
+          );
+          saveFailed = true;
+        } else {
+          console.error(`[adopt-identity] enrichment for community ${id} failed:`, err);
+        }
+      }
+      const recomputed = await recomputeCommunityVisibility(id);
+
+      clearAllCommunityCaches();
+      communityStatsCache.invalidateCache();
+      superclusterService
+        .refresh()
+        .catch((err: any) => console.error('Supercluster refresh error:', err));
+
+      console.log(
+        `Admin adopt-identity: community ${id} "${community.name}" → "${newName}" by ${req.user?.email}`,
+      );
+      res.json({
+        success: true,
+        id,
+        priorName: community.name,
+        name: newName,
+        slug: slugs.slug,
+        website: newWebsite ?? community.website ?? null,
+        enrichment: { contentSaved, saveFailed },
+        restored: recomputed ? recomputed.hidden === false : false,
+      });
+    } catch (error) {
+      console.error('Error adopting community identity:', error);
+      res.status(500).json({ message: 'Failed to adopt identity' });
+    }
+  });
+
   // Status counts across all statuses (for filter pill badges)
   adminRouter.get('/listing-flags/counts', async (req, res) => {
     try {
