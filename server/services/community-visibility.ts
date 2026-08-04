@@ -16,6 +16,8 @@
  * when it is hidden for a DIFFERENT, stronger reason:
  *   - data_quality_flags contains 'synthetic_suspected' or 'geo_needs_review'
  *     (fake-coordinate quarantine — must not be auto-restored here), or
+ *   - data_quality_flags contains 'test_data' (seeded/demo records — never
+ *     public regardless of content quality), or
  *   - flag_status = 'confirmed' (an admin confirmed a problem report).
  * These flags are NOT in MANAGED_QUALITY_FLAGS, so they survive the flag merge.
  */
@@ -29,8 +31,17 @@ import {
   type CommunityEvaluation,
 } from "@shared/community-classification";
 
-/** Flags that keep a record hidden no matter what the quality policy says. */
-const PROTECTIVE_FLAGS = new Set(["synthetic_suspected", "geo_needs_review"]);
+/** Flags that keep a record hidden no matter what the quality policy says.
+ *  EVERY writer that can flip is_hidden back to false (this module, the
+ *  startup auto-restore in server/run-migration.ts, any future path) MUST
+ *  exclude rows carrying one of these flags. Import this list — never
+ *  hand-copy it into SQL. */
+export const PROTECTIVE_FLAG_LIST = [
+  "synthetic_suspected",
+  "geo_needs_review",
+  "test_data",
+] as const;
+const PROTECTIVE_FLAGS = new Set<string>(PROTECTIVE_FLAG_LIST);
 const MANAGED = new Set<string>(MANAGED_QUALITY_FLAGS as readonly string[]);
 
 /** The exact column set evaluation needs — selected explicitly to avoid the
@@ -78,7 +89,7 @@ export interface RowVisibilityResult {
 /**
  * Pure: compute the visibility decision for an already-loaded row (no DB write).
  */
-function computeRowVisibility(row: EvalRow): RowVisibilityResult {
+export function computeRowVisibility(row: EvalRow): RowVisibilityResult {
   const evaluation = evaluateCommunity(row as CommunityClassifyLike);
 
   // Merge flags: drop this task's managed flags, keep everything else (other

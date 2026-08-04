@@ -1,5 +1,6 @@
 import { db } from './db';
 import { sql } from 'drizzle-orm';
+import { PROTECTIVE_FLAG_LIST } from './services/community-visibility';
 
 /**
  * Single source of truth for the values allowed by the
@@ -98,7 +99,7 @@ export async function runStartupMigrations(): Promise<void> {
       AND website !~* '-senior-living\.com'
       AND website !~* '(aplaceformom|caring|seniorly|senioradvisor|assistedliving|seniorliving|seniorlivingnearme|olera|yelp|facebook|google|wikipedia)\.'
       AND (flag_status IS NULL OR flag_status <> 'confirmed')
-      AND NOT (COALESCE(data_quality_flags, ARRAY[]::text[]) && ARRAY['synthetic_suspected','geo_needs_review']::text[])
+      AND NOT (COALESCE(data_quality_flags, ARRAY[]::text[]) && ${sql`ARRAY[${sql.join(PROTECTIVE_FLAG_LIST.map((f) => sql`${f}`), sql`, `)}]::text[]`})
   `);
   const restoredCount = (restore as any).rowCount ?? 0;
   console.log(`✅ Auto-restored ${restoredCount} real-website senior communities (Task #350 startup restore)`);

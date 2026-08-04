@@ -102,3 +102,8 @@ only `is_active` — they must also exclude `is_hidden` or the quarantine leaks.
     AND (flag_status IS DISTINCT FROM 'confirmed');
   UPDATE communities SET senior_classification=NULL, quality_score=NULL, quality_tier=NULL; -- optional
   ```
+
+## Protective flags are centralized
+PROTECTIVE_FLAG_LIST (community-visibility.ts) — synthetic_suspected, geo_needs_review, test_data — is the single source for every is_hidden restore path, including the startup auto-restore SQL in run-migration.ts.
+**Why:** a hand-copied exclusion array in the startup restore once republished quarantined test records at every boot.
+**How to apply:** to quarantine permanently, append a protective flag then recompute; never set is_hidden directly, and never inline protective-flag lists in SQL — import the list.
