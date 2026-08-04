@@ -76,6 +76,18 @@ import { eq, and, sql } from 'drizzle-orm';
 import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
 import { CANONICAL_BASE_URL } from './middleware/host-canonical';
+import {
+  findCommunityBySlugUrl,
+  isCommunityGone,
+  buildCommunityPricing,
+  communityBreadcrumbs,
+  breadcrumbJsonLd,
+  breadcrumbHtml,
+  communityStructuredData,
+  escapeHtml,
+  safeHttpUrl,
+  safeJsonLd,
+} from './seo/community-seo';
 
 // User-friendly noindex HTML for missing / gone community pages. Real status
 // codes (404 / 410) plus a noindex directive tell search engines to drop the URL
@@ -120,41 +132,8 @@ function sendCommunityStatusPage(res: Response, status: 404 | 410): Response {
 </html>`);
 }
 
-// A community is considered "gone" (410) for SEO when it has been hidden or
-// explicitly deactivated. This mirrors the sitemap inclusion rule
-// (isActive !== false AND isHidden !== true).
-function isCommunityGone(community: { isHidden?: boolean | null; isActive?: boolean | null }): boolean {
-  return community.isHidden === true || community.isActive === false;
-}
-
-/**
- * Resolve a community from a /senior-living/{state}/{city}/{slug} URL by its
- * CANONICAL SLUG COLUMNS — the exact values the sitemap & getCommunityUrl() emit:
- *   stateSlug = community.stateSlug || generateSlug(state)
- *   citySlug  = community.citySlug  || generateSlug(city)
- *   slug      = community.slug      || generateCommunitySlug(name)
- *
- * We filter by the always-populated citySlug column (no fragile city-text
- * reconstruction), then require an EXACT match on the composed state + slug.
- * This handles dedup suffixes ("-2"), punctuation cities ("St. Louis" →
- * "st-louis"), null legacy columns, and duplicate base-names in one city
- * (each row is composed independently, so the right listing is selected).
- */
-async function findCommunityBySlugUrl(
-  stateSlugParam: string,
-  citySlugParam: string,
-  slugParam: string,
-): Promise<typeof communities.$inferSelect | null> {
-  const rows = await db
-    .select()
-    .from(communities)
-    .where(eq(communities.citySlug, citySlugParam));
-  const match = rows.find(c =>
-    (c.stateSlug || generateSlug(c.state)) === stateSlugParam &&
-    (c.slug || generateCommunitySlug(c)) === slugParam
-  );
-  return match || null;
-}
+// isCommunityGone / findCommunityBySlugUrl now live in server/seo/community-seo.ts
+// (shared with the ALL-user-agent shell meta injection) and are imported above.
 
 /**
  * Resolve the SEO visibility status of a community URL.
@@ -374,60 +353,60 @@ export async function generateCommunityHTMLById(
     const nameSlug = community.slug || generateCommunitySlug(community);
     const canonicalUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
     
-    // Generate price display
-    const priceDisplay = community.rentPerMonth 
-      ? `$${Number(community.rentPerMonth).toLocaleString()}/month`
-      : community.priceRange 
-      ? `Contact for pricing`
-      : 'Contact for pricing';
+    // Pricing strictly from real DB values — never emit "Contact for pricing"
+    // when numeric pricing exists; verification date only when real data exists.
+    const pricing = buildCommunityPricing(community);
+    const priceDisplay = pricing.display || 'Contact for pricing';
     
-    // Prepare description for meta tags (truncate to 160 chars)
-    const metaDescription = enrichedData.description 
-      ? enrichedData.description.substring(0, 160).replace(/\n/g, ' ').replace(/"/g, '&quot;') + '...'
-      : `${community.name} in ${community.city}, ${community.state}. ${community.careTypes?.slice(0, 2).join(', ') || 'Senior living community'}. ${priceDisplay}.`;
+    // Prepare description for meta tags (truncate to 160 chars, HTML-escaped)
+    const metaDescription = escapeHtml(
+      enrichedData.description
+        ? enrichedData.description.substring(0, 160).replace(/\n/g, ' ') + '...'
+        : `${community.name} in ${community.city}, ${community.state}. ${community.careTypes?.slice(0, 2).join(', ') || 'Senior living community'}. ${priceDisplay}.`
+    );
+    // Escaped display values reused across the template
+    const escName = escapeHtml(community.name);
+    const escCity = escapeHtml(community.city);
+    const escState = escapeHtml(community.state);
+    const escAddress = escapeHtml(community.address || '');
+    const escZip = escapeHtml(community.zipCode || '');
+    const websiteUrl = safeHttpUrl(community.website);
+    const firstPhoto = enrichedData.photos?.[0];
+    const ogImage = safeHttpUrl(typeof firstPhoto === 'string' ? firstPhoto : firstPhoto?.url);
     
-    // Generate structured data (Schema.org validated)
-    // Using "Residence" + "LocalBusiness" for valid rich results
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": ["Residence", "LocalBusiness"],
-      "name": community.name,
-      "description": enrichedData.description || `${community.name} is a senior living community in ${community.city}, ${community.state}`,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": community.address,
-        "addressLocality": community.city,
-        "addressRegion": community.state,
-        "postalCode": community.zipCode,
-        "addressCountry": community.country || "US"
-      },
-      "telephone": community.phone || undefined,
-      "url": community.website || undefined,
-      "geo": community.latitude && community.longitude ? {
-        "@type": "GeoCoordinates",
-        "latitude": community.latitude,
-        "longitude": community.longitude
-      } : undefined,
-      "priceRange": priceDisplay,
-      "aggregateRating": community.rating && communityReviews.length > 0 ? {
+    // Structured data: top-level LocalBusiness-type entity (Residence + LocalBusiness)
+    // with address, geo, care types (makesOffer) — priceRange only from real data.
+    const structuredData: Record<string, any> = communityStructuredData(community, {
+      description: enrichedData.description,
+      canonicalUrl,
+    });
+    if (community.rating && communityReviews.length > 0) {
+      structuredData.aggregateRating = {
         "@type": "AggregateRating",
         "ratingValue": Number(community.rating),
         "reviewCount": communityReviews.length,
         "bestRating": 5,
         "worstRating": 1
-      } : undefined,
-      "image": enrichedData.photos && enrichedData.photos.length > 0 ? enrichedData.photos : undefined,
-      // Additional LocalBusiness properties
-      "openingHours": "Mo-Su 00:00-23:59", // Senior communities are always accessible
-      "@id": canonicalUrl
-    };
+      };
+    }
+    if (enrichedData.photos && enrichedData.photos.length > 0) {
+      const photoUrls = enrichedData.photos
+        .map((p: any) => safeHttpUrl(typeof p === 'string' ? p : p?.url))
+        .filter((u: any): u is string => !!u);
+      if (photoUrls.length > 0) structuredData.image = photoUrls;
+    }
+
+    // Breadcrumbs: visible trail + BreadcrumbList JSON-LD
+    const crumbs = communityBreadcrumbs(community, baseUrl);
+    const breadcrumbData = breadcrumbJsonLd(crumbs);
     
-    // Prepare photos for HTML
+    // Prepare photos for HTML (http(s)-only URLs, escaped attributes)
     const photoElements = enrichedData.photos && enrichedData.photos.length > 0
       ? enrichedData.photos.slice(0, 10).map((photo: any, index: number) => {
-          const photoUrl = typeof photo === 'string' ? photo : photo.url;
-          return `<img src="${photoUrl}" alt="${community.name} - Photo ${index + 1}" class="community-photo" loading="lazy">`;
-        }).join('\n        ')
+          const photoUrl = safeHttpUrl(typeof photo === 'string' ? photo : photo?.url);
+          if (!photoUrl) return '';
+          return `<img src="${escapeHtml(photoUrl)}" alt="${escName} - Photo ${index + 1}" class="community-photo" loading="lazy">`;
+        }).filter(Boolean).join('\n        ')
       : '';
     
     // Generate complete HTML page with full enrichment content
@@ -436,29 +415,33 @@ export async function generateCommunityHTMLById(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${community.name} | ${community.city}, ${community.state} | MySeniorValet</title>
+  <title>${escapeHtml(community.name)} | ${escapeHtml(community.city)}, ${escapeHtml(community.state)} | MySeniorValet</title>
   <meta name="description" content="${metaDescription}">
+  <meta name="robots" content="index, follow, max-image-preview:large">
   
   <!-- Open Graph tags -->
-  <meta property="og:title" content="${community.name} - Senior Living in ${community.city}, ${community.state}">
+  <meta property="og:title" content="${escName} - Senior Living in ${escCity}, ${escState}">
   <meta property="og:description" content="${metaDescription}">
   <meta property="og:type" content="business.business">
-  <meta property="og:url" content="${canonicalUrl}">
-  ${enrichedData.photos?.[0] ? `<meta property="og:image" content="${typeof enrichedData.photos[0] === 'string' ? enrichedData.photos[0] : enrichedData.photos[0].url}">` : ''}
+  <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+  ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}">` : ''}
   <meta property="og:site_name" content="MySeniorValet">
   
   <!-- Twitter Card tags -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${community.name}">
+  <meta name="twitter:title" content="${escName}">
   <meta name="twitter:description" content="${metaDescription}">
-  ${enrichedData.photos?.[0] ? `<meta name="twitter:image" content="${typeof enrichedData.photos[0] === 'string' ? enrichedData.photos[0] : enrichedData.photos[0].url}">` : ''}
+  ${ogImage ? `<meta name="twitter:image" content="${escapeHtml(ogImage)}">` : ''}
   
   <!-- Canonical URL -->
-  <link rel="canonical" href="${canonicalUrl}">
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
   
-  <!-- Structured Data -->
+  <!-- Structured Data (safeJsonLd escapes "<" to prevent </script> breakout) -->
   <script type="application/ld+json">
-    ${JSON.stringify(structuredData, null, 2)}
+    ${safeJsonLd(structuredData)}
+  </script>
+  <script type="application/ld+json">
+    ${safeJsonLd(breadcrumbData)}
   </script>
   
   <!-- Preload React app -->
@@ -480,14 +463,18 @@ export async function generateCommunityHTMLById(
     .reviewer { color: #666; font-size: 0.9rem; margin-top: 10px; }
     .enrichment-content { white-space: pre-wrap; line-height: 1.8; }
     .community-photo { max-width: 100%; height: auto; margin: 10px 0; border-radius: 8px; }
+    .seo-breadcrumbs { font-size: 0.9rem; color: #666; margin-bottom: 12px; }
+    .seo-breadcrumbs a { color: #2563eb; text-decoration: none; }
+    .pricing-verified { font-size: 0.9rem; color: #059669; }
   </style>
 </head>
 <body>
   <div id="root">
     <div class="community-detail-page">
+      ${breadcrumbHtml(crumbs)}
       <header>
-        <h1>${community.name}</h1>
-        <div class="location">${community.address}, ${community.city}, ${community.state} ${community.zipCode}</div>
+        <h1>${escName}</h1>
+        <div class="location">${escAddress}, ${escCity}, ${escState} ${escZip}</div>
       </header>
       
       ${photoElements ? `
@@ -498,12 +485,12 @@ export async function generateCommunityHTMLById(
       
       ${enrichedData.description ? `
       <section class="overview">
-        <h2>About ${community.name}</h2>
-        <div class="enrichment-content">${enrichedData.description}</div>
+        <h2>About ${escName}</h2>
+        <div class="enrichment-content">${escapeHtml(enrichedData.description)}</div>
       </section>` : `
       <section class="overview">
-        <h2>About ${community.name}</h2>
-        <p>${community.name} is a senior living community located in ${community.city}, ${community.state}.</p>
+        <h2>About ${escName}</h2>
+        <p>${escName} is a senior living community located in ${escCity}, ${escState}.</p>
       </section>`}
       
       <section class="contact-info-section">
@@ -511,18 +498,18 @@ export async function generateCommunityHTMLById(
         <div class="contact-info">
           <div class="address">
             <strong>Address:</strong><br>
-            ${community.address}<br>
-            ${community.city}, ${community.state} ${community.zipCode}
+            ${escAddress}<br>
+            ${escCity}, ${escState} ${escZip}
           </div>
           
           ${community.phone ? `
           <div class="phone">
-            <strong>Phone:</strong> <a href="tel:${community.phone}">${community.phone}</a>
+            <strong>Phone:</strong> <a href="tel:${escapeHtml(String(community.phone).replace(/[^0-9+()\-\s.ext]/gi, ''))}">${escapeHtml(community.phone)}</a>
           </div>` : ''}
           
-          ${community.website ? `
+          ${websiteUrl ? `
           <div class="website">
-            <strong>Website:</strong> <a href="${community.website}" target="_blank" rel="noopener">${community.website}</a>
+            <strong>Website:</strong> <a href="${escapeHtml(websiteUrl)}" target="_blank" rel="noopener">${escapeHtml(websiteUrl)}</a>
           </div>` : ''}
         </div>
       </section>
@@ -530,13 +517,14 @@ export async function generateCommunityHTMLById(
       <section class="pricing">
         <h2>Pricing</h2>
         <div class="price-display">${priceDisplay}</div>
+        ${pricing.verifiedDate ? `<div class="pricing-verified">Pricing verified ${pricing.verifiedDate}</div>` : ''}
       </section>
       
       ${community.careTypes && community.careTypes.length > 0 ? `
       <section class="care-types">
         <h2>Care Types</h2>
         <ul>
-          ${community.careTypes.map(type => `<li>${type.replace(/_/g, ' ')}</li>`).join('')}
+          ${community.careTypes.map(type => `<li>${escapeHtml(type.replace(/_/g, ' '))}</li>`).join('')}
         </ul>
       </section>` : ''}
       
@@ -544,21 +532,23 @@ export async function generateCommunityHTMLById(
       <section class="amenities">
         <h2>Amenities</h2>
         <ul>
-          ${community.amenities.slice(0, 15).map(amenity => `<li>${amenity}</li>`).join('')}
+          ${community.amenities.slice(0, 15).map(amenity => `<li>${escapeHtml(amenity)}</li>`).join('')}
         </ul>
       </section>` : ''}
       
       ${communityReviews.length > 0 ? `
       <section class="reviews">
         <h2>Reviews</h2>
-        ${communityReviews.map(review => `
+        ${communityReviews.map(review => {
+          const rating = Math.min(5, Math.max(0, Number(review.rating) || 0));
+          return `
           <div class="review">
-            <div class="rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-            <h3>${review.title}</h3>
-            <p>${review.reviewText}</p>
-            <div class="reviewer">${review.relationshipType || 'Community Member'}</div>
+            <div class="rating">${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}</div>
+            <h3>${escapeHtml(review.title)}</h3>
+            <p>${escapeHtml(review.reviewText)}</p>
+            <div class="reviewer">${escapeHtml(review.relationshipType || 'Community Member')}</div>
           </div>
-        `).join('')}
+        `;}).join('')}
       </section>` : ''}
     </div>
   </div>
