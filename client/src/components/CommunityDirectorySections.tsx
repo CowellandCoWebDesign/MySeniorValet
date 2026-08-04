@@ -2001,7 +2001,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
           </div>
           
           <p className="text-gray-600 dark:text-gray-300 text-sm mb-6">
-            {(hudCount as any)?.total || '6,078+'} affordable communities • 
+            {(hudCount as any)?.total ? `${(hudCount as any).total} affordable communities • ` : 'Affordable communities • '}
             Government transparency and income-based options
           </p>
           
@@ -2059,7 +2059,7 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
                       <div className="text-center p-6">
                         <Building2 className="w-16 h-16 text-green-600 dark:text-green-400 mx-auto mb-3" />
                         <h3 className="text-2xl font-bold text-green-700 dark:text-green-300">
-                          {(hudCount as any)?.total || '6,078+'}
+                          {(hudCount as any)?.total ?? '...'}
                         </h3>
                         <p className="text-sm text-green-600 dark:text-green-400">
                           HUD Communities

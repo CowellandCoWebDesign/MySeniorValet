@@ -624,7 +624,7 @@ export class ComprehensiveNotificationService {
           <h2>Welcome ${userData.firstName || 'to MySeniorValet'}!</h2>
           <p>Your free family account gives you access to:</p>
           <ul>
-            <li>35,264+ senior living communities</li>
+            <li>Senior living communities across the USA, Canada, and beyond</li>
             <li>Transparent pricing including HUD rates</li>
             <li>Real availability updates</li>
             <li>Tour scheduling tools</li>
