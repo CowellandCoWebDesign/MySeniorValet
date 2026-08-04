@@ -63,44 +63,47 @@ async function getPageMetadata(url: string): Promise<{
     
     // Location-specific metadata
     const locationMeta: Record<string, { title: string; description: string; keywords: string }> = {
+      // NOTE: Never put community counts in this copy. Counts drift from the
+      // live database and mislead users in search/social previews. If a count
+      // is ever needed, it must come from a real (cached) database query.
       'oakmont': {
-        title: 'Oakmont Senior Living | 60+ Communities in California | MySeniorValet',
-        description: 'Explore Oakmont Senior Living\'s 60+ luxury communities across California. Known for signature restaurants, wellness programs, and resort-style amenities. Starting from $3,500/mo.',
+        title: 'Oakmont Senior Living Communities in California | MySeniorValet',
+        description: 'Explore Oakmont Senior Living\'s luxury communities across California. Known for signature restaurants, wellness programs, and resort-style amenities.',
         keywords: 'Oakmont Senior Living, California luxury senior communities, Oakmont retirement homes'
       },
       'puerto-rico': {
-        title: 'Puerto Rico Senior Living | 50+ Caribbean Communities | MySeniorValet',
-        description: 'Discover 50+ senior living communities in Puerto Rico. Enjoy tax benefits, tropical climate, and bilingual healthcare. Social Security goes 40% further. Medicare accepted.',
+        title: 'Puerto Rico Senior Living | Caribbean Communities | MySeniorValet',
+        description: 'Discover senior living communities in Puerto Rico. Enjoy tax benefits, tropical climate, and bilingual healthcare. Medicare accepted at many locations.',
         keywords: 'Puerto Rico senior living, Caribbean retirement, Act 60 tax benefits, bilingual senior care'
       },
       'peru': {
         title: 'Peru Senior Living | Affordable Expat Retirement | MySeniorValet',
-        description: 'Find affordable senior living in Peru. USD goes 3x further with communities starting at $500/mo. English-speaking care, mountain and coastal options.',
+        description: 'Find affordable senior living in Peru. English-speaking care with mountain and coastal options for expat retirees.',
         keywords: 'Peru retirement, Lima senior living, Cusco expat communities, affordable senior care Peru'
       },
       'hawaii': {
-        title: 'Hawaii Senior Living | 55+ Island Communities | MySeniorValet',
-        description: 'Browse 55+ senior living communities across Hawaiian islands. Oceanfront assisted living, memory care with aloha spirit. Kaiser Permanente partnerships.',
+        title: 'Hawaii Senior Living | Island Communities | MySeniorValet',
+        description: 'Browse senior living communities across the Hawaiian islands. Oceanfront assisted living and memory care with aloha spirit.',
         keywords: 'Hawaii senior living, Honolulu assisted living, Maui retirement homes, island senior care'
       },
       'fort-worth': {
-        title: 'Fort Worth Texas Senior Living | 180+ Communities | MySeniorValet',
-        description: 'Search 180+ senior living communities in Fort Worth, Texas. No state income tax, affordable luxury options from $2,000/mo. Medical district proximity.',
+        title: 'Fort Worth Texas Senior Living Communities | MySeniorValet',
+        description: 'Search senior living communities in Fort Worth, Texas. No state income tax, affordable options, and medical district proximity.',
         keywords: 'Fort Worth senior living, Texas retirement communities, DFW assisted living, Fort Worth memory care'
       },
       'new-york': {
-        title: 'New York Senior Living | 2,800+ Communities Statewide | MySeniorValet',
-        description: 'Explore 2,800+ senior living options across New York State. From Manhattan luxury high-rises to upstate affordability. Medicaid accepted at many locations.',
+        title: 'New York Senior Living Communities Statewide | MySeniorValet',
+        description: 'Explore senior living options across New York State. From Manhattan luxury high-rises to upstate affordability. Medicaid accepted at many locations.',
         keywords: 'New York senior living, NYC assisted living, Manhattan retirement, upstate NY senior care'
       },
       'cuba': {
         title: 'Cuba Senior Living | International Healthcare Options | MySeniorValet',
-        description: 'Discover senior living possibilities in Cuba. International medical programs, tropical climate, emerging expat communities. USD goes 5x further.',
+        description: 'Discover senior living possibilities in Cuba. International medical programs, tropical climate, emerging expat communities.',
         keywords: 'Cuba retirement, Havana senior living, Caribbean healthcare, Cuba expat communities'
       },
       'costa-rica': {
         title: 'Costa Rica Senior Living | Pensionado Paradise | MySeniorValet',
-        description: 'Find retirement communities in Costa Rica. Pensionado visa discounts 25-50% on everything. CAJA healthcare $75-150/mo. Perfect climate year-round.',
+        description: 'Find retirement communities in Costa Rica. Pensionado visa discounts, affordable CAJA healthcare, and a pleasant climate year-round.',
         keywords: 'Costa Rica retirement, Pensionado program, Central Valley senior living, CAJA healthcare'
       },
       'panama': {
@@ -109,28 +112,28 @@ async function getPageMetadata(url: string): Promise<{
         keywords: 'Panama retirement, Boquete senior living, Panama City expat, Pensionado benefits Panama'
       },
       'japan': {
-        title: 'Tokyo Senior Living | 49 Japanese Communities | MySeniorValet',
-        description: 'Explore 49 senior living communities in Tokyo metropolitan area. Traditional Japanese hospitality, advanced healthcare technology, multilingual support.',
+        title: 'Tokyo Senior Living | Japanese Communities | MySeniorValet',
+        description: 'Explore senior living communities in the Tokyo metropolitan area. Traditional Japanese hospitality, advanced healthcare technology, multilingual support.',
         keywords: 'Tokyo senior living, Japan retirement, Japanese assisted living, Tokyo elderly care'
       },
       'singapore': {
-        title: 'Singapore Senior Care | 27 Premium Facilities | MySeniorValet',
-        description: 'Discover 27 senior care facilities in Singapore. World-class healthcare, English-speaking staff, tropical climate. Strategic Asia-Pacific location.',
+        title: 'Singapore Senior Care Facilities | MySeniorValet',
+        description: 'Discover senior care facilities in Singapore. World-class healthcare, English-speaking staff, tropical climate. Strategic Asia-Pacific location.',
         keywords: 'Singapore senior living, Singapore elderly care, Asia retirement, Singapore nursing homes'
       },
       'scotland': {
-        title: 'Scotland Care Homes | 31 Highland Communities | MySeniorValet',
-        description: 'Find 31 care homes across Scotland. NHS healthcare access, historic settings, English-speaking care in Edinburgh, Glasgow, and Highlands.',
+        title: 'Scotland Care Homes | Highland Communities | MySeniorValet',
+        description: 'Find care homes across Scotland. NHS healthcare access, historic settings, English-speaking care in Edinburgh, Glasgow, and the Highlands.',
         keywords: 'Scotland care homes, Edinburgh senior living, Glasgow elderly care, Scottish retirement'
       },
       'canada': {
-        title: 'Canada Senior Living | 5,343 Communities Nationwide | MySeniorValet',
-        description: 'Search 5,343 senior living communities across Canada. Ontario (1,707), Quebec (1,278), BC (987), Alberta (570). Universal healthcare included.',
+        title: 'Canada Senior Living Communities Nationwide | MySeniorValet',
+        description: 'Search senior living communities across Canada, including Ontario, Quebec, British Columbia, and Alberta. Universal healthcare included.',
         keywords: 'Canada senior living, Ontario retirement homes, Quebec CHSLD, BC senior care, Alberta assisted living'
       },
       'australia': {
-        title: 'Australia Senior Living | 1,458 Aged Care Facilities | MySeniorValet',
-        description: 'Browse 1,458 aged care facilities across Australia. NSW (430), Queensland (330), Victoria (324). Government subsidized care available.',
+        title: 'Australia Senior Living | Aged Care Facilities | MySeniorValet',
+        description: 'Browse aged care facilities across Australia, including New South Wales, Queensland, and Victoria. Government subsidized care available.',
         keywords: 'Australia aged care, Sydney retirement homes, Melbourne senior living, Brisbane elderly care'
       }
     };
@@ -162,8 +165,8 @@ async function getPageMetadata(url: string): Promise<{
     ], baseUrl);
     
     return {
-      title: 'Senior Housing Directory 2025 | 33,500+ Communities Worldwide | MySeniorValet',
-      description: 'Browse 33,500+ senior housing options across USA, Canada, Australia, Japan, and more. All types: facilities, HUD housing, RV parks, memory care, CCRCs. Compare with verified pricing and real reviews.',
+      title: 'Senior Housing Directory | Communities Worldwide | MySeniorValet',
+      description: 'Browse senior housing options across the USA, Canada, Australia, Japan, and more. All types: facilities, HUD housing, RV parks, memory care, CCRCs. Compare with verified pricing and real reviews.',
       image: defaultImage,
       type: 'website',
       keywords: 'senior housing directory, senior living facilities, HUD senior housing, retirement homes, assisted living, memory care, RV senior parks, 55+ communities',
@@ -187,7 +190,7 @@ async function getPageMetadata(url: string): Promise<{
     }
     return {
       title: 'Search Senior Living Communities | Interactive Map | MySeniorValet',
-      description: 'Search 35,264+ senior living communities on our interactive map. Filter by care type, price, amenities. Find assisted living, memory care, nursing homes near you.',
+      description: 'Search senior living communities on our interactive map. Filter by care type, price, amenities. Find assisted living, memory care, nursing homes near you.',
       image: defaultImage,
       type: 'website'
     };
@@ -206,8 +209,8 @@ async function getPageMetadata(url: string): Promise<{
   // Location-specific pages
   if (section === 'senior-living-san-francisco') {
     return {
-      title: 'San Francisco Senior Living | 127 Communities | MySeniorValet',
-      description: 'Find senior living in San Francisco, CA. Compare 127 assisted living, memory care, and nursing homes with verified pricing from $2,500-$15,000/mo.',
+      title: 'San Francisco Senior Living Communities | MySeniorValet',
+      description: 'Find senior living in San Francisco, CA. Compare assisted living, memory care, and nursing homes with verified pricing.',
       image: defaultImage,
       type: 'website'
     };
@@ -215,8 +218,8 @@ async function getPageMetadata(url: string): Promise<{
   
   if (section === 'senior-living-san-diego') {
     return {
-      title: 'San Diego Senior Living | 200+ Communities | MySeniorValet',
-      description: 'Discover senior living options in San Diego, CA. Browse 200+ communities including beachfront assisted living, memory care, and luxury retirement homes.',
+      title: 'San Diego Senior Living Communities | MySeniorValet',
+      description: 'Discover senior living options in San Diego, CA. Browse communities including beachfront assisted living, memory care, and luxury retirement homes.',
       image: defaultImage,
       type: 'website'
     };
@@ -224,7 +227,7 @@ async function getPageMetadata(url: string): Promise<{
   
   if (section === 'senior-living-worldwide') {
     return {
-      title: 'Worldwide Senior Living | 15+ Countries | MySeniorValet',
+      title: 'Worldwide Senior Living | International Options | MySeniorValet',
       description: 'Explore senior living globally across USA, Canada, Australia, Japan, Singapore, Scotland, Mexico, and more. Compare international retirement options.',
       image: defaultImage,
       type: 'website'
@@ -233,8 +236,8 @@ async function getPageMetadata(url: string): Promise<{
   
   if (section === 'assisted-living') {
     return {
-      title: 'Assisted Living Communities | Compare 15,000+ Options | MySeniorValet',
-      description: 'Find assisted living near you. Compare 15,000+ communities with help for daily activities, medication management, and personal care. Verified pricing and reviews.',
+      title: 'Assisted Living Communities | Compare Options | MySeniorValet',
+      description: 'Find assisted living near you. Compare communities with help for daily activities, medication management, and personal care. Verified pricing and reviews.',
       image: defaultImage,
       type: 'website'
     };
@@ -645,8 +648,8 @@ async function getPageMetadata(url: string): Promise<{
 
   // Default home page
   return {
-    title: 'MySeniorValet - Find Senior Living Communities | 35,264+ Verified Locations',
-    description: 'FREE platform for families. Search 35,264+ senior living communities with transparent pricing, verified HUD rates, and real reviews. We NEVER sell your data.',
+    title: 'MySeniorValet - Find Senior Living Communities Near You',
+    description: 'FREE platform for families. Search senior living communities with transparent pricing, verified HUD rates, and real reviews. We NEVER sell your data.',
     image: defaultImage,
     type: 'website',
     keywords: 'senior living, assisted living, memory care, nursing homes, retirement communities, elder care'
