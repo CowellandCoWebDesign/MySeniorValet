@@ -54,4 +54,5 @@
 - [SEO indexing eligibility](seo-indexing-eligibility.md) — ONE evaluateIndexability gates index vs noindex,follow on every surface (shell, SSR, sitemap, client); critical flags only; default-only care type unconfirmed.
 - [Enrichment identity gate](enrichment-identity-gate.md) — website/phone/pricing/capacity writes need the photo path's name+city corroboration; ≥2 mismatches ⇒ identity_suspect (terminal, never auto-rename).
 - [Website-mismatch adjudication](website-mismatch-adjudication.md) — sweep hits are mostly legit operator domains; adjudicate by host bucket (keep/directory/synthetic/flag), never bulk-clear.
+- [Dark-mode global override hazards](dark-mode-global-overrides.md) — never key `.dark !important` overrides on utility classes (stripped hero CTA bg); scope to data-attrs; hero CTAs use !important brand classes.
 - [Fabricated inventory counts ban](fabricated-inventory-counts.md) — never hardcode "N,NNN communities/facilities" anywhere crawlable (JSON-LD, meta, page copy); tests/structured-data-no-fabricated-counts.test.ts enforces repo-wide with allowlist.

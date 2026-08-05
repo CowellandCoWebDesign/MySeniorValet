@@ -175,7 +175,7 @@ describe('MySeniorValetHome', () => {
 
     await waitFor(() => {
       expect(
-        screen.getByText(/Find Senior Living that's right for you/i),
+        screen.getByText(/You Don't Have To Navigate Senior Care Alone/i),
       ).toBeInTheDocument();
     });
   });

@@ -1231,7 +1231,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             You Don't Have To Navigate Senior Care Alone
           </h1>
 
-          <div className="w-16 h-1 bg-green-500 rounded-full mt-4 mb-4" aria-hidden="true"></div>
+          <div className="w-16 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 rounded-full mt-4 mb-4" aria-hidden="true"></div>
 
           <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed max-w-2xl"
             style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
@@ -1250,14 +1250,14 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             <button
               onClick={handleStartYourSearch}
               data-testid="button-start-your-search"
-              className="px-8 py-3.5 bg-green-700 hover:bg-green-800 text-white text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors"
+              className="hero-cta-primary px-8 py-3.5 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors"
             >
               Start Your Search
             </button>
             <Link
               href="/senior-resources-center"
               data-testid="link-browse-resource-directory"
-              className="px-8 py-3.5 bg-white/95 hover:bg-white text-green-800 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors text-center no-underline"
+              className="hero-cta-secondary px-8 py-3.5 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors text-center no-underline"
             >
               Browse the Resource Directory
             </Link>
@@ -1273,7 +1273,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             href="tel:+15307764220"
             data-testid="link-call-scott"
             aria-label="Call our senior placement team at (530) 776-4220"
-            className="inline-flex items-center gap-2 mt-3 px-7 py-3 bg-green-700 hover:bg-green-800 text-white text-lg font-bold rounded-lg shadow-xl transition-colors no-underline"
+            className="hero-cta-primary inline-flex items-center gap-2 mt-3 px-7 py-3 text-lg font-bold rounded-lg shadow-xl transition-colors no-underline"
           >
             <Phone className="w-5 h-5" />
             (530) 776-4220

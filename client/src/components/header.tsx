@@ -82,6 +82,7 @@ export function Header() {
                   variant="outline" 
                   size="sm" 
                   className="lg:hidden px-2 py-1.5 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600 shadow-sm hover:shadow-md transition-all" 
+                  data-mobile-menu
                   aria-label="Open navigation menu"
                 >
                   <Menu className="h-5 w-5 text-gray-700 dark:text-gray-300" aria-hidden="true" />

@@ -381,10 +381,47 @@
     background-color: rgb(17 24 39) !important;
   }
   
-  /* Fix mobile menu button */
-  .dark button.lg\:hidden {
+  /* Fix mobile menu button.
+     Scoped to explicit [data-mobile-menu] triggers only — a broad selector like
+     `button.lg\:hidden` strips the background from ANY button carrying that
+     utility class (this is what made hero CTAs render transparent). */
+  .dark button[data-mobile-menu] {
     background-color: transparent !important;
   }
+}
+
+/* Hero CTA buttons — MySeniorValet brand palette (blue → purple, matching the
+   header logo gradient). Backgrounds/colors are asserted with !important at the
+   component level so the global dark-mode overrides above can never strip them
+   and leave a transparent button over the hero photo. */
+.hero-cta-primary {
+  background-color: rgb(37 99 235) !important; /* blue-600 fallback */
+  background-image: linear-gradient(135deg, rgb(37 99 235), rgb(124 58 237)) !important; /* blue-600 → violet-600 */
+  color: rgb(255 255 255) !important;
+}
+
+.hero-cta-primary:hover {
+  background-color: rgb(29 78 216) !important; /* blue-700 fallback */
+  background-image: linear-gradient(135deg, rgb(29 78 216), rgb(109 40 217)) !important; /* blue-700 → violet-700 */
+}
+
+.hero-cta-secondary {
+  background-color: rgb(255 255 255) !important;
+  color: rgb(29 78 216) !important; /* blue-700 */
+}
+
+.hero-cta-secondary:hover {
+  background-color: rgb(239 246 255) !important; /* blue-50 */
+}
+
+.dark .hero-cta-secondary {
+  background-color: rgb(30 41 59) !important; /* slate-800 */
+  color: rgb(191 219 254) !important; /* blue-200 */
+  border: 1px solid rgb(148 163 184 / 0.5); /* slate-400/50 */
+}
+
+.dark .hero-cta-secondary:hover {
+  background-color: rgb(51 65 85) !important; /* slate-700 */
 }
 
 /* Accessibility Preferences Styles */

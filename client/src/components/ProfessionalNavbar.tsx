@@ -217,6 +217,7 @@ export function ProfessionalNavbar({ transparent = false, className }: NavbarPro
               <SheetTrigger asChild className="lg:hidden">
                 <button
                   className="text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors duration-200"
+                  data-mobile-menu
                   aria-label="Open menu"
                 >
                   <span className="text-2xl">🧭</span>
