@@ -1097,20 +1097,12 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
     }
   };
 
-  // "Start Your Search" CTA: jump to the community search bar below the hero.
-  // Switches back to the Communities tab first (where the search bar lives),
-  // then scrolls to it and focuses the input so families can type right away.
+  // "Start Your Search" CTA: open the guided 5-step placement intake wizard.
+  // (The community search bar below the hero is untouched — families who want
+  // to self-serve can still search directly.)
   const handleStartYourSearch = useCallback(() => {
-    onTabChange('communities');
-    setTimeout(() => {
-      const el = document.getElementById('home-community-search');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        const input = el.querySelector('input');
-        if (input) (input as HTMLInputElement).focus({ preventScroll: true });
-      }
-    }, 100);
-  }, [onTabChange]);
+    setLocation('/start-your-search');
+  }, [setLocation]);
 
   return (
     <>

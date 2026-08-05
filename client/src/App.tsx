@@ -244,6 +244,12 @@ function Router() {
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
       <Route path="/search">{() => <Redirect to={`/ai-search-intelligence${window.location.search}`} />}</Route>
       <Route path="/simplified-search">{() => <Redirect to={`/ai-search-intelligence${window.location.search}`} />}</Route>
+      <Route path="/start-your-search">
+        {() => {
+          const Component = lazy(() => import('./pages/start-your-search'));
+          return <Suspense fallback={<div />}><Component /></Suspense>;
+        }}
+      </Route>
       <Route path="/enhanced-search-demo">
         {() => {
           const Component = lazy(() => import('./components/EnhancedSearchDemo'));

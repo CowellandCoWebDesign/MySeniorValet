@@ -216,6 +216,171 @@ const STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secon
   archived: { label: 'Archived', variant: 'outline' },
 };
 
+const INQUIRY_STATUS_CONFIG: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
+  new: { label: 'New', variant: 'destructive' },
+  contacted: { label: 'Contacted', variant: 'default' },
+  closed: { label: 'Closed', variant: 'outline' },
+};
+
+const INQUIRY_LABELS: Record<string, string> = {
+  myself: 'Myself',
+  parent: 'A parent',
+  spouse_partner: 'A spouse or partner',
+  someone_else: 'Someone else',
+  assisted_living: 'Assisted Living',
+  memory_care: 'Memory Care',
+  independent_living: 'Independent Living',
+  not_sure: 'Not sure yet',
+  immediately: 'Immediately',
+  within_30_days: 'Within 30 days',
+  one_to_three_months: '1–3 months',
+  just_researching: 'Just researching',
+};
+
+/** Guided "Start Your Search" placement inquiries (5-step intake wizard leads). */
+function PlacementInquiriesTab() {
+  const { toast } = useToast();
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
+  const { data: inquiries = [], isLoading, refetch } = useQuery<any[]>({
+    queryKey: ['/api/admin/placement-inquiries', statusFilter],
+    queryFn: async () => {
+      const params = statusFilter !== 'all' ? `?status=${statusFilter}` : '';
+      const res = await fetch(`/api/admin/placement-inquiries${params}`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Failed to load placement inquiries');
+      return res.json();
+    },
+  });
+
+  const updateStatus = useMutation({
+    mutationFn: async ({ id, status }: { id: number; status: string }) => {
+      const res = await apiRequest('PATCH', `/api/admin/placement-inquiries/${id}/status`, { status });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/admin/placement-inquiries'] });
+      toast({ title: 'Inquiry updated' });
+    },
+    onError: () => {
+      toast({ title: 'Failed to update inquiry', variant: 'destructive' });
+    },
+  });
+
+  const counts = inquiries.reduce((acc: Record<string, number>, s: any) => {
+    acc[s.status] = (acc[s.status] || 0) + 1;
+    return acc;
+  }, {});
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-green-500" />
+              Placement Inquiries
+            </CardTitle>
+            <CardDescription>Families who completed the guided "Start Your Search" intake — call back informed</CardDescription>
+          </div>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="flex flex-wrap gap-2 mb-4">
+          {['all', 'new', 'contacted', 'closed'].map(s => (
+            <Button
+              key={s}
+              variant={statusFilter === s ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter(s)}
+              data-testid={`button-inquiry-filter-${s}`}
+            >
+              {s === 'all' ? 'All' : INQUIRY_STATUS_CONFIG[s]?.label}
+              {s === 'all' ? ` (${inquiries.length})` : counts[s] ? ` (${counts[s]})` : ''}
+            </Button>
+          ))}
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <Loader2 className="w-6 h-6 animate-spin" />
+          </div>
+        ) : inquiries.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <Heart className="h-10 w-10 mx-auto mb-3 opacity-30" />
+            <p>No placement inquiries yet</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {inquiries.map((inq: any) => {
+              const cfg = INQUIRY_STATUS_CONFIG[inq.status] || INQUIRY_STATUS_CONFIG.new;
+              const isUrgent = inq.urgency === 'immediately';
+              return (
+                <div
+                  key={inq.id}
+                  className={`border rounded-lg p-4 ${inq.status === 'new' ? (isUrgent ? 'border-red-400/60 bg-red-50/5' : 'border-orange-400/50 bg-orange-50/5') : ''}`}
+                  data-testid={`row-placement-inquiry-${inq.id}`}
+                >
+                  <div className="flex items-start justify-between gap-3 flex-wrap">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold">{inq.name}</span>
+                        <Badge variant={cfg.variant}>{cfg.label}</Badge>
+                        {isUrgent && <Badge variant="destructive">🔥 Immediate</Badge>}
+                        {!inq.ownerEmailDelivered && (
+                          <Badge variant="outline" title="The notification email failed to send — this inquiry is only visible here">
+                            ⚠️ Email not delivered
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                        <span>👤 {INQUIRY_LABELS[inq.relationship] || inq.relationship}</span>
+                        <span>🏠 {INQUIRY_LABELS[inq.careType] || inq.careType}</span>
+                        <span>⏱️ {INQUIRY_LABELS[inq.urgency] || inq.urgency}</span>
+                        <span>📍 {inq.location}</span>
+                      </div>
+                      <div className="text-sm mt-1 flex flex-wrap gap-x-4 gap-y-1">
+                        {inq.phone && (
+                          <a href={`tel:${inq.phone}`} className="text-blue-500 hover:underline inline-flex items-center gap-1">
+                            <Phone className="h-3.5 w-3.5" /> {inq.phone}
+                          </a>
+                        )}
+                        {inq.email && (
+                          <a href={`mailto:${inq.email}`} className="text-blue-500 hover:underline inline-flex items-center gap-1">
+                            <Mail className="h-3.5 w-3.5" /> {inq.email}
+                          </a>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {inq.createdAt ? format(new Date(inq.createdAt), 'MMM d, yyyy h:mm a') : ''}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0">
+                      {inq.status !== 'contacted' && (
+                        <Button size="sm" variant="outline" onClick={() => updateStatus.mutate({ id: inq.id, status: 'contacted' })} data-testid={`button-inquiry-contacted-${inq.id}`}>
+                          Mark contacted
+                        </Button>
+                      )}
+                      {inq.status !== 'closed' && (
+                        <Button size="sm" variant="ghost" onClick={() => updateStatus.mutate({ id: inq.id, status: 'closed' })} data-testid={`button-inquiry-close-${inq.id}`}>
+                          Close
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
 function ContactSubmissionsTab() {
   const { toast } = useToast();
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -3923,6 +4088,7 @@ Communities Created: ${details.stats.communitiesCreated}`;
           </TabsContent>
 
           <TabsContent value="contacts" className="space-y-4">
+            <PlacementInquiriesTab />
             <ContactSubmissionsTab />
           </TabsContent>
 

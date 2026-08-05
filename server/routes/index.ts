@@ -8,6 +8,7 @@ import { registerCommunityRoutes } from "./communityRoutes";
 import { registerCommunityEnrichmentRoutes } from "./community-enrichment-routes";
 import { registerSEOCommunityUrls } from "./seo-community-urls";
 import { registerLeadTrackingRoutes } from "./lead-tracking-routes";
+import { registerPlacementInquiryRoutes } from "./placement-inquiry-routes";
 import { registerHealthcareIntegrationRoutes } from "./healthcareIntegrationRoutes";
 import { registerCommunicationRoutes } from "./communicationRoutes";
 import { registerSalesforceRoutes } from "./salesforceRoutes";
@@ -184,6 +185,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   registerCommunityEnrichmentRoutes(app); // Register enrichment admin endpoints
   registerSEOCommunityUrls(app); // Register SEO-friendly community URLs
   registerLeadTrackingRoutes(app); // Register lead tracking routes
+  registerPlacementInquiryRoutes(app); // Guided "Start Your Search" placement intake
   registerHealthcareIntegrationRoutes(app); // Register healthcare integration routes (Epic, Cerner, Medicare)
   registerCommunicationRoutes(app); // Register communication routes (Zoom, WhatsApp)
   registerSalesforceRoutes(app); // Register Salesforce CRM integration

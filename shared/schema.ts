@@ -1954,6 +1954,39 @@ export const insertContactSubmissionSchema = createInsertSchema(contactSubmissio
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type SelectContactSubmission = typeof contactSubmissions.$inferSelect;
 
+// Guided "Start Your Search" placement intake inquiries (5-step wizard on /start-your-search).
+// Enum-ish columns are plain text validated by zod in the route — intentionally NO DB CHECK
+// constraints (adding enum values later would otherwise require manual ALTERs in dev AND prod).
+export const placementInquiries = pgTable("placement_inquiries", {
+  id: serial("id").primaryKey(),
+
+  // Wizard answers
+  relationship: text("relationship").notNull(), // 'myself' | 'parent' | 'spouse_partner' | 'someone_else'
+  careType: text("care_type").notNull(), // 'assisted_living' | 'memory_care' | 'independent_living' | 'not_sure'
+  urgency: text("urgency").notNull(), // 'immediately' | 'within_30_days' | 'one_to_three_months' | 'just_researching'
+  location: text("location").notNull(), // free-text city or ZIP
+
+  // Contact (name required; at least one of phone/email enforced in the route)
+  name: text("name").notNull(),
+  phone: text("phone"),
+  email: text("email"),
+
+  // Team triage
+  status: text("status").default("new"), // 'new' | 'contacted' | 'closed'
+
+  // Email delivery observability (lead is saved regardless of email outcome)
+  ownerEmailDelivered: boolean("owner_email_delivered").default(false),
+  familyEmailDelivered: boolean("family_email_delivered").default(false),
+
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type SelectPlacementInquiry = typeof placementInquiries.$inferSelect;
+export type InsertPlacementInquiry = typeof placementInquiries.$inferInsert;
+
 // Community Claims - Operator verification system
 export const communityClaims = pgTable("community_claims", {
   id: serial("id").primaryKey(),

@@ -26,6 +26,7 @@ export class RateLimitManager {
     'api_tours': { points: 20, duration: 60 }, // 20 per minute
     'api_claims': { points: 5, duration: 3600 }, // 5 per hour
     'api_emergency': { points: 10, duration: 60 }, // 10 per minute (safety critical)
+    'api_placement_inquiry': { points: 10, duration: 3600, blockDuration: 900 }, // 10 per hour, block 15 min (public intake form)
     
     // Perplexity API endpoints - STRICT limits to reduce costs
     'api_competitive': { points: 5, duration: 60, blockDuration: 300 }, // 5 per minute, block 5 min
@@ -100,6 +101,7 @@ export class RateLimitManager {
     if (endpoint.includes('/auth/reset')) return 'auth_reset';
     
     // API endpoints
+    if (endpoint.includes('/api/placement-inquiries')) return 'api_placement_inquiry';
     if (endpoint.includes('/api/search')) return 'api_search';
     if (endpoint.includes('/api/competitive-analysis')) return 'api_competitive';
     if (endpoint.includes('/api/communities') && endpoint.includes('/verify')) return 'api_verify';
