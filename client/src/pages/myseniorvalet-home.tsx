@@ -1097,6 +1097,21 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
     }
   };
 
+  // "Start Your Search" CTA: jump to the community search bar below the hero.
+  // Switches back to the Communities tab first (where the search bar lives),
+  // then scrolls to it and focuses the input so families can type right away.
+  const handleStartYourSearch = useCallback(() => {
+    onTabChange('communities');
+    setTimeout(() => {
+      const el = document.getElementById('home-community-search');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const input = el.querySelector('input');
+        if (input) (input as HTMLInputElement).focus({ preventScroll: true });
+      }
+    }, 100);
+  }, [onTabChange]);
+
   return (
     <>
       <ProfessionalNavbar transparent />
@@ -1115,8 +1130,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
       <section className={`relative ${isSearchActive ? 'pb-2 md:pb-4' : 'pb-28 sm:pb-32'} mt-16`}
         style={{
           background: 'linear-gradient(135deg, #3d5a1e 0%, #5a7a2e 25%, #4a6a28 50%, #5a7a2e 75%, #3d5a1e 100%)',
-          minHeight: 'calc(70vh - 4rem)',
-          height: isSearchActive ? 'auto' : 'calc(70vh - 4rem)'
+          minHeight: 'calc(70vh - 4rem)'
         }}
       >
         {/* Background Image - Optimized loading - Clickable for home navigation */}
@@ -1218,12 +1232,61 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           </TabsList>
         </div>}
         
-        <div className="w-full px-4 sm:px-8 md:px-16 pt-4 sm:pt-6 md:pt-8 text-center">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-white leading-tight"
+        <div className="w-full max-w-3xl mx-auto px-4 sm:px-8 pt-6 sm:pt-8 md:pt-12 pb-4 text-center flex flex-col items-center">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight"
             style={{ textShadow: '0 2px 8px rgba(0,0,0,0.6), 0 1px 3px rgba(0,0,0,0.4)' }}
           >
-            From affordable options to luxury resorts — Find Senior Living that's right for you!
+            You Don't Have To Navigate Senior Care Alone
           </h1>
+
+          <div className="w-16 h-1 bg-green-500 rounded-full mt-4 mb-4" aria-hidden="true"></div>
+
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed max-w-2xl"
+            style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
+          >
+            We help seniors and their families understand their options, tour communities, and
+            confidently choose the right Assisted Living or Memory Care for their loved one.
+          </p>
+
+          <p className="text-sm sm:text-base text-white/95 mt-3"
+            style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
+          >
+            Personal guidance from <span className="font-semibold">Scott Cowell</span>, Senior Placement Advisor
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mt-6 w-full max-w-md sm:max-w-none">
+            <button
+              onClick={handleStartYourSearch}
+              data-testid="button-start-your-search"
+              className="px-8 py-3.5 bg-green-700 hover:bg-green-800 text-white text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors"
+            >
+              Start Your Search
+            </button>
+            <Link
+              href="/senior-resources-center"
+              data-testid="link-browse-resource-directory"
+              className="px-8 py-3.5 bg-white/95 hover:bg-white text-green-800 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors text-center no-underline"
+            >
+              Browse the Resource Directory
+            </Link>
+          </div>
+
+          <p className="text-xs sm:text-sm text-white/95 mt-5 font-semibold max-w-xl"
+            style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
+          >
+            Scott personally serves families in Shasta, Trinity, Tehama, Butte, and Glenn counties —
+            and our community search covers all 50 states.
+          </p>
+
+          <a
+            href="tel:+15307764220"
+            data-testid="link-call-scott"
+            aria-label="Call Scott Cowell at (530) 776-4220"
+            className="inline-flex items-center gap-2 mt-3 px-7 py-3 bg-green-700 hover:bg-green-800 text-white text-lg font-bold rounded-lg shadow-xl transition-colors no-underline"
+          >
+            <Phone className="w-5 h-5" />
+            (530) 776-4220
+          </a>
         </div>
 
         </div>
@@ -1640,7 +1703,7 @@ function CommunitiesSearchBar() {
   };
 
   return (
-    <div className="mb-8 rounded-2xl bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 p-5 md:p-7 border border-indigo-100/60 dark:border-gray-800">
+    <div id="home-community-search" className="scroll-mt-24 mb-8 rounded-2xl bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 p-5 md:p-7 border border-indigo-100/60 dark:border-gray-800">
       <div className="max-w-3xl mx-auto">
         <div className="text-center mb-4">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
@@ -1838,13 +1901,13 @@ export default function MySeniorValetHome() {
   useSEO({
     title: hasSearchParams 
       ? 'Search Results | MySeniorValet' 
-      : 'Assisted Living, Memory Care, Nursing Homes - Find Senior Housing Near You',
+      : 'Senior Placement Services - Assisted Living & Memory Care Guidance | MySeniorValet',
     description: hasSearchParams
       ? 'Search results for senior living communities'
-      : 'Search senior living communities across USA, Canada, Mexico, Peru & Cuba with transparent pricing, verified HUD rates, and real availability. Compare assisted living, memory care, nursing homes. Free tour scheduling, family sharing tools, and senior resources.',
+      : "You don't have to navigate senior care alone. Placement advisor Scott Cowell helps seniors and families understand their options, tour communities, and confidently choose the right Assisted Living or Memory Care — hands-on in Shasta, Trinity, Tehama, Butte, and Glenn counties, plus a nationwide community search. Call (530) 776-4220.",
     keywords: hasSearchParams
       ? 'senior living search results'
-      : 'senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits, Canadian senior homes',
+      : 'senior placement services, senior placement advisor, senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits',
     canonicalUrl: hasSearchParams 
       ? undefined // Let DynamicSearchSEO handle canonical for search pages
       : 'https://www.myseniorvalet.com/'
@@ -2510,8 +2573,8 @@ export default function MySeniorValetHome() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* SEO Meta Tags for Social Sharing */}
       <SEOMetaTags
-        title="MySeniorValet - Find Assisted Living, Memory Care & Senior Housing"
-        description="Compare assisted living, memory care, independent living, nursing homes & 24/7 caregiving options across thousands of communities. Verified pricing, real availability, no hidden fees."
+        title="MySeniorValet - Senior Placement Services & Senior Living Search"
+        description="You don't have to navigate senior care alone. Get personal guidance from placement advisor Scott Cowell to tour communities and choose the right Assisted Living or Memory Care, plus a nationwide senior living search."
         url="/"
         type="website"
         image="/og-image.png"
