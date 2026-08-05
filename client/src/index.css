@@ -141,59 +141,67 @@
 
 
 
-/* CRITICAL TEXT CONTRAST FIXES - Platform Wide - August 17, 2025 */
+/* ==========================================================================
+   DARK-MODE LEGACY DEFAULTS — policy (August 2026)
+   --------------------------------------------------------------------------
+   These rules exist ONLY to keep older components that were written without
+   `dark:` variants readable in dark mode. They deliberately contain NO
+   `!important` so that any component-declared Tailwind utility — including
+   `dark:` variants, which compile to `.dark .<class>` and appear later in the
+   utilities layer — always wins over these defaults.
+
+   DO NOT add broad `.dark ... !important` rules keyed on Tailwind utility
+   classes or bare elements here. That pattern silently repaints every new
+   component and caused the transparent hero-CTA bug. If a specific element
+   needs a dark override, either:
+     1. add `dark:` variants on the component itself (preferred; see
+        client/src/styles/dark-mode-standards.css), or
+     2. scope the rule to an explicit hook (data attribute / dedicated class),
+        like `button[data-mobile-menu]` below.
+   Enforced by tests/dark-mode-no-broad-important-overrides.test.ts
+   ========================================================================== */
 @layer base {
-  /* Fix all text contrast in dark mode */
   .dark {
     color-scheme: dark;
   }
-  
+
   /* Primary text - High contrast in both modes */
   body {
     color: rgb(17 24 39); /* text-gray-900 */
   }
-  
+
   .dark body {
-    color: rgb(243 244 246) !important; /* text-gray-100 */
+    color: rgb(243 244 246); /* text-gray-100 */
   }
-  
-  /* Text color utilities - Ensure proper contrast */
-  .text-gray-900 { color: rgb(17 24 39) !important; }
-  .dark .text-gray-900 { color: rgb(243 244 246) !important; }
-  
-  .text-gray-800 { color: rgb(31 41 55) !important; }
-  .dark .text-gray-800 { color: rgb(229 231 235) !important; }
-  
-  .text-gray-700 { color: rgb(55 65 81) !important; }
-  .dark .text-gray-700 { color: rgb(209 213 219) !important; }
-  
-  .text-gray-600 { color: rgb(75 85 99) !important; }
-  .dark .text-gray-600 { color: rgb(156 163 175) !important; }
-  
-  .text-gray-500 { color: rgb(107 114 128) !important; }
-  .dark .text-gray-500 { color: rgb(156 163 175) !important; }
-  
-  .text-gray-400 { color: rgb(156 163 175) !important; }
-  .dark .text-gray-400 { color: rgb(209 213 219) !important; }
-  
-  /* Headings - Maximum contrast */
+
+  /* Legacy gray text remaps — beat the light-mode utility on specificity
+     (0,2,0 vs 0,1,0) but lose to any later `dark:` utility of equal
+     specificity, so components that declare their own dark text win. */
+  .dark .text-gray-900 { color: rgb(243 244 246); }
+  .dark .text-gray-800 { color: rgb(229 231 235); }
+  .dark .text-gray-700 { color: rgb(209 213 219); }
+  .dark .text-gray-600 { color: rgb(156 163 175); }
+  .dark .text-gray-500 { color: rgb(156 163 175); }
+  .dark .text-gray-400 { color: rgb(209 213 219); }
+
+  /* Headings */
   h1, h2, h3, h4, h5, h6 {
     color: rgb(17 24 39); /* text-gray-900 */
   }
-  
+
   .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-    color: rgb(255 255 255) !important; /* pure white */
+    color: rgb(255 255 255);
   }
-  
+
   /* Paragraphs and body text */
   p {
     color: rgb(31 41 55); /* text-gray-800 */
   }
-  
+
   .dark p {
-    color: rgb(229 231 235) !important; /* text-gray-200 */
+    color: rgb(229 231 235); /* text-gray-200 */
   }
-  
+
   /* Links should be visible */
   .dark a:not(.btn):not(.button) {
     color: rgb(96 165 250);
@@ -201,73 +209,43 @@
   .dark a:not(.btn):not(.button):hover {
     color: rgb(147 197 253);
   }
-  
-  /* Cards and content areas - Better contrast backgrounds */
-  .bg-white {
-    background-color: rgb(255 255 255);
-  }
-  
+
+  /* Legacy light-surface remaps for components without dark: variants */
   .dark .bg-white {
-    background-color: rgb(31 41 55) !important; /* gray-800 */
+    background-color: rgb(31 41 55); /* gray-800 */
   }
-  
-  .bg-gray-50 {
-    background-color: rgb(249 250 251);
-  }
-  
+
   .dark .bg-gray-50 {
-    background-color: rgb(17 24 39) !important; /* gray-900 */
+    background-color: rgb(17 24 39); /* gray-900 */
   }
-  
-  /* Card backgrounds for better readability */
+
   .dark .bg-white\/98 {
-    background-color: rgb(31 41 55) !important;
+    background-color: rgb(31 41 55);
   }
-  
+
   .dark .bg-gray-100 {
-    background-color: rgb(31 41 55) !important;
+    background-color: rgb(31 41 55);
   }
-  
+
   /* Borders */
   .dark .border-gray-200,
   .dark .border-gray-300 {
-    border-color: rgb(55 65 81) !important;
+    border-color: rgb(55 65 81);
   }
-  
+
   /* Input fields */
   .dark input, .dark textarea, .dark select {
-    background-color: rgb(31 41 55) !important; color: rgb(255 255 255) !important; border-color: rgb(75 85 99) !important;
+    background-color: rgb(31 41 55); color: rgb(255 255 255); border-color: rgb(75 85 99);
   }
-  
+
   /* Buttons need readable text */
   .dark button {
     color: rgb(255 255 255);
   }
-  
-  .dark button.text-gray-700 {
-    color: rgb(229 231 235) !important;
-  }
-  
-  /* Fix Community Card text in dark mode */
-  .dark .text-gray-900 {
-    color: rgb(243 244 246) !important;
-  }
-  
-  .dark .text-gray-800 {
-    color: rgb(229 231 235) !important;
-  }
-  
-  .dark .text-gray-700 {
-    color: rgb(209 213 219) !important;
-  }
-  
-  .dark .text-gray-600 {
-    color: rgb(156 163 175) !important;
-  }
-  
-  /* Fix badges in dark mode */
+
+  /* Legacy badge remaps */
   .dark .bg-blue-100 {
-    background-color: rgba(30, 58, 138, 0.3) !important;
+    background-color: rgba(30, 58, 138, 0.3);
   }
 
   /* Hide scrollbar for carousel */
@@ -280,113 +258,110 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
-  
+
   .dark .text-blue-800 {
-    color: rgb(147 197 253) !important;
+    color: rgb(147 197 253);
   }
-  
+
   .dark .bg-green-100 {
-    background-color: rgba(20, 83, 45, 0.3) !important;
+    background-color: rgba(20, 83, 45, 0.3);
   }
-  
+
   .dark .text-green-800 {
-    color: rgb(134 239 172) !important;
+    color: rgb(134 239 172);
   }
-  
+
   .dark .bg-yellow-100 {
-    background-color: rgba(113, 63, 18, 0.3) !important;
+    background-color: rgba(113, 63, 18, 0.3);
   }
-  
+
   .dark .text-yellow-800 {
-    color: rgb(253 224 71) !important;
+    color: rgb(253 224 71);
   }
-  
+
   .dark .bg-red-100 {
-    background-color: rgba(127, 29, 29, 0.3) !important;
+    background-color: rgba(127, 29, 29, 0.3);
   }
-  
+
   .dark .text-red-800 {
-    color: rgb(252 165 165) !important;
+    color: rgb(252 165 165);
   }
-  
-  /* Fix dropdown menus in dark mode */
+
+  /* Dropdown menus (legacy default; dark: utilities on the menu win) */
   .dark [role="menu"] {
-    background-color: rgb(31 41 55) !important; border-color: rgb(55 65 81) !important;
+    background-color: rgb(31 41 55); border-color: rgb(55 65 81);
   }
-  
+
   .dark [role="menuitem"] {
-    color: rgb(243 244 246) !important;
+    color: rgb(243 244 246);
   }
-  
-  /* Fix modals and dialogs */
+
+  /* Modals and dialogs (legacy default; token-based bg-popover/bg-card and
+     dark: utilities declared on the dialog content itself take precedence
+     when they appear later in the utilities layer) */
   .dark [role="dialog"] {
-    background-color: rgb(31 41 55) !important; color: rgb(243 244 246) !important;
+    background-color: rgb(31 41 55); color: rgb(243 244 246);
   }
-  
-  /* Fix form labels */
+
+  /* Form labels */
   .dark label {
-    color: rgb(229 231 235) !important;
+    color: rgb(229 231 235);
   }
-  
-  /* Fix placeholder text */
+
+  /* Placeholder text */
   .dark ::placeholder {
-    color: rgb(107 114 128) !important;
+    color: rgb(107 114 128);
   }
-  
-  /* Fix disabled elements */
+
+  /* Disabled elements */
   .dark :disabled {
-    opacity: 0.5 !important;
+    opacity: 0.5;
   }
-  
-  /* Fix tooltips */
+
+  /* Tooltips */
   .dark [role="tooltip"] {
-    background-color: rgb(17 24 39) !important; color: rgb(243 244 246) !important; border-color: rgb(55 65 81) !important;
+    background-color: rgb(17 24 39); color: rgb(243 244 246); border-color: rgb(55 65 81);
   }
-  
-  /* Fix table text */
+
+  /* Table text */
   .dark table {
-    color: rgb(229 231 235) !important;
+    color: rgb(229 231 235);
   }
-  
+
   .dark th {
-    color: rgb(243 244 246) !important; border-color: rgb(55 65 81) !important;
+    color: rgb(243 244 246); border-color: rgb(55 65 81);
   }
-  
+
   .dark td {
-    color: rgb(209 213 219) !important; border-color: rgb(55 65 81) !important;
+    color: rgb(209 213 219); border-color: rgb(55 65 81);
   }
-  
-  /* Fix list items */
+
+  /* List items */
   .dark li {
-    color: rgb(229 231 235) !important;
+    color: rgb(229 231 235);
   }
-  
-  /* Fix navigation links */
+
+  /* Navigation links */
   .dark nav a {
-    color: rgb(229 231 235) !important;
+    color: rgb(229 231 235);
   }
-  
-  /* Fix footer text */
+
+  /* Footer text */
   .dark footer {
-    color: rgb(209 213 219) !important;
+    color: rgb(209 213 219);
   }
-  
-  /* Fix ghost buttons in dark mode */
+
+  /* Ghost buttons — scoped to an explicit data-attribute hook */
   .dark button[data-variant="ghost"] {
-    background-color: transparent !important;
+    background-color: transparent;
   }
-  
-  /* Fix sheet/drawer backgrounds */
-  .dark [data-radix-portal] [role="dialog"] {
-    background-color: rgb(17 24 39) !important;
-  }
-  
-  /* Fix mobile menu button.
+
+  /* Mobile menu button.
      Scoped to explicit [data-mobile-menu] triggers only — a broad selector like
      `button.lg\:hidden` strips the background from ANY button carrying that
      utility class (this is what made hero CTAs render transparent). */
   .dark button[data-mobile-menu] {
-    background-color: transparent !important;
+    background-color: transparent;
   }
 }
 
