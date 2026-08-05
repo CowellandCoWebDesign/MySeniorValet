@@ -1251,7 +1251,7 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <p className="text-sm sm:text-base text-white/95 mt-3"
             style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
           >
-            Personal guidance from <span className="font-semibold">Scott Cowell</span>, Senior Placement Advisor
+            Personal guidance from our <span className="font-semibold">senior placement team</span>
           </p>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mt-6 w-full max-w-md sm:max-w-none">
@@ -1274,14 +1274,13 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <p className="text-xs sm:text-sm text-white/95 mt-5 font-semibold max-w-xl"
             style={{ textShadow: '0 2px 6px rgba(0,0,0,0.7)' }}
           >
-            Scott personally serves families in Shasta, Trinity, Tehama, Butte, and Glenn counties —
-            and our community search covers all 50 states.
+            Personal guidance for families nationwide — our community search covers all 50 states.
           </p>
 
           <a
             href="tel:+15307764220"
             data-testid="link-call-scott"
-            aria-label="Call Scott Cowell at (530) 776-4220"
+            aria-label="Call our senior placement team at (530) 776-4220"
             className="inline-flex items-center gap-2 mt-3 px-7 py-3 bg-green-700 hover:bg-green-800 text-white text-lg font-bold rounded-lg shadow-xl transition-colors no-underline"
           >
             <Phone className="w-5 h-5" />
@@ -1904,7 +1903,7 @@ export default function MySeniorValetHome() {
       : 'Senior Placement Services - Assisted Living & Memory Care Guidance | MySeniorValet',
     description: hasSearchParams
       ? 'Search results for senior living communities'
-      : "You don't have to navigate senior care alone. Placement advisor Scott Cowell helps seniors and families understand their options, tour communities, and confidently choose the right Assisted Living or Memory Care — hands-on in Shasta, Trinity, Tehama, Butte, and Glenn counties, plus a nationwide community search. Call (530) 776-4220.",
+      : "You don't have to navigate senior care alone. Our senior placement team helps families nationwide understand their options, tour communities, and confidently choose the right Assisted Living or Memory Care — plus a community search covering all 50 states. Call (530) 776-4220.",
     keywords: hasSearchParams
       ? 'senior living search results'
       : 'senior placement services, senior placement advisor, senior living, assisted living, memory care, nursing homes, HUD senior housing, independent living, retirement communities, elder care, senior care facilities, Medicare, Medicaid, VA benefits',
@@ -2574,7 +2573,7 @@ export default function MySeniorValetHome() {
       {/* SEO Meta Tags for Social Sharing */}
       <SEOMetaTags
         title="MySeniorValet - Senior Placement Services & Senior Living Search"
-        description="You don't have to navigate senior care alone. Get personal guidance from placement advisor Scott Cowell to tour communities and choose the right Assisted Living or Memory Care, plus a nationwide senior living search."
+        description="You don't have to navigate senior care alone. Get personal guidance from our senior placement team to tour communities and choose the right Assisted Living or Memory Care, plus a nationwide senior living search."
         url="/"
         type="website"
         image="/og-image.png"
