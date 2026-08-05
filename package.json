@@ -9,6 +9,7 @@
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "test": "jest",
+    "test:hero-cta-mobile": "tsx tests/e2e/hero-cta-mobile.ts",
     "test:seo-counts": "jest tests/structured-data-no-fabricated-counts.test.ts",
     "db:push": "drizzle-kit push"
   },

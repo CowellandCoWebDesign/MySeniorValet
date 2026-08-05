@@ -4,7 +4,7 @@
  *
  * Policy (documented atop the dark-mode block in client/src/index.css):
  * `.dark ...` rules that use `!important` are only allowed when scoped to an
- * explicit hook — a dedicated component class (e.g. .hero-cta-*, .tab-*), a
+ * explicit hook — a dedicated component class (e.g. .tab-*), a
  * data-attribute hook, or third-party widget DOM we cannot add classes to
  * (Leaflet controls). Broad `.dark` overrides keyed on Tailwind utility
  * classes (`.dark .bg-white`) or bare elements (`.dark input`) must NOT use
@@ -61,7 +61,6 @@ function extractRules(css: string, file: string): CssRule[] {
  * widget DOM — not a Tailwind utility class or bare element.
  */
 const ALLOWED_HOOK_PATTERNS: RegExp[] = [
-  /^\.dark\s+\.hero-cta-/, // dedicated hero CTA component classes
   /^\.dark\s+\.tab-(communities|services|healthcare|resources|vendors)\b/, // dedicated tab classes
   /^\.dark\s+\.leaflet-/, // third-party Leaflet control DOM
   /^\.dark\s+[a-z]*\[data-/, // explicit data-attribute hooks
@@ -119,5 +118,23 @@ describe('dark-mode override policy (Task 466)', () => {
         expect(`${sel} => ${m.body.includes('!important')}`).toBe(`${sel} => false`);
       }
     }
+  });
+
+  it('keeps hero CTA protection component-local instead of in the global stylesheet', () => {
+    const globalCss = CSS_FILES.map((rel) =>
+      fs.readFileSync(path.resolve(__dirname, '..', rel), 'utf8'),
+    ).join('\n');
+    const heroSource = fs.readFileSync(
+      path.resolve(__dirname, '..', 'client/src/pages/myseniorvalet-home.tsx'),
+      'utf8',
+    );
+
+    expect(globalCss).not.toContain('.hero-cta-primary');
+    expect(globalCss).not.toContain('.hero-cta-secondary');
+    expect(heroSource).toContain('data-hero-cta="primary"');
+    expect(heroSource).toContain('data-hero-cta="secondary"');
+    expect(heroSource).toContain('<style data-hero-cta-styles>');
+    expect(heroSource).toContain('style={HERO_CTA_PRIMARY_FALLBACK}');
+    expect(heroSource).toContain('style={HERO_CTA_SECONDARY_FALLBACK[theme]}');
   });
 });

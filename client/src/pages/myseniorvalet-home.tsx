@@ -119,6 +119,61 @@ const HERO_IMAGES = [
   { src: heroLighthouseSunset, alt: "A coastal lighthouse silhouetted against a vivid sunset sky" },
 ];
 
+const HERO_CTA_PRIMARY_FALLBACK = {
+  backgroundColor: 'rgb(37 99 235)',
+  backgroundImage: 'linear-gradient(135deg, rgb(37 99 235), rgb(124 58 237))',
+  color: 'rgb(255 255 255)',
+} as const;
+
+const HERO_CTA_SECONDARY_FALLBACK = {
+  light: {
+    backgroundColor: 'rgb(255 255 255)',
+    color: 'rgb(29 78 216)',
+    border: '1px solid rgb(219 234 254)',
+  },
+  dark: {
+    backgroundColor: 'rgb(30 41 59)',
+    color: 'rgb(191 219 254)',
+    border: '1px solid rgb(148 163 184 / 0.5)',
+  },
+} as const;
+
+// This style travels with the hero's markup. The inline styles below are the
+// immediate fallback; these protected rules add hover states and guard against
+// broad theme rules without depending on the global stylesheet.
+const HERO_CTA_PROTECTED_STYLES = `
+  [data-hero-cta="primary"] {
+    background-color: rgb(37 99 235) !important;
+    background-image: linear-gradient(135deg, rgb(37 99 235), rgb(124 58 237)) !important;
+    color: rgb(255 255 255) !important;
+  }
+
+  [data-hero-cta="primary"]:hover {
+    background-color: rgb(29 78 216) !important;
+    background-image: linear-gradient(135deg, rgb(29 78 216), rgb(109 40 217)) !important;
+  }
+
+  [data-hero-cta="secondary"] {
+    background-color: rgb(255 255 255) !important;
+    color: rgb(29 78 216) !important;
+    border: 1px solid rgb(219 234 254) !important;
+  }
+
+  [data-hero-cta="secondary"]:hover {
+    background-color: rgb(239 246 255) !important;
+  }
+
+  html.dark [data-hero-cta="secondary"] {
+    background-color: rgb(30 41 59) !important;
+    color: rgb(191 219 254) !important;
+    border-color: rgb(148 163 184 / 0.5) !important;
+  }
+
+  html.dark [data-hero-cta="secondary"]:hover {
+    background-color: rgb(51 65 85) !important;
+  }
+`;
+
 // Dynamic placeholder texts for search box
 const SEARCH_PLACEHOLDERS = {
   discover: {
@@ -1246,18 +1301,24 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
             Personal guidance from our <span className="font-semibold">senior placement team</span>
           </p>
 
+          <style data-hero-cta-styles>{HERO_CTA_PROTECTED_STYLES}</style>
+
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 mt-6 w-full max-w-md sm:max-w-none">
             <button
               onClick={handleStartYourSearch}
               data-testid="button-start-your-search"
-              className="hero-cta-primary px-8 py-3.5 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors"
+              data-hero-cta="primary"
+              className="px-8 py-3.5 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors"
+              style={HERO_CTA_PRIMARY_FALLBACK}
             >
               Start Your Search
             </button>
             <Link
               href="/senior-resources-center"
               data-testid="link-browse-resource-directory"
-              className="hero-cta-secondary px-8 py-3.5 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors text-center no-underline"
+              data-hero-cta="secondary"
+              className="px-8 py-3.5 text-base sm:text-lg font-semibold rounded-lg shadow-xl transition-colors text-center no-underline"
+              style={HERO_CTA_SECONDARY_FALLBACK[theme]}
             >
               Browse the Resource Directory
             </Link>
@@ -1272,8 +1333,10 @@ function HeroSectionWithTransformingSearch({ activeTab, onTabChange }: { activeT
           <a
             href="tel:+15307764220"
             data-testid="link-call-scott"
+            data-hero-cta="primary"
             aria-label="Call our senior placement team at (530) 776-4220"
-            className="hero-cta-primary inline-flex items-center gap-2 mt-3 px-7 py-3 text-lg font-bold rounded-lg shadow-xl transition-colors no-underline"
+            className="inline-flex items-center gap-2 mt-3 px-7 py-3 text-lg font-bold rounded-lg shadow-xl transition-colors no-underline"
+            style={HERO_CTA_PRIMARY_FALLBACK}
           >
             <Phone className="w-5 h-5" />
             (530) 776-4220
