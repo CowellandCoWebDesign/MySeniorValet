@@ -49,6 +49,34 @@ function readEmbeddedDirectory(): BakedResourceDirectory | undefined {
   return undefined;
 }
 
+function isBakedResourceDirectory(value: unknown): value is BakedResourceDirectory {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<BakedResourceDirectory>;
+  return (
+    Array.isArray(candidate.categories) &&
+    Array.isArray(candidate.counties) &&
+    Array.isArray(candidate.situations) &&
+    Array.isArray(candidate.listings)
+  );
+}
+
+async function fetchBakedDirectory(): Promise<BakedResourceDirectory> {
+  const response = await fetch("/api/senior-resources/directory-baked", {
+    headers: { Accept: "application/json" },
+  });
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!response.ok || !contentType.toLowerCase().includes("application/json")) {
+    throw new Error("The resource directory service returned an invalid response.");
+  }
+
+  const payload: unknown = await response.json();
+  if (!isBakedResourceDirectory(payload)) {
+    throw new Error("The resource directory data is incomplete.");
+  }
+  return payload;
+}
+
 function ScopeBadge({ scope }: { scope: DirectoryListing["scope"] }) {
   if (scope === "curated") {
     return (
@@ -180,15 +208,18 @@ export default function SeniorResources() {
 
   // Baked payload: embedded in the HTML by the server; the API call only
   // happens on client-side navigation when the embed isn't present.
-  const { data: directory } = useQuery<BakedResourceDirectory>({
+  const {
+    data: directory,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery<BakedResourceDirectory>({
     queryKey: ["/api/senior-resources/directory-baked"],
-    queryFn: async () => {
-      const response = await fetch("/api/senior-resources/directory-baked");
-      if (!response.ok) throw new Error("Failed to load resource directory");
-      return response.json();
-    },
+    queryFn: fetchBakedDirectory,
     initialData: embedded,
     staleTime: 15 * 60 * 1000,
+    retry: 1,
+    retryDelay: 100,
   });
 
   // Honor #category-anchor links once content is on screen.
@@ -386,8 +417,31 @@ export default function SeniorResources() {
               );
             })}
           </div>
+        ) : isError ? (
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100"
+            data-testid="resource-directory-error"
+          >
+            <h2 className="text-lg font-semibold">We couldn’t load the resource directory.</h2>
+            <p className="mt-1 text-sm">
+              Please try again. You can also dial 2-1-1 for free, confidential local referrals.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+              data-testid="button-retry-directory"
+            >
+              {isFetching ? "Retrying…" : "Retry"}
+            </Button>
+          </div>
         ) : (
-          <p className="text-gray-600 dark:text-gray-300">Loading the resource directory…</p>
+          <p className="text-gray-600 dark:text-gray-300" role="status">
+            Loading the resource directory…
+          </p>
         )}
 
         {/* Footer note */}
