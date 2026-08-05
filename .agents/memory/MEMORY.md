@@ -57,3 +57,4 @@
 - [Website-mismatch adjudication](website-mismatch-adjudication.md) — sweep hits are mostly legit operator domains; adjudicate by host bucket (keep/directory/synthetic/flag), never bulk-clear.
 - [Dark-mode global override hazards](dark-mode-global-overrides.md) — never key `.dark !important` overrides on utility classes (stripped hero CTA bg); scope to data-attrs; hero CTAs use !important brand classes.
 - [Fabricated inventory counts ban](fabricated-inventory-counts.md) — never hardcode "N,NNN communities/facilities" anywhere crawlable (JSON-LD, meta, page copy); tests/structured-data-no-fabricated-counts.test.ts enforces repo-wide with allowlist.
+- [Baked Senior Resource Directory](resource-directory-baked.md) — /senior-resources is shell-injected from stored data only (no live lookup); category ids are public anchor slugs; JSON payload lives outside #root.

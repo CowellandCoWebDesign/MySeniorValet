@@ -4,6 +4,7 @@ import path from 'path';
 import { generateBreadcrumbSchema, generateDirectorySchema } from '../seo/structured-data-generator';
 import { CANONICAL_BASE_URL } from './host-canonical';
 import { injectCommunityMetaIntoShell } from '../seo/community-seo';
+import { injectResourceDirectoryIntoShell } from '../seo/resource-directory-seo';
 
 // Detect if the request is from a social media crawler
 export function isSocialMediaCrawler(userAgent: string | undefined): boolean {
@@ -542,12 +543,13 @@ async function getPageMetadata(url: string): Promise<{
     };
   }
 
-  // Senior Resources pages
+  // Senior Resources hub page. (The /senior-resources DIRECTORY is delegated
+  // to the baked-directory shell injector before this function is reached.)
   if (section === 'senior-resources' || section === 'senior-resources-center') {
     const canonical = `${baseUrl}/senior-resources-center`;
     return {
-      title: 'Senior Resources Center | Medicare, Medicaid & Care Guides | MySeniorValet',
-      description: 'Free senior care resources: Medicare & Medicaid guides, caregiver support, financial planning tools, legal documents, and local services. Everything families need in one place.',
+      title: 'Senior Resources & Support Center | MySeniorValet',
+      description: 'Your hub for senior support: the A–Z Senior Resource Directory, government programs, educational guides, caregiver tools, and 24/7 help lines — all free to use.',
       image: defaultImage,
       type: 'website',
       keywords: 'senior resources, Medicare guide, Medicaid eligibility, caregiver support, elder care planning, VA benefits seniors',
@@ -701,6 +703,22 @@ export async function injectMetaTags(req: Request, res: Response, next: NextFunc
         return;
       }
       // Unresolvable community URL (visibility guard 404/410s upstream) — serve untouched shell.
+      return next();
+    }
+
+    // Senior Resource Directory: delegate to the shared baked-directory
+    // injector so crawlers receive the exact same baked HTML (one
+    // self-canonical, listings in the body) as every other visitor.
+    // Never build directory metadata here.
+    if (reqPath === '/senior-resources' || reqPath === '/senior-resources/') {
+      const injectedDirectory = await injectResourceDirectoryIntoShell('/senior-resources', html);
+      if (injectedDirectory) {
+        res.status(200).set({ 'Content-Type': 'text/html' }).send(injectedDirectory);
+        if (isCrawler) {
+          console.log('✅ Served baked resource directory to social crawler');
+        }
+        return;
+      }
       return next();
     }
 

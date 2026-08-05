@@ -6,6 +6,7 @@ import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
 import { injectCommunityMetaIntoShell } from "./seo/community-seo";
+import { injectResourceDirectoryIntoShell } from "./seo/resource-directory-seo";
 
 const viteLogger = createLogger();
 
@@ -24,7 +25,7 @@ export async function setupVite(app: Express, server: Server) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
-    allowedHosts: true,
+    allowedHosts: true as const,
   };
 
   const vite = await createViteServer({
@@ -63,7 +64,10 @@ export async function setupVite(app: Express, server: Server) {
       // Community detail URLs get community-specific head tags + pre-hydration
       // content injected for ALL user agents (not just detected crawlers).
       // NOTE: inside app.use("*") req.path is mount-stripped — use originalUrl.
-      const injected = await injectCommunityMetaIntoShell(url.split("?")[0], page);
+      const cleanPath = url.split("?")[0];
+      const injected =
+        (await injectCommunityMetaIntoShell(cleanPath, page)) ??
+        (await injectResourceDirectoryIntoShell(cleanPath, page));
       res.status(200).set({ "Content-Type": "text/html" }).end(injected ?? page);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
@@ -91,7 +95,10 @@ export function serveStatic(app: Express) {
       // content injected for ALL user agents (not just detected crawlers).
       const template = await fs.promises.readFile(indexPath, "utf-8");
       // NOTE: inside app.use("*") req.path is mount-stripped — use originalUrl.
-      const injected = await injectCommunityMetaIntoShell(req.originalUrl.split("?")[0], template);
+      const cleanPath = req.originalUrl.split("?")[0];
+      const injected =
+        (await injectCommunityMetaIntoShell(cleanPath, template)) ??
+        (await injectResourceDirectoryIntoShell(cleanPath, template));
       if (injected) {
         res.status(200).set({ "Content-Type": "text/html" }).end(injected);
         return;
