@@ -10,6 +10,7 @@
 - [Search provider failover](search-provider-failover.md) — all free search routes through webSearch(): DDG vqd/JSON primary + Bing HTML fallback; never scrape duckduckgo.com/html (202 challenge).
 - [Sitemap cache staleness](sitemap-cache-staleness.md) — sitemaps file-cached 24h in .cache/sitemaps; clear after URL-format changes or live serves stale URLs; prod has own cache.
 - [Gemini free-tier integration](gemini-free-tier.md) — use native fetch() to v1 REST + gemini-2.5-flash; library uses v1beta (wrong models); city in prompt causes truncating correction tangents.
+- [New tables need startup migration](new-table-startup-migration.md) — every new Drizzle table needs CREATE TABLE IF NOT EXISTS in runStartupMigrations; task-DB changes never merge, only code.
 - [db push schema drift](db-push-schema-drift.md) — `db:push` prompts destructive table renames due to drift; use idempotent `ALTER TABLE ... ADD COLUMN IF NOT EXISTS` for additive changes.
 - [admin API global guard](admin-api-global-guard.md) — `/api/admin/*` returns 401 even for no-auth routes; smoke-test admin logic via psql/tsx, not curl.
 - [Admin route shadowing](admin-router-shadowing.md) — main adminRouter (routes/adminRoutes.ts) registers first & wins overlapping /api/admin/communities paths; add new endpoints there, literals before :id.

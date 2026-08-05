@@ -117,6 +117,32 @@ export async function runStartupMigrations(): Promise<void> {
     ON CONFLICT (key) DO NOTHING
   `);
 
+  // Guided "Start Your Search" placement intake (shared/schema.ts placementInquiries).
+  // The table was created only in an isolated task DB and never merged — DB changes
+  // don't merge across environments, so it must self-heal here on boot (dev AND prod).
+  // Idempotent; columns mirror the Drizzle schema exactly.
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS placement_inquiries (
+      id SERIAL PRIMARY KEY,
+      relationship TEXT NOT NULL,
+      care_type TEXT NOT NULL,
+      urgency TEXT NOT NULL,
+      location TEXT NOT NULL,
+      name TEXT NOT NULL,
+      phone TEXT,
+      email TEXT,
+      status TEXT DEFAULT 'new',
+      owner_email_delivered BOOLEAN DEFAULT false,
+      family_email_delivered BOOLEAN DEFAULT false,
+      ip_address TEXT,
+      user_agent TEXT,
+      created_at TIMESTAMP DEFAULT now(),
+      updated_at TIMESTAMP DEFAULT now()
+    )
+  `);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_placement_inquiries_created_at ON placement_inquiries (created_at DESC)`);
+  await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_placement_inquiries_status ON placement_inquiries (status)`);
+
   // Auto-restore quality-bar senior communities (Task #350, tightened by Task
   // #439's public-quality bar).
   //
@@ -127,7 +153,7 @@ export async function runStartupMigrations(): Promise<void> {
   const restoredCount = await runStartupQualityRestore();
   console.log(`✅ Auto-restored ${restoredCount} quality-bar senior communities (startup restore)`);
 
-  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings)');
+  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings + placement_inquiries)');
 }
 
 // Allow direct execution: `npx tsx server/run-migration.ts`
