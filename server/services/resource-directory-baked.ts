@@ -95,6 +95,29 @@ export function mapToDirectoryCategory(text: string, legacyCategory?: string): s
 
 const COUNTY_ID_LIST = DIRECTORY_COUNTIES.map((c) => c.id);
 
+/**
+ * County-id list as a real PostgreSQL text[] literal for `= ANY(...)`.
+ * Interpolating a JS array directly into a drizzle sql`` template expands it
+ * as a tuple `(a, b, c)`, and `x = ANY((a,b,c))` fails with error 42809
+ * ("op ANY/ALL (array) requires array on right side"). Building
+ * `ARRAY[$1,$2,...]::text[]` keeps values parameterized AND array-typed.
+ */
+export function countyIdArraySql() {
+  return sql`ARRAY[${sql.join(
+    COUNTY_ID_LIST.map((id) => sql`${id}`),
+    sql`, `,
+  )}]::text[]`;
+}
+
+/** WHERE condition selecting cached NorCal senior_resources rows. Exported for tests. */
+export function cachedNorCalCondition(cutoff: Date) {
+  return and(
+    sql`(UPPER(${seniorResources.state}) = 'CA' OR LOWER(${seniorResources.state}) = 'california')`,
+    sql`(LOWER(${seniorResources.metadata}->>'discoveryCounty') = ANY(${countyIdArraySql()}) OR LOWER(${seniorResources.city}) = ANY(${countyIdArraySql()}))`,
+    gte(seniorResources.discoveredAt, cutoff),
+  );
+}
+
 function rowCounty(row: any): string | null {
   const metaCounty = typeof row?.metadata?.discoveryCounty === "string" ? row.metadata.discoveryCounty.toLowerCase().trim() : "";
   if (DIRECTORY_COUNTY_IDS.has(metaCounty)) return metaCounty;
@@ -103,7 +126,7 @@ function rowCounty(row: any): string | null {
   return null;
 }
 
-function cachedRowToListing(row: any): DirectoryListing | null {
+export function cachedRowToListing(row: any): DirectoryListing | null {
   const county = rowCounty(row);
   if (!county) return null;
   if (!row.name || !(row.phone || row.website)) return null; // must be actionable
@@ -139,13 +162,7 @@ async function getCachedNorCalListings(): Promise<DirectoryListing[]> {
     const rows = await db
       .select()
       .from(seniorResources)
-      .where(
-        and(
-          sql`(UPPER(${seniorResources.state}) = 'CA' OR LOWER(${seniorResources.state}) = 'california')`,
-          sql`(LOWER(${seniorResources.metadata}->>'discoveryCounty') = ANY(${COUNTY_ID_LIST}) OR LOWER(${seniorResources.city}) = ANY(${COUNTY_ID_LIST}))`,
-          gte(seniorResources.discoveredAt, cutoff),
-        ),
-      )
+      .where(cachedNorCalCondition(cutoff))
       .limit(200);
     return rows.map(cachedRowToListing).filter((l): l is DirectoryListing => l !== null);
   } catch (err) {
@@ -160,7 +177,7 @@ async function getCachedNorCalListings(): Promise<DirectoryListing[]> {
 
 const nameKey = (n: string) => n.toLowerCase().replace(/[^a-z0-9]/g, "");
 
-function assemble(cached: DirectoryListing[]): BakedResourceDirectory {
+export function assemble(cached: DirectoryListing[]): BakedResourceDirectory {
   // Curated first; cached/discovered rows are deduped against curated by name.
   const seen = new Set<string>();
   const listings: DirectoryListing[] = [];

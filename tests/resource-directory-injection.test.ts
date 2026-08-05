@@ -28,6 +28,14 @@ import {
   NATIONAL_LISTINGS,
 } from "../server/data/resource-directory-curated";
 
+import {
+  cachedNorCalCondition,
+  countyIdArraySql,
+  cachedRowToListing,
+  assemble,
+} from "../server/services/resource-directory-baked";
+import { PgDialect } from "drizzle-orm/pg-core";
+
 const BASE = "https://www.myseniorvalet.com";
 
 function fullDirectory(): BakedResourceDirectory {
@@ -96,6 +104,72 @@ describe("curated data integrity", () => {
     for (const s of DIRECTORY_SITUATIONS) {
       expect(DIRECTORY_CATEGORY_IDS.has(s.categoryId)).toBe(true);
     }
+  });
+});
+
+describe("cached NorCal query construction (error 42809 regression)", () => {
+  const dialect = new PgDialect();
+
+  it("builds a real text[] array for ANY(), not a tuple", () => {
+    const q = dialect.sqlToQuery(countyIdArraySql());
+    expect(q.sql).toMatch(/^ARRAY\[\$1(, \$\d+)*\]::text\[\]$/);
+    expect(q.params.length).toBe(DIRECTORY_COUNTIES.length);
+    expect(q.params).toContain("humboldt");
+  });
+
+  it("full cached condition uses = ANY(ARRAY[...]::text[]) and parameterizes the cutoff", () => {
+    const cutoff = new Date("2026-05-01T00:00:00Z");
+    const q = dialect.sqlToQuery(cachedNorCalCondition(cutoff)!);
+    // Both the metadata-county and city comparisons must target an array literal.
+    const anyMatches = q.sql.match(/= ANY\(ARRAY\[/g) || [];
+    expect(anyMatches.length).toBe(2);
+    // Never the tuple form that triggered PostgreSQL error 42809.
+    expect(q.sql).not.toMatch(/= ANY\(\$\d+(, ?\$\d+)+\)/);
+    expect(q.sql).not.toMatch(/= ANY\(\(\$/);
+    // Cutoff is parameterized (drizzle may serialize the Date), never inlined.
+    expect(q.sql).not.toContain("2026-05-01");
+    expect(q.params.length).toBe(DIRECTORY_COUNTIES.length * 2 + 1);
+  });
+
+  it("eligible cached rows are converted and merged into the baked payload", () => {
+    const listing = cachedRowToListing({
+      name: "Test Discovered Meals Program",
+      city: "Redding",
+      state: "CA",
+      phone: "(530) 555-0100",
+      services: ["home-delivered meals"],
+      metadata: { discoveryCounty: "shasta", discoveryCategory: "events-support" },
+      source: "free_discovery",
+    });
+    expect(listing).not.toBeNull();
+    expect(listing!.category).toBe("meals-on-wheels");
+    expect(listing!.counties).toEqual(["shasta"]);
+    expect(listing!.scope).toBe("discovered");
+
+    const dir = assemble([listing!]);
+    expect(dir.listings.some((l) => l.name === "Test Discovered Meals Program")).toBe(true);
+  });
+
+  it("cached rows deduplicate against curated by name and drop non-actionable rows", () => {
+    const dupName = CURATED_LOCAL_LISTINGS[0].name;
+    const dup = cachedRowToListing({
+      name: dupName,
+      state: "CA",
+      phone: "555",
+      metadata: { discoveryCounty: "shasta" },
+    });
+    expect(dup).not.toBeNull();
+    const dir = assemble([dup!]);
+    expect(dir.listings.filter((l) => l.name === dupName)).toHaveLength(1);
+
+    // No phone/website → not actionable → excluded
+    expect(
+      cachedRowToListing({ name: "No Contact Org", state: "CA", metadata: { discoveryCounty: "shasta" } }),
+    ).toBeNull();
+    // Unknown county → excluded
+    expect(
+      cachedRowToListing({ name: "Elsewhere Org", state: "CA", phone: "555", city: "Los Angeles" }),
+    ).toBeNull();
   });
 });
 
