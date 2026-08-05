@@ -575,20 +575,26 @@ export function evaluateCommunity(community: CommunityClassifyLike): CommunityEv
   // Everything below that bar is hidden with a NON-protective `thin_profile`
   // flag — fully reversible: the moment enrichment produces a real description
   // the same recompute flips the row public again and clears the flag.
-  // Meaningful verification (claimed / featured / gov-verified pricing) still
-  // keeps a listing public — an operator-claimed community must not vanish.
+  // Meaningful verification (claimed / featured / gov-verified pricing) can
+  // relax the strict bar — but ONLY when the listing has at least some real
+  // content (a photo or a real description). Verification signals alone must
+  // never keep an EMPTY profile public: unverified claims, seeded
+  // subscription tiers, and brand-shell `is_featured_brand` rows were doing
+  // exactly that (Aug 2026), showing families blank pages.
   // Photos are strongly ranked up (see server/utils/community-ranking.ts) but
   // NOT required until photo enrichment catches up.
   const boilerplate = isBoilerplateDescription(community.description);
   const realDescription = descLen >= 100 && !boilerplate;
   const contactSignal = hasPhone || hasWebsite;
   const qualityBar = realDescription && contactSignal;
+  const verifiedWithContent = meaningfullyVerified && realContent && !boilerplate;
   if (boilerplate) flags.push("boilerplate_description");
-  if (!qualityBar && !meaningfullyVerified) flags.push("thin_profile");
+  if (!qualityBar && !verifiedWithContent) flags.push("thin_profile");
   const keepPublic =
     !testData && // seeded/test/demo fingerprints are NEVER public
+    !clearlyFake && // brand shells / fabricated records are NEVER public
     classification !== "non_senior" &&
-    (qualityBar || meaningfullyVerified);
+    (qualityBar || verifiedWithContent);
 
   return {
     classification,

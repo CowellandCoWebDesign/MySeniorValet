@@ -385,10 +385,14 @@ export function registerCommunityRoutes(app: Express) {
         'ETag': `community-count-${Date.now()}`
       });
       
-      // Get community count
+      // Get community count — ONLY the publicly browsable set (same predicate
+      // as every listing surface, incl. the default HUD exclusion). Counting
+      // every row (incl. ~30k hidden/quarantined records) made the home-page
+      // number RISE as junk was cleaned up, which is exactly backwards.
       const [{ communityCount }] = await db
         .select({ communityCount: sql`count(*)` })
-        .from(communities);
+        .from(communities)
+        .where(and(eq(communities.isActive, true), publicVisibleFilter()));
       
       // Get vendor/service count (including discovered services)
       const [{ vendorCount }] = await db

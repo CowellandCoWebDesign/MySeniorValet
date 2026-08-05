@@ -21,9 +21,15 @@ DB writer. Never hand-roll a separate visibility rule.
 
 
 ## Public-quality bar (supersedes older keep-public paths)
-- **keepPublic = NOT testData AND classification ≠ non_senior AND
-  (qualityBar OR meaningfullyVerified)** where qualityBar = real description
-  (≥100 chars AND not boilerplate) AND contact signal (phone OR website).
+- **keepPublic = NOT testData AND NOT clearlyFake AND classification ≠ non_senior AND
+  (qualityBar OR verifiedWithContent)** where qualityBar = real description
+  (≥100 chars AND not boilerplate) AND contact signal (phone OR website), and
+  verifiedWithContent = meaningfullyVerified AND realContent (≥1 photo or real
+  desc) AND not boilerplate.
+- **Why verification alone is NOT enough (Aug 2026):** junk signals — unverified
+  claims, seeded subscription_tier='featured', brand-shell is_featured_brand
+  rows (Oakmont shells) — kept EMPTY profiles public. Verification may relax
+  the bar only when some real content exists.
 - **Why:** families kept hitting thin/templated profiles; the public catalog is
   quality-real-research only. Photos rank up (large boost in the ranking
   helpers) but are NOT required until photo coverage grows.
@@ -38,36 +44,20 @@ DB writer. Never hand-roll a separate visibility rule.
   test-data name/host exclusions — or it silently re-publishes hidden rows on
   every boot. A guard test + a tsx DB integration script enforce this.
 
-## Older durable decisions (partly superseded above)
-- **STRICT keep-public** = `(meaningfullyVerified OR realContent OR ownRealSite)
-  AND classification ∈ {senior, unknown} AND NOT clearlyFake`. realContent = ≥1
-  photo OR ≥100-char desc. `non_senior` is ALWAYS hidden, even with content.
-- **`ownRealSite` path (thin-but-real, no-wait-for-enrichment):** a
-  `senior`-classified community whose OWN real website is on file is kept PUBLIC
-  even when thin (no photos/desc), because it enriches correctly on-view when
-  opened. `ownRealSite = classification==='senior' && isOwnRealWebsite(website)`.
-  `isOwnRealWebsite()` (exported from community-classification.ts) requires an
-  http(s) URL, rejects the templated fake `-senior-living.com` shape, and rejects
-  aggregator/directory hosts (aplaceformom/caring/seniorly/senioradvisor/
-  assistedliving.org/seniorliving.org/seniorlivingnearme/olera.care/yelp/
-  facebook/google/wikipedia). **Why:** families were losing real communities
-  hidden only for being sparse; on-view enrichment fills them in. Restricted to
-  `senior` ONLY (never `unknown`/`non_senior`) to stay conservative.
-  **How to apply:** it's already in `keepPublic`; a one-time flip needs
-  `runVisibilityPass` on the LIVE + prod DBs (data doesn't merge). If you must
-  hand-write a SQL flip, mirror `isOwnRealWebsite` with contains-ILIKE
-  exclusions (subset-safe — never expose more than the evaluator would).
-- **`screenedThinSenior` path (July 2026 restore):** a `senior`-classified row
-  with a phone OR own real website is kept PUBLIC even when thin, UNLESS its
-  `data_source` is snake_case-only (`^[a-z_]+$` — fingerprint of synthetic
-  government-records import batches; real feeds use human-readable labels).
-  **Why:** a strict pass hid ~8k real licensed facilities (Boise/Eureka CA etc.);
-  synthetic batches are excluded by fingerprints, not by thinness. Template
-  addresses (same address in >5 cities, OR round-hundred `^\d+00 ` address
-  shared by >5 distinct names within ONE city with zero content — e.g. the fake
-  Eureka NV batch) get protective `synthetic_suspected` via
-  `server/scripts/restore-screened-senior-communities.ts` (idempotent; runs in
-  post-merge hook time-boxed; prod needs its own run + restart).
+## SUPERSEDED keep-public paths (ARCHIVED Aug 2026 — do NOT restore)
+The Aug 2026 quality bar above replaced these. They deliberately kept THIN
+profiles public (own-real-website or phone alone was enough), which is exactly
+what the current policy forbids — families must never hit no-content pages.
+Kept here only so nobody re-adds them thinking they were lost by accident:
+- OLD keep-public = `(meaningfullyVerified OR realContent OR ownRealSite)`;
+  an `ownRealSite` path kept thin `senior` rows with their own real website
+  public (on-view enrichment filled them); a `screenedThinSenior` path (July
+  2026) kept thin rows with a phone/own site public unless the `data_source`
+  was a snake_case synthetic-batch fingerprint.
+- Still-useful pieces that SURVIVE: `isOwnRealWebsite()` (aggregator/template
+  host rejection) is still used elsewhere; the synthetic-batch fingerprints
+  (snake_case-only data_source, template addresses shared across >5 cities /
+  round-hundred addresses within one city) remain valid *quarantine* signals.
 - **`meaningfullyVerified` deliberately EXCLUDES legacy `is_verified` and the
   auto-set `subscription_tier='verified'`** — both are auto-applied to ~12k rows
   and mean nothing. Only claim/featured/gov-verified-pricing count.

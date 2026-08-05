@@ -210,8 +210,19 @@ describe("evaluateCommunity keepPublic (public-quality bar: real description + c
     expect(e.flags).toContain("thin_profile");
   });
 
-  it("keeps a meaningfully-verified senior listing public even without content", () => {
+  it("hides a meaningfully-verified listing that has NO real content (Aug 2026 policy)", () => {
     const e = evaluateCommunity({ name: "Sunrise Senior Living", isClaimed: true });
+    expect(e.keepPublic).toBe(false);
+    expect(e.flags).toContain("thin_profile");
+  });
+
+  it("keeps a meaningfully-verified listing public when it has real content", () => {
+    const e = evaluateCommunity({
+      name: "Sunrise Senior Living",
+      isClaimed: true,
+      phone: "555-123-4567",
+      photos: ["https://example.com/exterior.jpg"],
+    });
     expect(e.keepPublic).toBe(true);
     expect(e.flags).not.toContain("thin_profile");
   });
