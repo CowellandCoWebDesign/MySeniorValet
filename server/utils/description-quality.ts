@@ -1,3 +1,8 @@
+import {
+  hasCommunitySpecificSubstance,
+  isBoilerplateOrFailureDescription,
+} from "@shared/community-profile-refresh";
+
 /**
  * Description quality helpers — decide when an enrichment candidate description
  * should REPLACE the stored one. Golden Data Rule: never downgrade a rich,
@@ -38,14 +43,34 @@ export function shouldUpgradeDescription(
   existing: string | null | undefined,
   candidate: string | null | undefined,
   forceRefresh: boolean,
+  familyRefresh = false,
+  subject?: { name?: string | null; city?: string | null },
 ): boolean {
   const cand = (candidate || "").trim();
   if (!cand || cand.length <= 50) return false;
   const existingTrimmed = (existing || "").trim();
   if (cand === existingTrimmed) return false;
 
-  // Explicit refresh (admin/logged-in user) keeps overwriting as before.
+  // Admin force-refresh retains its explicit overwrite semantics. A public
+  // family refresh is intentionally stricter: it must repair the description,
+  // never replace stronger copy with short/generic prose.
   if (forceRefresh) return true;
+  if (familyRefresh) {
+    if (
+      isGenericTemplateDescription(cand) ||
+      isBoilerplateOrFailureDescription(cand) ||
+      !hasCommunitySpecificSubstance(cand, subject?.name, subject?.city)
+    ) {
+      return false;
+    }
+    const existingIsWeak =
+      existingTrimmed.length < 200 ||
+      isGenericTemplateDescription(existingTrimmed) ||
+      isBoilerplateOrFailureDescription(existingTrimmed);
+    return existingIsWeak
+      ? cand.length >= 200
+      : cand.length >= existingTrimmed.length;
+  }
 
   // Nothing meaningful stored — fill the gap.
   if (existingTrimmed.length < 50) return true;

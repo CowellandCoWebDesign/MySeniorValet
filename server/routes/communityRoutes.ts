@@ -2,6 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { communities, reviews, communityClaims, claimedCommunities, pendingCommunities, auditLogs, featuredCommunities, searchHistory, analyticsEvents } from "@shared/schema";
 import { isClearlyFake } from "../../shared/community-classification";
+import { evaluateCommunityProfileRefresh } from "../../shared/community-profile-refresh";
 import { generateCommunitySlug } from "../utils/generate-slug";
 import { eq, and, or, desc, inArray, sql, between, gte, lte, isNotNull, isNull, not } from "drizzle-orm";
 import { insertCommunitySchema, insertListingFlagSchema } from "@shared/schema";
@@ -28,6 +29,7 @@ import { vendors } from "@shared/schema";
 // THE single enrichment pipeline. All enrichment entry points route through this.
 import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
 import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
+import { consumeProfileRefreshRateLimit } from "../services/profile-refresh-rate-limit";
 import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter, excludeHudFilter } from "../utils/community-ranking";
 
 /**
@@ -173,6 +175,8 @@ export function registerCommunityRoutes(app: Express) {
           enrichmentAttempts: communities.enrichmentAttempts,
           lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
           dataQualityFlags: communities.dataQualityFlags,
+          isHidden: communities.isHidden,
+          isActive: communities.isActive,
         })
         .from(communities)
         .where(eq(communities.id, communityId))
@@ -341,6 +345,151 @@ export function registerCommunityRoutes(app: Express) {
         error: "Self-heal enrichment failed",
         message: error instanceof Error ? error.message : "Unknown error",
       });
+    }
+  });
+
+  // ── PUBLIC FAMILY-REQUESTED PROFILE REFRESH ────────────────────────────────
+  // Complements automatic self-heal: families may repair a materially incomplete
+  // or stale profile even when it already has good photos. This still uses the
+  // one unified pipeline, but preserves the gallery and never bypasses terminal
+  // identity/no-data protections. last_enrichment_attempt provides a durable,
+  // per-community 24-hour cost guard shared across server restarts.
+  app.post("/api/communities/:id/profile-refresh", async (req, res) => {
+    try {
+      const communityId = parseInt(req.params.id, 10);
+      if (isNaN(communityId) || String(communityId) !== req.params.id.trim()) {
+        return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      const [community] = await db
+        .select({
+          id: communities.id,
+          name: communities.name,
+          city: communities.city,
+          description: communities.description,
+          amenities: communities.amenities,
+          services: communities.services,
+          phone: communities.phone,
+          website: communities.website,
+          priceRange: communities.priceRange,
+          availabilityStatus: communities.availabilityStatus,
+          lastSuccessfulEnrichment: communities.lastSuccessfulEnrichment,
+          enrichmentStatus: communities.enrichmentStatus,
+          lastEnrichmentAttempt: communities.lastEnrichmentAttempt,
+          dataQualityFlags: communities.dataQualityFlags,
+          isHidden: communities.isHidden,
+          isActive: communities.isActive,
+        })
+        .from(communities)
+        .where(eq(communities.id, communityId))
+        .limit(1);
+
+      if (!community) return res.status(404).json({ error: "Community not found" });
+      if (community.isHidden || community.isActive !== true) {
+        return res.status(404).json({ error: "Community not found" });
+      }
+
+      const evaluation = evaluateCommunityProfileRefresh(community);
+      if (!evaluation.eligible) {
+        return res.json({ skipped: true, reason: "profile is already complete", eligibility: evaluation });
+      }
+      if (community.enrichmentStatus === "no_data") {
+        return res.json({ skipped: true, reason: "no data found (terminal)", eligibility: evaluation });
+      }
+      if (isIdentitySuspectFlagged(community.dataQualityFlags)) {
+        return res.json({
+          skipped: true,
+          reason: "identity suspect (awaiting admin review)",
+          eligibility: evaluation,
+        });
+      }
+
+      const forwarded = req.headers["x-forwarded-for"];
+      const requesterIp =
+        (typeof forwarded === "string" ? forwarded.split(",")[0].trim() : "") ||
+        req.ip ||
+        "unknown";
+      const requestLimit = await consumeProfileRefreshRateLimit(requesterIp);
+      if (!requestLimit.allowed) {
+        const retryAfterSeconds = requestLimit.retryAfterSeconds;
+        res.setHeader("Retry-After", retryAfterSeconds);
+        return res.status(429).json({
+          error: "Too Many Requests",
+          reason: "request rate limited",
+          retryAfterSeconds,
+        });
+      }
+
+      const now = Date.now();
+      const lastAttempt = community.lastEnrichmentAttempt
+        ? new Date(community.lastEnrichmentAttempt).getTime()
+        : 0;
+      const hoursSinceAttempt = lastAttempt ? (now - lastAttempt) / 3_600_000 : Infinity;
+      if (community.enrichmentStatus === "in_progress" || hoursSinceAttempt < 24) {
+        const inProgress = community.enrichmentStatus === "in_progress" || hoursSinceAttempt < 10 / 60;
+        return res.json({
+          skipped: true,
+          reason: inProgress ? "enrichment in progress" : "rate limited",
+          retryAfterHours: inProgress ? undefined : Math.max(1, Math.ceil(24 - hoursSinceAttempt)),
+          eligibility: evaluation,
+        });
+      }
+
+      // Atomic durable claim: only one process may move this community into
+      // in_progress once the 24-hour guard has elapsed. The pre-check above gives
+      // a friendly reason; this conditional update closes the cross-instance race.
+      const claimed = await db
+        .update(communities)
+        .set({ enrichmentStatus: "in_progress", lastEnrichmentAttempt: new Date() } as any)
+        .where(sql`
+          ${communities.id} = ${communityId}
+          AND ${communities.isHidden} IS NOT TRUE
+          AND ${communities.isActive} IS TRUE
+          AND ${communities.enrichmentStatus} IS DISTINCT FROM 'in_progress'
+          AND (
+            ${communities.lastEnrichmentAttempt} IS NULL
+            OR ${communities.lastEnrichmentAttempt} < NOW() - INTERVAL '24 hours'
+          )
+        `)
+        .returning({ id: communities.id });
+      if (claimed.length === 0) {
+        return res.json({
+          skipped: true,
+          reason: "enrichment in progress",
+          eligibility: evaluation,
+        });
+      }
+
+      try {
+        const result = await enrichCommunityUnified(communityId, { familyRefresh: true });
+        await db
+          .update(communities)
+          .set({
+            enrichmentStatus: result.contentSaved ? "completed" : community.enrichmentStatus === "completed" ? "completed" : "failed",
+            ...(result.contentSaved ? { lastEnrichmentDate: new Date(), enrichmentAttempts: 0 } : {}),
+          } as any)
+          .where(eq(communities.id, communityId));
+
+        return res.json({
+          success: true,
+          skipped: false,
+          updated: result.contentSaved,
+          improvedSections: result.improvedSections,
+          eligibility: evaluation,
+        });
+      } catch (pipelineErr) {
+        await db
+          .update(communities)
+          .set({ enrichmentStatus: community.enrichmentStatus === "completed" ? "completed" : "failed" } as any)
+          .where(eq(communities.id, communityId));
+        if (pipelineErr instanceof EnrichmentPersistError) {
+          return res.json({ success: false, skipped: false, updated: false, error: "persist_failed" });
+        }
+        throw pipelineErr;
+      }
+    } catch (error) {
+      console.error("❌ [Profile Refresh] Failed:", error);
+      return res.status(500).json({ error: "Profile refresh failed" });
     }
   });
 

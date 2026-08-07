@@ -92,6 +92,9 @@ jest.mock('../../server/nationwide-pricing-research', () => ({ nationwidePricing
 jest.mock('../../server/intelligent-pricing-system', () => ({ eliminateCallForPricing: () => ({}) }));
 jest.mock('../../server/real-data-analyzer', () => ({ realDataAnalyzer: {} }));
 jest.mock('../../server/services/internal-notifications', () => ({ internalNotifications: {} }));
+jest.mock('../../server/services/profile-refresh-rate-limit', () => ({
+  consumeProfileRefreshRateLimit: () => Promise.resolve({ allowed: true, remaining: 4, retryAfterSeconds: 0 }),
+}));
 jest.mock('../../server/utils/photo-urls', () => ({ normalizePhotoUrls: (x: any) => x }));
 jest.mock('../../server/services/community-photo-enrichment', () => ({ CommunityPhotoEnrichment: {} }));
 

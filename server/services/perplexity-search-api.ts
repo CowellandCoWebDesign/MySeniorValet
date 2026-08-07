@@ -879,6 +879,9 @@ Rules:
     pricing: { min?: number; max?: number; source?: string } | null;
     capacity: number | null;
     unitTypes: string[];
+    careTypes: string[];
+    amenities: string[];
+    services: string[];
     pricingByCareLevel: Array<{ label: string; min: number; max?: number }>;
     photos: Array<{ url: string; source: string; isAuthentic: boolean }>;
     photoDirectoryCandidates: Array<{ url: string; title: string; snippet: string }>;
@@ -889,7 +892,7 @@ Rules:
     console.log(`🧠 [Perplexity Deep Enrich] Researching ${label}`);
 
     // ── 1. Broad Search API call — snippets for grounding + sources + photos ──
-    const broadQuery = `"${community.name}" ${location} senior living community official website phone address pricing management company availability photos`;
+    const broadQuery = `"${community.name}" ${location} senior living official website overview care setting accommodations dining activities amenities services phone address pricing availability photos`;
     const broad = await this.search(broadQuery, {
       max_results: 15,
       max_tokens_per_page: 1024,
@@ -993,6 +996,9 @@ Rules:
       pricing: structured.pricing,
       capacity: structured.capacity,
       unitTypes: structured.unitTypes,
+      careTypes: structured.careTypes,
+      amenities: structured.amenities,
+      services: structured.services,
       pricingByCareLevel: structured.pricingByCareLevel,
       photos: trustedPhotos.slice(0, 12),
       photoDirectoryCandidates,
@@ -1197,6 +1203,9 @@ Rules:
     pricing: { min?: number; max?: number; source?: string } | null;
     capacity: number | null;
     unitTypes: string[];
+    careTypes: string[];
+    amenities: string[];
+    services: string[];
     pricingByCareLevel: Array<{ label: string; min: number; max?: number }>;
   }> {
     const startTime = Date.now();
@@ -1204,6 +1213,7 @@ Rules:
       summary: '', officialWebsite: null, managementCompany: null, phone: null,
       location: null, availability: null, pricing: null,
       capacity: null, unitTypes: [] as string[],
+      careTypes: [] as string[], amenities: [] as string[], services: [] as string[],
       pricingByCareLevel: [] as Array<{ label: string; min: number; max?: number }>,
     };
 
@@ -1213,10 +1223,11 @@ Rules:
       'You are a senior-living data researcher. Extract ONLY facts you can verify from the web ' +
       'and the provided search context. NEVER guess or fabricate. If a field is unknown or ' +
       'unverified, return null for it. Pricing must be a real monthly figure in USD reported for ' +
-      'THIS community; if no real pricing is published, return null (the app shows "Contact for ' +
-      'pricing"). The summary must be a single concise paragraph of at most 1000 characters covering, ' +
-      'where known: monthly pricing, contact info, location, the official website, the management/operating ' +
-      'company, and current availability. Also extract, when published: the licensed capacity / total ' +
+      'THIS community; if no real pricing is published, return null. Write a family-useful, source-grounded ' +
+      'overview of 200-1000 characters when enough facts are published. Cover the care setting, accommodations, ' +
+      'dining, activities, amenities, services, and distinguishing features; do not pad with generic claims. ' +
+      'If the sources do not support a useful overview, return an empty summary. Also extract, when published: ' +
+      'care types, amenities, resident services, the licensed capacity / total ' +
       'unit or bed count (a number), the unit/room types offered (e.g. "Studio", "One Bedroom", ' +
       '"Two Bedroom", "Shared Room", "Private Room", "Companion Suite"), and per-care-level monthly ' +
       'pricing (e.g. Assisted Living vs Memory Care rates). Return null/empty arrays when unverified.';
@@ -1244,6 +1255,21 @@ Rules:
           items: { type: 'string' },
           description: 'Unit/room types offered, e.g. "Studio", "One Bedroom", "Shared Room". Empty if unknown.',
         },
+        careTypes: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Published care settings only, e.g. Independent Living, Assisted Living, Memory Care.',
+        },
+        amenities: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Specific published physical, dining, wellness, or activity amenities. Empty if unknown.',
+        },
+        services: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Specific published resident or care services. Empty if unknown.',
+        },
         pricingByCareLevel: {
           type: 'array',
           items: {
@@ -1259,7 +1285,7 @@ Rules:
           description: 'Verified monthly pricing per care level / room type. Empty if none published.',
         },
       },
-      required: ['summary', 'officialWebsite', 'managementCompany', 'phone', 'location', 'availability', 'pricingMin', 'pricingMax', 'pricingSource', 'capacity', 'unitTypes', 'pricingByCareLevel'],
+      required: ['summary', 'officialWebsite', 'managementCompany', 'phone', 'location', 'availability', 'pricingMin', 'pricingMax', 'pricingSource', 'capacity', 'unitTypes', 'careTypes', 'amenities', 'services', 'pricingByCareLevel'],
       additionalProperties: false,
     };
 
@@ -1341,6 +1367,13 @@ Rules:
               .filter((u: string) => u.length > 0 && u.length <= 60 && u.toLowerCase() !== 'null'),
           )] as string[]
         : [];
+      const cleanList = (value: any, max = 20): string[] =>
+        Array.isArray(value)
+          ? [...new Set(value
+              .map((item: any) => (typeof item === 'string' ? item.trim() : ''))
+              .filter((item: string) => item.length >= 2 && item.length <= 80 && item.toLowerCase() !== 'null'))]
+              .slice(0, max) as string[]
+          : [];
 
       // Per-care-level pricing: keep only entries with a real label and a
       // plausible monthly USD figure (Golden Data Rule — drop junk rows).
@@ -1370,6 +1403,9 @@ Rules:
         pricing,
         capacity,
         unitTypes,
+        careTypes: cleanList(parsed.careTypes, 10),
+        amenities: cleanList(parsed.amenities),
+        services: cleanList(parsed.services),
         pricingByCareLevel,
       };
     } catch (error) {

@@ -66,6 +66,10 @@ import { useVirtualTourDetection } from '@/hooks/useVirtualTourDetection';
 import { SEOMetaTags } from '@/components/SEOMetaTags';
 import { evaluateIndexability } from '@shared/community-indexability';
 import {
+  evaluateCommunityProfileRefresh,
+  type ProfileRefreshReason,
+} from '@shared/community-profile-refresh';
+import {
   buildProfileFacts,
   ProfileHeaderBand,
   QuickFactsStrip,
@@ -798,9 +802,11 @@ export default function CommunityDetail() {
   // public self-heal endpoint ONCE per session to enrich it without admin login.
   const [selfHealAttempted, setSelfHealAttempted] = useState(false);
   const [isSelfHealing, setIsSelfHealing] = useState(false);
-  // Task #352: "Get the latest info" CTA — tracks the user-initiated fetch so
-  // we can show an honest failure state when nothing could be found.
-  const [latestInfoRequested, setLatestInfoRequested] = useState(false);
+  const [profileRefreshState, setProfileRefreshState] = useState<
+    'idle' | 'refreshing' | 'updated' | 'no_changes' | 'try_later'
+  >('idle');
+  const [profileRefreshSections, setProfileRefreshSections] = useState<string[]>([]);
+  const [profileRefreshMessage, setProfileRefreshMessage] = useState('');
 
   // Human verification gate — checked once per browser session
   const [humanVerified, setHumanVerified] = useState<boolean>(() => {
@@ -1441,6 +1447,70 @@ export default function CommunityDetail() {
       setHasStartedVerification(false); // Allow retry on error
     } finally {
       setIsVerifying(false);
+    }
+  };
+
+  const handleProfileRefresh = async () => {
+    if (!community?.id || profileRefreshState === 'refreshing') return;
+    setProfileRefreshState('refreshing');
+    setProfileRefreshMessage('');
+    setProfileRefreshSections([]);
+
+    try {
+      const response = await fetch(`/api/communities/${community.id}/profile-refresh`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      if (!response.ok) throw new Error(`Profile refresh failed: ${response.status}`);
+      const result = await response.json();
+
+      if (result.success === false) {
+        setProfileRefreshState('try_later');
+        setProfileRefreshMessage(
+          result.error === 'persist_failed'
+            ? 'We found information but could not save it safely. Please try again later.'
+            : 'We could not refresh this profile right now. Please try again later.',
+        );
+        return;
+      }
+
+      if (result.skipped) {
+        if (result.reason === 'profile is already complete') {
+          setProfileRefreshState('updated');
+          setProfileRefreshMessage('This profile is already up to date.');
+        } else {
+          setProfileRefreshState('try_later');
+          setProfileRefreshMessage(
+            result.reason === 'rate limited'
+              ? `This profile was checked recently. Please try again in about ${result.retryAfterHours || 24} hours.`
+              : result.reason === 'enrichment in progress'
+                ? 'A refresh is already in progress. Please check back shortly.'
+                : 'This profile cannot be refreshed automatically right now.',
+          );
+        }
+        return;
+      }
+
+      // The endpoint returns only persisted outcome metadata. Refetch every
+      // authoritative record key so About, amenities, services, pricing and
+      // contact fields update together without a hard reload.
+      const keys = [
+        slugQueryKey,
+        idQueryKey,
+        `/api/communities/${community.id}`,
+      ].filter(Boolean) as string[];
+      await Promise.all(
+        Array.from(new Set(keys)).map((key) =>
+          queryClient.refetchQueries({ queryKey: [key], type: 'active' }),
+        ),
+      );
+      setProfileRefreshSections(result.improvedSections || []);
+      setProfileRefreshState(result.updated ? 'updated' : 'no_changes');
+    } catch (error) {
+      console.error('Profile refresh failed:', error);
+      setProfileRefreshState('try_later');
+      setProfileRefreshMessage('We could not refresh this profile right now. Please try again later.');
     }
   };
 
@@ -2494,42 +2564,50 @@ export default function CommunityDetail() {
 
 
 
-                {/* Task #352: "Get the latest info" CTA — shown when the community
-                    is still blank after the automatic self-heal pass was skipped or
-                    failed, so families can explicitly ask for a live lookup. */}
+                {/* Family-requested profile repair complements automatic self-heal:
+                    it also covers stale/thin profiles that already have photos. */}
                 {(() => {
-                  const descLen = (community.description || '').trim().length;
-                  const photoCount = (community.photos || []).filter(
-                    (p: any) => typeof p === 'string' && p.trim().length > 0,
-                  ).length;
-                  const isBlank = descLen < 80 && photoCount === 0;
-                  if (!isBlank || isSelfHealing) return null;
+                  const evaluation = evaluateCommunityProfileRefresh(community as any);
+                  if (!evaluation.eligible || isSelfHealing) return null;
 
-                  if (isVerifying && latestInfoRequested) {
+                  if (profileRefreshState === 'refreshing') {
                     return (
-                      <Card data-testid="card-latest-info-loading">
+                      <Card data-testid="card-profile-refresh-loading">
                         <CardContent className="py-6">
                           <MascotLoadingDisplay
                             compact
-                            title="Getting the latest info"
+                            title="Refreshing this profile"
                             subtitle={`Searching verified sources for ${community.name}…`}
-                            processStages={["Searching official sources", "Verifying details", "Checking photos"]}
+                            processStages={["Searching official sources", "Verifying details", "Updating profile sections"]}
                           />
                         </CardContent>
                       </Card>
                     );
                   }
 
-                  if (latestInfoRequested && !isVerifying && descLen < 80) {
+                  if (profileRefreshState !== 'idle') {
+                    const updated = profileRefreshState === 'updated';
+                    const noChanges = profileRefreshState === 'no_changes';
                     return (
-                      <Card data-testid="card-latest-info-failed">
+                      <Card data-testid={`card-profile-refresh-${profileRefreshState}`}>
                         <CardContent className="py-6 text-center">
-                          <Info className="w-6 h-6 mx-auto mb-2 text-amber-500" />
+                          {updated ? (
+                            <CheckCircle className="w-6 h-6 mx-auto mb-2 text-green-600" />
+                          ) : (
+                            <Info className="w-6 h-6 mx-auto mb-2 text-amber-500" />
+                          )}
                           <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                            We couldn't find verified information for this community right now.
+                            {updated
+                              ? 'This profile has been updated.'
+                              : noChanges
+                                ? 'We checked, but found nothing new to add.'
+                                : 'Please try again later.'}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Please contact the community directly for details.
+                            {profileRefreshMessage ||
+                              (profileRefreshSections.length > 0
+                                ? `Improved: ${profileRefreshSections.join(', ')}.`
+                                : 'Existing verified information and photos were kept.')}
                           </p>
                         </CardContent>
                       </Card>
@@ -2537,25 +2615,23 @@ export default function CommunityDetail() {
                   }
 
                   return (
-                    <Card data-testid="card-latest-info-cta">
+                    <Card data-testid="card-profile-refresh-cta">
                       <CardContent className="py-6 text-center">
                         <img src={valetMascot} alt="MySeniorValet valet" className="w-16 h-16 mx-auto mb-3 object-contain" />
                         <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-                          We don't have detailed information for this community yet.
+                          Some information on this profile may be incomplete or out of date.
                         </p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
-                          Ask our valet to search verified sources for the latest details and photos.
+                          Ask our Valet to search verified sources for a fuller overview, amenities, services, pricing, availability, and contact details. Existing photos will be kept.
                         </p>
                         <Button
                           onClick={() => {
-                            setLatestInfoRequested(true);
-                            handleManualVerification();
+                            handleProfileRefresh();
                           }}
-                          disabled={isVerifying}
-                          data-testid="button-get-latest-info"
+                          data-testid="button-profile-refresh"
                         >
                           <Sparkles className="w-4 h-4 mr-2" />
-                          Get the latest info
+                          Ask our Valet to refresh this profile
                         </Button>
                       </CardContent>
                     </Card>

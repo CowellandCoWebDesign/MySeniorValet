@@ -142,6 +142,19 @@ export async function runStartupMigrations(): Promise<void> {
   `);
   await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_placement_inquiries_created_at ON placement_inquiries (created_at DESC)`);
   await db.execute(sql`CREATE INDEX IF NOT EXISTS idx_placement_inquiries_status ON placement_inquiries (status)`);
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS profile_refresh_rate_limits (
+      caller_hash VARCHAR(64) NOT NULL,
+      window_started_at TIMESTAMPTZ NOT NULL,
+      request_count INTEGER NOT NULL DEFAULT 1,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (caller_hash, window_started_at)
+    )
+  `);
+  await db.execute(sql`
+    DELETE FROM profile_refresh_rate_limits
+    WHERE window_started_at < NOW() - INTERVAL '48 hours'
+  `);
 
   // Auto-restore quality-bar senior communities (Task #350, tightened by Task
   // #439's public-quality bar).
@@ -153,7 +166,7 @@ export async function runStartupMigrations(): Promise<void> {
   const restoredCount = await runStartupQualityRestore();
   console.log(`✅ Auto-restored ${restoredCount} quality-bar senior communities (startup restore)`);
 
-  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings + placement_inquiries)');
+  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings + placement_inquiries + profile refresh guard)');
 }
 
 // Allow direct execution: `npx tsx server/run-migration.ts`

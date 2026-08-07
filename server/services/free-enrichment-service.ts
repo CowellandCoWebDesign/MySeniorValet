@@ -17,6 +17,7 @@ import { webSearch } from "./search-provider";
 export interface FreeEnrichmentResult {
   about?: string;
   amenities?: string[];
+  services?: string[];
   careTypes?: string[];
   pricingContext?: string;
   phone?: string;

@@ -351,6 +351,11 @@ const bootStart = Date.now();
       process.exit(1);
     }
   });
+
+  // Public profile refresh depends on the shared database-backed cost guard.
+  // Finish idempotent schema readiness before accepting traffic so a fresh
+  // deployment can never expose the paid endpoint without its durable limiter.
+  await runStartupMigrations();
   
   server.listen({
     port,
@@ -358,15 +363,6 @@ const bootStart = Date.now();
   }, () => {
     log(`serving on port ${port}`);
     console.log(`⏱ time-to-listen: ${Math.round(process.uptime() * 1000)}ms (post-import boot: ${Date.now() - bootStart}ms)`);
-
-    // Run idempotent schema migrations in the BACKGROUND (adds community trust
-    // columns if absent). Every statement is IF NOT EXISTS / ON CONFLICT DO
-    // NOTHING and all columns already exist in prod, so post-listen execution
-    // is safe. Never process.exit on failure here — the server is already
-    // serving traffic.
-    runStartupMigrations().catch(error => {
-      console.error('❌ Background startup migrations failed (server continues serving):', error);
-    });
 
     // Reset communities stranded in enrichment_status='in_progress' by a
     // mid-flight restart (e.g. a task merge during the ~15s enrichment window)

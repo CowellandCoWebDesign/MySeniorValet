@@ -137,6 +137,12 @@ export interface UnifiedEnrichmentOptions {
    * it, or a trapped community would re-bill on every anonymous visit.
    */
   photoRediscovery?: boolean;
+  /**
+   * Public, family-requested profile repair. Bypasses the persisted cache while
+   * preserving every usable stored photo and applying stricter description
+   * upgrade rules than an admin force-refresh.
+   */
+  familyRefresh?: boolean;
 }
 
 export interface UnifiedEnrichmentResult {
@@ -168,6 +174,8 @@ export interface UnifiedEnrichmentResult {
   photoAttributions: string[];
   careTypes: string[];
   amenities: string[];
+  services: string[];
+  improvedSections: string[];
   sources: string[];
   /** Structured enrichment blob persisted to communities.enrichmentData. */
   enrichmentData: Record<string, any>;
@@ -311,7 +319,12 @@ async function enrichCommunityUnifiedInner(
   communityId: number,
   opts: UnifiedEnrichmentOptions = {},
 ): Promise<UnifiedEnrichmentResult> {
-  const { forceRefresh = false, websiteUrl, photoRediscovery = false } = opts;
+  const {
+    forceRefresh = false,
+    websiteUrl,
+    photoRediscovery = false,
+    familyRefresh = false,
+  } = opts;
 
   const [community] = await db
     .select()
@@ -366,7 +379,7 @@ async function enrichCommunityUnifiedInner(
         `are servable; bypassing the no-expiry cache to re-discover photos`,
     );
   }
-  if (!forceRefresh && lastEnriched && hasMeaningfulDescription && !photoTrapMiss) {
+  if (!forceRefresh && !familyRefresh && lastEnriched && hasMeaningfulDescription && !photoTrapMiss) {
     console.log(`⚡ Cache hit for "${community.name}" — serving persisted DB data (no expiry)`);
     // Un-stick a stale "in_progress" status (e.g. server crashed mid-run): the
     // community demonstrably HAS content, so it is completed.
@@ -409,8 +422,10 @@ async function enrichCommunityUnifiedInner(
       availability: (community as any).availabilityStatus ?? null,
       photos: cachedPhotos,
       photoAttributions: community.photoAttributions || [],
-      careTypes: [],
-      amenities: [],
+      careTypes: community.careTypes || [],
+      amenities: community.amenities || [],
+      services: community.services || [],
+      improvedSections: [],
       sources: community.website ? [community.website] : [],
       enrichmentData: (community.enrichmentData as any) || {},
     };
@@ -441,7 +456,15 @@ async function enrichCommunityUnifiedInner(
       website: communityWebsite || storedWebsite || undefined,
     });
 
-    if (pplx.summary && pplx.summary.length > 50) {
+    const hasPrimaryFacts =
+      !!pplx.officialWebsite ||
+      !!pplx.phone ||
+      !!pplx.pricing ||
+      !!pplx.availability ||
+      (pplx.careTypes || []).length > 0 ||
+      (pplx.amenities || []).length > 0 ||
+      (pplx.services || []).length > 0;
+    if ((pplx.summary && pplx.summary.length > 50) || hasPrimaryFacts) {
       perplexityPhotos = (pplx.photos || []).map((p) => ({
         url: p.url,
         source: p.source,
@@ -479,8 +502,9 @@ async function enrichCommunityUnifiedInner(
         about: pplx.summary,
         website: pplx.officialWebsite || undefined,
         phone: pplx.phone || undefined,
-        careTypes: [],
-        amenities: [],
+        careTypes: pplx.careTypes || [],
+        amenities: pplx.amenities || [],
+        services: pplx.services || [],
         pricingContext,
         photos: perplexityPhotos.map((p) => p.url),
         sourceUrl: pplx.officialWebsite || communityWebsite || undefined,
@@ -617,6 +641,9 @@ async function enrichCommunityUnifiedInner(
     (freeEnrichment as any).phone = undefined;
     (freeEnrichment as any).pricingContext = undefined;
     (freeEnrichment as any).about = undefined;
+    (freeEnrichment as any).careTypes = [];
+    (freeEnrichment as any).amenities = [];
+    (freeEnrichment as any).services = [];
     managementCompany = null;
     availability = null;
     structuredPricing = null;
@@ -753,6 +780,8 @@ async function enrichCommunityUnifiedInner(
     community.description,
     candidateDescription,
     forceRefresh,
+    familyRefresh,
+    { name: community.name, city: community.city },
   );
   if (descriptionUpgraded) {
     coreUpdates.description = candidateDescription;
@@ -868,7 +897,7 @@ async function enrichCommunityUnifiedInner(
   // Run discovery when there are no usable DB photos OR the caller forced a
   // refresh. A forced refresh MUST re-derive photos so unconfirmed/wrong stored
   // images can be replaced with positively-confirmed ones (or cleared).
-  const shouldRunDiscovery = forceRefresh || !hasDbPhotos;
+  const shouldRunDiscovery = forceRefresh || familyRefresh || !hasDbPhotos;
 
   // Prefer Perplexity's native return_images — reliable, multi-source, confirmed.
   if (shouldRunDiscovery && perplexityPhotos.length > 0) {
@@ -1074,7 +1103,22 @@ async function enrichCommunityUnifiedInner(
   // community falls back to "Contact for details" (Golden Data Rule).
   let clearPhotos = false;
 
-  if (forceRefresh) {
+  if (familyRefresh) {
+    // A family asked to repair profile text/structured facts, not to adjudicate
+    // the gallery. Keep every usable stored photo and add only newly verified
+    // discoveries, deduped. Destructive cleanup remains admin-force-only.
+    const merged = decideForcedRefreshPhotos({
+      confirmedDbPairs: dbPhotoPairs,
+      discoveredPhotos,
+      discoveredPhotoAttributions,
+      discoveryRan,
+      rawDbPhotoCount: 0,
+      cleanDbPhotos,
+      cleanDbAttributions,
+    });
+    photos = merged.photos;
+    photoAttributions = merged.photoAttributions;
+  } else if (forceRefresh) {
     // Forced refresh re-derives photos: preserve confirmed-official DB photos and
     // merge in freshly-confirmed discovery; unconfirmed stored images are dropped.
     const decision = decideForcedRefreshPhotos({
@@ -1125,6 +1169,7 @@ async function enrichCommunityUnifiedInner(
   // lastSuccessfulEnrichment must only be stamped when this is true, else an
   // empty-but-successful run arms the 7-day cache and locks the About section.
   let contentWasSaved = false;
+  const improvedSections: string[] = [];
 
   // Core fields (website/phone/description) were computed — and early-persisted
   // — before the slow photo stage (Stage 2.75). Merge them into the final write
@@ -1135,6 +1180,7 @@ async function enrichCommunityUnifiedInner(
   }
   if (descriptionUpgraded) {
     contentWasSaved = true;
+    improvedSections.push("overview");
   }
 
   // Photos — NON-DESTRUCTIVE except a forced refresh that positively confirms the
@@ -1151,7 +1197,7 @@ async function enrichCommunityUnifiedInner(
     console.log(
       `🧹 Forced refresh: clearing ${rawDbPhotoCount} unconfirmed photo(s) from "${community.name}" (Contact for details)`,
     );
-  } else if (forceRefresh) {
+  } else if (forceRefresh || familyRefresh) {
     // Forced refresh persists the re-derived/merged set (confirmed-official DB
     // photos + freshly-confirmed discovery) whenever it differs from what's
     // stored, replacing unconfirmed images with confirmed ones. Still scrubs when
@@ -1171,6 +1217,7 @@ async function enrichCommunityUnifiedInner(
       updates.lastPhotoEnrichment = now;
       hasUpdates = true;
       if (!samePhotos) contentWasSaved = true;
+      if (!samePhotos) improvedSections.push("photos");
       console.log(
         `✅ Forced refresh persisting ${cleanedFinal.length} confirmed photo(s) for "${community.name}" ` +
           `(attributions: ${Array.from(new Set(updates.photoAttributions)).join(", ")})`,
@@ -1212,29 +1259,78 @@ async function enrichCommunityUnifiedInner(
   }
 
   // Structured fields verified by Perplexity (Golden Data Rule: only real values).
-  if (managementCompany) {
+  if (managementCompany && community.managementCompany !== managementCompany) {
     updates.managementCompany = managementCompany;
     hasUpdates = true;
+    improvedSections.push("management");
+    contentWasSaved = true;
   }
-  if (normalizedAvailability) {
+  if (normalizedAvailability && community.availabilityStatus !== normalizedAvailability) {
     updates.availabilityStatus = normalizedAvailability;
     updates.availabilityLastUpdated = now;
     hasUpdates = true;
+    improvedSections.push("availability");
+    contentWasSaved = true;
   }
   // Capacity parsed from verified prose → totalUnits (only fill a blank; never
   // overwrite an admin/HUD-provided count).
   if (finalCapacity && !community.totalUnits) {
     updates.totalUnits = finalCapacity;
     hasUpdates = true;
+    improvedSections.push("capacity");
+    contentWasSaved = true;
   }
   if (structuredPricing && (structuredPricing.min || structuredPricing.max)) {
-    updates.priceRange = {
+    const candidatePriceRange = {
       min: structuredPricing.min ?? structuredPricing.max,
       max: structuredPricing.max ?? structuredPricing.min,
     };
-    updates.pricingType = "live";
-    updates.pricingLastUpdated = now;
+    if (JSON.stringify(community.priceRange || null) !== JSON.stringify(candidatePriceRange)) {
+      updates.priceRange = candidatePriceRange;
+      updates.pricingType = "live";
+      updates.pricingLastUpdated = now;
+      hasUpdates = true;
+      improvedSections.push("pricing");
+      contentWasSaved = true;
+    }
+  }
+
+  const mergeVerifiedList = (existing: string[] | null | undefined, incoming: string[] | null | undefined) => {
+    const result: string[] = [];
+    const seen = new Set<string>();
+    for (const value of [...(existing || []), ...(incoming || [])]) {
+      const clean = typeof value === "string" ? value.trim() : "";
+      const key = clean.toLowerCase();
+      if (!clean || clean.length > 100 || seen.has(key)) continue;
+      seen.add(key);
+      result.push(clean);
+    }
+    return result;
+  };
+  const mergedCareTypes = mergeVerifiedList(community.careTypes, freeEnrichment.careTypes);
+  const mergedAmenities = mergeVerifiedList(community.amenities, freeEnrichment.amenities);
+  const mergedServices = mergeVerifiedList(community.services, freeEnrichment.services);
+  if (mergedCareTypes.length > (community.careTypes || []).length) {
+    updates.careTypes = mergedCareTypes;
+    improvedSections.push("care types");
     hasUpdates = true;
+    contentWasSaved = true;
+  }
+  if (mergedAmenities.length > (community.amenities || []).length) {
+    updates.amenities = mergedAmenities;
+    improvedSections.push("amenities");
+    hasUpdates = true;
+    contentWasSaved = true;
+  }
+  if (mergedServices.length > (community.services || []).length) {
+    updates.services = mergedServices;
+    improvedSections.push("services");
+    hasUpdates = true;
+    contentWasSaved = true;
+  }
+  if (Object.keys(coreUpdates).some((key) => key === "phone" || key === "website")) {
+    improvedSections.push("contact information");
+    contentWasSaved = true;
   }
 
   // Address correction: if Perplexity found a different city, update + re-geocode.
@@ -1388,8 +1484,10 @@ async function enrichCommunityUnifiedInner(
     availability,
     photos,
     photoAttributions,
-    careTypes: freeEnrichment.careTypes || [],
-    amenities: freeEnrichment.amenities || [],
+    careTypes: mergedCareTypes,
+    amenities: mergedAmenities,
+    services: mergedServices,
+    improvedSections: Array.from(new Set(improvedSections)),
     sources,
     enrichmentData,
   };
