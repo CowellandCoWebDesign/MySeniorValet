@@ -1995,7 +1995,7 @@ export const communityClaims = pgTable("community_claims", {
   
   // Claim Status
   status: text("status", {
-    enum: ["Pending", "Under Review", "Approved", "Rejected", "Cancelled"]
+    enum: ["Pending", "Under Review", "Approved", "Rejected", "Cancelled", "Revoked", "Suspended", "Expired"]
   }).default("Pending"),
   
   // Claimer Information

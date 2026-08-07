@@ -9,6 +9,7 @@ import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { MarketPricingIntelligence } from "../market-pricing-intelligence";
 import { getDynamicSuggestions } from "../services/dynamic-search-suggestions";
 import { supportingEligibilityFilter, isCommunitySupportingEligible } from "../utils/community-ranking";
+import { attachPublicOperatorVerification } from "../services/operator-verification";
 
 export function registerSearchRoutes(app: Express) {
   // Geocode location endpoint for map search
@@ -863,7 +864,9 @@ export function registerSearchRoutes(app: Express) {
       const result = await enhancedSearchService.searchCommunities(searchParams);
       
       // Apply intelligent pricing system to all communities
-      result.communities = result.communities.map(community => eliminateCallForPricing(community));
+      result.communities = await attachPublicOperatorVerification(
+        result.communities.map(community => eliminateCallForPricing(community)),
+      ) as unknown as typeof result.communities;
       
       // Try to geocode the location if provided
       if (searchParams.location) {
@@ -1097,7 +1100,9 @@ export function registerSearchRoutes(app: Express) {
         const communitiesData = Array.isArray(result) ? result : result.rows || [];
         
         // Apply intelligent pricing system
-        const communitiesWithPricing = communitiesData.map((community: any) => eliminateCallForPricing(community));
+        const communitiesWithPricing = await attachPublicOperatorVerification(
+          communitiesData.map((community: any) => eliminateCallForPricing(community)),
+        );
         finalResults = [...communitiesWithPricing];
       }
       

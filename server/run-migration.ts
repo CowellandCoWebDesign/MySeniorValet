@@ -3,6 +3,7 @@ import { sql } from 'drizzle-orm';
 import { PROTECTIVE_FLAG_LIST } from './services/community-visibility';
 import { bootstrapRegistry } from './services/supporting-community-registry';
 import { getSupportingRegistryState } from './utils/community-ranking';
+import { cleanupUnsupportedOperatorClaimFlags } from './scripts/cleanup-unsupported-operator-claims';
 
 /**
  * Single source of truth for the values allowed by the
@@ -167,6 +168,21 @@ export async function runStartupMigrations(): Promise<void> {
   //
   const restoredCount = await runStartupQualityRestore();
   console.log(`✅ Auto-restored ${restoredCount} quality-bar senior communities (startup restore)`);
+
+  // Reconcile unsupported legacy claim mirrors in every environment. The
+  // authoritative community_claims evidence remains untouched; prior mirror
+  // values are recorded in audit_logs so this data cleanup is reversible.
+  try {
+    const unsupportedClaimCount = await cleanupUnsupportedOperatorClaimFlags({
+      apply: true,
+      log: false,
+    });
+    console.log(`✅ Removed ${unsupportedClaimCount} unsupported operator-claim flag set(s) (audited)`);
+  } catch (error) {
+    // Public badge evaluation is fail-closed even if this mirror cleanup has a
+    // transient problem, so availability is safer than blocking server boot.
+    console.error('⚠️ Unsupported operator-claim cleanup failed:', error);
+  }
 
   // Supporting-community registry (Task #483): idempotent CREATE TABLE IF NOT
   // EXISTS + atomic seed of the initial admin-approved allowlist. The public

@@ -29,7 +29,7 @@ const claimedCommunity: CommunityCardData = {
   ...sampleCommunity,
   id: 3,
   name: "Maplewood Operator-Claimed Estate",
-  isClaimed: true,
+  operatorVerified: true,
   rating: 4.1,
   careTypes: ["Independent Living"],
 };

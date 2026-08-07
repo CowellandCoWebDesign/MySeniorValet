@@ -413,7 +413,16 @@ export function qualityRankExpr(): SQL {
     + CASE WHEN "is_featured_brand" IS TRUE
             OR lower(coalesce("subscription_tier", '')) IN ('featured', 'platinum')
            THEN 800 ELSE 0 END
-    + CASE WHEN "is_claimed" IS TRUE OR "claim_verified" IS TRUE THEN 400 ELSE 0 END
+    + CASE WHEN EXISTS (
+        SELECT 1
+        FROM community_claims operator_claim
+        JOIN users operator_user ON operator_user.id = operator_claim.claimer_user_id
+        WHERE operator_claim.community_id = "communities"."id"
+          AND operator_claim.status = 'Approved'
+          AND operator_claim.reviewed_by IS NOT NULL
+          AND operator_claim.reviewed_at IS NOT NULL
+          AND operator_user.is_active IS TRUE
+      ) THEN 400 ELSE 0 END
     + CASE WHEN "hud_property_id" IS NOT NULL
             AND trim("hud_property_id") <> ''
             AND "rent_per_month" IS NOT NULL
@@ -466,8 +475,16 @@ export function verifiedOnlyFilter(): SQL {
     lower(coalesce("quality_tier", '')) IN ('featured', 'verified')
     OR "is_featured_brand" IS TRUE
     OR lower(coalesce("subscription_tier", '')) IN ('featured', 'platinum')
-    OR "is_claimed" IS TRUE
-    OR "claim_verified" IS TRUE
+    OR EXISTS (
+      SELECT 1
+      FROM community_claims operator_claim
+      JOIN users operator_user ON operator_user.id = operator_claim.claimer_user_id
+      WHERE operator_claim.community_id = "communities"."id"
+        AND operator_claim.status = 'Approved'
+        AND operator_claim.reviewed_by IS NOT NULL
+        AND operator_claim.reviewed_at IS NOT NULL
+        AND operator_user.is_active IS TRUE
+    )
     OR (
       "hud_property_id" IS NOT NULL
       AND trim("hud_property_id") <> ''

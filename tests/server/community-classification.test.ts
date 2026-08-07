@@ -94,8 +94,9 @@ describe("isMeaningfullyVerified", () => {
     expect(isMeaningfullyVerified({ subscriptionTier: "verified" })).toBe(false);
   });
 
-  it("counts claimed / featured / gov-verified pricing", () => {
-    expect(isMeaningfullyVerified({ isClaimed: true })).toBe(true);
+  it("counts derived operator evidence / featured / gov-verified pricing", () => {
+    expect(isMeaningfullyVerified({ isClaimed: true, claimVerified: true })).toBe(false);
+    expect(isMeaningfullyVerified({ operatorVerified: true })).toBe(true);
     expect(isMeaningfullyVerified({ subscriptionTier: "featured" })).toBe(true);
     expect(isMeaningfullyVerified({ hudPropertyId: "ABC123", rentPerMonth: 900 })).toBe(true);
     expect(isMeaningfullyVerified({ hudPropertyId: "ABC123", rentPerMonth: 0 })).toBe(false);
@@ -211,7 +212,7 @@ describe("evaluateCommunity keepPublic (public-quality bar: real description + c
   });
 
   it("hides a meaningfully-verified listing that has NO real content (Aug 2026 policy)", () => {
-    const e = evaluateCommunity({ name: "Sunrise Senior Living", isClaimed: true });
+    const e = evaluateCommunity({ name: "Sunrise Senior Living", operatorVerified: true });
     expect(e.keepPublic).toBe(false);
     expect(e.flags).toContain("thin_profile");
   });
@@ -219,7 +220,7 @@ describe("evaluateCommunity keepPublic (public-quality bar: real description + c
   it("keeps a meaningfully-verified listing public when it has real content", () => {
     const e = evaluateCommunity({
       name: "Sunrise Senior Living",
-      isClaimed: true,
+      operatorVerified: true,
       phone: "555-123-4567",
       photos: ["https://example.com/exterior.jpg"],
     });

@@ -32,6 +32,7 @@ import { pricingTransparencyService } from "./pricing-transparency-badges";
 import { sendEmail } from "./sendgrid-service";
 import imageProxyRoutes from './routes/imageProxy';
 import serviceIntelligenceRoutes from './routes/service-intelligence';
+import { attachPublicOperatorVerification } from './services/operator-verification';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Note: Webhook raw body handling is done in server/index.ts before JSON parsing
@@ -627,7 +628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const communities = await query;
       
-      res.json(communities);
+      res.json(await attachPublicOperatorVerification(communities));
     } catch (error) {
       console.error('Error fetching communities:', error);
       res.status(500).json({ error: 'Failed to fetch communities' });
@@ -709,14 +710,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const badges = pricingTransparencyService.evaluateCommunityBadges(community);
         const transparencyScore = pricingTransparencyService.getTransparencyScore(community);
+        const [publicCommunity] = await attachPublicOperatorVerification([community as any]);
         return res.json({ 
-          ...community, 
+          ...publicCommunity,
           transparencyBadges: badges,
           transparencyScore 
         });
       } catch (error) {
         // If badge calculation fails, just return the community
-        return res.json(community);
+        const [publicCommunity] = await attachPublicOperatorVerification([community as any]);
+        return res.json(publicCommunity);
       }
     } catch (error) {
       console.error('Error fetching community:', error);

@@ -56,10 +56,8 @@ export interface CommunityCardData {
   hudPropertyId?: string | null;
   priceTier?: string | null;
   featured?: boolean;
-  isClaimed?: boolean;
-  claimVerified?: boolean;
-  claimed_by?: unknown;
-  claim_verified?: unknown;
+  /** Server-derived from an approved, reviewed claim tied to an active account. */
+  operatorVerified?: boolean;
 
   // Bilingual (Canada surface)
   nameEn?: string | null;
@@ -171,7 +169,7 @@ function resolveBadge(c: CommunityCardData): StatusBadge | null {
       className: "bg-green-600 text-white",
     };
   }
-  if (c.isClaimed || c.claimVerified || c.claimed_by || c.claim_verified) {
+  if (c.operatorVerified === true) {
     return {
       label: "Operator-Verified",
       icon: UserCheck,

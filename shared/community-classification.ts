@@ -115,6 +115,8 @@ export interface CommunityClassifyLike extends CommunityLike {
   is_claimed?: boolean | null;
   claimVerified?: boolean | null;
   claim_verified?: boolean | null;
+  operatorVerified?: boolean | null;
+  operator_verified?: boolean | null;
   isFeaturedBrand?: boolean | null;
   is_featured_brand?: boolean | null;
   subscriptionTier?: string | null;
@@ -325,8 +327,9 @@ export function classifySenior(community: CommunityClassifyLike): SeniorClassifi
 
 /** True for the rare, MEANINGFUL verification signals (not legacy is_verified). */
 export function isMeaningfullyVerified(community: CommunityClassifyLike): boolean {
-  const claimed = Boolean(community.isClaimed ?? community.is_claimed);
-  const claimVerified = Boolean(community.claimVerified ?? community.claim_verified);
+  const operatorVerified = Boolean(
+    community.operatorVerified ?? community.operator_verified,
+  );
   const featuredBrand = Boolean(community.isFeaturedBrand ?? community.is_featured_brand);
   const tier = str(community.subscriptionTier ?? community.subscription_tier).toLowerCase();
   const featuredTier = tier === "featured" || tier === "platinum";
@@ -335,7 +338,7 @@ export function isMeaningfullyVerified(community: CommunityClassifyLike): boolea
   const hudId = str(community.hudPropertyId ?? community.hud_property_id).trim();
   const rent = num(community.rentPerMonth ?? community.rent_per_month);
   const govVerified = hudId.length > 0 && rent > 0;
-  return claimed || claimVerified || featuredBrand || featuredTier || govVerified;
+  return operatorVerified || featuredBrand || featuredTier || govVerified;
 }
 
 function isFeaturedSignal(community: CommunityClassifyLike): boolean {

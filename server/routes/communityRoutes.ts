@@ -31,6 +31,7 @@ import { enrichCommunityUnified, EnrichmentPersistError } from "../services/comm
 import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
 import { consumeProfileRefreshRateLimit } from "../services/profile-refresh-rate-limit";
 import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter, excludeHudFilter, supportingEligibilityFilterSql, isCommunitySupportingEligible } from "../utils/community-ranking";
+import { attachPublicOperatorVerification } from "../services/operator-verification";
 
 /**
  * Single shared predicate for ALL public community queries.
@@ -790,7 +791,7 @@ export function registerCommunityRoutes(app: Express) {
 
       // Short cache so admin curation changes surface on the next home-page load.
       res.set('Cache-Control', 'public, max-age=15');
-      res.json(enriched);
+      res.json(await attachPublicOperatorVerification(enriched));
     } catch (error) {
       console.error("Error fetching section-data:", error);
       res.status(500).json({ error: "Failed to fetch section data" });
@@ -1249,7 +1250,7 @@ export function registerCommunityRoutes(app: Express) {
         })
       );
 
-      res.json(enrichedResults);
+      res.json(await attachPublicOperatorVerification(enrichedResults));
 
       // Fire-and-forget: record search history when meaningful filters are used
       const hasFilters = careTypes || state || city || rating || features || subtypes || priceMin || priceMax;
@@ -2344,14 +2345,14 @@ export function registerCommunityRoutes(app: Express) {
         : null;
 
       // Return all data for server-side rendering
+      const [publicCommunity] = await attachPublicOperatorVerification([enrichedCommunity]);
       res.json({
-        ...enrichedCommunity,
+        ...publicCommunity,
         reviews: communityReviews,
         competitiveAnalysis: enrichedData?.competitiveAnalysis || null,
         webEnrichment: enrichedData?.webEnrichment || null,
         realTimeData: enrichedData?.realTimeData || null,
         comprehensiveData,
-        isClaimed: false
       });
     } catch (error) {
       console.error("Error fetching community by slug:", error);
@@ -2588,10 +2589,10 @@ export function registerCommunityRoutes(app: Express) {
 
       // Skip claimed community check for now - table doesn't exist
 
+      const [publicCommunity] = await attachPublicOperatorVerification([enrichedCommunity]);
       res.json({
-        ...enrichedCommunity,
+        ...publicCommunity,
         reviews: communityReviews,
-        isClaimed: false,
         claimInfo: null,
         realTimeData: realTimeData,
         comprehensiveData,
