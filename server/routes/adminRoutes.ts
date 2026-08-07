@@ -44,6 +44,19 @@ import fs from "fs";
 import path from "path";
 import { clearAllCommunityCaches } from "../infrastructure/cache";
 import { superclusterService } from "../services/supercluster";
+import { clearSitemapCache } from "../sitemap-generator";
+import {
+  SUPPORTING_EXCLUSION_REASONS,
+  SUPPORTING_STATUSES,
+} from "@shared/schema";
+import {
+  getEffectiveEligibility,
+  getRegistryGate,
+  identityKey,
+  normalizeName,
+  normalizeDomain,
+  resolveApprovalCommunityId,
+} from "../services/supporting-community-registry";
 
 // Community photos are stored on disk under public/uploads/community-photos/<id>/
 // and served publicly via the existing express.static('public') middleware in server/index.ts.
@@ -3799,6 +3812,388 @@ export function registerAdminRoutes(app: Express) {
       res.status(500).json({ error: 'Failed to save directory page settings' });
     }
   });
+
+  // ============================================================
+  // Supporting-Community Registry admin management (Task #483)
+  //
+  // The controlled referral-support registry that decides which communities
+  // MySeniorValet publicly offers. Endpoints let admins review the proposed
+  // queue, evidence, matches, and effective eligibility, and approve/revoke
+  // operator families / community matches, or add community-level exclusions.
+  // Exclusion ALWAYS overrides family inheritance and individual approval.
+  //
+  // Table/column/gate names mirror the public eligibility predicate
+  // (server/utils/community-ranking.ts): supporting_operator_families(status),
+  // supporting_operator_aliases/domains, supporting_community_matches(family_id,
+  // community_id, status), supporting_community_approvals(community_id,
+  // approval_key, status), supporting_community_exclusions(community_id,
+  // exclusion_key). All mutations audit through auditLogs.
+  // ============================================================
+
+  async function auditRegistryAction(
+    req: express.Request,
+    action: string,
+    entityType: string,
+    entityId: string | number | null,
+    metadata: Record<string, any>,
+  ) {
+    try {
+      await db.insert(auditLogs).values({
+        userId: null,
+        adminId: (req as any).user?.id || 1,
+        action,
+        entityType,
+        entityId: entityId == null ? null : String(entityId),
+        metadata,
+        ipAddress: req.ip || '',
+        userAgent: req.get('User-Agent'),
+        severity: 'Medium',
+        outcome: 'Success',
+      });
+    } catch (err) {
+      console.error('Failed to write registry audit log:', err);
+    }
+  }
+
+  // Invalidate the public eligibility predicate cache after any registry change
+  // so families see the change immediately (best-effort dynamic import).
+  async function invalidateRegistryCaches() {
+    try {
+      const mod = await import('../utils/community-ranking');
+      mod.invalidateSupportingRegistryState?.();
+    } catch (err) {
+      console.error('Failed to invalidate supporting registry state cache:', err);
+    }
+    clearAllCommunityCaches();
+    communityStatsCache.invalidateCache();
+    await Promise.allSettled([
+      superclusterService.invalidateCache(),
+      clearSitemapCache(),
+    ]);
+  }
+
+  // GET /api/admin/registry/gate — public gate status + effective eligibility
+  adminRouter.get('/registry/gate', async (_req, res) => {
+    try {
+      const [gate, eligibility] = await Promise.all([
+        getRegistryGate(),
+        getEffectiveEligibility(),
+      ]);
+      res.json({ gate, eligibility });
+    } catch (error) {
+      console.error('Error fetching registry gate:', error);
+      res.status(500).json({ error: 'Failed to fetch registry gate' });
+    }
+  });
+
+  // GET /api/admin/registry/eligibility — effective eligibility summary only
+  adminRouter.get('/registry/eligibility', async (_req, res) => {
+    try {
+      res.json(await getEffectiveEligibility());
+    } catch (error) {
+      console.error('Error fetching registry eligibility:', error);
+      res.status(500).json({ error: 'Failed to fetch effective eligibility' });
+    }
+  });
+
+  // GET /api/admin/registry/families?status=approved|proposed|rejected|revoked
+  adminRouter.get('/registry/families', async (req, res) => {
+    try {
+      const { status } = req.query as Record<string, string>;
+      const statusFilter =
+        status && SUPPORTING_STATUSES.includes(status as any)
+          ? sql`WHERE f.status = ${status}`
+          : sql``;
+      const rows = await db.execute(sql`
+        SELECT
+          f.id, f.name, f.slug, f.status, f.evidence, f.created_at, f.updated_at,
+          (SELECT COUNT(*) FROM supporting_operator_aliases a WHERE a.family_id = f.id) AS alias_count,
+          (SELECT COUNT(*) FROM supporting_operator_domains d WHERE d.family_id = f.id) AS domain_count,
+          (SELECT COUNT(*) FROM supporting_community_matches m WHERE m.family_id = f.id) AS match_count,
+          (SELECT COUNT(*) FROM supporting_community_matches m WHERE m.family_id = f.id AND m.status <> 'approved') AS proposed_match_count
+        FROM supporting_operator_families f
+        ${statusFilter}
+        ORDER BY f.name ASC
+      `);
+      res.json({ families: rows.rows });
+    } catch (error) {
+      console.error('Error fetching registry families:', error);
+      res.status(500).json({ error: 'Failed to fetch operator families' });
+    }
+  });
+
+  // GET /api/admin/registry/families/:id — a family with aliases/domains/evidence
+  adminRouter.get('/registry/families/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) return res.status(400).json({ error: 'Invalid family id' });
+      const famRes = await db.execute(sql`SELECT * FROM supporting_operator_families WHERE id = ${id}`);
+      const family = famRes.rows[0];
+      if (!family) return res.status(404).json({ error: 'Operator family not found' });
+      const [aliases, domains] = await Promise.all([
+        db.execute(sql`SELECT id, alias, alias_normalized FROM supporting_operator_aliases WHERE family_id = ${id} ORDER BY alias ASC`),
+        db.execute(sql`SELECT id, domain FROM supporting_operator_domains WHERE family_id = ${id} ORDER BY domain ASC`),
+      ]);
+      res.json({ family, aliases: aliases.rows, domains: domains.rows });
+    } catch (error) {
+      console.error('Error fetching registry family:', error);
+      res.status(500).json({ error: 'Failed to fetch operator family' });
+    }
+  });
+
+  // GET /api/admin/registry/matches?familyId=&status= — matches + community evidence
+  adminRouter.get('/registry/matches', async (req, res) => {
+    try {
+      const { familyId, status } = req.query as Record<string, string>;
+      const parts: any[] = [];
+      const fid = familyId ? parseInt(familyId) : NaN;
+      if (!isNaN(fid) && fid > 0) parts.push(sql`m.family_id = ${fid}`);
+      if (status && SUPPORTING_STATUSES.includes(status as any)) parts.push(sql`m.status = ${status}`);
+      const whereClause = parts.length ? sql`WHERE ${sql.join(parts, sql` AND `)}` : sql``;
+      const rows = await db.execute(sql`
+        SELECT
+          m.id, m.family_id, m.community_id, m.match_method, m.status, m.evidence,
+          f.name AS family_name, f.slug AS family_slug,
+          c.name AS community_name, c.city AS community_city, c.state AS community_state,
+          c.website AS community_website, c.is_active, c.is_hidden
+        FROM supporting_community_matches m
+        JOIN supporting_operator_families f ON f.id = m.family_id
+        JOIN communities c ON c.id = m.community_id
+        ${whereClause}
+        ORDER BY m.status ASC, c.name ASC
+        LIMIT 500
+      `);
+      res.json({ matches: rows.rows });
+    } catch (error) {
+      console.error('Error fetching registry matches:', error);
+      res.status(500).json({ error: 'Failed to fetch community matches' });
+    }
+  });
+
+  // GET /api/admin/registry/approvals — individually approved communities
+  adminRouter.get('/registry/approvals', async (_req, res) => {
+    try {
+      const rows = await db.execute(sql`
+        SELECT id, name, city, state, community_id, status, evidence, updated_at
+        FROM supporting_community_approvals
+        ORDER BY name ASC
+      `);
+      res.json({ approvals: rows.rows });
+    } catch (error) {
+      console.error('Error fetching registry approvals:', error);
+      res.status(500).json({ error: 'Failed to fetch individual approvals' });
+    }
+  });
+
+  // GET /api/admin/registry/exclusions — permanent community-level exclusions
+  adminRouter.get('/registry/exclusions', async (_req, res) => {
+    try {
+      const rows = await db.execute(sql`
+        SELECT id, name, city, state, community_id, reason, note, updated_at
+        FROM supporting_community_exclusions
+        ORDER BY name ASC
+      `);
+      res.json({ exclusions: rows.rows });
+    } catch (error) {
+      console.error('Error fetching registry exclusions:', error);
+      res.status(500).json({ error: 'Failed to fetch exclusions' });
+    }
+  });
+
+  // POST /api/admin/registry/families — create/propose a new operator family
+  //   body: { name, slug?, status?, aliases?: string[], domains?: string[], evidence? }
+  adminRouter.post('/registry/families', async (req, res) => {
+    try {
+      const { name, slug, status, aliases, domains, evidence } = req.body || {};
+      if (typeof name !== 'string' || name.trim().length < 2) {
+        return res.status(400).json({ error: 'name is required (min 2 chars)' });
+      }
+      const famStatus = SUPPORTING_STATUSES.includes(status) ? status : 'proposed';
+      const famSlug = (typeof slug === 'string' && slug.trim())
+        ? slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+        : name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const evJson = evidence && typeof evidence === 'object' ? evidence : {};
+
+      const famRows = await db.execute(sql`
+        INSERT INTO supporting_operator_families (name, slug, status, evidence, updated_at)
+        VALUES (${name.trim()}, ${famSlug}, ${famStatus}, ${JSON.stringify(evJson)}::jsonb, now())
+        ON CONFLICT (slug) DO UPDATE SET name = EXCLUDED.name, evidence = EXCLUDED.evidence, updated_at = now()
+        RETURNING id
+      `);
+      const familyId = Number((famRows.rows[0] as any).id);
+
+      if (Array.isArray(aliases)) {
+        for (const alias of aliases) {
+          if (typeof alias !== 'string' || !alias.trim()) continue;
+          await db.execute(sql`
+            INSERT INTO supporting_operator_aliases (family_id, alias, alias_normalized)
+            VALUES (${familyId}, ${alias.trim()}, ${normalizeName(alias)})
+            ON CONFLICT (family_id, alias_normalized) DO UPDATE SET alias = EXCLUDED.alias
+          `);
+        }
+      }
+      if (Array.isArray(domains)) {
+        for (const domain of domains) {
+          const d = normalizeDomain(domain);
+          if (!d) continue;
+          await db.execute(sql`
+            INSERT INTO supporting_operator_domains (family_id, domain)
+            VALUES (${familyId}, ${d})
+            ON CONFLICT (family_id, domain) DO NOTHING
+          `);
+        }
+      }
+
+      await auditRegistryAction(req, 'registry_family_created', 'supporting_operator_family', familyId, { name, slug: famSlug, status: famStatus });
+      await invalidateRegistryCaches();
+      res.json({ id: familyId, slug: famSlug, status: famStatus });
+    } catch (error) {
+      console.error('Error creating registry family:', error);
+      res.status(500).json({ error: 'Failed to create operator family' });
+    }
+  });
+
+  // POST /api/admin/registry/families/:id/status — approve/revoke/reject a family
+  //   body: { status: approved|proposed|rejected|revoked, reason? }
+  adminRouter.post('/registry/families/:id/status', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) return res.status(400).json({ error: 'Invalid family id' });
+      const { status, reason } = req.body || {};
+      if (!SUPPORTING_STATUSES.includes(status)) {
+        return res.status(400).json({ error: `status must be one of: ${SUPPORTING_STATUSES.join(', ')}` });
+      }
+      const rows = await db.execute(sql`
+        UPDATE supporting_operator_families SET status = ${status}, updated_at = now()
+        WHERE id = ${id}
+        RETURNING id, name, status
+      `);
+      if (!rows.rows[0]) return res.status(404).json({ error: 'Operator family not found' });
+      await auditRegistryAction(req, `registry_family_${status}`, 'supporting_operator_family', id, { reason: reason ?? null });
+      await invalidateRegistryCaches();
+      res.json(rows.rows[0]);
+    } catch (error) {
+      console.error('Error updating registry family status:', error);
+      res.status(500).json({ error: 'Failed to update operator family status' });
+    }
+  });
+
+  // POST /api/admin/registry/matches/:id/status — approve/reject a community match
+  //   body: { status: approved|proposed|rejected|revoked, reason? }
+  adminRouter.post('/registry/matches/:id/status', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) return res.status(400).json({ error: 'Invalid match id' });
+      const { status, reason } = req.body || {};
+      if (!SUPPORTING_STATUSES.includes(status)) {
+        return res.status(400).json({ error: `status must be one of: ${SUPPORTING_STATUSES.join(', ')}` });
+      }
+      const rows = await db.execute(sql`
+        UPDATE supporting_community_matches SET status = ${status}, updated_at = now()
+        WHERE id = ${id}
+        RETURNING id, family_id, community_id, status
+      `);
+      if (!rows.rows[0]) return res.status(404).json({ error: 'Community match not found' });
+      await auditRegistryAction(req, `registry_match_${status}`, 'supporting_community_match', id, { reason: reason ?? null });
+      await invalidateRegistryCaches();
+      res.json(rows.rows[0]);
+    } catch (error) {
+      console.error('Error updating registry match status:', error);
+      res.status(500).json({ error: 'Failed to update community match status' });
+    }
+  });
+
+  // POST /api/admin/registry/approvals — add/approve an individual community
+  //   body: { name, city, state, communityId?, status?, evidence? }
+  // Resolves community_id by exact normalized name+city (+ state aliases) when
+  // not supplied.
+  adminRouter.post('/registry/approvals', async (req, res) => {
+    try {
+      const { name, city, state, communityId, status, evidence } = req.body || {};
+      if (![name, city, state].every((v) => typeof v === 'string' && v.trim())) {
+        return res.status(400).json({ error: 'name, city and state are required' });
+      }
+      const apprStatus = SUPPORTING_STATUSES.includes(status) ? status : 'approved';
+      const key = identityKey(name, city, state);
+      let cid: number | null = Number.isInteger(communityId) && communityId > 0 ? communityId : null;
+      if (cid == null) cid = await resolveApprovalCommunityId(name, city, state);
+      const evJson = evidence && typeof evidence === 'object' ? evidence : {};
+      const rows = await db.execute(sql`
+        INSERT INTO supporting_community_approvals
+          (name, city, state, approval_key, community_id, status, evidence, updated_at)
+        VALUES (${name.trim()}, ${city.trim()}, ${state.trim()}, ${key}, ${cid}, ${apprStatus}, ${JSON.stringify(evJson)}::jsonb, now())
+        ON CONFLICT (approval_key) DO UPDATE SET
+          name = EXCLUDED.name, city = EXCLUDED.city, state = EXCLUDED.state,
+          community_id = COALESCE(EXCLUDED.community_id, supporting_community_approvals.community_id),
+          status = EXCLUDED.status, updated_at = now()
+        RETURNING id, status, community_id
+      `);
+      await auditRegistryAction(req, `registry_approval_${apprStatus}`, 'supporting_community_approval', (rows.rows[0] as any).id, { name, city, state });
+      await invalidateRegistryCaches();
+      res.json(rows.rows[0]);
+    } catch (error) {
+      console.error('Error creating registry approval:', error);
+      res.status(500).json({ error: 'Failed to create individual approval' });
+    }
+  });
+
+  // POST /api/admin/registry/approvals/:id/revoke — revoke an individual approval
+  adminRouter.post('/registry/approvals/:id/revoke', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id) || id <= 0) return res.status(400).json({ error: 'Invalid approval id' });
+      const { reason } = req.body || {};
+      const rows = await db.execute(sql`
+        UPDATE supporting_community_approvals SET status = 'revoked', updated_at = now()
+        WHERE id = ${id}
+        RETURNING id, name, status
+      `);
+      if (!rows.rows[0]) return res.status(404).json({ error: 'Approval not found' });
+      await auditRegistryAction(req, 'registry_approval_revoked', 'supporting_community_approval', id, { reason: reason ?? null });
+      await invalidateRegistryCaches();
+      res.json(rows.rows[0]);
+    } catch (error) {
+      console.error('Error revoking registry approval:', error);
+      res.status(500).json({ error: 'Failed to revoke individual approval' });
+    }
+  });
+
+  // POST /api/admin/registry/exclusions — add a permanent community-level exclusion
+  //   body: { name, city, state, reason: closed|no_referrals|duplicate|other, note?, communityId? }
+  // Exclusion ALWAYS overrides family inheritance and individual approval.
+  adminRouter.post('/registry/exclusions', async (req, res) => {
+    try {
+      const { name, city, state, reason, note, communityId } = req.body || {};
+      if (![name, city, state].every((v) => typeof v === 'string' && v.trim())) {
+        return res.status(400).json({ error: 'name, city and state are required' });
+      }
+      if (!SUPPORTING_EXCLUSION_REASONS.includes(reason)) {
+        return res.status(400).json({ error: `reason must be one of: ${SUPPORTING_EXCLUSION_REASONS.join(', ')}` });
+      }
+      const key = identityKey(name, city, state);
+      let cid: number | null = Number.isInteger(communityId) && communityId > 0 ? communityId : null;
+      if (cid == null) cid = await resolveApprovalCommunityId(name, city, state);
+      const rows = await db.execute(sql`
+        INSERT INTO supporting_community_exclusions
+          (name, city, state, exclusion_key, community_id, reason, note, updated_at)
+        VALUES (${name.trim()}, ${city.trim()}, ${state.trim()}, ${key}, ${cid}, ${reason}, ${typeof note === 'string' ? note : null}, now())
+        ON CONFLICT (exclusion_key) DO UPDATE SET
+          reason = EXCLUDED.reason, note = EXCLUDED.note,
+          community_id = COALESCE(EXCLUDED.community_id, supporting_community_exclusions.community_id),
+          updated_at = now()
+        RETURNING id
+      `);
+      await auditRegistryAction(req, 'registry_exclusion_created', 'supporting_community_exclusion', (rows.rows[0] as any).id, { name, city, state, reason });
+      await invalidateRegistryCaches();
+      communityStatsCache.invalidateCache();
+      superclusterService.invalidateCache().catch((err: any) => console.error('Supercluster cache invalidation error:', err));
+      res.json(rows.rows[0]);
+    } catch (error) {
+      console.error('Error creating registry exclusion:', error);
+      res.status(500).json({ error: 'Failed to create exclusion' });
+    }
+  });
+
 
   // Mount admin router
   app.use('/api/admin', adminRouter);

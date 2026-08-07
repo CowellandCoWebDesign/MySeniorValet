@@ -5,6 +5,7 @@ import { eq, and, sql, ilike, or } from 'drizzle-orm';
 import { CANONICAL_BASE_URL } from '../middleware/host-canonical';
 import { findLocationBySlug } from '../../shared/location-seo';
 import { evaluateIndexability } from '../../shared/community-indexability';
+import { supportingEligibilityFilter } from '../utils/community-ranking';
 
 /**
  * City/state-level indexing rule (docs/SEO_INDEXING_ELIGIBILITY.md):
@@ -26,8 +27,9 @@ export async function locationHasIndexableCommunity(state: string, city?: string
       .where(
         and(
           base,
-          sql`(${communities.isActive} IS NULL OR ${communities.isActive} = true)
-              AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+          // Shared referral-support eligibility: only publicly offered
+          // communities may make a location page indexable.
+          await supportingEligibilityFilter()
         )
       )
       .limit(500);
@@ -386,7 +388,10 @@ async function getLocationData(state: string, city?: string) {
     const stateUpper = state.toUpperCase();
     const country = getCountryFromState(stateUpper);
     
-    // Build query conditions
+    // Build query conditions — every location-page stat/sample/nearby query is
+    // scoped to the shared referral-support eligibility predicate so
+    // unapproved/excluded communities never influence crawlable content/counts.
+    const publicEligibility = await supportingEligibilityFilter();
     let conditions = [];
     
     if (city) {
@@ -421,7 +426,7 @@ async function getLocationData(state: string, city?: string) {
         withRatings: sql<number>`COUNT(CASE WHEN ${communities.rating} IS NOT NULL THEN 1 END)`
       })
       .from(communities)
-      .where(or(...conditions));
+      .where(and(or(...conditions), publicEligibility));
     
     // Get sample communities for showcasing
     const sampleCommunities = await db
@@ -434,7 +439,7 @@ async function getLocationData(state: string, city?: string) {
         priceRange: communities.priceRange
       })
       .from(communities)
-      .where(or(...conditions))
+      .where(and(or(...conditions), publicEligibility))
       .orderBy(sql`RANDOM()`)
       .limit(6);
     
@@ -447,7 +452,7 @@ async function getLocationData(state: string, city?: string) {
           count: sql<number>`COUNT(*)`
         })
         .from(communities)
-        .where(eq(communities.state, stateUpper))
+        .where(and(eq(communities.state, stateUpper), publicEligibility))
         .groupBy(communities.city)
         .orderBy(sql`COUNT(*) DESC`)
         .limit(10);
@@ -462,7 +467,8 @@ async function getLocationData(state: string, city?: string) {
         .where(
           and(
             eq(communities.state, stateUpper),
-            sql`${communities.city} != ${formatCityName(city)}`
+            sql`${communities.city} != ${formatCityName(city)}`,
+            publicEligibility
           )
         )
         .groupBy(communities.city)
@@ -876,6 +882,8 @@ export async function renderSEOLocationPage(req: Request, res: Response, next: N
 // Generate list of top locations for SEO
 export async function getTopLocations(limit: number = 100) {
   try {
+    // Only publicly offered communities may contribute to crawlable counts.
+    const publicEligibility = await supportingEligibilityFilter();
     // Get top cities by community count
     const topCities = await db
       .select({
@@ -887,7 +895,8 @@ export async function getTopLocations(limit: number = 100) {
       .where(
         and(
           sql`${communities.city} IS NOT NULL`,
-          sql`${communities.state} IS NOT NULL`
+          sql`${communities.state} IS NOT NULL`,
+          publicEligibility
         )
       )
       .groupBy(communities.city, communities.state)
@@ -901,7 +910,7 @@ export async function getTopLocations(limit: number = 100) {
         count: sql<number>`COUNT(*)`
       })
       .from(communities)
-      .where(sql`${communities.state} IS NOT NULL`)
+      .where(and(sql`${communities.state} IS NOT NULL`, publicEligibility))
       .groupBy(communities.state)
       .orderBy(sql`COUNT(*) DESC`);
     

@@ -122,7 +122,10 @@ export interface RowVisibilityResult {
 /**
  * Pure: compute the visibility decision for an already-loaded row (no DB write).
  */
-export function computeRowVisibility(row: EvalRow): RowVisibilityResult {
+export function computeRowVisibility(
+  row: EvalRow,
+  opts: { registryApproved?: boolean } = {},
+): RowVisibilityResult {
   const evaluation = evaluateCommunity(row as CommunityClassifyLike);
 
   // Merge flags: drop this task's managed flags, keep everything else (other
@@ -138,7 +141,11 @@ export function computeRowVisibility(row: EvalRow): RowVisibilityResult {
   const adminConfirmed = row.flagStatus === "confirmed";
   const isProtected = hasProtectiveFlag || adminConfirmed;
 
-  const hidden = isProtected ? true : !evaluation.keepPublic;
+  // Approved registry identity (approved operator family match or individual
+  // approval, not excluded) IS meaningful verification: quality thin-profile
+  // scoring must not re-hide an approved-portfolio record. Protective
+  // quarantines still always win.
+  const hidden = isProtected ? true : opts.registryApproved ? false : !evaluation.keepPublic;
 
   return { id: row.id, evaluation, hidden, protected: isProtected, mergedFlags };
 }
@@ -162,8 +169,11 @@ async function writeRowVisibility(result: RowVisibilityResult): Promise<void> {
  * Compute the persisted visibility decision for an already-loaded row and write
  * it back (classification, score, tier, merged flags, is_hidden, checked-at).
  */
-async function applyRowVisibility(row: EvalRow): Promise<RowVisibilityResult> {
-  const result = computeRowVisibility(row);
+async function applyRowVisibility(
+  row: EvalRow,
+  opts: { registryApproved?: boolean } = {},
+): Promise<RowVisibilityResult> {
+  const result = computeRowVisibility(row, opts);
   await writeRowVisibility(result);
   return result;
 }
@@ -195,7 +205,9 @@ export async function recomputeCommunityVisibility(
 ): Promise<RowVisibilityResult | null> {
   const [row] = await db.select(evalColumns).from(communities).where(eq(communities.id, communityId)).limit(1);
   if (!row) return null;
-  return applyRowVisibility(row as EvalRow);
+  const { isRegistryApprovedCommunityId } = await import("./supporting-community-registry");
+  const registryApproved = await isRegistryApprovedCommunityId(communityId);
+  return applyRowVisibility(row as EvalRow, { registryApproved });
 }
 
 export interface AdminRestoreResult {
@@ -231,6 +243,34 @@ export async function adminRestoreCommunities(
   const results: AdminRestoreResult[] = [];
 
   await mapWithConcurrency(ids, 10, async (id) => {
+    // A referral-support exclusion is a separate, durable admin decision from
+    // quality visibility. Routine QC restore must never reactivate a community
+    // that is closed, does not accept referrals, is a duplicate, or was
+    // otherwise excluded in the supporting-community registry.
+    const exclusion = await db.execute(sql`
+      SELECT 1
+      FROM supporting_community_exclusions
+      WHERE community_id = ${id}
+      LIMIT 1
+    `).catch(() => ({ rows: [] } as any));
+    if (((exclusion as any).rows ?? []).length > 0) {
+      const [existing] = await db
+        .select({ id: communities.id, isHidden: communities.isHidden, dataQualityFlags: communities.dataQualityFlags })
+        .from(communities)
+        .where(eq(communities.id, id))
+        .limit(1);
+      if (existing) {
+        results.push({
+          id,
+          restored: false,
+          protected: true,
+          hidden: Boolean(existing.isHidden),
+          protectiveFlags: Array.isArray(existing.dataQualityFlags) ? existing.dataQualityFlags : [],
+        });
+      }
+      return;
+    }
+
     const [row] = await db
       .select({ id: communities.id, dataQualityFlags: communities.dataQualityFlags })
       .from(communities)
@@ -349,6 +389,10 @@ export async function runVisibilityPass(
       ? new Date(Date.now() - opts.skipCheckedWithinHours * 3600_000)
       : null;
 
+  // Approved-portfolio records must not be re-hidden by quality scoring.
+  const { getRegistryApprovedCommunityIdSet } = await import("./supporting-community-registry");
+  const registryApprovedIds = await getRegistryApprovedCommunityIdSet().catch(() => new Set<number>());
+
   for (;;) {
     const whereConds = [gt(communities.id, cursor)];
     if (staleCutoff) {
@@ -376,7 +420,10 @@ export async function runVisibilityPass(
         : rows;
 
     // Compute is pure & cheap; do it for the whole batch first.
-    const decisions = batch.map((row) => ({ row, result: computeRowVisibility(row) }));
+    const decisions = batch.map((row) => ({
+      row,
+      result: computeRowVisibility(row, { registryApproved: registryApprovedIds.has(row.id) }),
+    }));
 
     // Persist concurrently (bounded) — per-row UPDATEs over serverless are slow
     // sequentially, so a 1-pass apply of ~34k rows needs concurrency.

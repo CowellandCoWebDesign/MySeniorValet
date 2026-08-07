@@ -96,6 +96,16 @@ jest.mock('../../server/services/profile-refresh-rate-limit', () => ({
   consumeProfileRefreshRateLimit: () => Promise.resolve({ allowed: true, remaining: 4, retryAfterSeconds: 0 }),
 }));
 jest.mock('../../server/utils/photo-urls', () => ({ normalizePhotoUrls: (x: any) => x }));
+// Referral-support eligibility — controllable per test; default eligible.
+const mockSupportingEligible = jest.fn();
+jest.mock('../../server/utils/community-ranking', () => ({
+  qualityOrderBy: () => [],
+  qualityRankExpr: () => ({}),
+  verifiedOnlyFilter: () => ({}),
+  excludeHudFilter: () => ({}),
+  supportingEligibilityFilterSql: () => ({}),
+  isCommunitySupportingEligible: (...args: any[]) => mockSupportingEligible(...args),
+}));
 jest.mock('../../server/services/community-photo-enrichment', () => ({ CommunityPhotoEnrichment: {} }));
 
 // --------------------------------------------------------------------------
@@ -144,7 +154,16 @@ describe('POST /api/communities/:id/verify', () => {
     mockEnrich.mockReset();
     mockLimit.mockReset();
     mockLimit.mockResolvedValue([{ id: 1, name: 'Sunrise Villa' }]);
+    mockSupportingEligible.mockReset();
+    mockSupportingEligible.mockResolvedValue(true);
     app = buildApp();
+  });
+
+  it('returns 404 and never enriches when the community is not referral-eligible', async () => {
+    mockSupportingEligible.mockResolvedValue(false);
+    const res = await request(app).post('/api/communities/1/verify').send({});
+    expect(res.status).toBe(404);
+    expect(mockEnrich).not.toHaveBeenCalled();
   });
 
   it('returns 400 for a non-numeric community id', async () => {

@@ -13,6 +13,7 @@ import { z } from 'zod';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { and, or, eq, ilike, gte, lte, sql, inArray } from 'drizzle-orm';
+import { supportingEligibilityFilter } from '../utils/community-ranking';
 
 const router = Router();
 
@@ -380,9 +381,9 @@ router.post('/search', async (req, res) => {
         conditions.push(sql`${communities.rating} >= 4.0`);
       }
       
-      // Execute database search (public visibility: active + not hidden)
-      conditions.push(sql`${communities.isActive} = true`);
-      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+      // Execute database search — shared referral-support eligibility (active,
+      // not hidden, registry-approved, not excluded, HUD excluded by default).
+      conditions.push(await supportingEligibilityFilter());
       const dbResults = await db
         .select()
         .from(communities)

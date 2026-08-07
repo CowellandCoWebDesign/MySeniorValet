@@ -3,7 +3,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { and, sql, gte, lte, isNotNull } from 'drizzle-orm';
 import { cache } from '../cache';
-import { qualityOrderBy, verifiedOnlyFilter, excludeHudFilter } from '../utils/community-ranking';
+import { qualityOrderBy, verifiedOnlyFilter, supportingEligibilityFilter } from '../utils/community-ranking';
 
 interface GeoJSONFeature {
   type: 'Feature';
@@ -124,8 +124,10 @@ class SuperclusterService {
     // Optional family "verified only" filter — keeps cluster counts honest by
     // counting only verified/featured/HUD/claimed communities.
     const verifiedClause = verifiedOnly ? sql` AND ${verifiedOnlyFilter()}` : sql``;
-    // HUD/subsidized listings excluded by default — opt-in via includeHud
-    const hudClause = includeHud ? sql`` : sql` AND ${excludeHudFilter()}`;
+    // Shared public referral-support eligibility (Task #483): active + not
+    // hidden + not excluded + (approved when gate on) + default HUD exclusion
+    // unless includeHud. Keeps cluster counts honest with the pins.
+    const hudClause = sql` AND ${await supportingEligibilityFilter({ includeHud })}`;
 
     try {
       // Get major cities with community counts
@@ -196,8 +198,8 @@ class SuperclusterService {
     // Optional family "verified only" filter — recomputes cluster counts so they
     // only reflect verified/featured/HUD/claimed communities.
     const verifiedClause = verifiedOnly ? sql` AND ${verifiedOnlyFilter()}` : sql``;
-    // HUD/subsidized listings excluded by default — opt-in via includeHud
-    const hudClause = includeHud ? sql`` : sql` AND ${excludeHudFilter()}`;
+    // Shared public referral-support eligibility (Task #483) — see markers.
+    const hudClause = sql` AND ${await supportingEligibilityFilter({ includeHud })}`;
 
     try {
       // Get state-level clusters
@@ -266,9 +268,10 @@ class SuperclusterService {
     // Optional family "verified only" filter — applied to BOTH the cluster-count
     // query and the individual-marker query so counts and pins stay consistent.
     const verifiedClause = verifiedOnly ? sql` AND ${verifiedOnlyFilter()}` : sql``;
-    // HUD/subsidized listings excluded by default — opt-in via includeHud.
-    // Applied to BOTH queries below so counts and pins stay consistent.
-    const hudClause = includeHud ? sql`` : sql` AND ${excludeHudFilter()}`;
+    // Shared public referral-support eligibility (Task #483) — applied to BOTH
+    // queries below so counts and pins stay consistent (includes default HUD
+    // exclusion unless includeHud).
+    const hudClause = sql` AND ${await supportingEligibilityFilter({ includeHud })}`;
 
     try {
       // Use database clustering with finer grid
@@ -403,13 +406,16 @@ class SuperclusterService {
     }
 
     try {
+      // Shared public referral-support eligibility (Task #483): active + not
+      // hidden + not excluded + (approved when gate on) + default HUD exclusion
+      // unless the family opted in via includeHud.
+      const eligibility = await supportingEligibilityFilter({ includeHud });
       // Query only active communities within viewport
       const viewportCommunities = await db.select()
         .from(communities)
         .where(
           and(
-            sql`${communities.isActive} = true`,
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            eligibility,
             isNotNull(communities.latitude),
             isNotNull(communities.longitude),
             sql`CAST(${communities.latitude} AS float) >= ${bbox[1]}`,
@@ -417,9 +423,7 @@ class SuperclusterService {
             sql`CAST(${communities.longitude} AS float) >= ${bbox[0]}`,
             sql`CAST(${communities.longitude} AS float) <= ${bbox[2]}`,
             // Optional family "verified only" filter
-            verifiedOnly ? verifiedOnlyFilter() : undefined,
-            // HUD/subsidized listings excluded by default — opt-in via includeHud
-            includeHud ? undefined : excludeHudFilter()
+            verifiedOnly ? verifiedOnlyFilter() : undefined
           )
         )
         // Quality-aware: when the viewport holds >500 communities, keep the
@@ -476,6 +480,10 @@ class SuperclusterService {
    */
   private async initializeCitySummaries() {
     try {
+      // Shared public referral-support eligibility (Task #483) so country-level
+      // city summaries only count publicly-eligible communities (default HUD
+      // exclusion included).
+      const eligibility = await supportingEligibilityFilter();
       const majorCities = await db.execute(sql`
         SELECT 
           city, 
@@ -485,7 +493,7 @@ class SuperclusterService {
           AVG(CAST(longitude AS float)) as lng
         FROM communities
         WHERE latitude IS NOT NULL AND longitude IS NOT NULL
-          AND (is_hidden IS NULL OR is_hidden = false)
+          AND ${eligibility}
         GROUP BY city, state
         HAVING COUNT(*) > 50
         ORDER BY count DESC

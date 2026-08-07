@@ -6,6 +6,7 @@ import { isAuthenticated as requireAuth } from "../auth-middleware";
 import { insertReviewSchema } from "@shared/schema";
 import { z } from "zod";
 import { PerplexityReviewService } from "../perplexity-review-service";
+import { isCommunitySupportingEligible } from "../utils/community-ranking";
 
 /**
  * Atomically recalculates a community's rating and review_count from
@@ -37,6 +38,12 @@ export function registerReviewRoutes(app: Express) {
     try {
       const communityId = parseInt(req.params.communityId);
       const { limit = "20", offset = "0" } = req.query;
+
+      // Referral-support allowlist: no review data for communities that are
+      // not publicly offered.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
 
       const communityReviews = await db
         .select({
@@ -287,6 +294,11 @@ export function registerReviewRoutes(app: Express) {
   app.post('/api/communities/:communityId/inspections/fetch', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
+      // Referral-support allowlist: never fetch/reveal data for a community
+      // that is not publicly offered.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
       const reviewService = new PerplexityReviewService();
 
       if (!reviewService.isConfigured()) {
@@ -357,6 +369,11 @@ export function registerReviewRoutes(app: Express) {
   app.post('/api/communities/:communityId/reviews/fetch-external', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
+      // Referral-support allowlist: never fetch/reveal data for a community
+      // that is not publicly offered.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ message: 'Community not found' });
+      }
       const reviewService = new PerplexityReviewService();
 
       if (!reviewService.isConfigured()) {

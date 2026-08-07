@@ -90,6 +90,7 @@ import {
   safeHttpUrl,
   safeJsonLd,
 } from './seo/community-seo';
+import { isCommunitySupportingEligible } from './utils/community-ranking';
 
 // User-friendly noindex HTML for missing / gone community pages. Real status
 // codes (404 / 410) plus a noindex directive tell search engines to drop the URL
@@ -152,7 +153,8 @@ async function resolveCommunityStatus(reqPath: string): Promise<'ok' | 'missing'
       .where(eq(communities.id, communityId))
       .limit(1);
     if (result.length === 0) return 'missing';
-    return isCommunityGone(result[0]) ? 'gone' : 'ok';
+    if (isCommunityGone(result[0])) return 'gone';
+    return (await isCommunitySupportingEligible(communityId)) ? 'ok' : 'missing';
   }
 
   const slugMatch = reqPath.match(/^\/senior-living\/([^\/]+)\/([^\/]+)\/([^\/]+)$/);
@@ -160,7 +162,8 @@ async function resolveCommunityStatus(reqPath: string): Promise<'ok' | 'missing'
     const [_, state, city, slug] = slugMatch;
     const match = await findCommunityBySlugUrl(state, city, slug);
     if (!match) return 'missing';
-    return isCommunityGone(match) ? 'gone' : 'ok';
+    if (isCommunityGone(match)) return 'gone';
+    return (await isCommunitySupportingEligible(match.id)) ? 'ok' : 'missing';
   }
 
   return 'not-a-community';
@@ -188,9 +191,10 @@ export function communityVisibilityGuard() {
       if (status === 'gone') return sendCommunityStatusPage(res, 410);
       return next();
     } catch (err) {
-      // Never block a page on a guard error — fall through to normal handling
+      // Referral authorization is access control. A guard/read error must not
+      // expose the SPA shell or cached crawler HTML for an unverified listing.
       console.error('[VisibilityGuard] error:', err);
-      return next();
+      return sendCommunityStatusPage(res, 404);
     }
   };
 }
@@ -649,6 +653,12 @@ export function seoSSRMiddleware() {
       if (isCommunityGone(community)) {
         return sendCommunityStatusPage(res, 410);
       }
+      // Check before reading the HTML cache: revocations/exclusions must take
+      // effect immediately even when an old crawler page is still cached.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        htmlCache.delete(cacheKey);
+        return sendCommunityStatusPage(res, 404);
+      }
       
       // Check cache and validate against community.updatedAt
       const cached = htmlCache.get(cacheKey);
@@ -702,6 +712,12 @@ export function seoSSRMiddleware() {
       // Hidden / deactivated communities are intentionally not public — serve 410 Gone + noindex
       if (isCommunityGone(community)) {
         return sendCommunityStatusPage(res, 410);
+      }
+      // Check before reading the HTML cache so stale approved HTML cannot
+      // survive an operator revocation or community-level exclusion.
+      if (!(await isCommunitySupportingEligible(community.id))) {
+        htmlCache.delete(cacheKey);
+        return sendCommunityStatusPage(res, 404);
       }
       
       // Check cache and validate against community.updatedAt

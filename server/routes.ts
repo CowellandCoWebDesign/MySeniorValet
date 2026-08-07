@@ -13,6 +13,7 @@ import { registerRoutes as registerModularRoutes } from "./routes/index";
 import { setupAuth } from "./replitAuth";
 import { communityStatsCache } from "./community-stats-cache";
 import { sanitizeWebsiteUrl } from "./utils/website-url";
+import { supportingEligibilityFilter, isCommunitySupportingEligible } from "./utils/community-ranking";
 import reservationRoutes from "./routes/reservationRoutes";
 import infoRequestRoutes from "./routes/infoRequestRoutes";
 import { quizRouter } from "./routes/quiz";
@@ -611,17 +612,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         )`);
       }
       
+      // Referral-support allowlist: this legacy listing must obey the same
+      // shared public eligibility as every other surface.
+      conditions.push(await supportingEligibilityFilter());
+
       // Build the query
       const query = db
         .select()
         .from(schema.communities)
         .limit(parseInt(String(limit)))
         .offset(parseInt(String(offset)));
-      
-      // Apply conditions if any
-      if (conditions.length > 0) {
-        query.where(and(...conditions));
-      }
+
+      query.where(and(...conditions));
       
       const communities = await query;
       
@@ -689,6 +691,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const communityId = parseInt(req.params.id);
       if (isNaN(communityId)) {
         return res.status(400).json({ message: 'Invalid community ID' });
+      }
+
+      // Referral-support allowlist: legacy detail route uses the same 404
+      // policy as the canonical detail handlers.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ message: 'Community not found' });
       }
 
       const community = await storage.getCommunity(communityId);

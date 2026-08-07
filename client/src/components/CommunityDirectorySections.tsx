@@ -18,6 +18,10 @@ import { Link, useLocation } from "wouter";
 import { getCommunityUrl } from "@/lib/community-url";
 import { motion } from "framer-motion";
 import { CommunityCard } from "@/components/CommunityCard";
+import {
+  SupportingPortfolioSections,
+  dedupeCommunitiesById,
+} from "@/components/SupportingPortfolioSections";
 import { RedTagDeals } from "@/components/RedTagDeals";
 import { MarketIntelligence } from "@/components/MarketIntelligence";
 import { CareSpectrumSlider } from "@/components/CareSpectrumSlider";
@@ -114,19 +118,23 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
   // Derive pinned community IDs from admin settings
   const pinnedCommunityIds: number[] = pageSettings?.pinnedCommunityIds ?? [];
 
-  // Fetch each pinned community by ID
+  // Fetch pinned communities through the gated list endpoint. Using the public
+  // list route (GET /api/communities/pinned?ids=...) rather than direct
+  // per-ID detail fetches ensures pinned selections cannot bypass the shared
+  // eligibility policy: an admin can pin an id, but the server still filters
+  // out any community that is not publicly visible / not referral-approved.
   const { data: pinnedCommunitiesRaw } = useQuery({
-    queryKey: ['/api/communities/pinned-list', pinnedCommunityIds],
+    queryKey: ['/api/communities/pinned', pinnedCommunityIds],
     queryFn: async () => {
       if (pinnedCommunityIds.length === 0) return [];
-      const results = await Promise.all(
-        pinnedCommunityIds.map(id =>
-          fetch(`/api/communities/${id}`, { credentials: 'include' })
-            .then(r => r.ok ? r.json() : null)
-            .catch(() => null)
-        )
+      const res = await fetch(
+        `/api/communities/pinned?ids=${encodeURIComponent(pinnedCommunityIds.join(','))}`,
+        { credentials: 'include' },
       );
-      return results.filter(Boolean);
+      if (!res.ok) return [];
+      const body = await res.json();
+      const list = Array.isArray(body) ? body : (body?.communities ?? []);
+      return dedupeCommunitiesById(list);
     },
     enabled: pinnedCommunityIds.length > 0,
     staleTime: 60_000,
@@ -162,110 +170,21 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
     staleTime: 5 * 60 * 1000,
   });
 
-  // Exclude pinned communities from the main listing to avoid duplicates
-  const sortedListing: any[] = ((sortedListingRaw as any)?.communities ?? sortedListingRaw ?? [])
-    .filter((c: any) => !pinnedCommunityIds.includes(c.id));
+  // Exclude pinned communities from the main listing and deduplicate by
+  // community id so the same community never renders twice.
+  const sortedListing: any[] = dedupeCommunitiesById(
+    ((sortedListingRaw as any)?.communities ?? sortedListingRaw ?? [])
+      .filter((c: any) => !pinnedCommunityIds.includes(c.id)),
+  );
 
-  // Brand-specific community queries for signature sliders
-  const discoveryQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', 'Discovery Senior Living'],
-    queryFn: async () => {
-      const response = await fetch('/api/search/comprehensive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Discovery', limit: 12 }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch Discovery communities');
-      return await response.json();
-    },
-    enabled: true,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
-  });
-  
-  const lcsQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', 'Life Care Services'],
-    queryFn: async () => {
-      const response = await fetch('/api/search/comprehensive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Life Care', limit: 12 }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch LCS communities');
-      return await response.json();
-    },
-    enabled: true,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
-  });
-  
-  const atriaQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', 'Atria Senior Living'],
-    queryFn: async () => {
-      const response = await fetch('/api/search/comprehensive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Atria', limit: 250 }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch Atria communities');
-      return await response.json();
-    },
-    enabled: true,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
-  });
-  
-  const brookdaleQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', 'Brookdale Senior Living'],
-    queryFn: async () => {
-      const response = await fetch('/api/search/comprehensive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Brookdale', limit: 12 }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch Brookdale communities');
-      return await response.json();
-    },
-    enabled: true,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
-  });
-  
-  const provincialQuery = useQuery({
-    queryKey: ['/api/provincial/provincial-all'],
-    queryFn: async () => {
-      const response = await fetch('/api/provincial/provincial-all', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch Provincial communities');
-      return await response.json();
-    },
-    enabled: true,
-    staleTime: 30 * 60 * 1000, // Cache for 30 minutes
-    gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours
-  });
-  
-  const oakmontQuery = useQuery({
-    queryKey: ['/api/search/comprehensive', 'Oakmont Management Group'],
-    queryFn: async () => {
-      const response = await fetch('/api/search/comprehensive', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: 'Oakmont', limit: 100 }),
-        credentials: 'include'
-      });
-      if (!response.ok) throw new Error('Failed to fetch Oakmont communities');
-      return await response.json();
-    },
-    enabled: true
-  });
-  
+  // Approved operator-family portfolios (Discovery, Atria/Holiday, Oakmont,
+  // Brookdale, Provincial, etc.) are rendered by <SupportingPortfolioSections>,
+  // which sources them from the canonical, admin-gated
+  // GET /api/communities/supporting-portfolios endpoint. The previous literal
+  // comprehensive-search brand queries (Discovery/Atria/Brookdale/Oakmont/LCS/
+  // Provincial) were removed because they matched by brittle brand name and
+  // could bypass eligibility. The unapproved LCS section was removed entirely.
+
   const careTypes = [
     { 
       id: 'hud', 
@@ -460,10 +379,26 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
     return isNaN(num) ? '-' : num.toLocaleString();
   };
   
-  // Fetch Hawaii communities
-  const { data: hawaiiCommunities, isLoading: hawaiiLoading } = useQuery({
-    queryKey: ['/api/communities/by-state?state=HI']
+  // Fetch Hawaii communities. Hawaii stays a geographic section but consumes a
+  // gated, list-based server endpoint (by-state applies the shared
+  // publicVisibleFilter / eligibility policy) rather than direct detail fetches
+  // by ID, so unapproved or excluded Hawaii records cannot leak in. Cards are
+  // deduplicated by community id before rendering.
+  const { data: hawaiiCommunitiesRaw, isLoading: hawaiiLoading } = useQuery({
+    queryKey: ['/api/communities/by-state?state=HI'],
+    queryFn: async () => {
+      const res = await fetch('/api/communities/by-state?state=HI', {
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error('Failed to fetch Hawaii communities');
+      return res.json();
+    },
   });
+  const hawaiiCommunities = {
+    communities: dedupeCommunitiesById(
+      (hawaiiCommunitiesRaw as any)?.communities ?? [],
+    ),
+  };
   
   // Fetch Florida communities
   const { data: floridaCommunities, isLoading: floridaLoading } = useQuery({
@@ -927,700 +862,15 @@ export function CommunityDirectorySections({ showHero = false }: { showHero?: bo
         </div>
       </section>
 
-      {/* DISCOVERY SENIOR LIVING - #2 INNOVATION POWERHOUSE */}
-      <section className="px-4 py-16 bg-gradient-to-br from-cyan-950 via-blue-950 to-indigo-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-full blur-2xl opacity-40"></div>
-                <span className="relative text-6xl">🚀</span>
-              </div>
-            </div>
-            
-            <Badge className="bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
-              <Sparkles className="h-5 w-5 mr-2" />
-              #2 LARGEST PROVIDER • INNOVATION LEADER
-              <Sparkles className="h-5 w-5 ml-2" />
-            </Badge>
-            
-            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-cyan-300 via-blue-300 to-indigo-300 bg-clip-text text-transparent">
-                Discovery Senior Living
-              </span>
-            </div>
-            
-            <p className="text-2xl text-cyan-100 mb-4 font-semibold">
-              Award-Winning Communities Nationwide
-            </p>
-            
-            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              Industry record-holder with communities ranked "Best in Senior Living" and pioneering 
-              SHINE® Memory Care certified by the Alzheimer's Association
-            </p>
-          </div>
+      {/* ★ ADMIN-APPROVED OPERATOR-FAMILY PORTFOLIOS ★
+          Rendered dynamically from the canonical, admin-gated
+          GET /api/communities/supporting-portfolios endpoint. This replaces the
+          previous hardcoded Discovery / Provincial / LCS / Atria / Brookdale /
+          Oakmont brand sliders that searched a few literal brand names. Only
+          admin-approved operator families (with community-level exclusions
+          already applied server-side) are returned and displayed. */}
+      <SupportingPortfolioSections />
 
-          {/* Discovery Excellence Section */}
-          <div className="mb-6 bg-gradient-to-br from-cyan-900/90 to-blue-900/90 backdrop-blur-lg rounded-2xl border border-cyan-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <Award className="w-8 h-8 text-cyan-300" />
-              <h3 className="text-xl font-bold text-white">Why Discovery Leads Innovation</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-cyan-300 mb-3">🏆 Industry Records</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>★ 454 total awards in 2025 (industry record)</li>
-                  <li>★ 148 "Best in Senior Living" communities</li>
-                  <li>★ Great Place To Work certified</li>
-                  <li>★ 4.2/5 average rating</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-cyan-300 mb-3">🚀 Exclusive Programs</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>• SHINE® Memory Care (Alzheimer's certified)</li>
-                  <li>• Experiential Living™ personalization</li>
-                  <li>• Six Signature Lifestyle Programs</li>
-                  <li>• À la carte pricing (save 15-20%)</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Discovery Communities Signature Slider */}
-          {discoveryQuery.data?.communities?.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-cyan-300">✨ Signature Discovery Communities</h3>
-                <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-2 font-bold">
-                  {discoveryQuery.data.communities.length} Communities
-                </Badge>
-              </div>
-              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-cyan-500" style={{scrollBehavior: 'smooth'}}>
-                {discoveryQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
-                  <div key={community.id} className="flex-shrink-0">
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-400 to-blue-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                      <div className="relative">
-                        <CommunityCard community={community} variant="compact" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={() => window.open('/ai-search-intelligence?company=Discovery Senior Living', '_self')}
-            className="w-full bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold py-4 text-lg shadow-xl"
-          >
-            Explore All 350+ Discovery Communities →
-          </Button>
-        </div>
-      </section>
-
-      {/* PROVINCIAL SENIOR LIVING - AFFORDABLE EXCELLENCE BY DISCOVERY */}
-      <section className="px-4 py-16 bg-gradient-to-br from-amber-950 via-orange-950 to-yellow-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-amber-400 to-orange-400 rounded-full blur-2xl opacity-40"></div>
-                <span className="relative text-6xl">🏠</span>
-              </div>
-            </div>
-            
-            <Badge className="bg-gradient-to-r from-amber-500 via-orange-500 to-yellow-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
-              <Home className="h-5 w-5 mr-2" />
-              AFFORDABLE INDEPENDENT LIVING BY DISCOVERY
-              <Home className="h-5 w-5 ml-2" />
-            </Badge>
-            
-            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-amber-300 via-orange-300 to-yellow-300 bg-clip-text text-transparent">
-                Provincial Senior Living
-              </span>
-            </div>
-            
-            <p className="text-2xl text-amber-100 mb-4 font-semibold">
-              Maintenance-Free Independent Living Across 18+ States
-            </p>
-            
-            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              Part of the Discovery family, Provincial offers affordable independent living with supportive services,
-              pet-friendly communities, and a focus on active lifestyles at exceptional value
-            </p>
-          </div>
-
-          {/* Provincial Excellence Section */}
-          <div className="mb-6 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <MapPin className="w-8 h-8 text-amber-300" />
-              <h3 className="text-xl font-bold text-white">The Provincial Advantage</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-amber-300 mb-3">🏡 Community Features</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>★ Studios to 2-bedroom apartments (375-975 sq ft)</li>
-                  <li>★ Three chef-prepared meals daily included</li>
-                  <li>★ Pet-friendly communities nationwide</li>
-                  <li>★ Modern kitchenettes in every apartment</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-amber-300 mb-3">🌟 Services & Amenities</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>• Complimentary local transportation</li>
-                  <li>• Libraries & game rooms</li>
-                  <li>• Fitness centers & wellness programs</li>
-                  <li>• Optional support services as needed</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="bg-amber-800/30 rounded-lg p-3 border border-amber-600/30 mt-4">
-              <p className="text-amber-200 text-sm font-semibold text-center">
-                🌟 Provincial Promise: Combining Discovery's excellence with affordable pricing - 
-                average $6,595/month with all meals, maintenance, and activities included
-              </p>
-            </div>
-          </div>
-
-          {/* Provincial Communities Signature Slider */}
-          {provincialQuery.data?.communities?.length > 0 ? (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-amber-300">🏠 Affordable Provincial Communities</h3>
-                <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 font-bold">
-                  {provincialQuery.data.communities.length} Communities
-                </Badge>
-              </div>
-              <div className="relative group">
-                <div 
-                  className="flex gap-4 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-amber-600 scrollbar-track-transparent scroll-smooth"
-                  style={{ scrollbarWidth: 'thin' }}
-                >
-                  {provincialQuery.data.communities.map((community: any, index: number) => (
-                    <div key={community.id} className="flex-none w-80 transform transition-transform hover:scale-105">
-                      <div className="bg-gradient-to-br from-amber-900/50 to-orange-900/50 backdrop-blur rounded-xl overflow-hidden border border-amber-500/30 shadow-xl">
-                        <CommunityCard community={community} variant="compact" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ) : (
-            // Fallback to static featured locations if no dynamic data
-            <div className="grid md:grid-cols-3 gap-4 mb-8">
-              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
-                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Vista, CA</h4>
-                <p className="text-gray-300 text-sm">1080 Arcadia Ave, Vista</p>
-                <p className="text-amber-400 text-xs mt-1">Active Independent Living</p>
-                <p className="text-gray-400 text-xs mt-1">📞 442.240.0030</p>
-              </div>
-              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
-                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Arlington, TX</h4>
-                <p className="text-gray-300 text-sm">6801 West Poly Webb Road</p>
-                <p className="text-amber-400 text-xs mt-1">Pet-Friendly Community</p>
-                <p className="text-gray-400 text-xs mt-1">📞 817.583.7171</p>
-              </div>
-              <div className="bg-gradient-to-br from-amber-800/50 to-orange-800/50 rounded-xl p-4 border border-amber-600/30">
-                <h4 className="font-bold text-amber-300 mb-2">📍 Provincial Gainesville, FL</h4>
-                <p className="text-gray-300 text-sm">2431 NW 41st Street</p>
-                <p className="text-amber-400 text-xs mt-1">Active Lifestyle Focus</p>
-                <p className="text-gray-400 text-xs mt-1">📞 352.810.9005</p>
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={() => window.open('/ai-search-intelligence?query=Provincial', '_self')}
-            className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold py-4 text-lg shadow-xl"
-          >
-            Discover Provincial Communities in Your Area →
-          </Button>
-        </div>
-      </section>
-
-      {/* LCS LIFE CARE SERVICES - #3 J.D. POWER CHAMPION */}
-      <section className="px-4 py-16 bg-gradient-to-br from-green-950 via-emerald-950 to-teal-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-green-400 to-emerald-400 rounded-full blur-2xl opacity-40"></div>
-                <span className="relative text-6xl">🏆</span>
-              </div>
-            </div>
-            
-            <Badge className="bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
-              <Award className="h-5 w-5 mr-2" />
-              J.D. POWER #1 FOR 6 CONSECUTIVE YEARS
-              <Award className="h-5 w-5 ml-2" />
-            </Badge>
-            
-            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-green-300 via-emerald-300 to-teal-300 bg-clip-text text-transparent">
-                LCS Life Care Services
-              </span>
-            </div>
-            
-            <p className="text-2xl text-green-100 mb-4 font-semibold">
-              America's Most Awarded Senior Living Brand
-            </p>
-            
-            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              The only provider to win #1 in Customer Satisfaction for both Independent Living (6 years) 
-              and Assisted Living/Memory Care - serving residents across its communities
-            </p>
-          </div>
-
-          {/* LCS Excellence Section */}
-          <div className="mb-6 bg-gradient-to-br from-green-900/90 to-emerald-900/90 backdrop-blur-lg rounded-2xl border border-green-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <Trophy className="w-8 h-8 text-green-300" />
-              <h3 className="text-xl font-bold text-white">Why LCS Dominates J.D. Power Rankings</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-green-300 mb-3">🥇 Unmatched Awards</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>★ #1 in Independent Living (2019-2024)</li>
-                  <li>★ #1 in Assisted Living/Memory Care (2023)</li>
-                  <li>★ Highest scores in ALL 6 satisfaction factors</li>
-                  <li>★ Most awarded brand in J.D. Power history</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-green-300 mb-3">💚 CCRC Leadership</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>• Largest not-for-profit operator</li>
-                  <li>• Full continuum of care specialist</li>
-                  <li>• "Age in place" philosophy</li>
-                  <li>• Experience Is Everything® approach</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="bg-green-800/30 rounded-lg p-3 border border-green-600/30 mt-4">
-              <p className="text-green-200 text-sm font-semibold text-center">
-                🌟 LCS Advantage: Only provider excelling in dining, grounds, apartments, pricing, 
-                staff, AND activities - complete excellence across every touchpoint.
-              </p>
-            </div>
-          </div>
-
-          {/* LCS Communities Signature Slider */}
-          {lcsQuery.data?.communities?.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-green-300">🏆 Award-Winning LCS Communities</h3>
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 font-bold">
-                  {lcsQuery.data.communities.length} Communities
-                </Badge>
-              </div>
-              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-green-500" style={{scrollBehavior: 'smooth'}}>
-                {lcsQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
-                  <div key={community.id} className="flex-shrink-0">
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                      <div className="relative">
-                        <CommunityCard community={community} variant="compact" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={() => window.open('/ai-search-intelligence?company=LCS Life Care Services', '_self')}
-            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white font-bold py-4 text-lg shadow-xl"
-          >
-            Explore All 130+ Award-Winning LCS Communities →
-          </Button>
-        </div>
-      </section>
-
-      {/* ATRIA SENIOR LIVING - #5 HOSPITALITY EXCELLENCE */}
-      <section className="px-4 py-16 bg-gradient-to-br from-purple-950 via-pink-950 to-fuchsia-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full blur-2xl opacity-40"></div>
-                <span className="relative text-6xl">💎</span>
-              </div>
-            </div>
-            
-            <Badge className="bg-gradient-to-r from-purple-500 via-pink-500 to-fuchsia-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
-              <Heart className="h-5 w-5 mr-2" />
-              HOSPITALITY-FIRST LUXURY LIVING
-              <Heart className="h-5 w-5 ml-2" />
-            </Badge>
-            
-            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-purple-300 via-pink-300 to-fuchsia-300 bg-clip-text text-transparent">
-                Atria Senior Living
-              </span>
-            </div>
-            
-            <p className="text-2xl text-purple-100 mb-4 font-semibold">
-              Uncommon Hospitality Since 1998
-            </p>
-            
-            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              Where hospitality meets healthcare - featuring Engage Life® programs, Coterie ultra-luxury 
-              partnerships, and a commitment to creating connections that last a lifetime
-            </p>
-          </div>
-
-          {/* Atria Excellence Section */}
-          <div className="mb-6 bg-gradient-to-br from-purple-900/90 to-pink-900/90 backdrop-blur-lg rounded-2xl border border-purple-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <Heart className="w-8 h-8 text-purple-300" />
-              <h3 className="text-xl font-bold text-white">The Atria Hospitality Difference</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-purple-300 mb-3">🌟 Signature Programs</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>★ Engage Life® - Six dimensions of wellness</li>
-                  <li>★ Uncommon Hospitality initiative</li>
-                  <li>★ Life Guidance® memory care</li>
-                  <li>★ StoryWise digital connections</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-purple-300 mb-3">💎 Luxury Features</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>• Coterie ultra-luxury communities</li>
-                  <li>• Chef-prepared cuisine with Starbucks®</li>
-                  <li>• Amazon Echo in every apartment</li>
-                  <li>• $3+ billion luxury investment</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="bg-purple-800/30 rounded-lg p-3 border border-purple-600/30 mt-4">
-              <p className="text-purple-200 text-sm font-semibold text-center">
-                🌟 Atria Advantage: The only provider combining true hospitality DNA with healthcare - 
-                Multiple communities earned 2025 Caring Star Awards for exceptional service.
-              </p>
-            </div>
-          </div>
-
-          {/* Atria Communities Signature Slider */}
-          {atriaQuery.data?.communities?.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-purple-300">💎 Luxury Atria Communities</h3>
-                <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 font-bold">
-                  {atriaQuery.data.communities.length} Communities
-                </Badge>
-              </div>
-              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-purple-500" style={{scrollBehavior: 'smooth'}}>
-                {atriaQuery.data.communities.map((community: any, index: number) => (
-                  <div key={community.id} className="flex-shrink-0">
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-400 to-pink-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                      <div className="relative">
-                        <CommunityCard community={community} variant="compact" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={() => window.open('/ai-search-intelligence?company=Atria Senior Living', '_self')}
-            className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold py-4 text-lg shadow-xl"
-          >
-            Experience Atria's 230+ Hospitality Communities →
-          </Button>
-        </div>
-      </section>
-
-      {/* BROOKDALE SENIOR LIVING - #1 INDUSTRY TITAN */}
-      <section className="px-4 py-16 bg-gradient-to-br from-rose-950 via-red-950 to-pink-950">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute -inset-4 bg-gradient-to-r from-rose-400 to-red-400 rounded-full blur-2xl opacity-40"></div>
-                <span className="relative text-6xl">🔴</span>
-              </div>
-            </div>
-            
-            <Badge className="bg-gradient-to-r from-rose-500 via-red-500 to-pink-500 text-white px-8 py-3 mb-6 text-lg font-bold shadow-2xl">
-              <Building className="h-5 w-5 mr-2" />
-              #1 LARGEST PROVIDER
-              <Building className="h-5 w-5 ml-2" />
-            </Badge>
-            
-            <div className="inline-flex items-center gap-3 text-5xl md:text-6xl font-bold mb-4">
-              <span className="bg-gradient-to-r from-rose-300 via-red-300 to-pink-300 bg-clip-text text-transparent">
-                Brookdale Senior Living
-              </span>
-            </div>
-            
-            <p className="text-2xl text-rose-100 mb-4 font-semibold">
-              America's Senior Living Leader Since 1978
-            </p>
-            
-            <p className="text-lg text-gray-200 mb-8 max-w-3xl mx-auto">
-              With communities in 41 states, Brookdale's unmatched scale and 47 years of experience 
-              delivers the full spectrum of care to more seniors than any other provider
-            </p>
-          </div>
-
-          {/* Brookdale Excellence Section */}
-          <div className="mb-6 bg-gradient-to-br from-rose-900/90 to-red-900/90 backdrop-blur-lg rounded-2xl border border-rose-500/30 p-6 shadow-2xl">
-            <div className="flex items-center gap-3 mb-4">
-              <Building className="w-8 h-8 text-rose-300" />
-              <h3 className="text-xl font-bold text-white">Why Brookdale Leads the Industry</h3>
-            </div>
-            
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 className="font-semibold text-rose-300 mb-3">📊 Unmatched Scale</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>★ Units nationwide</li>
-                  <li>★ 15.6% market share</li>
-                  <li>★ $3.24 billion annual revenue</li>
-                  <li>★ 80% of U.S. population coverage</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-semibold text-rose-300 mb-3">🏥 Healthcare Innovation</h4>
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li>• Brookdale HealthPlus on-site clinics</li>
-                  <li>• AI-driven health monitoring</li>
-                  <li>• 37% lower litigation rates</li>
-                  <li>• Full-spectrum care on single campus</li>
-                </ul>
-              </div>
-            </div>
-            
-            <div className="bg-rose-800/30 rounded-lg p-3 border border-rose-600/30 mt-4">
-              <p className="text-rose-200 text-sm font-semibold text-center">
-                🌟 Brookdale Advantage: The only provider with true national coverage - wherever your family is, 
-                Brookdale is there with consistent, quality care backed by 47 years of experience.
-              </p>
-            </div>
-          </div>
-
-          {/* Brookdale Communities Signature Slider */}
-          {brookdaleQuery.data?.communities?.length > 0 && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-red-300">🏢 Leading Brookdale Communities</h3>
-                <Badge className="bg-gradient-to-r from-rose-500 to-red-500 text-white px-4 py-2 font-bold">
-                  {brookdaleQuery.data.communities.length} Communities
-                </Badge>
-              </div>
-              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-red-500" style={{scrollBehavior: 'smooth'}}>
-                {brookdaleQuery.data.communities.slice(0, 8).map((community: any, index: number) => (
-                  <div key={community.id} className="flex-shrink-0">
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-rose-400 to-red-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                      <div className="relative">
-                        <CommunityCard community={community} variant="compact" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <Button
-            onClick={() => window.open('/ai-search-intelligence?company=Brookdale Senior Living', '_self')}
-            className="w-full bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-500 hover:to-red-500 text-white font-bold py-4 text-lg shadow-xl"
-          >
-            Find Your Local Brookdale Community →
-          </Button>
-        </div>
-      </section>
-      
-      {/* OAKMONT PREMIER EXCELLENCE SHOWCASE - THE GOLD STANDARD OF SENIOR LIVING */}
-      <section className="px-4 py-20">
-        {/* Header Section with Premium Resort Background */}
-        <div className="relative overflow-hidden rounded-3xl">
-          {/* Premium Resort Courtyard Garden Background */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center"
-            style={{
-              backgroundImage: `url(${resortGardenImage})`,
-              minHeight: '600px'
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-amber-950/70 via-amber-900/60 to-orange-950/80" />
-          
-          <div className="relative z-10 px-8 py-16">
-            {/* Premium Header */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 text-4xl md:text-5xl font-bold mb-4">
-                <span className="text-5xl">👑</span>
-                <span className="bg-gradient-to-r from-amber-300 to-orange-300 bg-clip-text text-transparent">
-                  Oakmont Senior Living
-                </span>
-              </div>
-              
-              <Badge className="bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 text-white px-6 py-2 mb-6 text-base font-bold">
-                THE GOLD STANDARD IN SENIOR LIVING
-              </Badge>
-              
-              <p className="text-xl text-gray-200 mb-8">
-                Resort-style luxury living across 106 premier communities in California, Nevada & Hawaii
-              </p>
-            </div>
-
-            {/* Oakmont Insider Savings Tips */}
-            <div className="mb-10 bg-gradient-to-br from-amber-900/90 to-orange-900/90 backdrop-blur-lg rounded-2xl border border-amber-500/30 p-6 shadow-2xl">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                  <Info className="w-6 h-6 text-amber-300" />
-                </div>
-                <h3 className="text-xl font-bold text-white">Oakmont Insider Savings Tips</h3>
-              </div>
-              
-              <div className="space-y-2">
-                <ul className="space-y-2 text-gray-200 text-sm">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span>Tour 3+ locations for best negotiation leverage</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span>Ask about "California Care Package" - $2,500 value</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span>Veterans receive 5-10% monthly discount</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-400 mt-1">💎</span>
-                    <span>October-December moves save 10-15%</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-          {/* Oakmont Communities Signature Slider */}
-          {oakmontQuery.data?.communities?.length > 0 && (
-            <div className="mb-8">
-              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
-                {oakmontQuery.data.communities.map((community: any, index: number) => (
-                  <div key={community.id} className="flex-shrink-0">
-                    <div className="relative group">
-                      <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                      <div className="relative">
-                        <CommunityCard community={community} variant="compact" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Keep Static Examples if no API data */}
-          {(!oakmontQuery.data || oakmontQuery.data.communities?.length === 0) && (
-            <div className="mb-8">
-              <div className="flex gap-6 overflow-x-auto overflow-y-hidden pb-6 scrollbar-thin scrollbar-thumb-amber-500" style={{scrollBehavior: 'smooth'}}>
-                <div className="flex-shrink-0">
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                    <div className="relative">
-                      <CommunityCard 
-                        community={{
-                          id: 75135,
-                          name: "Capriana at Brea",
-                          city: "Brea",
-                          state: "CA",
-                          address: "900 E Imperial Hwy",
-                          careTypes: ["Assisted Living", "Memory Care"],
-                          description: "Premier senior living community offering assisted living and memory care in the heart of Orange County.",
-                          amenities: ["24-Hour Care", "Dining Services", "Fitness Center", "Garden Areas", "Activities Program"],
-                          rating: 4.8
-                        }} 
-                        variant="compact" 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-shrink-0">
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                    <div className="relative">
-                      <CommunityCard 
-                        community={{
-                          id: 75125,
-                          name: "Ivy Park at Alta Loma",
-                          city: "Alta Loma",
-                          state: "CA",
-                          address: "9954 Foothill Blvd",
-                          careTypes: ["Assisted Living", "Memory Care"],
-                          description: "Nestled in the foothills of the San Gabriel Mountains with exceptional care services.",
-                          amenities: ["Memory Care Programs", "Physical Therapy", "Social Activities", "Transportation", "Pet-Friendly"],
-                          rating: 4.7
-                        }} 
-                        variant="compact" 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex-shrink-0">
-                  <div className="relative group">
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-amber-400 to-orange-400 rounded-xl opacity-30 group-hover:opacity-60 transition duration-300 blur"></div>
-                    <div className="relative">
-                      <CommunityCard 
-                        community={{
-                          id: 75128,
-                          name: "Ivy Park at Bonita",
-                          city: "Chula Vista",
-                          state: "CA",
-                          address: "3302 Bonita Rd",
-                          careTypes: ["Assisted Living", "Memory Care"],
-                          description: "Beautiful San Diego County community providing compassionate care in a homelike environment.",
-                          amenities: ["Specialized Care", "Restaurant-Style Dining", "Wellness Programs", "Outdoor Spaces", "Entertainment"],
-                          rating: 4.6
-                        }} 
-                        variant="compact" 
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-            
-            {/* Explore All Communities Button */}
-            <div className="text-center mt-8">
-              <Link to="/ai-search-intelligence?brand=Oakmont">
-                <Button size="lg" className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white px-8 py-6 text-lg font-semibold shadow-xl">
-                  Explore All 106 Oakmont Communities
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
       
       {/* Hawaii Paradise Excellence - Premium Tropical Living */}
       <section ref={hawaiiSectionRef} className="relative px-4 py-16 overflow-hidden">

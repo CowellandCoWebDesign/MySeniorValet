@@ -58,3 +58,4 @@
 - [Dark-mode global override hazards](dark-mode-global-overrides.md) — never key `.dark !important` overrides on utility classes (stripped hero CTA bg); scope to data-attrs; hero CTAs use !important brand classes.
 - [Fabricated inventory counts ban](fabricated-inventory-counts.md) — never hardcode "N,NNN communities/facilities" anywhere crawlable (JSON-LD, meta, page copy); tests/structured-data-no-fabricated-counts.test.ts enforces repo-wide with allowlist.
 - [Baked Senior Resource Directory](resource-directory-baked.md) — /senior-resources is shell-injected from stored data only (no live lookup); category ids are public anchor slugs; JSON payload lives outside #root.
+- [Referral-support registry](referral-support-registry.md) — all public community surfaces use one fail-closed allowlist; exact operator identity grants eligibility, but community exclusions always win.

@@ -3,13 +3,19 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { generateCommunitySlug } from '../utils/generate-slug';
 import { sql } from 'drizzle-orm';
+import { isCommunitySupportingEligible } from '../utils/community-ranking';
 
 export function registerSEOCommunityUrls(app: any) {
   // Get SEO URL for a specific community
   app.get('/api/communities/:id/seo-url', async (req: Request, res: Response) => {
     try {
       const communityId = parseInt(req.params.id);
-      
+      // Referral-support allowlist: do not reveal canonical URLs for
+      // communities that are not publicly offered.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
       const [community] = await db
         .select({
           id: communities.id,

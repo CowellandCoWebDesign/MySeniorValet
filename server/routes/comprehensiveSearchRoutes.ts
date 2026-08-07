@@ -195,7 +195,13 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
   try {
     const { db } = await import('../db');
     const { communities } = await import('@shared/schema');
-    const { ilike, sql, or, and, ne, eq } = await import('drizzle-orm');
+    const { ilike, sql, or, and, ne } = await import('drizzle-orm');
+    const { supportingEligibilityFilter } = await import('../utils/community-ranking');
+    // Shared public referral-support eligibility (Task #483): active + not
+    // hidden + not excluded + (approved when gate on) + default HUD exclusion.
+    // Replaces the ad-hoc is_active/is_hidden gate so autocomplete never
+    // surfaces unconfirmed / excluded / non-approved communities.
+    const eligibility = await supportingEligibilityFilter();
     
     // 1. EXACT & PREFIX COMMUNITY NAME MATCHES (highest priority)
     const exactMatches = await db
@@ -208,8 +214,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
       .from(communities)
       .where(
         and(
-          eq(communities.isActive, true),
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          eligibility,
           ilike(communities.name, `${normalizedQuery}%`),  // Starts with (highest priority)
           // Filter out bad data - require valid state and exclude "Unknown"
           ne(communities.state, 'Unknown'),
@@ -244,8 +249,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
-            eq(communities.isActive, true),
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            eligibility,
             ilike(communities.name, `%${normalizedQuery}%`),  // Contains
             // Filter out bad data
             ne(communities.state, 'Unknown'),
@@ -284,8 +288,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
-            eq(communities.isActive, true),
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            eligibility,
             ilike(communities.city, `${normalizedQuery}%`)   // Starts with only for cities
           )
         )
@@ -311,8 +314,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
-            eq(communities.isActive, true),
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            eligibility,
             ilike(communities.state, `${normalizedQuery}%`)  // Only prefix match for states
           )
         )
@@ -337,8 +339,7 @@ async function generateSearchSuggestions(query: string): Promise<string[]> {
         .from(communities)
         .where(
           and(
-            eq(communities.isActive, true),
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            eligibility,
             ilike(communities.managementCompany, `${normalizedQuery}%`),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`

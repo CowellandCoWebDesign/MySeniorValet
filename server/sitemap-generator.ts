@@ -1,9 +1,9 @@
 import { Request, Response } from "express";
 import { db } from './db';
 import { communities } from '../shared/schema';
-import { sql, eq, and } from 'drizzle-orm';
 import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import { evaluateIndexability } from '../shared/community-indexability';
+import { supportingEligibilityFilter } from './utils/community-ranking';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -31,6 +31,12 @@ async function loadIndexableCommunityRows(): Promise<IndexableRow[]> {
     return indexableRowsCache.rows;
   }
   // Only public rows; the eligibility function decides index vs noindex.
+  // Shared public referral-support eligibility (Task #483): active + not hidden
+  // + not excluded + (approved when the registry gate is enabled). HUD listings
+  // stay reachable in the sitemap (includeHud), matching the "detail pages and
+  // sitemap are not HUD-filtered" policy — only the referral-support gate
+  // applies here. Fails safe (active + not-hidden) before the gate is enabled.
+  const eligibility = await supportingEligibilityFilter({ includeHud: true });
   const rows = await db
     .select({
       id: communities.id,
@@ -66,10 +72,7 @@ async function loadIndexableCommunityRows(): Promise<IndexableRow[]> {
       yelpReviewCount: communities.yelpReviewCount,
     })
     .from(communities)
-    .where(
-      sql`(${communities.isActive} IS NULL OR ${communities.isActive} = true)
-          AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
-    )
+    .where(eligibility)
     .orderBy(communities.id);
 
   const indexable = rows
@@ -144,6 +147,7 @@ async function saveSitemapCache(cacheKey: string, content: string) {
 
 // Clear all sitemap caches (call when database updates)
 export async function clearSitemapCache() {
+  indexableRowsCache = null;
   try {
     const files = await fs.readdir(CACHE_DIR);
     await Promise.all(

@@ -7790,3 +7790,152 @@ export const insertHomeSectionConfigSchema = createInsertSchema(homeSectionConfi
   .omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertHomeSectionConfig = z.infer<typeof insertHomeSectionConfigSchema>;
 export type SelectHomeSectionConfig = typeof homeSectionConfigs.$inferSelect;
+
+// ============================================================================
+// Supporting-Community Registry (Task #483)
+//
+// The single controlled referral-support registry that decides which
+// communities MySeniorValet publicly offers. It is intentionally restrictive
+// (allowlist-based): a community is publicly eligible ONLY if its operator
+// family is admin-approved OR it is individually approved — AND it is not
+// covered by a community-level exclusion (exclusion ALWAYS wins).
+//
+// The DDL is also created idempotently at startup (server/run-migration.ts)
+// because DB changes never merge across environments.
+// ============================================================================
+
+// Approval status shared across families, matches and individual approvals.
+// The public eligibility predicate (server/utils/community-ranking.ts) reads
+// status = 'approved' on families/matches/approvals.
+export const SUPPORTING_STATUSES = ["approved", "proposed", "rejected", "revoked"] as const;
+export type SupportingStatus = (typeof SUPPORTING_STATUSES)[number];
+
+// Community-level exclusion reasons. Exclusion overrides every inheritance.
+export const SUPPORTING_EXCLUSION_REASONS = ["closed", "no_referrals", "duplicate", "other"] as const;
+export type SupportingExclusionReason = (typeof SUPPORTING_EXCLUSION_REASONS)[number];
+
+// Normalized operator/management families. The public predicate keys off
+// status = 'approved'. Aliases/domains live in the child tables below.
+export const supportingOperatorFamilies = pgTable("supporting_operator_families", {
+  id: serial("id").primaryKey(),
+  // Canonical operator/management-company name (e.g. "Atria Management Company").
+  name: text("name").notNull(),
+  // Stable slug used for idempotent seeding + lookups. Unique.
+  slug: text("slug").notNull(),
+  status: text("status").notNull().$type<SupportingStatus>().default("proposed"),
+  // Free-form corroboration evidence (official portfolio URLs, notes, etc.).
+  evidence: jsonb("evidence").$type<{
+    notes?: string;
+    sources?: string[];
+    portfolioEstimate?: number;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_families_slug").on(table.slug),
+  index("idx_supporting_families_status").on(table.status),
+]);
+
+export type InsertSupportingOperatorFamily = typeof supportingOperatorFamilies.$inferInsert;
+export type SupportingOperatorFamily = typeof supportingOperatorFamilies.$inferSelect;
+
+// Brand aliases belonging to a family (e.g. "Holiday by Atria"). Matching is
+// exact/normalized — never loose substring.
+export const supportingOperatorAliases = pgTable("supporting_operator_aliases", {
+  id: serial("id").primaryKey(),
+  familyId: integer("family_id").references(() => supportingOperatorFamilies.id, { onDelete: "cascade" }).notNull(),
+  alias: text("alias").notNull(),
+  aliasNormalized: text("alias_normalized").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_aliases_family_norm").on(table.familyId, table.aliasNormalized),
+  index("idx_supporting_aliases_norm").on(table.aliasNormalized),
+]);
+
+export type InsertSupportingOperatorAlias = typeof supportingOperatorAliases.$inferInsert;
+export type SupportingOperatorAlias = typeof supportingOperatorAliases.$inferSelect;
+
+// Verified domains belonging to a family (canonical operator identity, e.g.
+// "mosaicms.com"). Used to resolve approval through verified websites.
+export const supportingOperatorDomains = pgTable("supporting_operator_domains", {
+  id: serial("id").primaryKey(),
+  familyId: integer("family_id").references(() => supportingOperatorFamilies.id, { onDelete: "cascade" }).notNull(),
+  domain: text("domain").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_domains_family_domain").on(table.familyId, table.domain),
+  index("idx_supporting_domains_domain").on(table.domain),
+]);
+
+export type InsertSupportingOperatorDomain = typeof supportingOperatorDomains.$inferInsert;
+export type SupportingOperatorDomain = typeof supportingOperatorDomains.$inferSelect;
+
+// Resolved matches between an operator family and a stored community record.
+// The public predicate reads status = 'approved' (approved family + approved
+// match = inherited eligibility). Ambiguous name-only candidates stay
+// status = 'proposed' for admin review.
+export const supportingCommunityMatches = pgTable("supporting_community_matches", {
+  id: serial("id").primaryKey(),
+  familyId: integer("family_id").references(() => supportingOperatorFamilies.id, { onDelete: "cascade" }).notNull(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }).notNull(),
+  // How the match was resolved: domain | alias | operator_id | manual
+  matchMethod: text("match_method").notNull().default("manual"),
+  status: text("status").notNull().$type<SupportingStatus>().default("proposed"),
+  evidence: jsonb("evidence").$type<{ notes?: string; sources?: string[] }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_matches_family_community").on(table.familyId, table.communityId),
+  index("idx_supporting_matches_community").on(table.communityId),
+  index("idx_supporting_matches_status").on(table.status),
+]);
+
+export type InsertSupportingCommunityMatch = typeof supportingCommunityMatches.$inferInsert;
+export type SupportingCommunityMatch = typeof supportingCommunityMatches.$inferSelect;
+
+// Individually approved standalone communities, keyed by exact normalized
+// name+city+state (approval_key). The seeder resolves community_id via exact
+// normalized name+city (+ state aliases). Public predicate reads status +
+// (community_id OR approval_key).
+export const supportingCommunityApprovals = pgTable("supporting_community_approvals", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  approvalKey: text("approval_key").notNull(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "set null" }),
+  status: text("status").notNull().$type<SupportingStatus>().default("approved"),
+  evidence: jsonb("evidence").$type<{ notes?: string; sources?: string[] }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_approvals_key").on(table.approvalKey),
+  index("idx_supporting_approvals_community").on(table.communityId),
+  index("idx_supporting_approvals_status").on(table.status),
+]);
+
+export type InsertSupportingCommunityApproval = typeof supportingCommunityApprovals.$inferInsert;
+export type SupportingCommunityApproval = typeof supportingCommunityApprovals.$inferSelect;
+
+// Permanent community-level exclusions, keyed by exact normalized
+// name+city+state (exclusion_key). These override BOTH family inheritance and
+// individual approval — exclusion always wins. Public predicate reads
+// (community_id OR exclusion_key).
+export const supportingCommunityExclusions = pgTable("supporting_community_exclusions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  exclusionKey: text("exclusion_key").notNull(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "set null" }),
+  reason: text("reason").notNull().$type<SupportingExclusionReason>(),
+  note: text("note"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_exclusions_key").on(table.exclusionKey),
+  index("idx_supporting_exclusions_community").on(table.communityId),
+]);
+
+export type InsertSupportingCommunityExclusion = typeof supportingCommunityExclusions.$inferInsert;
+export type SupportingCommunityExclusion = typeof supportingCommunityExclusions.$inferSelect;

@@ -1,9 +1,9 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities } from "@shared/schema";
-import { and, sql, between, isNotNull } from "drizzle-orm";
+import { and, or, eq, desc, sql, between, isNotNull } from "drizzle-orm";
 import { superclusterService } from "../services/supercluster";
-import { verifiedOnlyFilter, excludeHudFilter } from "../utils/community-ranking";
+import { verifiedOnlyFilter, supportingEligibilityFilter } from "../utils/community-ranking";
 
 export function registerMappingRoutes(app: Express) {
   
@@ -30,9 +30,12 @@ export function registerMappingRoutes(app: Express) {
       // (computed from these markers) stay accurate too.
       const verifiedOnlyEnabled = verifiedOnly === 'true' || verifiedOnly === '1';
       const verifiedClause = verifiedOnlyEnabled ? sql` AND ${verifiedOnlyFilter()}` : sql``;
-      // HUD/subsidized listings excluded by default — opt-in via includeHud=true
+      // HUD/subsidized listings excluded by default — opt-in via includeHud=true.
+      // Shared public referral-support eligibility (Task #483) also bakes the
+      // default HUD exclusion in unless includeHud is set, so unconfirmed /
+      // excluded / non-approved records never leak onto the map.
       const includeHudEnabled = includeHud === 'true' || includeHud === '1';
-      const hudClause = includeHudEnabled ? sql`` : sql` AND ${excludeHudFilter()}`;
+      const eligibilityClause = await supportingEligibilityFilter({ includeHud: includeHudEnabled });
       
       console.log(`Fetching raw markers for bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]${verifiedOnlyEnabled ? ' (verified only)' : ''}`);
       
@@ -48,9 +51,9 @@ export function registerMappingRoutes(app: Express) {
         FROM communities
         WHERE latitude IS NOT NULL 
           AND longitude IS NOT NULL
-          AND (is_hidden IS NULL OR is_hidden = false)
+          AND ${eligibilityClause}
           AND latitude BETWEEN ${southFloat} AND ${northFloat}
-          AND longitude BETWEEN ${westFloat} AND ${eastFloat}${verifiedClause}${hudClause}
+          AND longitude BETWEEN ${westFloat} AND ${eastFloat}${verifiedClause}
         LIMIT ${parseInt(limit as string)}
       `);
       
@@ -153,11 +156,18 @@ export function registerMappingRoutes(app: Express) {
       });
       
       // Build smart search conditions based on AI analysis
-      let searchConditions = isNotNull(communities.latitude);
+      let searchConditions: any = isNotNull(communities.latitude);
+      const literalLocations = String(location)
+        .split(",")
+        .map((part) => part.trim().toLowerCase())
+        .filter(Boolean);
+      const detectedLocations = aiAnalysis.detectedLocations?.length > 0
+        ? aiAnalysis.detectedLocations
+        : literalLocations;
       
       // Add location intelligence 
-      if (aiAnalysis.detectedLocations?.length > 0) {
-        const locationConditions = aiAnalysis.detectedLocations.map((loc: string) => 
+      if (detectedLocations.length > 0) {
+        const locationConditions = detectedLocations.map((loc: string) =>
           or(
             sql`LOWER(${communities.city}) LIKE ${`%${loc.toLowerCase()}%`}`,
             sql`LOWER(${communities.state}) LIKE ${`%${loc.toLowerCase()}%`}`,
@@ -178,7 +188,10 @@ export function registerMappingRoutes(app: Express) {
       const results = await db
         .select()
         .from(communities)
-        .where(searchConditions)
+        .where(and(
+          searchConditions,
+          await supportingEligibilityFilter({ includeHud: req.query.includeHud === 'true' }),
+        ))
         .limit(parseInt(limit as string))
         .orderBy(desc(communities.rating));
       
@@ -186,7 +199,7 @@ export function registerMappingRoutes(app: Express) {
         communities: results,
         aiAnalysis: {
           interpretedQuery: aiAnalysis.interpretation,
-          detectedLocations: aiAnalysis.detectedLocations,
+          detectedLocations,
           suggestedCareTypes: aiAnalysis.suggestedCareTypes,
           confidence: aiAnalysis.confidence
         },
@@ -212,7 +225,10 @@ export function registerMappingRoutes(app: Express) {
       const community = await db
         .select()
         .from(communities)
-        .where(eq(communities.id, parseInt(id)))
+        .where(and(
+          eq(communities.id, parseInt(id)),
+          await supportingEligibilityFilter({ includeHud: true }),
+        ))
         .limit(1);
       
       if (community.length === 0) {
@@ -242,7 +258,8 @@ export function registerMappingRoutes(app: Express) {
           avgRating: sql<number>`avg(rating)`,
           stateCount: sql<number>`count(distinct state)`
         })
-        .from(communities);
+        .from(communities)
+        .where(await supportingEligibilityFilter());
       
       res.json({
         stats: stats[0],

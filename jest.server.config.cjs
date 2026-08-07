@@ -15,6 +15,9 @@ module.exports = {
       }
     }]
   },
+  moduleNameMapper: {
+    '^@shared/(.*)$': '<rootDir>/shared/$1'
+  },
   modulePathIgnorePatterns: [
     '<rootDir>/.pythonlibs/',
     '<rootDir>/.cache/',

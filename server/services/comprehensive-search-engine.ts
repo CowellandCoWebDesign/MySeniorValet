@@ -6,7 +6,7 @@
 import { db } from '../db';
 import { communities, healthcareServiceTypes } from '@shared/schema';
 import { eq, and, or, ilike, gte, lte, sql, desc, asc, isNotNull, not } from 'drizzle-orm';
-import { qualityOrderBy, verifiedOnlyFilter, excludeHudFilter } from '../utils/community-ranking';
+import { qualityOrderBy, verifiedOnlyFilter, supportingEligibilityFilter } from '../utils/community-ranking';
 
 export interface SearchFilters {
   careTypes?: string[];
@@ -71,20 +71,14 @@ export class ComprehensiveSearchEngine {
     console.log(`🔍 Total conditions built: ${conditions.length}, searchType: ${searchType}, isHealthcare: ${isHealthcareSearch}`);
     
 
-    // CRITICAL: Only show active communities (excludes contaminated/fake entries)
-    // All fake entries have been marked as is_active = false in the database
-    const activeFilter = sql`is_active = true`;
-    
-    // Add active filter to existing conditions
-    conditions.push(activeFilter);
-    // STRICT visibility: never surface hidden communities to public search
-    conditions.push(sql`(is_hidden IS NULL OR is_hidden = false)`);
-    // HUD/subsidized listings are excluded by default — opt-in via filter.
-    // Applied to BOTH result rows and the count query below (same conditions
-    // array), so displayed results and totals stay consistent.
-    if (!filters.includeHud) {
-      conditions.push(excludeHudFilter());
-    }
+    // Shared public referral-support eligibility (Task #483): active + not
+    // hidden + not excluded + (approved individual OR confirmed match to an
+    // approved operator family, once the registry gate is enabled) + default
+    // HUD exclusion unless the family opted in. Applied to BOTH the result rows
+    // and the count query below (same conditions array), so displayed results
+    // and totals stay consistent. Fails safe before the gate is enabled
+    // (active + not-hidden) so search never returns a catastrophic empty set.
+    conditions.push(await supportingEligibilityFilter({ includeHud: !!filters.includeHud }));
     
     // Execute main search
     let searchQuery = db.select().from(communities);
@@ -144,9 +138,9 @@ export class ComprehensiveSearchEngine {
             .from(communities)
             .where(and(
               locWhere,
-              sql`is_active = true`,
-              sql`(is_hidden IS NULL OR is_hidden = false)`,
-              filters.includeHud ? undefined : excludeHudFilter()
+              // Same shared public eligibility predicate as the main search so
+              // discovery only triggers when there is no ELIGIBLE local match.
+              await supportingEligibilityFilter({ includeHud: !!filters.includeHud })
             ));
           locationHasNoRealMatches = parseInt(locCount.toString()) === 0;
         } else {
@@ -202,38 +196,12 @@ export class ComprehensiveSearchEngine {
         const discovered = discovery.communities || [];
 
         if (discovered.length > 0) {
-          // Format discovered communities to match the existing response shape
-          const formattedDiscovered = discovered.map((d, idx) => ({
-            id: -(idx + 1), // Negative IDs indicate discovered (not in DB)
-            name: d.name,
-            address: d.address || '',
-            city: d.city || filters.city || '',
-            state: d.state || filters.state || '',
-            country: 'US',
-            phone: d.phone || null,
-            website: d.website || null,
-            description: `Senior living community discovered via Perplexity AI for ${discoveryLocation}. Contact the community to verify current pricing and availability.`,
-            careTypes: d.careTypes && d.careTypes.length > 0 ? d.careTypes : ['Senior Living'],
-            photos: [],
-            latitude: null,
-            longitude: null,
-            isVerified: false,
-            isActive: true,
-            data_source: 'ai_discovered_perplexity',
-            isDiscovered: true,
-            confidence: d.confidence
-          }));
-
-          // Surface discovered communities alongside any real DB matches
-          results = [...results, ...formattedDiscovered];
-          totalResults = results.length;
-
           aiSuggestions = {
-            summary: `Found ${discovered.length} senior living ${discovered.length === 1 ? 'community' : 'communities'} via Perplexity AI for ${discoveryLocation}.`,
+            summary: `Found ${discovered.length} potential senior living ${discovered.length === 1 ? 'community' : 'communities'} for admin referral review in ${discoveryLocation}.`,
             sources: discovery.sources || [],
             images: []
           };
-          discoveryMessage = `🔮 Discovery Mode: We searched the web with Perplexity AI and found ${discovered.length} senior living ${discovered.length === 1 ? 'community' : 'communities'} for "${discoveryLocation}". These are newly discovered — contact each community to verify current pricing and availability.`;
+          discoveryMessage = `We found ${discovered.length} potential ${discovered.length === 1 ? 'community' : 'communities'} for "${discoveryLocation}" and staged them for referral-support review. They will not appear publicly unless an admin approves them.`;
 
           // Persist so future searches self-heal from the DB (labeled
           // ai_discovered_perplexity; pricing only added once verified).
@@ -254,7 +222,7 @@ export class ComprehensiveSearchEngine {
             console.error('⚠️ Failed to persist discovered communities:', saveErr);
           }
 
-          console.log(`✨ Perplexity discovery added ${discovered.length} communities for "${discoveryLocation}"`);
+          console.log(`✨ Discovery staged ${discovered.length} communities for admin review in "${discoveryLocation}"`);
         } else {
           aiSuggestions = {
             summary: `No additional senior living communities were found via Perplexity AI for "${discoveryLocation}".`,
@@ -1215,6 +1183,9 @@ export class ComprehensiveSearchEngine {
     }
     
     try {
+      // Shared public referral-support eligibility (Task #483) so autocomplete
+      // never surfaces unconfirmed / excluded / non-approved communities.
+      const eligibility = await supportingEligibilityFilter();
       // Enhanced fuzzy matching for typos and variations
       const fuzzyQuery = this.generateFuzzyVariations(normalizedQuery);
       
@@ -1238,9 +1209,7 @@ export class ComprehensiveSearchEngine {
         })
         .from(communities)
         .where(and(
-          sql`${communities.isActive} = true`,
-          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
-          excludeHudFilter(),
+          eligibility,
           or(...communityNameConditions)
         ))
         .orderBy(sql`
@@ -1282,9 +1251,7 @@ export class ComprehensiveSearchEngine {
         })
         .from(communities)
         .where(and(
-          sql`${communities.isActive} = true`,
-          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
-          excludeHudFilter(),
+          eligibility,
           or(...cityConditions)
         ))
         .groupBy(communities.city, communities.state)
@@ -1324,9 +1291,7 @@ export class ComprehensiveSearchEngine {
           })
           .from(communities)
           .where(and(
-            sql`${communities.isActive} = true`,
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
-            excludeHudFilter(),
+            eligibility,
             or(...stateConditions)
           ))
           .groupBy(communities.state)
@@ -1360,9 +1325,7 @@ export class ComprehensiveSearchEngine {
         .from(communities)
         .where(
           and(
-            sql`${communities.isActive} = true`,
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
-            excludeHudFilter(),
+            eligibility,
             or(...companyConditions),
             sql`${communities.managementCompany} IS NOT NULL`,
             sql`${communities.managementCompany} != ''`

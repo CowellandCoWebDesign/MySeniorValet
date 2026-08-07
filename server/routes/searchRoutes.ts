@@ -8,6 +8,7 @@ import { geocodeLocation, getZoomLevel } from "../geocoding-data";
 import { eliminateCallForPricing } from "../intelligent-pricing-system";
 import { MarketPricingIntelligence } from "../market-pricing-intelligence";
 import { getDynamicSuggestions } from "../services/dynamic-search-suggestions";
+import { supportingEligibilityFilter, isCommunitySupportingEligible } from "../utils/community-ranking";
 
 export function registerSearchRoutes(app: Express) {
   // Geocode location endpoint for map search
@@ -72,7 +73,13 @@ export function registerSearchRoutes(app: Express) {
     try {
       const { communityId } = req.params;
       const { detailed } = req.query; // Optional flag for detailed response
-      
+
+      // Referral-support allowlist: no pricing intelligence for communities
+      // that are not publicly offered.
+      if (!(await isCommunitySupportingEligible(parseInt(communityId)))) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
       // Get community details
       const [community] = await db
         .select({
@@ -617,9 +624,7 @@ export function registerSearchRoutes(app: Express) {
         // Must have phone for legitimacy
         isNotNull(communities.phone),
         ne(communities.phone, ''),
-        // Public visibility: active + not hidden
-        sql`${communities.isActive} = true`,
-        sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`
+        await supportingEligibilityFilter()
       ];
       
       // Add search term filter if provided (only for non-location searches)
@@ -937,14 +942,18 @@ export function registerSearchRoutes(app: Express) {
         priceRanges,
         livePricing,
         minRating,
-        amenities
+        amenities,
+        includeHud
       } = req.query;
 
       const startTime = Date.now();
-      // Always start with active + non-hidden communities filter (quarantine).
+      const publicEligibility = await supportingEligibilityFilter({
+        includeHud: includeHud === 'true',
+      });
+      // One shared public policy: active/open, registry-approved, not excluded,
+      // and HUD-free unless the caller explicitly opts in.
       let whereConditions: any[] = [
-        sql`${communities.isActive} = true`,
-        sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+        publicEligibility,
       ];
       
       // DUAL-MODE FILTERING: Support both bounds and radius searches
@@ -960,8 +969,7 @@ export function registerSearchRoutes(app: Express) {
         const milesToDegrees = radiusMiles / 69.0;
         
         whereConditions = [
-          sql`${communities.isActive} = true`,
-          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          publicEligibility,
           sql`${communities.latitude}::float >= ${center.lat - milesToDegrees}`,
           sql`${communities.latitude}::float <= ${center.lat + milesToDegrees}`,
           sql`${communities.longitude}::float >= ${center.lng - milesToDegrees}`,
@@ -977,8 +985,7 @@ export function registerSearchRoutes(app: Express) {
         const neLngFloat = parseFloat(neLng as string);
         
         whereConditions = [
-          sql`${communities.isActive} = true`,
-          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+          publicEligibility,
           sql`${communities.latitude}::float >= ${swLatFloat}`,
           sql`${communities.latitude}::float <= ${neLatFloat}`,
           sql`${communities.longitude}::float >= ${swLngFloat}`,
@@ -1063,8 +1070,7 @@ export function registerSearchRoutes(app: Express) {
             const neLngFloat = parseFloat(neLng as string);
             
             whereConditions = [
-              sql`${communities.isActive} = true`,
-              sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+              await supportingEligibilityFilter(),
               sql`${communities.latitude}::float >= ${swLatFloat}`,
               sql`${communities.latitude}::float <= ${neLatFloat}`,
               sql`${communities.longitude}::float >= ${swLngFloat}`,
@@ -1234,8 +1240,7 @@ export function registerSearchRoutes(app: Express) {
         .from(communities)
         .where(
           and(
-            sql`${communities.isActive} = true`,
-            sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
+            await supportingEligibilityFilter(),
             sql`${communities.latitude}::float BETWEEN ${centerLat - kmToDegrees} AND ${centerLat + kmToDegrees}`,
             sql`${communities.longitude}::float BETWEEN ${centerLng - kmToDegrees} AND ${centerLng + kmToDegrees}`
           )
@@ -1322,26 +1327,27 @@ export function registerSearchRoutes(app: Express) {
       }
 
       const searchTerm = (query as string).toLowerCase();
+      const eligibility = await supportingEligibilityFilter();
       
       // Get city suggestions (active, non-hidden communities only)
       const citySuggestions = await db
         .selectDistinct({ city: communities.city, state: communities.state })
         .from(communities)
-        .where(and(sql`${communities.isActive} = true`, sql`${communities.isHidden} IS NOT TRUE`, sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`))
+        .where(and(eligibility, sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`))
         .limit(5);
 
       // Get state suggestions (active, non-hidden communities only)
       const stateSuggestions = await db
         .selectDistinct({ state: communities.state })
         .from(communities)
-        .where(and(sql`${communities.isActive} = true`, sql`${communities.isHidden} IS NOT TRUE`, sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`))
+        .where(and(eligibility, sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`))
         .limit(3);
 
       // Get community name suggestions (active, non-hidden communities only)
       const communitySuggestions = await db
         .select({ id: communities.id, name: communities.name, city: communities.city, state: communities.state })
         .from(communities)
-        .where(and(sql`${communities.isActive} = true`, sql`${communities.isHidden} IS NOT TRUE`, sql`LOWER(${communities.name}) LIKE ${'%' + (searchTerm || '') + '%'}`))
+        .where(and(eligibility, sql`LOWER(${communities.name}) LIKE ${'%' + (searchTerm || '') + '%'}`))
         .limit(5);
 
       const suggestions = [

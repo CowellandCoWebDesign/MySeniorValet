@@ -127,6 +127,16 @@ jest.mock('../../server/services/profile-refresh-rate-limit', () => ({
   consumeProfileRefreshRateLimit: () => Promise.resolve({ allowed: true, remaining: 4, retryAfterSeconds: 0 }),
 }));
 jest.mock('../../server/utils/photo-urls', () => ({ normalizePhotoUrls: (x: any) => x }));
+// Referral-support eligibility — controllable per test; default eligible.
+const mockSupportingEligible = jest.fn();
+jest.mock('../../server/utils/community-ranking', () => ({
+  qualityOrderBy: () => [],
+  qualityRankExpr: () => ({}),
+  verifiedOnlyFilter: () => ({}),
+  excludeHudFilter: () => ({}),
+  supportingEligibilityFilterSql: () => ({}),
+  isCommunitySupportingEligible: (...args: any[]) => mockSupportingEligible(...args),
+}));
 // Gate 1 now counts SERVABLE photos through the serve-time filter (photo-trap
 // fix). Deterministic stand-in: any URL containing "other-facility" is treated
 // as belonging to a different community and filtered out.
@@ -196,7 +206,21 @@ describe('POST /api/communities/:id/self-heal', () => {
     mockUpdateWhere.mockClear();
     mockUpdateWhere.mockResolvedValue(undefined as never);
     mockLimit.mockResolvedValue([communityRow()]);
+    mockSupportingEligible.mockReset();
+    mockSupportingEligible.mockResolvedValue(true as never);
     app = buildApp();
+  });
+
+  // ── Referral-support allowlist gate ───────────────────────────────────────
+
+  it('returns 404 for an excluded/unapproved community without fetching or enriching', async () => {
+    mockSupportingEligible.mockResolvedValue(false as never);
+    const res = await request(app).post('/api/communities/75098/self-heal').send({});
+    expect(res.status).toBe(404);
+    expect(mockSupportingEligible).toHaveBeenCalledWith(75098);
+    expect(mockLimit).not.toHaveBeenCalled();
+    expect(mockEnrich).not.toHaveBeenCalled();
+    expect(mockUpdate).not.toHaveBeenCalled();
   });
 
   // ── Input guards ─────────────────────────────────────────────────────────

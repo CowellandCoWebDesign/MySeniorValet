@@ -135,6 +135,7 @@ import FinancialAnalyticsDashboard from "@/pages/financial-analytics-dashboard";
 import ComplianceDashboard from "@/pages/compliance-dashboard";
 import MarketingAutomationDashboard from "@/pages/marketing-automation-dashboard";
 import AdminFeaturedCommunitiesPage from "@/pages/admin-featured-communities";
+import AdminSupportingRegistry from "@/pages/admin-supporting-registry";
 import ResidentPortal from "@/pages/resident-portal";
 import PublicResidentPortal from "@/pages/public-resident-portal";
 import ResidentDashboard from "@/pages/resident-dashboard";
@@ -287,6 +288,7 @@ function Router() {
       <Route path="/admin/api-keys" component={SuperAdminAnalytics} />
       <Route path="/admin/users" component={SuperAdminAnalytics} />
       <Route path="/admin/data-quality" component={DataQualityDashboard} />
+      <Route path="/admin/supporting-registry" component={AdminSupportingRegistry} />
       <Route path="/admin/photo-quality" component={PhotoQualityAdmin} />
       <Route path="/admin/audit-logs" component={LegalDocumentHistory} />
       <Route path="/admin/light-gallery" component={LightDesignGallery} />

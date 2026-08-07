@@ -86,6 +86,16 @@ jest.mock('../../server/intelligent-pricing-system', () => ({ eliminateCallForPr
 jest.mock('../../server/real-data-analyzer', () => ({ realDataAnalyzer: {} }));
 jest.mock('../../server/services/internal-notifications', () => ({ internalNotifications: {} }));
 jest.mock('../../server/utils/photo-urls', () => ({ normalizePhotoUrls: (value: any) => value }));
+// Referral-support eligibility — controllable per test; default eligible.
+const mockSupportingEligible = jest.fn();
+jest.mock('../../server/utils/community-ranking', () => ({
+  qualityOrderBy: () => [],
+  qualityRankExpr: () => ({}),
+  verifiedOnlyFilter: () => ({}),
+  excludeHudFilter: () => ({}),
+  supportingEligibilityFilterSql: () => ({}),
+  isCommunitySupportingEligible: (...args: any[]) => mockSupportingEligible(...args),
+}));
 const mockConsumeRateLimit = jest.fn();
 jest.mock('../../server/services/profile-refresh-rate-limit', () => ({
   consumeProfileRefreshRateLimit: (...args: any[]) => mockConsumeRateLimit(...args),
@@ -117,6 +127,7 @@ describe('POST /api/communities/:id/profile-refresh', () => {
     mockUpdateWhere.mockResolvedValue(undefined as never);
     mockReturning.mockResolvedValue([{ id: 1 }] as never);
     mockConsumeRateLimit.mockResolvedValue({ allowed: true, remaining: 4, retryAfterSeconds: 0 } as never);
+    mockSupportingEligible.mockResolvedValue(true as never);
     mockEnrich.mockResolvedValue({
       contentSaved: true,
       improvedSections: ['overview', 'amenities'],
@@ -124,6 +135,15 @@ describe('POST /api/communities/:id/profile-refresh', () => {
     app = express();
     app.use(express.json());
     registerCommunityRoutes(app);
+  });
+
+  it('returns 404 for an excluded/unapproved community without fetching or enriching', async () => {
+    mockSupportingEligible.mockResolvedValue(false as never);
+    const response = await request(app).post('/api/communities/75098/profile-refresh').send({});
+    expect(response.status).toBe(404);
+    expect(mockSupportingEligible).toHaveBeenCalledWith(75098);
+    expect(mockLimit).not.toHaveBeenCalled();
+    expect(mockEnrich).not.toHaveBeenCalled();
   });
 
   it('runs the unified family-safe mode and reports improved sections', async () => {

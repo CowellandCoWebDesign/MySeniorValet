@@ -20,7 +20,7 @@ import { eq, ilike, and, or, sql, gte, lte, inArray } from 'drizzle-orm';
 import { EnhancedAIEnrichmentService } from './enhanced-ai-enrichment';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
 import { cache } from '../cache';
-import { excludeHudFilter } from '../utils/community-ranking';
+import { supportingEligibilityFilter } from '../utils/community-ranking';
 import type { Community } from '@shared/schema';
 
 interface SearchIntent {
@@ -354,13 +354,11 @@ export class UnifiedSearchEngine {
         );
       }
       
-      // Always filter to active, non-hidden communities only
-      conditions.push(sql`${communities.isActive} = true`);
-      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
-      // HUD/subsidized listings are excluded by default — opt-in via includeHud.
-      if (!options?.includeHud) {
-        conditions.push(excludeHudFilter());
-      }
+      // Shared public referral-support eligibility (Task #483): active + not
+      // hidden + not excluded + (approved when the registry gate is enabled) +
+      // default HUD exclusion unless the family opted in. Fails safe before the
+      // gate is enabled so search never returns a catastrophic empty set.
+      conditions.push(await supportingEligibilityFilter({ includeHud: !!options?.includeHud }));
       const whereClause = and(...conditions);
       
       const results = await db
@@ -382,15 +380,13 @@ export class UnifiedSearchEngine {
    */
   private async fuzzySearch(query: string, options?: any): Promise<Community[]> {
     try {
-      // Use enhanced AI enrichment fuzzy matching
+      // Shared public referral-support eligibility (Task #483) — same predicate
+      // as the primary database search so fuzzy candidates can never leak an
+      // unconfirmed / excluded / non-approved community.
       const fuzzyResults = await db
         .select()
         .from(communities)
-        .where(and(
-          sql`${communities.isActive} = true`,
-          sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`,
-          options?.includeHud ? undefined : excludeHudFilter()
-        ))
+        .where(await supportingEligibilityFilter({ includeHud: !!options?.includeHud }))
         .limit(1000); // Get larger set for fuzzy matching
       
       // Calculate similarity scores — only active communities

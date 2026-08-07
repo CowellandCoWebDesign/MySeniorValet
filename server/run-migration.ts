@@ -1,6 +1,8 @@
 import { db } from './db';
 import { sql } from 'drizzle-orm';
 import { PROTECTIVE_FLAG_LIST } from './services/community-visibility';
+import { bootstrapRegistry } from './services/supporting-community-registry';
+import { getSupportingRegistryState } from './utils/community-ranking';
 
 /**
  * Single source of truth for the values allowed by the
@@ -166,7 +168,28 @@ export async function runStartupMigrations(): Promise<void> {
   const restoredCount = await runStartupQualityRestore();
   console.log(`✅ Auto-restored ${restoredCount} quality-bar senior communities (startup restore)`);
 
-  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings + placement_inquiries + profile refresh guard)');
+  // Supporting-community registry (Task #483): idempotent CREATE TABLE IF NOT
+  // EXISTS + atomic seed of the initial admin-approved allowlist. The public
+  // gate only flips to enabled after the seed succeeds AND the eligible count
+  // is > 0, so rollout never temporarily hides all public offerings. Guarded so
+  // a registry hiccup never blocks the rest of startup.
+  try {
+    const { seed, matches, eligibility, gate } = await bootstrapRegistry(new Date().toISOString());
+    // Prime the shared eligibility snapshot only after registry DDL + seed have
+    // completed. Synchronous public readers fail closed until this succeeds.
+    await getSupportingRegistryState({ fresh: true });
+    console.log(
+      `✅ Supporting-community registry seeded (families=${seed.families}, proposed=${seed.proposedFamilies}, ` +
+        `aliases=${seed.aliases}, domains=${seed.domains}, approvals=${seed.approvals} [resolved ${seed.resolvedApprovals}], ` +
+        `exclusions=${seed.exclusions} [resolved ${seed.resolvedExclusions}]); ` +
+        `matches: domain=${matches.approvedByDomain}, alias=${matches.approvedByAlias}; ` +
+        `eligible=${eligibility.eligibleCount}; gate=${gate.enabled ? 'ENABLED' : 'disabled'} (${gate.reason})`,
+    );
+  } catch (err) {
+    console.error('⚠️ Supporting-community registry bootstrap failed (non-fatal):', (err as Error).message);
+  }
+
+  console.log('✅ Startup migrations verified (community trust columns + admin_rating_override + platform_settings + page settings + placement_inquiries + profile refresh guard + supporting-community registry)');
 }
 
 // Allow direct execution: `npx tsx server/run-migration.ts`

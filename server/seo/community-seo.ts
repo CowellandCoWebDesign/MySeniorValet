@@ -21,6 +21,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq } from 'drizzle-orm';
 import { LRUCache } from 'lru-cache';
+import { isCommunitySupportingEligible } from '../utils/community-ranking';
 import { generateCommunitySlug, generateSlug } from '../utils/generate-slug';
 import { CANONICAL_BASE_URL } from '../middleware/host-canonical';
 import { duplicateOfId } from '@shared/community-indexability';
@@ -146,6 +147,13 @@ export async function injectCommunityMetaIntoShell(reqPath: string, html: string
     }
     const community = await resolveCommunityByPath(reqPath);
     if (!community || isCommunityGone(community)) return null;
+
+    // Shared public referral-support eligibility (Task #483): a community that
+    // is not publicly eligible (excluded, or — once the registry gate is on —
+    // not individually approved / confirmed-matched to an approved family) must
+    // NOT emit indexable detail SEO / structured data. Fails open on any error
+    // so a transient registry problem never suppresses a valid detail page.
+    if (!(await isCommunitySupportingEligible(community.id))) return null;
 
     const cacheKey = `shell-${community.id}`;
     const updatedAtMs = community.updatedAt ? new Date(community.updatedAt).getTime() : 0;

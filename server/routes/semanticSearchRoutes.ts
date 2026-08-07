@@ -3,6 +3,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { sql, ilike, or, and, gte, lte } from 'drizzle-orm';
 import { PerplexityAIService } from '../perplexity-ai-service';
+import { supportingEligibilityFilter } from '../utils/community-ranking';
 
 const perplexityService = new PerplexityAIService();
 
@@ -57,8 +58,10 @@ export function registerSemanticSearchRoutes(app: Express) {
       
       // Care type search
       if (queryInsights.criteria.careTypes && queryInsights.criteria.careTypes.length > 0) {
+        // care_types is text[] — ILIKE on the raw column is a type error
+        // (operator does not exist: text[] ~~*). Match on the flattened text.
         const careTypeConditions = queryInsights.criteria.careTypes.map((ct: string) =>
-          ilike(communities.careTypes, `%${ct}%`)
+          sql`array_to_string(${communities.careTypes}, ' ') ILIKE ${`%${ct.replace(/-/g, ' ')}%`}`
         );
         if (careTypeConditions.length > 0) {
           conditions.push(or(...careTypeConditions));
@@ -86,9 +89,9 @@ export function registerSemanticSearchRoutes(app: Express) {
         }
       }
 
-      // Execute database search (public visibility: active + not hidden)
-      conditions.push(sql`${communities.isActive} = true`);
-      conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+      // Execute database search — shared referral-support eligibility (active,
+      // not hidden, registry-approved, not excluded, HUD excluded by default).
+      conditions.push(await supportingEligibilityFilter());
       const whereClause = and(...conditions);
       
       const dbResults = await db

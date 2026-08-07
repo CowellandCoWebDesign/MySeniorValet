@@ -30,7 +30,7 @@ import { vendors } from "@shared/schema";
 import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
 import { selfHealCooldownHours, SELF_HEAL_TERMINAL_ATTEMPTS } from "../self-heal-backoff";
 import { consumeProfileRefreshRateLimit } from "../services/profile-refresh-rate-limit";
-import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter, excludeHudFilter } from "../utils/community-ranking";
+import { qualityOrderBy, qualityRankExpr, verifiedOnlyFilter, excludeHudFilter, supportingEligibilityFilterSql, isCommunitySupportingEligible } from "../utils/community-ranking";
 
 /**
  * Single shared predicate for ALL public community queries.
@@ -50,7 +50,7 @@ function publicVisibleFilter(opts?: { includeHud?: boolean }) {
   // (hud-featured, hud-properties, stats) opt back in with { includeHud: true }.
   const hudClause = opts?.includeHud ? sql`` : sql` AND ${excludeHudFilter()}`;
   return sql`(
-    "communities"."is_hidden" IS NOT TRUE${hudClause}
+    ${supportingEligibilityFilterSql({ includeHud: opts?.includeHud })}
     AND NOT (
       ("communities"."is_verified" IS NOT TRUE OR "communities"."is_verified" IS NULL)
       AND ("communities"."phone" IS NULL OR trim("communities"."phone") = '')
@@ -74,6 +74,9 @@ export function registerCommunityRoutes(app: Express) {
       const communityId = parseInt(req.params.id, 10);
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
+      }
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: "Community not found" });
       }
 
       const [community] = await db
@@ -160,6 +163,11 @@ export function registerCommunityRoutes(app: Express) {
       const communityId = parseInt(req.params.id, 10);
       if (isNaN(communityId) || String(communityId) !== req.params.id.trim()) {
         return res.status(400).json({ error: "Invalid community ID" });
+      }
+      // Referral-support allowlist: never run (or reveal) enrichment for a
+      // community that is not publicly offered. Same 404 as the detail routes.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: "Community not found" });
       }
 
       const [community] = await db
@@ -360,6 +368,11 @@ export function registerCommunityRoutes(app: Express) {
       if (isNaN(communityId) || String(communityId) !== req.params.id.trim()) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
+      // Referral-support allowlist: excluded/unapproved communities must not
+      // be refreshable (or discoverable) through this public endpoint.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: "Community not found" });
+      }
 
       const [community] = await db
         .select({
@@ -507,6 +520,7 @@ export function registerCommunityRoutes(app: Express) {
       // Let the SSR middleware / SPA handle them (it returns 404/410 + noindex for crawlers).
       if (!community) return next();
       if (community.isHidden === true || community.isActive === false) return next();
+      if (!(await isCommunitySupportingEligible(communityId))) return next();
       // Build the destination from the STORED canonical slug columns — the exact
       // values the sitemap & getCommunityUrl() emit (preserves dedup suffixes like
       // "-2"). Fall back to deriving from name/city/state only for legacy null rows.
@@ -584,8 +598,7 @@ export function registerCommunityRoutes(app: Express) {
 
       // Shared visibility WHERE clause (raw SQL so we skip Drizzle column expansion).
       const baseWhere = sql`
-        "is_active" = TRUE
-        AND "is_hidden" IS NOT TRUE
+        ${supportingEligibilityFilterSql({ includeHud: true })}
         AND NOT (
           ("is_verified" IS NOT TRUE OR "is_verified" IS NULL)
           AND ("phone" IS NULL OR trim("phone") = '')
@@ -781,6 +794,107 @@ export function registerCommunityRoutes(app: Express) {
     } catch (error) {
       console.error("Error fetching section-data:", error);
       res.status(500).json({ error: "Failed to fetch section data" });
+    }
+  });
+
+  // Canonical approved operator portfolios for the public home/directory.
+  // Communities only appear through an approved match and the same effective
+  // eligibility predicate used by search, maps, details, and SEO.
+  app.get("/api/communities/supporting-portfolios", async (_req, res) => {
+    try {
+      const result = await db.execute(sql`
+        SELECT
+          f.id AS family_id,
+          f.slug AS family_slug,
+          f.name AS family_name,
+          communities.*
+        FROM supporting_operator_families f
+        JOIN supporting_community_matches m
+          ON m.family_id = f.id AND m.status = 'approved'
+        JOIN communities ON communities.id = m.community_id
+        WHERE f.status = 'approved'
+          AND ${supportingEligibilityFilterSql()}
+        ORDER BY f.name ASC, ${qualityOrderBy()}, communities.name ASC
+      `);
+      const families = new Map<number, { id: number; slug: string; name: string; communities: any[] }>();
+      for (const row of ((result as any).rows ?? [])) {
+        const familyId = Number(row.family_id);
+        if (!families.has(familyId)) {
+          families.set(familyId, {
+            id: familyId,
+            slug: row.family_slug,
+            name: row.family_name,
+            communities: [],
+          });
+        }
+        const { family_id, family_slug, family_name, ...community } = row;
+        families.get(familyId)!.communities.push(community);
+      }
+      // Standalone approvals are first-class public offerings too. Keep them in
+      // one canonical section, excluding rows already represented through an
+      // approved operator family so the response itself remains duplicate-free.
+      const standalone = await db.execute(sql`
+        SELECT communities.*
+        FROM supporting_community_approvals a
+        JOIN communities ON (
+          a.community_id = communities.id
+          OR a.approval_key =
+            lower(trim(coalesce(communities.name, ''))) || '|' ||
+            lower(trim(coalesce(communities.city, ''))) || '|' ||
+            lower(trim(coalesce(communities.state, '')))
+        )
+        WHERE a.status = 'approved'
+          AND ${supportingEligibilityFilterSql()}
+          AND NOT EXISTS (
+            SELECT 1
+            FROM supporting_community_matches m
+            JOIN supporting_operator_families f ON f.id = m.family_id
+            WHERE m.community_id = communities.id
+              AND m.status = 'approved'
+              AND f.status = 'approved'
+          )
+        ORDER BY ${qualityOrderBy()}, communities.name ASC
+      `);
+      const responseFamilies: Array<{ id: number | string; slug: string; name: string; communities: any[] }> =
+        Array.from(families.values());
+      if (((standalone as any).rows ?? []).length > 0) {
+        responseFamilies.push({
+          id: "individual-approvals",
+          slug: "individually-approved",
+          name: "Individually Approved",
+          communities: (standalone as any).rows,
+        });
+      }
+      res.set('Cache-Control', 'public, max-age=30');
+      return res.json({ families: responseFamilies });
+    } catch (error) {
+      console.error("Error fetching supporting portfolios:", error);
+      return res.status(500).json({ error: "Failed to fetch supporting portfolios", families: [] });
+    }
+  });
+
+  // Eligibility-safe pinned list. Direct detail routes are deliberately not
+  // used for composition because one excluded pin must never bypass the gate.
+  app.get("/api/communities/pinned", async (req, res) => {
+    try {
+      const ids = String(req.query.ids ?? "")
+        .split(",")
+        .map((value) => Number(value.trim()))
+        .filter((value) => Number.isInteger(value) && value > 0)
+        .slice(0, 100);
+      if (ids.length === 0) return res.json({ communities: [] });
+      const idList = sql.join(ids.map((id) => sql`${id}`), sql`, `);
+      const result = await db.execute(sql`
+        SELECT *
+        FROM communities
+        WHERE id IN (${idList})
+          AND ${supportingEligibilityFilterSql()}
+      `);
+      const byId = new Map(((result as any).rows ?? []).map((row: any) => [Number(row.id), row]));
+      return res.json({ communities: ids.map((id) => byId.get(id)).filter(Boolean) });
+    } catch (error) {
+      console.error("Error fetching pinned communities:", error);
+      return res.status(500).json({ error: "Failed to fetch pinned communities", communities: [] });
     }
   });
 
@@ -1385,21 +1499,25 @@ export function registerCommunityRoutes(app: Express) {
       const hudCount = await db
         .select({ count: sql`COUNT(*)` })
         .from(communities)
-        .where(isNotNull(communities.hudPropertyId));
+        .where(and(
+          publicVisibleFilter({ includeHud: true }),
+          isNotNull(communities.hudPropertyId),
+        ));
 
       const hudWithPricing = await db
         .select({ count: sql`COUNT(*)` })
         .from(communities)
         .where(
           and(
+            publicVisibleFilter({ includeHud: true }),
             isNotNull(communities.hudPropertyId),
             isNotNull(communities.rentPerMonth)
           )
         );
 
       res.json({ 
-        total: parseInt(hudCount[0].count),
-        withPricing: parseInt(hudWithPricing[0].count)
+        total: Number(hudCount[0].count),
+        withPricing: Number(hudWithPricing[0].count)
       });
     } catch (error) {
       console.error("Error fetching HUD count:", error);
@@ -1413,20 +1531,24 @@ export function registerCommunityRoutes(app: Express) {
       // Total communities count
       const totalCount = await db
         .select({ count: sql`COUNT(*)` })
-        .from(communities);
+        .from(communities)
+        .where(publicVisibleFilter({ includeHud: true }));
 
       // Communities with any pricing data
       const withPricingCount = await db
         .select({ count: sql`COUNT(*)` })
         .from(communities)
         .where(
-          sql`
-            live_pricing IS NOT NULL 
-            OR price_range IS NOT NULL 
-            OR rent_per_month IS NOT NULL 
-            OR monthly_rent_range_start IS NOT NULL 
-            OR monthly_rent_range_end IS NOT NULL
-          `
+          and(
+            publicVisibleFilter({ includeHud: true }),
+            sql`(
+              live_pricing IS NOT NULL
+              OR price_range IS NOT NULL
+              OR rent_per_month IS NOT NULL
+              OR monthly_rent_range_start IS NOT NULL
+              OR monthly_rent_range_end IS NOT NULL
+            )`,
+          )
         );
 
       // HUD communities with verified pricing
@@ -1435,15 +1557,18 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
+            publicVisibleFilter({ includeHud: true }),
             isNotNull(communities.hudPropertyId),
             isNotNull(communities.rentPerMonth)
           )
         );
 
-      const totalCommunities = parseInt(totalCount[0].count);
-      const communitiesWithPricing = parseInt(withPricingCount[0].count);
-      const hudCommunitiesWithPricing = parseInt(hudWithPricing[0].count);
-      const pricingCoveragePercentage = Math.round((communitiesWithPricing / totalCommunities) * 100);
+      const totalCommunities = Number(totalCount[0].count);
+      const communitiesWithPricing = Number(withPricingCount[0].count);
+      const hudCommunitiesWithPricing = Number(hudWithPricing[0].count);
+      const pricingCoveragePercentage = totalCommunities > 0
+        ? Math.round((communitiesWithPricing / totalCommunities) * 100)
+        : 0;
 
       res.json({ 
         totalCommunities,
@@ -1467,6 +1592,9 @@ export function registerCommunityRoutes(app: Express) {
       
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
+      }
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: "Community not found" });
       }
 
       // Get community details
@@ -1517,10 +1645,19 @@ export function registerCommunityRoutes(app: Express) {
 
       const { aiMatching } = await import('../ai-powered-matching');
       const matches = await aiMatching.findBestMatches(profile, 5);
+      const eligibleMatches = (
+        await Promise.all(
+          matches.map(async (match: any) =>
+            (await isCommunitySupportingEligible(Number(match?.community?.id)))
+              ? match
+              : null,
+          ),
+        )
+      ).filter(Boolean);
       
       res.json({
         success: true,
-        matches,
+        matches: eligibleMatches,
         profile
       });
     } catch (error) {
@@ -1537,6 +1674,11 @@ export function registerCommunityRoutes(app: Express) {
       
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
+      }
+      // Referral-support allowlist: never verify/enrich or reveal details for
+      // a community that is not publicly offered.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: "Community not found" });
       }
 
       console.log(`🔍 Verification using unified cache for community ${communityId}`);
@@ -1969,6 +2111,9 @@ export function registerCommunityRoutes(app: Express) {
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: "Community not found" });
+      }
 
       // Get the community from database
       const [community] = await db
@@ -2135,7 +2280,7 @@ export function registerCommunityRoutes(app: Express) {
       }
 
       // Block publicly-hidden communities from the public detail page
-      if (community.isHidden || isClearlyFake(community)) {
+      if (community.isHidden || isClearlyFake(community) || !(await isCommunitySupportingEligible(community.id))) {
         return res.status(404).json({ error: "Community not found" });
       }
 
@@ -2226,6 +2371,10 @@ export function registerCommunityRoutes(app: Express) {
       
       if (isNaN(communityId)) {
         return res.status(400).json({ error: "Invalid community ID" });
+      }
+
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: "Community not found" });
       }
       
       // Check if this is a Mexico community ID (99001-99006)
@@ -2706,6 +2855,7 @@ export function registerCommunityRoutes(app: Express) {
         .from(communities)
         .where(
           and(
+            publicVisibleFilter({ includeHud: true }),
             isNotNull(communities.hudPropertyId),
             sql`${communities.rentPerMonth} IS NOT NULL AND CAST(${communities.rentPerMonth} AS DECIMAL) < 1000`
           )
