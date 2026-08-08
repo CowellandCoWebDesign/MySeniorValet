@@ -9,7 +9,7 @@ export function MarketIntelligence() {
       <div className="text-center mb-4">
         <h2 className="text-xl font-bold mb-2">Complete Care Spectrum & Live Market Intelligence</h2>
         <p className="text-sm text-muted-foreground">
-          All 7 care levels from $0 to $12,000+ • Live pricing from 34,171 verified communities
+          All 7 care levels from $0 to $12,000+ • Live pricing from verified communities
         </p>
         <p className="text-xs text-muted-foreground mt-1">
           From HUD-Sponsored Housing to Skilled Nursing - Find your perfect care level
@@ -24,7 +24,7 @@ export function MarketIntelligence() {
             AI-Powered Senior Living Intelligence
           </CardTitle>
           <CardDescription className="text-xs">
-            3-AI Orchestra: Claude + Perplexity + ChatGPT • 34,171 Verified Communities
+            3-AI Orchestra: Claude + Perplexity + ChatGPT • Verified Communities
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-3">
@@ -41,7 +41,7 @@ export function MarketIntelligence() {
                 </li>
                 <li className="flex items-start gap-1">
                   <span className="text-green-600">•</span>
-                  <span><strong>Live Pricing:</strong> 25,376+ communities</span>
+                  <span><strong>Live Pricing:</strong> Verified communities</span>
                 </li>
                 <li className="flex items-start gap-1">
                   <span className="text-green-600">•</span>
@@ -127,7 +127,7 @@ export function MarketIntelligence() {
                 <Shield className="w-4 h-4 mx-auto mb-1 text-blue-600" />
                 <p className="text-sm font-bold text-blue-600">$0-$500</p>
                 <p className="text-xs text-muted-foreground">HUD-Sponsored</p>
-                <p className="text-xs text-blue-600">5,936 communities</p>
+                <p className="text-xs text-blue-600">HUD communities</p>
                 <Badge className="mt-1 text-xs px-1 py-0 bg-blue-100 text-blue-700">Income-Based</Badge>
               </div>
               
@@ -136,7 +136,7 @@ export function MarketIntelligence() {
                 <Home className="w-4 h-4 mx-auto mb-1 text-green-600" />
                 <p className="text-sm font-bold text-green-600">$300-$800</p>
                 <p className="text-xs text-muted-foreground">55+ Mobile Parks</p>
-                <p className="text-xs text-green-600">3,421 communities</p>
+                <p className="text-xs text-green-600">Verified communities</p>
                 <Badge className="mt-1 text-xs px-1 py-0 bg-green-100 text-green-700">Age-Restricted</Badge>
               </div>
               
@@ -145,7 +145,7 @@ export function MarketIntelligence() {
                 <Users className="w-4 h-4 mx-auto mb-1 text-emerald-600" />
                 <p className="text-sm font-bold text-emerald-600">$800-$1,500</p>
                 <p className="text-xs text-muted-foreground">Active Adult 55+</p>
-                <p className="text-xs text-emerald-600">4,567 communities</p>
+                <p className="text-xs text-emerald-600">Verified communities</p>
                 <Badge className="mt-1 text-xs px-1 py-0 bg-emerald-100 text-emerald-700">Lifestyle</Badge>
               </div>
               
@@ -154,7 +154,7 @@ export function MarketIntelligence() {
                 <Home className="w-4 h-4 mx-auto mb-1 text-purple-600" />
                 <p className="text-sm font-bold text-purple-600">$1,500-$3,500</p>
                 <p className="text-xs text-muted-foreground">Independent Living</p>
-                <p className="text-xs text-purple-600">8,745 communities</p>
+                <p className="text-xs text-purple-600">Verified communities</p>
                 <Badge className="mt-1 text-xs px-1 py-0 bg-purple-100 text-purple-700">Meals Included</Badge>
               </div>
               
@@ -163,7 +163,7 @@ export function MarketIntelligence() {
                 <Heart className="w-4 h-4 mx-auto mb-1 text-orange-600" />
                 <p className="text-sm font-bold text-orange-600">$3,000-$6,000</p>
                 <p className="text-xs text-muted-foreground">Assisted Living</p>
-                <p className="text-xs text-orange-600">7,234 communities</p>
+                <p className="text-xs text-orange-600">Verified communities</p>
                 <Badge className="mt-1 text-xs px-1 py-0 bg-orange-100 text-orange-700">ADL Support</Badge>
               </div>
               
@@ -172,7 +172,7 @@ export function MarketIntelligence() {
                 <Brain className="w-4 h-4 mx-auto mb-1 text-red-600" />
                 <p className="text-sm font-bold text-red-600">$4,000-$7,500</p>
                 <p className="text-xs text-muted-foreground">Memory Care</p>
-                <p className="text-xs text-red-600">3,897 communities</p>
+                <p className="text-xs text-red-600">Verified communities</p>
                 <Badge className="mt-1 text-xs px-1 py-0 bg-red-100 text-red-700">Secured</Badge>
               </div>
               
@@ -181,14 +181,14 @@ export function MarketIntelligence() {
                 <Stethoscope className="w-4 h-4 mx-auto mb-1 text-indigo-600" />
                 <p className="text-sm font-bold text-indigo-600">$6,000-$12,000</p>
                 <p className="text-xs text-muted-foreground">Skilled Nursing</p>
-                <p className="text-xs text-indigo-600">2,300 communities</p>
+                <p className="text-xs text-indigo-600">Verified communities</p>
                 <Badge className="mt-1 text-xs px-1 py-0 bg-indigo-100 text-indigo-700">24/7 Medical</Badge>
               </div>
             </div>
             
             <div className="mt-3 text-center space-y-1">
               <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-300">
-                Live data from 34,171 verified communities
+                Live data from verified communities
               </Badge>
               <p className="text-xs text-muted-foreground">
                 Slide to explore care options from lowest cost to highest care needs

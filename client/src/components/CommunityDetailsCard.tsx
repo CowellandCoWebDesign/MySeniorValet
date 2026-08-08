@@ -2,7 +2,8 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Phone, Star, Home, Shield, Award, TrendingUp, Sparkles, Building, Users, Dumbbell, UtensilsCrossed, Wifi, Car } from "lucide-react";
+import { MapPin, Phone, Star, Home, Shield, Award, TrendingUp, Sparkles, Building, Users, Dumbbell, UtensilsCrossed, Wifi, Car, Lock } from "lucide-react";
+import { useContactReveal } from "@/hooks/useContactReveal";
 
 interface CommunityDetailsCardProps {
   community: {
@@ -33,6 +34,7 @@ interface CommunityDetailsCardProps {
 }
 
 export function CommunityDetailsCard({ community }: CommunityDetailsCardProps) {
+  const { isRevealed, reveal, consentDialog } = useContactReveal(community.id, community.name);
   // Get the primary care type
   const primaryCareType = community.careTypes?.[0] || "Senior Living";
   
@@ -141,13 +143,25 @@ export function CommunityDetailsCard({ community }: CommunityDetailsCardProps) {
           
           {/* Contact Button */}
           {community.phone && (
-            <Button 
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
-              onClick={() => window.location.href = `tel:${community.phone}`}
-            >
-              <Phone className="h-4 w-4 mr-2" />
-              {community.phone}
-            </Button>
+            isRevealed('phone') ? (
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                onClick={() => window.location.href = `tel:${community.phone}`}
+                data-testid={`link-call-${community.id}`}
+              >
+                <Phone className="h-4 w-4 mr-2" />
+                {community.phone}
+              </Button>
+            ) : (
+              <Button 
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3"
+                onClick={() => reveal('phone')}
+                data-testid={`button-call-${community.id}`}
+              >
+                <Lock className="h-4 w-4 mr-2" />
+                Tap to reveal phone
+              </Button>
+            )
           )}
           
           {/* Price Section */}
@@ -235,6 +249,7 @@ export function CommunityDetailsCard({ community }: CommunityDetailsCardProps) {
           )}
         </div>
       </CardContent>
+      {consentDialog}
     </Card>
   );
 }

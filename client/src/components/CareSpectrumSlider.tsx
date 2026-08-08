@@ -202,21 +202,23 @@ const careLevels: CareLevel[] = [
   }
 ];
 
-export function CareSpectrumSlider() {
+export function CareSpectrumSlider({ hideHeader = false }: { hideHeader?: boolean } = {}) {
   const [selectedLevel, setSelectedLevel] = useState([4]); // Default to Independent Living
   const currentLevel = careLevels.find(l => l.level === selectedLevel[0]) || careLevels[3];
 
   return (
     <Card className="overflow-hidden bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900 border-2 border-blue-200 dark:border-blue-700">
       <CardContent className="p-6">
-        <div className="mb-6">
-          <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-            Find Your Perfect Care Level
-          </h3>
-          <p className="text-gray-600 dark:text-gray-300">
-            Slide to explore the full spectrum of senior housing options
-          </p>
-        </div>
+        {!hideHeader && (
+          <div className="mb-6">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+              Find Your Perfect Care Level
+            </h3>
+            <p className="text-gray-600 dark:text-gray-300">
+              Slide to explore the full spectrum of senior housing options
+            </p>
+          </div>
+        )}
 
         {/* Current Selection Display */}
         <div className={`rounded-lg p-4 mb-6 ${currentLevel.color} bg-opacity-10 dark:bg-opacity-20 border-2 border-current`}>

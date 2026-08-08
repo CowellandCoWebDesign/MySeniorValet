@@ -14,8 +14,8 @@ export default function SeniorLivingWorldwidePage() {
 
   // Critical SEO optimization for Google rankings - comprehensive platform coverage
   useSEO({
-    title: 'MySeniorValet: Complete Senior Living Platform | 33,657 Communities Worldwide | All Care Levels',
-    description: 'The Google of Senior Care. Search 33,657 verified communities worldwide. All care levels: Independent Living, Assisted Living, Memory Care, Skilled Nursing, Home Care, Adult Day Care. Complete journey support from search to move-in services, healthcare providers, resident portals. 100% free, no referral fees.',
+    title: 'MySeniorValet: Complete Senior Living Platform | Communities Worldwide | All Care Levels',
+    description: 'The Google of Senior Care. Search verified communities worldwide. All care levels: Independent Living, Assisted Living, Memory Care, Skilled Nursing, Home Care, Adult Day Care. Complete journey support from search to move-in services, healthcare providers, resident portals. Family research tools always free.',
     keywords: 'senior living worldwide, all senior care levels, complete senior living platform, independent living, assisted living, memory care, skilled nursing, home care, adult day care, CCRC, HUD senior housing, Section 8 seniors, senior move-in services, senior healthcare providers, resident portal, senior living search',
     canonicalUrl: 'https://www.myseniorvalet.com/senior-living-worldwide'
   });
@@ -43,7 +43,7 @@ export default function SeniorLivingWorldwidePage() {
             Complete Senior Living Platform: Search to Support
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-95">
-            33,657 Verified Communities Worldwide • All Care Levels • Complete Journey Support
+            Verified Communities Worldwide • All Care Levels • Complete Journey Support
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
             <Button 
@@ -52,7 +52,7 @@ export default function SeniorLivingWorldwidePage() {
               className="bg-white text-purple-600 hover:bg-gray-100"
             >
               <Search className="mr-2 h-5 w-5" />
-              Search All 33,657 Communities
+              Search All Communities
             </Button>
             <Button 
               size="lg" 
@@ -66,7 +66,7 @@ export default function SeniorLivingWorldwidePage() {
           </div>
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold">33,657</div>
+              <div className="text-3xl font-bold">Global</div>
               <div className="text-sm opacity-90">Total Communities</div>
             </div>
             <div>
@@ -79,7 +79,7 @@ export default function SeniorLivingWorldwidePage() {
             </div>
             <div>
               <div className="text-3xl font-bold">100% Free</div>
-              <div className="text-sm opacity-90">No Referral Fees</div>
+              <div className="text-sm opacity-90">Free for Families</div>
             </div>
           </div>
         </div>
@@ -206,7 +206,7 @@ export default function SeniorLivingWorldwidePage() {
               <div className="flex items-center gap-4 mb-4">
                 <Building className="h-8 w-8 text-orange-600" />
                 <div>
-                  <h3 className="text-xl font-bold">4,771 HUD & Affordable Senior Housing Properties</h3>
+                  <h3 className="text-xl font-bold">HUD & Affordable Senior Housing Properties</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
                     Section 8, Section 202, LIHTC, and other subsidized housing with verified government pricing
                   </p>
@@ -237,7 +237,7 @@ export default function SeniorLivingWorldwidePage() {
               </CardHeader>
               <CardContent>
                 <ul className="space-y-1.5 text-sm">
-                  <li>• AI-powered search across 33,657 communities</li>
+                  <li>• AI-powered search across all communities</li>
                   <li>• Real pricing & availability</li>
                   <li>• Virtual tours & photos</li>
                   <li>• Compare multiple options</li>
@@ -343,7 +343,7 @@ export default function SeniorLivingWorldwidePage() {
                 <div className="mt-4 pt-4 border-t">
                   <p className="text-sm font-semibold mb-2">Top States:</p>
                   <p className="text-xs text-gray-600 dark:text-gray-400">
-                    California (3,124) • Texas (2,456) • Florida (2,234) • New York (1,987) • Pennsylvania (1,456)
+                    California • Texas • Florida • New York • Pennsylvania
                   </p>
                 </div>
               </CardContent>
@@ -367,7 +367,7 @@ export default function SeniorLivingWorldwidePage() {
                     <p className="text-sm text-gray-600 dark:text-gray-400">National Coverage</p>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-purple-600">287</div>
+                    <div className="text-2xl font-bold text-purple-600">SF</div>
                     <p className="text-sm text-gray-600 dark:text-gray-400">Cities Covered</p>
                   </div>
                   <div>
@@ -401,7 +401,7 @@ export default function SeniorLivingWorldwidePage() {
                   <h3 className="text-lg font-bold">100% Independent</h3>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  No referral fees, no hidden commissions, no steering. We work for families, not facilities.
+                  Fully transparent referral partnerships — any fees from communities are always disclosed. Family research tools are always free.
                 </p>
               </CardContent>
             </Card>
@@ -451,7 +451,7 @@ export default function SeniorLivingWorldwidePage() {
               className="bg-white text-purple-600 hover:bg-gray-100"
             >
               <Search className="mr-2 h-5 w-5" />
-              Search 33,657 Communities
+              Search Communities
             </Button>
             <Button 
               size="lg" 
@@ -473,7 +473,7 @@ export default function SeniorLivingWorldwidePage() {
             </Button>
           </div>
           <p className="mt-8 text-sm opacity-75">
-            100% Free for Families • No Referral Fees • Independent Platform • Available in English, French & Spanish
+            100% Free for Families • Transparent Referral Disclosures • Available in English, French & Spanish
           </p>
         </div>
       </section>

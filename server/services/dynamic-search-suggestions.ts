@@ -254,7 +254,7 @@ export async function getDynamicSuggestions(
             const citySuggestions = await db
               .selectDistinct({ city: communities.city, state: communities.state })
               .from(communities)
-              .where(sql`LOWER(${communities.city}) LIKE ${searchTerm + '%'}`)
+              .where(sql`LOWER(${communities.city}) LIKE ${searchTerm + '%'} AND ${communities.isActive} = true AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`)
               .limit(3);
             
             suggestions.push(...citySuggestions.map(s => 
@@ -291,7 +291,7 @@ export async function getDynamicSuggestions(
                 state: communities.state 
               })
               .from(communities)
-              .where(sql`LOWER(${communities.name}) LIKE ${'%' + searchTerm + '%'} OR LOWER(${communities.city}) LIKE ${searchTerm + '%'}`)
+              .where(sql`(LOWER(${communities.name}) LIKE ${'%' + searchTerm + '%'} OR LOWER(${communities.city}) LIKE ${searchTerm + '%'}) AND ${communities.isActive} = true AND (${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`)
               .limit(5);
             
             suggestions.push(...communitySuggestions.map(s => 

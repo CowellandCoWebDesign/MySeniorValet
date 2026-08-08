@@ -93,7 +93,7 @@ export class MailchimpEmailMarketing {
           preview_text: 'We hope your senior living tour was helpful!',
           title: `Tour Follow-up - ${tourData.communityName}`,
           from_name: 'MySeniorValet Team',
-          reply_to: process.env.MAILCHIMP_REPLY_EMAIL || 'hello@myseniorvalet.com'
+          reply_to: process.env.MAILCHIMP_REPLY_EMAIL || 'CowellandCoWebDesign@gmail.com'
         }
       });
 
@@ -129,7 +129,7 @@ export class MailchimpEmailMarketing {
         <p>Need help comparing communities or have questions? Reply to this email and our senior living experts will assist you.</p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://myseniorvalet.com/dashboard" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
+          <a href="https://www.myseniorvalet.com/dashboard" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
             View Your Tour Dashboard
           </a>
         </div>

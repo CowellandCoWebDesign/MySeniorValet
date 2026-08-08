@@ -312,14 +312,16 @@ export class CacheOptimizerService extends EventEmitter {
   }
 
   private startCacheWarmup() {
-    // Warm up caches every 5 minutes
-    this.cacheWarmupInterval = setInterval(() => {
-      this.warmupCaches();
-    }, 5 * 60 * 1000);
-
-    // Initial warmup
-    this.warmupCaches();
-    console.log('🔥 Cache warmup scheduled');
+    // COST CONTROL: Cache warmup DISABLED to prevent automatic API calls
+    // The warmup was preloading communities which could trigger enrichment/Perplexity calls
+    // This was contributing to ~$1 per 5 minutes in API spending
+    console.log('⚠️ Cache warmup interval DISABLED to prevent automatic API calls');
+    
+    // DISABLED: Warmup interval - do not re-enable without cost analysis
+    // this.cacheWarmupInterval = setInterval(() => {
+    //   this.warmupCaches();
+    // }, 5 * 60 * 1000);
+    // this.warmupCaches();
   }
 
   private async warmupCaches() {

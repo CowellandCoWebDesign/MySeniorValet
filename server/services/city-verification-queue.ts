@@ -8,6 +8,7 @@ import { eq, and, or, isNull, sql, desc, asc } from 'drizzle-orm';
 import { communities } from '../../shared/schema';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
 import { apiCircuitBreaker } from '../infrastructure/api-circuit-breaker';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 interface CityVerificationTarget {
   state: string;
@@ -170,7 +171,7 @@ export class CityVerificationQueue {
               .update(communities)
               .set({
                 isVerified: true,
-                website: verificationData.officialWebsite || community.website,
+                website: sanitizeWebsiteUrl(verificationData.officialWebsite) || sanitizeWebsiteUrl(community.website),
                 phone: verificationData.phone || community.phone,
                 address: verificationData.address || community.address,
                 assisted_living_pricing: verificationData.pricing?.assistedLiving || community.assisted_living_pricing,

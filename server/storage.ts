@@ -30,6 +30,7 @@ import { eq, like, ilike, gte, and, or, sql, inArray, desc, isNotNull, gt } from
 import { zipCodeService } from "./zip-code-mapping";
 import { cache } from "./cache";
 import { HudDataExtractor } from "./hud-data-extractor";
+import { sanitizeWebsiteUrl } from "./utils/website-url";
 
 export interface IStorage {
   // User methods - Updated for Replit Auth
@@ -147,9 +148,6 @@ export interface IStorage {
     };
   }>;
   
-  // Super admin count
-  getSuperAdminCount(): Promise<number>;
-
   // Search suggestions
   getSearchSuggestions(query: string): Promise<string[]>;
 
@@ -532,6 +530,9 @@ export class MemStorage implements IStorage {
 
   async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
     const id = this.currentCommunityId++;
+    if (insertCommunity.website !== undefined) {
+      insertCommunity = { ...insertCommunity, website: sanitizeWebsiteUrl(insertCommunity.website) };
+    }
     const community: Community = {
       ...insertCommunity,
       id,
@@ -546,6 +547,9 @@ export class MemStorage implements IStorage {
     const community = this.communities.get(id);
     if (!community) return undefined;
 
+    if (updates.website !== undefined) {
+      updates = { ...updates, website: sanitizeWebsiteUrl(updates.website) };
+    }
     const updatedCommunity: Community = {
       ...community,
       ...updates,
@@ -821,18 +825,6 @@ export class DatabaseStorage implements IStorage {
     } as User;
   }
 
-  async getSuperAdminCount(): Promise<number> {
-    try {
-      const result = await db.execute(
-        sql`SELECT COUNT(*) as count FROM users WHERE role = 'super_admin'`
-      );
-      return parseInt(result.rows[0].count as string) || 0;
-    } catch (error) {
-      console.error("Error getting super admin count:", error);
-      return 0;
-    }
-  }
-
   async updateUser(id: string, updates: Partial<any>): Promise<User | undefined> {
     try {
       // Build update fields dynamically
@@ -978,7 +970,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllCommunities(): Promise<Community[]> {
-    return await db.select().from(communities);
+    return await db.select().from(communities).where(eq(communities.isHidden, false));
   }
 
 
@@ -990,10 +982,13 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(communities)
       .where(
-        or(
-          ilike(communities.name, searchPattern),
-          ilike(communities.city, searchPattern),
-          ilike(communities.state, searchPattern)
+        and(
+          eq(communities.isHidden, false),
+          or(
+            ilike(communities.name, searchPattern),
+            ilike(communities.city, searchPattern),
+            ilike(communities.state, searchPattern)
+          )
         )
       )
       .limit(50);
@@ -1512,6 +1507,35 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCommunity(insertCommunity: InsertCommunity): Promise<Community> {
+    // Prevent non-senior-living properties from entering the database.
+    // This guard runs on ALL insert paths (discovery, admin API, bulk import).
+    const { isSeniorLivingFacility } = await import('./routes/global-discovery');
+    if (!isSeniorLivingFacility(insertCommunity.name, insertCommunity.careTypes || [])) {
+      throw new Error(
+        `Non-senior-living facility rejected: "${insertCommunity.name}" has no senior-living ` +
+        'qualifiers. Provide a senior care type or rename to include a senior indicator.'
+      );
+    }
+
+    // Auto-populate slug columns if not already provided.
+    // safeCommunitySlugs() checks the DB and appends -2/-3/… on collision,
+    // so inserts never violate the communities_slug_lookup_idx unique constraint.
+    if (!insertCommunity.slug || !insertCommunity.citySlug || !insertCommunity.stateSlug) {
+      const { safeCommunitySlugs } = await import('./utils/generate-slug');
+      const slugs = await safeCommunitySlugs({
+        name: insertCommunity.name,
+        city: insertCommunity.city,
+        state: insertCommunity.state,
+      });
+      insertCommunity = { ...insertCommunity, ...slugs };
+    }
+
+    // Never persist a corrupted/junk website (markdown artifacts, citation
+    // markers, prose placeholders) — junk becomes NULL, bare domains get https.
+    if (insertCommunity.website !== undefined) {
+      insertCommunity = { ...insertCommunity, website: sanitizeWebsiteUrl(insertCommunity.website) };
+    }
+
     const [community] = await db
       .insert(communities)
       .values(insertCommunity)
@@ -1534,6 +1558,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateCommunity(id: number, updates: Partial<InsertCommunity>): Promise<Community | undefined> {
+    // Never persist a corrupted/junk website value (see sanitizeWebsiteUrl).
+    if (updates.website !== undefined) {
+      updates = { ...updates, website: sanitizeWebsiteUrl(updates.website) };
+    }
     const [community] = await db
       .update(communities)
       .set(updates)
@@ -1648,53 +1676,31 @@ export class DatabaseStorage implements IStorage {
   }
 
   async markReviewHelpful(reviewId: number, userId: number, isHelpful: boolean): Promise<void> {
-    // First check if user already rated this review
-    const existing = await db
-      .select()
-      .from(reviewHelpfulness)
-      .where(and(
-        eq(reviewHelpfulness.reviewId, reviewId),
-        eq(reviewHelpfulness.userId, userId)
-      ));
+    // Use upsert pattern to eliminate the check-then-update/insert anti-pattern
+    // This reduces from 2 queries to 1 for the upsert operation
+    await db
+      .insert(reviewHelpfulness)
+      .values({ reviewId, userId, isHelpful })
+      .onConflictDoUpdate({
+        target: [reviewHelpfulness.reviewId, reviewHelpfulness.userId],
+        set: { isHelpful }
+      });
 
-    if (existing.length > 0) {
-      // Update existing rating
-      await db
-        .update(reviewHelpfulness)
-        .set({ isHelpful })
-        .where(and(
-          eq(reviewHelpfulness.reviewId, reviewId),
-          eq(reviewHelpfulness.userId, userId)
-        ));
-    } else {
-      // Create new rating
-      await db
-        .insert(reviewHelpfulness)
-        .values({ reviewId, userId, isHelpful });
-    }
-
-    // Update the review's helpful/notHelpful counters
-    const helpfulCount = await db
-      .select()
+    // Use a single aggregation query instead of two separate count queries
+    // This reduces from 2 queries to 1 for counting
+    const [counts] = await db
+      .select({
+        helpfulCount: sql<number>`COUNT(*) FILTER (WHERE ${reviewHelpfulness.isHelpful} = true)::int`,
+        notHelpfulCount: sql<number>`COUNT(*) FILTER (WHERE ${reviewHelpfulness.isHelpful} = false)::int`
+      })
       .from(reviewHelpfulness)
-      .where(and(
-        eq(reviewHelpfulness.reviewId, reviewId),
-        eq(reviewHelpfulness.isHelpful, true)
-      ));
-
-    const notHelpfulCount = await db
-      .select()
-      .from(reviewHelpfulness)
-      .where(and(
-        eq(reviewHelpfulness.reviewId, reviewId),
-        eq(reviewHelpfulness.isHelpful, false)
-      ));
+      .where(eq(reviewHelpfulness.reviewId, reviewId));
 
     await db
       .update(reviews)
       .set({
-        helpful: helpfulCount.length,
-        notHelpful: notHelpfulCount.length
+        helpful: counts?.helpfulCount || 0,
+        notHelpful: counts?.notHelpfulCount || 0
       })
       .where(eq(reviews.id, reviewId));
   }

@@ -1,7 +1,8 @@
 import { db } from './db';
 import { communities } from '@shared/schema';
 import { eq, sql, and } from 'drizzle-orm';
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 // Real-time pricing integrations - NO AGGREGATOR SITES
 // We ONLY use government sources, direct community data, and verified sources

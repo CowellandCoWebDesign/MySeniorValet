@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useLocation } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { Search, MapPin, DollarSign, Star, Phone, Heart, CheckCircle, Home, Building, Info, Sun, Waves, Shield, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,8 +15,8 @@ export default function SeniorLivingSanDiegoPage() {
 
   // Critical SEO optimization for Google rankings
   useSEO({
-    title: 'Best Senior Living San Diego 2025 - 412 Communities | Real Pricing $5,200-$8,900',
-    description: 'Complete guide to San Diego senior living facilities. Compare 412 verified communities with real pricing from $5,200-$8,900/month. 67 HUD affordable options, memory care, assisted living. Beach communities.',
+    title: 'Best Senior Living San Diego 2025 | Real Pricing & Verified Communities',
+    description: 'Complete guide to San Diego senior living facilities. Compare verified communities with real pricing. HUD affordable options, memory care, assisted living. Beach communities.',
     keywords: 'senior living San Diego, assisted living San Diego, memory care San Diego, retirement homes San Diego, nursing homes San Diego, affordable senior housing San Diego, HUD senior housing San Diego, best senior living San Diego, La Jolla senior living',
     canonicalUrl: 'https://www.myseniorvalet.com/senior-living-san-diego'
   });
@@ -33,7 +33,7 @@ export default function SeniorLivingSanDiegoPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white dark:from-gray-900 dark:to-gray-800">
       <NavigationHeader />
-      
+      <main>
       {/* Hero Section - SEO Optimized */}
       <section 
         className="relative py-20 px-4 bg-gradient-to-r from-cyan-600 via-blue-600 to-cyan-700"
@@ -49,30 +49,25 @@ export default function SeniorLivingSanDiegoPage() {
             Best Senior Living in San Diego
           </h1>
           <p className="text-xl md:text-2xl mb-8 opacity-95">
-            412 Verified Communities | America's Finest City for Seniors
+            Verified Communities | America's Finest City for Seniors
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              onClick={handleSearch}
-              className="bg-white text-cyan-600 hover:bg-gray-100"
-            >
-              <Search className="mr-2 h-5 w-5" />
-              Start Your Search on Our Amazing Home Page
+            <Button asChild size="lg" className="bg-white text-cyan-600 hover:bg-gray-100">
+              <Link href="/">
+                <Search className="mr-2 h-5 w-5" />
+                Start Your Search on Our Amazing Home Page
+              </Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              onClick={() => setLocation('/map')}
-              className="border-white text-white hover:bg-white/10"
-            >
-              <MapPin className="mr-2 h-5 w-5" />
-              View on Map
+            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Link href="/map">
+                <MapPin className="mr-2 h-5 w-5" />
+                View on Map
+              </Link>
             </Button>
           </div>
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             <div>
-              <div className="text-3xl font-bold">412</div>
+              <div className="text-3xl font-bold">Many</div>
               <div className="text-sm opacity-90">Total Communities</div>
             </div>
             <div>
@@ -80,11 +75,11 @@ export default function SeniorLivingSanDiegoPage() {
               <div className="text-sm opacity-90">All Care Types</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">67</div>
+              <div className="text-3xl font-bold">HUD</div>
               <div className="text-sm opacity-90">HUD Affordable Options</div>
             </div>
             <div>
-              <div className="text-3xl font-bold">124</div>
+              <div className="text-3xl font-bold">Memory</div>
               <div className="text-sm opacity-90">Memory Care Specialists</div>
             </div>
           </div>
@@ -97,12 +92,12 @@ export default function SeniorLivingSanDiegoPage() {
           <h2 className="text-3xl font-bold mb-8 text-center">Senior Living in San Diego: Complete 2025 Guide</h2>
           <div className="prose prose-lg dark:prose-invert mx-auto">
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              San Diego offers <strong>412 senior living communities</strong> across its diverse neighborhoods, from beachfront La Jolla to historic Old Town. 
+              San Diego offers <strong>a wide range of senior living communities</strong> across its diverse neighborhoods, from beachfront La Jolla to historic Old Town. 
               With year-round perfect weather and costs ranging from <strong>$5,200 to $8,900 per month</strong> for assisted living, San Diego provides 
               exceptional value compared to other major California cities while maintaining high care standards.
             </p>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
-              The city features <strong>67 HUD-subsidized senior housing communities</strong> and <strong>124 specialized memory care facilities</strong>, 
+              The city features <strong>HUD-subsidized senior housing communities</strong> and <strong>specialized memory care facilities</strong>, 
               making it one of the most comprehensive senior care markets in Southern California. San Diego's <strong>Aging & Independence Services</strong> 
               provides additional support including adult day programs, caregiver resources, and elder abuse prevention services.
             </p>
@@ -128,7 +123,7 @@ export default function SeniorLivingSanDiegoPage() {
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>118 communities available</span>
+                    <span>Communities available</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
@@ -155,7 +150,7 @@ export default function SeniorLivingSanDiegoPage() {
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>195 communities available</span>
+                    <span>Communities available</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
@@ -182,7 +177,7 @@ export default function SeniorLivingSanDiegoPage() {
                 <ul className="space-y-2 text-sm">
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
-                    <span>124 specialized facilities</span>
+                    <span>Specialized facilities</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500 mt-0.5" />
@@ -207,37 +202,31 @@ export default function SeniorLivingSanDiegoPage() {
             {[
               {
                 name: 'La Jolla',
-                count: 48,
                 avgPrice: '$8,900',
                 highlight: 'Luxury oceanfront communities'
               },
               {
                 name: 'Del Mar',
-                count: 31,
                 avgPrice: '$7,800',
                 highlight: 'Beach access, upscale amenities'
               },
               {
                 name: 'Carlsbad',
-                count: 52,
                 avgPrice: '$6,500',
                 highlight: 'Family-friendly, great weather'
               },
               {
                 name: 'Escondido',
-                count: 67,
                 avgPrice: '$5,200',
                 highlight: 'Affordable inland options'
               },
               {
                 name: 'Coronado',
-                count: 22,
                 avgPrice: '$8,200',
                 highlight: 'Island living, military-friendly'
               },
               {
                 name: 'Mission Valley',
-                count: 45,
                 avgPrice: '$5,800',
                 highlight: 'Central location, medical access'
               }
@@ -246,7 +235,7 @@ export default function SeniorLivingSanDiegoPage() {
                 <CardContent className="p-6">
                   <h3 className="text-xl font-bold mb-2">{neighborhood.name}</h3>
                   <div className="flex items-center gap-4 mb-3">
-                    <Badge variant="secondary">{neighborhood.count} communities</Badge>
+                    <Badge variant="secondary">Communities</Badge>
                     <span className="text-green-600 font-semibold">{neighborhood.avgPrice}/mo avg</span>
                   </div>
                   <p className="text-sm text-gray-600 dark:text-gray-400">{neighborhood.highlight}</p>
@@ -348,7 +337,7 @@ export default function SeniorLivingSanDiegoPage() {
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <strong className="text-green-700 dark:text-green-400">HUD Section 202:</strong>
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">67 properties with income-based rent</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Properties with income-based rent</p>
                   </div>
                   <div>
                     <strong className="text-green-700 dark:text-green-400">VA Benefits:</strong>
@@ -375,18 +364,24 @@ export default function SeniorLivingSanDiegoPage() {
           <h2 className="text-3xl font-bold mb-8 text-center">Complete Senior Living Platform</h2>
           <p className="text-center text-gray-600 dark:text-gray-400 mb-8">MySeniorValet covers every type of senior housing and all care levels in San Diego</p>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Button variant="outline" onClick={() => setLocation('/community-directory')} className="justify-start p-4">
-              <Building className="mr-2 h-5 w-5 text-blue-600" />Housing Types Directory</Button>
-            <Button variant="outline" onClick={() => setLocation('/senior-healthcare-directory')} className="justify-start p-4">
-              <Heart className="mr-2 h-5 w-5 text-purple-600" />Healthcare & Care Spectrum</Button>
-            <Button variant="outline" onClick={() => setLocation('/vendor-marketplace')} className="justify-start p-4">
-              <Users className="mr-2 h-5 w-5 text-orange-600" />Senior Services Directory</Button>
-            <Button variant="outline" onClick={() => setLocation('/senior-resources-center')} className="justify-start p-4">
-              <Info className="mr-2 h-5 w-5 text-red-600" />Resources & Support</Button>
-            <Button variant="outline" onClick={() => setLocation('/hospitals')} className="justify-start p-4">
-              <Shield className="mr-2 h-5 w-5 text-green-600" />Healthcare Providers</Button>
-            <Button variant="outline" onClick={() => setLocation('/')} className="justify-start p-4">
-              <Home className="mr-2 h-5 w-5 text-indigo-600" />Amazing Home Page</Button>
+            <Button asChild variant="outline" className="justify-start p-4">
+              <Link href="/community-directory"><Building className="mr-2 h-5 w-5 text-blue-600" />Housing Types Directory</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start p-4">
+              <Link href="/senior-healthcare-directory"><Heart className="mr-2 h-5 w-5 text-purple-600" />Healthcare &amp; Care Spectrum</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start p-4">
+              <Link href="/vendor-marketplace"><Users className="mr-2 h-5 w-5 text-orange-600" />Senior Services Directory</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start p-4">
+              <Link href="/senior-resources-center"><Info className="mr-2 h-5 w-5 text-red-600" />Resources &amp; Support</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start p-4">
+              <Link href="/hospitals"><Shield className="mr-2 h-5 w-5 text-green-600" />Healthcare Providers</Link>
+            </Button>
+            <Button asChild variant="outline" className="justify-start p-4">
+              <Link href="/"><Home className="mr-2 h-5 w-5 text-indigo-600" />Amazing Home Page</Link>
+            </Button>
           </div>
           
           <div className="grid md:grid-cols-2 gap-6 mt-8">
@@ -432,30 +427,26 @@ export default function SeniorLivingSanDiegoPage() {
             Discover why San Diego is America's Finest City for senior living
           </p>
           <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <Button 
-              size="lg" 
-              onClick={() => setLocation('/')}
-              className="bg-white text-cyan-600 hover:bg-gray-100"
-            >
-              <Search className="mr-2 h-5 w-5" />
-              Start on Our Amazing Home Page
+            <Button asChild size="lg" className="bg-white text-cyan-600 hover:bg-gray-100">
+              <Link href="/">
+                <Search className="mr-2 h-5 w-5" />
+                Start on Our Amazing Home Page
+              </Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline"
-              onClick={() => setLocation('/vendor-marketplace')}
-              className="border-white text-white hover:bg-white/10"
-            >
-              <Users className="mr-2 h-5 w-5" />
-              Browse Support Services
+            <Button asChild size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Link href="/vendor-marketplace">
+                <Users className="mr-2 h-5 w-5" />
+                Browse Support Services
+              </Link>
             </Button>
           </div>
           <p className="mt-8 text-sm opacity-75">
-            100% Free • No Referral Fees • Independent Platform
+            100% Free for Families • Transparent Referral Disclosures • Independent Platform
           </p>
         </div>
       </section>
 
+      </main>
       <Footer />
     </div>
   );

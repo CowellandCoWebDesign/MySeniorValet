@@ -227,7 +227,7 @@ export default function Map({
           zoom={zoom}
           minZoom={3}
           maxZoom={16}
-          bounds={[[14.0, -140.0], [70.0, -52.0]]} // North America bounds for 25,000+ communities
+          bounds={[[14.0, -140.0], [70.0, -52.0]]} // North America bounds
           style={{ height: '100%', width: '100%' }}
           className="rounded-lg"
         >

@@ -7,13 +7,14 @@ import express from "express";
 import { db } from "../db";
 import { subscriptions, paymentTransactions, communities } from '@shared/schema';
 import { eq } from "drizzle-orm";
-import Stripe from "stripe";
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { PaymentNotificationService } from '../services/payment-notification-service';
 
 const router = express.Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { 
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY || '', { 
   apiVersion: '2025-07-30.basil' as any 
-});
+}));
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
 const notificationService = new PaymentNotificationService();
 

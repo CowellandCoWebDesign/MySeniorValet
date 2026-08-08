@@ -3,6 +3,7 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { sql, and, or } from "drizzle-orm";
 import { perplexityService } from "../perplexity-ai-service";
+import { isCommunitySupportingEligible } from "../utils/community-ranking";
 
 export function registerPerplexityRoutes(app: Express) {
   // Enhanced search with Perplexity real-time data
@@ -80,7 +81,12 @@ export function registerPerplexityRoutes(app: Express) {
   app.post('/api/ai/enhance-community/:id', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      
+      // Referral-support allowlist: never enrich/reveal data for a community
+      // that is not publicly offered.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
       const [community] = await db
         .select()
         .from(communities)

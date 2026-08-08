@@ -157,7 +157,7 @@ class NostalgicErrorBoundary extends Component<Props, State> {
                           </div>
                           <div className="flex items-start gap-3">
                             <span className="text-purple-400 mt-1">💭</span>
-                            <span>Analyzing pricing across 35,000+ locations</span>
+                            <span>Analyzing pricing across locations</span>
                           </div>
                           <div className="flex items-start gap-3">
                             <span className="text-purple-400 mt-1">💭</span>

@@ -1841,7 +1841,7 @@ export default function SuperAdminAnalytics() {
                         </TableRow>
                         <TableRow>
                           <TableCell className="font-medium">Admin User</TableCell>
-                          <TableCell>admin@myseniorvalet.com</TableCell>
+                          <TableCell>hello@myseniorvalet.com</TableCell>
                           <TableCell><Badge variant="secondary">Admin</Badge></TableCell>
                           <TableCell><Badge variant="outline" className="text-green-600">Active</Badge></TableCell>
                           <TableCell>Jan 5, 2025</TableCell>
@@ -1853,7 +1853,7 @@ export default function SuperAdminAnalytics() {
                                 onClick={() => {
                                   toast({
                                     title: "Edit User",
-                                    description: "Editing admin@myseniorvalet.com - System admin account for automated notifications."
+                                    description: "Editing hello@myseniorvalet.com - System admin account for automated notifications."
                                   });
                                 }}
                               >

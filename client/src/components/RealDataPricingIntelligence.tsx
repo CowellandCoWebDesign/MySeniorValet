@@ -31,7 +31,7 @@ export function RealDataPricingIntelligence({ className = '' }: RealDataPricingI
     return (
       <div className={`flex items-center justify-center p-8 ${className}`}>
         <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-        <span className="ml-2 text-blue-600">Analyzing 25,782 communities...</span>
+        <span className="ml-2 text-blue-600">Analyzing communities...</span>
       </div>
     );
   }

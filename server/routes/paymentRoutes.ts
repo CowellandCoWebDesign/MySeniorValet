@@ -4,11 +4,13 @@ import { db } from "../db";
 import { users, paymentTransactions, vendors, communities } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { isAuthenticated as requireAuth } from "../auth-middleware";
+import { sanitizeWebsiteUrl } from "../utils/website-url";
 import { createAuthenticatedSession } from "../replitAuth";
 import { stripeSubscriptionService } from "../stripe-subscription-service";
 import { testStripeCharge } from "../stripe-test";
 import { notifySuperAdmin } from "../sendgrid-service";
-import Stripe from "stripe";
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 
 // Import stripe payment service
 import { stripePaymentService } from "../stripe-payment-service";
@@ -31,7 +33,7 @@ export function registerPaymentRoutes(app: Express) {
         zipCode: formData.zipCode || '',
         phone: formData.phone,
         email: formData.email,
-        website: formData.website,
+        website: sanitizeWebsiteUrl(formData.website),
         description: formData.description,
         amenities: formData.amenities || [],
         healthcareServices: formData.healthcareServices || [],
@@ -744,8 +746,8 @@ export function registerPaymentRoutes(app: Express) {
       const session = await stripeSubscriptionService.createCheckoutSession(
         communityId,
         productId,
-        successUrl || `https://myseniorvalet.com/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-        cancelUrl || `https://myseniorvalet.com/payment/cancel`
+        successUrl || `https://www.myseniorvalet.com/payment/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancelUrl || `https://www.myseniorvalet.com/payment/cancel`
       );
 
       res.json({ 
@@ -799,7 +801,7 @@ export function registerPaymentRoutes(app: Express) {
         ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
           ? process.env.REPLIT_DEV_DOMAIN 
           : `https://${process.env.REPLIT_DEV_DOMAIN}`)
-        : 'https://myseniorvalet.com';
+        : 'https://www.myseniorvalet.com';
       
       const session = await stripeSubscriptionService.createCheckoutSession(
         0, // Use 0 instead of null for vendor checkout
@@ -860,7 +862,7 @@ export function registerPaymentRoutes(app: Express) {
         ? (process.env.REPLIT_DEV_DOMAIN.startsWith('http') 
           ? process.env.REPLIT_DEV_DOMAIN 
           : `https://${process.env.REPLIT_DEV_DOMAIN}`)
-        : 'https://myseniorvalet.com';
+        : 'https://www.myseniorvalet.com';
       
       console.log('Creating community checkout with:', {
         productId,

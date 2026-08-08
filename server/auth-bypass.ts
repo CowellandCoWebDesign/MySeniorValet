@@ -14,7 +14,7 @@ if (!isDevelopment || !bypassEnabled) {
 // Use environment variables for credentials - never hardcode
 const SUPER_ADMIN_CREDENTIALS = isDevelopment && bypassEnabled ? {
   'William.cowell01@gmail.com': process.env.SUPER_ADMIN_PASSWORD,
-  'admin@myseniorvalet.com': process.env.ADMIN_PASSWORD
+  'CowellandCoWebDesign@gmail.com': process.env.ADMIN_PASSWORD
 } : {};
 
 export async function setupAuthBypass(app: any) {

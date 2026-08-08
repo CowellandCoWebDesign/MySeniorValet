@@ -216,13 +216,13 @@ export default function CommunityPortal() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-blue-600 mb-2">26,306</div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">Thousands</div>
                 <div className="text-gray-600 dark:text-gray-300">Communities Listed</div>
               </CardContent>
             </Card>
             <Card className="text-center">
               <CardContent className="pt-6">
-                <div className="text-3xl font-bold text-green-600 mb-2">15,000+</div>
+                <div className="text-3xl font-bold text-green-600 mb-2">Growing</div>
                 <div className="text-gray-600 dark:text-gray-300">Monthly Family Searches</div>
               </CardContent>
             </Card>
@@ -276,7 +276,7 @@ export default function CommunityPortal() {
                 Choose Your Community Management Tier
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300">
-                Join 31,000+ communities enhancing their online presence
+                Join the communities enhancing their online presence
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
                 All plans include authentic MySeniorValet verified listing • Free onboarding support

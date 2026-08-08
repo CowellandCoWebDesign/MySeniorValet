@@ -161,7 +161,7 @@ export default function Contact() {
     // Feature & Advertising Images
     { src: TransparentPricing, title: 'Transparent Pricing', description: 'No hidden fees - complete pricing transparency for all communities' },
     { src: FamilyCollab, title: 'Family Collaboration', description: 'Bringing families together in senior care decisions with shared research tools' },
-    { src: AISearch, title: 'AI-Powered Search', description: 'Intelligent search across 33,000+ senior communities nationwide' },
+    { src: AISearch, title: 'AI-Powered Search', description: 'Intelligent search across senior communities nationwide' },
     { src: TourMate, title: 'TourMate™ Scheduling', description: 'Book tours instantly with our revolutionary one-click scheduling system' },
     { src: VerifiedData, title: 'Verified Data', description: '99.8% accuracy with our Golden Data Rule - only authentic information' },
     { src: InteractiveMap, title: 'Interactive Map', description: 'Complete coverage across North America with real-time availability' },
@@ -222,6 +222,7 @@ export default function Contact() {
         title="Contact Us" 
         subtitle="Get in touch with MySeniorValet"
       />
+      <main>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-16">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -242,6 +243,16 @@ export default function Contact() {
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in Touch</h2>
                 
                 <div className="space-y-4">
+                  <div className="flex items-center">
+                    <Phone className="w-5 h-5 text-blue-600 mr-3" />
+                    <div>
+                      <div className="font-medium">Phone</div>
+                      <a href="tel:+15307764220" className="text-blue-600 hover:text-blue-700">
+                        (530) 776-4220
+                      </a>
+                    </div>
+                  </div>
+
                   <div className="flex items-center">
                     <Mail className="w-5 h-5 text-blue-600 mr-3" />
                     <div>
@@ -300,7 +311,7 @@ export default function Contact() {
                     MySeniorValet exists to put power back in families' hands. I watched too many loved ones struggle 
                     through the overwhelming process of finding senior care, frustrated by hidden costs, fake reviews, 
                     and incomplete information scattered across dozens of websites. This platform brings everything 
-                    together—34,000+ communities, healthcare facilities, senior services, and government resources—all 
+                    together—communities, healthcare facilities, senior services, and government resources—all 
                     with transparent pricing and authentic information. We never sell your data. We never charge families. 
                     We never hide communities behind paywalls. Because when families have complete information, they make 
                     confident decisions. That's the transparency revolution we're leading in senior living.
@@ -524,6 +535,7 @@ export default function Contact() {
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }

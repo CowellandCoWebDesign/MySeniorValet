@@ -566,7 +566,7 @@ export default function Costs() {
                       <span className="font-semibold text-green-800 dark:text-green-200">MySeniorValet Advantage</span>
                     </div>
                     <p className="text-sm text-green-700 dark:text-green-300">
-                      No referral fees means transparent pricing. We help you understand all costs upfront.
+                      Transparent pricing — any referral relationships are fully disclosed. We help you understand all costs upfront.
                     </p>
                   </div>
                 </div>

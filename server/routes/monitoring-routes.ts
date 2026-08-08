@@ -12,7 +12,7 @@ router.get('/api/admin/notifications/monitor', requireAuth, async (req, res) => 
   try {
     // Check admin access
     const userEmail = (req as any).user?.email;
-    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
@@ -36,13 +36,13 @@ router.post('/api/admin/test/production-email', requireAuth, async (req, res) =>
   try {
     // Check admin access
     const userEmail = (req as any).user?.email;
-    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
     const { recipientEmail } = req.body;
     const testResult = await ProductionEmailTester.runProductionTest(
-      recipientEmail || 'admin@myseniorvalet.com'
+      recipientEmail || 'CowellandCoWebDesign@gmail.com'
     );
 
     res.json({
@@ -61,7 +61,7 @@ router.get('/api/admin/test/email-history', requireAuth, async (req, res) => {
   try {
     // Check admin access
     const userEmail = (req as any).user?.email;
-    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
@@ -85,7 +85,7 @@ router.get('/api/admin/rate-limits', requireAuth, async (req, res) => {
   try {
     // Check admin access
     const userEmail = (req as any).user?.email;
-    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
@@ -118,7 +118,7 @@ router.post('/api/admin/rate-limits/adjust', requireAuth, async (req, res) => {
   try {
     // Check admin access
     const userEmail = (req as any).user?.email;
-    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 
@@ -244,7 +244,7 @@ router.get('/api/admin/system-health', requireAuth, async (req, res) => {
   try {
     // Check admin access
     const userEmail = (req as any).user?.email;
-    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'admin@myseniorvalet.com') {
+    if (userEmail !== 'william.cowell01@gmail.com' && userEmail !== 'CowellandCoWebDesign@gmail.com') {
       return res.status(403).json({ error: 'Unauthorized' });
     }
 

@@ -7,6 +7,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, sql, and, or, isNull } from 'drizzle-orm';
 import { perplexityService } from '../perplexity-ai-service';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 interface VerificationResult {
   id: number;
@@ -140,17 +141,22 @@ export class BatchPerplexityVerifier {
   
   /**
    * Verify a single community using Perplexity
+   * Improved to be more effective at finding facilities - matches discovery approach
    */
   private async verifyCommunity(community: any): Promise<VerificationResult> {
     console.log(`🔍 Verifying: ${community.name} in ${community.city}, ${community.state}`);
     
-    // Build intelligent search query
-    const searchQuery = `"${community.name}" senior living assisted living ${community.city} ${community.state} address phone website 2025`;
+    // Build intelligent search query - improved to match discovery's effectiveness
+    // Uses multiple search strategies for better coverage
+    const searchQuery = `Find "${community.name}" senior living facility located in ${community.city}, ${community.state}. Please provide their phone number (strongly preferred), official website URL (strongly preferred), and full address. This is a senior care facility - search for their contact information.`;
     
     try {
       const searchResults = await perplexityService.searchRealTime(searchQuery);
       const text = searchResults.summary || '';
       const sources = searchResults.sources || [];
+      
+      // Log what Perplexity returned for debugging
+      console.log(`📄 Perplexity response length: ${text.length} chars, ${sources.length} sources`);
       
       // Check if community exists based on search results
       const nameFound = text.toLowerCase().includes(community.name.toLowerCase());
@@ -273,7 +279,8 @@ export class BatchPerplexityVerifier {
     if (result.correctState) updates.state = result.correctState;
     if (result.correctZipCode) updates.zip_code = result.correctZipCode;
     if (result.correctPhone) updates.phone = result.correctPhone;
-    if (result.website) updates.website = result.website;
+    const cleanWebsite = sanitizeWebsiteUrl(result.website);
+    if (cleanWebsite) updates.website = cleanWebsite;
     if (result.aiNotes) updates.ai_notes = result.aiNotes;
     
     await db.update(communities)

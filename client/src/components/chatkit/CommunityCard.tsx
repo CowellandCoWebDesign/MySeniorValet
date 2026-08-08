@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Star, DollarSign, Home, Users, Calendar, Eye } from 'lucide-react';
 import { Link } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface CommunityCardProps {
   community: {
@@ -102,7 +103,7 @@ export function CommunityCard({ community }: CommunityCardProps) {
         {/* Action Buttons */}
         <div className="flex gap-2">
           <Button asChild variant="default" size="sm" className="flex-1">
-            <Link href={`/community/${community.id}`}>
+            <Link href={getCommunityUrl({ id: community.id, name: community.name, city: community.city || '', state: community.state || '' })}>
               <Eye className="w-3 h-3 mr-1" />
               View Details
             </Link>

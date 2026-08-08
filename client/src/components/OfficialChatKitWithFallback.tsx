@@ -409,7 +409,7 @@ export function OfficialChatKitWithFallback({
         {/* Footer */}
         <div className="p-3 border-t bg-muted/50">
           <p className="text-xs text-muted-foreground text-center">
-            MySeniorValet Assistant • Search 33,834+ communities • Real-time pricing
+            MySeniorValet Assistant • Search communities • Real-time pricing
           </p>
         </div>
       </Card>

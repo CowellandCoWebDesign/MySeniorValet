@@ -2,18 +2,19 @@
 // Cross-verifies community information using Claude, ChatGPT-4o, and Perplexity
 // Provides transparency through multi-source verification
 
-import Anthropic from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
+import type Anthropic from '@anthropic-ai/sdk';
+import { lazyClient, requireModule } from './utils/lazy-load';
+import type OpenAI from 'openai';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
 
 // Initialize AI clients
-const anthropic = new Anthropic({
+const anthropic = lazyClient<Anthropic>(() => new (requireModule('@anthropic-ai/sdk').default)({
   apiKey: process.env.ANTHROPIC_API_KEY || '',
-});
+}));
 
-const openai = new OpenAI({ 
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ 
   apiKey: process.env.OPENAI_API_KEY || '' 
-});
+}));
 
 interface VerificationResult {
   source: string;
@@ -387,7 +388,7 @@ Respond with JSON only:
 }`;
 
       const response = await anthropic.messages.create({
-        model: 'claude-sonnet-4-20250514', // Latest Claude model
+        model: 'claude-sonnet-4-5-20250929', // Latest Claude model
         max_tokens: 1024,
         messages: [{ 
           role: 'user', 

@@ -42,17 +42,17 @@ const pressReleaseContent = `FOR IMMEDIATE RELEASE
 
 MySeniorValet Launches Revolutionary Senior Living Transparency Platform with AI-Powered Search and Verified Pricing
 
-Platform Features 34,180+ Communities Across North America with HUD-Verified Pricing and Multi-AI Intelligence
+Platform Features Communities Across North America with HUD-Verified Pricing and Multi-AI Intelligence
 
-[CITY, STATE] – August 7, 2025 – MySeniorValet, the trusted platform for authentic senior living community information, today announced the official launch of its comprehensive senior living transparency platform. The platform revolutionizes how families discover and evaluate senior living options by providing verified pricing data, AI-powered matching, and complete transparency across over 34,000 communities in the United States and Canada.
+[CITY, STATE] – August 7, 2025 – MySeniorValet, the trusted platform for authentic senior living community information, today announced the official launch of its comprehensive senior living transparency platform. The platform revolutionizes how families discover and evaluate senior living options by providing verified pricing data, AI-powered matching, and complete transparency across communities in the United States and Canada.
 
 "We're bringing unprecedented transparency to the senior living market," said [CEO Name], CEO of MySeniorValet. "Families deserve accurate, verified information when making one of life's most important decisions. Our platform eliminates the guesswork by providing authentic pricing, comprehensive community profiles, and intelligent matching powered by multiple AI systems."
 
 Key Platform Features:
 • Complete Care Spectrum Coverage: From HUD-sponsored housing to skilled nursing facilities
-• Verified Pricing: Authentic HUD pricing data for 5,241 communities with transparent pricing
+• Verified Pricing: Authentic HUD pricing data for thousands of communities with transparent pricing
 • Multi-AI Intelligence: Claude, Gemini, ChatGPT, and Perplexity working together for accuracy
-• 34,180 Communities: Comprehensive coverage across all 50 states and Canadian provinces
+• Communities: Comprehensive coverage across all 50 states and Canadian provinces
 • Family Collaboration Tools: Secure messaging, tour tracking, and decision support
 • Healthcare Integration: 6,806 hospitals with CMS ratings and service information
 • Services Directory: Connecting families with trusted service providers
@@ -98,8 +98,8 @@ We're thrilled to announce the launch of MySeniorValet, the trusted platform for
 
 Finding the right senior living community shouldn't be a mystery. That's why we've built a platform that brings complete transparency to your search with:
 
-✅ **34,180+ Communities** - Complete coverage across the US and Canada
-✅ **Verified Pricing** - Including 5,241 HUD-verified communities
+✅ **Communities** - Complete coverage across the US and Canada
+✅ **Verified Pricing** - Including HUD-verified communities
 ✅ **AI-Powered Matching** - Find your perfect community match
 ✅ **Family Collaboration** - Make decisions together with secure tools
 ✅ **Healthcare Integration** - 6,806 hospitals with ratings and services
@@ -157,7 +157,7 @@ Unsubscribe | Update Preferences | Privacy Policy`;
 const socialMediaPosts = {
   twitter: `🎉 Introducing MySeniorValet! 
 
-The trusted platform for authentic senior living information. Search 34,180+ communities with verified pricing and AI-powered matching.
+The trusted platform for authentic senior living information. Search communities with verified pricing and AI-powered matching.
 
 ✅ Complete transparency
 ✅ Family collaboration tools  
@@ -172,7 +172,7 @@ Start your search: myseniorvalet.com
 
 We're on a mission to bring complete transparency to senior living decisions. Our platform features:
 
-• 34,180+ verified communities across US & Canada
+• Verified communities across US & Canada
 • Real HUD-verified pricing (no hidden fees!)
 • AI-powered matching to find your perfect fit
 • Family collaboration tools for decisions together
@@ -195,7 +195,7 @@ The Challenge:
 • Lack of transparency leads to poor matches
 
 Our Solution:
-• 34,180+ verified communities
+• Verified communities
 • HUD-verified transparent pricing
 • Multi-AI intelligence (Claude, Gemini, ChatGPT, Perplexity)
 • Complete care spectrum coverage
@@ -217,7 +217,7 @@ Learn more at www.myseniorvalet.com
 
 Finding the perfect senior living community just got easier! 
 
-🏡 34,180+ Communities
+🏡 Communities Nationwide
 💰 Verified Pricing  
 🤖 AI-Powered Matching
 👨‍👩‍👧‍👦 Family Tools
@@ -522,7 +522,7 @@ export default function MarketingHub() {
                     <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                       <div className="flex items-center gap-2">
                         <Target className="h-4 w-4 text-blue-500" />
-                        34,180+ Communities
+                        Communities Nationwide
                       </div>
                       <div className="flex items-center gap-2">
                         <Target className="h-4 w-4 text-blue-500" />

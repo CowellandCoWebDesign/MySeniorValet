@@ -59,6 +59,7 @@ import {
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 
 interface Service {
   id: string;
@@ -410,7 +411,7 @@ export default function MoveInCoordination() {
       
       await apiRequest("POST", "/api/send-notification", {
         type: 'move-in-checklist',
-        email: 'admin@myseniorvalet.com',
+        email: 'hello@myseniorvalet.com',
         community: selectedCommunityName || 'Not selected',
         moveDate: moveDate || 'Not set',
         checklist: checklistText
@@ -496,13 +497,16 @@ export default function MoveInCoordination() {
                     </SelectContent>
                   </Select>
                 )}
-                {selectedCommunity && (
-                  <Link href={`/community/${selectedCommunity}`}>
-                    <Button variant="link" className="text-purple-600 p-0 h-auto">
-                      View Community Details →
-                    </Button>
-                  </Link>
-                )}
+                {selectedCommunity && (() => {
+                  const sc = communities?.communities?.find((c: any) => c.id.toString() === selectedCommunity);
+                  return (
+                    <Link href={sc ? getCommunityUrl(sc) : `/community/${selectedCommunity}`}>
+                      <Button variant="link" className="text-purple-600 p-0 h-auto">
+                        View Community Details →
+                      </Button>
+                    </Link>
+                  );
+                })()}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="date" className="flex items-center gap-2">
@@ -1006,7 +1010,7 @@ export default function MoveInCoordination() {
                   Email Your Checklist
                 </Button>
                 <p className="text-xs text-gray-600 text-center">
-                  Send your progress to admin@myseniorvalet.com
+                  Send your progress to hello@myseniorvalet.com
                 </p>
               </motion.div>
               

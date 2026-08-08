@@ -1,0 +1,127 @@
+---
+name: Community visibility policy (classify + score + apply)
+description: Single source of truth for senior classification, quality scoring, and STRICT is_hidden visibility; the durable rules and how to revert.
+---
+
+# Community visibility — single source of truth
+
+All quality-driven `is_hidden` decisions flow through ONE pure evaluator and ONE
+DB writer. Never hand-roll a separate visibility rule.
+
+- **Policy (pure, deterministic):** `evaluateCommunity()` in
+  `shared/community-classification.ts`. Accepts camelCase (Drizzle) AND
+  snake_case (raw DB) keys.
+- **DB writer:** `server/services/community-visibility.ts` —
+  `recomputeCommunityVisibility(id)` (one row) and `runVisibilityPass(opts)`
+  (batched, resumable). These are the ONLY automatic writers of `is_hidden`.
+  Bulk CLI: `server/scripts/classify-score-communities.ts`.
+- **Columns:** `senior_classification` / `quality_score` / `quality_tier` are
+  additive; the migration must live in BOTH `server/run-migration.ts` and
+  `scripts/post-merge-migrations.mjs` (dev + prod).
+
+
+## Public-quality bar (supersedes older keep-public paths)
+- **keepPublic = NOT testData AND NOT clearlyFake AND classification ≠ non_senior AND
+  (qualityBar OR verifiedWithContent)** where qualityBar = real description
+  (≥100 chars AND not boilerplate) AND contact signal (phone OR website), and
+  verifiedWithContent = meaningfullyVerified AND realContent (≥1 photo or real
+  desc) AND not boilerplate.
+- **Why verification alone is NOT enough (Aug 2026):** junk signals — unverified
+  claims, seeded subscription_tier='featured', brand-shell is_featured_brand
+  rows (Oakmont shells) — kept EMPTY profiles public. Verification may relax
+  the bar only when some real content exists.
+- **Why:** families kept hitting thin/templated profiles; the public catalog is
+  quality-real-research only. Photos rank up (large boost in the ranking
+  helpers) but are NOT required until photo coverage grows.
+- **Boilerplate** = batch-templated blurbs stamped across whole imports (same
+  sentence, different {city}) — length alone is not "real research"; detector
+  is `isBoilerplateDescription()`. New import templates must be added there.
+- Rows failing the bar get NON-protective `thin_profile` /
+  `boilerplate_description` managed flags — auto-cleared and auto-restored by
+  the canonical recompute once genuine content arrives.
+- **How to apply:** any raw-SQL restore path (e.g. the boot-time startup
+  restore) must remain a STRICT SUBSET of `evaluateCommunity` — including the
+  test-data name/host exclusions — or it silently re-publishes hidden rows on
+  every boot. A guard test + a tsx DB integration script enforce this.
+
+## SUPERSEDED keep-public paths (ARCHIVED Aug 2026 — do NOT restore)
+The Aug 2026 quality bar above replaced these. They deliberately kept THIN
+profiles public (own-real-website or phone alone was enough), which is exactly
+what the current policy forbids — families must never hit no-content pages.
+Kept here only so nobody re-adds them thinking they were lost by accident:
+- OLD keep-public = `(meaningfullyVerified OR realContent OR ownRealSite)`;
+  an `ownRealSite` path kept thin `senior` rows with their own real website
+  public (on-view enrichment filled them); a `screenedThinSenior` path (July
+  2026) kept thin rows with a phone/own site public unless the `data_source`
+  was a snake_case synthetic-batch fingerprint.
+- Still-useful pieces that SURVIVE: `isOwnRealWebsite()` (aggregator/template
+  host rejection) is still used elsewhere; the synthetic-batch fingerprints
+  (snake_case-only data_source, template addresses shared across >5 cities /
+  round-hundred addresses within one city) remain valid *quarantine* signals.
+- **`meaningfullyVerified` deliberately EXCLUDES legacy `is_verified` and the
+  auto-set `subscription_tier='verified'`** — both are auto-applied to ~12k rows
+  and mean nothing. Only claim/featured/gov-verified-pricing count.
+- **Classification is CONSERVATIVE — ambiguous → `unknown`, kept VISIBLE.** Only
+  assign `non_senior` on a STRONG signal:
+  - a HUD/affordable/HUD-VASH feed row whose ONLY care type is the generic
+    "HUD Housing" placeholder (empty or mixed care types → `unknown`, NOT
+    non_senior — never mark non_senior on the data source alone), OR
+  - an obvious general-housing NAME (apartments / housing authority / section 8 /
+    family housing / HUD-VASH / VASH).
+  - Positive senior signals (real senior care type, senior subtype, hard senior
+    name keyword) win first.
+- **Veterans / HUD-VASH are NOT senior signals.** HUD-VASH = supportive housing
+  for (any-age, often formerly-homeless) veterans → non_senior. Generic veterans
+  housing (e.g. "Veterans Home", care type "VA Housing", subtype `veterans_home`)
+  is ambiguous → `unknown` UNLESS it also offers a real senior care type
+  (then senior wins). Do NOT add veterans terms back to the senior lists.
+- **Every PUBLIC community-listing path must exclude `is_hidden`** — not just
+  map/search results but autosuggest too: `/api/search/suggestions` AND the
+  comprehensive-search-engine `generateSuggestions` (name/city/state/company
+  queries). Easy to miss; a hidden row leaking into autocomplete defeats the
+  quarantine.
+- **Do NOT trust `community_subtype='hud_senior_housing'`** — it was auto-applied
+  to the whole HUD feed and is not a senior signal.
+
+## Admin restore (Aug 2026)
+Both admin restore endpoints (`bulk-quality-action` restore + `qc-action` restore)
+route through `adminRestoreCommunities()` in community-visibility.ts: clears
+reviewer-actionable flags + flag_status, PRESERVES protective flags, and lets
+the recompute decide is_hidden — restore can never force-publish test/fake
+records. Overriding a protective flag requires naming it in a
+`clearProtectiveFlags` body array. Never reintroduce raw
+`SET is_hidden=false, data_quality_flags='{}'` restore SQL.
+
+## Protective overrides (never auto-restore)
+`is_hidden` stays true regardless of score when `data_quality_flags` contains
+`synthetic_suspected` or `geo_needs_review`, or `flag_status='confirmed'`. These
+are NOT in `MANAGED_QUALITY_FLAGS`, so the flag-merge preserves them.
+
+## Self-heal auto-restore
+`enrichCommunityUnified()` calls `recomputeCommunityVisibility()` after persisting
+content (try/catch — must never break enrichment), so a hidden community that
+gains a real description/photo and classifies senior/unknown auto-restores.
+
+## Public read paths that MUST exclude is_hidden
+`publicVisibleFilter()` (communityRoutes), supercluster.ts, storage.ts, sitemap.
+Gotcha: the map/radius/nearest queries in `searchRoutes.ts` originally filtered
+only `is_active` — they must also exclude `is_hidden` or the quarantine leaks.
+
+## Re-run / revert
+- Re-run: `npx tsx server/scripts/classify-score-communities.ts` (idempotent,
+  concurrent writes; `--dry-run` previews counts). Nothing is ever hard-deleted,
+  so a re-run reproduces the policy state exactly.
+- Revert to "only protective quarantine hidden" (this policy intentionally
+  SUPERSEDES the earlier ad-hoc groomings; non-destructive):
+  ```sql
+  UPDATE communities SET is_hidden = false
+  WHERE is_hidden = true
+    AND NOT (data_quality_flags && ARRAY['synthetic_suspected','geo_needs_review'])
+    AND (flag_status IS DISTINCT FROM 'confirmed');
+  UPDATE communities SET senior_classification=NULL, quality_score=NULL, quality_tier=NULL; -- optional
+  ```
+
+## Protective flags are centralized
+PROTECTIVE_FLAG_LIST (community-visibility.ts) — synthetic_suspected, geo_needs_review, test_data — is the single source for every is_hidden restore path, including the startup auto-restore SQL in run-migration.ts.
+**Why:** a hand-copied exclusion array in the startup restore once republished quarantined test records at every boot.
+**How to apply:** to quarantine permanently, append a protective flag then recompute; never set is_hidden directly, and never inline protective-flag lists in SQL — import the list.

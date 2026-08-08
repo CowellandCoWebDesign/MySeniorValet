@@ -370,7 +370,7 @@ export default function AllInOnePlanner() {
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-4 h-4 text-green-500 mr-2" />
-                      <span>No Referral Fees</span>
+                      <span>Free for Families</span>
                     </div>
                     <div className="flex items-center">
                       <CheckCircle className="w-4 h-4 text-green-500 mr-2" />

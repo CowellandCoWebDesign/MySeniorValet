@@ -8,6 +8,7 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { queryClient, apiRequest } from '@/lib/queryClient';
 import { TrendingUp, TrendingDown, Minus, MapPin, Building2, DollarSign, Search, Loader2, AlertCircle, BarChart3, Globe, Users, Brain, X, Clock, Lightbulb, Home, Building, CheckCircle, Star, FileText, ExternalLink, Sparkles } from 'lucide-react';
 import { Link } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 import { useSEO } from '@/hooks/useSEO';
 import { CompetitiveAnalysisLoader } from '@/components/CompetitiveAnalysisLoader';
 import { Header } from '@/components/header';
@@ -596,10 +597,20 @@ export default function CompetitiveAnalysis() {
             <CardContent className="pt-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {analysisMutation.data.topCommunities.map((community, index) => {
-                  // If community has an ID, link to community page; otherwise search
-                  const linkHref = community.id 
-                    ? `/community/${community.id}`
-                    : `/search?q=${encodeURIComponent(community.name)}`;
+                  // If community has an ID, link to its detail page; otherwise search.
+                  // Parse the "City, State" location string so we can emit the clean
+                  // SEO URL directly and avoid the extra /community/{id} redirect hop.
+                  let linkHref: string;
+                  if (community.id) {
+                    const [cityPart, statePart] = (community.location || '')
+                      .split(',')
+                      .map((s) => s.trim());
+                    linkHref = cityPart && statePart
+                      ? getCommunityUrl({ id: community.id, name: community.name, city: cityPart, state: statePart })
+                      : `/community/${community.id}`;
+                  } else {
+                    linkHref = `/search?q=${encodeURIComponent(community.name)}`;
+                  }
                   
                   return (
                     <Link 
@@ -667,7 +678,7 @@ export default function CompetitiveAnalysis() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {analysisMutation.data.matchedCommunities.map((community, index) => (
-                  <Link key={index} href={`/community/${community.id}`}>
+                  <Link key={index} href={getCommunityUrl({ id: Number(community.id), name: community.name, city: community.city, state: community.state_province })}>
                     <div className="p-4 bg-white dark:bg-gray-900 rounded-lg border border-emerald-200 dark:border-emerald-700 hover:border-emerald-400 dark:hover:border-emerald-500 hover:shadow-lg transition-all cursor-pointer transform hover:scale-[1.02]">
                       <div className="flex items-start gap-3">
                         <div className="p-2 bg-emerald-100 dark:bg-emerald-900/50 rounded-lg">
@@ -736,7 +747,7 @@ export default function CompetitiveAnalysis() {
                   
                   if (isMatched && matchedCommunity) {
                     return (
-                      <Link key={index} href={`/community/${matchedCommunity.id}`}>
+                      <Link key={index} href={getCommunityUrl({ id: Number(matchedCommunity.id), name: matchedCommunity.name, city: matchedCommunity.city, state: matchedCommunity.state_province })}>
                         {content}
                       </Link>
                     );

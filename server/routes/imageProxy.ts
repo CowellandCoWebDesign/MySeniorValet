@@ -1,7 +1,50 @@
 import { Router } from 'express';
-import fetch from 'node-fetch';
+import type { Response as FetchResponse } from 'node-fetch';
+import { lazyCallable } from '../utils/lazy-load';
+const fetch = lazyCallable<typeof import('node-fetch')['default']>('node-fetch');
+import { unwrapNextImageUrl } from '../utils/photo-urls';
+import { isSafePublicUrl } from '../utils/url-safety';
 
 const router = Router();
+
+const MAX_PROXY_REDIRECTS = 5;
+
+/**
+ * SSRF-safe image fetch: redirects are handled manually and EVERY hop
+ * (initial URL + each redirect Location) must pass the shared isSafePublicUrl
+ * guard before it is fetched — a public host cannot redirect the proxy into
+ * localhost, private ranges, link-local/cloud-metadata, or internal DNS hosts.
+ * Returns { blocked: true } WITHOUT fetching when any hop is unsafe.
+ */
+async function fetchImageSsrfSafe(
+  startUrl: string,
+  headers: Record<string, string>,
+  signal: AbortSignal,
+): Promise<{ blocked: boolean; response: FetchResponse | null }> {
+  let currentUrl = startUrl;
+  for (let hop = 0; hop <= MAX_PROXY_REDIRECTS; hop++) {
+    if (!(await isSafePublicUrl(currentUrl))) {
+      return { blocked: true, response: null };
+    }
+    const response = await fetch(currentUrl, {
+      headers,
+      signal: signal as any,
+      redirect: 'manual', // validate every hop ourselves
+    });
+    if (response.status >= 300 && response.status < 400) {
+      const location = response.headers.get('location');
+      if (!location) return { blocked: false, response };
+      try {
+        currentUrl = new URL(location, currentUrl).toString();
+      } catch {
+        return { blocked: true, response: null };
+      }
+      continue; // next hop is re-validated at the top of the loop
+    }
+    return { blocked: false, response };
+  }
+  return { blocked: true, response: null }; // too many redirects — fail closed
+}
 
 // Image proxy endpoint to bypass CORS restrictions
 router.get('/api/image-proxy', async (req, res) => {
@@ -14,6 +57,22 @@ router.get('/api/image-proxy', async (req, res) => {
 
     // Decode the URL in case it's double-encoded
     let decodedUrl = decodeURIComponent(imageUrl);
+
+    // Decode HTML entities that some scraped URLs carry (e.g. ...?w=570&amp;h=550).
+    // Left undecoded, the upstream host sees a literal "&amp;" query key and
+    // returns the wrong image or a 404.
+    if (decodedUrl.includes('&')) {
+      decodedUrl = decodedUrl
+        .replace(/&amp;/gi, '&')
+        .replace(/&#0*38;/g, '&')
+        .replace(/&#x0*26;/gi, '&');
+    }
+
+    // Unwrap Next.js image-optimizer wrappers (e.g. olera.care/_next/image?url=
+    // <cdn.sanity.io ...>) to the underlying CDN URL. The wrapper rate-limits
+    // (429) when proxied; the inner CDN URL fetches reliably. SSRF/host checks
+    // below run on this final unwrapped URL.
+    decodedUrl = unwrapNextImageUrl(decodedUrl);
 
     // Filter out obviously corrupted URLs before processing
     if (decodedUrl.includes('QwQwQwQw') || 
@@ -34,13 +93,12 @@ router.get('/api/image-proxy', async (req, res) => {
       return res.status(400).json({ error: 'Invalid URL format' });
     }
 
-    // Security checks - block internal/private IPs
-    const hostname = validUrl.hostname.toLowerCase();
-    if (hostname === 'localhost' || 
-        hostname === '127.0.0.1' || 
-        hostname.startsWith('192.168.') ||
-        hostname.startsWith('10.') ||
-        hostname.startsWith('172.')) {
+    // SSRF guard (shared, see server/utils/url-safety.ts): blocks non-http(s)
+    // schemes, non-standard ports, localhost/.local/.internal, loopback,
+    // RFC1918, link-local/cloud-metadata, CGNAT, multicast, IPv6 equivalents,
+    // and hostnames whose DNS resolves to any private address. Redirect hops
+    // are re-validated inside fetchImageSsrfSafe.
+    if (!(await isSafePublicUrl(decodedUrl))) {
       return res.status(403).json({ error: 'Access to internal URLs not allowed' });
     }
 
@@ -64,8 +122,9 @@ router.get('/api/image-proxy', async (req, res) => {
           'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         ];
 
-        response = await fetch(decodedUrl, {
-          headers: {
+        const result = await fetchImageSsrfSafe(
+          decodedUrl,
+          {
             'User-Agent': userAgents[attempts - 1],
             'Accept': 'image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
@@ -76,12 +135,19 @@ router.get('/api/image-proxy', async (req, res) => {
             'Sec-Fetch-Mode': 'no-cors',
             'Sec-Fetch-Site': 'cross-site'
           },
-          signal: controller.signal,
-          redirect: 'follow'
-        });
+          controller.signal,
+        );
 
         clearTimeout(timeoutId);
-        
+
+        if (result.blocked) {
+          // A redirect hop targeted an internal/unsafe destination — fail
+          // closed immediately, no retries.
+          console.log(`❌ Image proxy blocked unsafe redirect target for ${decodedUrl.substring(0, 100)}`);
+          return res.status(403).json({ error: 'Access to internal URLs not allowed' });
+        }
+        response = result.response!;
+
         if (response.ok) {
           console.log(`✅ Image proxy success on attempt ${attempts} for ${validUrl.hostname}`);
           break; // Success, exit retry loop
@@ -106,35 +172,28 @@ router.get('/api/image-proxy', async (req, res) => {
     if (!response || !response.ok) {
       console.log(`❌ Image proxy failed for ${decodedUrl}: ${response?.status || 'No response'} ${response?.statusText || ''}`);
 
-      // Return a small placeholder image instead of transparent pixel
-      const placeholderSvg = `<svg width="300" height="200" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="#f3f4f6"/>
-        <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#9ca3af" font-family="Arial, sans-serif" font-size="14">
-          Image temporarily unavailable
-        </text>
-      </svg>`;
-      
+      // Task #352 photo honesty: return a REAL error status (not a 200
+      // placeholder image) so the browser's onError fires and the carousel can
+      // exclude the dead photo from display and its count.
       res.set({
-        'Content-Type': 'image/svg+xml',
         'Cache-Control': 'public, max-age=300', // Cache failed attempts for 5 minutes
         'Access-Control-Allow-Origin': '*'
       });
-      return res.send(placeholderSvg);
+      return res.status(502).json({ error: 'Upstream image unavailable' });
     }
 
     // Get content type
     const contentType = response.headers.get('content-type') || 'image/jpeg';
 
-    // If it's not an image, return transparent pixel
+    // If it's not an image (hotlink-block HTML page etc.), surface an error so
+    // the client treats it as a broken photo instead of a blank frame.
     if (!contentType.startsWith('image/')) {
       console.log(`⚠️ Non-image content type: ${contentType} for ${decodedUrl}`);
-      const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
       res.set({
-        'Content-Type': 'image/png',
         'Cache-Control': 'public, max-age=300',
         'Access-Control-Allow-Origin': '*'
       });
-      return res.send(transparentPixel);
+      return res.status(404).json({ error: 'URL did not return an image' });
     }
 
     // Stream the image
@@ -155,14 +214,14 @@ router.get('/api/image-proxy', async (req, res) => {
     const url = (req.query.url as string) || 'unknown';
     console.error(`❌ Image proxy error for ${url}:`, error.message);
 
-    // Return transparent pixel for any error
-    const transparentPixel = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
-    res.set({
-      'Content-Type': 'image/png',
-      'Cache-Control': 'public, max-age=300',
-      'Access-Control-Allow-Origin': '*'
-    });
-    res.send(transparentPixel);
+    // Real error status so broken photos are detectable client-side.
+    if (!res.headersSent) {
+      res.set({
+        'Cache-Control': 'public, max-age=300',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.status(502).json({ error: 'Image proxy failed' });
+    }
   }
 });
 

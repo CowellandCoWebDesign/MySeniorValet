@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Brain, TrendingUp, AlertTriangle, DollarSign, Sparkles, MapPin } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface AIInsightsProps {
   bounds?: { north: number; south: number; east: number; west: number };
@@ -278,15 +279,32 @@ function CommunityInsightCard({ community, showConcerns = false }: {
   community: CommunityInsight; 
   showConcerns?: boolean;
 }) {
-  const navigate = (id: number) => {
+  // CommunityInsight only carries the id, so resolve the real community's
+  // name/city/state to build the clean SEO URL and skip the extra
+  // /community/{id} -> /senior-living redirect hop.
+  const { data: fullCommunity } = useQuery<{
+    id: number;
+    name: string;
+    city: string;
+    state: string;
+    slug?: string | null;
+  }>({
+    queryKey: [`/api/communities/${community.id}`],
+    enabled: !!community.id,
+  });
+
+  const navigate = () => {
     // Navigate to community detail page
-    window.location.href = `/community/${id}`;
+    window.location.href =
+      fullCommunity && fullCommunity.name && fullCommunity.city && fullCommunity.state
+        ? getCommunityUrl(fullCommunity)
+        : `/community/${community.id}`;
   };
 
   return (
     <Card 
       className="p-3 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:shadow-md hover:border-blue-400 dark:hover:border-blue-600 transition-all cursor-pointer group"
-      onClick={() => navigate(community.id)}
+      onClick={() => navigate()}
     >
       <div className="flex justify-between items-start">
         <div className="flex-1">

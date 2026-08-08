@@ -1,9 +1,12 @@
 import { PerplexityAIService } from './perplexity-ai-service';
+import { perplexitySearchAPI } from './services/perplexity-search-api';
 import { cheerioPhotoScraper } from './services/cheerio-photo-scraper';
 import { MultiAIPhotoExtractor } from './services/multi-ai-photo-extractor';
+import { communityWebsiteCrawler, DeepCrawlResult } from './services/community-website-crawler';
 import { db } from './db';
-import { perplexityCache, communities } from '../shared/schema';
-import { eq, lt, and } from 'drizzle-orm';
+import { perplexityCache, communities, pricingHistory } from '../shared/schema';
+import { eq, lt, and, isNull } from 'drizzle-orm';
+import { normalizePhotoUrls } from './utils/photo-urls';
 
 interface CachedCommunityData {
   communityPk?: number; // Numeric primary key from communities.id table
@@ -41,6 +44,19 @@ interface CachedCommunityData {
   rawPerplexityContent?: string;
   // Track whether data came from cache or fresh fetch
   source?: 'memory-cache' | 'database-cache' | 'fresh-fetch' | 'website-photos' | 'database-content' | 'empty';
+  // Enhanced data from deep website crawl (primary source of truth)
+  deepCrawlData?: {
+    virtualTours: { url: string; platform?: string; embedCode?: string }[];
+    floorPlans: { url: string; unitType?: string; squareFootage?: string; price?: string; imageUrl?: string }[];
+    videos: { url: string; platform?: string; embedUrl?: string; title?: string }[];
+    amenities: string[];
+    pricingDetails: {
+      independentLiving?: string;
+      assistedLiving?: string;
+      memoryCare?: string;
+      generalRange?: string;
+    };
+  };
 }
 
 class UnifiedPerplexityCache {
@@ -159,10 +175,13 @@ class UnifiedPerplexityCache {
           
           const updates: any = {};
           
-          // Update photos if we have them
-          if (originalPhotos.length > 0) {
-            updates.photos = originalPhotos;
-            console.log(`📸 Syncing ${originalPhotos.length} photos to communities.photos for ID ${communityPk}`);
+          // Update photos if we have them. normalizePhotoUrls guarantees clean
+          // string URLs (objects → url, &amp; decoded) so the text[] column never
+          // stores "[object Object]" or entity-broken URLs.
+          const cleanSyncPhotos = normalizePhotoUrls(originalPhotos);
+          if (cleanSyncPhotos.length > 0) {
+            updates.photos = cleanSyncPhotos;
+            console.log(`📸 Syncing ${cleanSyncPhotos.length} photos to communities.photos for ID ${communityPk}`);
           }
           
           // Update description with FULL Perplexity content
@@ -171,6 +190,24 @@ class UnifiedPerplexityCache {
             updates.description = data.rawPerplexityContent;
             console.log(`📝 Syncing FULL Perplexity content (${data.rawPerplexityContent.length} chars) to communities.description for ID ${communityPk}`);
           }
+          
+          // CRITICAL: Also sync videos to communities table
+          if (data.deepCrawlData?.videos && data.deepCrawlData.videos.length > 0) {
+            const videoUrls = data.deepCrawlData.videos.map((v: { url: string }) => v.url);
+            updates.communityVideos = videoUrls;
+            console.log(`🎬 Syncing ${videoUrls.length} videos to communities.communityVideos for ID ${communityPk}`);
+          }
+          
+          // Sync virtual tours
+          if (data.deepCrawlData?.virtualTours && data.deepCrawlData.virtualTours.length > 0) {
+            const tourUrls = data.deepCrawlData.virtualTours.map((t: { url: string }) => t.url);
+            updates.virtualTours = tourUrls;
+            updates.virtualTourUrl = tourUrls[0]; // Set primary virtual tour URL
+            console.log(`🏠 Syncing ${tourUrls.length} virtual tours to communities.virtualTours for ID ${communityPk}`);
+          }
+          
+          // CRITICAL: Sync pricing to pricing_history table
+          await this.syncPricingToHistory(communityPk, data);
           
           if (Object.keys(updates).length > 0) {
             updates.updatedAt = new Date();
@@ -200,6 +237,253 @@ class UnifiedPerplexityCache {
     } catch (error) {
       console.error('Failed to save to database cache:', error);
     }
+  }
+
+  /**
+   * Extract and sync pricing data to pricing_history table
+   * Parses pricing from raw Perplexity content and marketData
+   */
+  private async syncPricingToHistory(communityPk: number, data: CachedCommunityData) {
+    try {
+      const rawContent = data.rawPerplexityContent || '';
+      const pricingDetails = data.deepCrawlData?.pricingDetails || {};
+      
+      // Define care level mappings with enhanced patterns for various formats
+      // Pattern groups capture: "$X,XXX", "$X,XXX/month", "$X,XXX to $Y,YYY", etc.
+      const careLevelPatterns = [
+        { type: 'independent_living', patterns: [
+          /independent\s*living[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /\(independent(?:\s*living)?\)[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /IL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'assisted_living', patterns: [
+          /assisted\s*living[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /\(assisted(?:\s*living)?\)[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /AL[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'memory_care', patterns: [
+          /memory\s*care[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /\(memory\s*care\)[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /lowest\s*(?:monthly\s*)?price\s*\(memory\s*care\)[:\*\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /MC[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'skilled_nursing', patterns: [
+          /(?:skilled\s*)?nursing(?:\s*home)?[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi,
+          /SNF[:\s]+(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]},
+        { type: 'respite', patterns: [
+          /respite[^$\n]*?(\$[\d,]+(?:\s*(?:to|-)\s*\$[\d,]+)?(?:\/month)?)/gi
+        ]}
+      ];
+      
+      const extractedPricing: Array<{
+        priceType: string;
+        priceMin: string | null;
+        priceMax: string | null;
+        source: string;
+      }> = [];
+      
+      console.log(`💰 Attempting to extract pricing for community ${communityPk}...`);
+      console.log(`💰 Raw content length: ${rawContent.length} chars`);
+      
+      // Extract pricing from raw content
+      for (const { type, patterns } of careLevelPatterns) {
+        for (const pattern of patterns) {
+          const matches = rawContent.matchAll(pattern);
+          for (const match of matches) {
+            if (match[1]) {
+              const priceStr = match[1];
+              console.log(`💰 Found ${type} price match: "${priceStr}"`);
+              const parsed = this.parsePriceRange(priceStr);
+              if (parsed.min || parsed.max) {
+                extractedPricing.push({
+                  priceType: type,
+                  priceMin: parsed.min,
+                  priceMax: parsed.max,
+                  source: 'perplexity_enrichment'
+                });
+                break; // Only take first match per type
+              }
+            }
+          }
+        }
+      }
+      
+      // Fallback: Look for any "monthly" pricing patterns
+      if (extractedPricing.length === 0) {
+        console.log(`💰 No specific care level pricing found, trying general patterns...`);
+        const generalPatterns = [
+          /(?:starting\s*(?:at|from)|(?:from|at)\s+)?\$?([\d,]+)\s*(?:to|-)?\s*\$?([\d,]+)?\s*(?:per\s+month|\/month|monthly)/gi,
+          /\*\*\$(\d[\d,]*)\s*(?:to|-)?\s*\$?(\d[\d,]*)?\s*(?:per\s+month|\/month|monthly)?\*\*/gi
+        ];
+        
+        for (const pattern of generalPatterns) {
+          const matches = rawContent.matchAll(pattern);
+          for (const match of matches) {
+            if (match[1]) {
+              const priceStr = `$${match[1]}${match[2] ? ` to $${match[2]}` : ''}`;
+              console.log(`💰 Found general price match: "${priceStr}"`);
+              const parsed = this.parsePriceRange(priceStr);
+              if (parsed.min || parsed.max) {
+                extractedPricing.push({
+                  priceType: 'base',
+                  priceMin: parsed.min,
+                  priceMax: parsed.max,
+                  source: 'perplexity_enrichment'
+                });
+                break;
+              }
+            }
+          }
+          if (extractedPricing.length > 0) break;
+        }
+      }
+      
+      // Also check deepCrawlData pricing
+      if (pricingDetails.independentLiving) {
+        const parsed = this.parsePriceRange(pricingDetails.independentLiving);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'independent_living', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      if (pricingDetails.assistedLiving) {
+        const parsed = this.parsePriceRange(pricingDetails.assistedLiving);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'assisted_living', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      if (pricingDetails.memoryCare) {
+        const parsed = this.parsePriceRange(pricingDetails.memoryCare);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'memory_care', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      if (pricingDetails.generalRange) {
+        const parsed = this.parsePriceRange(pricingDetails.generalRange);
+        if (parsed.min || parsed.max) {
+          extractedPricing.push({ priceType: 'base', priceMin: parsed.min, priceMax: parsed.max, source: 'website_crawl' });
+        }
+      }
+      
+      // Check marketData.pricing (enhanced extraction)
+      if (data.marketData?.pricing) {
+        const pricingData = data.marketData.pricing;
+        if (typeof pricingData === 'object') {
+          // Handle structured pricing object
+          const pricingObj = pricingData as any;
+          if (pricingObj.general) {
+            const parsed = this.parsePriceRange(pricingObj.general);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'base', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+          if (pricingObj.studio) {
+            const parsed = this.parsePriceRange(pricingObj.studio);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'studio', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+          if (pricingObj.oneBedroom) {
+            const parsed = this.parsePriceRange(pricingObj.oneBedroom);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'one_bedroom', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+          if (pricingObj.twoBedroom) {
+            const parsed = this.parsePriceRange(pricingObj.twoBedroom);
+            if (parsed.min || parsed.max) {
+              extractedPricing.push({ priceType: 'two_bedroom', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+            }
+          }
+        } else if (typeof pricingData === 'string') {
+          const parsed = this.parsePriceRange(pricingData);
+          if (parsed.min || parsed.max) {
+            extractedPricing.push({ priceType: 'base', priceMin: parsed.min, priceMax: parsed.max, source: 'perplexity_enrichment' });
+          }
+        }
+      }
+      
+      if (extractedPricing.length === 0) {
+        console.log(`💰 No pricing data found for community ${communityPk}`);
+        return;
+      }
+      
+      console.log(`💰 Found ${extractedPricing.length} pricing entries for community ${communityPk}`);
+      
+      // Deduplicate by priceType (prefer website_crawl over perplexity)
+      const pricingMap = new Map<string, typeof extractedPricing[0]>();
+      for (const pricing of extractedPricing) {
+        const existing = pricingMap.get(pricing.priceType);
+        if (!existing || pricing.source === 'website_crawl') {
+          pricingMap.set(pricing.priceType, pricing);
+        }
+      }
+      
+      // Insert pricing records
+      const today = new Date().toISOString().split('T')[0];
+      
+      for (const [priceType, pricing] of pricingMap) {
+        try {
+          // End any existing current pricing for this type
+          await db
+            .update(pricingHistory)
+            .set({ endDate: today })
+            .where(
+              and(
+                eq(pricingHistory.communityId, communityPk),
+                eq(pricingHistory.priceType, priceType),
+                isNull(pricingHistory.endDate)
+              )
+            );
+          
+          // Insert new pricing record
+          await db.insert(pricingHistory).values({
+            communityId: communityPk,
+            priceType: priceType,
+            priceMin: pricing.priceMin,
+            priceMax: pricing.priceMax,
+            effectiveDate: today,
+            source: pricing.source,
+            verificationStatus: 'unverified',
+            notes: `Auto-extracted from ${pricing.source} on ${new Date().toISOString()}`
+          });
+          
+          console.log(`💰 Saved ${priceType} pricing to history: $${pricing.priceMin || '?'} - $${pricing.priceMax || '?'}`);
+        } catch (insertError) {
+          console.error(`Failed to insert pricing for ${priceType}:`, insertError);
+        }
+      }
+      
+    } catch (error) {
+      console.error(`Failed to sync pricing to history for community ${communityPk}:`, error);
+    }
+  }
+  
+  /**
+   * Parse a price string like "$3,719 to $10,038" into min/max values
+   */
+  private parsePriceRange(priceStr: string): { min: string | null; max: string | null } {
+    if (!priceStr) return { min: null, max: null };
+    
+    // Remove commas and extract numbers
+    const numbers = priceStr.match(/\$?([\d,]+)/g);
+    if (!numbers || numbers.length === 0) return { min: null, max: null };
+    
+    // Clean and convert to decimal format
+    const cleanNumbers = numbers.map(n => n.replace(/[$,]/g, ''));
+    
+    if (cleanNumbers.length === 1) {
+      return { min: cleanNumbers[0], max: cleanNumbers[0] };
+    } else if (cleanNumbers.length >= 2) {
+      const num1 = parseFloat(cleanNumbers[0]);
+      const num2 = parseFloat(cleanNumbers[1]);
+      return {
+        min: Math.min(num1, num2).toString(),
+        max: Math.max(num1, num2).toString()
+      };
+    }
+    
+    return { min: null, max: null };
   }
 
   // Public method to save comprehensive data to cache
@@ -429,23 +713,25 @@ class UnifiedPerplexityCache {
             console.log(`✅ Found HIGH QUALITY existing data in communities table for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
             return existingData;
           } else {
+            // COST CONTROL: Return existing low quality data instead of auto-fetching
+            // This was causing massive API costs from bots/crawlers triggering Perplexity calls
             console.log(`📊 Communities table has LOW QUALITY data for ${communityName} (Score: ${qualityAssessment.qualityScore}%)`);
             console.log(`   Issues: ${qualityAssessment.issues.join(', ')}`);
-            console.log(`   🚀 AUTO-FETCHING comprehensive data to improve quality...`);
+            console.log(`   ⚠️ Returning existing data (auto-fetch disabled for cost control)`);
             
-            // AUTO-FETCH: Trigger automatic enrichment for poor quality data
-            // Don't return existing low quality data - fetch fresh comprehensive data
-            // Continue to fetching logic below by not returning here
+            // Return existing data even if low quality - user can manually refresh if needed
+            return existingData;
           }
         }
       } catch (error) {
         console.error(`Failed to check communities table for ${communityName}:`, error);
       }
       
-      // No data at all
-      console.log(`⚠️ No data found for ${communityName} - triggering auto-fetch for first-time visitor`);
+      // No data at all - return null instead of auto-fetching (cost control)
+      console.log(`⚠️ No data found for ${communityName} - returning null (auto-fetch disabled for cost control)`);
       
-      // AUTO-FETCH for completely empty data - continue to fetching logic below
+      // COST CONTROL: Don't auto-fetch for empty data - return null and let caller handle gracefully
+      return null;
     }
 
     // Reaching here means we need to fetch fresh data
@@ -485,59 +771,270 @@ class UnifiedPerplexityCache {
       console.log(`ℹ️ Could not fetch additional metadata for query enhancement:`, error);
     }
 
-    // Build enhanced query with all available metadata for precise disambiguation
+    // HYBRID PATTERN: Try fast Cheerio first, then Playwright fallback for JS-heavy sites
+    let deepCrawlData: DeepCrawlResult | null = null;
+    let cheerioPhotos: { url: string; alt?: string; title?: string; context?: string }[] = [];
+    
+    if (websiteUrl) {
+      // STEP 1: Try fast Cheerio scraper first (10x faster, no browser needed)
+      try {
+        console.log(`🚀 STEP 1: Fast Cheerio scrape of ${websiteUrl}...`);
+        cheerioPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+          websiteUrl,
+          communityName,
+          { maxPhotos: 30, timeout: 15000 }
+        );
+        
+        if (cheerioPhotos.length >= 5) {
+          console.log(`✅ Cheerio found ${cheerioPhotos.length} photos - sufficient for display`);
+        } else {
+          console.log(`⚠️ Cheerio found only ${cheerioPhotos.length} photos - will try Playwright for more`);
+        }
+      } catch (cheerioError) {
+        console.log(`⚠️ Cheerio scrape failed:`, cheerioError instanceof Error ? cheerioError.message : 'Unknown error');
+      }
+      
+      // STEP 2: If Cheerio didn't find enough content, try Playwright (handles JS-rendered sites)
+      const needsPlaywright = cheerioPhotos.length < 5;
+      
+      if (needsPlaywright) {
+        try {
+          console.log(`🕷️ STEP 2: Playwright deep crawl for JS-rendered content...`);
+          deepCrawlData = await communityWebsiteCrawler.deepCrawlCommunityWebsite(
+            websiteUrl,
+            communityName,
+            {
+              maxPagesToExplore: 10,
+              timeout: 30000,
+              includeFloorPlans: true,
+              includePricing: true
+            }
+          );
+          
+          if (deepCrawlData && deepCrawlData.confidence !== 'low') {
+            console.log(`✅ Playwright deep crawl successful! Found:`);
+            console.log(`   - ${deepCrawlData.virtualTours.length} virtual tours`);
+            console.log(`   - ${deepCrawlData.photos.length} photos`);
+            console.log(`   - ${deepCrawlData.floorPlans.length} floor plans`);
+            console.log(`   - ${deepCrawlData.videos.length} videos`);
+            console.log(`   - ${deepCrawlData.amenities.length} amenities`);
+          }
+        } catch (crawlError) {
+          console.log(`⚠️ Playwright crawl failed:`, crawlError instanceof Error ? crawlError.message : 'Unknown error');
+          console.log(`📸 Using ${cheerioPhotos.length} photos from Cheerio fallback`);
+        }
+      }
+      
+      // MERGE: Combine Cheerio photos with Playwright data if both exist
+      if (cheerioPhotos.length > 0) {
+        if (!deepCrawlData) {
+          // Create minimal deepCrawlData from Cheerio results
+          deepCrawlData = {
+            virtualTours: [],
+            photoGalleries: [],
+            photos: cheerioPhotos.map(p => ({ url: p.url, alt: p.alt, context: p.context })),
+            floorPlans: [],
+            videos: [],
+            pricing: {},
+            contact: {},
+            amenities: [],
+            pagesExplored: [websiteUrl],
+            confidence: cheerioPhotos.length >= 10 ? 'high' : cheerioPhotos.length >= 5 ? 'medium' : 'low',
+            crawlDate: new Date(),
+            errors: []
+          };
+        } else {
+          // Merge Cheerio photos with Playwright photos (deduplicate by URL)
+          const existingUrls = new Set(deepCrawlData.photos.map(p => p.url));
+          for (const photo of cheerioPhotos) {
+            if (!existingUrls.has(photo.url)) {
+              deepCrawlData.photos.push({ url: photo.url, alt: photo.alt, context: photo.context });
+            }
+          }
+        }
+        console.log(`📸 Total photos after merge: ${deepCrawlData.photos.length}`);
+      }
+    }
+
+    // Build enhanced query with ALL available metadata for PRECISE disambiguation
+    // CRITICAL: Include as many identifiers as possible to prevent generic/average responses
     const metadataContext = [
-      communityAddress ? `Full Address: ${communityAddress}` : null,
-      communityPhone ? `Direct Phone: ${communityPhone}` : null,
-      websiteUrl ? `Official Website: ${websiteUrl}` : null
+      communityAddress ? `EXACT ADDRESS: ${communityAddress}` : null,
+      communityPhone ? `PHONE: ${communityPhone}` : null,
+      websiteUrl ? `OFFICIAL WEBSITE: ${websiteUrl}` : null
     ].filter(Boolean).join('\n');
 
-    // ONE comprehensive query that gets EVERYTHING
+    // Log the query for debugging
+    console.log(`🔍 Perplexity query for ${communityName}:`, {
+      address: communityAddress || 'NOT AVAILABLE',
+      phone: communityPhone || 'NOT AVAILABLE',
+      website: websiteUrl || 'NOT AVAILABLE'
+    });
+
+    // Enhanced query to search ALL sources - official website (highest priority) + third-party directories
     const comprehensiveQuery = `
-For the senior living community "${communityName}" located in ${location}, provide comprehensive information including:
+CRITICAL INSTRUCTION: SEARCH ALL AVAILABLE SOURCES FOR THIS EXACT COMMUNITY.
 
-${metadataContext ? `**KNOWN VERIFIED DETAILS:**\n${metadataContext}\n\n**Please use the above verified details to locate the correct facility.**\n\n` : ''}**PRICING & AVAILABILITY:**
-- Current monthly rates for all care levels
-- Entrance fees, deposits, and additional costs
-- Current availability and waitlist status
+==============================================================================
+COMMUNITY TO RESEARCH:
+Name: "${communityName}"
+Location: ${location}
+${metadataContext ? `\nVERIFIED IDENTIFIERS (USE THESE TO CONFIRM YOU HAVE THE RIGHT COMMUNITY):\n${metadataContext}` : ''}
+==============================================================================
 
-**CONTACT INFORMATION:**
-- Direct facility phone number (not referral services)
-- Official website URL
-- Email address
-- Physical address
+⚠️ DATA QUALITY REQUIREMENTS:
+1. DO NOT "infer" any information from the community name
+2. DO NOT provide generic industry averages or regional estimates
+3. DO NOT provide data from similarly-named communities in other locations
+4. DO NOT guess or estimate if you cannot find verified information
+5. ONLY return information that is VERIFIABLY about THIS SPECIFIC community
+
+🔍 MULTI-SOURCE SEARCH STRATEGY - CHECK ALL OF THESE:
+
+**HIGHEST PRIORITY - Official Community Sources:**
+${websiteUrl ? `- Their official website: ${websiteUrl}` : '- Search for their official website'}
+- Look for /pricing, /rates, /floor-plans, /apartments, /living-options pages
+- Check their brochures, rate sheets, or PDF downloads
+
+**SECONDARY SOURCES - Senior Care Directories:**
+- Caring.com profile for "${communityName}"
+- A Place for Mom listing for "${communityName}"
+- SeniorAdvisor.com profile for "${communityName}"
+- SeniorHomes.com or SeniorLiving.org listings
+
+**GOVERNMENT & REGULATORY SOURCES:**
+- Medicare.gov Nursing Home Compare (for skilled nursing facilities)
+- State licensing database for ${location}
+- HUD housing database (if applicable)
+
+**COST DATA SOURCES:**
+- Genworth Cost of Care Survey for ${location} region
+- PayingForSeniorCare.com data
 
 **REVIEWS & RATINGS:**
-- Recent Google reviews with ratings
-- Yelp reviews if available
-- Caring.com feedback
-- Family satisfaction scores
+- Google Reviews and star rating
+- Yelp reviews
+- Facebook page reviews
 
-**HEALTH & SAFETY:**
-- Recent health inspection results
-- Any violations or citations
-- Compliance status
-- Safety ratings
+REQUESTED INFORMATION (search ALL sources above):
 
-**PHOTOS & VIRTUAL TOURS:**
-- Links to facility photos
-- Virtual tour availability
-- Floor plans if available
+## 1. PRICING (aggregate from all sources - note which source each comes from):
+   - Monthly rates for each care level (Independent, Assisted, Memory Care, Skilled Nursing)
+   - Entry fees or community fees if any
+   - FORMAT: "$X,XXX - $X,XXX per month" with source attribution
+   - IMPORTANT: Check caring.com, aplaceformom.com, senioradvisor.com even if official site doesn't show pricing
 
-**MANAGEMENT & STAFF:**
-- Parent company or management group
-- Staff credentials and certifications
-- Staff-to-resident ratios
+## 2. FLOOR PLANS & UNITS:
+   - Available apartment/unit types (Studio, 1BR, 2BR, etc.)
+   - Square footage for each unit type
+   - What's included in each floor plan
+   - Check the community's /floor-plans or /apartments page
 
-Format all information clearly with section headers.
+## 3. CARE LEVELS OFFERED at this specific location:
+   - Independent Living, Assisted Living, Memory Care, Skilled Nursing, Respite
+   - Specific services they provide
+   - Staff-to-resident ratios if available
+
+## 4. CONTACT INFO (official, not referral services):
+   - Direct phone number (not a call center like A Place for Mom's number)
+   - Physical address
+   - Official website URL
+   - Email address if available
+
+## 5. REVIEWS AND RATINGS (from all platforms):
+   - Google rating and review count
+   - Yelp rating and review count  
+   - Caring.com rating and review count
+   - Recent feedback themes
+
+## 6. ADDITIONAL DATA:
+   - Year established
+   - Total number of units/beds
+   - Pet policy
+   - Parking availability
+   - Nearby hospitals/medical facilities
+
+CITE YOUR SOURCES for each piece of information. Format as:
+[Source: website-url or "platform name"]
+
+If you cannot find verified information from any source, say "No verified public information found" - do NOT substitute generic data.
 `;
 
     try {
-      // Make ONE comprehensive API call (only when user manually requests)
-      const response = await this.perplexityService.searchRealTime(
-        comprehensiveQuery,
-        `User-requested data for ${communityName}`
-      );
+      // Make ONE comprehensive API call using Search API ($5/1K requests)
+      // MIGRATED from Sonar chat/completions to Search API - Jan 2026
+      const searchQuery = `"${communityName}" ${location} senior living pricing phone address reviews`;
+      const searchResponse = await perplexitySearchAPI.search(searchQuery, {
+        max_results: 15,
+        max_tokens_per_page: 1024
+      });
+      
+      // Convert Search API response to structured format for parseComprehensiveResponse
+      const searchResults = searchResponse.results || [];
+      const allContent = searchResults.map(r => `${r.title} ${r.snippet}`).join(' ');
+      
+      // Extract structured data directly from search results
+      const extractedPhone = allContent.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)?.[0];
+      const extractedWebsite = searchResults.find(r => 
+        r.url && !r.url.includes('aplaceformom') && !r.url.includes('caring.com') && 
+        !r.url.includes('senioradvisor') && r.domain
+      )?.url;
+      const rawPriceMatches = allContent.match(/\$[\d,]+(?:\s*[-–]\s*\$[\d,]+)?(?:\s*(?:\/|per)\s*month)?/gi) || [];
+      // Filter out implausibly small dollar amounts (< $500) — these are noise from page numbers,
+      // item counts, etc. No real senior living community costs less than $500/month.
+      const priceMatches = rawPriceMatches.filter(p => {
+        const firstNum = parseInt(p.replace(/[^0-9]/g, '').substring(0, 6));
+        return firstNum >= 500;
+      });
+      const addressMatch = allContent.match(/\d+[^,]+,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s*\d{5}/)?.[0];
+      const ratingMatch = allContent.match(/(\d\.?\d?)\s*(?:\/\s*5|out of 5|stars?)/i);
+      const reviewCountMatch = allContent.match(/(\d+)\s*(?:reviews?|ratings?)/i);
+      
+      // Build structured summary that parsers expect
+      const sections: string[] = [];
+      
+      // Add pricing section if found
+      if (priceMatches.length > 0) {
+        sections.push(`**PRICING:**\n${priceMatches.slice(0, 5).join('\n')}`);
+      }
+      
+      // Add contact section
+      const contactParts: string[] = [];
+      if (extractedPhone) contactParts.push(`Phone: ${extractedPhone}`);
+      if (addressMatch) contactParts.push(`Address: ${addressMatch}`);
+      if (extractedWebsite) contactParts.push(`Website: ${extractedWebsite}`);
+      if (contactParts.length > 0) {
+        sections.push(`**CONTACT INFO:**\n${contactParts.join('\n')}`);
+      }
+      
+      // Add reviews section if found
+      if (ratingMatch || reviewCountMatch) {
+        const reviewText = [
+          ratingMatch ? `Rating: ${ratingMatch[1]}/5 stars` : null,
+          reviewCountMatch ? `${reviewCountMatch[1]} reviews` : null
+        ].filter(Boolean).join(', ');
+        sections.push(`**REVIEWS:**\n${reviewText}`);
+      }
+      
+      // Add raw search results as additional context
+      sections.push(`**SEARCH RESULTS:**\n${searchResults.slice(0, 8).map(r => 
+        `• ${r.title}: ${r.snippet?.substring(0, 200) || ''}`
+      ).join('\n')}`);
+      
+      const formattedSummary = sections.join('\n\n');
+      
+      const response = {
+        summary: formattedSummary,
+        sources: searchResults.map(r => r.url).filter(Boolean),
+        images: [] as string[]
+      };
+      
+      // Extract image URLs from search results if any
+      const imagePattern = /https?:\/\/[^\s<>"]+\.(?:jpg|jpeg|png|gif|webp)(?:\?[^\s<>"]*)?/gi;
+      for (const result of searchResults) {
+        const imgMatches = result.snippet?.match(imagePattern) || [];
+        response.images.push(...imgMatches);
+      }
 
       // Parse and structure the comprehensive response
       const structuredData = await this.parseComprehensiveResponse(
@@ -548,21 +1045,106 @@ Format all information clearly with section headers.
         websiteUrl
       );
 
+      // Attach the extracted address so callers can detect and correct wrong DB city/address
+      if (addressMatch) {
+        (structuredData as any).extractedAddress = addressMatch.trim();
+        console.log(`📍 Extracted address from Perplexity results: "${addressMatch.trim()}"`);
+      }
+
       // Check if response is complete before caching
-      // Only reject if the COMMUNITY itself wasn't found, not if individual fields are missing
+      // Reject responses that are generic/inferred rather than specific verified data
       const lowerContent = structuredData.rawPerplexityContent?.toLowerCase() || '';
       const hasComprehensiveData = 
         structuredData.rawPerplexityContent && 
         structuredData.rawPerplexityContent.length > 500; // At least 500 chars of content
       
-      // Only reject if Perplexity couldn't find the community at all
+      // Detect if Perplexity provided generic/inferred data instead of verified info
+      const isInferredOrGeneric = 
+        lowerContent.includes('inferred from the name') ||
+        lowerContent.includes('inferred from its name') ||
+        lowerContent.includes('based on the name') ||
+        lowerContent.includes('no detailed public profile') ||
+        lowerContent.includes('no verified public information') ||
+        lowerContent.includes('no specific information available') ||
+        lowerContent.includes('generic industry') ||
+        lowerContent.includes('regional average') ||
+        lowerContent.includes('typical range for') ||
+        lowerContent.includes('average cost in');
+      
+      // Reject if Perplexity couldn't find the community at all
       const communityNotFound = 
         lowerContent.includes('no direct search results specifically confirm') ||
         lowerContent.includes('no direct evidence of a') ||
         lowerContent.includes('unable to find this community') ||
         lowerContent.includes('does not appear to exist');
       
-      const isCompleteResponse = hasComprehensiveData && !communityNotFound;
+      // Log if we detected inferred/generic content
+      if (isInferredOrGeneric) {
+        console.log(`⚠️ Detected INFERRED/GENERIC content for ${communityName} - will not cache as complete`);
+      }
+      
+      const isCompleteResponse = hasComprehensiveData && !communityNotFound && !isInferredOrGeneric;
+      
+      // MERGE deep crawl data with Perplexity data (deep crawl takes priority)
+      if (deepCrawlData && deepCrawlData.confidence !== 'low') {
+        console.log(`🔄 Merging deep crawl data with Perplexity response...`);
+        
+        // Helper to ensure deepCrawlData structure exists
+        const ensureDeepCrawlData = () => {
+          if (!structuredData.deepCrawlData) {
+            structuredData.deepCrawlData = {
+              virtualTours: [],
+              floorPlans: [],
+              videos: [],
+              amenities: [],
+              pricingDetails: {}
+            };
+          }
+          return structuredData.deepCrawlData;
+        };
+        
+        // Add virtual tours from deep crawl (primary source)
+        if (deepCrawlData.virtualTours && deepCrawlData.virtualTours.length > 0) {
+          structuredData.marketData.virtualTourUrl = deepCrawlData.virtualTours[0].url;
+          ensureDeepCrawlData().virtualTours = deepCrawlData.virtualTours;
+        }
+        
+        // Add photos from deep crawl (merge with Perplexity photos)
+        if (deepCrawlData.photos && deepCrawlData.photos.length > 0) {
+          const crawlPhotoUrls = deepCrawlData.photos
+            .slice(0, 20)
+            .map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`);
+          structuredData.photos = [...crawlPhotoUrls, ...structuredData.photos].slice(0, 30);
+        }
+        
+        // Add floor plans
+        if (deepCrawlData.floorPlans && deepCrawlData.floorPlans.length > 0) {
+          ensureDeepCrawlData().floorPlans = deepCrawlData.floorPlans;
+        }
+        
+        // Add videos
+        if (deepCrawlData.videos && deepCrawlData.videos.length > 0) {
+          ensureDeepCrawlData().videos = deepCrawlData.videos;
+        }
+        
+        // Add pricing from deep crawl (more accurate than Perplexity)
+        if (deepCrawlData.pricing && Object.keys(deepCrawlData.pricing).length > 0) {
+          ensureDeepCrawlData().pricingDetails = deepCrawlData.pricing;
+        }
+        
+        // Add amenities
+        if (deepCrawlData.amenities && deepCrawlData.amenities.length > 0) {
+          ensureDeepCrawlData().amenities = deepCrawlData.amenities;
+        }
+        
+        // Update contact info from deep crawl if missing
+        if (deepCrawlData.contact?.phone && !structuredData.marketData.phone) {
+          structuredData.marketData.phone = deepCrawlData.contact.phone;
+        }
+        if (deepCrawlData.contact?.email && !structuredData.marketData.email) {
+          structuredData.marketData.email = deepCrawlData.contact.email;
+        }
+      }
       
       // Calculate cache duration and label
       const cacheDuration = isFeatured ? this.FEATURED_CACHE_DURATION : this.CACHE_DURATION;
@@ -588,6 +1170,35 @@ Format all information clearly with section headers.
       return { ...structuredData, source: 'fresh-fetch' };
     } catch (error) {
       console.error(`Failed to fetch comprehensive data for ${communityName}:`, error);
+      
+      // If Perplexity failed but we have deep crawl data, use that instead
+      if (deepCrawlData && deepCrawlData.confidence !== 'low') {
+        console.log(`📌 Using deep crawl data as fallback since Perplexity failed`);
+        return {
+          marketData: {
+            website: websiteUrl,
+            phone: deepCrawlData.contact?.phone,
+            email: deepCrawlData.contact?.email,
+            virtualTourUrl: deepCrawlData.virtualTours?.[0]?.url
+          },
+          reviews: {},
+          inspections: {},
+          photos: (deepCrawlData.photos || []).slice(0, 20).map(p => `/api/image-proxy?url=${encodeURIComponent(p.url)}`),
+          sources: deepCrawlData.pagesExplored || [],
+          timestamp: Date.now(),
+          communityId,
+          communityName,
+          location,
+          source: 'fresh-fetch',
+          deepCrawlData: {
+            virtualTours: deepCrawlData.virtualTours || [],
+            floorPlans: deepCrawlData.floorPlans || [],
+            videos: deepCrawlData.videos || [],
+            amenities: deepCrawlData.amenities || [],
+            pricingDetails: deepCrawlData.pricing || {}
+          }
+        };
+      }
       
       // Return minimal data on error
       return {
@@ -802,9 +1413,88 @@ Format all information clearly with section headers.
     return undefined;
   }
 
+  // Pre-compiled regex patterns for better performance (avoids re-compilation on each call)
+  private static readonly REVIEW_PATTERNS = {
+    google: /Google[^\*]*?(\d+\.?\d*)[^\*]*?stars?/i,
+    yelp: /Yelp[^\*]*?(\d+\.?\d*)[^\*]*?stars?/i,
+    caring: /Caring\.com[^\*]*?(\d+\.?\d*)[^\*]*?stars?/i,
+    average: /(?:average|overall)[^\*]*?(\d+\.?\d*)[^\*]*?(?:stars?|rating)/i,
+    count: /(\d+)\s*(?:reviews?|ratings?)/i,
+    violations: /(?:violation|citation|deficiency)[^.]*\./gi,
+    inspectionDate: /(?:inspection|inspected)[^\*]*?(\d{1,2}\/\d{1,2}\/\d{2,4}|\w+\s+\d{1,2},?\s+\d{4})/i,
+    // Compliance patterns for extractComplianceStatus
+    noViolation: /no\s+violation/i,
+    hasViolation: /violation/i,
+    compliant: /compliant/i
+  };
+
+  /**
+   * Extract all review data in a single pass through the content
+   * This is more efficient than calling multiple extract methods separately
+   */
+  private extractAllReviews(content: string): {
+    googleReviews: any[];
+    yelpReviews: any[];
+    caringComReviews: any[];
+    averageRating?: number;
+    totalReviewCount?: number;
+  } {
+    const result = {
+      googleReviews: [] as any[],
+      yelpReviews: [] as any[],
+      caringComReviews: [] as any[],
+      averageRating: undefined as number | undefined,
+      totalReviewCount: undefined as number | undefined
+    };
+
+    // Extract Google reviews
+    const googleMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.google);
+    if (googleMatch) {
+      result.googleReviews = [{
+        source: 'Google',
+        rating: parseFloat(googleMatch[1]),
+        text: googleMatch[0]
+      }];
+    }
+
+    // Extract Yelp reviews
+    const yelpMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.yelp);
+    if (yelpMatch) {
+      result.yelpReviews = [{
+        source: 'Yelp',
+        rating: parseFloat(yelpMatch[1]),
+        text: yelpMatch[0]
+      }];
+    }
+
+    // Extract Caring.com reviews
+    const caringMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.caring);
+    if (caringMatch) {
+      result.caringComReviews = [{
+        source: 'Caring.com',
+        rating: parseFloat(caringMatch[1]),
+        text: caringMatch[0]
+      }];
+    }
+
+    // Extract average rating
+    const avgMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.average);
+    if (avgMatch) {
+      result.averageRating = parseFloat(avgMatch[1]);
+    }
+
+    // Extract review count
+    const countMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.count);
+    if (countMatch) {
+      result.totalReviewCount = parseInt(countMatch[1]);
+    }
+
+    return result;
+  }
+
+  // Keep individual methods for backward compatibility but delegate to cached patterns
   private extractGoogleReviews(content: string): any[] {
-    // Parse Google review mentions
-    const googleSection = content.match(/Google[^\\*]*?(\d+\.?\d*)[^\\*]*?stars?/i);
+    const googleSection = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.google);
     if (googleSection) {
       return [{
         source: 'Google',
@@ -816,7 +1506,7 @@ Format all information clearly with section headers.
   }
 
   private extractYelpReviews(content: string): any[] {
-    const yelpSection = content.match(/Yelp[^\\*]*?(\d+\.?\d*)[^\\*]*?stars?/i);
+    const yelpSection = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.yelp);
     if (yelpSection) {
       return [{
         source: 'Yelp',
@@ -828,7 +1518,7 @@ Format all information clearly with section headers.
   }
 
   private extractCaringReviews(content: string): any[] {
-    const caringSection = content.match(/Caring\.com[^\\*]*?(\d+\.?\d*)[^\\*]*?stars?/i);
+    const caringSection = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.caring);
     if (caringSection) {
       return [{
         source: 'Caring.com',
@@ -840,12 +1530,12 @@ Format all information clearly with section headers.
   }
 
   private extractAverageRating(content: string): number | undefined {
-    const ratingMatch = content.match(/(?:average|overall)[^\\*]*?(\d+\.?\d*)[^\\*]*?(?:stars?|rating)/i);
+    const ratingMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.average);
     return ratingMatch ? parseFloat(ratingMatch[1]) : undefined;
   }
 
   private extractReviewCount(content: string): number | undefined {
-    const countMatch = content.match(/(\d+)\s*(?:reviews?|ratings?)/i);
+    const countMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.count);
     return countMatch ? parseInt(countMatch[1]) : undefined;
   }
 
@@ -861,19 +1551,20 @@ Format all information clearly with section headers.
   }
 
   private extractViolations(content: string): any[] {
-    const violationMatches = content.match(/(?:violation|citation|deficiency)[^.]*\./gi);
+    const violationMatches = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.violations);
     return violationMatches ? violationMatches.map(v => ({ description: v })) : [];
   }
 
   private extractInspectionDate(content: string): string | undefined {
-    const dateMatch = content.match(/(?:inspection|inspected)[^\\*]*?(\d{1,2}\/\d{1,2}\/\d{2,4}|\w+\s+\d{1,2},?\s+\d{4})/i);
+    const dateMatch = content.match(UnifiedPerplexityCache.REVIEW_PATTERNS.inspectionDate);
     return dateMatch ? dateMatch[1] : undefined;
   }
 
   private extractComplianceStatus(content: string): string {
-    if (content.toLowerCase().includes('no violation')) return 'Compliant';
-    if (content.toLowerCase().includes('violation')) return 'Issues Found';
-    if (content.toLowerCase().includes('compliant')) return 'Compliant';
+    // Use pre-compiled patterns for better performance
+    if (UnifiedPerplexityCache.REVIEW_PATTERNS.noViolation.test(content)) return 'Compliant';
+    if (UnifiedPerplexityCache.REVIEW_PATTERNS.hasViolation.test(content)) return 'Issues Found';
+    if (UnifiedPerplexityCache.REVIEW_PATTERNS.compliant.test(content)) return 'Compliant';
     return 'Unknown';
   }
 
@@ -1017,17 +1708,36 @@ Format all information clearly with section headers.
         console.log(`✅ Found ${photoExtractionResult.authenticPhotos.length} authentic photos via MultiAIPhotoExtractor`);
       }
       
-      // Also scrape from the discovered website URL if available
+      // Domains that serve generic listing-template images, not community-specific photos
+      const JUNK_PHOTO_DOMAINS = [
+        'lowincomehousing.us', 'mapquest.com', 'after55.com', 'loopnet.com'
+      ];
+      // URL patterns that indicate a placeholder/template image rather than a real photo
+      const JUNK_PHOTO_PATTERNS = [
+        'divider-half', '/divider', 'no_photo', 'nophoto', 'no-photo',
+        'default_community_property', 'templates/homely'
+      ];
+      // Listing/aggregator sites — never use as photo sources (they pull generic template images)
+      const LISTING_SITE_DOMAINS = [
+        'lowincomehousing.us', 'mapquest.com', 'after55.com', 'loopnet.com',
+        'senioradvisor.com', 'caring.com', 'aplaceformom.com', 'seniorly.com',
+        'whereyoulivematters.org', 'seniorhomes.com', 'assistedliving.com',
+        'payingforseniorcare.com', 'seniorhousingnet.com',
+        'yelp.com', 'facebook.com', 'google.com', 'yellowpages.com', 'bbb.org'
+      ];
+
+      // Scrape the community's own website first and track how many photos it yields
+      let ownWebsitePhotoCount = 0;
       const cleanedWebsiteUrl = websiteUrl ? this.cleanUrl(websiteUrl) : null;
       if (cleanedWebsiteUrl && !response.sources.includes(cleanedWebsiteUrl)) {
-        console.log(`🌐 Scraping photos from discovered website: ${cleanedWebsiteUrl}`);
+        console.log(`🌐 Scraping photos from community's own website: ${cleanedWebsiteUrl}`);
         try {
           const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
             cleanedWebsiteUrl,
             communityName,
             {
               maxPhotos: 10,
-              timeout: 10000 // 10 second timeout
+              timeout: 10000
             }
           );
           
@@ -1035,46 +1745,94 @@ Format all information clearly with section headers.
             scrapedPhotos.forEach((photo: any) => {
               if (photo.url) {
                 extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+                ownWebsitePhotoCount++;
               }
             });
-            console.log(`📸 Found ${scrapedPhotos.length} photos from ${websiteUrl}`);
+            console.log(`📸 Found ${scrapedPhotos.length} photos from community's own website: ${websiteUrl}`);
           }
         } catch (scrapeError) {
-          console.log(`⚠️ Failed to scrape discovered website ${websiteUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+          console.log(`⚠️ Failed to scrape community website ${websiteUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
         }
       }
-      
-      // Also scrape from any sources that were provided by the original Perplexity response
-      if (response.sources && response.sources.length > 0) {
-        console.log(`🕷️ Scraping photos from ${Math.min(3, response.sources.length)} key sources...`);
-        
-        // Limit to top 3 sources to avoid excessive scraping
-        const topSources = response.sources.slice(0, 3).filter(source => {
-          const url = source.toLowerCase();
-          return !url.includes('.pdf') && !url.includes('.doc') && !url.includes('youtube.com');
-        });
-        
-        for (const sourceUrl of topSources) {
-          try {
-            const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
-              sourceUrl,
-              communityName,
-              {
-                maxPhotos: 10,
-                timeout: 10000 // 10 second timeout
+
+      // If the community's own website yielded enough photos, skip listing-site scraping entirely
+      if (ownWebsitePhotoCount >= 3) {
+        console.log(`✅ Own website has ${ownWebsitePhotoCount} photos — skipping listing-site scraping`);
+      } else {
+        // For communities without a stored website URL, try to discover the official site
+        // from the Perplexity response sources before falling back to listing sites
+        if (!websiteUrl && response.sources && response.sources.length > 0) {
+          const potentialOfficialSite = response.sources.find(source => {
+            const url = source.toLowerCase();
+            return !LISTING_SITE_DOMAINS.some(d => url.includes(d)) &&
+                   url.startsWith('http') && !url.includes('.pdf');
+          });
+
+          if (potentialOfficialSite) {
+            console.log(`🔍 No stored website — trying discovered official site: ${potentialOfficialSite}`);
+            try {
+              const discoveredPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+                potentialOfficialSite,
+                communityName,
+                { maxPhotos: 10, timeout: 10000 }
+              );
+              if (discoveredPhotos && discoveredPhotos.length > 0) {
+                discoveredPhotos.forEach((photo: any) => {
+                  if (photo.url) {
+                    const photoUrlLower = photo.url.toLowerCase();
+                    if (!JUNK_PHOTO_PATTERNS.some(p => photoUrlLower.includes(p))) {
+                      extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+                      ownWebsitePhotoCount++;
+                    }
+                  }
+                });
+                console.log(`✅ Found ${discoveredPhotos.length} photos from discovered official site`);
               }
-            );
-            
-            if (scrapedPhotos?.length > 0) {
-              console.log(`📸 Found ${scrapedPhotos.length} photos from ${sourceUrl}`);
-              scrapedPhotos.forEach(photo => {
-                if (photo.url) {
-                  extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
-                }
-              });
+            } catch (e) {
+              console.log(`⚠️ Failed to scrape discovered site ${potentialOfficialSite}`);
             }
-          } catch (scrapeError) {
-            console.log(`⚠️ Failed to scrape ${sourceUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+          }
+        }
+
+        // Fallback: scrape Perplexity sources, blocking all known junk domains
+        if (ownWebsitePhotoCount < 3 && response.sources && response.sources.length > 0) {
+          const topSources = response.sources.slice(0, 5).filter(source => {
+            const url = source.toLowerCase();
+            if (url.includes('.pdf') || url.includes('.doc') || url.includes('youtube.com')) return false;
+            if (JUNK_PHOTO_DOMAINS.some(domain => url.includes(domain))) return false;
+            return true;
+          }).slice(0, 3);
+
+          if (topSources.length > 0) {
+            console.log(`🕷️ Scraping photos from ${topSources.length} filtered sources...`);
+          }
+
+          for (const sourceUrl of topSources) {
+            try {
+              const scrapedPhotos = await cheerioPhotoScraper.scrapePhotosFromWebsite(
+                sourceUrl,
+                communityName,
+                {
+                  maxPhotos: 10,
+                  timeout: 10000
+                }
+              );
+              
+              if (scrapedPhotos?.length > 0) {
+                console.log(`📸 Found ${scrapedPhotos.length} photos from ${sourceUrl}`);
+                scrapedPhotos.forEach(photo => {
+                  if (photo.url) {
+                    const photoUrlLower = photo.url.toLowerCase();
+                    const isJunk = JUNK_PHOTO_PATTERNS.some(p => photoUrlLower.includes(p));
+                    if (!isJunk) {
+                      extractedPhotos.push(`/api/image-proxy?url=${encodeURIComponent(photo.url)}`);
+                    }
+                  }
+                });
+              }
+            } catch (scrapeError) {
+              console.log(`⚠️ Failed to scrape ${sourceUrl}:`, scrapeError instanceof Error ? scrapeError.message : 'Unknown error');
+            }
           }
         }
       }
@@ -1208,31 +1966,50 @@ Note: If location is uncertain, search broadly and include any businesses with t
 `;
 
     try {
-      const response = await this.perplexityService.searchRealTime(query, serviceName);
+      // Use Search API ($5/1K requests) - MIGRATED from Sonar chat/completions Jan 2026
+      const searchQuery = `"${serviceName}" ${searchLocation} business phone address website`;
+      const searchResponse = await perplexitySearchAPI.search(searchQuery, {
+        max_results: 10,
+        max_tokens_per_page: 512
+      });
+      
+      // Convert Search API response to expected format with smart extraction
+      const searchResults = searchResponse.results || [];
+      const allContent = searchResults.map(r => `${r.title} ${r.snippet}`).join(' ');
+      const sources = searchResults.map(r => r.url).filter(Boolean);
+
+      // Extract structured data directly from search results
+      const phone = allContent.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/)?.[0];
+      const website = searchResults.find(r => 
+        r.url && r.domain && !r.url.includes('yelp.com') && !r.url.includes('facebook.com')
+      )?.url;
+      const address = allContent.match(/\d+[^,]+,\s*[A-Za-z\s]+,\s*[A-Z]{2}\s*\d{5}/)?.[0];
+      
+      // Build structured summary
+      const sections: string[] = [];
+      if (website) sections.push(`**OFFICIAL WEBSITE:**\n${website}`);
+      if (phone) sections.push(`**PHONE:**\n${phone}`);
+      if (address) sections.push(`**ADDRESS:**\n${address}`);
+      sections.push(`**BUSINESS INFO:**\n${searchResults.slice(0, 5).map(r => 
+        `• ${r.title}: ${r.snippet?.substring(0, 150) || ''}`
+      ).join('\n')}`);
+      
+      const summary = sections.join('\n\n');
 
       // Extract photos from various sources
       const photos: string[] = [];
       
-      // Add images from Perplexity response
-      if (response.images && response.images.length > 0) {
-        photos.push(...response.images);
-      }
-
-      // Extract from response summary text
+      // Extract image URLs from search result snippets and URLs
       const imageUrlRegex = /https?:\/\/[^\s\]\)"']+\.(jpg|jpeg|png|webp|gif)/gi;
-      const foundUrls = (response.summary || '').match(imageUrlRegex) || [];
+      const foundUrls = allContent.match(imageUrlRegex) || [];
       photos.push(...foundUrls);
-
-      // Extract business info from the summary (parse the structured response)
-      const extractInfo = (text: string, pattern: RegExp): string | undefined => {
-        const match = text.match(pattern);
-        return match ? match[1].trim() : undefined;
-      };
-
-      const summary = response.summary || '';
-      const website = extractInfo(summary, /\*\*OFFICIAL WEBSITE:\*\*\s*\n([^\n]+)/);
-      const phone = extractInfo(summary, /phone[:\s]+([0-9-().\s]+)/i);
-      const address = extractInfo(summary, /address[:\s]+([^\n]+)/i);
+      
+      // Check result URLs for image files
+      for (const result of searchResults) {
+        if (result.url && /\.(jpg|jpeg|png|webp|gif)(?:\?|$)/i.test(result.url)) {
+          photos.push(result.url);
+        }
+      }
       
       // Try to scrape the website if found
       if (website && website !== 'Not found' && website.includes('http')) {
@@ -1257,12 +2034,12 @@ Note: If location is uncertain, search broadly and include any businesses with t
           description: summary.substring(0, 500)
         },
         photos: [...new Set(photos)].slice(0, 50), // Dedupe and limit
-        sources: response.sources || [],
+        sources: sources || [],
         timestamp: Date.now(),
         serviceId,
         serviceName,
         location: searchLocation,
-        rawPerplexityContent: response.summary
+        rawPerplexityContent: summary
       };
 
       // Cache the result in memory only (ServiceEnrichmentCache doesn't persist to database)

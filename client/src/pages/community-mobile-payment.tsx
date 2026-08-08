@@ -11,6 +11,7 @@ import { apiRequest } from '@/lib/queryClient';
 import PaymentJourneyTracker, { COMMUNITY_PAYMENT_STEPS, PaymentStep } from '@/components/PaymentJourneyTracker';
 import { useAuth } from '@/hooks/useAuth';
 import { getCommunityTier, COMMUNITY_TIERS, LEGACY_TIER_MAPPING } from '@shared/tiers';
+import { PAID_TIERS_DISABLED, CONTACT_SALES_MAILTO } from '@/lib/feature-flags';
 
 // Map tier IDs to icons and colors for visual representation
 const TIER_VISUALS = {
@@ -232,6 +233,51 @@ export default function CommunityMobilePayment() {
         <NavigationHeader />
         <div className="flex items-center justify-center min-h-[60vh]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      </div>
+    );
+  }
+
+  // If paid tiers are disabled and this is not the free tier, show Coming Soon
+  if (PAID_TIERS_DISABLED && actualTierId !== 'free' && tierInfo) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <NavigationHeader />
+        <div className="container mx-auto px-4 py-12">
+          <Card className="max-w-md mx-auto text-center">
+            <CardHeader>
+              <div className="flex justify-center mb-4">
+                <Icon className="h-12 w-12 text-gray-400" />
+              </div>
+              <CardTitle className="text-2xl">{tierInfo.displayName}</CardTitle>
+              <div className="mt-2">
+                <span className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-sm font-semibold px-3 py-1 rounded-full">
+                  Coming Soon
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-gray-600 dark:text-gray-400">
+                This subscription tier is not yet available for purchase. We're working hard to bring it to you soon!
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500">
+                Interested in early access? Reach out to our sales team.
+              </p>
+              <Button
+                onClick={() => window.open(CONTACT_SALES_MAILTO, '_blank')}
+                className="w-full bg-gray-600 hover:bg-gray-700 text-white"
+              >
+                Contact Sales →
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setLocation('/community-portal')}
+                className="w-full"
+              >
+                Return to Community Portal
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );

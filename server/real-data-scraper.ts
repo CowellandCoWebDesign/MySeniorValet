@@ -1,5 +1,8 @@
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
+import { lazyModule } from './utils/lazy-load';
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import('cheerio')>('cheerio');
 import { InsertCommunity } from '@shared/schema';
 import { storage } from './storage';
 

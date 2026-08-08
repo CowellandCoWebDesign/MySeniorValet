@@ -5,9 +5,11 @@ import { LocationInfo, LocationSEOService } from '@/services/locationSEO.service
 interface LocationSEOHeadProps {
   location: LocationInfo;
   pageType?: string;
+  /** noindex,FOLLOW when the location has no indexable community (docs/SEO_INDEXING_ELIGIBILITY.md) */
+  noindex?: boolean;
 }
 
-export function LocationSEOHead({ location, pageType = 'search' }: LocationSEOHeadProps) {
+export function LocationSEOHead({ location, pageType = 'search', noindex = false }: LocationSEOHeadProps) {
   const title = LocationSEOService.generateTitle(location, pageType);
   const description = LocationSEOService.generateDescription(location);
   const keywords = LocationSEOService.generateKeywords(location).join(', ');
@@ -24,6 +26,7 @@ export function LocationSEOHead({ location, pageType = 'search' }: LocationSEOHe
       <meta name="title" content={title} />
       <meta name="description" content={description} />
       <meta name="keywords" content={keywords} />
+      {noindex && <meta name="robots" content="noindex, follow" />}
       
       <link rel="canonical" href={canonicalUrl} />
       

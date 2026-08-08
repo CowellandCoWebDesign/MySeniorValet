@@ -147,7 +147,7 @@ const tutorialSteps: TutorialStep[] = [
   {
     id: 'success-ready',
     title: 'You\'re Ready for Success!',
-    description: 'Join 34,000+ communities already connecting with families',
+    description: 'Join communities already connecting with families',
     icon: CheckCircle2,
     character: 'builder',
     content: 'That\'s it! You now know everything you need to create a successful community profile. Remember - families love transparency! Show your availability, pricing, and respond to reviews to build trust and fill beds faster.',

@@ -1,13 +1,14 @@
-import OpenAI from 'openai';
-import Anthropic from '@anthropic-ai/sdk';
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from '../utils/lazy-load';
+import type Anthropic from '@anthropic-ai/sdk';
 
-const openai = new OpenAI({ 
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ 
   apiKey: process.env.OPENAI_API_KEY 
-});
+}));
 
-const anthropic = new Anthropic({
+const anthropic = lazyClient<Anthropic>(() => new (requireModule('@anthropic-ai/sdk').default)({
   apiKey: process.env.ANTHROPIC_API_KEY || ''
-});
+}));
 
 export interface ThematicImagePrompt {
   vendorName: string;
@@ -78,7 +79,7 @@ const vendorThemes: Record<string, string> = {
 async function generateClaudeEnhancedPrompt(vendorName: string, baseTheme: string): Promise<string> {
   try {
     const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
+      model: "claude-sonnet-4-5-20250929",
       max_tokens: 300,
       messages: [{
         role: "user",

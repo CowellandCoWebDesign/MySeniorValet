@@ -1,8 +1,9 @@
 import { type Express } from "express";
 import { db } from "../db";
 import { communities } from "@shared/schema";
-import { and, sql, between, isNotNull } from "drizzle-orm";
+import { and, or, eq, desc, sql, between, isNotNull } from "drizzle-orm";
 import { superclusterService } from "../services/supercluster";
+import { verifiedOnlyFilter, supportingEligibilityFilter } from "../utils/community-ranking";
 
 export function registerMappingRoutes(app: Express) {
   
@@ -11,7 +12,7 @@ export function registerMappingRoutes(app: Express) {
   // NEW: Raw markers endpoint for frontend clustering with react-leaflet-cluster
   app.get("/api/communities/markers", async (req, res) => {
     try {
-      const { west, south, east, north, limit = 10000 } = req.query;
+      const { west, south, east, north, limit = 10000, verifiedOnly, includeHud } = req.query;
       
       if (!west || !south || !east || !north) {
         return res.status(400).json({ 
@@ -23,8 +24,20 @@ export function registerMappingRoutes(app: Express) {
       const southFloat = parseFloat(south as string);
       const eastFloat = parseFloat(east as string);
       const northFloat = parseFloat(north as string);
+
+      // Optional family "verified only" filter — when on, only verified/featured/
+      // HUD/claimed communities are returned, so the frontend cluster counts
+      // (computed from these markers) stay accurate too.
+      const verifiedOnlyEnabled = verifiedOnly === 'true' || verifiedOnly === '1';
+      const verifiedClause = verifiedOnlyEnabled ? sql` AND ${verifiedOnlyFilter()}` : sql``;
+      // HUD/subsidized listings excluded by default — opt-in via includeHud=true.
+      // Shared public referral-support eligibility (Task #483) also bakes the
+      // default HUD exclusion in unless includeHud is set, so unconfirmed /
+      // excluded / non-approved records never leak onto the map.
+      const includeHudEnabled = includeHud === 'true' || includeHud === '1';
+      const eligibilityClause = await supportingEligibilityFilter({ includeHud: includeHudEnabled });
       
-      console.log(`Fetching raw markers for bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]`);
+      console.log(`Fetching raw markers for bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]${verifiedOnlyEnabled ? ' (verified only)' : ''}`);
       
       // Fetch all communities in bounds from database using raw SQL for stability
       const result = await db.execute(sql`
@@ -38,8 +51,9 @@ export function registerMappingRoutes(app: Express) {
         FROM communities
         WHERE latitude IS NOT NULL 
           AND longitude IS NOT NULL
+          AND ${eligibilityClause}
           AND latitude BETWEEN ${southFloat} AND ${northFloat}
-          AND longitude BETWEEN ${westFloat} AND ${eastFloat}
+          AND longitude BETWEEN ${westFloat} AND ${eastFloat}${verifiedClause}
         LIMIT ${parseInt(limit as string)}
       `);
       
@@ -78,7 +92,7 @@ export function registerMappingRoutes(app: Express) {
   // FIXED: Supercluster-powered clustering endpoint (kept for backward compatibility)
   app.get("/api/communities/clusters", async (req, res) => {
     try {
-      const { west, south, east, north, zoom = 10, limit = 5000 } = req.query;
+      const { west, south, east, north, zoom = 10, limit = 5000, verifiedOnly, includeHud } = req.query;
       
       if (!west || !south || !east || !north) {
         return res.status(400).json({ 
@@ -91,14 +105,15 @@ export function registerMappingRoutes(app: Express) {
       const eastFloat = parseFloat(east as string);
       const northFloat = parseFloat(north as string);
       const zoomInt = parseInt(zoom as string);
+      const verifiedOnlyEnabled = verifiedOnly === 'true' || verifiedOnly === '1';
       
-      console.log(`Clustering request: zoom=${zoomInt}, bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]`);
+      console.log(`Clustering request: zoom=${zoomInt}, bounds=[${westFloat},${southFloat},${eastFloat},${northFloat}]${verifiedOnlyEnabled ? ' (verified only)' : ''}`);
       
       // Initialize supercluster if needed
       await superclusterService.initialize();
       
       // Get clusters from supercluster
-      const clusters = await superclusterService.getClusters([westFloat, southFloat, eastFloat, northFloat], zoomInt);
+      const clusters = await superclusterService.getClusters([westFloat, southFloat, eastFloat, northFloat], zoomInt, verifiedOnlyEnabled, includeHud === 'true' || includeHud === '1');
       
       console.log(`Supercluster returned ${clusters.length} clusters/points for zoom ${zoomInt}`);
       
@@ -141,11 +156,18 @@ export function registerMappingRoutes(app: Express) {
       });
       
       // Build smart search conditions based on AI analysis
-      let searchConditions = isNotNull(communities.latitude);
+      let searchConditions: any = isNotNull(communities.latitude);
+      const literalLocations = String(location)
+        .split(",")
+        .map((part) => part.trim().toLowerCase())
+        .filter(Boolean);
+      const detectedLocations = aiAnalysis.detectedLocations?.length > 0
+        ? aiAnalysis.detectedLocations
+        : literalLocations;
       
       // Add location intelligence 
-      if (aiAnalysis.detectedLocations?.length > 0) {
-        const locationConditions = aiAnalysis.detectedLocations.map((loc: string) => 
+      if (detectedLocations.length > 0) {
+        const locationConditions = detectedLocations.map((loc: string) =>
           or(
             sql`LOWER(${communities.city}) LIKE ${`%${loc.toLowerCase()}%`}`,
             sql`LOWER(${communities.state}) LIKE ${`%${loc.toLowerCase()}%`}`,
@@ -166,7 +188,10 @@ export function registerMappingRoutes(app: Express) {
       const results = await db
         .select()
         .from(communities)
-        .where(searchConditions)
+        .where(and(
+          searchConditions,
+          await supportingEligibilityFilter({ includeHud: req.query.includeHud === 'true' }),
+        ))
         .limit(parseInt(limit as string))
         .orderBy(desc(communities.rating));
       
@@ -174,7 +199,7 @@ export function registerMappingRoutes(app: Express) {
         communities: results,
         aiAnalysis: {
           interpretedQuery: aiAnalysis.interpretation,
-          detectedLocations: aiAnalysis.detectedLocations,
+          detectedLocations,
           suggestedCareTypes: aiAnalysis.suggestedCareTypes,
           confidence: aiAnalysis.confidence
         },
@@ -200,7 +225,10 @@ export function registerMappingRoutes(app: Express) {
       const community = await db
         .select()
         .from(communities)
-        .where(eq(communities.id, parseInt(id)))
+        .where(and(
+          eq(communities.id, parseInt(id)),
+          await supportingEligibilityFilter({ includeHud: true }),
+        ))
         .limit(1);
       
       if (community.length === 0) {
@@ -230,7 +258,8 @@ export function registerMappingRoutes(app: Express) {
           avgRating: sql<number>`avg(rating)`,
           stateCount: sql<number>`count(distinct state)`
         })
-        .from(communities);
+        .from(communities)
+        .where(await supportingEligibilityFilter());
       
       res.json({
         stats: stats[0],

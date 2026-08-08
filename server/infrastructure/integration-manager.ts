@@ -213,7 +213,7 @@ class IntegrationManager {
         status: 'inactive',
         config: {
           settings: {
-            phoneNumber: '+1-855-MY-VALET',
+            phoneNumber: '530-776-4220',
             autoResponders: true,
             callRecording: true
           }

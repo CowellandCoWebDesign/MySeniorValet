@@ -10,7 +10,12 @@ import { NavigationHeader } from "@/components/NavigationHeader";
 import { BreadcrumbNavigation } from "@/components/BreadcrumbNavigation";
 import { CommunityDetailsHeader } from '@/components/CommunityDetailsHeader';
 import { AuthenticPricingDisplay } from "@/components/AuthenticPricingDisplay";
-import { LiveWebIntelligence } from "@/components/LiveWebIntelligence";
+import {
+  buildProfileFacts,
+  QuickFactsStrip,
+  CostsSection,
+  DataSourcesLine,
+} from "@/components/CommunityProfileSections";
 import { CommunityReviews } from '@/components/CommunityReviews';
 import { TourScheduler } from "@/components/TourScheduler";
 import { MessageCommunityButton } from "@/components/message-community-button";
@@ -30,6 +35,7 @@ export default function CommunitySEO() {
   const [location, setLocation] = useLocation();
   const [showAllAmenities, setShowAllAmenities] = useState(false);
   const [showAllCareServices, setShowAllCareServices] = useState(false);
+  const [costsRevealed, setCostsRevealed] = useState(false);
 
   // Fetch community data using the SEO-friendly URL
   const { data: community, isLoading, error } = useQuery<Community>({
@@ -38,6 +44,13 @@ export default function CommunitySEO() {
     staleTime: 30 * 60 * 1000, // Consider data fresh for 30 minutes
     gcTime: 2 * 60 * 60 * 1000, // Keep in cache for 2 hours even when component unmounts
   });
+
+  // Consolidated profile facts from persisted structuredFacts (no live
+  // verification report on the SEO page — persisted enrichment data only).
+  const profileFacts = React.useMemo(
+    () => buildProfileFacts(community, null),
+    [community]
+  );
 
   // Generate breadcrumb items
   const breadcrumbItems = [
@@ -300,16 +313,16 @@ export default function CommunitySEO() {
               </Card>
             )}
 
-            {/* Live Web Intelligence */}
-            {community.competitiveAnalysis && (
-              <LiveWebIntelligence 
-                communityId={community.id}
-                communityName={community.name}
-                city={community.city}
-                state={community.state}
-                comprehensiveData={community.competitiveAnalysis}
-              />
-            )}
+            {/* Consolidated profile sections (Task #398) — fed by persisted
+                structuredFacts via buildProfileFacts, replacing the retired
+                Live Web Intelligence card and its label-based parsers. */}
+            <QuickFactsStrip community={community} profile={profileFacts} />
+            <CostsSection
+              profile={profileFacts}
+              revealed={costsRevealed}
+              onReveal={() => setCostsRevealed(true)}
+            />
+            <DataSourcesLine profile={profileFacts} />
 
             {/* Reviews */}
             <CommunityReviews 

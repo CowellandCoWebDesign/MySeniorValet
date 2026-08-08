@@ -41,8 +41,10 @@ import {
   Smartphone
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useQuery } from "@tanstack/react-query";
 import { Footer } from "@/components/footer";
 import { PersonalizedBanner } from "@/components/onboarding/PersonalizedBanner";
@@ -84,6 +86,7 @@ interface TourRequest {
 export default function Dashboard() {
   const { toast } = useToast();
   const { user, isLoading: authLoading } = useAuth();
+  const { setShowOnboarding } = useOnboarding();
   const [location, setLocation] = useLocation();
   const [savedCommunities, setSavedCommunities] = useState<SavedCommunity[]>([]);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
@@ -95,7 +98,7 @@ export default function Dashboard() {
   const userEmail = (user as any)?.email;
   const isSuperAdmin = userRole === 'super_admin' || 
                        userEmail === 'william.cowell01@gmail.com' || 
-                       userEmail === 'admin@myseniorvalet.com';
+                       userEmail === 'hello@myseniorvalet.com';
   
   // Log for debugging
   console.log('Dashboard immediate check:', {
@@ -144,6 +147,19 @@ export default function Dashboard() {
     preferredLocation: ''
   });
 
+  // Fire the onboarding wizard immediately after a brand-new family signup
+  useEffect(() => {
+    if (sessionStorage.getItem('newSignup') === 'true') {
+      sessionStorage.removeItem('newSignup');
+      const pendingZip = sessionStorage.getItem('pendingZipCode');
+      if (pendingZip) {
+        localStorage.setItem('myseniorvalet_onboarding_pending_zip', pendingZip);
+        sessionStorage.removeItem('pendingZipCode');
+      }
+      setShowOnboarding(true);
+    }
+  }, [setShowOnboarding]);
+
   // Parse URL query parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -183,10 +199,10 @@ export default function Dashboard() {
       navigator.share({
         title: community.name,
         text: shareText,
-        url: `${window.location.origin}/community/${community.id}`
+        url: `${window.location.origin}${getCommunityUrl(community)}`
       });
     } else {
-      navigator.clipboard.writeText(`${shareText} - ${window.location.origin}/community/${community.id}`);
+      navigator.clipboard.writeText(`${shareText} - ${window.location.origin}${getCommunityUrl(community)}`);
       toast({
         title: "Link Copied",
         description: "Community link has been copied to clipboard.",
@@ -724,7 +740,7 @@ export default function Dashboard() {
 
                         {/* Action Buttons */}
                         <div className="pt-3 border-t border-gray-200 dark:border-gray-700 flex gap-2">
-                          <Link to={`/community/${community.id}`}>
+                          <Link to={getCommunityUrl(community)}>
                             <Button 
                               size="sm" 
                               className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg"

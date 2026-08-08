@@ -75,10 +75,15 @@ router.post('/communities/:id/pricing', async (req, res) => {
       .insert(pricingHistory)
       .values({
         communityId,
-        ...validatedData,
+        priceType: validatedData.priceType,
+        priceAmount: validatedData.priceAmount?.toString(),
+        priceMin: validatedData.priceMin?.toString(),
+        priceMax: validatedData.priceMax?.toString(),
         effectiveDate: validatedData.effectiveDate || new Date().toISOString().split('T')[0],
+        source: validatedData.source,
+        notes: validatedData.notes,
         verificationStatus: 'verified',
-        verifiedBy: 'community_owner', // TODO: Use actual user ID
+        verifiedBy: 'community_owner',
         verifiedAt: new Date()
       })
       .returning();

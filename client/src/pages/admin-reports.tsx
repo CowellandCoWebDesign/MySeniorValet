@@ -188,7 +188,7 @@ export default function AdminReports() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">Communities</p>
-                  <p className="text-2xl font-bold mt-1">34,180</p>
+                  <p className="text-2xl font-bold mt-1">—</p>
                   <div className="flex items-center mt-2">
                     <Building2 className="h-4 w-4 text-purple-600 mr-1" />
                     <span className="text-sm text-gray-600">All 50 states</span>

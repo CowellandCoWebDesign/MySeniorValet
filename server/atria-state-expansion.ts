@@ -1,6 +1,7 @@
 import { db } from "./db";
 import { communities } from "@shared/schema";
 import { or, like } from "drizzle-orm";
+import { sanitizeWebsiteUrl } from "./utils/website-url";
 
 interface AtriaProperty {
   name: string;
@@ -617,7 +618,7 @@ export class AtriaStateExpansionService {
             state: atriaProperty.state,
             zipCode: atriaProperty.zipCode,
             phone: atriaProperty.phone,
-            website: atriaProperty.website,
+            website: sanitizeWebsiteUrl(atriaProperty.website),
             careTypes: atriaProperty.careTypes,
             amenities: atriaProperty.amenities || []
           });

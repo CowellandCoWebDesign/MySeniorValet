@@ -11,10 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useQuery } from "@tanstack/react-query";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { MoveInCostCalculator } from "@/components/MoveInCostCalculator";
 import { EnhancedPhotoCarousel } from "@/components/EnhancedPhotoCarousel";
 import { useToast } from "@/hooks/use-toast";
+import { getCommunityUrl } from "@/lib/community-url";
 
 // Mock data for red tag examples (same as before)
 const redTagExamples = {
@@ -188,6 +190,24 @@ export default function RedTagExamplePage() {
   const slug = params?.communitySlug || 'sunrise-senior-living';
   const community = redTagExamples[slug as keyof typeof redTagExamples];
 
+  // Resolve the real community's clean SEO URL from its ID so the "View Authentic
+  // Listing" link skips the extra /community/{id} -> /senior-living redirect hop.
+  const actualCommunityId = community?.actualCommunityId;
+  const { data: authenticCommunity } = useQuery<{
+    id: number;
+    name: string;
+    city: string;
+    state: string;
+    slug?: string | null;
+  }>({
+    queryKey: [`/api/communities/${actualCommunityId}`],
+    enabled: !!actualCommunityId,
+  });
+
+  const authenticListingHref = authenticCommunity
+    ? getCommunityUrl(authenticCommunity)
+    : `/community/${actualCommunityId}`;
+
   if (!community) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -224,7 +244,7 @@ export default function RedTagExamplePage() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Link href={`/community/${community.actualCommunityId}`}>
+                <Link href={authenticListingHref}>
                   <Button variant="outline" size="sm" className="text-blue-600 bg-white hover:bg-gray-100">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     View Authentic Listing
@@ -737,7 +757,7 @@ export default function RedTagExamplePage() {
                     This is an example of how verified community specials will appear. Contact the actual community for real availability and pricing.
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link href={`/community/${community.actualCommunityId}`}>
+                    <Link href={authenticListingHref}>
                       <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                         <ExternalLink className="w-4 h-4 mr-2" />
                         View Authentic Listing

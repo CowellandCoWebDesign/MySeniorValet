@@ -18,13 +18,18 @@ export function generateStructuredData(
 
 // Schema for individual community/facility
 function generateCommunitySchema(community: Community, baseUrl: string): any {
+  const stateSlug = ((community as any).stateSlug as string | undefined) || community.state.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  const citySlug = ((community as any).citySlug as string | undefined) || community.city.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '');
+  const nameSlug = ((community as any).slug as string | undefined) || community.name.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/g, '') || `community-${community.id}`;
+  const seoUrl = `${baseUrl}/senior-living/${stateSlug}/${citySlug}/${nameSlug}`;
+
   const schema: any = {
     '@context': 'https://schema.org',
     '@type': determineSeniorHousingType(community.careTypes),
-    '@id': `${baseUrl}/community/${community.id}`,
+    '@id': seoUrl,
     'name': community.name,
     'description': community.description || `${community.name} - Senior housing in ${community.city}, ${community.state}`,
-    'url': `${baseUrl}/community/${community.id}`,
+    'url': seoUrl,
     'telephone': community.phone,
     'address': {
       '@type': 'PostalAddress',
@@ -175,9 +180,9 @@ export function generateDirectorySchema(baseUrl: string): any {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     'name': 'Senior Housing Directory - All Types of Senior Living Options',
-    'description': 'Comprehensive directory of 33,500+ senior housing options including assisted living facilities, HUD housing, RV parks, memory care, skilled nursing, and more.',
+    'description': 'Comprehensive directory of senior housing options including assisted living facilities, HUD housing, RV parks, memory care, skilled nursing, and more.',
     'url': `${baseUrl}/community-directory`,
-    'numberOfItems': 33500,
+    'numberOfItems': 7,
     'itemListElement': [
       {
         '@type': 'ListItem',
@@ -235,17 +240,6 @@ function generateOrganizationSchema(baseUrl: string): any {
     'url': baseUrl,
     'logo': `${baseUrl}/valet-mascot.png`,
     'description': 'The trusted platform for authentic senior housing information. Comprehensive directory of all types of senior living options including facilities, HUD housing, RV parks, and more.',
-    'sameAs': [
-      'https://www.facebook.com/myseniorvalet',
-      'https://twitter.com/myseniorvalet',
-      'https://www.linkedin.com/company/myseniorvalet'
-    ],
-    'contactPoint': {
-      '@type': 'ContactPoint',
-      'telephone': '+1-555-SENIOR-1',
-      'contactType': 'Customer Service',
-      'availableLanguage': ['English', 'Spanish', 'French']
-    },
     'address': {
       '@type': 'PostalAddress',
       'addressCountry': 'US'
@@ -313,37 +307,37 @@ export function generateLocationSchema(
   const locationData: Record<string, any> = {
     'oakmont': {
       name: 'Oakmont Senior Living Communities',
-      description: '60+ luxury senior living communities across California',
+      description: 'Luxury senior living communities across California',
       areaServed: 'California'
     },
     'puerto-rico': {
       name: 'Puerto Rico Senior Living',
-      description: '50+ Caribbean senior housing options with tax benefits',
+      description: 'Caribbean senior housing options with tax benefits',
       areaServed: 'Puerto Rico'
     },
     'hawaii': {
       name: 'Hawaii Senior Living',
-      description: '55+ island senior housing communities',
+      description: 'Island senior housing communities across Hawaii',
       areaServed: 'Hawaii'
     },
     'fort-worth': {
       name: 'Fort Worth Texas Senior Housing',
-      description: '180+ senior living options in Fort Worth metropolitan area',
+      description: 'Senior living options in the Fort Worth metropolitan area',
       areaServed: 'Fort Worth, Texas'
     },
     'new-york': {
       name: 'New York Senior Housing',
-      description: '2,800+ senior living facilities across New York State',
+      description: 'Senior living facilities across New York State',
       areaServed: 'New York'
     },
     'canada': {
       name: 'Canadian Senior Housing',
-      description: '5,343 senior care facilities across Canada',
+      description: 'Senior care facilities across Canada',
       areaServed: 'Canada'
     },
     'australia': {
       name: 'Australian Aged Care',
-      description: '1,458 aged care facilities across Australia',
+      description: 'Aged care facilities across Australia',
       areaServed: 'Australia'
     }
   };

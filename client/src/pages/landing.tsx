@@ -6,8 +6,7 @@ export default function Landing() {
   const [activeFeature, setActiveFeature] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [stats, setStats] = useState({
-    aiQueries: 147892,
-    dataPoints: 32970,
+    aiQueries: 0,
     accuracy: 99.97,
     responseTime: 0.3
   });
@@ -21,7 +20,6 @@ export default function Landing() {
     const interval = setInterval(() => {
       setStats(prev => ({
         aiQueries: prev.aiQueries + Math.floor(Math.random() * 10),
-        dataPoints: 32970,
         accuracy: 99.97,
         responseTime: 0.3 + Math.random() * 0.2
       }));
@@ -115,7 +113,7 @@ export default function Landing() {
                 <div className="text-xs text-gray-400">AI Queries Processed</div>
               </div>
               <div className="bg-white/5 backdrop-blur-lg rounded-lg p-4 border border-white/10">
-                <div className="text-3xl font-bold text-blue-400">{stats.dataPoints.toLocaleString()}</div>
+                <div className="text-3xl font-bold text-blue-400">Nationwide</div>
                 <div className="text-xs text-gray-400">Communities Indexed</div>
               </div>
               <div className="bg-white/5 backdrop-blur-lg rounded-lg p-4 border border-white/10">
@@ -199,7 +197,7 @@ export default function Landing() {
             <h2 className="text-3xl font-bold mb-8">Powered By Enterprise Technology</h2>
             <div className="flex flex-wrap gap-4 justify-center">
               {[
-                "TypeScript", "React", "Node.js", "PostgreSQL", "Weaviate Vector DB",
+                "TypeScript", "React", "Node.js", "PostgreSQL",
                 "Redis Cache", "WebSockets", "Stripe", "SendGrid", "Documenso",
                 "ChatGPT API", "Claude API", "Perplexity API", "Framer Motion", "Drizzle ORM"
               ].map((tech) => (

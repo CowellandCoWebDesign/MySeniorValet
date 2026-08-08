@@ -1,6 +1,6 @@
 // Enhanced Multi-AI Orchestrator for MySeniorValet
 // World-changing transparency through AI cross-verification
-// Truth in Senior Living - NOT a placement agency
+// Truth in Senior Living - Transparent referral partnerships, fully disclosed
 // Ready for 4-AI orchestration with Grok
 
 import { ClaudeIntelligenceService } from './multi-ai-intelligence';
@@ -81,7 +81,7 @@ export const EnhancedMultiAIOrchestrator = {
           perplexityAnalysis, 
           crossVerification
         ),
-        disclaimer: 'MySeniorValet provides transparency and truth in senior living. We are NOT a placement agency and receive NO compensation from communities. Our AI systems work together to expose hidden information and provide families with complete transparency.',
+        disclaimer: 'MySeniorValet provides transparency and truth in senior living. We and our affiliate NorCal Senior Placement Services connect families with communities. Referral fees from participating communities are always transparently disclosed. Family research tools are free. Our AI systems work together to provide families with complete, verified information.',
         timestamp: new Date().toISOString(),
         aiServicesStatus: 'ChatGPT-5 Primary, Claude Secondary, Perplexity Third - Streamlined AI Services'
       };

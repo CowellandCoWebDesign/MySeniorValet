@@ -196,13 +196,14 @@ export async function sendCommunityWelcomeEmail(
       return;
     }
 
-    const dashboardUrl = `https://myseniorvalet.com/community/${communityId}`;
-    const portalUrl = `https://myseniorvalet.com/community-portal-integrated`;
+    const dashboardUrl = `https://www.myseniorvalet.com/community/${communityId}`;
+    const portalUrl = `https://www.myseniorvalet.com/community-portal-integrated`;
 
     const msg = {
       to: customerEmail,
       from: 'hello@myseniorvalet.com',
-      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
+      replyTo: 'CowellandCoWebDesign@gmail.com',
+      bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `🎉 Welcome to MySeniorValet ${tierInfo.name} - ${community.name}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -312,13 +313,14 @@ export async function sendVendorWelcomeEmail(
       return;
     }
 
-    const dashboardUrl = `https://myseniorvalet.com/vendor-dashboard`;
-    const marketplaceUrl = `https://myseniorvalet.com/vendor-marketplace`;
+    const dashboardUrl = `https://www.myseniorvalet.com/vendor-dashboard`;
+    const marketplaceUrl = `https://www.myseniorvalet.com/vendor-marketplace`;
 
     const msg = {
       to: customerEmail,
       from: 'hello@myseniorvalet.com',
-      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
+      replyTo: 'CowellandCoWebDesign@gmail.com',
+      bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `🎉 Welcome to MySeniorValet ${tierInfo.name} - ${vendor.businessName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">

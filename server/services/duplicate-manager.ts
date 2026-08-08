@@ -1,6 +1,7 @@
 import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, and, sql, inArray, desc, isNotNull, isNull } from 'drizzle-orm';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 export interface DuplicateGroup {
   name: string;
@@ -161,7 +162,8 @@ export class DuplicateManager {
       }
       
       // Take better data if keeper is missing it
-      if (!keeper.website && dup.website) updates.website = dup.website;
+      const dupWebsite = sanitizeWebsiteUrl(dup.website);
+      if (!keeper.website && dupWebsite) updates.website = dupWebsite;
       if (!keeper.phone && dup.phone) updates.phone = dup.phone;
       if (!keeper.description && dup.description) updates.description = dup.description;
       if (!keeper.hudPropertyId && dup.hudPropertyId) updates.hudPropertyId = dup.hudPropertyId;

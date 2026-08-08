@@ -1,5 +1,6 @@
 // Facebook Marketing API Integration for Family-Targeted Advertising
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class FacebookMarketingIntegration {
   private accessToken: string;
@@ -94,13 +95,13 @@ export class FacebookMarketingIntegration {
             page_id: process.env.FACEBOOK_PAGE_ID,
             link_data: {
               image_url: campaignData.adCreative.imageUrl,
-              link: `https://myseniorvalet.com/community/${campaignData.communityId}?utm_source=facebook&utm_campaign=family_targeted`,
+              link: `https://www.myseniorvalet.com/community/${campaignData.communityId}?utm_source=facebook&utm_campaign=family_targeted`,
               message: campaignData.adCreative.description,
               name: campaignData.adCreative.headline,
               call_to_action: {
                 type: 'LEARN_MORE',
                 value: {
-                  link: `https://myseniorvalet.com/community/${campaignData.communityId}?utm_source=facebook&utm_campaign=family_targeted`
+                  link: `https://www.myseniorvalet.com/community/${campaignData.communityId}?utm_source=facebook&utm_campaign=family_targeted`
                 }
               }
             }

@@ -12,7 +12,18 @@ import {
   Stethoscope, Car, ShoppingBasket, Utensils, Monitor, MessageSquare, Pill
 } from "lucide-react";
 import { Link, useLocation } from "wouter";
+import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
+
+interface DisplayResource {
+  category: string;
+  name: string;
+  description: string;
+  phone?: string;
+  website?: string;
+  icon: any;
+  color: string;
+}
 
 interface ResourceCategory {
   id: number;
@@ -37,7 +48,7 @@ export default function SeniorResourcesCenter() {
     queryKey: ['/api/resources'],
   });
 
-  const { data: resourceCategories } = useQuery({
+  const { data: resourceCategories } = useQuery<string[]>({
     queryKey: ['/api/resources/categories'],
   });
 
@@ -381,6 +392,16 @@ export default function SeniorResourcesCenter() {
       color: "from-orange-500 to-red-500",
       items: ["Warning Signs", "Care Stages", "Communication", "Support"],
       badge: "SPECIALIZED"
+    },
+    {
+      id: 9,
+      name: "Medicare Complete Guide",
+      description: "Everything about Medicare coverage",
+      icon: Shield,
+      link: "/resources/medicare-guide",
+      color: "from-blue-500 to-indigo-500",
+      items: ["Parts A, B, C, D Explained", "Enrollment Periods", "2025 Costs & Coverage"],
+      badge: "2025 UPDATED"
     }
   ];
 
@@ -441,7 +462,7 @@ export default function SeniorResourcesCenter() {
       name: "Legal Resources",
       description: "Elder law and legal documents",
       icon: Briefcase,
-      link: "/legal-resources",
+      link: "/legal-notice",
       color: "from-gray-500 to-slate-600"
     },
     {
@@ -464,8 +485,13 @@ export default function SeniorResourcesCenter() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+      <Helmet>
+        <title>Senior Resources & Support Center | MySeniorValet</title>
+        <meta name="description" content="Your hub for senior support: the A–Z Senior Resource Directory, government programs, educational guides, caregiver tools, and 24/7 help lines — all free to use." />
+        <link rel="canonical" href="https://www.myseniorvalet.com/senior-resources-center" />
+      </Helmet>
       <NavigationHeader />
-      
+      <main>
       {/* Page Header */}
       <section className="px-4 py-12 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
         <div className="max-w-6xl mx-auto text-center">
@@ -486,8 +512,8 @@ export default function SeniorResourcesCenter() {
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Book className="h-6 w-6 text-white mx-auto mb-1" />
-                  <div className="text-2xl font-bold text-white">100+</div>
-                  <div className="text-xs text-purple-100">Resources</div>
+                  <div className="text-2xl font-bold text-white">A–Z</div>
+                  <div className="text-xs text-purple-100">Directory</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
@@ -500,8 +526,8 @@ export default function SeniorResourcesCenter() {
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                 <CardContent className="p-4 text-center">
                   <Shield className="h-6 w-6 text-white mx-auto mb-1" />
-                  <div className="text-2xl font-bold text-white">50+</div>
-                  <div className="text-xs text-purple-100">Programs</div>
+                  <div className="text-2xl font-bold text-white">Verified</div>
+                  <div className="text-xs text-purple-100">Local Listings</div>
                 </CardContent>
               </Card>
               <Card className="bg-white/10 backdrop-blur-sm border-white/20">
@@ -514,125 +540,257 @@ export default function SeniorResourcesCenter() {
             </div>
 
             {/* Quick Access Button */}
-            <Button 
+            <Button asChild
               size="lg"
               className="bg-white text-purple-600 hover:bg-gray-100 font-semibold shadow-xl"
-              onClick={() => {
-                document.getElementById('educational-resources')?.scrollIntoView({ behavior: 'smooth' });
-                setExpandedEducational(1); // Expand the Care Guide
-              }}
             >
-              <Zap className="mr-2 h-5 w-5" />
-              Start with Care Guide
+              <Link href="/senior-resources">
+                <Zap className="mr-2 h-5 w-5" />
+                Browse the Resource Directory
+              </Link>
             </Button>
           </motion.div>
         </div>
       </section>
 
-      {/* Featured Resources Section - Real Links */}
+      {/* Senior Resource Directory — lead section */}
       <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Featured Essential Resources
+              Senior Resource Directory
             </h2>
-            <p className="text-lg text-gray-600 dark:text-gray-400">
-              Click to explore comprehensive guides and official information
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Hand-verified local listings — real addresses, phone numbers, and hours — for
+              Northern California, plus statewide California and national programs.
             </p>
           </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Medicare Guide Card with Real Link */}
-            <Link href="/resources/medicare-guide">
-              <Card className="h-full hover:shadow-2xl transition-all duration-300 cursor-pointer border-2 hover:border-blue-400">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-indigo-500 opacity-5"></div>
-                <CardHeader>
-                  <Badge className="w-fit mb-2 bg-blue-600 text-white">2025 UPDATED</Badge>
-                  <CardTitle className="text-xl">Medicare Complete Guide</CardTitle>
-                  <CardDescription>Everything about Medicare coverage</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-gray-500" />
-                      <span>Parts A, B, C, D Explained</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-gray-500" />
-                      <span>Enrollment Periods</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-gray-500" />
-                      <span>2025 Costs & Coverage</span>
-                    </div>
-                  </div>
-                  <Button className="w-full mt-4" variant="default">
-                    Read Full Guide →
-                  </Button>
-                </CardContent>
-              </Card>
-            </Link>
 
-            {/* Social Security Guide - Coming Soon */}
-            <Card className="h-full opacity-75 border-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-emerald-500 opacity-5"></div>
-              <CardHeader>
-                <Badge className="w-fit mb-2" variant="secondary">COMING SOON</Badge>
-                <CardTitle className="text-xl">Social Security Benefits</CardTitle>
-                <CardDescription>Complete benefits guide</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-gray-500" />
-                    <span>Retirement Benefits</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Heart className="h-4 w-4 text-gray-500" />
-                    <span>Survivor Benefits</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Calculator className="h-4 w-4 text-gray-500" />
-                    <span>Benefit Calculator</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-4" variant="outline" disabled>
-                  Guide Coming Soon
-                </Button>
-              </CardContent>
-            </Card>
+          {/* Jump straight to a category */}
+          <div className="flex flex-wrap justify-center gap-2 mb-6">
+            {[
+              { label: "Food Assistance", anchor: "food-assistance" },
+              { label: "Meals on Wheels", anchor: "meals-on-wheels" },
+              { label: "In-Home Care (IHSS)", anchor: "in-home-supportive-services" },
+              { label: "Veterans Resources", anchor: "veterans-resources" },
+              { label: "Medicare Counseling", anchor: "medicare-benefits-counseling" },
+              { label: "Transportation", anchor: "transportation" },
+              { label: "Utility Bill Help", anchor: "utility-bill-assistance" },
+              { label: "Affordable Housing", anchor: "affordable-senior-housing" },
+              { label: "Caregiver Support", anchor: "caregiver-support" },
+            ].map((c) => (
+              <Button asChild key={c.anchor} variant="outline" size="sm" className="rounded-full">
+                <Link href={`/senior-resources#${c.anchor}`}>{c.label}</Link>
+              </Button>
+            ))}
+          </div>
 
-            {/* Medicaid Guide - Coming Soon */}
-            <Card className="h-full opacity-75 border-2">
-              <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-500 opacity-5"></div>
-              <CardHeader>
-                <Badge className="w-fit mb-2" variant="secondary">COMING SOON</Badge>
-                <CardTitle className="text-xl">Medicaid Eligibility</CardTitle>
-                <CardDescription>State-by-state requirements</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500" />
-                    <span>State Requirements</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-gray-500" />
-                    <span>Application Process</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Home className="h-4 w-4 text-gray-500" />
-                    <span>Asset Protection</span>
-                  </div>
-                </div>
-                <Button className="w-full mt-4" variant="outline" disabled>
-                  Guide Coming Soon
-                </Button>
-              </CardContent>
-            </Card>
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mb-6">
+            Verified local coverage: Butte, Glenn, Humboldt, Lassen, Mendocino, Modoc, Shasta,
+            Siskiyou, Tehama, Trinity &amp; Yuba Counties — need help right now? Dial 2-1-1.
+          </p>
+
+          <div className="text-center">
+            <Button asChild size="lg" className="bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-xl">
+              <Link href="/senior-resources">
+                <Book className="mr-2 h-5 w-5" />
+                Open the Full A–Z Directory
+              </Link>
+            </Button>
           </div>
         </div>
       </section>
+
+      {/* Comprehensive Government Programs & Resources Section */}
+      <section className="px-4 py-16 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+              Government Programs & Resources
+            </h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
+              Essential government programs, support services, and resources for seniors and caregivers
+            </p>
+            
+            {/* Resource Counter */}
+            <div className="mt-6 inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 px-6 py-3 rounded-full">
+              <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <span className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                {hasApiData ? apiResources.length : 32} Verified Government Resources
+              </span>
+            </div>
+          </div>
+
+          {/* Filter by Category */}
+          <div className="mb-8 flex flex-wrap justify-center gap-2">
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              All Resources (32)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Healthcare (4)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Financial (3)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Support (4)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Nutrition (3)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Transportation (2)
+            </Badge>
+            <Badge 
+              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
+              variant="outline"
+            >
+              Veterans (2)
+            </Badge>
+          </div>
+
+          {/* Resources Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {(hasApiData ? apiResources.map((resource: any) => ({
+              category: resource.category || 'Support',
+              name: resource.title,
+              description: resource.description,
+              phone: resource.phoneNumber,
+              website: resource.website,
+              icon: resource.icon === 'Stethoscope' ? Stethoscope :
+                    resource.icon === 'DollarSign' ? DollarSign :
+                    resource.icon === 'Shield' ? Shield :
+                    resource.icon === 'Users' ? Users :
+                    resource.icon === 'Brain' ? Brain :
+                    resource.icon === 'Heart' ? Heart :
+                    resource.icon === 'ShoppingBasket' ? ShoppingBasket :
+                    resource.icon === 'Pill' ? Pill :
+                    resource.icon === 'Home' ? Home :
+                    resource.icon === 'Utensils' ? Utensils :
+                    resource.icon === 'Car' ? Car :
+                    resource.icon === 'Monitor' ? Monitor :
+                    resource.icon === 'MessageSquare' ? MessageSquare :
+                    resource.icon === 'Phone' ? Phone :
+                    resource.icon === 'GraduationCap' ? GraduationCap :
+                    resource.icon === 'Book' ? Book :
+                    resource.icon === 'Building' ? Building : Users,
+              color: resource.categoryColor || 'blue'
+            })) : governmentResources).map((resource: DisplayResource, index: number) => {
+              const Icon = resource.icon;
+              const colorMap: Record<string, string> = {
+                blue: 'from-blue-500 to-blue-600',
+                green: 'from-green-500 to-green-600',
+                red: 'from-red-500 to-red-600',
+                purple: 'from-purple-500 to-purple-600',
+                orange: 'from-orange-500 to-orange-600',
+                cyan: 'from-cyan-500 to-cyan-600',
+                emerald: 'from-emerald-500 to-emerald-600',
+                yellow: 'from-yellow-500 to-yellow-600',
+                rose: 'from-rose-500 to-rose-600'
+              };
+              
+              return (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.02 }}
+                >
+                  <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-400 group cursor-pointer"
+                    onClick={() => window.open(resource.website, '_blank')}
+                  >
+                    <CardContent className="p-4">
+                      {/* Category Badge */}
+                      <Badge className="mb-3 text-xs" variant="secondary">
+                        {resource.category}
+                      </Badge>
+                      
+                      {/* Icon and Title */}
+                      <div className="flex items-start gap-3 mb-3">
+                        <div className={`p-2 rounded-lg bg-gradient-to-br ${colorMap[resource.color]} text-white flex-shrink-0`}>
+                          <Icon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm mb-1">
+                            {resource.name}
+                          </h3>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
+                            {resource.description}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      {/* Contact Information */}
+                      <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        {resource.phone && (
+                          <a 
+                            href={`tel:${resource.phone.replace(/[^0-9]/g, '')}`}
+                            className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Phone className="h-3 w-3" />
+                            <span className="font-medium">{resource.phone}</span>
+                          </a>
+                        )}
+                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <Globe className="h-3 w-3" />
+                          <span className="truncate">Visit Website →</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              );
+            })}
+          </div>
+
+          {/* Help Section */}
+          <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border-2 border-blue-200 dark:border-blue-700">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                Need Help Finding the Right Resource?
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
+                Our team is here to help you navigate these resources and find the support you need. 
+                Contact us for personalized assistance.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Link href="/contact">
+                    <Phone className="mr-2 h-5 w-5" />
+                    Contact Support Team
+                  </Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20">
+                  <Link href="/ai-matching-assistant">
+                    <Brain className="mr-2 h-5 w-5" />
+                    Get AI Assistance
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* Database Resources Section */}
       {resources && resources.length > 0 && (
@@ -941,199 +1099,6 @@ export default function SeniorResourcesCenter() {
 
 
 
-      {/* Comprehensive Government Programs & Resources Section */}
-      <section className="px-4 py-16 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-gray-900 dark:to-gray-800">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-              Government Programs & Resources
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
-              Essential government programs, support services, and resources for seniors and caregivers
-            </p>
-            
-            {/* Resource Counter */}
-            <div className="mt-6 inline-flex items-center gap-2 bg-blue-100 dark:bg-blue-900/30 px-6 py-3 rounded-full">
-              <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              <span className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-                {hasApiData ? apiResources.length : 32} Verified Government Resources
-              </span>
-            </div>
-          </div>
-
-          {/* Filter by Category */}
-          <div className="mb-8 flex flex-wrap justify-center gap-2">
-            <Badge 
-              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
-              variant="outline"
-            >
-              All Resources (32)
-            </Badge>
-            <Badge 
-              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
-              variant="outline"
-            >
-              Healthcare (4)
-            </Badge>
-            <Badge 
-              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
-              variant="outline"
-            >
-              Financial (3)
-            </Badge>
-            <Badge 
-              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
-              variant="outline"
-            >
-              Support (4)
-            </Badge>
-            <Badge 
-              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
-              variant="outline"
-            >
-              Nutrition (3)
-            </Badge>
-            <Badge 
-              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
-              variant="outline"
-            >
-              Transportation (2)
-            </Badge>
-            <Badge 
-              className="cursor-pointer hover:bg-blue-600 hover:text-white transition-colors"
-              variant="outline"
-            >
-              Veterans (2)
-            </Badge>
-          </div>
-
-          {/* Resources Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {(hasApiData ? apiResources.map((resource: any) => ({
-              category: resource.category || 'Support',
-              name: resource.title,
-              description: resource.description,
-              phone: resource.phoneNumber,
-              website: resource.website,
-              icon: resource.icon === 'Stethoscope' ? Stethoscope :
-                    resource.icon === 'DollarSign' ? DollarSign :
-                    resource.icon === 'Shield' ? Shield :
-                    resource.icon === 'Users' ? Users :
-                    resource.icon === 'Brain' ? Brain :
-                    resource.icon === 'Heart' ? Heart :
-                    resource.icon === 'ShoppingBasket' ? ShoppingBasket :
-                    resource.icon === 'Pill' ? Pill :
-                    resource.icon === 'Home' ? Home :
-                    resource.icon === 'Utensils' ? Utensils :
-                    resource.icon === 'Car' ? Car :
-                    resource.icon === 'Monitor' ? Monitor :
-                    resource.icon === 'MessageSquare' ? MessageSquare :
-                    resource.icon === 'Phone' ? Phone :
-                    resource.icon === 'GraduationCap' ? GraduationCap :
-                    resource.icon === 'Book' ? Book :
-                    resource.icon === 'Building' ? Building : Users,
-              color: resource.categoryColor || 'blue'
-            })) : governmentResources).map((resource, index) => {
-              const Icon = resource.icon;
-              const colorMap: Record<string, string> = {
-                blue: 'from-blue-500 to-blue-600',
-                green: 'from-green-500 to-green-600',
-                red: 'from-red-500 to-red-600',
-                purple: 'from-purple-500 to-purple-600',
-                orange: 'from-orange-500 to-orange-600',
-                cyan: 'from-cyan-500 to-cyan-600',
-                emerald: 'from-emerald-500 to-emerald-600',
-                yellow: 'from-yellow-500 to-yellow-600',
-                rose: 'from-rose-500 to-rose-600'
-              };
-              
-              return (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.02 }}
-                >
-                  <Card className="h-full hover:shadow-xl transition-all duration-300 border-2 hover:border-blue-400 group cursor-pointer"
-                    onClick={() => window.open(resource.website, '_blank')}
-                  >
-                    <CardContent className="p-4">
-                      {/* Category Badge */}
-                      <Badge className="mb-3 text-xs" variant="secondary">
-                        {resource.category}
-                      </Badge>
-                      
-                      {/* Icon and Title */}
-                      <div className="flex items-start gap-3 mb-3">
-                        <div className={`p-2 rounded-lg bg-gradient-to-br ${colorMap[resource.color]} text-white flex-shrink-0`}>
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm mb-1">
-                            {resource.name}
-                          </h3>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">
-                            {resource.description}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Contact Information */}
-                      <div className="space-y-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-                        <a 
-                          href={`tel:${resource.phone.replace(/[^0-9]/g, '')}`}
-                          className="flex items-center gap-2 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <Phone className="h-3 w-3" />
-                          <span className="font-medium">{resource.phone}</span>
-                        </a>
-                        <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                          <Globe className="h-3 w-3" />
-                          <span className="truncate">Visit Website →</span>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Help Section */}
-          <div className="mt-12 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 border-2 border-blue-200 dark:border-blue-700">
-            <div className="text-center">
-              <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                Need Help Finding the Right Resource?
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-2xl mx-auto">
-                Our team is here to help you navigate these resources and find the support you need. 
-                Contact us for personalized assistance.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button 
-                  size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  onClick={() => setLocation('/contact')}
-                >
-                  <Phone className="mr-2 h-5 w-5" />
-                  Contact Support Team
-                </Button>
-                <Button 
-                  size="lg"
-                  variant="outline"
-                  className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                  onClick={() => setLocation('/ai-matching-assistant')}
-                >
-                  <Brain className="mr-2 h-5 w-5" />
-                  Get AI Assistance
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* Quick Tools Section */}
       <section className="px-4 py-12 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20">
         <div className="max-w-4xl mx-auto">
@@ -1147,26 +1112,17 @@ export default function SeniorResourcesCenter() {
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {quickTools.map((tool) => (
-                  <Button 
+                  <Button asChild
                     key={tool.id}
                     variant="outline"
                     className="h-full flex flex-col items-center gap-2 py-4 hover:shadow-lg transition-all hover:border-indigo-400"
-                    onClick={() => {
-                      if (tool.link === '/map-search') {
-                        setLocation('/map-search');
-                      } else if (tool.link === '/saved') {
-                        setLocation('/saved');
-                      } else if (tool.link === '/contact') {
-                        window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                      } else if (tool.link === '/faq') {
-                        setLocation('/faq');
-                      }
-                    }}
                   >
-                    <div className={`p-2 rounded-lg bg-gradient-to-br ${tool.color} text-white`}>
-                      <tool.icon className="h-5 w-5" />
-                    </div>
-                    <span className="text-xs font-semibold text-center">{tool.name}</span>
+                    <Link href={tool.link}>
+                      <div className={`p-2 rounded-lg bg-gradient-to-br ${tool.color} text-white`}>
+                        <tool.icon className="h-5 w-5" />
+                      </div>
+                      <span className="text-xs font-semibold text-center">{tool.name}</span>
+                    </Link>
                   </Button>
                 ))}
               </div>
@@ -1185,26 +1141,22 @@ export default function SeniorResourcesCenter() {
             Our AI assistant can help you navigate all these resources
           </p>
           <div className="flex gap-4 justify-center">
-            <Button 
-              size="lg"
-              className="bg-white text-purple-600 hover:bg-gray-100 font-semibold shadow-xl"
-              onClick={() => setLocation('/ai-matching-assistant')}
-            >
-              <Brain className="mr-2 h-5 w-5" />
-              Get AI Assistance
+            <Button asChild size="lg" className="bg-white text-purple-600 hover:bg-gray-100 font-semibold shadow-xl">
+              <Link href="/ai-matching-assistant">
+                <Brain className="mr-2 h-5 w-5" />
+                Get AI Assistance
+              </Link>
             </Button>
-            <Button 
-              size="lg"
-              variant="outline"
-              className="text-white border-white hover:bg-white/20"
-              onClick={() => setLocation('/family-collaboration')}
-            >
-              <Users className="mr-2 h-5 w-5" />
-              Collaborate with Family
+            <Button asChild size="lg" variant="outline" className="text-white border-white hover:bg-white/20">
+              <Link href="/family-collaboration">
+                <Users className="mr-2 h-5 w-5" />
+                Collaborate with Family
+              </Link>
             </Button>
           </div>
         </div>
       </section>
+      </main>
     </div>
   );
 }

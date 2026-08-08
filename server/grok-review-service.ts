@@ -1,14 +1,15 @@
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from './utils/lazy-load';
 
 export class GrokReviewService {
   private client: OpenAI | null = null;
 
   constructor() {
     if (process.env.XAI_API_KEY) {
-      this.client = new OpenAI({ 
+      this.client = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ 
         baseURL: "https://api.x.ai/v1", 
         apiKey: process.env.XAI_API_KEY 
-      });
+      }));
       console.log('✅ Grok Review Service initialized');
     } else {
       console.warn('⚠️ XAI_API_KEY not configured');

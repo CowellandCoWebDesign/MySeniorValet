@@ -1,5 +1,6 @@
 // Cerner Health API Integration for Healthcare Provider Coordination
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class CernerHealthIntegration {
   private baseUrl: string;

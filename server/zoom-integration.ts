@@ -1,5 +1,6 @@
 // Zoom API Integration for Virtual Tour Automation
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class ZoomIntegration {
   private accessToken: string;

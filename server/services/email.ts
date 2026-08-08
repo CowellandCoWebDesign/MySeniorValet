@@ -23,11 +23,12 @@ export interface EmailOptions {
 // Default sender email
 const DEFAULT_FROM_EMAIL = 'hello@myseniorvalet.com';
 const DEFAULT_FROM_NAME = 'MySeniorValet';
+const DEFAULT_REPLY_TO = 'CowellandCoWebDesign@gmail.com';
 
 export class EmailService {
   // Helper to generate unsubscribe footer
   private static getUnsubscribeFooter(email: string): string {
-    const unsubscribeUrl = `https://myseniorvalet.com/unsubscribe?email=${encodeURIComponent(email)}`;
+    const unsubscribeUrl = `https://www.myseniorvalet.com/unsubscribe?email=${encodeURIComponent(email)}`;
     return `
       <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
       <div style="text-align: center; font-size: 12px; color: #999; padding: 20px 0;">
@@ -39,12 +40,12 @@ export class EmailService {
             Unsubscribe from all emails
           </a>
           |
-          <a href="https://myseniorvalet.com/email-preferences?email=${encodeURIComponent(email)}" style="color: #666; text-decoration: underline;">
+          <a href="https://www.myseniorvalet.com/email-preferences?email=${encodeURIComponent(email)}" style="color: #666; text-decoration: underline;">
             Update email preferences
           </a>
         </p>
         <p style="margin: 5px 0;">
-          MySeniorValet | hello@myseniorvalet.com
+          MySeniorValet | CowellandCoWebDesign@gmail.com
         </p>
       </div>
     `;
@@ -67,7 +68,7 @@ export class EmailService {
           name: DEFAULT_FROM_NAME
         },
         subject: options.subject,
-        replyTo: options.replyTo
+        replyTo: options.replyTo || DEFAULT_REPLY_TO
       };
       
       // Disable click and open tracking for transactional/security emails
@@ -87,7 +88,7 @@ export class EmailService {
       
       // Add List-Unsubscribe headers for marketing emails (not transactional)
       if (!options.isTransactional) {
-        const unsubscribeUrl = `https://myseniorvalet.com/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;
+        const unsubscribeUrl = `https://www.myseniorvalet.com/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;
         msg.headers = {
           'List-Unsubscribe': `<${unsubscribeUrl}>`,
           'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
@@ -113,7 +114,7 @@ export class EmailService {
           msg.text = options.text;
           // Add unsubscribe link to text emails if not transactional
           if (!options.isTransactional) {
-            msg.text += `\n\n---\nTo unsubscribe from all emails: https://myseniorvalet.com/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;
+            msg.text += `\n\n---\nTo unsubscribe from all emails: https://www.myseniorvalet.com/unsubscribe?email=${encodeURIComponent(recipientEmail)}`;
           }
         }
         if (options.html) {
@@ -164,11 +165,11 @@ export class EmailService {
           <p>Get started by exploring communities in your area or using our AI assistant for personalized recommendations.</p>
           
           <div style="margin: 30px 0;">
-            <a href="https://myseniorvalet.com" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Start Exploring</a>
+            <a href="https://www.myseniorvalet.com" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Start Exploring</a>
           </div>
           
           <p style="color: #666; font-size: 14px;">
-            If you have any questions, our team is here to help at hello@myseniorvalet.com
+            If you have any questions, our team is here to help at CowellandCoWebDesign@gmail.com
           </p>
         </div>
       `
@@ -192,7 +193,7 @@ export class EmailService {
             <h3 style="margin-top: 0;">Quick Review</h3>
             <p>How would you rate your experience?</p>
             <div style="text-align: center; margin: 20px 0;">
-              <a href="https://myseniorvalet.com/community/${communityId}#reviews?rating=5" style="font-size: 24px; text-decoration: none; margin: 0 5px;">⭐⭐⭐⭐⭐</a>
+              <a href="https://www.myseniorvalet.com/community/${communityId}#reviews?rating=5" style="font-size: 24px; text-decoration: none; margin: 0 5px;">⭐⭐⭐⭐⭐</a>
             </div>
           </div>
           
@@ -204,7 +205,7 @@ export class EmailService {
           </ul>
           
           <div style="margin: 30px 0;">
-            <a href="https://myseniorvalet.com/community/${communityId}#reviews" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Write a Review</a>
+            <a href="https://www.myseniorvalet.com/community/${communityId}#reviews" style="background-color: #1e40af; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Write a Review</a>
           </div>
           
           <p style="color: #666; font-size: 14px;">
@@ -228,7 +229,7 @@ export class EmailService {
           </div>
           <p style="color: #666; font-size: 14px;">
             This is an automated notification from MySeniorValet. 
-            If you have questions, contact us at hello@myseniorvalet.com
+            If you have questions, contact us at CowellandCoWebDesign@gmail.com
           </p>
         </div>
       `
@@ -263,7 +264,7 @@ export class EmailService {
 
     return this.sendEmail({
       to: email,
-      cc: ['hello@myseniorvalet.com'], // Always CC for tour tracking
+      cc: ['CowellandCoWebDesign@gmail.com'], // Always CC for tour tracking
       subject: `Tour Confirmed - ${communityName} - ${formattedDate}`,
       isTransactional: true, // Tour confirmations are transactional
       html: `
@@ -337,7 +338,7 @@ export class EmailService {
             </div>
             
             <div style="text-align: center; margin: 30px 0;">
-              <a href="https://myseniorvalet.com/search?query=${encodeURIComponent(communityName)}" 
+              <a href="https://www.myseniorvalet.com/search?query=${encodeURIComponent(communityName)}" 
                  style="background-color: #1e40af; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
                 View Community Profile
               </a>
@@ -357,7 +358,7 @@ export class EmailService {
           
           <div style="background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 14px; color: #666;">
             <p style="margin: 5px 0;">MySeniorValet - Clarity in Senior Living</p>
-            <p style="margin: 5px 0;">Questions? Email us at hello@myseniorvalet.com</p>
+            <p style="margin: 5px 0;">Questions? Email us at CowellandCoWebDesign@gmail.com</p>
           </div>
         </div>
       `

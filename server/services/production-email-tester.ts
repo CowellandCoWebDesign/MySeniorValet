@@ -15,7 +15,7 @@ interface EmailTestResult {
 export class ProductionEmailTester {
   private static testResults: EmailTestResult[] = [];
 
-  static async runProductionTest(recipientEmail: string = 'admin@myseniorvalet.com'): Promise<{
+  static async runProductionTest(recipientEmail: string = 'CowellandCoWebDesign@gmail.com'): Promise<{
     success: boolean;
     results: EmailTestResult[];
     summary: any;
@@ -66,6 +66,7 @@ export class ProductionEmailTester {
       const success = await sendEmail({
         to: recipient,
         from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: `[TEST ${testId}] Direct SendGrid Email Test`,
         html: `
           <h2>Production Email Test - Direct SendGrid</h2>
@@ -194,7 +195,7 @@ export class ProductionEmailTester {
       return {
         testId,
         timestamp: new Date(),
-        recipient: 'admin@myseniorvalet.com',
+        recipient: 'CowellandCoWebDesign@gmail.com',
         type: 'emergency_contact',
         success: true,
         deliveryTime,
@@ -208,7 +209,7 @@ export class ProductionEmailTester {
       return {
         testId,
         timestamp: new Date(),
-        recipient: 'admin@myseniorvalet.com',
+        recipient: 'CowellandCoWebDesign@gmail.com',
         type: 'emergency_contact',
         success: false,
         error: error.message,
@@ -240,6 +241,7 @@ export class ProductionEmailTester {
         const success = await sendEmail({
           to: recipients[i],
           from: 'hello@myseniorvalet.com',
+          replyTo: 'CowellandCoWebDesign@gmail.com',
           subject: `[BATCH TEST ${i + 1}/${batchSize}] ${testId}`,
           html: `
             <h3>Batch Email Test ${i + 1} of ${batchSize}</h3>
@@ -374,6 +376,7 @@ export class ProductionEmailTester {
       await sendEmail({
         to: recipient,
         from: 'hello@myseniorvalet.com',
+        replyTo: 'CowellandCoWebDesign@gmail.com',
         subject: `[TEST REPORT] Email System ${summary.overallSuccess ? 'PASSED ✅' : 'FAILED ❌'}`,
         html: reportHtml
       });

@@ -6,13 +6,19 @@ import { isAuthenticated as requireAuth, isAdmin } from "../auth-middleware";
 import { intelligentPricingService } from "../intelligent-pricing-service";
 import { nationwidePricingResearch } from "../nationwide-pricing-research";
 import { pricingTransparencyService } from "../pricing-transparency-badges";
+import { isCommunitySupportingEligible } from "../utils/community-ranking";
 
 export function registerPricingRoutes(app: Express) {
   // Get pricing for a community
   app.get('/api/pricing/community/:communityId', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
-      
+      // Referral-support allowlist: no pricing for communities that are not
+      // publicly offered.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
       const [community] = await db
         .select()
         .from(communities)
@@ -65,7 +71,11 @@ export function registerPricingRoutes(app: Express) {
   app.get('/api/pricing/transparency/:communityId', async (req, res) => {
     try {
       const communityId = parseInt(req.params.communityId);
-      
+      // Referral-support allowlist: same 404 policy as detail routes.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
       const [community] = await db
         .select()
         .from(communities)

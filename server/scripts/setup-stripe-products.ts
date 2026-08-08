@@ -5,7 +5,8 @@
  * Usage: npx tsx server/scripts/setup-stripe-products.ts
  */
 
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -16,9 +17,9 @@ if (!process.env.STRIPE_SECRET_KEY) {
   process.exit(1);
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-07-30.basil' as any,
-});
+}));
 
 // Define your subscription tiers
 const SUBSCRIPTION_TIERS = [

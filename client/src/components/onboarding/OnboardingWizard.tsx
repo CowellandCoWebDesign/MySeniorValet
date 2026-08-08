@@ -100,7 +100,7 @@ const steps = [
     id: 'complete',
     title: 'You\'re all set!',
     character: 'sage',
-    content: 'Wonderful! You\'ve just unlocked the full power of MySeniorValet. I\'ve personalized your experience based on your needs. Ready to explore 34,000+ communities across North America?',
+    content: 'Wonderful! You\'ve just unlocked the full power of MySeniorValet. I\'ve personalized your experience based on your needs. Ready to explore communities across North America?',
     action: 'Start Exploring!'
   }
 ];
@@ -125,6 +125,15 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
     notes: '',
     preferredContact: 'email'
   });
+
+  // Pre-populate the location field with the ZIP code captured at signup (if any)
+  useEffect(() => {
+    const pendingZip = localStorage.getItem('myseniorvalet_onboarding_pending_zip');
+    if (pendingZip) {
+      setUserData(prev => ({ ...prev, location: prev.location || pendingZip }));
+      localStorage.removeItem('myseniorvalet_onboarding_pending_zip');
+    }
+  }, []);
 
   const step = steps[currentStep];
   const character = characters[step.character as keyof typeof characters];
@@ -381,31 +390,6 @@ export function OnboardingWizard({ isOpen, onComplete, onSkip }: OnboardingWizar
             Back
           </Button>
           <div className="flex gap-2">
-            {currentStep === steps.length - 1 && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  // Apply data to signup
-                  const params = new URLSearchParams();
-                  if (userData.name) params.set('name', userData.name);
-                  if (userData.location) params.set('location', userData.location);
-                  if (userData.careType.length > 0) params.set('careTypes', userData.careType.join(','));
-                  if (userData.budget) params.set('budget', userData.budget);
-                  if (userData.timeline) params.set('timeline', userData.timeline);
-                  if (userData.preferredContact) params.set('contact', userData.preferredContact);
-                  
-                  // Store onboarding data in localStorage for post-signup retrieval
-                  localStorage.setItem('myseniorvalet_onboarding_data', JSON.stringify(userData));
-                  
-                  // Navigate to signup with pre-filled data
-                  window.location.href = `/api/login?onboarding=true&${params.toString()}`;
-                }}
-                className="gap-2"
-              >
-                <Users className="h-4 w-4" />
-                Sign Up & Save
-              </Button>
-            )}
             <Button
               onClick={handleNext}
               disabled={!canProceed()}

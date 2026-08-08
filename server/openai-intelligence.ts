@@ -1,11 +1,12 @@
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from './utils/lazy-load';
 
 // IMPORTANT: This is ChatGPT integration for multi-AI orchestration
 // Part of MySeniorValet's world-changing transparency initiative
 
-const openai = new OpenAI({ 
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ 
   apiKey: process.env.OPENAI_API_KEY 
-});
+}));
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const DEFAULT_MODEL = "gpt-4o";

@@ -6,6 +6,7 @@ import { useLocation, Link } from 'wouter';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { queryClient } from '@/lib/queryClient';
 import { useAuth } from '@/hooks/useAuth';
+import { useOnboarding } from '@/contexts/OnboardingContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -187,7 +188,21 @@ export default function FamilyCollaborationCenter() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [newMessage, setNewMessage] = useState('');
   const { user, isLoading: authLoading } = useAuth();
+  const { setShowOnboarding } = useOnboarding();
   const queryClientHook = useQueryClient();
+
+  // Fire the onboarding wizard immediately after a brand-new family signup
+  useEffect(() => {
+    if (sessionStorage.getItem('newSignup') === 'true') {
+      sessionStorage.removeItem('newSignup');
+      const pendingZip = sessionStorage.getItem('pendingZipCode');
+      if (pendingZip) {
+        localStorage.setItem('myseniorvalet_onboarding_pending_zip', pendingZip);
+        sessionStorage.removeItem('pendingZipCode');
+      }
+      setShowOnboarding(true);
+    }
+  }, [setShowOnboarding]);
   const [proText, setProText] = useState('');
   const [conText, setConText] = useState('');
   

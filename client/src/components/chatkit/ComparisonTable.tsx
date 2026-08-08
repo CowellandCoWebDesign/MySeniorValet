@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Star, DollarSign, Users, Heart } from 'lucide-react';
 import { Link } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface Community {
   id: number;
@@ -204,7 +205,7 @@ export function ComparisonTable({ communities }: ComparisonTableProps) {
                 {compareList.map(community => (
                   <td key={community.id} className="text-center p-3">
                     <Button asChild variant="default" size="sm">
-                      <Link href={`/community/${community.id}`}>
+                      <Link href={getCommunityUrl(community)}>
                         View Details
                       </Link>
                     </Button>

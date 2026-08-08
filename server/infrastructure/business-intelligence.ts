@@ -330,7 +330,7 @@ class BusinessIntelligence {
         {
           competitor: 'MySeniorValet',
           marketShare: 18.7,
-          strengths: ['Transparent pricing', 'Real-time data', 'Modern UX', 'No referral fees'],
+          strengths: ['Transparent pricing', 'Real-time data', 'Modern UX', 'Disclosed referral partnerships'],
           weaknesses: ['Newer brand', 'Growing market presence', 'Scaling challenges']
         },
         {

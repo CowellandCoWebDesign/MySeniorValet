@@ -16,8 +16,8 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "Save $3,000+ Monthly",
       subtitle: "HUD Housing Available",
-      description: "Did you know? HUD senior housing charges just 30% of your income for rent. With 5,936 HUD properties in our database, you could save thousands monthly while getting quality care.",
-      source: "HUD.gov - Over 5,936 subsidized senior properties nationwide",
+      description: "Did you know? HUD senior housing charges just 30% of your income for rent. With thousands of HUD properties in our database, you could save thousands monthly while getting quality care.",
+      source: "HUD.gov - subsidized senior properties nationwide",
       link: "https://www.hud.gov/topics/information_for_senior_citizens",
       category: "cost_savings"
     },
@@ -54,7 +54,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
       category: "emergency_support"
     },
     {
-      title: "35,232 Communities",
+      title: "Nationwide Communities",
       subtitle: "Complete North America Coverage",
       description: "Search every licensed community across USA, Canada, Mexico, Peru, Cuba, Costa Rica, Panama, and Puerto Rico. From luxury resorts to affordable housing - all verified, all transparent, all in one place.",
       source: "MySeniorValet comprehensive database - updated daily",
@@ -64,7 +64,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "Memory Care Insights",
       subtitle: "Specialized Dementia Support",
-      description: "Memory care averages $6,500/month but varies widely by state. Iowa averages $4,800 while Connecticut reaches $9,000. We show exact pricing for 8,000+ memory care units.",
+      description: "Memory care averages $6,500/month but varies widely by state. Iowa averages $4,800 while Connecticut reaches $9,000. We show exact pricing for memory care units nationwide.",
       source: "Genworth 2024 Cost of Care Survey - Memory Care Analysis",
       link: "https://www.genworth.com/aging-and-you/finances/cost-of-care.html",
       category: "memory_care"
@@ -96,7 +96,7 @@ export function HeroMascotPanel({ className }: HeroMascotPanelProps) {
     {
       title: "AI-Powered Matching",
       subtitle: "Natural Language Search",
-      description: "Just describe what you need: 'Memory care near Boston under $5,000 with garden' and our AI finds perfect matches from 35,232 communities instantly.",
+      description: "Just describe what you need: 'Memory care near Boston under $5,000 with garden' and our AI finds perfect matches from our community database instantly.",
       source: "MySeniorValet AI Search - Powered by advanced language understanding",
       link: null,
       category: "ai_technology"

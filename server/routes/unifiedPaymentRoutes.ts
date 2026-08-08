@@ -1,5 +1,6 @@
 import { Router, Request, Response, raw } from 'express';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { db, pool } from '../db';
 import { communities, vendors, users, paymentTransactions, subscriptions } from '@shared/schema';
 import { eq, sql } from 'drizzle-orm';
@@ -11,9 +12,9 @@ if (!process.env.STRIPE_SECRET_KEY) {
   console.error('⚠️ STRIPE_SECRET_KEY is not set in environment variables');
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY || '', {
   apiVersion: '2025-07-30.basil' as any,
-});
+}));
 
 // Stripe Price IDs from configured products
 const STRIPE_PRICE_IDS = {
@@ -481,7 +482,7 @@ async function handleWebhookEvent(event: Stripe.Event) {
         }
       }
       
-      // Send email notification to hello@myseniorvalet.com
+      // Send email notification to CowellandCoWebDesign@gmail.com
       try {
         const { EmailService } = await import('../services/email');
         const emailHtml = `
@@ -502,12 +503,12 @@ async function handleWebhookEvent(event: Stripe.Event) {
         `;
         
         await EmailService.sendEmail({
-          to: 'hello@myseniorvalet.com',
+          to: 'CowellandCoWebDesign@gmail.com',
           subject: `✅ Payment Received: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
           html: emailHtml
         });
         
-        console.log('Payment success notification sent to hello@myseniorvalet.com');
+        console.log('Payment success notification sent to CowellandCoWebDesign@gmail.com');
       } catch (emailError) {
         console.error('Failed to send payment success notification:', emailError);
       }
@@ -598,7 +599,7 @@ async function handleWebhookEvent(event: Stripe.Event) {
       console.log(`   Type: ${paymentIntent.metadata.type}`);
       console.log(`   Amount: $${paymentIntent.amount / 100}`);
       
-      // Send email notification to hello@myseniorvalet.com
+      // Send email notification to CowellandCoWebDesign@gmail.com
       try {
         const { EmailService } = await import('../services/email');
         const emailHtml = `
@@ -620,12 +621,12 @@ async function handleWebhookEvent(event: Stripe.Event) {
         `;
         
         await EmailService.sendEmail({
-          to: 'hello@myseniorvalet.com',
+          to: 'CowellandCoWebDesign@gmail.com',
           subject: `⚠️ Payment Failed: $${(paymentIntent.amount / 100).toFixed(2)} - MySeniorValet`,
           html: emailHtml
         });
         
-        console.log('Payment failure notification sent to hello@myseniorvalet.com');
+        console.log('Payment failure notification sent to CowellandCoWebDesign@gmail.com');
       } catch (emailError) {
         console.error('Failed to send payment failure notification:', emailError);
       }

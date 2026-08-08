@@ -690,11 +690,11 @@ export default function CreativeAdminDashboard() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="text-center p-3 bg-white/60 rounded-lg">
                         <div className="text-2xl font-bold text-cyan-600">SF</div>
-                        <p className="text-xs text-gray-600">18 Communities</p>
+                        <p className="text-xs text-gray-600">Communities</p>
                       </div>
                       <div className="text-center p-3 bg-white/60 rounded-lg">
                         <div className="text-2xl font-bold text-blue-600">SAC</div>
-                        <p className="text-xs text-gray-600">24 Communities</p>
+                        <p className="text-xs text-gray-600">Communities</p>
                       </div>
                     </div>
                   </div>

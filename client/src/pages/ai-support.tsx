@@ -297,7 +297,7 @@ export default function AISupport() {
             <p className="text-sm">📧 General Inquiries: hello@myseniorvalet.com</p>
             <p className="text-sm">🏢 Community Support: hello@myseniorvalet.com</p>
             <p className="text-sm">🔧 Technical Support: hello@myseniorvalet.com</p>
-            <p className="text-sm">🚨 Urgent Matters: admin@myseniorvalet.com</p>
+            <p className="text-sm">🚨 Urgent Matters: hello@myseniorvalet.com</p>
           </div>
           <p className="text-xs text-gray-500 mt-4">Response time: 24-48 hours (urgent matters prioritized)</p>
         </CardContent>

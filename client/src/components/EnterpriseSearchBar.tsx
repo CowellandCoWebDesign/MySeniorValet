@@ -19,7 +19,7 @@ export function EnterpriseSearchBar({
   className,
   showFilters = true,
   autoFocus = false,
-  placeholder = "Search 33,726+ communities, cities, or states..."
+  placeholder = "Search communities, cities, or states..."
 }: EnterpriseSearchBarProps) {
   const [query, setQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState({

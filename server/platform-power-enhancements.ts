@@ -6,7 +6,7 @@ export const PLATFORM_ENHANCEMENTS = {
   // 1. AI DATABASE TRAINING & REAL-TIME LEARNING
   aiEnhancements: {
     vectorDatabase: {
-      provider: 'Pinecone/Weaviate',
+      provider: 'PostgreSQL with full-text search',
       features: [
         'Index all 26,306 communities with embeddings',
         'Real-time semantic search on actual data',

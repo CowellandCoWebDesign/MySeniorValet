@@ -1,5 +1,6 @@
 // LinkedIn Sales Navigator Integration for Professional Family Network Outreach
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class LinkedInSalesIntegration {
   private accessToken: string;

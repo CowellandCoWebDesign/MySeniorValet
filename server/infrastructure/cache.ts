@@ -150,3 +150,14 @@ export class ScalableCache {
 export const searchCache = new ScalableCache(5000, 600000); // 10 min TTL for searches
 export const communityCache = new ScalableCache(2000, 1800000); // 30 min TTL for communities
 export const apiCache = new ScalableCache(3000, 300000); // 5 min TTL for API responses
+
+/**
+ * Clears all community-related in-memory caches immediately.
+ * Call this after any admin mutation that removes or hides a community so
+ * the next request to any community endpoint returns fresh DB data rather
+ * than serving the stale cached entry for the remainder of its TTL.
+ */
+export function clearAllCommunityCaches(): void {
+  communityCache.clear();
+  searchCache.clear();
+}

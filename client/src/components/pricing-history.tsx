@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { TrendingUp, TrendingDown, DollarSign, Calendar, History, AlertCircle, CheckCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Calendar, History, AlertCircle, CheckCircle, Globe, Lock } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface PricingHistoryEntry {
@@ -22,12 +22,24 @@ interface PricingHistoryEntry {
   createdAt: string;
 }
 
+// Task #393: pricing discovered by web intelligence / verification is
+// documented here so found rates aren't confined to the intelligence card.
+export interface DiscoveredPricingEntry {
+  label: string;
+  value: string;
+  source: string;
+}
+
 interface PricingHistoryProps {
   communityId: number;
   communityName: string;
+  discoveredPricing?: DiscoveredPricingEntry[];
+  /** Login gating for detailed pricing is preserved: values blur until revealed */
+  pricingRevealed?: boolean;
+  onRevealPricing?: () => void;
 }
 
-export function PricingHistory({ communityId, communityName }: PricingHistoryProps) {
+export function PricingHistory({ communityId, communityName, discoveredPricing = [], pricingRevealed = true, onRevealPricing }: PricingHistoryProps) {
   const { data: historyData, isLoading, error } = useQuery<{ success: boolean; data: PricingHistoryEntry[]; count: number }>({
     queryKey: [`/api/communities/${communityId}/pricing-history`],
     enabled: !!communityId
@@ -147,6 +159,49 @@ export function PricingHistory({ communityId, communityName }: PricingHistoryPro
         </div>
       </CardHeader>
       <CardContent>
+        {/* Task #393: rates discovered by web intelligence / verification */}
+        {discoveredPricing.length > 0 && (
+          <div className="mb-6" data-testid="section-discovered-pricing">
+            <div className="flex items-center gap-2 mb-3">
+              <Globe className="h-4 w-4 text-indigo-600" />
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                Rates Found Online
+              </h4>
+              <Badge className="bg-orange-100 text-orange-800">Market Intelligence</Badge>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {discoveredPricing.map((entry, idx) => (
+                <div key={idx} className="p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{entry.label}</p>
+                  {pricingRevealed ? (
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">{entry.value}</p>
+                  ) : (
+                    <div>
+                      <p className="font-semibold text-gray-900 dark:text-gray-100 blur-sm select-none" aria-hidden="true">
+                        {entry.value}
+                      </p>
+                      {onRevealPricing && (
+                        <button
+                          type="button"
+                          onClick={onRevealPricing}
+                          className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:underline"
+                          data-testid="button-reveal-discovered-pricing"
+                        >
+                          <Lock className="w-3 h-3" />
+                          Unlock pricing
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  <p className="text-[11px] text-gray-500 dark:text-gray-500 mt-1">Source: {entry.source}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-500 mt-2">
+              Found via live web search — verify current rates directly with the community.
+            </p>
+          </div>
+        )}
         {!hasHistory ? (
           <div className="text-center py-8">
             <DollarSign className="h-12 w-12 text-gray-400 mx-auto mb-3" />

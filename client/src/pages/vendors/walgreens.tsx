@@ -55,7 +55,7 @@ export default function WalgreensPage() {
                 <p>
                   Walgreens is one of America's largest pharmacy chains, serving millions of customers 
                   daily with prescription medications, health products, and everyday essentials. With over 
-                  9,000 locations nationwide, Walgreens provides convenient access to healthcare services.
+                  thousands of locations nationwide, Walgreens provides convenient access to healthcare services.
                 </p>
                 <p>
                   Beyond prescriptions, Walgreens offers immunizations, health screenings, photo services, 

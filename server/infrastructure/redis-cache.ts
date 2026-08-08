@@ -1,13 +1,25 @@
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+import { requireModule } from '../utils/lazy-load';
 
 class RedisCache {
   private client: Redis | null = null;
   private isConnected: boolean = false;
+  private clientInitialized = false;
 
   constructor() {
+    // Client creation is deferred to first use so ioredis doesn't block server boot.
+    // Cleanup memory cache every 5 minutes
+    setInterval(() => this.cleanupMemoryCache(), 5 * 60 * 1000);
+  }
+
+  private ensureClient(): void {
+    if (this.clientInitialized) return;
+    this.clientInitialized = true;
     // Initialize Redis client with fallback to memory cache
     try {
-      this.client = new Redis({
+      const RedisCtor = requireModule('ioredis');
+      const RedisClass = RedisCtor?.default ?? RedisCtor;
+      this.client = new RedisClass({
         host: process.env.REDIS_HOST || 'localhost',
         port: parseInt(process.env.REDIS_PORT || '6379'),
         password: process.env.REDIS_PASSWORD,
@@ -16,12 +28,12 @@ class RedisCache {
         enableOfflineQueue: false
       });
 
-      this.client.on('connect', () => {
+      this.client!.on('connect', () => {
         console.log('✅ Redis connected successfully');
         this.isConnected = true;
       });
 
-      this.client.on('error', (error) => {
+      this.client!.on('error', (error) => {
         console.log('⚠️ Redis connection failed, using memory cache:', error.message);
         this.isConnected = false;
       });
@@ -29,14 +41,12 @@ class RedisCache {
       console.log('⚠️ Redis initialization failed, using memory cache');
       this.isConnected = false;
     }
-    
-    // Cleanup memory cache every 5 minutes
-    setInterval(() => this.cleanupMemoryCache(), 5 * 60 * 1000);
   }
 
   private memoryCache = new Map<string, { data: any; expires: number }>();
 
   async get<T>(key: string): Promise<T | null> {
+    this.ensureClient();
     try {
       if (this.isConnected && this.client) {
         const result = await this.client.get(key);
@@ -55,6 +65,7 @@ class RedisCache {
   }
 
   async set(key: string, value: any, ttlSeconds: number = 300): Promise<boolean> {
+    this.ensureClient();
     try {
       if (this.isConnected && this.client) {
         await this.client.setex(key, ttlSeconds, JSON.stringify(value));
@@ -73,6 +84,7 @@ class RedisCache {
   }
 
   async del(key: string): Promise<boolean> {
+    this.ensureClient();
     try {
       if (this.isConnected && this.client) {
         await this.client.del(key);
@@ -87,6 +99,7 @@ class RedisCache {
   }
 
   async flush(): Promise<boolean> {
+    this.ensureClient();
     try {
       if (this.isConnected && this.client) {
         await this.client.flushall();

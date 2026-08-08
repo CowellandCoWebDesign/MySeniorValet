@@ -1,14 +1,14 @@
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route, Redirect, useLocation } from "wouter";
 import { useEffect, lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { DisclaimerBanner } from "@/components/disclaimer-banner";
 import { MascotProvider } from "@/components/mascot";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { OnboardingProvider } from "@/contexts/OnboardingContext";
+import { OnboardingWrapper } from "@/components/onboarding/OnboardingWrapper";
 import { VoiceGuidanceProvider } from "@/components/VoiceGuidanceProvider";
 import NostalgicErrorBoundary from "@/components/NostalgicErrorBoundary";
 import { ResponsiveProvider } from "@/contexts/ResponsiveContext";
@@ -22,6 +22,7 @@ import Claim from "@/pages/claim";
 import SuperAdminAnalytics from "@/pages/super-admin-analytics";
 import AdminSubscriptionManagement from "@/pages/admin-subscription-management";
 import AdminMegaDashboard from "@/pages/admin-mega-dashboard";
+import AdminCommunityEdit from "@/pages/admin-community-edit";
 import Privacy from "@/pages/privacy";
 import Terms from "@/pages/terms";
 import Disclaimer from "@/pages/disclaimer";
@@ -111,7 +112,6 @@ import TestDebug from "@/pages/test-debug";
 import TestMapViews from "@/pages/test-map-views";
 import AuthDebug from "@/pages/auth-debug";
 import PaymentDemo from "@/pages/payment-demo";
-import WeaviateTest from "@/pages/weaviate-test";
 import DataQualityDashboard from "@/pages/data-quality-dashboard";
 import DatabaseTest from "@/pages/database-test";
 import IntegrationDashboard from "@/pages/integration-dashboard";
@@ -120,9 +120,7 @@ import SubscriptionManagement from "@/pages/SubscriptionManagement";
 import AIDemoPage from "@/pages/ai-demo";
 import AIMapShowcase from "@/pages/ai-map-showcase";
 import AISearchIntelligence from "@/pages/ai-search-intelligence";
-import SimplifiedSearch from "@/pages/simplified-search";
 import VendorSignup from "@/pages/vendor-signup";
-import FamilySignup from "@/pages/family-signup";
 import VendorDashboard from "@/pages/vendor-dashboard";
 import VendorWelcome from "@/pages/vendor-welcome";
 import VendorMobilePayment from "@/pages/vendor-mobile-payment";
@@ -137,6 +135,7 @@ import FinancialAnalyticsDashboard from "@/pages/financial-analytics-dashboard";
 import ComplianceDashboard from "@/pages/compliance-dashboard";
 import MarketingAutomationDashboard from "@/pages/marketing-automation-dashboard";
 import AdminFeaturedCommunitiesPage from "@/pages/admin-featured-communities";
+import AdminSupportingRegistry from "@/pages/admin-supporting-registry";
 import ResidentPortal from "@/pages/resident-portal";
 import PublicResidentPortal from "@/pages/public-resident-portal";
 import ResidentDashboard from "@/pages/resident-dashboard";
@@ -187,7 +186,6 @@ import MarketingHub from "@/pages/marketing-hub";
 import AvailabilityHeatmapPage from "@/pages/availability-heatmap";
 import CompetitiveAnalysis from "@/pages/competitive-analysis";
 import TestCommunityCards from "@/pages/test-community-cards";
-import EnhancedCardTest from "@/pages/enhanced-card-test";
 import AdminAvailabilityHeatmap from "@/pages/admin-availability-heatmap";
 import AdminReports from "@/pages/admin-reports";
 import MoveInCoordination from "@/pages/move-in-coordination";
@@ -204,7 +202,6 @@ import ClevelandClinicPage from "@/pages/providers/cleveland-clinic";
 import WalgreensPage from "@/pages/vendors/walgreens";
 import CVSPharmacyPage from "@/pages/vendors/cvs-pharmacy";
 import MedicareGuidePage from "@/pages/resources/medicare-guide";
-import LocationLanding from "@/pages/location-landing";
 import PricingPage from "@/pages/pricing";
 import CommunityClaim from "@/pages/community-claim";
 
@@ -236,21 +233,30 @@ function Router() {
       <Route path="/care-types/assisted-living" component={AssistedLivingPage} />
       <Route path="/care-types/independent-living" component={IndependentLivingPage} />
       
-      {/* SEO Location Landing Pages */}
-      <Route path="/senior-living/:state/:city?" component={LocationLanding} />
+      {/* Community detail — must come BEFORE the location landing catch-all */}
+      <Route path="/senior-living/:state/:city/:slug" component={CommunityDetail} />
+      <Route path="/community/:id" component={CommunityDetail} />
+      <Route path="/communities/:id" component={CommunityDetail} />
+
+      {/* SEO Location Pages — served at the clean canonical URL (no redirect);
+          renders the AI search experience pre-filtered to the state/city */}
+      <Route path="/senior-living/:state/:city?" component={AISearchIntelligence} />
 
       <Route path="/ai-intelligence" component={AISearchIntelligence} />
-      <Route path="/search" component={SimplifiedSearch} />
-      <Route path="/simplified-search" component={SimplifiedSearch} />
+      <Route path="/search">{() => <Redirect to={`/ai-search-intelligence${window.location.search}`} />}</Route>
+      <Route path="/simplified-search">{() => <Redirect to={`/ai-search-intelligence${window.location.search}`} />}</Route>
+      <Route path="/start-your-search">
+        {() => {
+          const Component = lazy(() => import('./pages/start-your-search'));
+          return <Suspense fallback={<div />}><Component /></Suspense>;
+        }}
+      </Route>
       <Route path="/enhanced-search-demo">
         {() => {
           const Component = lazy(() => import('./components/EnhancedSearchDemo'));
           return <Component />;
         }}
       </Route>
-      <Route path="/community/:id" component={CommunityDetail} />
-      <Route path="/senior-living/:state/:city/:slug" component={CommunitySEO} />
-      <Route path="/communities/:id" component={CommunityDetail} />
       <Route path="/service/:id" component={ServiceDetail} />
       <Route path="/services/:id" component={ServiceDetail} />
       <Route path="/red-tag-example/:communitySlug" component={RedTagExample} />
@@ -261,6 +267,7 @@ function Router() {
       <Route path="/community-claim" component={CommunityClaim} />
       {/* ALL ADMIN ROUTES NOW REDIRECT TO UNIFIED SUPER ADMIN DASHBOARD */}
       <Route path="/admin" component={SuperAdminAnalytics} />
+      <Route path="/admin/community/:id/edit" component={AdminCommunityEdit} />
       <Route path="/admin/featured-communities" component={AdminFeaturedCommunitiesPage} />
       <Route path="/admin-creative" component={SuperAdminAnalytics} />
       <Route path="/admin-unified" component={SuperAdminAnalytics} />
@@ -281,6 +288,7 @@ function Router() {
       <Route path="/admin/api-keys" component={SuperAdminAnalytics} />
       <Route path="/admin/users" component={SuperAdminAnalytics} />
       <Route path="/admin/data-quality" component={DataQualityDashboard} />
+      <Route path="/admin/supporting-registry" component={AdminSupportingRegistry} />
       <Route path="/admin/photo-quality" component={PhotoQualityAdmin} />
       <Route path="/admin/audit-logs" component={LegalDocumentHistory} />
       <Route path="/admin/light-gallery" component={LightDesignGallery} />
@@ -399,7 +407,6 @@ function Router() {
       <Route path="/test-debug" component={TestDebug} />
       <Route path="/test-map-views" component={TestMapViews} />
       <Route path="/auth-debug" component={AuthDebug} />
-      <Route path="/weaviate-test" component={WeaviateTest} />
       <Route path="/admin-mega-dashboard" component={AdminMegaDashboard} />
       <Route path="/data-quality" component={SuperAdminAnalytics} />
       <Route path="/database-test" component={DatabaseTest} />
@@ -410,8 +417,9 @@ function Router() {
       <Route path="/ai-map-showcase" component={AIMapShowcase} />
       <Route path="/vendor-signup" component={VendorSignup} />
       <Route path="/vendor/signup" component={VendorSignup} />
-      <Route path="/family-signup" component={FamilySignup} />
-      <Route path="/family/signup" component={FamilySignup} />
+      {/* /family-signup retired — unified into the canonical /signup flow */}
+      <Route path="/family-signup"><Redirect to="/signup" /></Route>
+      <Route path="/family/signup"><Redirect to="/signup" /></Route>
       <Route path="/vendor-welcome" component={VendorWelcome} />
       <Route path="/vendor/dashboard" component={VendorDashboard} />
       <Route path="/vendor-mobile-payment/:productId" component={VendorMobilePayment} />
@@ -442,7 +450,6 @@ function Router() {
       <Route path="/admin/availability-heatmap" component={SuperAdminAnalytics} />
       <Route path="/payment-demo" component={PaymentDemo} />
       <Route path="/test-community-cards" component={TestCommunityCards} />
-      <Route path="/enhanced-card-test" component={EnhancedCardTest} />
       <Route path="/perplexity-test" component={PerplexityTest} />
       
       {/* Phase 5 Enterprise Features */}
@@ -477,9 +484,10 @@ function AppContent() {
                 <MascotProvider>
                   <Toaster />
                   <Router />
+                  {/* Onboarding wizard — fires after a new family signup (see dashboard trigger) */}
+                  <OnboardingWrapper />
                   {/* Cookie Banner temporarily disabled - was blocking search on mobile */}
                   {/* <CookieConsentBanner /> */}
-                  <DisclaimerBanner />
                   {/* Emergency Button disabled - causes React rendering failure */}
                   {/* <EmergencyButton userId={user?.id} /> */}
                   </MascotProvider>
@@ -495,13 +503,8 @@ function AppContent() {
 function App() {
   // Initialize analytics and monitoring when app loads
   useEffect(() => {
-    // Initialize Google Analytics
-    if (!import.meta.env.VITE_GA_MEASUREMENT_ID) {
-      console.warn('Missing Google Analytics key: VITE_GA_MEASUREMENT_ID - analytics disabled');
-    } else {
-      initGA();
-      console.log('✅ Google Analytics initialized');
-    }
+    // Initialize Google Analytics (initGA warns once and no-ops if the ID is missing)
+    initGA();
     
     // Initialize Sentry error monitoring
     if (!import.meta.env.VITE_SENTRY_DSN) {

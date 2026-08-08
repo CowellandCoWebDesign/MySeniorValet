@@ -6,9 +6,10 @@
 import { db } from "./db";
 import { communities } from "@shared/schema";
 import { eq } from "drizzle-orm";
-import OpenAI from "openai";
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from './utils/lazy-load';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ apiKey: process.env.OPENAI_API_KEY }));
 
 export interface DataQualityReport {
   communityId: number;

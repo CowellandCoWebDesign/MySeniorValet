@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { paymentService, TIER_PRICING, ADDON_PRICING } from '../services/payment.service';
 import { z } from 'zod';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 
 const router = Router();
 
@@ -330,9 +331,9 @@ router.post('/webhooks/stripe', async (req, res) => {
     let event;
     try {
       // Verify the webhook signature using the raw body
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+      const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY!, {
         apiVersion: '2025-07-30.basil'
-      });
+      }));
       event = stripe.webhooks.constructEvent(
         req.body, // This should be the raw body
         sig,

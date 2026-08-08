@@ -1,712 +1,456 @@
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Phone, Globe, Clock, Users, Package, Home, Heart, Utensils, Search, ChevronRight, ExternalLink, Building } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  MapPin, Phone, Globe, Clock, Search, ExternalLink, Shield, CheckCircle2,
+  Sparkles, Info, PhoneCall, FileText, Home, Building, HandHeart, Brain,
+  Scale, ShoppingBasket, Flower2, Heart, Stethoscope, HeartHandshake, Cross,
+  Utensils, Accessibility, BadgeCheck, Pill, Users, BedDouble, MessageCircle,
+  Calculator, Car, Zap, Award, Flag, type LucideIcon,
+} from "lucide-react";
 import { ProfessionalNavbar } from "@/components/ProfessionalNavbar";
+import type {
+  BakedResourceDirectory,
+  DirectoryListing,
+} from "@shared/resource-directory";
 
-// Location data structure - all states, provinces, and countries
-const counties: Record<string, string[]> = {
-  // United States - All 50 States
-  "Alabama": ["Jefferson", "Mobile", "Madison", "Montgomery"],
-    "Alaska": ["Anchorage", "Fairbanks North Star", "Matanuska-Susitna"],
-    "Arizona": ["Maricopa", "Pima", "Pinal", "Yavapai"],
-    "Arkansas": ["Pulaski", "Benton", "Washington", "Sebastian"],
-    "California": ["Los Angeles", "San Diego", "Orange", "Sacramento", "San Francisco", "Alameda", "Riverside", "San Bernardino", "Santa Clara", "Shasta", "Fresno", "Ventura", "Kern", "San Joaquin", "Contra Costa", "Monterey", "San Mateo", "Solano", "Sonoma", "Stanislaus", "Tulare", "Santa Barbara", "Placer", "San Luis Obispo", "Marin"],
-    "Colorado": ["Denver", "El Paso", "Arapahoe", "Jefferson", "Adams"],
-    "Connecticut": ["Fairfield", "Hartford", "New Haven", "New London"],
-    "Delaware": ["New Castle", "Kent", "Sussex"],
-    "Florida": ["Miami-Dade", "Broward", "Palm Beach", "Hillsborough", "Orange", "Pinellas", "Duval"],
-    "Georgia": ["Fulton", "Gwinnett", "Cobb", "DeKalb", "Clayton"],
-    "Hawaii": ["Honolulu", "Hawaii", "Maui", "Kauai"],
-    "Idaho": ["Ada", "Canyon", "Kootenai", "Bonneville"],
-    "Illinois": ["Cook", "DuPage", "Lake", "Will", "Kane"],
-    "Indiana": ["Marion", "Lake", "Allen", "Hamilton", "St. Joseph"],
-    "Iowa": ["Polk", "Linn", "Scott", "Johnson", "Black Hawk"],
-    "Kansas": ["Johnson", "Sedgwick", "Shawnee", "Wyandotte"],
-    "Kentucky": ["Jefferson", "Fayette", "Kenton", "Boone"],
-    "Louisiana": ["East Baton Rouge", "Jefferson", "Orleans", "St. Tammany"],
-    "Maine": ["Cumberland", "York", "Penobscot", "Kennebec"],
-    "Maryland": ["Montgomery", "Prince George's", "Baltimore", "Anne Arundel"],
-    "Massachusetts": ["Middlesex", "Worcester", "Essex", "Suffolk", "Norfolk"],
-    "Michigan": ["Wayne", "Oakland", "Macomb", "Kent", "Genesee"],
-    "Minnesota": ["Hennepin", "Ramsey", "Dakota", "Anoka", "Washington"],
-    "Mississippi": ["Hinds", "Harrison", "DeSoto", "Jackson"],
-    "Missouri": ["St. Louis", "Jackson", "St. Charles", "Clay"],
-    "Montana": ["Yellowstone", "Missoula", "Gallatin", "Flathead"],
-    "Nebraska": ["Douglas", "Lancaster", "Sarpy", "Hall"],
-    "Nevada": ["Clark", "Washoe", "Carson City", "Lyon"],
-    "New Hampshire": ["Hillsborough", "Rockingham", "Merrimack", "Strafford"],
-    "New Jersey": ["Bergen", "Essex", "Middlesex", "Hudson", "Monmouth"],
-    "New Mexico": ["Bernalillo", "Doña Ana", "Santa Fe", "San Juan"],
-    "New York": ["Kings", "Queens", "New York", "Suffolk", "Bronx", "Nassau", "Westchester", "Erie"],
-    "North Carolina": ["Mecklenburg", "Wake", "Guilford", "Forsyth", "Cumberland"],
-    "North Dakota": ["Cass", "Burleigh", "Grand Forks", "Ward"],
-    "Ohio": ["Cuyahoga", "Franklin", "Hamilton", "Summit", "Montgomery"],
-    "Oklahoma": ["Oklahoma", "Tulsa", "Cleveland", "Canadian"],
-    "Oregon": ["Multnomah", "Washington", "Clackamas", "Lane", "Marion"],
-    "Pennsylvania": ["Philadelphia", "Allegheny", "Montgomery", "Bucks", "Delaware"],
-    "Rhode Island": ["Providence", "Kent", "Washington", "Newport"],
-    "South Carolina": ["Greenville", "Richland", "Charleston", "Horry"],
-    "South Dakota": ["Minnehaha", "Pennington", "Lincoln", "Brookings"],
-    "Tennessee": ["Shelby", "Davidson", "Knox", "Hamilton", "Rutherford"],
-    "Texas": ["Harris", "Dallas", "Tarrant", "Bexar", "Travis", "Collin", "Denton", "Fort Bend"],
-    "Utah": ["Salt Lake", "Utah", "Davis", "Weber"],
-    "Vermont": ["Chittenden", "Rutland", "Washington", "Windsor"],
-    "Virginia": ["Fairfax", "Virginia Beach", "Prince William", "Henrico"],
-    "Washington": ["King", "Pierce", "Snohomish", "Spokane", "Clark"],
-    "West Virginia": ["Kanawha", "Berkeley", "Cabell", "Wood"],
-    "Wisconsin": ["Milwaukee", "Dane", "Waukesha", "Brown", "Racine"],
-    "Wyoming": ["Laramie", "Natrona", "Campbell", "Sweetwater"],
-    
-    // Canada - Major Provinces
-    "Ontario": ["Toronto", "Ottawa", "Peel", "York", "Durham", "Halton", "Hamilton", "Waterloo"],
-    "Quebec": ["Montreal", "Quebec City", "Laval", "Gatineau", "Longueuil"],
-    "British Columbia": ["Vancouver", "Surrey", "Burnaby", "Richmond", "Victoria", "Kelowna"],
-    "Alberta": ["Calgary", "Edmonton", "Red Deer", "Lethbridge", "Medicine Hat"],
-    "Manitoba": ["Winnipeg", "Brandon", "Steinbach"],
-    "Saskatchewan": ["Saskatoon", "Regina", "Prince Albert"],
-    "Nova Scotia": ["Halifax", "Cape Breton", "Kings", "Colchester"],
-    "New Brunswick": ["Saint John", "Moncton", "Fredericton"],
-    
-    // Australia - Major States/Territories
-    "New South Wales": ["Sydney", "Newcastle", "Wollongong", "Central Coast", "Lake Macquarie"],
-    "Queensland": ["Brisbane", "Gold Coast", "Sunshine Coast", "Townsville", "Cairns"],
-    "Victoria": ["Melbourne", "Geelong", "Ballarat", "Bendigo"],
-    "South Australia": ["Adelaide", "Mount Gambier", "Whyalla"],
-    "Western Australia": ["Perth", "Mandurah", "Bunbury", "Albany"],
-    "Tasmania": ["Hobart", "Launceston", "Devonport"],
-    
-    // United Kingdom
-    "England": ["Greater London", "Greater Manchester", "West Midlands", "West Yorkshire", "Kent", "Essex", "Hampshire"],
-    "Scotland": ["Glasgow", "Edinburgh", "Aberdeen", "Dundee"],
-    "Wales": ["Cardiff", "Swansea", "Newport"],
-    "Northern Ireland": ["Belfast", "Derry", "Lisburn"],
-    
-    // International
-    "Tokyo": ["Shibuya", "Shinjuku", "Minato", "Setagaya"],
-    "Singapore": ["Central", "North", "East", "West"],
-    "Mexico": ["Mexico City", "Guadalajara", "Monterrey", "Tijuana"],
-    "New Zealand": ["Auckland", "Wellington", "Christchurch", "Hamilton"]
+const PAGE_TITLE =
+  "Senior Resource Directory — Northern California & National Programs | MySeniorValet";
+const PAGE_DESCRIPTION =
+  "A–Z directory of senior resources: food assistance, Meals on Wheels, IHSS in-home care, veterans benefits, Medicare counseling, transportation and more — hand-verified listings for Shasta, Butte, Tehama, Humboldt and other Northern California counties, plus national programs.";
+
+const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  Shield, FileText, Home, Building, HandHeart, Brain, Scale, ShoppingBasket,
+  Flower2, Heart, Stethoscope, HeartHandshake, Cross, Utensils, Accessibility,
+  BadgeCheck, Pill, Users, BedDouble, MessageCircle, Calculator, Car, Zap,
+  Award, Flag,
 };
 
+/**
+ * The server bakes the full directory into the initial HTML and embeds the
+ * same payload as JSON (outside #root, so React doesn't remove it). Reading
+ * it here means the page renders instantly with zero fetches on first load.
+ */
+function readEmbeddedDirectory(): BakedResourceDirectory | undefined {
+  try {
+    const el = document.getElementById("__RESOURCE_DIRECTORY__");
+    if (!el?.textContent) return undefined;
+    const parsed = JSON.parse(el.textContent);
+    if (parsed && Array.isArray(parsed.categories) && Array.isArray(parsed.listings)) {
+      return parsed as BakedResourceDirectory;
+    }
+  } catch {
+    // fall through to the API fallback
+  }
+  return undefined;
+}
+
+function isBakedResourceDirectory(value: unknown): value is BakedResourceDirectory {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Partial<BakedResourceDirectory>;
+  return (
+    Array.isArray(candidate.categories) &&
+    Array.isArray(candidate.counties) &&
+    Array.isArray(candidate.situations) &&
+    Array.isArray(candidate.listings)
+  );
+}
+
+async function fetchBakedDirectory(): Promise<BakedResourceDirectory> {
+  const response = await fetch("/api/senior-resources/directory-baked", {
+    headers: { Accept: "application/json" },
+  });
+  const contentType = response.headers.get("content-type") || "";
+
+  if (!response.ok || !contentType.toLowerCase().includes("application/json")) {
+    throw new Error("The resource directory service returned an invalid response.");
+  }
+
+  const payload: unknown = await response.json();
+  if (!isBakedResourceDirectory(payload)) {
+    throw new Error("The resource directory data is incomplete.");
+  }
+  return payload;
+}
+
+function ScopeBadge({ scope }: { scope: DirectoryListing["scope"] }) {
+  if (scope === "curated") {
+    return (
+      <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 flex items-center gap-1">
+        <CheckCircle2 className="h-3 w-3" /> Verified Local
+      </Badge>
+    );
+  }
+  if (scope === "discovered") {
+    return (
+      <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200 flex items-center gap-1">
+        <Sparkles className="h-3 w-3" /> Found on the web
+      </Badge>
+    );
+  }
+  if (scope === "state") {
+    return (
+      <Badge className="bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200 flex items-center gap-1">
+        <Shield className="h-3 w-3" /> California Program
+      </Badge>
+    );
+  }
+  return (
+    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200 flex items-center gap-1">
+      <Shield className="h-3 w-3" /> National Program
+    </Badge>
+  );
+}
+
+function ResourceCard({ item }: { item: DirectoryListing }) {
+  return (
+    <Card className="hover:shadow-lg transition-shadow" data-testid={`card-resource-${item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+      <CardHeader>
+        <div className="flex justify-between items-start gap-3 flex-wrap">
+          <div>
+            <CardTitle className="text-lg">{item.name}</CardTitle>
+            {item.type && <Badge variant="secondary" className="mt-2">{item.type}</Badge>}
+          </div>
+          <div className="flex flex-col items-end gap-1">
+            <ScopeBadge scope={item.scope} />
+            {item.isFree && <Badge className="bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-200">Free</Badge>}
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            {(item.address || item.city) && (
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-gray-500 mt-1 shrink-0" />
+                <div>
+                  {item.address && <p className="text-sm">{item.address}</p>}
+                  {(item.city || item.state) && (
+                    <p className="text-sm">{[item.city, item.state].filter(Boolean).join(", ")}</p>
+                  )}
+                </div>
+              </div>
+            )}
+            {item.phone && (
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4 text-gray-500 shrink-0" />
+                <a href={`tel:${item.phone.replace(/[^0-9+]/g, "")}`} className="text-sm text-blue-600 hover:underline">{item.phone}</a>
+              </div>
+            )}
+            {item.website && (
+              <div className="flex items-center gap-2">
+                <Globe className="h-4 w-4 text-gray-500 shrink-0" />
+                <a href={item.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                  Visit Website <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            )}
+            {item.hours && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-gray-500 shrink-0" />
+                <p className="text-sm">{item.hours}</p>
+              </div>
+            )}
+          </div>
+          <div className="space-y-2">
+            {item.services && item.services.length > 0 && (
+              <>
+                <h4 className="font-semibold text-sm">Services:</h4>
+                <div className="flex flex-wrap gap-2">
+                  {item.services.map((service, i) => (
+                    <Badge key={`${service}-${i}`} variant="outline" className="text-xs">{service}</Badge>
+                  ))}
+                </div>
+              </>
+            )}
+            {item.eligibility && (
+              <div className="pt-1">
+                <h4 className="font-semibold text-sm">Eligibility:</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{item.eligibility}</p>
+              </div>
+            )}
+          </div>
+        </div>
+        {/* Source citation (Golden Data Rule: every listing is traceable) */}
+        <div className="border-t pt-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <Info className="h-3 w-3 shrink-0" />
+          <span>Source: </span>
+          {item.sourceUrl ? (
+            <a href={item.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{item.source}</a>
+          ) : (
+            <span>{item.source}</span>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function matchesSearch(item: DirectoryListing, q: string): boolean {
+  const haystack = [
+    item.name, item.type, item.city, item.address, item.eligibility,
+    ...(item.services || []), ...(item.counties || []),
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return q.split(/\s+/).every((token) => haystack.includes(token));
+}
+
 export default function SeniorResources() {
-  const [selectedState, setSelectedState] = useState("California");
-  const [selectedCounty, setSelectedCounty] = useState("Los Angeles");
-  const [activeTab, setActiveTab] = useState<"food-banks" | "ihss" | "sls">("food-banks");
-  
-  // Reset county to first option when state changes
+  const embedded = useMemo(readEmbeddedDirectory, []);
+  const [selectedCounty, setSelectedCounty] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Baked payload: embedded in the HTML by the server; the API call only
+  // happens on client-side navigation when the embed isn't present.
+  const {
+    data: directory,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery<BakedResourceDirectory>({
+    queryKey: ["/api/senior-resources/directory-baked"],
+    queryFn: fetchBakedDirectory,
+    initialData: embedded,
+    staleTime: 15 * 60 * 1000,
+    retry: 1,
+    retryDelay: 100,
+  });
+
+  // Honor #category-anchor links once content is on screen.
   useEffect(() => {
-    const availableCounties = counties[selectedState];
-    if (availableCounties && availableCounties.length > 0) {
-      setSelectedCounty(availableCounties[0]);
-    }
-  }, [selectedState]);
+    if (!directory || !window.location.hash) return;
+    const el = document.getElementById(window.location.hash.slice(1));
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [directory]);
 
-  // Fetch food banks
-  const { data: foodBanksData, isLoading: foodBanksLoading } = useQuery({
-    queryKey: ["/api/senior-resources/food-banks", selectedState, selectedCounty],
-    queryFn: async () => {
-      const response = await fetch(`/api/senior-resources/food-banks?state=${selectedState}&county=${selectedCounty}`);
-      return response.json();
-    }
-  });
+  const q = searchQuery.trim().toLowerCase();
 
-  // Fetch IHSS resources
-  const { data: ihssData, isLoading: ihssLoading } = useQuery({
-    queryKey: ["/api/senior-resources/ihss", selectedState, selectedCounty],
-    queryFn: async () => {
-      const response = await fetch(`/api/senior-resources/ihss?state=${selectedState}&county=${selectedCounty}`);
-      return response.json();
+  const visibleByCategory = useMemo(() => {
+    const map = new Map<string, DirectoryListing[]>();
+    if (!directory) return map;
+    for (const item of directory.listings) {
+      // County chips filter local listings; statewide & national anchors
+      // always apply everywhere, so no section ever goes empty.
+      if (selectedCounty !== "all") {
+        const isLocal = item.scope === "curated" || item.scope === "discovered";
+        if (isLocal && !(item.counties || []).includes(selectedCounty)) continue;
+      }
+      if (q && !matchesSearch(item, q)) continue;
+      const list = map.get(item.category) || [];
+      list.push(item);
+      map.set(item.category, list);
     }
-  });
+    return map;
+  }, [directory, selectedCounty, q]);
 
-  // Fetch SLS resources
-  const { data: slsData, isLoading: slsLoading } = useQuery({
-    queryKey: ["/api/senior-resources/sls", selectedState, selectedCounty],
-    queryFn: async () => {
-      const response = await fetch(`/api/senior-resources/sls?state=${selectedState}&county=${selectedCounty}`);
-      return response.json();
+  const jumpTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      history.replaceState(null, "", `#${id}`);
     }
-  });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <Helmet>
-        <title>Senior Food Banks, In-Home Care & Support Resources | MySeniorValet</title>
-        <meta name="description" content="Find senior food banks, IHSS in-home support, assisted living resources & nutrition programs. Free nationwide directory of verified government programs for seniors across USA, Canada, Australia & UK." />
-        <meta name="keywords" content="senior food banks, senior nutrition programs, IHSS in-home support, senior resources, meals on wheels, food assistance for seniors, senior support services, assisted living resources, memory care resources, nursing home resources" />
-        <meta property="og:title" content="Senior Food Banks, In-Home Care & Support Resources | MySeniorValet" />
-        <meta property="og:description" content="Find senior food banks, IHSS in-home support, assisted living resources & nutrition programs. Free nationwide directory of verified government programs for seniors." />
+        <title>{PAGE_TITLE}</title>
+        <meta name="description" content={PAGE_DESCRIPTION} />
+        <meta property="og:title" content={PAGE_TITLE} />
+        <meta property="og:description" content={PAGE_DESCRIPTION} />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="https://myseniorvalet.com/senior-resources" />
+        <link rel="canonical" href="https://www.myseniorvalet.com/senior-resources" />
       </Helmet>
-      
+
       <ProfessionalNavbar />
 
-      {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 max-w-7xl mt-20">
-        {/* Location Selector */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5 text-blue-600" />
-              Select Your Location
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">State / Province / Country</label>
-                <Select value={selectedState} onValueChange={setSelectedState}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(counties).map(state => (
-                      <SelectItem key={state} value={state}>{state}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">County / City / Region</label>
-                <Select value={selectedCounty} onValueChange={setSelectedCounty}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {counties[selectedState as keyof typeof counties]?.map(county => (
-                      <SelectItem key={county} value={county}>{county}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="container mx-auto px-4 py-8 max-w-6xl mt-20">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white" data-testid="text-directory-title">
+            Senior Resource Directory
+          </h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300 max-w-3xl">
+            Hand-verified senior resources for Northern California — plus statewide
+            California and national programs. Every listing is source-cited, with
+            phone numbers, addresses, and hours where available.
+          </p>
+        </div>
 
-        {/* Resource Tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <Button 
-            onClick={() => setActiveTab("food-banks")}
-            variant={activeTab === "food-banks" ? "default" : "outline"}
-            className="flex items-center gap-2"
-          >
-            <Utensils className="h-4 w-4" />
-            Food Banks & Nutrition
-          </Button>
-          <Button 
-            onClick={() => setActiveTab("ihss")}
-            variant={activeTab === "ihss" ? "default" : "outline"}
-            className="flex items-center gap-2"
-          >
-            <Home className="h-4 w-4" />
-            IHSS (In-Home Support)
-          </Button>
-          <Button 
-            onClick={() => setActiveTab("sls")}
-            variant={activeTab === "sls" ? "default" : "outline"}
-            className="flex items-center gap-2"
-          >
-            <Users className="h-4 w-4" />
-            SLS (Supported Living)
+        {/* 211 banner */}
+        <div className="mb-6 rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/40 p-4 flex flex-wrap items-center gap-3" data-testid="banner-211">
+          <PhoneCall className="h-6 w-6 text-red-600 dark:text-red-400 shrink-0" />
+          <div className="flex-1 min-w-[220px]">
+            <p className="font-semibold text-red-900 dark:text-red-200">Need help right now? Dial 2-1-1</p>
+            <p className="text-sm text-red-800/80 dark:text-red-300/80">
+              Free, confidential, 24/7 referrals to local food, housing, utility, and care resources.
+            </p>
+          </div>
+          <Button asChild variant="destructive" size="sm" data-testid="button-call-211">
+            <a href="tel:211">Call 211</a>
           </Button>
         </div>
 
-        {/* Food Banks Tab */}
-        {activeTab === "food-banks" && (
-          <div className="space-y-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Utensils className="h-6 w-6 text-green-600" />
-                Food Banks & Senior Nutrition Programs
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Find food assistance programs specifically designed for seniors in your area
-              </p>
+        {/* Search */}
+        <div className="relative mb-6">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+          <Input
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search the directory — keyword, service, or town (e.g. “meals Redding”)"
+            className="pl-9"
+            data-testid="input-directory-search"
+          />
+        </div>
+
+        {/* Need help with… */}
+        {directory && (
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              Need help with…
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {directory.situations.map((s) => (
+                <Button
+                  key={s.label}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => jumpTo(s.categoryId)}
+                  data-testid={`button-situation-${s.categoryId}`}
+                >
+                  {s.label}
+                </Button>
+              ))}
             </div>
-
-            {foodBanksLoading ? (
-              <div className="text-center py-8">Loading food bank resources...</div>
-            ) : (
-              <>
-                {/* Message when no data available */}
-                {foodBanksData?.message && (
-                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
-                    <CardContent className="py-4">
-                      <p className="text-blue-800 dark:text-blue-200">{foodBanksData.message}</p>
-                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
-                        Call 211 for local resources or contact admin@myseniorvalet.com to help us add data for your area.
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
-                
-                {/* Food Banks List */}
-                <div className="grid gap-4">
-                  {foodBanksData?.foodBanks?.map((foodBank: any) => (
-                    <Card key={foodBank.id} className="hover:shadow-lg transition-shadow">
-                      <CardHeader>
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <CardTitle className="text-xl">{foodBank.name}</CardTitle>
-                            <Badge variant="secondary" className="mt-2">{foodBank.type}</Badge>
-                          </div>
-                          {foodBank.seniorPrograms?.homeDelivery && (
-                            <Badge className="bg-green-100 text-green-800">Home Delivery Available</Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-2">
-                              <MapPin className="h-4 w-4 text-gray-500 mt-1" />
-                              <div>
-                                <p className="text-sm">{foodBank.address}</p>
-                                <p className="text-sm">{foodBank.city}, {foodBank.state} {foodBank.zipCode}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-gray-500" />
-                              <a href={`tel:${foodBank.phone}`} className="text-sm text-blue-600 hover:underline">
-                                {foodBank.phone}
-                              </a>
-                            </div>
-                            {foodBank.website && (
-                              <div className="flex items-center gap-2">
-                                <Globe className="h-4 w-4 text-gray-500" />
-                                <a href={foodBank.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                                  Visit Website
-                                </a>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2">
-                              <Clock className="h-4 w-4 text-gray-500" />
-                              <p className="text-sm">{foodBank.hours}</p>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-sm">Services Offered:</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {foodBank.services?.map((service: string) => (
-                                <Badge key={service} variant="outline" className="text-xs">
-                                  {service}
-                                </Badge>
-                              ))}
-                            </div>
-                            {foodBank.languages && (
-                              <div>
-                                <h4 className="font-semibold text-sm mt-2">Languages:</h4>
-                                <p className="text-sm text-gray-600">{foodBank.languages.join(", ")}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {foodBank.seniorPrograms && (
-                          <div className="border-t pt-4">
-                            <h4 className="font-semibold text-sm mb-2">Senior-Specific Programs:</h4>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                              {foodBank.seniorPrograms.commodityProgram && (
-                                <Badge className="bg-blue-100 text-blue-800">Commodity Program</Badge>
-                              )}
-                              {foodBank.seniorPrograms.brownBagProgram && (
-                                <Badge className="bg-purple-100 text-purple-800">Brown Bag Program</Badge>
-                              )}
-                              {foodBank.seniorPrograms.mobilePantry && (
-                                <Badge className="bg-orange-100 text-orange-800">Mobile Pantry</Badge>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Additional Resources */}
-                {foodBanksData?.additionalResources && (
-                  <Card className="mt-6">
-                    <CardHeader>
-                      <CardTitle>Additional Food Assistance Resources</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid md:grid-cols-2 gap-6">
-                        <div>
-                          <h4 className="font-semibold mb-3">National Hotlines</h4>
-                          <div className="space-y-3">
-                            {foodBanksData.additionalResources.nationalHotlines?.map((hotline: any) => (
-                              <div key={hotline.name} className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
-                                <div className="font-medium">{hotline.name}</div>
-                                <a href={`tel:${hotline.phone}`} className="text-blue-600 hover:underline">
-                                  {hotline.phone}
-                                </a>
-                                <p className="text-sm text-gray-600 dark:text-gray-400">{hotline.hours}</p>
-                                <p className="text-sm">{hotline.description}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        <div>
-                          <h4 className="font-semibold mb-3">Online Resources</h4>
-                          <div className="space-y-3">
-                            {foodBanksData.additionalResources.websites?.map((site: any) => (
-                              <div key={site.name} className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
-                                <a href={site.url} target="_blank" rel="noopener noreferrer" className="font-medium text-blue-600 hover:underline flex items-center gap-1">
-                                  {site.name}
-                                  <ExternalLink className="h-3 w-3" />
-                                </a>
-                                <p className="text-sm mt-1">{site.description}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
           </div>
         )}
 
-        {/* IHSS Tab */}
-        {activeTab === "ihss" && (
-          <div className="space-y-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Home className="h-6 w-6 text-blue-600" />
-                In-Home Supportive Services (IHSS)
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Get help with daily activities to remain safely in your own home
-              </p>
+        {/* County chips */}
+        {directory && (
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              NorCal counties — verified local coverage
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={selectedCounty === "all" ? "default" : "outline"}
+                size="sm"
+                className="rounded-full"
+                onClick={() => setSelectedCounty("all")}
+                data-testid="button-county-all"
+              >
+                All Counties
+              </Button>
+              {directory.counties.map((c) => (
+                <Button
+                  key={c.id}
+                  variant={selectedCounty === c.id ? "default" : "outline"}
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => setSelectedCounty(selectedCounty === c.id ? "all" : c.id)}
+                  data-testid={`button-county-${c.id}`}
+                >
+                  {c.label}
+                </Button>
+              ))}
             </div>
-
-            {ihssLoading ? (
-              <div className="text-center py-8">Loading IHSS resources...</div>
-            ) : (
-              <>
-                {/* Message when no data available */}
-                {ihssData?.message && (
-                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
-                    <CardContent className="py-4">
-                      <p className="text-blue-800 dark:text-blue-200">{ihssData.message}</p>
-                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
-                        Contact your local Area Agency on Aging at 1-800-677-1116 for in-home support services in your area.
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
-                
-                {Object.entries(ihssData?.ihss || {}).map(([county, data]: [string, any]) => (
-                  <Card key={county} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <CardTitle className="text-xl">{county} County IHSS</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {/* Office Information */}
-                      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded">
-                        <h4 className="font-semibold mb-2">Main Office</h4>
-                        <div className="space-y-2">
-                          <p>{data.office.name}</p>
-                          <p className="text-sm">{data.office.mainOffice}</p>
-                          <p className="text-sm">{data.office.city}, {data.office.state} {data.office.zipCode}</p>
-                          <div className="flex gap-4 mt-2">
-                            <a href={`tel:${data.office.phone}`} className="text-blue-600 hover:underline">
-                              {data.office.phone}
-                            </a>
-                            {data.office.website && (
-                              <a href={data.office.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                Website
-                              </a>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Services */}
-                      <div>
-                        <h4 className="font-semibold mb-2">Services Provided</h4>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                          {data.services?.map((service: string) => (
-                            <Badge key={service} variant="outline">
-                              {service}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Eligibility */}
-                      <div>
-                        <h4 className="font-semibold mb-2">Eligibility Requirements</h4>
-                        <ul className="space-y-1 text-sm">
-                          <li>• Age: {data.eligibility.age}</li>
-                          <li>• Income: {data.eligibility.income}</li>
-                          <li>• Residency: {data.eligibility.residency}</li>
-                          <li>• Needs: {data.eligibility.needs}</li>
-                        </ul>
-                      </div>
-
-                      {/* Public Authority */}
-                      {data.publicAuthority && (
-                        <div className="bg-green-50 dark:bg-green-900/20 p-4 rounded">
-                          <h4 className="font-semibold mb-2">Public Authority (Provider Registry)</h4>
-                          <p className="font-medium">{data.publicAuthority.name}</p>
-                          <a href={`tel:${data.publicAuthority.phone}`} className="text-blue-600 hover:underline">
-                            {data.publicAuthority.phone}
-                          </a>
-                          {data.publicAuthority.website && (
-                            <div>
-                              <a href={data.publicAuthority.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                                {data.publicAuthority.website}
-                              </a>
-                            </div>
-                          )}
-                          <div className="flex flex-wrap gap-2 mt-2">
-                            {data.publicAuthority.services?.map((service: string) => (
-                              <Badge key={service} variant="secondary" className="text-xs">
-                                {service}
-                              </Badge>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Application Process */}
-                      <div>
-                        <h4 className="font-semibold mb-2">How to Apply</h4>
-                        <ol className="space-y-2">
-                          {data.applicationProcess?.map((step: string, index: number) => (
-                            <li key={index} className="flex gap-2">
-                              <span className="bg-blue-100 text-blue-800 rounded-full w-6 h-6 flex items-center justify-center text-sm font-semibold">
-                                {index + 1}
-                              </span>
-                              <span className="text-sm">{step}</span>
-                            </li>
-                          ))}
-                        </ol>
-                      </div>
-
-                      {/* Additional Info */}
-                      <div className="grid md:grid-cols-2 gap-4 pt-4 border-t">
-                        <div>
-                          <span className="font-semibold text-sm">Average Hours:</span>
-                          <p className="text-sm">{data.averageHours}</p>
-                        </div>
-                        <div>
-                          <span className="font-semibold text-sm">Provider Pay Rate:</span>
-                          <p className="text-sm">{data.payRate}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-
-                {/* Program Information */}
-                {ihssData?.programInfo && (
-                  <Card className="mt-6 bg-blue-50 dark:bg-blue-900/10">
-                    <CardHeader>
-                      <CardTitle>About IHSS</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="mb-2">{ihssData.programInfo.description}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        <strong>Funded by:</strong> {ihssData.programInfo.fundedBy}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        <strong>Available in:</strong> {ihssData.programInfo.availableIn}
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
           </div>
         )}
 
-        {/* SLS Tab */}
-        {activeTab === "sls" && (
-          <div className="space-y-6">
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Users className="h-6 w-6 text-purple-600" />
-                Supported Living Services (SLS)
-              </h2>
-              <p className="text-gray-600 dark:text-gray-400">
-                Find providers offering independent living support for adults with disabilities
-              </p>
+        {/* A–Z category nav */}
+        {directory && (
+          <nav aria-label="Directory categories" className="mb-10 rounded-lg border bg-white dark:bg-gray-900 p-4">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">
+              Browse A–Z
+            </h2>
+            <div className="flex flex-wrap gap-x-4 gap-y-1">
+              {directory.categories.map((cat) => (
+                <a
+                  key={cat.id}
+                  href={`#${cat.id}`}
+                  onClick={(e) => { e.preventDefault(); jumpTo(cat.id); }}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  data-testid={`link-category-${cat.id}`}
+                >
+                  {cat.label}
+                </a>
+              ))}
             </div>
-
-            {slsLoading ? (
-              <div className="text-center py-8">Loading SLS providers...</div>
-            ) : (
-              <>
-                {/* Message when no data available */}
-                {slsData?.message && (
-                  <Card className="bg-blue-50 dark:bg-blue-900/20 border-blue-200">
-                    <CardContent className="py-4">
-                      <p className="text-blue-800 dark:text-blue-200">{slsData.message}</p>
-                      <p className="text-sm text-blue-600 dark:text-blue-300 mt-2">
-                        Contact your local disability services or Regional Center for supported living providers in your area.
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
-                
-                {/* SLS Providers List */}
-                <div className="grid gap-4">
-                  {slsData?.sls?.map((provider: any) => (
-                    <Card key={provider.id} className="hover:shadow-lg transition-shadow">
-                      <CardHeader>
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <CardTitle className="text-xl">{provider.name}</CardTitle>
-                            <Badge variant="secondary" className="mt-2">{provider.type}</Badge>
-                          </div>
-                          {provider.acceptingClients && (
-                            <Badge className="bg-green-100 text-green-800">Accepting New Clients</Badge>
-                          )}
-                        </div>
-                      </CardHeader>
-                      <CardContent className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <div className="flex items-start gap-2">
-                              <MapPin className="h-4 w-4 text-gray-500 mt-1" />
-                              <div>
-                                <p className="text-sm">{provider.address}</p>
-                                <p className="text-sm">{provider.city}, {provider.state} {provider.zipCode}</p>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <Phone className="h-4 w-4 text-gray-500" />
-                              <a href={`tel:${provider.phone}`} className="text-sm text-blue-600 hover:underline">
-                                {provider.phone}
-                              </a>
-                            </div>
-                            {provider.website && (
-                              <div className="flex items-center gap-2">
-                                <Globe className="h-4 w-4 text-gray-500" />
-                                <a href={provider.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                                  Visit Website
-                                </a>
-                              </div>
-                            )}
-                            <div className="flex items-center gap-2">
-                              <Building className="h-4 w-4 text-gray-500" />
-                              <p className="text-sm">Vendor #: {provider.vendorNumber}</p>
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <h4 className="font-semibold text-sm">Services Offered:</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {provider.services?.map((service: string) => (
-                                <Badge key={service} variant="outline" className="text-xs">
-                                  {service}
-                                </Badge>
-                              ))}
-                            </div>
-                            {provider.languages && (
-                              <div>
-                                <h4 className="font-semibold text-sm mt-2">Languages:</h4>
-                                <p className="text-sm text-gray-600">{provider.languages.join(", ")}</p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        {provider.specializations && (
-                          <div className="border-t pt-4">
-                            <h4 className="font-semibold text-sm mb-2">Specializations:</h4>
-                            <div className="flex flex-wrap gap-2">
-                              {provider.specializations.map((spec: string) => (
-                                <Badge key={spec} className="bg-purple-100 text-purple-800">
-                                  {spec}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                        {provider.regionalCenter && (
-                          <div className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
-                            <span className="font-semibold text-sm">Regional Center:</span> {provider.regionalCenter}
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-
-                {/* Regional Centers */}
-                {slsData?.regionalCenters && (
-                  <Card className="mt-6">
-                    <CardHeader>
-                      <CardTitle>Regional Centers</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                        Regional Centers coordinate SLS services. Contact them to apply for services.
-                      </p>
-                      <div className="space-y-4">
-                        {Object.entries(slsData.regionalCenters).map(([county, centers]: [string, any]) => (
-                          <div key={county}>
-                            <h4 className="font-semibold mb-2">{county} County</h4>
-                            <div className="grid gap-2">
-                              {centers.map((center: any) => (
-                                <div key={center.name} className="bg-gray-50 dark:bg-gray-800 p-3 rounded">
-                                  <div className="font-medium">{center.name}</div>
-                                  <div className="flex gap-4 mt-1">
-                                    <a href={`tel:${center.phone}`} className="text-sm text-blue-600 hover:underline">
-                                      {center.phone}
-                                    </a>
-                                    {center.website && (
-                                      <a href={center.website} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline">
-                                        Website
-                                      </a>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Program Information */}
-                {slsData?.programInfo && (
-                  <Card className="mt-6 bg-purple-50 dark:bg-purple-900/10">
-                    <CardHeader>
-                      <CardTitle>About SLS</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="mb-2">{slsData.programInfo.description}</p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        <strong>Eligibility:</strong> {slsData.programInfo.eligibility}
-                      </p>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        <strong>Funded by:</strong> {slsData.programInfo.fundedBy}
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
-              </>
-            )}
-          </div>
+          </nav>
         )}
+
+        {/* Category sections */}
+        {directory ? (
+          <div className="space-y-12">
+            {directory.categories.map((cat) => {
+              const items = visibleByCategory.get(cat.id) || [];
+              if (q && items.length === 0) return null;
+              const Icon = CATEGORY_ICONS[cat.icon] || Users;
+              return (
+                <section key={cat.id} id={cat.id} className="scroll-mt-24">
+                  <div className="flex items-center gap-3 mb-1">
+                    <div className="h-9 w-9 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
+                      <Icon className="h-5 w-5 text-blue-700 dark:text-blue-300" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{cat.label}</h2>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4 ml-12">{cat.description}</p>
+                  {items.length > 0 ? (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      {items.map((item, i) => (
+                        <ResourceCard key={`${cat.id}-${item.name}-${i}`} item={item} />
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500 dark:text-gray-400 ml-12">
+                      No local listings match this filter — clear the county filter or dial 2-1-1 for local referrals.
+                    </p>
+                  )}
+                </section>
+              );
+            })}
+          </div>
+        ) : isError ? (
+          <div
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-950 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100"
+            data-testid="resource-directory-error"
+          >
+            <h2 className="text-lg font-semibold">We couldn’t load the resource directory.</h2>
+            <p className="mt-1 text-sm">
+              Please try again. You can also dial 2-1-1 for free, confidential local referrals.
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              className="mt-4"
+              onClick={() => void refetch()}
+              disabled={isFetching}
+              data-testid="button-retry-directory"
+            >
+              {isFetching ? "Retrying…" : "Retry"}
+            </Button>
+          </div>
+        ) : (
+          <p className="text-gray-600 dark:text-gray-300" role="status">
+            Loading the resource directory…
+          </p>
+        )}
+
+        {/* Footer note */}
+        <div className="mt-12 border-t pt-6 text-sm text-gray-500 dark:text-gray-400">
+          <p>
+            Every listing links to its source. Spot something out of date?{" "}
+            <a href="/contact" className="text-blue-600 hover:underline">Let us know</a> and we'll fix it.
+          </p>
+        </div>
       </div>
     </div>
   );

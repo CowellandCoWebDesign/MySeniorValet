@@ -48,9 +48,9 @@ router.post('/submit', async (req: Request, res: Response) => {
       ${email ? `<p style="margin-top: 20px;"><a href="mailto:${email}" style="background: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reply to User</a></p>` : ''}
     `;
 
-    // Send email to hello@myseniorvalet.com
+    // Send email to CowellandCoWebDesign@gmail.com
     await EmailService.sendEmail({
-      to: 'hello@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       subject: `Beta Feedback: ${type} - MySeniorValet`,
       html: emailHtml
     });

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 import { Search, MapPin, Filter, List, MapIcon, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Button } from '@/components/ui/button';
@@ -11,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import Map from '@/components/Map';
-import { PrioritizedCommunityCard } from '@/components/PrioritizedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '@/hooks/use-debounce';
 import { cn } from '@/lib/utils';
@@ -411,15 +412,15 @@ export default function AISearchSimplified() {
                   {communities.slice(0, 12).map((community: any) => (
                     <div
                       key={community.id}
-                      onClick={() => handleCommunitySelect(community)}
                       className={cn(
                         "cursor-pointer transition-all duration-200",
                         selectedCommunity?.id === community.id && "ring-2 ring-blue-500 rounded-lg"
                       )}
                     >
-                      <PrioritizedCommunityCard
+                      <CommunityCard
                         community={community}
-                        onSelect={() => setLocation(`/community/${community.id}`)}
+                        variant="grid"
+                        onSelect={() => handleCommunitySelect(community)}
                       />
                     </div>
                   ))}

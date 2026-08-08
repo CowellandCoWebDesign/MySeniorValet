@@ -68,7 +68,7 @@ export default function RealDataPricing() {
                   Enterprise Pricing Intelligence
                 </h1>
                 <p className="text-gray-600 dark:text-gray-300">
-                  Advanced analytics from 26,306+ verified communities across North America
+                  Advanced analytics from verified communities across North America
                 </p>
               </div>
             </div>

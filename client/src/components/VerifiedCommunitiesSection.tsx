@@ -2,9 +2,10 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { EnhancedCommunityCard } from '@/components/EnhancedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 import { Shield, Home, Heart, CheckCircle } from 'lucide-react';
 import { Link } from 'wouter';
+import { getCommunityUrl } from '@/lib/community-url';
 
 export function VerifiedCommunitiesSection() {
   // Fetch verified communities
@@ -71,11 +72,10 @@ export function VerifiedCommunitiesSection() {
             ))
           ) : (
             topVerifiedCommunities.slice(0, 8).map((community: any, index) => (
-              <EnhancedCommunityCard
+              <CommunityCard
                 key={`verified-${community.id}-${index}`}
                 community={community}
-                index={index}
-                variant="verified"
+                variant="grid"
               />
             ))
           )}
@@ -98,49 +98,11 @@ export function VerifiedCommunitiesSection() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Show remaining verified communities */}
             {topVerifiedCommunities.slice(8, 12).map((community: any, index: number) => (
-              <Link key={`more-verified-${community.id}-${index}`} href={`/community/${community.id}`}>
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow border-0 shadow-sm dark:bg-gray-700">
-                  <div className="relative">
-                    <div className="aspect-[4/3] bg-gray-200 dark:bg-gray-600 flex items-center justify-center">
-                      <Home className="w-12 h-12 text-gray-400 dark:text-gray-500" />
-                    </div>
-                    
-                    {/* Heart Icon */}
-                    <div className="absolute top-3 right-3">
-                      <div className="w-8 h-8 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center">
-                        <Heart className="w-4 h-4 text-gray-600" />
-                      </div>
-                    </div>
-                    
-                    {/* Verified Badge */}
-                    <div className="absolute top-3 left-3">
-                      <div className="bg-emerald-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1">
-                        <CheckCircle className="w-3 h-3 fill-current" />
-                        <span>VERIFIED</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <CardContent className="p-4">
-                    <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
-                      {community.name || 'Verified Community'}
-                    </h4>
-                    <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
-                      {community.city && community.state ? `${community.city}, ${community.state}` : 'Multiple Locations'}
-                    </p>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
-                        <Shield className="w-4 h-4 inline mr-1" />
-                        VERIFIED
-                      </span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {community.hudPropertyId ? 'HUD ID: ' + community.hudPropertyId.slice(-4) : 
-                         community.licenseNumber ? 'Licensed' : 'Verified'}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              <CommunityCard
+                key={`more-verified-${community.id}-${index}`}
+                community={community}
+                variant="grid"
+              />
             ))}
           </div>
         </div>

@@ -506,7 +506,7 @@ export class EnterpriseAlertService extends EventEmitter {
     if (!process.env.SENDGRID_API_KEY) return;
 
     const msg = {
-      to: 'admin@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'alerts@myseniorvalet.com',
       subject: `[${alert.severity.toUpperCase()}] ${alert.title}`,
       html: `

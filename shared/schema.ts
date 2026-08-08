@@ -1250,7 +1250,11 @@ export const communities = pgTable("communities", {
   lastAvailabilityUpdate: timestamp("last_availability_update"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-  
+
+  // Admin manual rating override — for verified external ratings entered by admin only
+  adminRatingOverride: decimal("admin_rating_override", { precision: 3, scale: 1 }),
+  adminRatingNote: text("admin_rating_note"),
+
   // Yelp integration fields
   yelpId: varchar("yelp_id"),
   yelpRating: real("yelp_rating"),
@@ -1268,7 +1272,12 @@ export const communities = pgTable("communities", {
   
   // Enrichment completion tracking
   enrichmentCompleted: boolean("enrichment_completed").default(false), // Tracks if community has been fully enriched
-  enrichmentStatus: text("enrichment_status", { enum: ["pending", "in_progress", "completed", "failed"] }).default("pending"),
+  // "no_data" is a terminal/quiet state: after repeated self-heal runs that find
+  // nothing online, the community stops auto-retrying until an admin forces it.
+  enrichmentStatus: text("enrichment_status", { enum: ["pending", "in_progress", "completed", "failed", "no_data"] }).default("pending"),
+  // Consecutive self-heal runs that persisted NO new content. Drives the
+  // escalating backoff (24h → 7d → 30d → terminal). Reset to 0 on a successful
+  // run (real content saved) or when an admin forces a retry.
   enrichmentAttempts: integer("enrichment_attempts").default(0),
   lastEnrichmentAttempt: timestamp("last_enrichment_attempt"),
   enrichmentHistory: json("enrichment_history").$type<Array<{
@@ -1307,6 +1316,8 @@ export const communities = pgTable("communities", {
       summary: string;
       sources: string[];
     };
+    managementCompany?: string;
+    availability?: string;
     lastFetched?: string;
     validUntil?: string; // Data expires after 7 days
   }>().default({}),
@@ -1533,6 +1544,30 @@ export const communities = pgTable("communities", {
     };
   }>(), // Nullable to support gradual migration
   enrichedAt: timestamp("enriched_at"), // When content was last enriched from Perplexity
+
+  // SEO slug columns for O(1) URL resolution (replaces fragile lower() fuzzy matching)
+  slug: text("slug"),       // slugified community name, e.g. "sunrise-senior-living"
+  citySlug: text("city_slug"),   // slugified city,  e.g. "san-francisco"
+  stateSlug: text("state_slug"), // slugified state, e.g. "california" or "ca"
+
+  // Data-quality flags — non-destructive markers for suspect/guessed AI data.
+  // Values: 'citation_artifact', 'incomplete_address', 'guessed_name',
+  // 'unreachable_website'. Records are FLAGGED for review, never auto-deleted.
+  dataQualityFlags: text("data_quality_flags").array().default([]),
+  dataQualityCheckedAt: timestamp("data_quality_checked_at"), // last scan timestamp
+
+  // Senior classification + quality scoring (Task #262) — single source of truth
+  // for visibility. Computed by evaluateCommunity() in shared/community-classification.ts.
+  seniorClassification: text("senior_classification", { enum: ["senior", "non_senior", "unknown"] }), // null = not yet scored
+  qualityScore: integer("quality_score"),   // 0–100 composite quality score
+  qualityTier: text("quality_tier", { enum: ["featured", "verified", "good", "thin", "empty"] }),
+
+  // Lifecycle flag — deactivated records are excluded from public listings/search
+  isActive: boolean("is_active").default(true),
+
+  // Moderation fields — reversible hide + two-stage flag status
+  isHidden: boolean("is_hidden").default(false).notNull(), // Soft-hide; does NOT delete the record
+  flagStatus: text("flag_status", { enum: ["pending", "confirmed"] }), // null = no active flag
 }, (table) => [
   // Performance indexes for fast search
   index("communities_city_idx").on(table.city),
@@ -1545,6 +1580,8 @@ export const communities = pgTable("communities", {
   index("communities_trending_score_idx").on(table.trendingScore),
   // PostGIS spatial index for efficient geo queries (created manually in SQL)
   // index("communities_location_gist_idx").on(table.location).using("gist"),
+  // Slug-based URL lookup index — powers /api/communities/by-slug/:state/:city/:slug
+  uniqueIndex("communities_slug_lookup_idx").on(table.stateSlug, table.citySlug, table.slug),
 ]);
 
 export const inspections = pgTable("inspections", {
@@ -1644,10 +1681,11 @@ export const favorites = pgTable("favorites", {
 // User Searches/History Table  
 export const searchHistory = pgTable("search_history", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  searchQuery: json("search_query").$type<SearchCommunity>().notNull(),
-  resultCount: integer("result_count").notNull(),
-  searchName: text("search_name"), // User can save and name searches
+  userId: integer("user_id").references(() => users.id),
+  searchQuery: json("search_query").$type<SearchCommunity>(),
+  searchText: text("search_text"),
+  resultCount: integer("result_count").notNull().default(0),
+  searchName: text("search_name"),
   isBookmarked: boolean("is_bookmarked").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -1916,6 +1954,39 @@ export const insertContactSubmissionSchema = createInsertSchema(contactSubmissio
 export type InsertContactSubmission = z.infer<typeof insertContactSubmissionSchema>;
 export type SelectContactSubmission = typeof contactSubmissions.$inferSelect;
 
+// Guided "Start Your Search" placement intake inquiries (5-step wizard on /start-your-search).
+// Enum-ish columns are plain text validated by zod in the route — intentionally NO DB CHECK
+// constraints (adding enum values later would otherwise require manual ALTERs in dev AND prod).
+export const placementInquiries = pgTable("placement_inquiries", {
+  id: serial("id").primaryKey(),
+
+  // Wizard answers
+  relationship: text("relationship").notNull(), // 'myself' | 'parent' | 'spouse_partner' | 'someone_else'
+  careType: text("care_type").notNull(), // 'assisted_living' | 'memory_care' | 'independent_living' | 'not_sure'
+  urgency: text("urgency").notNull(), // 'immediately' | 'within_30_days' | 'one_to_three_months' | 'just_researching'
+  location: text("location").notNull(), // free-text city or ZIP
+
+  // Contact (name required; at least one of phone/email enforced in the route)
+  name: text("name").notNull(),
+  phone: text("phone"),
+  email: text("email"),
+
+  // Team triage
+  status: text("status").default("new"), // 'new' | 'contacted' | 'closed'
+
+  // Email delivery observability (lead is saved regardless of email outcome)
+  ownerEmailDelivered: boolean("owner_email_delivered").default(false),
+  familyEmailDelivered: boolean("family_email_delivered").default(false),
+
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type SelectPlacementInquiry = typeof placementInquiries.$inferSelect;
+export type InsertPlacementInquiry = typeof placementInquiries.$inferInsert;
+
 // Community Claims - Operator verification system
 export const communityClaims = pgTable("community_claims", {
   id: serial("id").primaryKey(),
@@ -1924,7 +1995,7 @@ export const communityClaims = pgTable("community_claims", {
   
   // Claim Status
   status: text("status", {
-    enum: ["Pending", "Under Review", "Approved", "Rejected", "Cancelled"]
+    enum: ["Pending", "Under Review", "Approved", "Rejected", "Cancelled", "Revoked", "Suspended", "Expired"]
   }).default("Pending"),
   
   // Claimer Information
@@ -3140,6 +3211,10 @@ export const leads = pgTable("leads", {
     budget?: string;
     careNeeds?: string[];
     notes?: string;
+    // Profile-view referral consent fields (Task: contact gating)
+    allowDirectContact?: boolean; // family agreed to be contacted at all
+    allowPhoneContact?: boolean; // false = email/text only, no phone
+    revealedField?: string; // 'phone' | 'website' | 'pricing' | 'overview'
   }>().default({}),
   lastContactedAt: timestamp("last_contacted_at"),
   nextFollowUpAt: timestamp("next_follow_up_at"),
@@ -7543,3 +7618,324 @@ export const insertPaymentReceiptSchema = createInsertSchema(paymentReceipts)
   .omit({ id: true, createdAt: true });
 export type InsertPaymentReceipt = z.infer<typeof insertPaymentReceiptSchema>;
 export type SelectPaymentReceipt = typeof paymentReceipts.$inferSelect;
+
+// ========== HEALTHCARE PROVIDERS (Discovery Mode) ==========
+// Stores discovered healthcare providers from Perplexity searches
+export const healthcareProviders = pgTable("healthcare_providers", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  normalizedName: text("normalized_name").notNull(), // Lowercase, trimmed for deduplication
+  description: text("description"),
+  shortDescription: text("short_description"),
+  
+  // Location information
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  
+  // Provider details
+  providerType: text("provider_type"), // 'doctor', 'clinic', 'hospital', 'specialist', 'pharmacy', etc.
+  specialties: text("specialties").array().default([]),
+  
+  // Pricing & Insurance
+  pricingSummary: text("pricing_summary"), // Extracted pricing text
+  pricingConfidence: integer("pricing_confidence").default(0), // 0-100 confidence in pricing data
+  insuranceAccepted: text("insurance_accepted").array().default([]), // Medicare, Medicaid, etc.
+  acceptsMedicare: boolean("accepts_medicare").default(false),
+  acceptsMedicaid: boolean("accepts_medicaid").default(false),
+  
+  // Hours and availability
+  hours: text("hours"),
+  
+  // Discovery metadata
+  source: text("source").notNull(), // 'perplexity_discovery', 'user_submitted', etc.
+  sourceUrl: text("source_url"),
+  confidence: integer("confidence").default(0),
+  isVerified: boolean("is_verified").default(false),
+  
+  metadata: jsonb("metadata").$type<{
+    discoveryQuery?: string;
+    tags?: string[];
+    lastEnrichedAt?: string;
+  }>(),
+  
+  discoveredAt: timestamp("discovered_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_healthcare_providers_normalized_name").on(table.normalizedName),
+  index("idx_healthcare_providers_city_state").on(table.city, table.state),
+  index("idx_healthcare_providers_type").on(table.providerType),
+  index("idx_healthcare_providers_discovered").on(table.discoveredAt),
+]);
+
+export const insertHealthcareProviderSchema = createInsertSchema(healthcareProviders)
+  .omit({ id: true, createdAt: true, updatedAt: true, discoveredAt: true });
+export type InsertHealthcareProvider = z.infer<typeof insertHealthcareProviderSchema>;
+export type SelectHealthcareProvider = typeof healthcareProviders.$inferSelect;
+
+// ========== SENIOR RESOURCES (Discovery Mode) ==========
+// Stores discovered senior resources from Perplexity searches
+export const seniorResources = pgTable("senior_resources", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  normalizedName: text("normalized_name").notNull(), // Lowercase, trimmed for deduplication
+  description: text("description"),
+  shortDescription: text("short_description"),
+  
+  // Location information
+  address: text("address"),
+  city: text("city"),
+  state: text("state"),
+  zipCode: text("zip_code"),
+  phone: text("phone"),
+  website: text("website"),
+  email: text("email"),
+  
+  // Resource details
+  resourceType: text("resource_type"), // 'senior_center', 'food_program', 'legal_aid', 'transportation', etc.
+  services: text("services").array().default([]), // List of services offered
+  
+  // Pricing & Eligibility
+  pricingSummary: text("pricing_summary"), // 'free', 'sliding scale', '$X per visit', etc.
+  isFree: boolean("is_free").default(false),
+  eligibility: text("eligibility"), // Eligibility requirements text
+  incomeRestrictions: text("income_restrictions"), // Income-based eligibility
+  
+  // Hours and availability
+  hours: text("hours"),
+  
+  // Discovery metadata
+  source: text("source").notNull(), // 'perplexity_discovery', 'user_submitted', etc.
+  sourceUrl: text("source_url"),
+  confidence: integer("confidence").default(0),
+  isVerified: boolean("is_verified").default(false),
+  
+  metadata: jsonb("metadata").$type<{
+    discoveryQuery?: string;
+    discoveryCategory?: string; // Directory category this resource was found under
+    discoveryCounty?: string; // County the discovery was run for (county-aware cache lookup)
+    tags?: string[];
+    programs?: string[]; // Government programs like SNAP, Meals on Wheels, etc.
+    lastEnrichedAt?: string;
+  }>(),
+  
+  discoveredAt: timestamp("discovered_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_senior_resources_normalized_name").on(table.normalizedName),
+  index("idx_senior_resources_city_state").on(table.city, table.state),
+  index("idx_senior_resources_type").on(table.resourceType),
+  index("idx_senior_resources_discovered").on(table.discoveredAt),
+]);
+
+export const insertSeniorResourceSchema = createInsertSchema(seniorResources)
+  .omit({ id: true, createdAt: true, updatedAt: true, discoveredAt: true });
+export type InsertSeniorResource = z.infer<typeof insertSeniorResourceSchema>;
+export type SelectSeniorResource = typeof seniorResources.$inferSelect;
+
+// ========== HOME PAGE SECTION CONFIGS ==========
+// Controls which community sections appear on the home page and in what order.
+// Admins can add, reorder, enable/disable sections without a code deploy.
+export const SECTION_TYPES = [
+  'location',
+  'care_type',
+  'hud',
+  'trending',
+  'highest_rated',
+  'most_reviewed',
+  'featured',
+  'coastal',
+  'recently_discovered',
+  'brand',
+  'red_tag_deals',
+  'care_spectrum',
+] as const;
+export type SectionType = (typeof SECTION_TYPES)[number];
+
+export const homeSectionConfigs = pgTable("home_section_configs", {
+  id: serial("id").primaryKey(),
+  position: integer("position").notNull().default(0),
+  enabled: boolean("enabled").notNull().default(true),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  sectionType: text("section_type").notNull().$type<SectionType>(),
+  // Stable identifier for additively-seeded default sections. NULL for admin-created
+  // sections. Lets the seeder claim/insert defaults idempotently without clobbering.
+  defaultKey: text("default_key"),
+  config: jsonb("config").$type<{
+    city?: string;
+    state?: string;
+    careType?: string;
+    country?: string;
+    brand?: string;
+    limit?: number;
+    selectionMode?: "auto" | "curated" | "pinned";
+    communityIds?: number[];
+    excludeIds?: number[];
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  index("idx_home_section_configs_position").on(table.position),
+  index("idx_home_section_configs_enabled").on(table.enabled),
+]);
+
+export const insertHomeSectionConfigSchema = createInsertSchema(homeSectionConfigs)
+  .omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertHomeSectionConfig = z.infer<typeof insertHomeSectionConfigSchema>;
+export type SelectHomeSectionConfig = typeof homeSectionConfigs.$inferSelect;
+
+// ============================================================================
+// Supporting-Community Registry (Task #483)
+//
+// The single controlled referral-support registry that decides which
+// communities MySeniorValet publicly offers. It is intentionally restrictive
+// (allowlist-based): a community is publicly eligible ONLY if its operator
+// family is admin-approved OR it is individually approved — AND it is not
+// covered by a community-level exclusion (exclusion ALWAYS wins).
+//
+// The DDL is also created idempotently at startup (server/run-migration.ts)
+// because DB changes never merge across environments.
+// ============================================================================
+
+// Approval status shared across families, matches and individual approvals.
+// The public eligibility predicate (server/utils/community-ranking.ts) reads
+// status = 'approved' on families/matches/approvals.
+export const SUPPORTING_STATUSES = ["approved", "proposed", "rejected", "revoked"] as const;
+export type SupportingStatus = (typeof SUPPORTING_STATUSES)[number];
+
+// Community-level exclusion reasons. Exclusion overrides every inheritance.
+export const SUPPORTING_EXCLUSION_REASONS = ["closed", "no_referrals", "duplicate", "other"] as const;
+export type SupportingExclusionReason = (typeof SUPPORTING_EXCLUSION_REASONS)[number];
+
+// Normalized operator/management families. The public predicate keys off
+// status = 'approved'. Aliases/domains live in the child tables below.
+export const supportingOperatorFamilies = pgTable("supporting_operator_families", {
+  id: serial("id").primaryKey(),
+  // Canonical operator/management-company name (e.g. "Atria Management Company").
+  name: text("name").notNull(),
+  // Stable slug used for idempotent seeding + lookups. Unique.
+  slug: text("slug").notNull(),
+  status: text("status").notNull().$type<SupportingStatus>().default("proposed"),
+  // Free-form corroboration evidence (official portfolio URLs, notes, etc.).
+  evidence: jsonb("evidence").$type<{
+    notes?: string;
+    sources?: string[];
+    portfolioEstimate?: number;
+  }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_families_slug").on(table.slug),
+  index("idx_supporting_families_status").on(table.status),
+]);
+
+export type InsertSupportingOperatorFamily = typeof supportingOperatorFamilies.$inferInsert;
+export type SupportingOperatorFamily = typeof supportingOperatorFamilies.$inferSelect;
+
+// Brand aliases belonging to a family (e.g. "Holiday by Atria"). Matching is
+// exact/normalized — never loose substring.
+export const supportingOperatorAliases = pgTable("supporting_operator_aliases", {
+  id: serial("id").primaryKey(),
+  familyId: integer("family_id").references(() => supportingOperatorFamilies.id, { onDelete: "cascade" }).notNull(),
+  alias: text("alias").notNull(),
+  aliasNormalized: text("alias_normalized").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_aliases_family_norm").on(table.familyId, table.aliasNormalized),
+  index("idx_supporting_aliases_norm").on(table.aliasNormalized),
+]);
+
+export type InsertSupportingOperatorAlias = typeof supportingOperatorAliases.$inferInsert;
+export type SupportingOperatorAlias = typeof supportingOperatorAliases.$inferSelect;
+
+// Verified domains belonging to a family (canonical operator identity, e.g.
+// "mosaicms.com"). Used to resolve approval through verified websites.
+export const supportingOperatorDomains = pgTable("supporting_operator_domains", {
+  id: serial("id").primaryKey(),
+  familyId: integer("family_id").references(() => supportingOperatorFamilies.id, { onDelete: "cascade" }).notNull(),
+  domain: text("domain").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_domains_family_domain").on(table.familyId, table.domain),
+  index("idx_supporting_domains_domain").on(table.domain),
+]);
+
+export type InsertSupportingOperatorDomain = typeof supportingOperatorDomains.$inferInsert;
+export type SupportingOperatorDomain = typeof supportingOperatorDomains.$inferSelect;
+
+// Resolved matches between an operator family and a stored community record.
+// The public predicate reads status = 'approved' (approved family + approved
+// match = inherited eligibility). Ambiguous name-only candidates stay
+// status = 'proposed' for admin review.
+export const supportingCommunityMatches = pgTable("supporting_community_matches", {
+  id: serial("id").primaryKey(),
+  familyId: integer("family_id").references(() => supportingOperatorFamilies.id, { onDelete: "cascade" }).notNull(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "cascade" }).notNull(),
+  // How the match was resolved: domain | alias | operator_id | manual
+  matchMethod: text("match_method").notNull().default("manual"),
+  status: text("status").notNull().$type<SupportingStatus>().default("proposed"),
+  evidence: jsonb("evidence").$type<{ notes?: string; sources?: string[] }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_matches_family_community").on(table.familyId, table.communityId),
+  index("idx_supporting_matches_community").on(table.communityId),
+  index("idx_supporting_matches_status").on(table.status),
+]);
+
+export type InsertSupportingCommunityMatch = typeof supportingCommunityMatches.$inferInsert;
+export type SupportingCommunityMatch = typeof supportingCommunityMatches.$inferSelect;
+
+// Individually approved standalone communities, keyed by exact normalized
+// name+city+state (approval_key). The seeder resolves community_id via exact
+// normalized name+city (+ state aliases). Public predicate reads status +
+// (community_id OR approval_key).
+export const supportingCommunityApprovals = pgTable("supporting_community_approvals", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  approvalKey: text("approval_key").notNull(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "set null" }),
+  status: text("status").notNull().$type<SupportingStatus>().default("approved"),
+  evidence: jsonb("evidence").$type<{ notes?: string; sources?: string[] }>().default({}),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_approvals_key").on(table.approvalKey),
+  index("idx_supporting_approvals_community").on(table.communityId),
+  index("idx_supporting_approvals_status").on(table.status),
+]);
+
+export type InsertSupportingCommunityApproval = typeof supportingCommunityApprovals.$inferInsert;
+export type SupportingCommunityApproval = typeof supportingCommunityApprovals.$inferSelect;
+
+// Permanent community-level exclusions, keyed by exact normalized
+// name+city+state (exclusion_key). These override BOTH family inheritance and
+// individual approval — exclusion always wins. Public predicate reads
+// (community_id OR exclusion_key).
+export const supportingCommunityExclusions = pgTable("supporting_community_exclusions", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  exclusionKey: text("exclusion_key").notNull(),
+  communityId: integer("community_id").references(() => communities.id, { onDelete: "set null" }),
+  reason: text("reason").notNull().$type<SupportingExclusionReason>(),
+  note: text("note"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+}, (table) => [
+  uniqueIndex("idx_supporting_exclusions_key").on(table.exclusionKey),
+  index("idx_supporting_exclusions_community").on(table.communityId),
+]);
+
+export type InsertSupportingCommunityExclusion = typeof supportingCommunityExclusions.$inferInsert;
+export type SupportingCommunityExclusion = typeof supportingCommunityExclusions.$inferSelect;

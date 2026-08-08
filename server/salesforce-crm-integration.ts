@@ -1,5 +1,7 @@
 // Salesforce CRM Integration for Lead Management
-import jsforce from 'jsforce';
+import { lazyModule } from './utils/lazy-load';
+// Lazy-loaded so jsforce (~400ms) doesn't block server boot.
+const jsforce = lazyModule<typeof import('jsforce')>('jsforce');
 
 export class SalesforceCRMIntegration {
   private conn: any;

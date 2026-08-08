@@ -1,12 +1,13 @@
 import { db } from './db';
 import { communities } from '@shared/schema';
 import { sql, and, or } from 'drizzle-orm';
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from './utils/lazy-load';
 
 // Initialize OpenAI for embeddings (optional - only if vector search is needed)
-const openai = new OpenAI({
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({
   apiKey: process.env.OPENAI_API_KEY,
-});
+}));
 
 export class AIDatabaseConnector {
   private vectorEnabled: boolean = false;

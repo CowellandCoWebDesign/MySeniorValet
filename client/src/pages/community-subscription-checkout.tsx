@@ -8,6 +8,7 @@ import { CheckCircle2, Loader2, X, Star, Shield, Trophy, Crown, Sparkles } from 
 import { toast } from '@/hooks/use-toast';
 import { apiRequest } from '@/lib/queryClient';
 import { NavigationHeader } from '@/components/NavigationHeader';
+import { PAID_TIERS_DISABLED, PAID_TIER_IDS, CONTACT_SALES_MAILTO } from '@/lib/feature-flags';
 
 const SUBSCRIPTION_TIERS = {
   free: {
@@ -276,15 +277,24 @@ export default function CommunitySubscriptionCheckout() {
             {Object.values(SUBSCRIPTION_TIERS).map((tierOption) => {
               const Icon = tierOption.icon;
               const isSelected = tierOption.key === selectedTier;
+              const isPaidDisabled = PAID_TIERS_DISABLED && PAID_TIER_IDS.has(tierOption.key);
               
               return (
                 <Card 
                   key={tierOption.key}
-                  className={`cursor-pointer transition-all ${
+                  className={`relative transition-all ${isPaidDisabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'} ${
                     isSelected ? 'ring-2 ring-primary shadow-lg' : 'hover:shadow-md'
                   }`}
-                  onClick={() => window.location.href = `/community-subscription-checkout?communityId=${communityId}&tier=${tierOption.key}`}
+                  onClick={() => {
+                    if (isPaidDisabled) return;
+                    window.location.href = `/community-subscription-checkout?communityId=${communityId}&tier=${tierOption.key}`;
+                  }}
                 >
+                  {isPaidDisabled && (
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+                      <Badge className="bg-gray-700 text-white px-3 py-1 text-xs">Coming Soon</Badge>
+                    </div>
+                  )}
                   <CardHeader className="text-center pb-4">
                     <div className="mb-3">
                       <Icon className="h-8 w-8 mx-auto text-primary" />
@@ -397,22 +407,31 @@ export default function CommunitySubscriptionCheckout() {
             >
               Cancel
             </Button>
-            <Button
-              onClick={() => handleCheckout(tier.key)}
-              disabled={isProcessing}
-              className="min-w-[200px]"
-            >
-              {isProcessing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
-                </>
-              ) : tier.price === 0 ? (
-                'Activate Free Plan'
-              ) : (
-                `Upgrade to ${tier.displayName} - $${tier.price}/mo`
-              )}
-            </Button>
+            {PAID_TIERS_DISABLED && PAID_TIER_IDS.has(tier.key) ? (
+              <Button
+                onClick={() => window.open(CONTACT_SALES_MAILTO, '_blank')}
+                className="min-w-[200px] bg-gray-500 hover:bg-gray-600 text-white"
+              >
+                Contact Sales →
+              </Button>
+            ) : (
+              <Button
+                onClick={() => handleCheckout(tier.key)}
+                disabled={isProcessing}
+                className="min-w-[200px]"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : tier.price === 0 ? (
+                  'Activate Free Plan'
+                ) : (
+                  `Upgrade to ${tier.displayName} - $${tier.price}/mo`
+                )}
+              </Button>
+            )}
           </div>
 
           {/* Security Badge */}

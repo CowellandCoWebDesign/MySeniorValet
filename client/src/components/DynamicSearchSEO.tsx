@@ -66,19 +66,19 @@ export function DynamicSearchSEO({
       // International locations
       const internationalLocations: { [key: string]: { title: string; keywords: string; description: string } } = {
         'Tokyo': {
-          title: 'Senior Living Tokyo Japan - 49 Communities',
+          title: 'Senior Living Tokyo Japan - Communities Directory',
           keywords: 'senior living Tokyo, retirement homes Japan, elderly care Tokyo, 高齢者施設',
-          description: 'Find 49 senior living communities in Tokyo, Japan. English-language directory for expats and international families seeking elderly care in Tokyo.'
+          description: 'Find senior living communities in Tokyo, Japan. English-language directory for expats and international families seeking elderly care in Tokyo.'
         },
         'Singapore': {
-          title: 'Senior Living Singapore - 27 Facilities',
+          title: 'Senior Living Singapore - Facilities Directory',
           keywords: 'senior living Singapore, retirement homes Singapore, elderly care Singapore',
-          description: 'Discover 27 senior living facilities in Singapore. Complete directory of retirement communities and elderly care options for international families.'
+          description: 'Discover senior living facilities in Singapore. Complete directory of retirement communities and elderly care options for international families.'
         },
         'Scotland': {
-          title: 'Care Homes Scotland - 31 Facilities',
+          title: 'Care Homes Scotland - Facilities Directory',
           keywords: 'care homes Scotland, Scottish retirement homes, elderly care Scotland',
-          description: 'Search 31 care homes across Scotland. Find retirement communities and senior living options throughout Scottish regions.'
+          description: 'Search care homes across Scotland. Find retirement communities and senior living options throughout Scottish regions.'
         },
         'Mexico': {
           title: 'Senior Living Mexico - Retirement Communities',
@@ -96,7 +96,7 @@ export function DynamicSearchSEO({
       if (canadianProvinces[locationName]) {
         const provinceName = canadianProvinces[locationName];
         dynamicTitle = `Senior Living ${provinceName} - ${totalResults || 'All'} Communities | MySeniorValet`;
-        dynamicDescription = `Explore ${totalResults || 'all'} senior living communities in ${provinceName}, Canada. Compare retirement homes, assisted living, long-term care facilities with transparent pricing. No referral fees.`;
+        dynamicDescription = `Explore ${totalResults || 'all'} senior living communities in ${provinceName}, Canada. Compare retirement homes, assisted living, long-term care facilities with transparent pricing. Family research tools free.`;
         dynamicKeywords = `senior living ${provinceName}, retirement homes ${provinceName}, ${provinceName} assisted living, ${provinceName} nursing homes, elderly care ${provinceName} Canada`;
       } else if (australianStates[locationName]) {
         const stateName = australianStates[locationName];
@@ -168,8 +168,8 @@ export function DynamicSearchSEO({
       
     } else {
       // Default search page SEO
-      dynamicTitle = "Search Senior Living - 33,500+ Communities Worldwide | MySeniorValet";
-      dynamicDescription = "Search 33,500+ senior living communities across USA, Canada, Australia, Japan, Singapore, and more. Find the perfect community with transparent pricing.";
+      dynamicTitle = "Search Senior Living - Communities Worldwide | MySeniorValet";
+      dynamicDescription = "Search senior living communities across USA, Canada, Australia, Japan, Singapore, and more. Find the perfect community with transparent pricing.";
       dynamicKeywords = "senior living search, find retirement homes, assisted living search, elderly care directory";
     }
 

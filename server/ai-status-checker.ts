@@ -3,8 +3,9 @@
  * Quick health check for all AI services
  */
 
-import { Anthropic } from '@anthropic-ai/sdk';
-import OpenAI from 'openai';
+import type { Anthropic } from '@anthropic-ai/sdk';
+import { lazyClient, requireModule } from './utils/lazy-load';
+import type OpenAI from 'openai';
 
 interface AIStatus {
   claude: { working: boolean; message: string };
@@ -24,9 +25,9 @@ export async function checkAllAIStatus(): Promise<AIStatus> {
     if (!process.env.ANTHROPIC_API_KEY) {
       results.claude.message = 'API key not found';
     } else {
-      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const anthropic = lazyClient<Anthropic>(() => new (requireModule('@anthropic-ai/sdk').Anthropic)({ apiKey: process.env.ANTHROPIC_API_KEY }));
       await anthropic.messages.create({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-5-20250929',
         max_tokens: 10,
         messages: [{ role: 'user', content: 'test' }]
       });
@@ -42,7 +43,7 @@ export async function checkAllAIStatus(): Promise<AIStatus> {
     if (!process.env.OPENAI_API_KEY) {
       results.openai.message = 'API key not found';
     } else {
-      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ apiKey: process.env.OPENAI_API_KEY }));
       await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [{ role: 'user', content: 'test' }],
@@ -55,34 +56,24 @@ export async function checkAllAIStatus(): Promise<AIStatus> {
     results.openai.message = error.message?.includes('quota') ? 'Quota exceeded' : 'API Error';
   }
 
-  // Test Perplexity
+  // Test Perplexity - COST CONTROL: Skip actual API call to prevent spending
+  // Each health check was costing money - just verify key exists instead
   try {
     if (!process.env.PERPLEXITY_API_KEY) {
       results.perplexity.message = 'API key not found';
     } else {
-      const response = await fetch('https://api.perplexity.ai/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.PERPLEXITY_API_KEY}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model: 'sonar-pro',
-          messages: [{ role: 'user', content: 'test' }],
-          max_tokens: 10,
-          stream: false
-        })
-      });
-
-      if (response.ok) {
+      // COST CONTROL: Don't make actual API call - just verify key format
+      // The actual API call was contributing to unnecessary spending
+      const keyPrefix = process.env.PERPLEXITY_API_KEY.substring(0, 8);
+      if (keyPrefix.startsWith('pplx-')) {
         results.perplexity.working = true;
-        results.perplexity.message = 'Working';
+        results.perplexity.message = 'API key configured (health check skipped for cost control)';
       } else {
-        results.perplexity.message = 'API Error';
+        results.perplexity.message = 'Invalid API key format';
       }
     }
   } catch (error: any) {
-    results.perplexity.message = 'Connection failed';
+    results.perplexity.message = 'Configuration check failed';
   }
 
   return results;

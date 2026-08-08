@@ -30,11 +30,11 @@
  *    curl -H "User-Agent: Mozilla/5.0" "http://localhost:5000/community/75335"
  * 
  * 3. Google Search Console URL Inspection:
- *    - Submit URL: https://myseniorvalet.com/community/75335
+ *    - Submit URL: https://www.myseniorvalet.com/community/75335
  *    - View rendered HTML to verify full content is visible
  * 
  * 4. ChatGPT Testing:
- *    Ask ChatGPT to fetch: "Browse https://myseniorvalet.com/community/75335"
+ *    Ask ChatGPT to fetch: "Browse https://www.myseniorvalet.com/community/75335"
  *    Verify it can see pricing, photos, contact info
  * 
  * TEST RESULTS (November 10, 2025):
@@ -73,16 +73,131 @@ import { Request, Response, NextFunction } from 'express';
 import { db } from './db';
 import { communities, reviews, perplexityCache } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
-import { generateCommunitySlug } from './utils/generate-slug';
+import { generateCommunitySlug, generateSlug } from './utils/generate-slug';
 import { LRUCache } from 'lru-cache';
-import { communityEnrichmentService } from './services/community-enrichment-service';
-import { 
-  findLocationBySlug, 
-  generateLocationTitle, 
-  generateLocationDescription,
-  generateLocationKeywords,
-  generateLocationCanonicalUrl 
-} from '@shared/location-seo';
+import { CANONICAL_BASE_URL } from './middleware/host-canonical';
+import { communityRobotsDirective } from '@shared/community-indexability';
+import {
+  findCommunityBySlugUrl,
+  isCommunityGone,
+  resolveDuplicateCanonicalUrl,
+  buildCommunityPricing,
+  communityBreadcrumbs,
+  breadcrumbJsonLd,
+  breadcrumbHtml,
+  communityStructuredData,
+  escapeHtml,
+  safeHttpUrl,
+  safeJsonLd,
+} from './seo/community-seo';
+import { isCommunitySupportingEligible } from './utils/community-ranking';
+
+// User-friendly noindex HTML for missing / gone community pages. Real status
+// codes (404 / 410) plus a noindex directive tell search engines to drop the URL
+// instead of treating an SPA shell as live content (soft-404), while giving human
+// visitors a branded page with a clear way back into the site. Served for ALL
+// user agents (crawlers and browsers alike).
+function sendCommunityStatusPage(res: Response, status: 404 | 410): Response {
+  const title = status === 410 ? 'Listing No Longer Available' : 'Page Not Found';
+  const message = status === 410
+    ? 'This senior living community listing is no longer available on MySeniorValet.'
+    : 'The page you are looking for could not be found on MySeniorValet.';
+  res.status(status);
+  res.set('Content-Type', 'text/html');
+  res.set('X-Robots-Tag', 'noindex, follow');
+  return res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, follow">
+  <title>${title} | MySeniorValet</title>
+  <style>
+    body { margin:0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background:#0f172a; color:#e2e8f0; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+    .card { max-width:520px; padding:48px 32px; text-align:center; }
+    h1 { font-size:1.75rem; margin:0 0 12px; color:#f8fafc; }
+    p { font-size:1.05rem; line-height:1.6; color:#cbd5e1; margin:0 0 28px; }
+    .actions a { display:inline-block; margin:6px; padding:12px 22px; border-radius:9999px; text-decoration:none; font-weight:600; }
+    .primary { background:#6366f1; color:#fff; }
+    .secondary { background:transparent; color:#a5b4fc; border:1px solid #6366f1; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>${title}</h1>
+    <p>${message}</p>
+    <div class="actions">
+      <a class="primary" href="${CANONICAL_BASE_URL}/community-directory">Browse senior living communities</a>
+      <a class="secondary" href="${CANONICAL_BASE_URL}/">Return home</a>
+    </div>
+  </div>
+</body>
+</html>`);
+}
+
+// isCommunityGone / findCommunityBySlugUrl now live in server/seo/community-seo.ts
+// (shared with the ALL-user-agent shell meta injection) and are imported above.
+
+/**
+ * Resolve the SEO visibility status of a community URL.
+ * Returns 'ok' (public, render normally), 'missing' (404), or 'gone' (410).
+ * Used by the visibility guard (all UAs) and the crawler SSR branches.
+ */
+async function resolveCommunityStatus(reqPath: string): Promise<'ok' | 'missing' | 'gone' | 'not-a-community'> {
+  const idMatch = reqPath.match(/^\/community\/(\d+)/);
+  if (idMatch) {
+    const communityId = parseInt(idMatch[1], 10);
+    const result = await db
+      .select({ isHidden: communities.isHidden, isActive: communities.isActive })
+      .from(communities)
+      .where(eq(communities.id, communityId))
+      .limit(1);
+    if (result.length === 0) return 'missing';
+    if (isCommunityGone(result[0])) return 'gone';
+    return (await isCommunitySupportingEligible(communityId)) ? 'ok' : 'missing';
+  }
+
+  const slugMatch = reqPath.match(/^\/senior-living\/([^\/]+)\/([^\/]+)\/([^\/]+)$/);
+  if (slugMatch) {
+    const [_, state, city, slug] = slugMatch;
+    const match = await findCommunityBySlugUrl(state, city, slug);
+    if (!match) return 'missing';
+    if (isCommunityGone(match)) return 'gone';
+    return (await isCommunitySupportingEligible(match.id)) ? 'ok' : 'missing';
+  }
+
+  return 'not-a-community';
+}
+
+/**
+ * Community visibility guard — runs for ALL user agents (not crawler-gated).
+ *
+ * Returns a real 404 for community URLs that don't exist and a real 410 for
+ * communities that have been hidden/deactivated, rendering a branded noindex
+ * page. Public communities fall through (next()) to normal SSR/SPA rendering.
+ *
+ * This closes the "soft-404" gap where missing/hidden URLs would otherwise
+ * resolve to the 200 SPA shell for regular browser traffic.
+ */
+export function communityVisibilityGuard() {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    // Only intercept community detail URL shapes
+    if (!/^\/community\/\d+/.test(req.path) && !/^\/senior-living\/[^\/]+\/[^\/]+\/[^\/]+$/.test(req.path)) {
+      return next();
+    }
+    try {
+      const status = await resolveCommunityStatus(req.path);
+      if (status === 'missing') return sendCommunityStatusPage(res, 404);
+      if (status === 'gone') return sendCommunityStatusPage(res, 410);
+      return next();
+    } catch (err) {
+      // Referral authorization is access control. A guard/read error must not
+      // expose the SPA shell or cached crawler HTML for an unverified listing.
+      console.error('[VisibilityGuard] error:', err);
+      return sendCommunityStatusPage(res, 404);
+    }
+  };
+}
 
 // Cache for rendered HTML pages (performance optimization)
 // LRU eviction ensures memory doesn't grow unbounded
@@ -170,23 +285,24 @@ async function getEnrichedCommunityData(communityId: number, community: any) {
       }
     }
     
-    // STEP 2: Use CommunityEnrichmentService to get enriched content
-    // This will check cache, database, or enqueue background job as needed
-    const enrichmentResult = await communityEnrichmentService.getEnrichedContent(communityId);
-    
-    if (enrichmentResult) {
+    // STEP 2: COST CONTROL - Use STALE enrichment content instead of calling service
+    // Even stale enrichment (>7 days) is better than basic description for SEO
+    // This prevents Perplexity API calls while preserving existing enrichment data
+    if (community.enrichedContent) {
+      const enrichment = community.enrichedContent;
+      console.log(`📦 Using stale enrichment for community ${communityId} (cost control - no API call)`);
       return {
-        description: enrichmentResult.content,
+        description: enrichment.content || community.description,
         photos: community.photos || [],
         hasEnrichment: true,
-        enrichmentSource: 'service',
-        seoData: enrichmentResult.seoData,
-        metadata: enrichmentResult.metadata,
-        wordCount: enrichmentResult.metadata.wordCount
+        enrichmentSource: 'stale',
+        seoData: enrichment.seoData || {},
+        metadata: enrichment.metadata || {},
+        wordCount: enrichment.metadata?.wordCount || 0
       };
     }
     
-    // STEP 3: Fall back to database fields if enrichment unavailable
+    // STEP 3: Fall back to database fields only if no enrichment exists at all
     return {
       description: community.description,
       photos: community.photos || [],
@@ -238,62 +354,70 @@ export async function generateCommunityHTMLById(
       .where(eq(reviews.communityId, communityId))
       .limit(5);
     
-    const canonicalUrl = `${baseUrl}/community/${communityId}`;
+    const stateSlug = community.stateSlug || generateSlug(community.state);
+    const citySlugVal = community.citySlug || generateSlug(community.city);
+    const nameSlug = community.slug || generateCommunitySlug(community);
+    // Duplicate secondaries canonicalize to their primary record.
+    const dupCanonical = await resolveDuplicateCanonicalUrl(community, baseUrl);
+    const canonicalUrl = dupCanonical || `${baseUrl}/senior-living/${stateSlug}/${citySlugVal}/${nameSlug}`;
+    // Indexing eligibility (docs/SEO_INDEXING_ELIGIBILITY.md) — must agree with
+    // the all-UA shell injection and the X-Robots-Tag header set by the caller.
+    const robotsDirective = communityRobotsDirective(community);
     
-    // Generate price display
-    const priceDisplay = community.rentPerMonth 
-      ? `$${Number(community.rentPerMonth).toLocaleString()}/month`
-      : community.priceRange 
-      ? `Contact for pricing`
-      : 'Contact for pricing';
+    // Pricing strictly from real DB values — never emit "Contact for pricing"
+    // when numeric pricing exists; verification date only when real data exists.
+    const pricing = buildCommunityPricing(community);
+    const priceDisplay = pricing.display || 'Contact for pricing';
     
-    // Prepare description for meta tags (truncate to 160 chars)
-    const metaDescription = enrichedData.description 
-      ? enrichedData.description.substring(0, 160).replace(/\n/g, ' ').replace(/"/g, '&quot;') + '...'
-      : `${community.name} in ${community.city}, ${community.state}. ${community.careTypes?.slice(0, 2).join(', ') || 'Senior living community'}. ${priceDisplay}.`;
+    // Prepare description for meta tags (truncate to 160 chars, HTML-escaped)
+    const metaDescription = escapeHtml(
+      enrichedData.description
+        ? enrichedData.description.substring(0, 160).replace(/\n/g, ' ') + '...'
+        : `${community.name} in ${community.city}, ${community.state}. ${community.careTypes?.slice(0, 2).join(', ') || 'Senior living community'}. ${priceDisplay}.`
+    );
+    // Escaped display values reused across the template
+    const escName = escapeHtml(community.name);
+    const escCity = escapeHtml(community.city);
+    const escState = escapeHtml(community.state);
+    const escAddress = escapeHtml(community.address || '');
+    const escZip = escapeHtml(community.zipCode || '');
+    const websiteUrl = safeHttpUrl(community.website);
+    const firstPhoto = enrichedData.photos?.[0];
+    const ogImage = safeHttpUrl(typeof firstPhoto === 'string' ? firstPhoto : firstPhoto?.url);
     
-    // Generate structured data (Schema.org validated)
-    // Using "Residence" + "LocalBusiness" for valid rich results
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": ["Residence", "LocalBusiness"],
-      "name": community.name,
-      "description": enrichedData.description || `${community.name} is a senior living community in ${community.city}, ${community.state}`,
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": community.address,
-        "addressLocality": community.city,
-        "addressRegion": community.state,
-        "postalCode": community.zipCode,
-        "addressCountry": community.country || "US"
-      },
-      "telephone": community.phone || undefined,
-      "url": community.website || undefined,
-      "geo": community.latitude && community.longitude ? {
-        "@type": "GeoCoordinates",
-        "latitude": community.latitude,
-        "longitude": community.longitude
-      } : undefined,
-      "priceRange": priceDisplay,
-      "aggregateRating": community.rating && communityReviews.length > 0 ? {
+    // Structured data: top-level LocalBusiness-type entity (Residence + LocalBusiness)
+    // with address, geo, care types (makesOffer) — priceRange only from real data.
+    const structuredData: Record<string, any> = communityStructuredData(community, {
+      description: enrichedData.description,
+      canonicalUrl,
+    });
+    if (community.rating && communityReviews.length > 0) {
+      structuredData.aggregateRating = {
         "@type": "AggregateRating",
         "ratingValue": Number(community.rating),
         "reviewCount": communityReviews.length,
         "bestRating": 5,
         "worstRating": 1
-      } : undefined,
-      "image": enrichedData.photos && enrichedData.photos.length > 0 ? enrichedData.photos : undefined,
-      // Additional LocalBusiness properties
-      "openingHours": "Mo-Su 00:00-23:59", // Senior communities are always accessible
-      "@id": canonicalUrl
-    };
+      };
+    }
+    if (enrichedData.photos && enrichedData.photos.length > 0) {
+      const photoUrls = enrichedData.photos
+        .map((p: any) => safeHttpUrl(typeof p === 'string' ? p : p?.url))
+        .filter((u: any): u is string => !!u);
+      if (photoUrls.length > 0) structuredData.image = photoUrls;
+    }
+
+    // Breadcrumbs: visible trail + BreadcrumbList JSON-LD
+    const crumbs = communityBreadcrumbs(community, baseUrl);
+    const breadcrumbData = breadcrumbJsonLd(crumbs);
     
-    // Prepare photos for HTML
+    // Prepare photos for HTML (http(s)-only URLs, escaped attributes)
     const photoElements = enrichedData.photos && enrichedData.photos.length > 0
       ? enrichedData.photos.slice(0, 10).map((photo: any, index: number) => {
-          const photoUrl = typeof photo === 'string' ? photo : photo.url;
-          return `<img src="${photoUrl}" alt="${community.name} - Photo ${index + 1}" class="community-photo" loading="lazy">`;
-        }).join('\n        ')
+          const photoUrl = safeHttpUrl(typeof photo === 'string' ? photo : photo?.url);
+          if (!photoUrl) return '';
+          return `<img src="${escapeHtml(photoUrl)}" alt="${escName} - Photo ${index + 1}" class="community-photo" loading="lazy">`;
+        }).filter(Boolean).join('\n        ')
       : '';
     
     // Generate complete HTML page with full enrichment content
@@ -302,29 +426,33 @@ export async function generateCommunityHTMLById(
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${community.name} | ${community.city}, ${community.state} | MySeniorValet</title>
+  <title>${escapeHtml(community.name)} | ${escapeHtml(community.city)}, ${escapeHtml(community.state)} | MySeniorValet</title>
   <meta name="description" content="${metaDescription}">
+  <meta name="robots" content="${escapeHtml(robotsDirective)}">
   
   <!-- Open Graph tags -->
-  <meta property="og:title" content="${community.name} - Senior Living in ${community.city}, ${community.state}">
+  <meta property="og:title" content="${escName} - Senior Living in ${escCity}, ${escState}">
   <meta property="og:description" content="${metaDescription}">
   <meta property="og:type" content="business.business">
-  <meta property="og:url" content="${canonicalUrl}">
-  ${enrichedData.photos?.[0] ? `<meta property="og:image" content="${typeof enrichedData.photos[0] === 'string' ? enrichedData.photos[0] : enrichedData.photos[0].url}">` : ''}
+  <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+  ${ogImage ? `<meta property="og:image" content="${escapeHtml(ogImage)}">` : ''}
   <meta property="og:site_name" content="MySeniorValet">
   
   <!-- Twitter Card tags -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${community.name}">
+  <meta name="twitter:title" content="${escName}">
   <meta name="twitter:description" content="${metaDescription}">
-  ${enrichedData.photos?.[0] ? `<meta name="twitter:image" content="${typeof enrichedData.photos[0] === 'string' ? enrichedData.photos[0] : enrichedData.photos[0].url}">` : ''}
+  ${ogImage ? `<meta name="twitter:image" content="${escapeHtml(ogImage)}">` : ''}
   
   <!-- Canonical URL -->
-  <link rel="canonical" href="${canonicalUrl}">
+  <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
   
-  <!-- Structured Data -->
+  <!-- Structured Data (safeJsonLd escapes "<" to prevent </script> breakout) -->
   <script type="application/ld+json">
-    ${JSON.stringify(structuredData, null, 2)}
+    ${safeJsonLd(structuredData)}
+  </script>
+  <script type="application/ld+json">
+    ${safeJsonLd(breadcrumbData)}
   </script>
   
   <!-- Preload React app -->
@@ -346,14 +474,18 @@ export async function generateCommunityHTMLById(
     .reviewer { color: #666; font-size: 0.9rem; margin-top: 10px; }
     .enrichment-content { white-space: pre-wrap; line-height: 1.8; }
     .community-photo { max-width: 100%; height: auto; margin: 10px 0; border-radius: 8px; }
+    .seo-breadcrumbs { font-size: 0.9rem; color: #666; margin-bottom: 12px; }
+    .seo-breadcrumbs a { color: #2563eb; text-decoration: none; }
+    .pricing-verified { font-size: 0.9rem; color: #059669; }
   </style>
 </head>
 <body>
   <div id="root">
     <div class="community-detail-page">
+      ${breadcrumbHtml(crumbs)}
       <header>
-        <h1>${community.name}</h1>
-        <div class="location">${community.address}, ${community.city}, ${community.state} ${community.zipCode}</div>
+        <h1>${escName}</h1>
+        <div class="location">${escAddress}, ${escCity}, ${escState} ${escZip}</div>
       </header>
       
       ${photoElements ? `
@@ -364,12 +496,12 @@ export async function generateCommunityHTMLById(
       
       ${enrichedData.description ? `
       <section class="overview">
-        <h2>About ${community.name}</h2>
-        <div class="enrichment-content">${enrichedData.description}</div>
+        <h2>About ${escName}</h2>
+        <div class="enrichment-content">${escapeHtml(enrichedData.description)}</div>
       </section>` : `
       <section class="overview">
-        <h2>About ${community.name}</h2>
-        <p>${community.name} is a senior living community located in ${community.city}, ${community.state}.</p>
+        <h2>About ${escName}</h2>
+        <p>${escName} is a senior living community located in ${escCity}, ${escState}.</p>
       </section>`}
       
       <section class="contact-info-section">
@@ -377,18 +509,18 @@ export async function generateCommunityHTMLById(
         <div class="contact-info">
           <div class="address">
             <strong>Address:</strong><br>
-            ${community.address}<br>
-            ${community.city}, ${community.state} ${community.zipCode}
+            ${escAddress}<br>
+            ${escCity}, ${escState} ${escZip}
           </div>
           
           ${community.phone ? `
           <div class="phone">
-            <strong>Phone:</strong> <a href="tel:${community.phone}">${community.phone}</a>
+            <strong>Phone:</strong> <a href="tel:${escapeHtml(String(community.phone).replace(/[^0-9+()\-\s.ext]/gi, ''))}">${escapeHtml(community.phone)}</a>
           </div>` : ''}
           
-          ${community.website ? `
+          ${websiteUrl ? `
           <div class="website">
-            <strong>Website:</strong> <a href="${community.website}" target="_blank" rel="noopener">${community.website}</a>
+            <strong>Website:</strong> <a href="${escapeHtml(websiteUrl)}" target="_blank" rel="noopener">${escapeHtml(websiteUrl)}</a>
           </div>` : ''}
         </div>
       </section>
@@ -396,13 +528,14 @@ export async function generateCommunityHTMLById(
       <section class="pricing">
         <h2>Pricing</h2>
         <div class="price-display">${priceDisplay}</div>
+        ${pricing.verifiedDate ? `<div class="pricing-verified">Pricing verified ${pricing.verifiedDate}</div>` : ''}
       </section>
       
       ${community.careTypes && community.careTypes.length > 0 ? `
       <section class="care-types">
         <h2>Care Types</h2>
         <ul>
-          ${community.careTypes.map(type => `<li>${type.replace(/_/g, ' ')}</li>`).join('')}
+          ${community.careTypes.map(type => `<li>${escapeHtml(type.replace(/_/g, ' '))}</li>`).join('')}
         </ul>
       </section>` : ''}
       
@@ -410,21 +543,23 @@ export async function generateCommunityHTMLById(
       <section class="amenities">
         <h2>Amenities</h2>
         <ul>
-          ${community.amenities.slice(0, 15).map(amenity => `<li>${amenity}</li>`).join('')}
+          ${community.amenities.slice(0, 15).map(amenity => `<li>${escapeHtml(amenity)}</li>`).join('')}
         </ul>
       </section>` : ''}
       
       ${communityReviews.length > 0 ? `
       <section class="reviews">
         <h2>Reviews</h2>
-        ${communityReviews.map(review => `
+        ${communityReviews.map(review => {
+          const rating = Math.min(5, Math.max(0, Number(review.rating) || 0));
+          return `
           <div class="review">
-            <div class="rating">${'★'.repeat(review.rating)}${'☆'.repeat(5 - review.rating)}</div>
-            <h3>${review.title}</h3>
-            <p>${review.reviewText}</p>
-            <div class="reviewer">${review.relationshipType || 'Community Member'}</div>
+            <div class="rating">${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}</div>
+            <h3>${escapeHtml(review.title)}</h3>
+            <p>${escapeHtml(review.reviewText)}</p>
+            <div class="reviewer">${escapeHtml(review.relationshipType || 'Community Member')}</div>
           </div>
-        `).join('')}
+        `;}).join('')}
       </section>` : ''}
     </div>
   </div>
@@ -462,27 +597,9 @@ export async function generateCommunityHTMLBySlug(
   baseUrl: string
 ): Promise<string | null> {
   try {
-    // Find community
-    const stateUpper = state.toUpperCase();
-    const cityName = city.split('-').map(w => 
-      w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-    ).join(' ');
-    
-    const communities_result = await db
-      .select()
-      .from(communities)
-      .where(
-        and(
-          eq(communities.state, stateUpper),
-          eq(communities.city, cityName)
-        )
-      );
-    
-    // Find best match based on slug
-    const community = communities_result.find(c => {
-      const communitySlug = generateCommunitySlug(c);
-      return communitySlug === slug;
-    }) || communities_result[0];
+    // Resolve by canonical slug columns (exact match required). A wrong slug in
+    // an existing city returns null → caller emits 404, never a sibling listing.
+    const community = await findCommunityBySlugUrl(state, city, slug);
     
     if (!community) return null;
     
@@ -494,204 +611,6 @@ export async function generateCommunityHTMLBySlug(
   }
 }
 
-// Generate server-side rendered HTML for location landing pages
-async function generateLocationHTML(
-  locationSlug: string,
-  baseUrl: string
-): Promise<string | null> {
-  try {
-    const location = findLocationBySlug(locationSlug);
-    if (!location) return null;
-    
-    // Generate SEO content
-    const title = generateLocationTitle(location);
-    const description = generateLocationDescription(location);
-    const keywords = generateLocationKeywords(location);
-    const canonicalUrl = generateLocationCanonicalUrl(location);
-    
-    // Get community count for this location (rough estimate for now)
-    const communityCount = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(communities)
-      .where(
-        and(
-          eq(communities.city, location.city),
-          eq(communities.state, location.state)
-        )
-      )
-      .then(result => result[0]?.count || 0);
-    
-    // Generate structured data for local SEO
-    const structuredData = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": title,
-      "description": description,
-      "url": canonicalUrl,
-      "breadcrumb": {
-        "@type": "BreadcrumbList",
-        "itemListElement": [
-          {
-            "@type": "ListItem",
-            "position": 1,
-            "name": "Home",
-            "item": baseUrl
-          },
-          {
-            "@type": "ListItem",
-            "position": 2,
-            "name": "AI Search",
-            "item": `${baseUrl}/ai-search-intelligence`
-          },
-          {
-            "@type": "ListItem",
-            "position": 3,
-            "name": `${location.city}, ${location.stateAbbr}`,
-            "item": canonicalUrl
-          }
-        ]
-      },
-      "about": {
-        "@type": "Thing",
-        "name": `Senior Living in ${location.city}`,
-        "description": `Senior care services and communities in ${location.city}, ${location.state}`
-      },
-      "mainEntity": {
-        "@type": "ItemList",
-        "name": `Senior Living Communities in ${location.city}`,
-        "numberOfItems": communityCount,
-        "itemListElement": []
-      }
-    };
-    
-    // Generate HTML with location-specific content
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title}</title>
-  <meta name="description" content="${description}">
-  <meta name="keywords" content="${keywords.join(', ')}">
-  
-  <!-- Open Graph tags -->
-  <meta property="og:title" content="${title}">
-  <meta property="og:description" content="${description}">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="${canonicalUrl}">
-  <meta property="og:site_name" content="MySeniorValet">
-  <meta property="og:locale" content="en_US">
-  
-  <!-- Twitter Card tags -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="${title}">
-  <meta name="twitter:description" content="${description}">
-  
-  <!-- Canonical URL -->
-  <link rel="canonical" href="${canonicalUrl}">
-  
-  <!-- Geo tags -->
-  <meta name="geo.region" content="${location.country || 'US'}-${location.stateAbbr}">
-  <meta name="geo.placename" content="${location.city}">
-  
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-    ${JSON.stringify(structuredData, null, 2)}
-  </script>
-  
-  <!-- Preload React app -->
-  <link rel="preload" href="/src/main.tsx" as="script" crossorigin>
-  
-  <style>
-    body { font-family: system-ui, -apple-system, sans-serif; line-height: 1.6; margin: 0; padding: 20px; }
-    .location-page { max-width: 1200px; margin: 0 auto; }
-    h1 { color: #1a1a1a; font-size: 2.5rem; margin-bottom: 0.5rem; }
-    .subtitle { color: #666; font-size: 1.2rem; margin-bottom: 2rem; }
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0; }
-    .stat-card { background: #f8f8f8; padding: 20px; border-radius: 8px; }
-    .stat-number { font-size: 2rem; font-weight: bold; color: #2563eb; }
-    .stat-label { color: #666; margin-top: 5px; }
-    .content-section { margin: 30px 0; }
-    .care-types { display: flex; flex-wrap: wrap; gap: 10px; margin: 20px 0; }
-    .care-type { background: #e3f2fd; color: #1976d2; padding: 8px 16px; border-radius: 20px; }
-  </style>
-</head>
-<body>
-  <div id="root">
-    <div class="location-page">
-      <h1>${title.replace(' | MySeniorValet', '')}</h1>
-      <p class="subtitle">Find trusted senior care with transparent pricing and real availability</p>
-      
-      <div class="stats">
-        <div class="stat-card">
-          <div class="stat-number">${communityCount.toLocaleString()}</div>
-          <div class="stat-label">Communities Available</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">100%</div>
-          <div class="stat-label">Transparent Pricing</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number">0</div>
-          <div class="stat-label">Hidden Fees</div>
-        </div>
-      </div>
-      
-      <section class="content-section">
-        <h2>Senior Living Options in ${location.city}</h2>
-        <div class="care-types">
-          <span class="care-type">Assisted Living</span>
-          <span class="care-type">Memory Care</span>
-          <span class="care-type">Nursing Homes</span>
-          <span class="care-type">Independent Living</span>
-          <span class="care-type">HUD Housing</span>
-        </div>
-        <p>${description}</p>
-      </section>
-      
-      <section class="content-section">
-        <h2>Why Choose MySeniorValet for ${location.city} Senior Care?</h2>
-        <ul>
-          <li><strong>Complete Transparency:</strong> Real pricing, no hidden fees or referral markups</li>
-          <li><strong>Verified Information:</strong> HUD-verified rates and community-reported data</li>
-          <li><strong>Comprehensive Coverage:</strong> ${communityCount} communities across ${location.city}</li>
-          <li><strong>Family-First Platform:</strong> Built for families, not profits</li>
-          <li><strong>Real-Time Updates:</strong> Current availability and pricing information</li>
-        </ul>
-      </section>
-      
-      <section class="content-section">
-        <h2>Popular Searches in ${location.city}</h2>
-        <ul>
-          <li>Assisted Living ${location.city} ${location.stateAbbr}</li>
-          <li>Memory Care facilities near ${location.city}</li>
-          <li>Nursing Homes in ${location.city}</li>
-          <li>${location.city} Senior Living costs</li>
-          <li>Best retirement communities ${location.city}</li>
-        </ul>
-      </section>
-    </div>
-  </div>
-  
-  <!-- Preload location data for React hydration -->
-  <script>
-    window.__PRELOADED_LOCATION__ = ${JSON.stringify({
-      location,
-      communityCount
-    }).replace(/</g, '\\u003c')};
-  </script>
-  
-  <!-- React will hydrate this content -->
-  <script type="module" src="/src/main.tsx"></script>
-</body>
-</html>`;
-    
-    return html;
-  } catch (error) {
-    console.error('Error generating location HTML:', error);
-    return null;
-  }
-}
 
 // Middleware to serve SSR pages for crawlers
 export function seoSSRMiddleware() {
@@ -706,41 +625,10 @@ export function seoSSRMiddleware() {
       return next(); // Let React handle regular users
     }
     
-    // Check for AI Search Intelligence with location parameter
-    if (req.path === '/ai-search-intelligence' && req.query.location) {
-      const locationSlug = req.query.location as string;
-      const cacheKey = `location-${locationSlug}`;
-      
-      // Check cache
-      const cached = htmlCache.get(cacheKey);
-      if (cached && !forceSSR) {
-        console.log(`✅ Serving cached HTML for location ${locationSlug} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
-        res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
-        res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
-        return res.send(cached.html);
-      }
-      
-      // Generate fresh HTML
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
-      const html = await generateLocationHTML(locationSlug, baseUrl);
-      
-      if (html) {
-        // Cache the result
-        htmlCache.set(cacheKey, { 
-          html, 
-          timestamp: Date.now(),
-          communityUpdatedAt: new Date()
-        });
-        console.log(`✅ Generated and cached HTML for location ${locationSlug} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
-        
-        res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
-        res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
-        return res.send(html);
-      }
-    }
-    
+    // NOTE: /ai-search-intelligence?location=... is handled upstream in
+    // server/routes.ts with a 301 to the clean /senior-living/{state}/{city}
+    // path (which has its own crawler SSR via renderSEOLocationPage).
+
     // Check for /community/:id pattern
     const idMatch = req.path.match(/^\/community\/(\d+)/);
     if (idMatch) {
@@ -755,10 +643,22 @@ export function seoSSRMiddleware() {
         .limit(1);
       
       if (communityResult.length === 0) {
-        return next(); // Community not found, let React handle 404
+        // Real 404 + noindex so crawlers drop the URL instead of indexing an SPA shell (soft-404)
+        return sendCommunityStatusPage(res, 404);
       }
       
       const community = communityResult[0];
+
+      // Hidden / deactivated communities are intentionally not public — serve 410 Gone + noindex
+      if (isCommunityGone(community)) {
+        return sendCommunityStatusPage(res, 410);
+      }
+      // Check before reading the HTML cache: revocations/exclusions must take
+      // effect immediately even when an old crawler page is still cached.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        htmlCache.delete(cacheKey);
+        return sendCommunityStatusPage(res, 404);
+      }
       
       // Check cache and validate against community.updatedAt
       const cached = htmlCache.get(cacheKey);
@@ -769,13 +669,14 @@ export function seoSSRMiddleware() {
       if (isCacheValid) {
         console.log(`✅ Serving cached HTML for community ${communityId} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(cached.html);
       }
       
-      // Generate fresh HTML (cache miss or stale)
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      // Generate fresh HTML (cache miss or stale).
+      // Always use the canonical origin — never trust the Host header for SEO URLs.
+      const baseUrl = CANONICAL_BASE_URL;
       const html = await generateCommunityHTMLById(communityId, baseUrl);
       
       if (html) {
@@ -788,7 +689,7 @@ export function seoSSRMiddleware() {
         console.log(`✅ Generated and cached HTML for community ${communityId} (updatedAt: ${community.updatedAt}) to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(html);
       }
@@ -800,29 +701,23 @@ export function seoSSRMiddleware() {
       const [_, state, city, slug] = slugMatch;
       const cacheKey = `community-slug-${state}-${city}-${slug}`;
       
-      // Find community to check updatedAt
-      const stateUpper = state.toUpperCase();
-      const cityName = city.split('-').map(w => 
-        w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()
-      ).join(' ');
-      
-      const communities_result = await db
-        .select()
-        .from(communities)
-        .where(
-          and(
-            eq(communities.state, stateUpper),
-            eq(communities.city, cityName)
-          )
-        );
-      
-      const community = communities_result.find(c => {
-        const communitySlug = generateCommunitySlug(c);
-        return communitySlug === slug;
-      }) || communities_result[0];
+      // Resolve by canonical slug columns (exact match) to check updatedAt.
+      const community = await findCommunityBySlugUrl(state, city, slug);
       
       if (!community) {
-        return next(); // Community not found
+        // Real 404 + noindex so crawlers drop the URL instead of indexing an SPA shell (soft-404)
+        return sendCommunityStatusPage(res, 404);
+      }
+
+      // Hidden / deactivated communities are intentionally not public — serve 410 Gone + noindex
+      if (isCommunityGone(community)) {
+        return sendCommunityStatusPage(res, 410);
+      }
+      // Check before reading the HTML cache so stale approved HTML cannot
+      // survive an operator revocation or community-level exclusion.
+      if (!(await isCommunitySupportingEligible(community.id))) {
+        htmlCache.delete(cacheKey);
+        return sendCommunityStatusPage(res, 404);
       }
       
       // Check cache and validate against community.updatedAt
@@ -834,13 +729,14 @@ export function seoSSRMiddleware() {
       if (isCacheValid) {
         console.log(`✅ Serving cached HTML for ${state}/${city}/${slug} to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(cached.html);
       }
       
-      // Generate fresh HTML
-      const baseUrl = `${req.protocol}://${req.get('host')}`;
+      // Generate fresh HTML.
+      // Always use the canonical origin — never trust the Host header for SEO URLs.
+      const baseUrl = CANONICAL_BASE_URL;
       const html = await generateCommunityHTMLBySlug(state, city, slug, baseUrl);
       
       if (html) {
@@ -853,7 +749,7 @@ export function seoSSRMiddleware() {
         console.log(`✅ Generated and cached HTML for ${state}/${city}/${slug} (updatedAt: ${community.updatedAt}) to ${isCrawler ? 'crawler' : 'manual SSR'}`);
         
         res.set('Content-Type', 'text/html');
-        res.set('X-Robots-Tag', 'index, follow');
+        res.set('X-Robots-Tag', communityRobotsDirective(community));
         res.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); // CDN cache: 1h fresh, 24h stale
         return res.send(html);
       }

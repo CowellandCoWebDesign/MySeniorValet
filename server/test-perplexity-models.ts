@@ -1,5 +1,6 @@
 #!/usr/bin/env tsx
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 import dotenv from 'dotenv';
 
 dotenv.config();

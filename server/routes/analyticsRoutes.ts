@@ -12,7 +12,11 @@ import {
   messages
 } from "@shared/schema";
 import { eq, sql, desc, gte, between, and, count, sum } from "drizzle-orm";
-import { format, subDays, startOfDay, endOfDay } from "date-fns";
+// Subpath imports load only the needed functions (whole date-fns barrel adds ~250ms to boot)
+import { format } from "date-fns/format";
+import { subDays } from "date-fns/subDays";
+import { startOfDay } from "date-fns/startOfDay";
+import { endOfDay } from "date-fns/endOfDay";
 
 export const analyticsRouter = Router();
 
@@ -112,7 +116,7 @@ analyticsRouter.get("/comprehensive", async (req, res) => {
         searches: count(searchHistory.id),
       })
       .from(searchHistory)
-      .where(gte(searchHistory.searchedAt, start))
+      .where(gte(searchHistory.createdAt, start))
       .execute();
 
     const [tourStats] = await db

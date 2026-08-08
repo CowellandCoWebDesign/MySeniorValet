@@ -47,7 +47,7 @@ export async function geocodeWithNominatim(location: string): Promise<{ lat: num
     // Make request with proper headers (required by Nominatim)
     const response = await fetch(url.toString(), {
       headers: {
-        'User-Agent': 'MySeniorValet/1.0 (https://myseniorvalet.com)',
+        'User-Agent': 'MySeniorValet/1.0 (https://www.myseniorvalet.com)',
         'Accept': 'application/json'
       }
     });

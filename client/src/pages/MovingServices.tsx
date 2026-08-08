@@ -230,7 +230,7 @@ const MovingServices = () => {
                 <Globe className="w-8 h-8 text-white" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">National Network</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm">400+ locations across US, Canada, and UK for consistent service</p>
+              <p className="text-gray-600 dark:text-gray-300 text-sm">Locations across US, Canada, and UK for consistent service</p>
             </div>
           </div>
         </div>

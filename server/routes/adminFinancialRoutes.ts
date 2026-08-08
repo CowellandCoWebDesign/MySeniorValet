@@ -9,10 +9,11 @@ import {
 } from "@shared/schema";
 import { eq, sql, desc, and, gte, lte, isNotNull } from "drizzle-orm";
 import { isAuthenticated as requireAuth, isAdmin } from "../auth-middleware";
-import Stripe from "stripe";
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 
 const router = express.Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' });
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY || '', { apiVersion: '2025-08-27.basil' }));
 
 // Apply admin authentication to all routes
 router.use(requireAuth);

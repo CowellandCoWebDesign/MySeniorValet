@@ -123,9 +123,9 @@ export class AdvancedSearchIntelligence {
         break;
     }
     
-    if (conditions.length > 0) {
-      baseQuery = baseQuery.where(and(...conditions));
-    }
+    conditions.push(sql`${communities.isActive} = true`);
+    conditions.push(sql`(${communities.isHidden} IS NULL OR ${communities.isHidden} = false)`);
+    baseQuery = baseQuery.where(and(...conditions));
     
     const results = await baseQuery.limit(50);
     

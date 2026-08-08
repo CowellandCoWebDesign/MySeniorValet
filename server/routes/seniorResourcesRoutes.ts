@@ -1,6 +1,40 @@
 import { Express } from "express";
+import { getResourceDirectory } from "../services/senior-resources-service";
+import { getBakedResourceDirectory } from "../services/resource-directory-baked";
 
 export function setupSeniorResourcesRoutes(app: Express) {
+  // BAKED directory: pre-built from curated + cached data only (no live
+  // discovery in the request path). Same payload the server injects into the
+  // /senior-resources shell; the client uses this as a fallback when the
+  // embedded payload is missing (e.g. client-side navigation in dev).
+  app.get("/api/senior-resources/directory-baked", async (_req, res) => {
+    try {
+      const directory = await getBakedResourceDirectory();
+      res.set("Cache-Control", "public, max-age=300");
+      res.json(directory);
+    } catch (error) {
+      console.error("Error building baked senior resources directory:", error);
+      res.status(500).json({ error: "Failed to build resource directory" });
+    }
+  });
+
+  // Comprehensive, location-aware directory: curated NorCal-first, cached + live
+  // AI discovery for any US location, official advance-care links, 211/AAA fallback.
+  app.get("/api/senior-resources/directory", async (req, res) => {
+    try {
+      const state = (req.query.state || "").toString().trim();
+      const county = (req.query.county || "").toString().trim();
+      if (!state) {
+        return res.status(400).json({ error: "state parameter is required" });
+      }
+      const directory = await getResourceDirectory(state, county);
+      res.json(directory);
+    } catch (error) {
+      console.error("Error building senior resources directory:", error);
+      res.status(500).json({ error: "Failed to build senior resources directory" });
+    }
+  });
+
   // Get food banks and food access resources
   app.get("/api/senior-resources/food-banks", async (req, res) => {
     try {

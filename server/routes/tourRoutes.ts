@@ -5,7 +5,10 @@ import { eq, and, gte, lte, or, desc, asc, sql } from "drizzle-orm";
 import { z } from "zod";
 import { isAuthenticated } from "../auth-middleware";
 import sgMail from "@sendgrid/mail";
-import { format, addDays, parseISO } from "date-fns";
+// Subpath imports load only the needed functions (whole date-fns barrel adds ~250ms to boot)
+import { format } from "date-fns/format";
+import { addDays } from "date-fns/addDays";
+import { parseISO } from "date-fns/parseISO";
 import { sendTourCompletedNotification } from "../utils/messageNotifications";
 
 // Initialize SendGrid
@@ -109,6 +112,12 @@ router.post("/schedule", async (req, res) => {
       .from(communities)
       .where(eq(communities.id, tourData.communityId));
     
+    // Track delivery so the response can report when a tour saved but the
+    // confirmation/admin email failed, instead of silently claiming success.
+    // Declared at handler scope so res.json can always reference them safely.
+    let userEmailDelivered = false;
+    let adminEmailDelivered = false;
+
     // Send confirmation email to user
     if (process.env.SENDGRID_API_KEY) {
       const userEmailHtml = `
@@ -136,21 +145,21 @@ router.post("/schedule", async (req, res) => {
             
             <div style="margin: 20px 0;">
               <div style="margin-bottom: 15px;">
-                <a href="https://myseniorvalet.com/tour-tracker" 
+                <a href="https://www.myseniorvalet.com/tour-tracker" 
                    style="display: inline-block; background: #4F46E5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
                   📍 Tour Tracker™ - Manage Your Tours
                 </a>
               </div>
               
               <div style="margin-bottom: 15px;">
-                <a href="https://myseniorvalet.com/family-collaboration-center" 
+                <a href="https://www.myseniorvalet.com/family-collaboration-center" 
                    style="display: inline-block; background: #7C3AED; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
                   👨‍👩‍👧‍👦 Family Collaboration Center
                 </a>
               </div>
               
               <div style="margin-bottom: 15px;">
-                <a href="https://myseniorvalet.com/dashboard" 
+                <a href="https://www.myseniorvalet.com/dashboard" 
                    style="display: inline-block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; width: 100%; text-align: center; box-sizing: border-box;">
                   🏠 Your Personal Dashboard
                 </a>
@@ -175,13 +184,23 @@ router.post("/schedule", async (req, res) => {
         </div>
       `;
       
-      await sgMail.send({
-        to: tourData.contactEmail,
-        from: "hello@myseniorvalet.com",
-        bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
-        subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
-        html: userEmailHtml,
-      });
+      try {
+        await sgMail.send({
+          to: tourData.contactEmail,
+          from: "hello@myseniorvalet.com",
+          replyTo: "CowellandCoWebDesign@gmail.com",
+          bcc: ["CowellandCoWebDesign@gmail.com"],
+          subject: `Tour Confirmation - ${community?.name} - ${confirmationCode}`,
+          html: userEmailHtml,
+        });
+        userEmailDelivered = true;
+        console.log(`✅ Tour confirmation email sent to ${tourData.contactEmail}`);
+      } catch (emailError: any) {
+        console.error(`❌ Failed to send tour confirmation to ${tourData.contactEmail}:`, emailError?.message);
+        if (emailError?.response?.body) {
+          console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+        }
+      }
       
       // Send notification to community (if they have email configured)
       if (community?.email) {
@@ -293,11 +312,11 @@ router.post("/schedule", async (req, res) => {
                         
                         <!-- CTA Buttons -->
                         <div style="text-align: center; margin: 35px 0;">
-                          <a href="https://myseniorvalet.com/claim-community/${community?.id}" 
+                          <a href="https://www.myseniorvalet.com/claim-community/${community?.id}" 
                              style="display: inline-block; background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); color: white; padding: 15px 35px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(79, 70, 229, 0.3);">
                             👑 Claim Your Listing
                           </a>
-                          <a href="https://myseniorvalet.com/community-portal" 
+                          <a href="https://www.myseniorvalet.com/community-portal" 
                              style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px 35px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px; margin: 0 10px 10px 0; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3);">
                             📊 View Dashboard
                           </a>
@@ -359,7 +378,7 @@ router.post("/schedule", async (req, res) => {
                           This tour request was submitted through MySeniorValet's TourMate™ system
                         </p>
                         <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-                          Questions? Contact us at <a href="mailto:hello@myseniorvalet.com" style="color: #4f46e5;">hello@myseniorvalet.com</a>
+                          Questions? Contact us at <a href="mailto:CowellandCoWebDesign@gmail.com" style="color: #4f46e5;">CowellandCoWebDesign@gmail.com</a>
                         </p>
                         <p style="color: #94a3b8; font-size: 12px; margin: 10px 0 0 0;">
                           © 2025 MySeniorValet. All rights reserved.
@@ -374,13 +393,21 @@ router.post("/schedule", async (req, res) => {
           </html>
         `;
         
-        await sgMail.send({
-          to: community.email,
-          from: "hello@myseniorvalet.com",
-          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
-          subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,
-          html: communityEmailHtml,
-        });
+        try {
+          await sgMail.send({
+            to: 'CowellandCoWebDesign@gmail.com',
+            from: "hello@myseniorvalet.com",
+            replyTo: "CowellandCoWebDesign@gmail.com",
+            subject: `New Tour Request - ${tourData.contactName} - ${confirmationCode}`,
+            html: communityEmailHtml,
+          });
+          console.log(`✅ Community tour notification sent to CowellandCoWebDesign@gmail.com`);
+        } catch (emailError: any) {
+          console.error(`❌ Failed to send community tour notification:`, emailError?.message);
+          if (emailError?.response?.body) {
+            console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+          }
+        }
       }
       
       // Send notification to admin
@@ -430,20 +457,33 @@ router.post("/schedule", async (req, res) => {
         </div>
       `;
       
-      await sgMail.send({
-        to: "admin@myseniorvalet.com",
-        from: "hello@myseniorvalet.com",
-        cc: "hello@myseniorvalet.com",
-        subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
-        html: adminEmailHtml,
-      });
+      try {
+        await sgMail.send({
+          to: 'CowellandCoWebDesign@gmail.com',
+          from: "hello@myseniorvalet.com",
+          replyTo: "CowellandCoWebDesign@gmail.com",
+          subject: `🎯 New Tour: ${community?.name} - ${tourData.contactName}`,
+          html: adminEmailHtml,
+        });
+        adminEmailDelivered = true;
+        console.log(`✅ Admin tour notification sent to CowellandCoWebDesign@gmail.com`);
+      } catch (emailError: any) {
+        console.error(`❌ Failed to send admin tour notification:`, emailError?.message);
+        if (emailError?.response?.body) {
+          console.error('SendGrid error details:', JSON.stringify(emailError.response.body));
+        }
+      }
     }
     
     res.json({
       success: true,
+      emailDelivered: userEmailDelivered,
+      adminNotified: adminEmailDelivered,
       tour: newTour,
       confirmationCode,
-      message: "Tour scheduled successfully! Check your email for confirmation.",
+      message: userEmailDelivered
+        ? "Tour scheduled successfully! Check your email for confirmation."
+        : "Tour scheduled successfully! Your confirmation email is delayed, but your tour request is saved.",
     });
   } catch (error: any) {
     console.error("Error scheduling tour:", error);
@@ -556,7 +596,7 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
                 <li>Share your experience with family members</li>
                 <li>Create a decision journal for your search</li>
               </ul>
-              <a href="https://myseniorvalet.com/tour-tracker" 
+              <a href="https://www.myseniorvalet.com/tour-tracker" 
                  style="display: inline-block; background: #4F46E5; color: white; padding: 10px 20px; border-radius: 6px; text-decoration: none; margin-top: 10px;">
                 Open Tour Tracker™
               </a>
@@ -569,7 +609,8 @@ router.patch("/:tourId/status", isAuthenticated, async (req, res) => {
         await sgMail.send({
           to: updatedTour.contactEmail,
           from: "hello@myseniorvalet.com",
-          bcc: ["admin@myseniorvalet.com", "hello@myseniorvalet.com"],
+          replyTo: "CowellandCoWebDesign@gmail.com",
+          bcc: ["CowellandCoWebDesign@gmail.com", "CowellandCoWebDesign@gmail.com"],
           subject: `Tour Confirmed - ${community?.name}`,
           html: emailHtml,
         });

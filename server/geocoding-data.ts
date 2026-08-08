@@ -388,10 +388,9 @@ export function geocodeLocation(location: string): { lat: number; lng: number } 
       return { lat, lng };
     }
     
-    // If city not found, return state coordinates
+    // If city not found in local data, return null so Nominatim can handle it precisely
     if (US_STATES[state]) {
-      const [lat, lng] = US_STATES[state];
-      return { lat, lng };
+      return null;
     }
   }
   
@@ -409,9 +408,8 @@ export function geocodeLocation(location: string): { lat: number; lng: number } 
         const [lat, lng] = US_CITIES[possibleCity];
         return { lat, lng };
       }
-      // Return state coordinates if city not found
-      const [lat, lng] = US_STATES[possibleState];
-      return { lat, lng };
+      // City not in local data — return null so Nominatim can handle it precisely
+      return null;
     }
   }
   

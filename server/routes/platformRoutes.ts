@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { db } from "../db";
 import { communities, users, tours, reviews, services, serviceProviders } from "@shared/schema";
 import { sql, and, eq, ne } from "drizzle-orm";
+import { isCommunitySupportingEligible, supportingEligibilityFilter } from "../utils/community-ranking";
 
 export function registerPlatformRoutes(app: Express) {
   // Platform Statistics endpoint (redirect to existing stats endpoint)
@@ -278,7 +279,13 @@ export function registerPlatformRoutes(app: Express) {
   app.get('/api/communities/:id/similar', async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
-      
+
+      // Referral-support allowlist: the source community must be publicly
+      // offered, and similar results must pass the same shared eligibility.
+      if (!(await isCommunitySupportingEligible(communityId))) {
+        return res.status(404).json({ error: 'Community not found' });
+      }
+
       // Get the source community
       const [sourceCommunity] = await db
         .select()
@@ -296,7 +303,8 @@ export function registerPlatformRoutes(app: Express) {
         .from(communities)
         .where(and(
           ne(communities.id, communityId),
-          eq(communities.state, sourceCommunity.state)
+          eq(communities.state, sourceCommunity.state),
+          await supportingEligibilityFilter()
         ))
         .limit(10);
       

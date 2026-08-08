@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { db } from '../db';
 import { auditLogs } from '@shared/schema';
 
 const router = Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY as string));
 
 // Test 1: Verify Stripe Configuration
 router.get('/test/configuration', async (req, res) => {
@@ -94,7 +95,7 @@ router.post('/test/webhook-ping', async (req, res) => {
     res.json({
       success: true,
       webhookConfigured: !!webhookSecret,
-      endpoint: 'https://myseniorvalet.com/api/stripe/webhook',
+      endpoint: 'https://www.myseniorvalet.com/api/stripe/webhook',
       timestamp: new Date().toISOString()
     });
   } catch (error: any) {

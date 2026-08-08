@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { Heart, Shield, Users, LogIn, Mail, Lock } from "lucide-react";
-import { FaGoogle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { NavigationHeader } from "@/components/NavigationHeader";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -134,29 +133,6 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Google Login */}
-            <Button
-              onClick={() => window.location.href = "/api/auth/google"}
-              className="w-full h-12 bg-white hover:bg-gray-50 text-gray-700 border border-gray-300 font-medium flex items-center justify-center gap-3"
-              type="button"
-              data-testid="button-google-login"
-            >
-              <FaGoogle className="h-5 w-5 text-red-500" />
-              Continue with Google
-            </Button>
-            
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
-                  Or sign in with email
-                </span>
-              </div>
-            </div>
-            
             {/* Standard Login Form - No Replit Account Required */}
             <form onSubmit={handleLogin} className="space-y-4">
               <div>

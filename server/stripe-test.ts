@@ -1,13 +1,14 @@
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { sendEmail } from './sendgrid-service';
 
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error('STRIPE_SECRET_KEY is required');
 }
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-07-30.basil'
-});
+}));
 
 // Test function to create actual charges using test card
 export async function testStripeCharge(amount: number, description: string) {
@@ -121,6 +122,7 @@ async function sendNotificationToSuperAdmin(data: any) {
     const result = await sendEmail({
       to: 'William.cowell01@gmail.com',
       from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: subject,
       html: htmlContent,
       text: data.message

@@ -150,7 +150,7 @@ export default function RegionalExpansion() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-3xl font-bold text-purple-600 mb-2">10K+</div>
+                    <div className="text-3xl font-bold text-purple-600 mb-2">Nationwide</div>
                     <p className="text-sm text-gray-600 dark:text-gray-300">Potential users in target demographics</p>
                   </CardContent>
                 </Card>

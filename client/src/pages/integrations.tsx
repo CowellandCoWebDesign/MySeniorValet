@@ -58,7 +58,7 @@ export default function IntegrationsPage() {
     {
       id: 'anthropic-ai',
       name: 'Anthropic AI Matching',
-      description: 'Advanced AI that analyzes 31,000+ communities to provide personalized matches based on senior care needs, budget, and preferences.',
+      description: 'Advanced AI that analyzes our community directory to provide personalized matches based on senior care needs, budget, and preferences.',
       status: 'active',
       icon: Brain,
       category: 'ai',
@@ -254,7 +254,7 @@ export default function IntegrationsPage() {
       status: 'active',
       icon: Heart,
       category: 'analytics',
-      businessValue: 'Provides transparency for 15,000+ communities',
+      businessValue: 'Provides transparency for communities nationwide',
       monthlyUsers: 2200,
       roi: '180%',
       features: [
@@ -336,7 +336,7 @@ export default function IntegrationsPage() {
             </Card>
             <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-lg">
               <CardContent className="p-6 text-center">
-                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">31K+</div>
+                <div className="text-3xl font-bold text-purple-600 dark:text-purple-400 mb-2">Nationwide</div>
                 <div className="text-sm text-gray-600 dark:text-gray-300">Communities Enhanced</div>
               </CardContent>
             </Card>

@@ -968,7 +968,7 @@ export function AIIntelligenceDashboard({ communityId, communityName }: AIIntell
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm text-muted-foreground">
-                        Analysis generated using advanced AI models and real community data from 32,970+ senior living communities.
+                        Analysis generated using advanced AI models and real community data from our senior living database.
                       </p>
                     </div>
                     <Button variant="outline" size="sm">

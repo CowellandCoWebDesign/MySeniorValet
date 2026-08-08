@@ -3,7 +3,8 @@
  * Implements intelligent caching with TTL and hit/miss tracking
  */
 
-import Redis from 'ioredis';
+import type Redis from 'ioredis';
+import { requireModule } from './utils/lazy-load';
 import type { Community } from "@shared/schema";
 
 // Cache statistics for monitoring
@@ -23,7 +24,8 @@ class CacheManager {
   constructor() {
     try {
       if (process.env.REDIS_URL) {
-        this.redis = new Redis(process.env.REDIS_URL);
+        const RedisClass = requireModule('ioredis')?.default ?? requireModule('ioredis');
+        this.redis = new RedisClass(process.env.REDIS_URL);
         console.log('Redis connected successfully');
       } else {
         console.log('Redis not available, using in-memory cache');
@@ -98,6 +100,25 @@ class CacheManager {
       }
     } catch (error) {
       console.error('Cache clear error:', error);
+    }
+  }
+
+  async deleteByPrefix(prefix: string): Promise<void> {
+    try {
+      if (this.redis) {
+        const keys = await this.redis.keys(`${prefix}*`);
+        if (keys.length > 0) {
+          await this.redis.del(...keys);
+        }
+      } else {
+        for (const key of this.memoryCache.keys()) {
+          if (key.startsWith(prefix)) {
+            this.memoryCache.delete(key);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Cache deleteByPrefix error:', error);
     }
   }
 

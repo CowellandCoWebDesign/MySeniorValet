@@ -1,7 +1,45 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { db } from '../db';
 import { communities } from '../../shared/schema';
 import { eq, and, sql, ilike, or } from 'drizzle-orm';
+import { CANONICAL_BASE_URL } from '../middleware/host-canonical';
+import { findLocationBySlug } from '../../shared/location-seo';
+import { evaluateIndexability } from '../../shared/community-indexability';
+import { supportingEligibilityFilter } from '../utils/community-ranking';
+
+/**
+ * City/state-level indexing rule (docs/SEO_INDEXING_ELIGIBILITY.md):
+ * a location page is indexable when ≥1 of its public communities is indexable.
+ * Samples up to 500 public rows — enough to find one indexable community.
+ * IMPORTANT: uses the SAME city normalizer (formatCityName) and predicate
+ * shape as getLocationData so the robots decision is made on the exact row
+ * set the page itself displays.
+ */
+export async function locationHasIndexableCommunity(state: string, city?: string): Promise<boolean> {
+  try {
+    const stateUpper = state.toUpperCase();
+    const base = city
+      ? and(ilike(communities.city, formatCityName(city)), eq(communities.state, stateUpper))
+      : eq(communities.state, stateUpper);
+    const rows = await db
+      .select()
+      .from(communities)
+      .where(
+        and(
+          base,
+          // Shared referral-support eligibility: only publicly offered
+          // communities may make a location page indexable.
+          await supportingEligibilityFilter()
+        )
+      )
+      .limit(500);
+    return rows.some((r) => evaluateIndexability(r).indexable);
+  } catch (err) {
+    // Never noindex a location on a transient error — fail open to index.
+    console.error('[LocationSEO] indexability check failed:', err);
+    return true;
+  }
+}
 
 // Map of state/province codes to full names
 const stateProvinceNames: Record<string, string> = {
@@ -40,8 +78,10 @@ const getCountryFromState = (state: string): string => {
   return 'United States';
 };
 
-// Format city name for display
-const formatCityName = (city: string): string => {
+// Format city name for display — the ONE normalizer for slug→city lookups.
+// Exported so tests can assert that the SSR robots gate and the page data
+// query resolve city slugs identically.
+export const formatCityName = (city: string): string => {
   return city
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
@@ -326,13 +366,32 @@ function generateUniqueLocalContent(locationName: string, state: string, country
   `;
 }
 
+/**
+ * JSON endpoint so the client SPA can mirror the location robots decision
+ * (all-UA parity with crawler SSR). GET /api/location-indexability/:state/:city?
+ */
+export async function locationIndexabilityHandler(req: Request, res: Response) {
+  const { state, city } = req.params as { state: string; city?: string };
+  // Same state-code grammar as the SSR route: 2-3 letters, optionally a
+  // hyphenated second segment (Australian codes like AU-SA / AU-WA).
+  if (!state || !/^[a-zA-Z]{2,3}(?:-[a-zA-Z]{2,3})?$/.test(state)) {
+    return res.status(400).json({ error: 'Invalid state' });
+  }
+  const indexable = await locationHasIndexableCommunity(state, city);
+  res.set('Cache-Control', 'public, max-age=3600');
+  res.json({ indexable });
+}
+
 // Generate location data with statistics
 async function getLocationData(state: string, city?: string) {
   try {
     const stateUpper = state.toUpperCase();
     const country = getCountryFromState(stateUpper);
     
-    // Build query conditions
+    // Build query conditions — every location-page stat/sample/nearby query is
+    // scoped to the shared referral-support eligibility predicate so
+    // unapproved/excluded communities never influence crawlable content/counts.
+    const publicEligibility = await supportingEligibilityFilter();
     let conditions = [];
     
     if (city) {
@@ -367,7 +426,7 @@ async function getLocationData(state: string, city?: string) {
         withRatings: sql<number>`COUNT(CASE WHEN ${communities.rating} IS NOT NULL THEN 1 END)`
       })
       .from(communities)
-      .where(or(...conditions));
+      .where(and(or(...conditions), publicEligibility));
     
     // Get sample communities for showcasing
     const sampleCommunities = await db
@@ -380,7 +439,7 @@ async function getLocationData(state: string, city?: string) {
         priceRange: communities.priceRange
       })
       .from(communities)
-      .where(or(...conditions))
+      .where(and(or(...conditions), publicEligibility))
       .orderBy(sql`RANDOM()`)
       .limit(6);
     
@@ -393,7 +452,7 @@ async function getLocationData(state: string, city?: string) {
           count: sql<number>`COUNT(*)`
         })
         .from(communities)
-        .where(eq(communities.state, stateUpper))
+        .where(and(eq(communities.state, stateUpper), publicEligibility))
         .groupBy(communities.city)
         .orderBy(sql`COUNT(*) DESC`)
         .limit(10);
@@ -408,7 +467,8 @@ async function getLocationData(state: string, city?: string) {
         .where(
           and(
             eq(communities.state, stateUpper),
-            sql`${communities.city} != ${formatCityName(city)}`
+            sql`${communities.city} != ${formatCityName(city)}`,
+            publicEligibility
           )
         )
         .groupBy(communities.city)
@@ -457,11 +517,79 @@ function isCrawler(userAgent: string): boolean {
   return crawlerPatterns.some(pattern => pattern.test(userAgent));
 }
 
+// Resolve a legacy `?location=` query value to a clean /senior-living path.
+// Handles: MAJOR_LOCATIONS slugs ("phoenix-az"), "City, ST", "City, State Name",
+// bare state/province names ("Florida", "Ontario") and 2-letter codes.
+// Returns null when the value cannot be confidently resolved.
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-');
+
+const stateNameToCode: Record<string, string> = Object.fromEntries(
+  Object.entries(stateProvinceNames).map(([code, name]) => [name.toLowerCase(), code])
+);
+
+export function resolveLocationParamToPath(rawLocation: string): string | null {
+  const location = decodeURIComponent(rawLocation).trim();
+  if (!location) return null;
+
+  // 1. Known MAJOR_LOCATIONS slug (e.g. "phoenix-az")
+  const bySlug = findLocationBySlug(location.toLowerCase());
+  if (bySlug) {
+    return `/senior-living/${bySlug.stateAbbr.toLowerCase()}/${slugify(bySlug.city)}`;
+  }
+
+  // 2. "City, ST" or "City, State Name"
+  const commaMatch = location.match(/^(.+?),\s*(.+)$/);
+  if (commaMatch) {
+    const cityPart = commaMatch[1].trim();
+    const statePart = commaMatch[2].trim();
+    let stateCode: string | null = null;
+    if (stateProvinceNames[statePart.toUpperCase()]) {
+      stateCode = statePart.toUpperCase();
+    } else if (stateNameToCode[statePart.toLowerCase()]) {
+      stateCode = stateNameToCode[statePart.toLowerCase()];
+    }
+    if (stateCode && cityPart) {
+      return `/senior-living/${stateCode.toLowerCase()}/${slugify(cityPart)}`;
+    }
+    return null;
+  }
+
+  // 3. Bare state/province name ("Florida", "British Columbia")
+  if (stateNameToCode[location.toLowerCase()]) {
+    return `/senior-living/${stateNameToCode[location.toLowerCase()].toLowerCase()}`;
+  }
+
+  // 4. Bare 2-3 letter state/province code
+  if (stateProvinceNames[location.toUpperCase()]) {
+    return `/senior-living/${location.toLowerCase()}`;
+  }
+
+  // 5. Trailing "-slug" style with recognized state suffix (e.g. "fort-worth-tx")
+  const suffixMatch = location.toLowerCase().match(/^([a-z0-9-]+)-([a-z]{2,3})$/);
+  if (suffixMatch && stateProvinceNames[suffixMatch[2].toUpperCase()]) {
+    return `/senior-living/${suffixMatch[2]}/${suffixMatch[1]}`;
+  }
+
+  return null;
+}
+
 // Generate SEO-optimized HTML page
-export async function renderSEOLocationPage(req: Request, res: Response) {
+export async function renderSEOLocationPage(req: Request, res: Response, next: NextFunction) {
   const { state, city } = req.params;
   const userAgent = req.headers['user-agent'] || '';
-  
+
+  // Regular users get the SPA at this SAME canonical URL (no redirect away).
+  // The React app renders the location experience for /senior-living/:state/:city?.
+  if (!isCrawler(userAgent)) {
+    return next();
+  }
+
   // Get location data
   const locationData = await getLocationData(state, city);
   
@@ -469,15 +597,11 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
     return res.status(404).send('Location not found');
   }
   
-  // For regular users, redirect to AI Search Intelligence
-  if (!isCrawler(userAgent)) {
-    const location = city 
-      ? `${locationData.city}, ${locationData.state}`
-      : locationData.stateName;
-    const redirectUrl = `/ai-search-intelligence?mode=simplified&location=${encodeURIComponent(location)}&country=${encodeURIComponent(locationData.country)}`;
-    return res.redirect(301, redirectUrl);
-  }
-  
+  // Location-level indexing eligibility: index only when ≥1 community here is indexable
+  const locationRobots = (await locationHasIndexableCommunity(state, city))
+    ? 'index, follow, max-image-preview:large'
+    : 'noindex, follow';
+
   // For crawlers, serve SEO-optimized HTML
   const { stats, sampleCommunities, nearbyCities, stateName, country } = locationData;
   const locationName = city ? `${locationData.city}, ${stateName}` : stateName;
@@ -528,7 +652,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
     "@type": "CollectionPage",
     "name": title,
     "description": description,
-    "url": `https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}`,
+    "url": `${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}`,
     ...(aggregateRating && { "aggregateRating": aggregateRating }),
     "breadcrumb": {
       "@type": "BreadcrumbList",
@@ -537,7 +661,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
           "@type": "ListItem",
           "position": 1,
           "item": {
-            "@id": "https://www.myseniorvalet.com",
+            "@id": CANONICAL_BASE_URL,
             "name": "MySeniorValet"
           }
         },
@@ -545,7 +669,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
           "@type": "ListItem",
           "position": 2,
           "item": {
-            "@id": `https://www.myseniorvalet.com/senior-living/${state}`,
+            "@id": `${CANONICAL_BASE_URL}/senior-living/${state}`,
             "name": stateName
           }
         }
@@ -584,7 +708,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
       "@type": "ListItem",
       "position": 3,
       "item": {
-        "@id": `https://www.myseniorvalet.com/senior-living/${state}/${city}`,
+        "@id": `${CANONICAL_BASE_URL}/senior-living/${state}/${city}`,
         "name": locationData.city
       }
     });
@@ -598,26 +722,27 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
   <meta name="description" content="${description}">
-  <link rel="canonical" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}">
+  <meta name="robots" content="${locationRobots}">
+  <link rel="canonical" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}">
   
   ${/* Add hreflang tags for international content */''} 
   ${country === 'Canada' ? `
-  <link rel="alternate" hreflang="en-CA" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
-  <link rel="alternate" hreflang="fr-CA" href="https://www.myseniorvalet.com/fr/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="en-CA" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="fr-CA" href="${CANONICAL_BASE_URL}/fr/senior-living/${state}${city ? `/${city}` : ''}" />
   ` : ''}
   ${country === 'Australia' ? `
-  <link rel="alternate" hreflang="en-AU" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="en-AU" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
   ` : ''}
   ${country === 'United States' ? `
-  <link rel="alternate" hreflang="en-US" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="en-US" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
   ` : ''}
-  <link rel="alternate" hreflang="x-default" href="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}" />
+  <link rel="alternate" hreflang="x-default" href="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}" />
   
   <!-- Open Graph tags -->
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${description}">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://www.myseniorvalet.com/senior-living/${state}${city ? `/${city}` : ''}">
+  <meta property="og:url" content="${CANONICAL_BASE_URL}/senior-living/${state}${city ? `/${city}` : ''}">
   <meta property="og:site_name" content="MySeniorValet">
   <meta property="og:locale" content="${country === 'Canada' ? 'en_CA' : country === 'Australia' ? 'en_AU' : 'en_US'}">${country === 'Canada' ? `
   <meta property="og:locale:alternate" content="fr_CA">` : ''}
@@ -726,7 +851,7 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
     <div class="cta">
       <h2>Find Your Perfect Senior Living Community</h2>
       <p>Search all ${stats.totalCount} communities in ${locationName} with our AI-powered search engine</p>
-      <a href="/ai-search-intelligence?mode=simplified&location=${encodeURIComponent(locationName)}&country=${encodeURIComponent(country)}" class="cta-button">
+      <a href="/senior-living/${state}${city ? `/${city}` : ''}" class="cta-button">
         Search Communities →
       </a>
     </div>
@@ -750,12 +875,15 @@ export async function renderSEOLocationPage(req: Request, res: Response) {
 </html>`;
   
   res.set('Content-Type', 'text/html');
+  res.set('X-Robots-Tag', locationRobots);
   res.send(html);
 }
 
 // Generate list of top locations for SEO
 export async function getTopLocations(limit: number = 100) {
   try {
+    // Only publicly offered communities may contribute to crawlable counts.
+    const publicEligibility = await supportingEligibilityFilter();
     // Get top cities by community count
     const topCities = await db
       .select({
@@ -767,7 +895,8 @@ export async function getTopLocations(limit: number = 100) {
       .where(
         and(
           sql`${communities.city} IS NOT NULL`,
-          sql`${communities.state} IS NOT NULL`
+          sql`${communities.state} IS NOT NULL`,
+          publicEligibility
         )
       )
       .groupBy(communities.city, communities.state)
@@ -781,7 +910,7 @@ export async function getTopLocations(limit: number = 100) {
         count: sql<number>`COUNT(*)`
       })
       .from(communities)
-      .where(sql`${communities.state} IS NOT NULL`)
+      .where(and(sql`${communities.state} IS NOT NULL`, publicEligibility))
       .groupBy(communities.state)
       .orderBy(sql`COUNT(*) DESC`);
     

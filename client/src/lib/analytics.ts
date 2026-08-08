@@ -11,7 +11,7 @@ export const initGA = () => {
   const measurementId = import.meta.env.VITE_GA_MEASUREMENT_ID;
 
   if (!measurementId) {
-    console.warn('Missing required Google Analytics key: VITE_GA_MEASUREMENT_ID');
+    console.warn('Google Analytics disabled: VITE_GA_MEASUREMENT_ID is not set');
     return;
   }
 

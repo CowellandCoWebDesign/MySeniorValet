@@ -5,7 +5,7 @@ export const loadingFacts = [
   // Core Platform Facts
   {
     title: "MySeniorValet Database",
-    fact: "We maintain real-time data on over 33,560 verified senior living communities across the United States, Canada, and Mexico - the most comprehensive trilingual database available."
+    fact: "We maintain real-time data on verified senior living communities across the United States, Canada, and Mexico - the most comprehensive trilingual database available."
   },
   {
     title: "Did You Know?",

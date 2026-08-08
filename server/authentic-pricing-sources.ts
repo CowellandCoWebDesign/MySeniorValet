@@ -1,8 +1,11 @@
 import { db } from './db';
 import { communities } from '@shared/schema';
 import { eq, sql } from 'drizzle-orm';
-import axios from 'axios';
-import * as cheerio from 'cheerio';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
+import { lazyModule } from './utils/lazy-load';
+// Lazy-loaded so cheerio (~570ms) doesn't block server boot.
+const cheerio = lazyModule<typeof import('cheerio')>('cheerio');
 
 // AUTHENTIC PRICING SOURCES ONLY - NO AGGREGATOR SITES EVER
 // This module collects pricing from legitimate, direct sources only

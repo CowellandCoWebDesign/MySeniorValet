@@ -3,6 +3,7 @@ import { communities, type InsertCommunity } from "@shared/schema";
 import { googlePlacesIntegration } from "./google-places-integration";
 import { multiSourceVerifier } from "./multi-source-verifier";
 import { eq, and, like, or } from "drizzle-orm";
+import { sanitizeWebsiteUrl } from "./utils/website-url";
 
 export interface RegionalExpansionTarget {
   county: string;
@@ -622,7 +623,7 @@ export class RegionalExpansionEngine {
         state: community.state || target.state,
         zipCode: community.zipCode || community.postal_code || "",
         phone: community.phone || community.formatted_phone_number,
-        website: community.website,
+        website: sanitizeWebsiteUrl(community.website),
         description: community.description || `${community.name} is a senior living community in ${community.city}, ${target.state}.`,
         careTypes: community.careTypes || ["Independent Living"],
         amenities: community.amenities || [],
@@ -688,7 +689,7 @@ export class RegionalExpansionEngine {
               googleReviewCount: enrichmentResult.reviewCount || community.googleReviewCount,
               googleReviewSnippets: enrichmentResult.reviews || [],
               phone: enrichmentResult.phone || community.phone,
-              website: enrichmentResult.website || community.website,
+              website: sanitizeWebsiteUrl(enrichmentResult.website) || sanitizeWebsiteUrl(community.website),
               lastEnrichmentDate: new Date(),
               updatedAt: new Date()
             })

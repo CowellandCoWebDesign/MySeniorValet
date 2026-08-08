@@ -7,6 +7,7 @@ import { db } from '../db';
 import { communities } from '@shared/schema';
 import { eq, sql, and, inArray } from 'drizzle-orm';
 import { perplexityService } from '../perplexity-ai-service';
+import { sanitizeWebsiteUrl } from '../utils/website-url';
 
 interface CityVerificationResult {
   city: string;
@@ -83,8 +84,9 @@ export class CityBatchVerifier {
               updates.phone = match.phone;
               totalCorrected++;
             }
-            if (match.website && !dbCommunity.website) {
-              updates.website = match.website;
+            const matchWebsite = sanitizeWebsiteUrl(match.website);
+            if (matchWebsite && !dbCommunity.website) {
+              updates.website = matchWebsite;
             }
             
             await db.update(communities)

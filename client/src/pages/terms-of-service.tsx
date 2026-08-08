@@ -216,7 +216,7 @@ export default function TermsOfService() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 mb-4">
               <p className="text-gray-700 dark:text-gray-300">
                 <strong>DMCA Agent:</strong> MySeniorValet Legal Department<br/>
-                <strong>Email:</strong> admin@myseniorvalet.com<br/>
+                <strong>Email:</strong> hello@myseniorvalet.com<br/>
                 <strong>Response Time:</strong> Within 24 hours of receipt
               </p>
             </div>
@@ -285,9 +285,9 @@ export default function TermsOfService() {
             <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
               <ul className="text-gray-700 dark:text-gray-300 space-y-2">
                 <li><strong>General Inquiries:</strong> hello@myseniorvalet.com</li>
-                <li><strong>Administration:</strong> admin@myseniorvalet.com</li>
+                <li><strong>Administration:</strong> hello@myseniorvalet.com</li>
                 <li><strong>Billing Department:</strong> billing@myseniorvalet.com</li>
-                <li><strong>Legal & Compliance:</strong> admin@myseniorvalet.com</li>
+                <li><strong>Legal & Compliance:</strong> hello@myseniorvalet.com</li>
                 <li><strong>Technical Support:</strong> hello@myseniorvalet.com</li>
                 <li><strong>Mission:</strong> "The trusted platform for authentic senior living community information. Helping families make informed decisions with verified data and transparent pricing."</li>
               </ul>

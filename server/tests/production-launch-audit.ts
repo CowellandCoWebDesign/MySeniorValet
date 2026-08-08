@@ -9,7 +9,8 @@
 import { db } from '../db';
 import { communities, users, vendors, messages, tours } from '@shared/schema';
 import { sql } from 'drizzle-orm';
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import * as crypto from 'crypto';
 
 interface AuditResult {
@@ -273,7 +274,7 @@ class ProductionLaunchAudit {
       
       const hasRequiredAdmins = superAdmins.rows.some((u: any) => 
         u.email === 'William.cowell01@gmail.com' || 
-        u.email === 'admin@myseniorvalet.com'
+        u.email === 'CowellandCoWebDesign@gmail.com'
       );
       
       if (hasRequiredAdmins) {
@@ -320,9 +321,9 @@ class ProductionLaunchAudit {
     }
 
     try {
-      const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+      const stripe = lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, {
         apiVersion: '2025-08-27.basil'
-      });
+      }));
 
       // Verify API key works
       const account = await stripe.accounts.retrieve();

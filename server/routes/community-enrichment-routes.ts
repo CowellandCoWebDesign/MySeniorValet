@@ -3,7 +3,19 @@ import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, desc, sql, isNull, or, lt, and, gte } from "drizzle-orm";
 import { isAdmin } from "../auth-middleware";
-import { onDemandEnrichmentService } from "../services/on-demand-enrichment-service";
+// All enrichment flows through the single unified orchestrator.
+import { enrichCommunityUnified, EnrichmentPersistError } from "../services/community-enrichment-orchestrator";
+
+/** Derive a human-readable list of fields the unified enrichment populated. */
+function fieldsFromResult(result: Awaited<ReturnType<typeof enrichCommunityUnified>>): string[] {
+  const fields: string[] = [];
+  if (result.summary) fields.push("description");
+  if (result.photos.length > 0) fields.push("photos");
+  if (result.phone) fields.push("phone");
+  if (result.officialWebsite) fields.push("website");
+  if (result.pricing) fields.push("pricing");
+  return fields;
+}
 
 export function registerCommunityEnrichmentRoutes(app: Express) {
   // Admin endpoint to manually trigger enrichment for a specific community
@@ -15,22 +27,33 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
       
-      // Force enrichment regardless of cache
-      const result = await onDemandEnrichmentService.enrichCommunity(communityId);
+      // Force enrichment regardless of cache — routes through the single pipeline.
+      const result = await enrichCommunityUnified(communityId, { forceRefresh: true });
       
       res.json({
-        success: result.success,
-        fieldsUpdated: result.fieldsUpdated,
-        protectedFieldsSkipped: result.protectedFieldsSkipped,
-        error: result.error
+        success: true,
+        cached: result.cached,
+        fieldsUpdated: fieldsFromResult(result),
+        protectedFieldsSkipped: [],
+        summary: result.summary,
+        photoCount: result.photos.length,
       });
     } catch (error) {
+      if (error instanceof EnrichmentPersistError) {
+        // Research succeeded but the final DB write failed — nothing was saved.
+        console.error("Enrichment persist failed (results NOT saved):", error);
+        return res.status(500).json({
+          error: "Enrichment save failed",
+          outcome: "save_failed",
+          message: "Data was researched but could not be saved to the database. Retry is cheap (results may be cached).",
+        });
+      }
       console.error("Error triggering enrichment:", error);
       res.status(500).json({ error: "Failed to trigger enrichment" });
     }
   });
   
-  // Admin endpoint to refresh dynamic content only (photos, availability, promotions)
+  // Admin endpoint to refresh dynamic content (photos) — same unified pipeline.
   app.post("/api/admin/communities/:id/refresh-dynamic", isAdmin, async (req, res) => {
     try {
       const communityId = parseInt(req.params.id);
@@ -39,14 +62,23 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
         return res.status(400).json({ error: "Invalid community ID" });
       }
       
-      const result = await onDemandEnrichmentService.refreshDynamicContent(communityId);
+      const result = await enrichCommunityUnified(communityId, { forceRefresh: true });
       
       res.json({
-        success: result.success,
-        fieldsUpdated: result.fieldsUpdated,
-        error: result.error
+        success: true,
+        cached: result.cached,
+        fieldsUpdated: fieldsFromResult(result),
+        photoCount: result.photos.length,
       });
     } catch (error) {
+      if (error instanceof EnrichmentPersistError) {
+        console.error("Dynamic-content persist failed (results NOT saved):", error);
+        return res.status(500).json({
+          error: "Refresh save failed",
+          outcome: "save_failed",
+          message: "Content was researched but could not be saved to the database.",
+        });
+      }
       console.error("Error refreshing dynamic content:", error);
       res.status(500).json({ error: "Failed to refresh dynamic content" });
     }
@@ -57,8 +89,42 @@ export function registerCommunityEnrichmentRoutes(app: Express) {
     try {
       const limit = parseInt(req.body.limit as string) || 10;
       
-      // Start batch enrichment asynchronously
-      onDemandEnrichmentService.enrichHighPriorityCommunities(limit).catch(error => {
+      // Start batch enrichment asynchronously through the unified pipeline.
+      (async () => {
+        const toEnrich = await db
+          .select({ id: communities.id })
+          .from(communities)
+          .where(sql`
+            (enrichment_status = 'pending' OR enrichment_status = 'failed' OR
+             last_successful_enrichment < NOW() - INTERVAL '7 days')
+            AND view_count > 0
+            AND website IS NOT NULL AND length(website) > 5
+          `)
+          .orderBy(sql`popularity_score DESC, view_count DESC`)
+          .limit(limit);
+        console.log(`🔄 Starting unified batch enrichment for ${toEnrich.length} communities`);
+        // Distinguish "researched but NOT saved" (persist failure — retry is
+        // cheap) from generic failures so the summary log is honest.
+        let succeeded = 0;
+        let saveFailed = 0;
+        let otherFailed = 0;
+        for (const c of toEnrich) {
+          try {
+            await enrichCommunityUnified(c.id, { forceRefresh: true });
+            succeeded++;
+          } catch (err) {
+            if (err instanceof EnrichmentPersistError) {
+              saveFailed++;
+              console.error(`Batch enrichment for community ${c.id}: data researched but SAVE FAILED (not persisted):`, err);
+            } else {
+              otherFailed++;
+              console.error(`Batch enrichment failed for community ${c.id}:`, err);
+            }
+          }
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+        }
+        console.log(`✅ Unified batch enrichment completed for ${toEnrich.length} communities — ${succeeded} succeeded, ${saveFailed} save-failed (researched but NOT persisted), ${otherFailed} failed`);
+      })().catch(error => {
         console.error("Batch enrichment failed:", error);
       });
       

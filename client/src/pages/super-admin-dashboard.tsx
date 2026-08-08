@@ -128,7 +128,6 @@ export default function SuperAdminDashboard() {
       links: [
         { name: "AI Search Intelligence", href: "/ai-search-intelligence", description: "Advanced AI search features", icon: Sparkles, status: "active" },
         { name: "AI Map Showcase", href: "/ai-map-showcase", description: "AI-powered map features", icon: Map, status: "active" },
-        { name: "Weaviate Test", href: "/weaviate-test", description: "Test Weaviate integration", icon: Database, status: "active" },
         { name: "Multi-AI Test", href: "/admin/multi-ai-test", description: "Test multiple AI providers", icon: Bot, status: "active" },
         { name: "AI Search Comparison", href: "/ai-search-comparison", description: "Compare AI search results", icon: Search, status: "active" },
         { name: "Perplexity Test", href: "/admin/perplexity-test", description: "Test Perplexity AI", icon: Brain, status: "active" },
@@ -211,7 +210,7 @@ export default function SuperAdminDashboard() {
       color: "text-purple-600",
       bgColor: "bg-purple-50",
       borderColor: "border-purple-200",
-      trend: "Largest segment" // Real data - 8,953 communities
+      trend: "Largest segment"
     },
     { 
       label: "HUD Verified", 

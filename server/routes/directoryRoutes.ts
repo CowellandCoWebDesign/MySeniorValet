@@ -2,6 +2,7 @@ import { type Express } from "express";
 import { db } from "../db";
 import { communities } from "@shared/schema";
 import { eq, and, sql, desc, isNotNull } from "drizzle-orm";
+import { supportingEligibilityFilter } from "../utils/community-ranking";
 
 export function registerDirectoryRoutes(app: Express) {
   
@@ -17,7 +18,7 @@ export function registerDirectoryRoutes(app: Express) {
       const communities_result = await db
         .select()
         .from(communities)
-        .where(eq(communities.state, state))
+        .where(and(eq(communities.state, state), await supportingEligibilityFilter()))
         .orderBy(desc(communities.rating))
         .limit(100);
       
@@ -45,7 +46,7 @@ export function registerDirectoryRoutes(app: Express) {
       const communities_result = await db
         .select()
         .from(communities)
-        .where(eq(communities.city, city))
+        .where(and(eq(communities.city, city), await supportingEligibilityFilter()))
         .orderBy(desc(communities.rating))
         .limit(100);
       
@@ -71,7 +72,10 @@ export function registerDirectoryRoutes(app: Express) {
       }
       
       const searchTerm = (query as string).toLowerCase();
-      
+
+      // Suggestions/counts only reflect publicly offered communities.
+      const publicEligibility = await supportingEligibilityFilter();
+
       // Search for matching cities and states
       const cities = await db
         .select({
@@ -80,7 +84,7 @@ export function registerDirectoryRoutes(app: Express) {
           count: sql<number>`count(*)::int`
         })
         .from(communities)
-        .where(sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`)
+        .where(and(sql`LOWER(${communities.city}) LIKE ${(searchTerm || '') + '%'}`, publicEligibility))
         .groupBy(communities.city, communities.state)
         .orderBy(desc(sql`count(*)`))
         .limit(10);
@@ -91,7 +95,7 @@ export function registerDirectoryRoutes(app: Express) {
           count: sql<number>`count(*)::int`
         })
         .from(communities)
-        .where(sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`)
+        .where(and(sql`LOWER(${communities.state}) LIKE ${(searchTerm || '') + '%'}`, publicEligibility))
         .groupBy(communities.state)
         .orderBy(desc(sql`count(*)`))
         .limit(5);
@@ -126,11 +130,15 @@ export function registerDirectoryRoutes(app: Express) {
   app.get("/api/directories/hud-communities", async (req, res) => {
     try {
       const { limit = 50, offset = 0 } = req.query;
-      
+
+      // HUD directory is an explicit HUD surface: keep HUD rows, but still
+      // require referral-support eligibility.
+      const hudEligibility = await supportingEligibilityFilter({ includeHud: true });
+
       const hudCommunities = await db
         .select()
         .from(communities)
-        .where(isNotNull(communities.hudPropertyId))
+        .where(and(isNotNull(communities.hudPropertyId), hudEligibility))
         .orderBy(desc(communities.rating))
         .limit(Number(limit))
         .offset(Number(offset));
@@ -138,7 +146,7 @@ export function registerDirectoryRoutes(app: Express) {
       const [countResult] = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
-        .where(isNotNull(communities.hudPropertyId));
+        .where(and(isNotNull(communities.hudPropertyId), hudEligibility));
       
       res.json({
         communities: hudCommunities,
@@ -160,11 +168,13 @@ export function registerDirectoryRoutes(app: Express) {
       
       // Canadian provinces
       const canadianProvinces = ['AB', 'BC', 'MB', 'NB', 'NL', 'NS', 'NT', 'NU', 'ON', 'PE', 'QC', 'SK', 'YT'];
-      
+
+      const publicEligibility = await supportingEligibilityFilter();
+
       const canadianCommunities = await db
         .select()
         .from(communities)
-        .where(sql`${communities.state} = ANY(${canadianProvinces})`)
+        .where(and(sql`${communities.state} = ANY(${canadianProvinces})`, publicEligibility))
         .orderBy(desc(communities.rating))
         .limit(Number(limit))
         .offset(Number(offset));
@@ -172,7 +182,7 @@ export function registerDirectoryRoutes(app: Express) {
       const [countResult] = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
-        .where(sql`${communities.state} = ANY(${canadianProvinces})`);
+        .where(and(sql`${communities.state} = ANY(${canadianProvinces})`, publicEligibility));
       
       res.json({
         communities: canadianCommunities,
@@ -195,11 +205,13 @@ export function registerDirectoryRoutes(app: Express) {
       // Mexican states/regions
       const mexicanStates = ['MX', 'Mexico', 'MEXICO'];
       const mexicanCities = ['Tijuana', 'Guadalajara', 'Puerto Vallarta', 'Cancun', 'Playa del Carmen', 'Mexico City'];
-      
+
+      const publicEligibility = await supportingEligibilityFilter();
+
       const mexicanCommunities = await db
         .select()
         .from(communities)
-        .where(sql`
+        .where(and(publicEligibility, sql`
           ${communities.state} = ANY(${mexicanStates}) OR
           ${communities.city} = ANY(${mexicanCities}) OR
           LOWER(${communities.name}) LIKE '%mexico%' OR
@@ -207,7 +219,7 @@ export function registerDirectoryRoutes(app: Express) {
           LOWER(${communities.name}) LIKE '%guadalajara%' OR
           LOWER(${communities.name}) LIKE '%puerto vallarta%' OR
           LOWER(${communities.name}) LIKE '%cancun%'
-        `)
+        `))
         .orderBy(desc(communities.rating))
         .limit(Number(limit))
         .offset(Number(offset));
@@ -215,7 +227,7 @@ export function registerDirectoryRoutes(app: Express) {
       const [countResult] = await db
         .select({ count: sql<number>`count(*)::int` })
         .from(communities)
-        .where(sql`
+        .where(and(publicEligibility, sql`
           ${communities.state} = ANY(${mexicanStates}) OR
           ${communities.city} = ANY(${mexicanCities}) OR
           LOWER(${communities.name}) LIKE '%mexico%' OR
@@ -223,7 +235,7 @@ export function registerDirectoryRoutes(app: Express) {
           LOWER(${communities.name}) LIKE '%guadalajara%' OR
           LOWER(${communities.name}) LIKE '%puerto vallarta%' OR
           LOWER(${communities.name}) LIKE '%cancun%'
-        `);
+        `));
       
       res.json({
         communities: mexicanCommunities,

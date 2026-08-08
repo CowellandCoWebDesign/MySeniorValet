@@ -45,7 +45,7 @@ export class SecurityMonitor {
     // Path traversal
     /(\.\.\/|\.\.\\|\.\.\%2f|\.\.\%5c)/i,
     // LDAP injection
-    /(\*\)|&\(|\|\(|\)|\(cn=|\(uid=|\(mail=)/i,
+    /(\*\)|&\(|\|\(|\(cn=|\(uid=|\(mail=)/i,
     // NoSQL injection
     /(\$where|\$ne|\$in|\$nin|\$or|\$and|\$not|\$nor|\$exists|\$type|\$mod|\$regex|\$text|\$search)/i
   ];

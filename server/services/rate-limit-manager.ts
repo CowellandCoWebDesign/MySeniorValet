@@ -1,4 +1,7 @@
-import { RateLimiterMemory } from 'rate-limiter-flexible';
+import type { RateLimiterMemory } from 'rate-limiter-flexible';
+import { lazyModule } from '../utils/lazy-load';
+// Lazy-loaded so rate-limiter-flexible doesn't block server boot.
+const rlf = lazyModule<typeof import('rate-limiter-flexible')>('rate-limiter-flexible');
 
 interface RateLimitConfig {
   points: number; // Number of requests
@@ -23,11 +26,12 @@ export class RateLimitManager {
     'api_tours': { points: 20, duration: 60 }, // 20 per minute
     'api_claims': { points: 5, duration: 3600 }, // 5 per hour
     'api_emergency': { points: 10, duration: 60 }, // 10 per minute (safety critical)
+    'api_placement_inquiry': { points: 10, duration: 3600, blockDuration: 900 }, // 10 per hour, block 15 min (public intake form)
     
     // Perplexity API endpoints - STRICT limits to reduce costs
     'api_competitive': { points: 5, duration: 60, blockDuration: 300 }, // 5 per minute, block 5 min
     'api_verify': { points: 5, duration: 60, blockDuration: 300 }, // 5 per minute, block 5 min
-    'api_discovery': { points: 3, duration: 60, blockDuration: 600 }, // 3 per minute, block 10 min
+    'api_discovery': { points: 20, duration: 60 }, // 20 per minute (background silent discovery)
     
     // Data endpoints - relaxed limits
     'data_map': { points: 100, duration: 60 }, // 100 per minute
@@ -49,7 +53,7 @@ export class RateLimitManager {
     // Create rate limiters for each configuration
     Object.entries(this.DEFAULT_CONFIGS).forEach(([key, config]) => {
       this.configs.set(key, config);
-      this.limiters.set(key, new RateLimiterMemory({
+      this.limiters.set(key, new rlf.RateLimiterMemory({
         points: config.points,
         duration: config.duration,
         blockDuration: config.blockDuration
@@ -66,7 +70,7 @@ export class RateLimitManager {
     isAdmin = false
   ): Promise<{ allowed: boolean; remainingPoints?: number; resetTime?: Date }> {
     // Super admins bypass rate limits
-    if (isAdmin && (identifier === 'william.cowell01@gmail.com' || identifier === 'admin@myseniorvalet.com')) {
+    if (isAdmin && (identifier === 'william.cowell01@gmail.com' || identifier === 'CowellandCoWebDesign@gmail.com')) {
       return { allowed: true, remainingPoints: 9999 };
     }
 
@@ -97,6 +101,7 @@ export class RateLimitManager {
     if (endpoint.includes('/auth/reset')) return 'auth_reset';
     
     // API endpoints
+    if (endpoint.includes('/api/placement-inquiries')) return 'api_placement_inquiry';
     if (endpoint.includes('/api/search')) return 'api_search';
     if (endpoint.includes('/api/competitive-analysis')) return 'api_competitive';
     if (endpoint.includes('/api/communities') && endpoint.includes('/verify')) return 'api_verify';

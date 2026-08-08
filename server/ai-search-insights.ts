@@ -1,7 +1,8 @@
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import { lazyClient, requireModule } from './utils/lazy-load';
 import { PerplexityAIService } from './perplexity-ai-service';
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai = lazyClient<OpenAI>(() => new (requireModule('openai').default)({ apiKey: process.env.OPENAI_API_KEY }));
 
 interface CommunityInsight {
   id: number;

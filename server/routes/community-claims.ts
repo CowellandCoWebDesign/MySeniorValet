@@ -4,6 +4,12 @@ import { communityClaims, communities, verifiedCommunityProfiles, verificationAc
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { isAuthenticated, checkRole } from '../auth-middleware';
+import {
+  approveOperatorClaim,
+  removeOperatorClaimVerification,
+} from '../services/operator-claim-lifecycle';
+import { requireAuthenticatedOperatorUserId } from '../services/operator-claim-identity';
 
 const router = Router();
 
@@ -21,8 +27,9 @@ const initiateClaimSchema = z.object({
   additionalNotes: z.string().optional()
 });
 
-router.post('/claims/initiate', async (req, res) => {
+router.post('/claims/initiate', isAuthenticated, async (req: any, res) => {
   try {
+    const claimerUserId = requireAuthenticatedOperatorUserId(req);
     const validatedData = initiateClaimSchema.parse(req.body);
     
     // Check if community exists
@@ -82,6 +89,7 @@ router.post('/claims/initiate', async (req, res) => {
       .insert(communityClaims)
       .values({
         ...validatedData,
+        claimerUserId,
         status: 'Pending',
         priority: 'Medium'
       })
@@ -120,37 +128,20 @@ router.post('/claims/initiate', async (req, res) => {
 });
 
 // Verify email for claim
-router.post('/claims/verify-email', async (req, res) => {
-  try {
-    const { claimId, verificationCode } = req.body;
-    
-    // TODO: Implement email verification logic
-    // This would check the verification code and update claim status
-    
-    await db.insert(verificationActivityLog).values({
-      claimId,
-      action: 'email_verified',
-      performedBy: 'system',
-      performedByRole: 'system'
-    });
-    
-    res.json({
-      success: true,
-      message: 'Email verified successfully'
-    });
-  } catch (error) {
-    console.error('Error verifying email:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to verify email'
-    });
-  }
+router.post('/claims/verify-email', isAuthenticated, (_req, res) => {
+  return res.status(501).json({
+    success: false,
+    error: 'Email verification is not available until a real verification-code flow is configured',
+  });
 });
 
 // Upload verification documents
-router.post('/claims/upload-documents', async (req, res) => {
+router.post('/claims/upload-documents', isAuthenticated, async (req: any, res) => {
   try {
     const { claimId, documents } = req.body;
+    if (!Number.isInteger(Number(claimId)) || !Array.isArray(documents)) {
+      return res.status(400).json({ success: false, error: 'Invalid claim documents' });
+    }
     
     // Get the claim
     const [claim] = await db
@@ -164,6 +155,18 @@ router.post('/claims/upload-documents', async (req, res) => {
         success: false,
         error: 'Claim not found'
       });
+    }
+    const requesterId = requireAuthenticatedOperatorUserId(req);
+    const requesterRole = req.user?.role || req.session?.user?.role;
+    if (
+      claim.claimerUserId !== requesterId &&
+      requesterRole !== 'admin' &&
+      requesterRole !== 'super_admin'
+    ) {
+      return res.status(403).json({ success: false, error: 'Access denied' });
+    }
+    if (!['Pending', 'Under Review'].includes(claim.status || '')) {
+      return res.status(409).json({ success: false, error: 'Claim is not accepting documents' });
     }
     
     // Update claim with documents
@@ -185,7 +188,7 @@ router.post('/claims/upload-documents', async (req, res) => {
       performedByRole: 'user',
       details: {
         documentCount: documents.length,
-        documentTypes: documents.map((d: any) => d.type)
+        documentTypes: documents.map((d: any) => String(d?.type || 'unknown'))
       }
     });
     
@@ -203,7 +206,7 @@ router.post('/claims/upload-documents', async (req, res) => {
 });
 
 // Get claim status
-router.get('/claims/status/:claimId', async (req, res) => {
+router.get('/claims/status/:claimId', isAuthenticated, async (req: any, res) => {
   try {
     const claimId = parseInt(req.params.claimId);
     
@@ -227,6 +230,15 @@ router.get('/claims/status/:claimId', async (req, res) => {
         success: false,
         error: 'Claim not found'
       });
+    }
+    const requesterId = requireAuthenticatedOperatorUserId(req);
+    const requesterRole = req.session?.user?.role || req.user?.role;
+    if (
+      claim.claim.claimerUserId !== requesterId &&
+      requesterRole !== 'admin' &&
+      requesterRole !== 'super_admin'
+    ) {
+      return res.status(403).json({ success: false, error: 'Access denied' });
     }
     
     // Get activity log
@@ -253,91 +265,29 @@ router.get('/claims/status/:claimId', async (req, res) => {
 });
 
 // Admin: Approve claim
-router.patch('/claims/:id/approve', async (req, res) => {
+router.patch(
+  '/claims/:id/approve',
+  isAuthenticated,
+  checkRole('admin'),
+  async (req: any, res) => {
   try {
     const claimId = parseInt(req.params.id);
-    const { reviewNotes, verificationTier = 'basic' } = req.body;
-    
-    // TODO: Check admin authorization
-    
-    // Get the claim
-    const [claim] = await db
-      .select()
-      .from(communityClaims)
-      .where(eq(communityClaims.id, claimId))
-      .limit(1);
-    
-    if (!claim) {
-      return res.status(404).json({
-        success: false,
-        error: 'Claim not found'
-      });
-    }
-    
-    // Update claim status
-    await db
-      .update(communityClaims)
-      .set({
-        status: 'Approved',
-        reviewedAt: new Date(),
-        reviewNotes,
-        updatedAt: new Date()
-      })
-      .where(eq(communityClaims.id, claimId));
-    
-    // Create verified profile
-    await db.insert(verifiedCommunityProfiles).values({
-      communityId: claim.communityId,
+    const { claim, reviewedAt } = await approveOperatorClaim(
       claimId,
-      verificationTier,
-      verificationBadge: true,
-      priceTransparencyEnabled: true,
-      availabilityTransparencyEnabled: true,
-      analyticsEnabled: true,
-      leadNotificationsEnabled: true
-    });
-    
-    // Update community as claimed
-    await db
-      .update(communities)
-      .set({
-        isClaimed: true,
-        claimVerified: true,
-        claimDate: new Date()
-      })
-      .where(eq(communities.id, claim.communityId));
-    
-    // Create claimed community record
-    if (claim.claimerUserId) {
-      await db.insert(claimedCommunities).values({
-        communityId: claim.communityId,
-        ownerId: claim.claimerUserId,
-        claimId,
-        businessName: claim.companyName || claim.claimerName,
-        operatorType: 'Independent',
-        isVerified: true,
-        verificationLevel: verificationTier === 'basic' ? 'Basic' : 
-                          verificationTier === 'enhanced' ? 'Enhanced' : 'Premium',
-        subscriptionPlan: 'Free',
-        subscriptionStatus: 'Trial',
-        canUpdatePhotos: true,
-        canUpdatePricing: true,
-        canUpdateAmenities: true,
-        canRespondToReviews: true,
-        canReceiveLeads: true
-      });
-    }
+      requireAuthenticatedOperatorUserId(req),
+    );
     
     // Log the activity
     await db.insert(verificationActivityLog).values({
       claimId,
       communityId: claim.communityId,
       action: 'verified',
-      performedBy: 'admin', // TODO: Use actual admin ID
+      performedBy: String(requireAuthenticatedOperatorUserId(req)),
       performedByRole: 'admin',
       details: {
-        verificationTier,
-        reviewNotes
+        reviewNotes: req.body.reviewNotes,
+        reviewedAt: reviewedAt.toISOString(),
+        evidence: 'approved_operator_claim'
       }
     });
     
@@ -355,37 +305,27 @@ router.patch('/claims/:id/approve', async (req, res) => {
 });
 
 // Admin: Reject claim
-router.patch('/claims/:id/reject', async (req, res) => {
+router.patch(
+  '/claims/:id/reject',
+  isAuthenticated,
+  checkRole('admin'),
+  async (req: any, res) => {
   try {
     const claimId = parseInt(req.params.id);
     const { rejectionReason, reviewNotes } = req.body;
     
-    // TODO: Check admin authorization
-    
-    // Update claim status
-    await db
-      .update(communityClaims)
-      .set({
-        status: 'Rejected',
-        reviewedAt: new Date(),
-        rejectionReason,
-        reviewNotes,
-        updatedAt: new Date()
-      })
-      .where(eq(communityClaims.id, claimId));
-    
-    // Log the activity
-    const [claim] = await db
-      .select()
-      .from(communityClaims)
-      .where(eq(communityClaims.id, claimId))
-      .limit(1);
+    const { claim } = await removeOperatorClaimVerification({
+      claimId,
+      reviewerId: requireAuthenticatedOperatorUserId(req),
+      status: 'Rejected',
+      reason: rejectionReason,
+    });
     
     await db.insert(verificationActivityLog).values({
       claimId,
       communityId: claim.communityId,
       action: 'rejected',
-      performedBy: 'admin', // TODO: Use actual admin ID
+      performedBy: String(requireAuthenticatedOperatorUserId(req)),
       performedByRole: 'admin',
       details: {
         rejectionReason,
@@ -406,11 +346,41 @@ router.patch('/claims/:id/reject', async (req, res) => {
   }
 });
 
+router.patch(
+  '/claims/:id/:action(revoke|suspend)',
+  isAuthenticated,
+  checkRole('admin'),
+  async (req: any, res) => {
+    try {
+      const claimId = parseInt(req.params.id, 10);
+      const reason = String(req.body.reason || '').trim();
+      if (!reason) return res.status(400).json({ success: false, error: 'Reason is required' });
+      const status = req.params.action === 'revoke' ? 'Revoked' : 'Suspended';
+      const { claim } = await removeOperatorClaimVerification({
+        claimId,
+        reviewerId: requireAuthenticatedOperatorUserId(req),
+        status,
+        reason,
+      });
+      await db.insert(verificationActivityLog).values({
+        claimId,
+        communityId: claim.communityId,
+        action: status.toLowerCase(),
+        performedBy: String(requireAuthenticatedOperatorUserId(req)),
+        performedByRole: 'admin',
+        details: { reason },
+      });
+      return res.json({ success: true, message: `Claim ${status.toLowerCase()}` });
+    } catch (error) {
+      console.error(`Error ${req.params.action}ing claim:`, error);
+      return res.status(500).json({ success: false, error: `Failed to ${req.params.action} claim` });
+    }
+  },
+);
+
 // Get all pending claims (admin)
-router.get('/claims/pending', async (req, res) => {
+router.get('/claims/pending', isAuthenticated, checkRole('admin'), async (req, res) => {
   try {
-    // TODO: Check admin authorization
-    
     const pendingClaims = await db
       .select({
         claim: communityClaims,

@@ -5,7 +5,9 @@
  */
 
 import speakeasy from 'speakeasy';
-import QRCode from 'qrcode';
+import { lazyModule } from '../utils/lazy-load';
+// Lazy-loaded so qrcode doesn't block server boot.
+const QRCode = lazyModule<typeof import('qrcode')>('qrcode');
 import { randomBytes } from 'crypto';
 import { db } from '../db';
 import { users } from '../../shared/schema';
@@ -140,8 +142,8 @@ export function requires2FA(email: string): boolean {
   // TEMPORARILY DISABLED to restore admin access
   // Admin emails that will require 2FA once properly configured:
   // - william.cowell01@gmail.com
-  // - admin@myseniorvalet.com
-  // - super_admin@myseniorvalet.com
+  // - CowellandCoWebDesign@gmail.com
+  // - super_CowellandCoWebDesign@gmail.com
   
   // Return false to disable forced 2FA until proper enrollment flow is implemented
   return false;

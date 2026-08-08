@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Brain, Sparkles, MessageCircle, TrendingUp, MapPin, DollarSign, Star, Users, ChevronRight, ExternalLink, Phone, Globe, Clock, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EnhancedCommunityCard } from './EnhancedCommunityCard';
+import { CommunityCard } from '@/components/CommunityCard';
 
 interface KrakenAIResponseProps {
   query: string;
@@ -130,7 +130,7 @@ export function KrakenAIResponse({ query, onQueryChange, onCommunityMatches }: K
     } else if (queryLower.includes('memory care') || queryLower.includes('dementia') || queryLower.includes('alzheimer')) {
       return `Memory care requires specialized expertise. I've found ${recommendations.length} communities with dedicated memory care units, licensed staff, and secure environments designed for dementia care.`;
     } else {
-      return `I've searched through 32,970+ senior living communities and found ${recommendations.length} excellent matches for your needs. Each recommendation is verified for authenticity and quality standards.`;
+      return `I've searched our senior living community database and found ${recommendations.length} excellent matches for your needs. Each recommendation is verified for authenticity and quality standards.`;
     }
   };
 
@@ -196,7 +196,7 @@ export function KrakenAIResponse({ query, onQueryChange, onCommunityMatches }: K
                   🐙 THE KRAKEN AI
                 </CardTitle>
                 <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">
-                  Advanced Intelligence • 32,970+ Communities • Self-Learning Neural Network
+                  Advanced Intelligence • Verified Communities • Self-Learning Neural Network
                 </p>
               </div>
             </div>
@@ -375,8 +375,9 @@ Examples:
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {response.recommendations.slice(0, 6).map((community, index) => (
                         <div key={community.id || index} className="transform hover:scale-105 transition-transform duration-200">
-                          <EnhancedCommunityCard 
+                          <CommunityCard 
                             community={community}
+                            variant="grid"
                           />
                         </div>
                       ))}

@@ -6,11 +6,12 @@ import { Search, MapPin, Star, Heart, List, Map as MapIcon, Bell, Calendar, Mail
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Link, useLocation } from "wouter";
+import { getCommunityUrl } from "@/lib/community-url";
 import SlidePanel from "@/components/SlidePanel";
 import BottomNavigation from "@/components/BottomNavigation";
 import { TransparencyBadgeList } from "@/components/TransparencyBadge";
 import { SearchingMascot } from "@/components/mascot";
-import { EnhancedCommunityCard } from "@/components/EnhancedCommunityCard";
+import { CommunityCard } from "@/components/CommunityCard";
 // Map imports - GeoJSON integration following Leaflet documentation
 import { MapContainer, TileLayer, GeoJSON, Marker, Popup, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -533,12 +534,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             {/* Sample Community Cards */}
             <div className="space-y-3">
               {filteredCommunities.slice(0, 3).map((community: any, index: number) => (
-                <EnhancedCommunityCard
+                <CommunityCard
                   key={community.id}
                   community={community}
                   variant="list"
-                  index={index}
-                  onSelect={() => window.location.href = `/community/${community.id}`}
                 />
               ))}
             </div>
@@ -625,12 +624,10 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
           
           <div className="space-y-4">
             {filteredCommunities.slice(0, 8).map((community: any, index: number) => (
-              <EnhancedCommunityCard
+              <CommunityCard
                 key={community.id}
                 community={community}
                 variant="list"
-                index={index}
-                onSelect={() => window.location.href = `/community/${community.id}`}
               />
             ))}
           </div>
@@ -1017,7 +1014,7 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             zoom={mapZoom}
             onBoundsChange={setMapBounds}
             onCommunityClick={(community) => {
-              window.location.href = `/community/${community.id}`;
+              window.location.href = getCommunityUrl(community);
             }}
             height="100%"
           />
@@ -1068,5 +1065,6 @@ export default function BasicSearch({ initialFilters = [] }: { initialFilters?: 
             updateCount={5}
           />
         </div>
+    </div>
     );
 };

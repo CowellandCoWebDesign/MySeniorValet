@@ -277,7 +277,9 @@ export class VirtualTourDetectorService {
       
       const response = await this.perplexityService.searchCommunityInfo(query);
 
-      if (!response.data) {
+      // Task #402: the Perplexity service is disabled and returns null — guard
+      // the whole response, not just .data, or every page view logs a crash.
+      if (!response?.data) {
         return {
           found: false,
           confidence: 'medium',
@@ -346,7 +348,8 @@ export class VirtualTourDetectorService {
       
       const response = await this.perplexityService.searchCommunityInfo(query);
 
-      if (!response.data) {
+      // Task #402: guard null response (service disabled) — see searchWithPerplexity.
+      if (!response?.data) {
         return {
           found: false,
           confidence: 'low',
@@ -407,7 +410,7 @@ export class VirtualTourDetectorService {
       for (const searchQuery of platformSearches) {
         const response = await this.perplexityService.searchCommunityInfo(searchQuery);
 
-        if (response.data) {
+        if (response?.data) {
           const tourUrl = this.extractTourUrl(response.data);
           
           if (tourUrl) {

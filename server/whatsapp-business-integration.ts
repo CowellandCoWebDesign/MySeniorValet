@@ -1,5 +1,6 @@
 // WhatsApp Business API Integration for International Family Communication
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 
 export class WhatsAppBusinessIntegration {
   private accessToken: string;
@@ -447,7 +448,7 @@ Common commands:
 • "Contact" - Get community contact info
 • "Help" - Show this message
 
-For urgent matters, email us at: admin@myseniorvalet.com`;
+For urgent matters, email us at: CowellandCoWebDesign@gmail.com`;
 
     await axios.post(
       `https://graph.facebook.com/v18.0/${this.phoneNumberId}/messages`,

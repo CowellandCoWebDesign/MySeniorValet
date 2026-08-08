@@ -1,4 +1,5 @@
-import axios from 'axios';
+import { lazyCallable } from './utils/lazy-load';
+const axios = lazyCallable<typeof import('axios')['default']>('axios');
 import crypto from 'crypto';
 import { db } from './db';
 import { services } from '@shared/schema';

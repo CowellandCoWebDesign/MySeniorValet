@@ -1,4 +1,5 @@
-import Stripe from 'stripe';
+import type Stripe from 'stripe';
+import { lazyClient, requireModule } from '../utils/lazy-load';
 import { db } from '../db';
 import { communities, communityFeatures } from '@shared/schema';
 import { eq, and, sql } from 'drizzle-orm';
@@ -20,10 +21,10 @@ import { EmailService } from './email';
 
 // Initialize Stripe
 const stripe = process.env.STRIPE_SECRET_KEY 
-  ? new Stripe(process.env.STRIPE_SECRET_KEY, { 
+  ? lazyClient<Stripe>(() => new (requireModule('stripe').default)(process.env.STRIPE_SECRET_KEY, { 
       apiVersion: '2025-08-27.basil',
       typescript: true 
-    })
+    }))
   : null;
 
 // Subscription tier pricing (monthly) - aligned with database schema
@@ -163,8 +164,8 @@ export class PaymentService {
     
     console.log('💳 Payment Service initialized with Stripe');
     
-    // Set up webhook endpoint if not exists
-    this.setupWebhookEndpoint().catch(console.error);
+    // Set up webhook endpoint if not exists (deferred so the Stripe SDK doesn't load at module eval / block boot)
+    setImmediate(() => this.setupWebhookEndpoint().catch(console.error));
   }
 
   /**
@@ -670,7 +671,7 @@ export class PaymentService {
       if (!existingEndpoint) {
         // Create webhook endpoint
         const endpoint = await stripe.webhookEndpoints.create({
-          url: `${process.env.PUBLIC_URL || 'https://myseniorvalet.com'}/api/webhooks/stripe`,
+          url: `${process.env.PUBLIC_URL || 'https://www.myseniorvalet.com'}/api/webhooks/stripe`,
           enabled_events: [
             'customer.subscription.created',
             'customer.subscription.updated',

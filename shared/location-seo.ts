@@ -112,9 +112,19 @@ export function generateLocationKeywords(location: LocationInfo): string[] {
   ];
 }
 
-// Generate canonical URL for a location
+// Generate canonical URL for a location.
+// Uses the keyword-rich /senior-living/{state}/{city} path (the indexable,
+// crawlable URL format) instead of the query-string search URL. State is the
+// lowercased abbreviation (matches communities.state slug convention).
 export function generateLocationCanonicalUrl(location: LocationInfo): string {
-  return `https://www.myseniorvalet.com/ai-search-intelligence?location=${location.slug}&tab=simplified`;
+  const stateSlug = location.stateAbbr.toLowerCase();
+  const citySlug = location.city
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return `https://www.myseniorvalet.com/senior-living/${stateSlug}/${citySlug}`;
 }
 
 // Find location from search query

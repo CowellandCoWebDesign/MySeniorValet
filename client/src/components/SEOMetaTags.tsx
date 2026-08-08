@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async';
+import { getCommunityUrl } from '@/lib/community-url';
 
 interface SEOMetaTagsProps {
   title: string;
@@ -85,8 +86,9 @@ export function SEOMetaTags({
       {/* Canonical URL */}
       {canonical && <link rel="canonical" href={canonical} />}
       
-      {/* Robots Meta */}
-      {noindex && <meta name="robots" content="noindex, nofollow" />}
+      {/* Robots Meta — noindex,FOLLOW: thin pages stay out of the index but
+          their links are still crawled (docs/SEO_INDEXING_ELIGIBILITY.md) */}
+      {noindex && <meta name="robots" content="noindex, follow" />}
       
       {/* Open Graph Meta Tags */}
       <meta property="og:title" content={enhancedTitle} />
@@ -227,7 +229,7 @@ export function generateCommunityMetaTags(community: any) {
     description: `${community.name} - ${community.careLevel?.join(', ') || 'Senior Living'} in ${community.city}, ${community.state}. ${
       community.description || 'Find verified pricing, amenities, and care information.'
     }`,
-    url: `/community/${community.id}/${community.name.toLowerCase().replace(/\s+/g, '-')}`,
+    url: getCommunityUrl(community),
     image: community.photos?.[0]?.url || '/default-community.jpg',
     type: 'product' as const,
     communityData: {

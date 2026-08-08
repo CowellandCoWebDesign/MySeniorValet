@@ -70,14 +70,14 @@ export class ReservationMarketingService {
       }
       
       // 2. Email to Admin
-      console.log(`   ✉️ Sending to admin: admin@myseniorvalet.com`);
+      console.log(`   ✉️ Sending to admin: CowellandCoWebDesign@gmail.com`);
       emailPromises.push(this.sendAdminEmail(request));
-      emailTargets.push('admin@myseniorvalet.com');
+      emailTargets.push('CowellandCoWebDesign@gmail.com');
       
       // 3. Email to Hello (Marketing)
-      console.log(`   ✉️ Sending to marketing: hello@myseniorvalet.com`);
+      console.log(`   ✉️ Sending to marketing: CowellandCoWebDesign@gmail.com`);
       emailPromises.push(this.sendMarketingEmail(request));
-      emailTargets.push('hello@myseniorvalet.com');
+      emailTargets.push('CowellandCoWebDesign@gmail.com');
       
       // 4. Confirmation to User
       console.log(`   ✉️ Sending confirmation to user: ${request.userEmail}`);
@@ -114,7 +114,8 @@ export class ReservationMarketingService {
     const msg = {
       to: request.communityEmail!,
       from: 'hello@myseniorvalet.com',
-      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
+      replyTo: 'CowellandCoWebDesign@gmail.com',
+      bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `🎯 New Qualified Lead from MySeniorValet - ${request.userName}`,
       html: `
         <!DOCTYPE html>
@@ -237,12 +238,12 @@ export class ReservationMarketingService {
                 <li>✅ Showcase your unique amenities and care services</li>
               </ul>
               <p style="text-align: center;">
-                <a href="https://myseniorvalet.com/claim-community/${request.communityId}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px;">
+                <a href="https://www.myseniorvalet.com/claim-community/${request.communityId}" style="display: inline-block; background: #3b82f6; color: white; padding: 12px 30px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 10px;">
                   👑 Claim Your Community Profile
                 </a>
               </p>
               <p style="text-align: center; margin-top: 10px;">
-                <a href="https://myseniorvalet.com/community-portal" style="color: #3b82f6; font-weight: bold;">
+                <a href="https://www.myseniorvalet.com/community-portal" style="color: #3b82f6; font-weight: bold;">
                   Or access your Community Portal →
                 </a>
               </p>
@@ -254,7 +255,7 @@ export class ReservationMarketingService {
             <p>Connecting families with authentic community information</p>
             <p style="margin-top: 20px; font-size: 12px;">
               This lead was generated through MySeniorValet.com<br>
-              Questions? Contact us at hello@myseniorvalet.com
+              Questions? Contact us at CowellandCoWebDesign@gmail.com
             </p>
           </div>
         </body>
@@ -291,8 +292,9 @@ Contact them immediately to convert this opportunity!
    */
   private async sendAdminEmail(request: ReservationRequest) {
     const msg = {
-      to: 'admin@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `[LEAD] ${request.requestType} request for ${request.communityName}`,
       html: `
         <h2>New ${request.requestType} Request</h2>
@@ -325,8 +327,9 @@ Contact them immediately to convert this opportunity!
    */
   private async sendMarketingEmail(request: ReservationRequest) {
     const msg = {
-      to: 'hello@myseniorvalet.com',
+      to: 'CowellandCoWebDesign@gmail.com',
       from: 'hello@myseniorvalet.com',
+      replyTo: 'CowellandCoWebDesign@gmail.com',
       subject: `🎯 Platform Engagement: ${request.communityName} Lead`,
       html: `
         <h2>Platform Engagement Metrics</h2>
@@ -362,7 +365,8 @@ Contact them immediately to convert this opportunity!
     const msg = {
       to: request.userEmail,
       from: 'hello@myseniorvalet.com',
-      bcc: ['admin@myseniorvalet.com', 'hello@myseniorvalet.com'],
+      replyTo: 'CowellandCoWebDesign@gmail.com',
+      bcc: ['CowellandCoWebDesign@gmail.com', 'CowellandCoWebDesign@gmail.com'],
       subject: `Reservation Request Confirmed - ${request.communityName}`,
       html: `
         <!DOCTYPE html>
@@ -433,17 +437,17 @@ Contact them immediately to convert this opportunity!
                 <p style="color: #312e81; margin: 10px 0;">Access all your senior living planning tools in one place:</p>
                 
                 <div style="margin: 20px 0;">
-                  <a href="https://myseniorvalet.com/tour-tracker" 
+                  <a href="https://www.myseniorvalet.com/tour-tracker" 
                      style="display: block; background: #4f46e5; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center; margin-bottom: 10px;">
                     📍 Tour Tracker™ - Schedule & Manage Tours
                   </a>
                   
-                  <a href="https://myseniorvalet.com/family-collaboration-center" 
+                  <a href="https://www.myseniorvalet.com/family-collaboration-center" 
                      style="display: block; background: #7c3aed; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center; margin-bottom: 10px;">
                     👨‍👩‍👧‍👦 Family Collaboration Center
                   </a>
                   
-                  <a href="https://myseniorvalet.com/dashboard" 
+                  <a href="https://www.myseniorvalet.com/dashboard" 
                      style="display: block; background: #059669; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; text-align: center;">
                     🏠 Your Personal Dashboard
                   </a>
@@ -462,7 +466,7 @@ Contact them immediately to convert this opportunity!
           <div class="footer">
             <h3>MySeniorValet</h3>
             <p>The trusted platform for authentic senior living community information</p>
-            <p style="margin-top: 20px;">Need help? Contact us at hello@myseniorvalet.com</p>
+            <p style="margin-top: 20px;">Need help? Contact us at CowellandCoWebDesign@gmail.com</p>
           </div>
         </body>
         </html>

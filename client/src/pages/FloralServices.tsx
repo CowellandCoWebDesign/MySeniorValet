@@ -143,7 +143,7 @@ export default function FloralServices() {
                 <div className="flex items-center gap-1 mb-1">
                   <Star className="h-4 w-4 text-yellow-500" />
                   <span className="font-semibold">4.8/5</span>
-                  <span className="text-gray-500">(15,000+ reviews)</span>
+                  <span className="text-gray-500">(customer reviews)</span>
                 </div>
                 <div className="flex items-center gap-4 text-sm text-gray-600">
                   <span className="flex items-center gap-1">

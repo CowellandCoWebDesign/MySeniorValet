@@ -92,7 +92,7 @@ export default function Accessibility() {
                 <Phone className="h-5 w-5 text-blue-600 mt-1" aria-hidden="true" />
                 <div>
                   <h3 className="font-semibold">Phone</h3>
-                  <p className="text-gray-600">1-855-MY-VALET (1-855-698-2538)</p>
+                  <p className="text-gray-600">530-776-4220</p>
                   <p className="text-sm text-gray-500 mt-1">
                     Monday - Friday, 9 AM - 5 PM PT
                   </p>

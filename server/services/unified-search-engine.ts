@@ -19,9 +19,8 @@ import { communities } from '@shared/schema';
 import { eq, ilike, and, or, sql, gte, lte, inArray } from 'drizzle-orm';
 import { EnhancedAIEnrichmentService } from './enhanced-ai-enrichment';
 import { SimplifiedPerplexityService } from '../simplified-perplexity-service';
-import { multiAIOrchestrator } from './multi-ai-orchestrator';
 import { cache } from '../cache';
-import { weaviateService } from './weaviate-service';
+import { supportingEligibilityFilter } from '../utils/community-ranking';
 import type { Community } from '@shared/schema';
 
 interface SearchIntent {
@@ -61,8 +60,6 @@ interface UnifiedSearchResult {
 export class UnifiedSearchEngine {
   private aiEnrichment: EnhancedAIEnrichmentService;
   private perplexity: SimplifiedPerplexityService;
-  private multiAI: any;
-  private weaviate: any;
   
   // Search strategy weights (self-adjusting based on success)
   private strategyWeights = {
@@ -81,8 +78,6 @@ export class UnifiedSearchEngine {
   constructor() {
     this.aiEnrichment = new EnhancedAIEnrichmentService();
     this.perplexity = new SimplifiedPerplexityService();
-    this.multiAI = multiAIOrchestrator;  // Use imported instance
-    this.weaviate = weaviateService;  // Use imported instance
   }
   
   /**
@@ -93,6 +88,8 @@ export class UnifiedSearchEngine {
     offset?: number;
     filters?: any;
     userId?: string;
+    /** Opt-in "Subsidized/HUD housing" filter — HUD listings excluded by default. */
+    includeHud?: boolean;
   }): Promise<UnifiedSearchResult> {
     const startTime = Date.now();
     
@@ -117,22 +114,10 @@ export class UnifiedSearchEngine {
     searchPromises.push(this.databaseSearch(intent, options));
     sourcesUsed.push('database');
     
-    // 2. Semantic search (if Weaviate available)
-    if (this.weaviate && intent.confidence > 0.5) {
-      searchPromises.push(this.semanticSearch(query, options));
-      sourcesUsed.push('semantic');
-    }
-    
     // 3. Fuzzy search (if low confidence or few results)
     if (intent.confidence < 0.7) {
       searchPromises.push(this.fuzzySearch(query, options));
       sourcesUsed.push('fuzzy');
-    }
-    
-    // 4. AI-enhanced search (for natural language)
-    if (intent.type === 'natural_language') {
-      searchPromises.push(this.aiEnhancedSearch(query, options));
-      sourcesUsed.push('ai');
     }
     
     // 5. Web search (if enabled and relevant)
@@ -153,9 +138,9 @@ export class UnifiedSearchEngine {
     // Fusion algorithm - combine and rank results
     const fusedResults = await this.fuseResults(results, intent);
     
-    // Generate insights if AI is available
+    // Generate insights from the fused results
     let insights;
-    if (this.multiAI && fusedResults.length > 0) {
+    if (fusedResults.length > 0) {
       insights = await this.generateInsights(fusedResults.slice(0, 10), query);
     }
     
@@ -369,7 +354,12 @@ export class UnifiedSearchEngine {
         );
       }
       
-      const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+      // Shared public referral-support eligibility (Task #483): active + not
+      // hidden + not excluded + (approved when the registry gate is enabled) +
+      // default HUD exclusion unless the family opted in. Fails safe before the
+      // gate is enabled so search never returns a catastrophic empty set.
+      conditions.push(await supportingEligibilityFilter({ includeHud: !!options?.includeHud }));
+      const whereClause = and(...conditions);
       
       const results = await db
         .select()
@@ -384,45 +374,23 @@ export class UnifiedSearchEngine {
     }
   }
   
-  /**
-   * Semantic vector search using Weaviate
-   */
-  private async semanticSearch(query: string, options?: any): Promise<Community[]> {
-    if (!this.weaviate) return [];
-    
-    try {
-      const results = await this.weaviate.semanticSearch(query, {
-        limit: typeof options?.limit === 'number' ? options.limit : 50,
-        certainty: 0.7
-      });
-      
-      // Convert Weaviate results to Community format
-      return results.map((r: any) => ({
-        id: r.id,
-        name: r.name,
-        city: r.city,
-        state: r.state,
-        ...r
-      }));
-    } catch (error) {
-      console.error('Semantic search error:', error);
-      return [];
-    }
-  }
   
   /**
    * Fuzzy search with enhanced matching
    */
   private async fuzzySearch(query: string, options?: any): Promise<Community[]> {
     try {
-      // Use enhanced AI enrichment fuzzy matching
+      // Shared public referral-support eligibility (Task #483) — same predicate
+      // as the primary database search so fuzzy candidates can never leak an
+      // unconfirmed / excluded / non-approved community.
       const fuzzyResults = await db
         .select()
         .from(communities)
+        .where(await supportingEligibilityFilter({ includeHud: !!options?.includeHud }))
         .limit(1000); // Get larger set for fuzzy matching
       
-      // Calculate similarity scores
-      const scoredResults = fuzzyResults.map(community => {
+      // Calculate similarity scores — only active communities
+      const scoredResults = fuzzyResults.filter(c => c.isActive !== false).map(community => {
         const nameScore = this.calculateSimilarity(query.toLowerCase(), community.name.toLowerCase());
         const cityScore = community.city ? 
           this.calculateSimilarity(query.toLowerCase(), community.city.toLowerCase()) : 0;
@@ -441,23 +409,6 @@ export class UnifiedSearchEngine {
         
     } catch (error) {
       console.error('Fuzzy search error:', error);
-      return [];
-    }
-  }
-  
-  /**
-   * AI-enhanced search using multi-AI orchestration
-   */
-  private async aiEnhancedSearch(query: string, options?: any): Promise<Community[]> {
-    try {
-      // Use multi-AI to understand query
-      const aiAnalysis = await this.multiAI.analyzeLocation(0, 0, []);
-      
-      // Convert AI insights to search parameters
-      // This would normally extract entities and search accordingly
-      return [];
-    } catch (error) {
-      console.error('AI search error:', error);
       return [];
     }
   }
